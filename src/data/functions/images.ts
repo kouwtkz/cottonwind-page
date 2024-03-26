@@ -1,0 +1,61 @@
+import { MediaImageAlbumType, MediaImageItemType } from "../../types/MediaImageDataType";
+import { ValueCountType } from "../../types/ValueType";
+
+export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
+  const imageList: MediaImageItemType[] = [];
+  imageAlbums.forEach((album) => {
+    album.list.forEach((item) => {
+      album.visible = {
+        ...{ info: true, filename: true, title: true },
+        ...album.visible,
+      };
+      item.album = album;
+      item.time = item.time ? new Date(item.time) : undefined;
+      imageList.push(item);
+      if (!item.type) {
+        if (item.embed) {
+          if (/\.(epub)$/i.test(item.embed)) {
+            item.type = "ebook";
+          } else if (/\.(pdf)$/i.test(item.embed)) {
+            item.type = "pdf";
+          } else if (/^3d\//i.test(item.embed)) {
+            item.type = "3d";
+          } else {
+            item.type = "embed";
+          }
+        } else if (album.type) {
+          item.type = album.type;
+        } else {
+          item.type = "illust";
+        }
+      }
+    });
+  });
+  return imageList;
+}
+
+export function getTagList(imageItemList: MediaImageItemType[]) {
+  return imageItemList
+    .reduce((list, c) => {
+      c.tags?.forEach((value) => {
+        const item = list.find((item) => item.value === value);
+        if (item) item.count++;
+        else list.push({ value, count: 0 });
+      });
+      return list;
+    }, [] as ValueCountType[])
+    .sort((a, b) => (a.value > b.value ? 1 : -1));
+}
+
+export function getCopyRightList(imageItemList: MediaImageItemType[]) {
+  return imageItemList
+    .reduce((list, { copyright: value }) => {
+      if (value) {
+        const item = list.find((item) => item.value === value);
+        if (item) item.count++;
+        else list.push({ value, count: 0 });
+      }
+      return list;
+    }, [] as ValueCountType[])
+    .sort((a, b) => (a.value > b.value ? 1 : -1));
+}

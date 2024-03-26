@@ -1,0 +1,13 @@
+{
+  "liveSassCompile.settings.formats": [
+    {
+      "format": "expanded",
+      "extensionName": ".css",
+      "savePath": "/src",
+      "savePathReplacementPairs": null
+    }
+  ],
+  "liveSassCompile.settings.showOutputWindowOn": "None",
+  "liveSassCompile.settings.watchOnLaunch": true,
+  "vs-browser.url": "http://localhost:5173/"
+}

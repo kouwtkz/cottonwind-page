@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "allowJs": true,
+    "lib": ["DOM", "ESNext"],
+    "types": ["@cloudflare/workers-types", "vite/client"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "outDir": "dist"
+  }
+}

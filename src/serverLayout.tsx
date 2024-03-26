@@ -1,0 +1,37 @@
+import { SnsList } from "./components/layout/Footer";
+import { Loading } from "./components/layout/Loading";
+import { SetMeta, SetMetaBaseProps } from "./data/functions/SetMeta";
+import { serverCharacters as characters } from "./data/server/characters";
+import { serverSite as site } from "./data/server/site";
+const serverData = { site, characters };
+
+export function SetMetaServerSide(args: SetMetaBaseProps) {
+  return <SetMeta {...args} {...serverData} />
+}
+
+export function DefaultMeta() {
+  return (
+    <>
+      <meta charSet="utf-8" />
+      <meta content="width=device-width, initial-scale=1" name="viewport" />
+    </>
+  );
+}
+
+export function DefaultBody() {
+  return (
+    <body className="loading">
+      <div id="root">
+        <Loading />
+        <div hidden>
+          <header>
+            <h2>{site.title}</h2>
+          </header>
+          <footer>
+            <SnsList snsList={site.menu?.sns || []} maskImage={false} />
+          </footer>
+        </div>
+      </div>
+    </body>
+  );
+}
