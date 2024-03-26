@@ -4,7 +4,6 @@ import { create } from "zustand";
 import axios from "axios";
 import { useImageState } from "./ImageState";
 import { useSoundState } from "./SoundState";
-import GalleryList from "../components/image/GalleryList";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { buildAddVer } from "../data/env";
 const defaultUrl = "/static/data/characters.json" + buildAddVer;
@@ -96,42 +95,4 @@ export default function CharaState({ url = defaultUrl }: { url?: string }) {
   });
 
   return <></>;
-}
-
-export interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
-  name: string;
-  chara: CharaType;
-  label?: string;
-  max?: number;
-}
-
-export function CharaGalleryAlbum({
-  name,
-  label,
-  chara,
-  max = 20,
-  ...args
-}: CharaGalleryAlbumProps) {
-  const { imageAlbumList } = useImageState();
-  if (!name || imageAlbumList.length === 0) return <></>;
-  const matchAlbum = imageAlbumList.find((album) => album.name === name);
-  if (!matchAlbum) return <></>;
-  const album = {
-    ...matchAlbum,
-    list: matchAlbum.list.filter((item) =>
-      item.tags?.some((v) => v === chara.id)
-    ),
-  };
-  if (album.list.length === 0) return <></>;
-  return (
-    <GalleryList
-      album={album}
-      label={label}
-      tags={chara.id}
-      autoDisable={true}
-      max={max}
-      filterButton={true}
-      {...args}
-    />
-  );
 }

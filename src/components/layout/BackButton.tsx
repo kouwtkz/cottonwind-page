@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { create } from "zustand";
 import { BiLeftArrow } from "react-icons/bi";
 import { UrlObject } from "url";
+import { KeyValueStringType } from "../../types/ValueType";
 
 type BackButtonType = {
   backUrl: string | UrlObject;
@@ -21,7 +22,7 @@ export function queryCheck({
   query = {},
   separator,
 }: {
-  query?: { [k: string]: string | undefined };
+  query?: KeyValueStringType;
   separator?: string;
 }) {
   const queryValues = Object.values(query);

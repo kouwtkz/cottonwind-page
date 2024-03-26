@@ -1,6 +1,7 @@
+import { KeyValueStringType } from "../../types/ValueType";
 import { getExtension } from "./PathParse";
 
-export const mimeList: { [k: string]: string | undefined } = {
+export const mimeList: KeyValueStringType = {
   "html": "text/html",
   "htm": "text/html",
   "css": "text/css",

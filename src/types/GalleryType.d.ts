@@ -1,4 +1,4 @@
-import { MediaImageAlbumType } from "./MediaImageDataType";
+import { MediaImageAlbumType, MediaImageItemType } from "./MediaImageDataType";
 import { GroupFormat } from "./MediaImageYamlType";
 
 export interface GalleryListPropsBase {
@@ -13,12 +13,16 @@ export interface GalleryListPropsBase {
   autoDisable?: boolean;
   filterButton?: boolean;
   tags?: string | string[];
+  list?: MediaImageItemType[]
+  yearList?: YearListType[];
+  hideWhenFilter?: boolean;
 }
+
+export type YearListType = { year: string; count: number };
 
 interface GalleryListProps extends GalleryListPropsBase {
   album: MediaImageAlbumType | null;
   loading?: boolean;
-  hideWhenFilter?: boolean;
 }
 
 export interface GalleryItemObjectType extends GalleryListPropsBase {

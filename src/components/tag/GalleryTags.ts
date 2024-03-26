@@ -71,7 +71,12 @@ export const defaultTags: GalleryTagsOption[] = [
   },
 ]
 
-export const filterMonthList = [
+export type filterMonthType = {
+  month: number;
+  tags: string[];
+}
+
+export const filterMonthList: filterMonthType[] = [
   { month: 1, tags: ["january", "winter"] },
   { month: 2, tags: ["february", "winter", "valentine"] },
   { month: 3, tags: ["march", "spring", "easter"] },
