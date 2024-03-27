@@ -10,6 +10,8 @@ type SiteDataType = {
   image: string
   author: SiteAuthorType
   manifest: any
+  feedFrom?: string
+  feedDev?: string
   enableEmoji?: boolean
   enableRobotsTXT?: boolean
   menu?: {

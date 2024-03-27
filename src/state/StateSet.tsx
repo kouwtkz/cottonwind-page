@@ -8,6 +8,7 @@ import CharaState, { useCharaState } from "./CharaState";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
+import { FeedState } from "./FeedRead";
 
 export function StateSet() {
   return (
@@ -19,6 +20,7 @@ export function StateSet() {
       <ThemeState />
       {import.meta.env.DEV ? (
         <>
+          <FeedState />
           <EmbedState />
         </>
       ) : null}

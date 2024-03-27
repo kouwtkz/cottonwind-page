@@ -706,6 +706,65 @@ footer {
       flex-direction: row;
     }
   }
+  .blog {
+    max-width: 90rem;
+    margin: $size_4 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    a {
+      text-decoration-line: none;
+    }
+    & > .title {
+      margin: $size_4 0;
+      h3 {
+        margin: 0;
+        font-size: 1.75rem;
+        line-height: 2rem;
+      }
+    }
+    & > .list {
+      flex: 1 1 0%;
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      text-align: left;
+      max-width: 32rem;
+      height: 8rem;
+      .article {
+        margin: $size_1 $size_2;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        .date {
+          margin-right: 0.5rem;
+          min-width: 5em;
+          text-align: right;
+        }
+        .title {
+          text-align: left;
+          flex: 1;
+        }
+      }
+    }
+    @media (min-width: 1024px) {
+      flex-direction: row;
+      & > .title {
+        margin: 0 $size_2;
+      }
+      & > .list {
+        margin: 0;
+        flex-direction: row;
+        max-width: max-content;
+        height: auto;
+      }
+    }
+  }
 }
 
 .HomeImage {

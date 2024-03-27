@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { MediaImageItemType } from "../types/MediaImageDataType";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee } from "../components/layout/ImageMee";
+import { FeedRead } from "../state/FeedRead";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
             <Link to="/info">じょうほう</Link>
           </li>
         </ul>
+        <FeedRead />
       </div>
     </>
   );

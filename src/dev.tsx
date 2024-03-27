@@ -4,16 +4,13 @@ import { renderToString } from "react-dom/server";
 import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
+import { serverSite } from "./data/server/site";
+import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
 
 const app = new Hono();
 
-app.get("/rss", async (c) => {
-  const feed = await fetch(
-    "https://bsky.app/profile/did:plc:27df3xmlj52mumyihflzh4vr/rss"
-  );
-  return c.newResponse(feed.body, {
-    headers: { "Content-Type": "application/xml; charset=UTF-8" },
-  });
+app.get("/get/rss", async (c) => {
+  return c.newResponse(await FetchBody(serverSite.feedDev), XmlHeader);
 });
 
 app.get("/src/*", serveStatic({ root: "./" }));
