@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { renderToString } from "react-dom/server";
 import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
 import { readFileSync } from "fs";
@@ -17,11 +18,7 @@ app.get("/rss", async (c) => {
   });
 });
 
-app.get("/src/*", (c, next) => {
-  return c.newResponse(readFileSync("./" + c.req.path).toString(), {
-    headers: { "Content-Type": `${getMimeType(c.req.path)}; charset=UTF-8` },
-  });
-});
+app.get("/src/*", serveStatic({ root: "./" }));
 
 app.get("/_data/*", (c, next) => {
   const path = decodeURI(c.req.path);

@@ -4,9 +4,9 @@ import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
 
 const app = new Hono();
 
-app.get("/check", (c, next) => {
-  return next();
-});
+// app.get("/assets/*", async (c, next) => {
+//   return (await (c.env as any)?.ASSETS.fetch(c.req.raw)) ?? next();
+// });
 
 app.get("*", (c) => {
   return c.html(

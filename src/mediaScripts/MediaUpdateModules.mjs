@@ -6,21 +6,21 @@ configDotenv();
 import { writeFileSync, mkdirSync } from "fs"
 
 const JsonDataDir = "./public/static/data/"
-try { mkdirSync(JsonDataDir, { recursive: true }) } catch { }
 /**
  * @param {string} name
  * @param {any} obj
  */
-export function exportJsonOut(name, obj) {
-  writeFileSync(JsonDataDir + name + ".json", JSON.stringify(obj))
+export function exportJsonOut(name, obj, dir = JsonDataDir) {
+  try { mkdirSync(dir, { recursive: true }) } catch { }
+  writeFileSync(dir + "/" + name + ".json", JSON.stringify(obj))
 }
 
 const ExportDataDir = "./src/data/import/"
-try { mkdirSync(ExportDataDir, { recursive: true }) } catch { }
 /**
  * @param {string} name
  * @param {any} obj 
  */
-export function exportTsOut(name, obj) {
-  writeFileSync(ExportDataDir + name + ".ts", "export var " + name + ": any = " + JSON.stringify(obj))
+export function exportTsOut(name, obj, dir = ExportDataDir) {
+  try { mkdirSync(dir, { recursive: true }) } catch { }
+  writeFileSync(dir + "/" + name + ".ts", "export var " + name + ": any = " + JSON.stringify(obj))
 }

@@ -32,7 +32,8 @@ export default defineConfig(({ mode }) => {
             },
           }
         },
-        manifest: true
+        chunkSizeWarningLimit: 3000,
+        // manifest: true
       }
     };
   } else {
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => {
       ssr: {
         external: ['react', 'react-dom']
       },
+      assetsInclude: ["assets/*"],
       plugins: [
         pages(),
         devServer({
