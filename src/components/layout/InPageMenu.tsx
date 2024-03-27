@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 import useScroll from "../hook/useScroll";
 import TriangleCursor from "../svg/cursor/Triangle";
 
@@ -11,11 +11,13 @@ export default function InPageMenu({
   list = [],
   firstTopRef,
   adjust = 16,
+  cursorAdjust = 64,
   lastAdjust = 8,
 }: {
   list?: InPageRefObject[];
   firstTopRef?: RefObject<HTMLElement>;
   adjust?: number;
+  cursorAdjust?: number;
   lastAdjust?: number;
 }) {
   const [refPrompt, setRefPrompt] = useState(false);
@@ -25,10 +27,15 @@ export default function InPageMenu({
     }
   }, [refPrompt, list]);
   const { y, h, wh } = useScroll();
-  const jy = y + adjust;
+  const jy = y + adjust + cursorAdjust;
   const isLastScroll = h - y - lastAdjust <= wh;
-  const firstTop =
-    list.length > 0 ? (firstTopRef || list[0].ref)?.current?.offsetTop || 0 : 0;
+  const firstTop = useMemo(
+    () =>
+      list.length > 0
+        ? (firstTopRef || list[0].ref)?.current?.offsetTop || 0
+        : 0,
+    [list]
+  );
   const filterList = list
     .filter(({ ref }) => {
       if (!refPrompt && !ref.current) setRefPrompt(true);
@@ -55,7 +62,7 @@ export default function InPageMenu({
             key={i}
             className={"item" + (currentMode ? " current" : "")}
             onClick={() => {
-              const top = (elm?.offsetTop || 0) - firstTop;
+              const top = (elm?.offsetTop || 0) - adjust;
               scrollTo({ top, behavior: "smooth" });
             }}
           >

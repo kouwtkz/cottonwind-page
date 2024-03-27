@@ -474,7 +474,7 @@ function GalleryBody() {
           ref: refList[i],
         }))}
         firstTopRef={firstTopRef}
-        adjust={128}
+        adjust={64}
       />
       <div ref={firstTopRef}>
         <div className="galleryHeader">
