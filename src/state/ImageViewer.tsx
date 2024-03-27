@@ -114,9 +114,9 @@ export default function ImageViewer() {
     if (!imageParam) {
       if (isOpen) onClose();
     } else {
-      setImage(imageFinder(imageParam, albumParam));
+      if (isComplete) setImage(imageFinder(imageParam, albumParam));
     }
-  }, [imageParam, albumParam, isOpen]);
+  }, [imageParam, albumParam, isOpen, isComplete]);
   useLayoutEffect(() => {
     switch (modeParam) {
       case "edit":
