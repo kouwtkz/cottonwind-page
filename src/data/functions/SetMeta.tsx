@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CharaObjectType } from "../../types/CharaType";
 import { SiteDataType } from "../../types/SiteDataType";
 
@@ -33,13 +34,23 @@ export function SetTitleStr({ path, query, site, characters }: SetMetaProps) {
   }
 }
 
-export function SetDescriptionStr({ path, site }: SetMetaProps) {
+export function SetDescriptionStr({
+  path,
+  query,
+  site,
+  characters,
+}: SetMetaProps) {
   const list = path.split("/");
+  const queryParams = QueryToParams(query);
   switch (list[1]) {
     case "gallery":
       return "わたかぜコウの作品など";
     case "character":
-      return "わたかぜコウのキャラクター";
+      const name = list[2] ?? queryParams?.name;
+      const chara = characters && name ? characters[name] : null;
+      return (
+        chara?.overview || chara?.description || "わたかぜコウのキャラクター"
+      );
     case "work":
       return "わたかぜコウの活動";
     case "sound":
