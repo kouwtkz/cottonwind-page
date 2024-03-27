@@ -9,5 +9,14 @@
   ],
   "liveSassCompile.settings.showOutputWindowOn": "None",
   "liveSassCompile.settings.watchOnLaunch": true,
-  "vs-browser.url": "http://localhost:5173/"
+  "vs-browser.url": "http://localhost:5173/",
+  "VsCodeTaskButtons.tasks": [
+    { "label": "npm:install", "task": "npm: install" },
+    { "label": "dev", "task": "npm: dev" },
+    { "label": "host", "task": "npm: host" },
+    { "label": "build", "task": "npm: build" },
+    { "label": "update", "task": "npm: update" },
+    { "label": "preview", "task": "npm: preview" },
+    { "label": "deploy", "task": "npm: deploy" }
+  ]
 }
