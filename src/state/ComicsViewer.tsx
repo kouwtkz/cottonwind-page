@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import ComicViewer from "react-comic-viewer";
 import { useImageState } from "./ImageState";
-import ePub from "epubjs";
 import { MediaImageAlbumType } from "../types/MediaImageDataType";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
 import { useLocation } from "react-router-dom";
 import { GalleryObject } from "../routes/GalleryPage";
+const { default: ComicViewer } = await import("react-comic-viewer");
+const { default: ePub } = await import("epubjs");
 
 interface ePubMetadataType {
   title?: string;

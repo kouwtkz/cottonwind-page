@@ -10,7 +10,6 @@ import { CharaType } from "../types/CharaType";
 import { HTMLAttributes, memo, useMemo } from "react";
 import { useImageState } from "../state/ImageState";
 import MultiParser from "../components/doc/MultiParser";
-import { MakeRelativeURL } from "../components/doc/MakeURL";
 
 export function CharaPage() {
   const { name: charaName } = useParams();

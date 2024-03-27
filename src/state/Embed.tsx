@@ -1,13 +1,7 @@
-import {
-  HTMLAttributes,
-  memo,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { HTMLAttributes, memo, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import axios from "axios";
-import HTMLReactParser from "html-react-parser";
+import MultiParser from "../components/doc/MultiParser";
 
 type EmbedStateType = {
   list: string[];
@@ -46,7 +40,9 @@ interface EmbedNodeProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function getEmbedURL(item: string) {
-  return item.includes("://") || item.startsWith("/") ? item : `/static/embed/${item}`;
+  return item.includes("://") || item.startsWith("/")
+    ? item
+    : `/static/embed/${item}`;
 }
 
 export const EmbedNode = memo(function EmbedNode({
@@ -60,13 +56,21 @@ export const EmbedNode = memo(function EmbedNode({
         setElement(embed);
       } else {
         const url = getEmbedURL(embed);
-        axios(url).then(({ data }) => {
-          setElement(data);
-        }).catch(e => {
-          console.log(e);
-        });
+        axios(url)
+          .then(({ data }) => {
+            setElement(data);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       }
     }
   }, [embed]);
-  return element ? <div {...args}>{HTMLReactParser(element)}</div> : <></>;
+  return element ? (
+    <div {...args}>
+      <MultiParser only={{ toDom: true }}>{element}</MultiParser>
+    </div>
+  ) : (
+    <></>
+  );
 });

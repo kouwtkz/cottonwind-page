@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => {
   if (mode === 'client') {
     config = {
       build: {
+        target: ['es2022', 'edge89', 'firefox89', 'chrome89', 'safari15'],
         rollupOptions: {
           input: ['./src/client.tsx', './src/styles.css'],
           output: {

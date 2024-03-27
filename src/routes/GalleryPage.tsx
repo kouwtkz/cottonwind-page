@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
 import { serverSite } from "../data/server/site";
-import { ComicsViewer } from "../state/ComicsViewer";
 import { useDataState } from "../state/StateSet";
 import {
   GalleryItemObjectType,
