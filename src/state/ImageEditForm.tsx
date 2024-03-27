@@ -6,22 +6,22 @@ import {
   useRef,
   useState,
 } from "react";
-import { useImageViewer } from "../../state/ImageViewer";
-import { MediaImageItemType } from "../../types/MediaImageDataType";
-import ImageMee from "./ImageMee";
+import { useImageViewer } from "./ImageViewer";
+import { MediaImageItemType } from "../types/MediaImageDataType";
+import ImageMee from "../components/layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useImageState } from "../../state/ImageState";
+import { useImageState } from "./ImageState";
 import {
   defaultTags,
   getTagsOptions,
   autoFixTagsOptions,
   GalleryTagsOption,
-} from "../tag/GalleryTags";
+} from "../components/tag/GalleryTags";
 import { useNavigate } from "react-router-dom";
-import { useEmbedState } from "../../state/Embed";
+import { useEmbedState } from "./Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";
-import { MakeRelativeURL } from "../doc/MakeURL";
+import { MakeRelativeURL } from "../components/doc/MakeURL";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdDeleteForever,
@@ -29,10 +29,10 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "../theme/main";
-import { PostTextarea, usePreviewMode } from "../form/input/PostTextarea";
-import { useCharaState } from "../../state/CharaState";
-import { toggleEditParam } from "../doc/SetSearchParams";
+import { callReactSelectTheme } from "../components/theme/main";
+import { PostTextarea, usePreviewMode } from "../components/form/input/PostTextarea";
+import { useCharaState } from "./CharaState";
+import { toggleEditParam } from "../components/doc/SetSearchParams";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {}

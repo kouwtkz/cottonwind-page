@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ImageMeeIcon } from "../components/image/ImageMee";
+import { ImageMeeIcon } from "../components/layout/ImageMee";
 import { useCharaState } from "../state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { CharaType } from "../types/CharaType";

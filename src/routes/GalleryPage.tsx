@@ -31,7 +31,7 @@ import {
 import {
   filterImagesTags,
   filterPickFixed,
-} from "../components/image/FilterImages";
+} from "../data/functions/FilterImages";
 import { create } from "zustand";
 import InPageMenu from "../components/layout/InPageMenu";
 import GallerySearchArea from "../components/tag/GallerySearchArea";
@@ -42,7 +42,7 @@ import axios from "axios";
 import ArrowUpButton from "../components/svg/button/arrow/ArrowUpButton";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
-import { ImageMeeThumbnail } from "../components/image/ImageMee";
+import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 
 export function GalleryPage({

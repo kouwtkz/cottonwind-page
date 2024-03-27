@@ -15,10 +15,10 @@ import {
 } from "react-router-dom";
 import MultiParser from "../components/doc/MultiParser";
 import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions";
-import ImageMee from "../components/image/ImageMee";
+import ImageMee from "../components/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
-import ImageEditForm from "../components/image/ImageEditForm";
+import ImageEditForm from "./ImageEditForm";
 import {
   defaultTags,
   getTagsOptions,
