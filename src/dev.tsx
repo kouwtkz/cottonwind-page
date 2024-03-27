@@ -2,8 +2,6 @@ import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { renderToString } from "react-dom/server";
 import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
-import { readFileSync } from "fs";
-import { getMimeType } from "hono/utils/mime";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 
@@ -19,13 +17,7 @@ app.get("/rss", async (c) => {
 });
 
 app.get("/src/*", serveStatic({ root: "./" }));
-
-app.get("/_data/*", (c, next) => {
-  const path = decodeURI(c.req.path);
-  return c.newResponse(readFileSync("./" + path), {
-    headers: { "Content-Type": `${getMimeType(path)}; charset=UTF-8` },
-  });
-});
+app.get("/_data/*", serveStatic({ root: "./" }));
 
 app.post("/gallery/send", async (c, next) => {
   const formData = await c.req.parseBody();
