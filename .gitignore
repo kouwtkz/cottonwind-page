@@ -18,3 +18,5 @@ src/data/import
 
 .env.local
 .env.*.local
+src/styles.css
+src/styles.css.map
