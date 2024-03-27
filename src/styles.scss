@@ -580,6 +580,43 @@ header {
       }
     }
   }
+  .siteMenuButton {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: $size_14;
+    margin: $size_1;
+    opacity: 0.8;
+    fill: var(--main-color);
+    @extend %userSelectNone;
+  }
+  .siteMenu {
+    position: absolute;
+    right: 0;
+    margin: auto $size_2;
+    background-color: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-LuloClean);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left;
+    @extend %userSelectNone;
+    .item {
+      min-width: 9em;
+      padding: $size_2 $size_4;
+      color: var(--main-color-strong);
+      cursor: pointer;
+      &:hover {
+        color: white;
+        background-color: var(--main-color-soft);
+      }
+    }
+    a {
+      text-decoration-line: none;
+    }
+  }
 }
 
 footer {

@@ -2,6 +2,7 @@ import React from "react";
 import { serverSite } from "../../data/server/site";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
+import { SiteMenu, SiteMenuButton } from "../../state/SiteMenu";
 
 export const SiteTitle = React.memo(function SiteTitle({
   title,
@@ -18,14 +19,13 @@ export const SiteTitle = React.memo(function SiteTitle({
 });
 
 export function Header() {
-  // console.log(import.meta.env);
   return (
     <header id="header">
       <div>
-        {/* <SiteMenuButton /> */}
         <BackButton className="backButton" />
         <SiteTitle title={serverSite.title} />
-        {/* <SiteMenu /> */}
+        <SiteMenuButton />
+        <SiteMenu />
       </div>
       <div className="headerBackground" />
     </header>

@@ -7,6 +7,7 @@ import { EmbedState } from "./Embed";
 import CharaState, { useCharaState } from "./CharaState";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
+import { ThemeState } from "./ThemeSetter";
 
 export function StateSet() {
   return (
@@ -15,6 +16,7 @@ export function StateSet() {
       <ImageViewer />
       <Toaster />
       <DataState />
+      <ThemeState />
       {import.meta.env.DEV ? (
         <>
           <EmbedState />

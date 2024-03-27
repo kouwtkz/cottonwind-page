@@ -1,6 +1,6 @@
 import { SVGAttributes } from "react";
 
-export default function MenuButton({
+export default function LinkTwitterButton({
   className,
   ...attributes
 }: SVGAttributes<SVGSVGElement>) {
