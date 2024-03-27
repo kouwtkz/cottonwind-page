@@ -610,6 +610,7 @@ footer {
 .topPage {
   font-family: var(--font-KosugiMaru);
   font-size: 2em;
+  margin: $size_6 auto;
   .topImageArea {
     height: 48rem;
     min-height: 30rem;
@@ -654,6 +655,33 @@ footer {
     ul {
       flex-direction: row;
     }
+  }
+}
+
+.HomeImage {
+  height: 48rem;
+  min-width: 30rem;
+  max-height: 70vh;
+  .wrapper {
+    height: 100%;
+    position: relative;
+    .image {
+      width: 100%;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      transition: opacity 750ms;
+      &.appear {
+        opacity: 1;
+      }
+      &.exit-active {
+        opacity: 0;
+      }
+    }
+  }
+  .dummy {
+    height: 100%;
+    background-color: var(--main-color-grayish-fluo);
   }
 }
 
