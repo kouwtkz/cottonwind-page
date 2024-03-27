@@ -45,11 +45,7 @@ import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 
-export function GalleryPage({
-  children,
-}: {
-  children?: React.ReactNode | string;
-}) {
+export function GalleryPage({ children }: { children?: ReactNode }) {
   return (
     <div className="galleryPage">
       <GalleryPageMain />
@@ -69,7 +65,7 @@ function GalleryPageMain() {
 
 export function GalleryGroupPage() {
   const { group } = useParams();
-  const uploadElm = useMemo(
+  const UploadElm = useCallback(
     () =>
       import.meta.env.DEV && group ? (
         <div className="rbButtonArea z30">
@@ -100,7 +96,7 @@ export function GalleryGroupPage() {
   );
   return (
     <>
-      {uploadElm}
+      {import.meta.env.DEV && group ? <UploadElm /> : null}
       <GalleryObjectConvert
         items={items}
         max={40}

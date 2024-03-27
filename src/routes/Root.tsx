@@ -1,7 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
-import { useRef } from "react";
+import { ReactNode, useRef } from "react";
 import { StateSet } from "../state/StateSet";
 import { SetTitleStr } from "../data/functions/SetMeta";
 import { useCharaState } from "../state/CharaState";
@@ -24,7 +24,7 @@ function SetTitle() {
   return <></>;
 }
 
-export function Base({ children }: { children?: React.ReactElement | null }) {
+export function Base({ children }: { children?: ReactNode }) {
   return (
     <>
       <Header />

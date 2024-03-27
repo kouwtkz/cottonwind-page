@@ -28,7 +28,7 @@ type MultiParserProps = MultiParserOptions &
     className?: string;
     detailsOpen?: boolean;
     tag?: string;
-    children?: React.ReactNode | string;
+    children?: React.ReactNode;
     parsedClassName?: string;
   };
 
