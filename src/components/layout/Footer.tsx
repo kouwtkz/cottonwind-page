@@ -1,3 +1,4 @@
+import { buildTime } from "../../data/env";
 import { serverSite } from "../../data/server/site";
 import { SiteSnsItemType } from "../../types/SiteDataType";
 
@@ -7,7 +8,7 @@ export function Footer() {
       <div className="copyright">
         © {serverSite.author.since}-
         {
-          new Date()
+          (buildTime ?? new Date())
             .toLocaleDateString("ja", { timeZone: "JST" })
             .split("/", 1)[0]
         }{" "}
