@@ -1,6 +1,8 @@
 // @ts-check
 
 import { imageMeta } from "image-meta";
+import fs from "fs";
+const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 /**
  * @typedef { import("../types/MediaImageYamlType.d.ts").readImageHandleProps } readImageHandleProps
@@ -55,7 +57,7 @@ export async function ReadImageFromYamls({ yamls, readSize = true, resizedDir = 
       if (image.origin) {
         if (readSize) {
           try {
-            const b = await fetch(image.origin).then((res) => res.arrayBuffer());
+            const b = fs.readFileSync(`${cwd}/${y.from}/${y.dir}/${image.dir || ""}/${image.src}`)
             const size = imageMeta(new Uint8Array(b));
             if (size.width && size.height) image.size = { w: size.width, h: size.height }
           } catch { }
