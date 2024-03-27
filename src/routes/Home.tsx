@@ -18,9 +18,9 @@ export default function Home() {
           <li>
             <Link to="/character">キャラクター</Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/work">かつどう</Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/sound">おんがく</Link>
           </li>

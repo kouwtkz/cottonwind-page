@@ -8,6 +8,7 @@ import { GalleryGroupPage, GalleryPage } from "./routes/GalleryPage";
 import ErrorPage from "./routes/ErrorPage";
 import { SoundPage } from "./routes/SoundPage";
 import { ComicsViewer } from "./state/ComicsViewer";
+import InfoPage from "./routes/InfoPage";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "sound",
         element: <SoundPage />,
+      },
+      {
+        path: "info",
+        element: <InfoPage />,
       },
     ],
   },

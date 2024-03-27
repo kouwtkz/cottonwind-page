@@ -311,6 +311,16 @@ h4 {
   font-size: $text_xl;
 }
 
+.common-h2 {
+  font-family: var(--font-LuloClean);
+  font-size: $text_3xl;
+  color: var(--main-color);
+  margin-bottom: $size_8;
+  @media (min-width: $mobileWidth) {
+    font-size: $text_4xl;
+  }
+}
+
 .readmore:not(.extend) > * {
   display: none;
 }
@@ -1167,10 +1177,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
 }
 .soundPage {
   .title {
-    font-family: var(--font-LuloClean);
-    font-size: $text_3xl;
-    color: var(--main-color);
-    margin-bottom: $size_8;
+    @extend .common-h2;
     cursor: pointer;
   }
   .playlist {
@@ -1226,9 +1233,6 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
     }
   }
   @media (min-width: $mobileWidth) {
-    .title {
-      font-size: $text_4xl;
-    }
     .playlist .list .item {
       width: 50%;
     }
@@ -1567,6 +1571,15 @@ ul {
     li {
       list-style: circle;
     }
+  }
+}
+
+.infoPage {
+  h2 {
+    @extend .common-h2;
+  }
+  h3 {
+    color: var(--main-color-dark);
   }
 }
 

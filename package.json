@@ -6,7 +6,8 @@
     "build": "vite build --mode client && vite build",
     "update": "node ./src/mediaScripts/MediaUpdate.mjs",
     "preview": "wrangler pages dev dist",
-    "deploy": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch hono"
+    "test": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch hono",
+    "deploy": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch master"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
