@@ -162,9 +162,11 @@ body,
     .fixed {
       padding-right: var(--scroll-margin) !important;
     }
-    .toast,
-    header > div:first-child {
-      margin-right: var(--scroll-margin) !important;
+    &:not(.mobile) {
+      .toast,
+      header > div:first-child {
+        margin-right: var(--scroll-margin) !important;
+      }
     }
     .fixed .absolute.right-0 {
       right: var(--scroll-margin) !important;
@@ -660,7 +662,7 @@ footer {
 
 .HomeImage {
   height: 48rem;
-  min-width: 30rem;
+  // min-width: 30rem;
   max-height: 70vh;
   .wrapper {
     height: 100%;
@@ -994,7 +996,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
       padding: $size_4 0;
       margin: auto;
       color: var(--main-color);
-      font-size: $text_3xl;
+      font-size: $text_2xl;
       text-align: center;
       font-family: var(--font-LuloClean);
       line-height: $text_4xl;

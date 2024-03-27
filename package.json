@@ -2,6 +2,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "host": "vite --host",
     "build": "vite build --mode client && vite build",
     "update": "node ./src/mediaScripts/MediaUpdate.mjs",
     "preview": "wrangler pages dev dist",
@@ -21,6 +22,7 @@
     "marked": "^12.0.1",
     "react": "^18.2.0",
     "react-comic-viewer": "^0.4.0",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.51.1",
