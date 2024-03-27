@@ -59,7 +59,7 @@ export default function InPageMenu({
               scrollTo({ top, behavior: "smooth" });
             }}
           >
-            <div className="cursol">
+            <div className="cursor">
               {currentMode ? <TriangleCursor /> : null}
             </div>
             <div className="name">

@@ -7,6 +7,7 @@ import { CharaPage } from "./routes/CharaPage";
 import { GalleryGroupPage, GalleryPage } from "./routes/GalleryPage";
 import ErrorPage from "./routes/ErrorPage";
 import { SoundPage } from "./routes/SoundPage";
+import { ComicsViewer } from "./state/ComicsViewer";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "gallery",
         element: <GalleryPage />,
+      },
+      {
+        path: "gallery/ebook",
+        element: <ComicsViewer />,
       },
       {
         path: "gallery/:group",

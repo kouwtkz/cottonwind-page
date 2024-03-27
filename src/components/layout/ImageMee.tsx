@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import { MediaImageItemType } from "../../types/MediaImageDataType";
 import { ResizeMode } from "../../types/MediaImageYamlType";
 import { UrlObject } from "url";
@@ -15,7 +15,7 @@ interface ImageMeeProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   size?: number;
   loadingScreen?: boolean;
 }
-export default function ImageMee({
+export function ImageMee({
   imageItem,
   mode = "simple",
   alt: _alt,

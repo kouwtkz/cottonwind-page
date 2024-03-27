@@ -98,7 +98,7 @@ export default function GalleryTagsSelect({ className }: SelectAreaProps) {
             if (list.length > 0) query[key] = list.join(",");
             else delete query[key];
           });
-          nav(MakeRelativeURL({ query }), { preventScrollReset: false });
+          nav(MakeRelativeURL({ query }), { preventScrollReset: true });
         }}
       />
     </div>

@@ -5,6 +5,8 @@ import ePub from "epubjs";
 import { MediaImageAlbumType } from "../types/MediaImageDataType";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
+import { useLocation } from "react-router-dom";
+import { GalleryObject } from "../routes/GalleryPage";
 
 interface ePubMetadataType {
   title?: string;
@@ -24,10 +26,28 @@ interface ePubMetadataType {
   spread?: string;
 }
 
-export function ComicsViewer({ src }: { src: string }) {
-  if (/\.epub$/i.test(src)) {
-    return <EPubViewer url={src} />;
-  } else return <AlbumComicsViewer name={src} />;
+export function ComicsViewer() {
+  const s = new URLSearchParams(useLocation().search);
+  const src = s.get("name") ?? "";
+  if (src)
+    if (/\.epub$/i.test(src)) {
+      return <EPubViewer url={src} />;
+    } else return <AlbumComicsViewer name={src} />;
+  else return <EBookGallery />;
+}
+
+function EBookGallery() {
+  const { imageItemList } = useImageState();
+  return (
+    <GalleryObject
+      items={[
+        {
+          label: "comics",
+          list: imageItemList.filter((image) => image.type === "ebook"),
+        },
+      ]}
+    />
+  );
 }
 
 export function AlbumComicsViewer({ name }: { name: string }) {

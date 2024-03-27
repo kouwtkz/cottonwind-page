@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useImageViewer } from "./ImageViewer";
 import { MediaImageItemType } from "../types/MediaImageDataType";
-import ImageMee from "../components/layout/ImageMee";
+import { ImageMee } from "../components/layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useImageState } from "./ImageState";
@@ -30,7 +30,10 @@ import {
 } from "react-icons/md";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "../components/theme/main";
-import { PostTextarea, usePreviewMode } from "../components/form/input/PostTextarea";
+import {
+  PostTextarea,
+  usePreviewMode,
+} from "../components/form/input/PostTextarea";
 import { useCharaState } from "./CharaState";
 import { toggleEditParam } from "../components/doc/SetSearchParams";
 type labelValue = { label: string; value: string };
@@ -57,15 +60,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
   const [otherTags, setOtherTags] = useState(
     autoFixTagsOptions(getTagsOptions(defaultTags))
   );
-  const { editMode, imageSrc, albumName } = useImageViewer();
-  const image = useMemo(() => {
-    const albumItemList = albumName
-      ? imageItemList.filter(({ album }) => album?.name === albumName)
-      : imageItemList;
-    return imageSrc
-      ? albumItemList.find((image) => image.originName === imageSrc) || null
-      : null;
-  }, [imageItemList, albumName, imageSrc]);
+  const { editMode, image } = useImageViewer();
 
   const getImageTagsObject = useCallback(
     (image?: MediaImageItemType | null) => {
@@ -261,7 +256,6 @@ export default function ImageEditForm({ className, ...args }: Props) {
     getDefaultValues,
     getValues,
     image,
-    imageSrc,
     isDirty,
     SubmitImage,
     reset,

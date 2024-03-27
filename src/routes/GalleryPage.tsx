@@ -55,11 +55,9 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 }
 
 function GalleryPageMain() {
-  const s = new URLSearchParams(useLocation().search);
   const galleryDefault = serverSite.gallery?.default;
   const { isComplete } = useDataState();
   if (!isComplete) return <></>;
-  if (s.has("ebook")) return <ComicsViewer src={s.get("ebook") || ""} />;
   return <GalleryObjectConvert items={galleryDefault} />;
 }
 
@@ -189,8 +187,11 @@ export function GalleryObject({
 }: {
   items: GalleryItemObjectType[];
 }) {
-  const items = useMemo(() => _items.map((item) => ({ ...item })), [_items]);
   const { search } = useLocation();
+  const items = useMemo(
+    () => _items.map((item) => ({ ...item })),
+    [_items, search]
+  );
   const { setItems } = useGalleryObject();
   const {
     sort: sortParam,
@@ -398,7 +399,7 @@ function UploadChain({
     [imageAlbumList]
   );
   const upload = useCallback((files: File[]) => {
-    const album = getAlbum(item.name);
+    const album = item.name ? getAlbum(item.name) : null;
     if (!album) return false;
     const checkTime = new Date().getTime();
     const targetFiles = files.filter((file) => {
@@ -460,13 +461,17 @@ function UploadChain({
 
 function GalleryBody() {
   const { items } = useGalleryObject();
+  const count = useMemo(
+    () => items?.reduce((a, c) => a + (c.list?.length ?? 0), 0),
+    [items]
+  );
   const firstTopRef = createRef<HTMLDivElement>();
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   return (
-    <>
+    <div className="galleryObject">
       <InPageMenu
         list={items?.map(({ name, label }, i) => ({
-          name: label || name,
+          name: label || name || "",
           ref: refList[i],
         }))}
         firstTopRef={firstTopRef}
@@ -474,6 +479,9 @@ function GalleryBody() {
       />
       <div ref={firstTopRef}>
         <div className="galleryHeader">
+          {count !== undefined ? (
+            <span className="count">({count})</span>
+          ) : null}
           <GallerySearchArea />
           <GalleryTagsSelect />
         </div>
@@ -489,7 +497,7 @@ function GalleryBody() {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 function GalleryContent({ item }: { item: GalleryItemObjectType }) {
@@ -502,7 +510,7 @@ function GalleryContent({ item }: { item: GalleryItemObjectType }) {
     h2,
     h4,
     label,
-    filterButton,
+    filterButton = true,
     yearList,
     list = [],
     max = 20,
@@ -584,7 +592,7 @@ function GalleryContent({ item }: { item: GalleryItemObjectType }) {
       <div className="galleryContainer">
         <div className="galleryLabel">
           {filterButton ? (
-            <div>
+            <div className="filterArea">
               <select
                 title="フィルタリング"
                 ref={yearSelectRef}
@@ -596,7 +604,7 @@ function GalleryContent({ item }: { item: GalleryItemObjectType }) {
                     if (yearSelect.value) query.year = yearSelect.value;
                     else delete query.year;
                     nav(MakeRelativeURL({ query }), {
-                      preventScrollReset: false,
+                      preventScrollReset: true,
                     });
                   }
                 }}

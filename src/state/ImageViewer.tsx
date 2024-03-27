@@ -16,7 +16,7 @@ import {
 } from "react-router-dom";
 import MultiParser from "../components/doc/MultiParser";
 import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions";
-import ImageMee from "../components/layout/ImageMee";
+import { ImageMee } from "../components/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
 import ImageEditForm from "./ImageEditForm";
@@ -31,6 +31,7 @@ import { useCharaState } from "../state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
+import { MediaImageItemType } from "../types/MediaImageDataType";
 
 const body = typeof window === "object" ? document?.body : null;
 const bodyLock = (m: boolean) => {
@@ -42,16 +43,23 @@ const bodyLock = (m: boolean) => {
 };
 
 type ImageViewerType = {
-  imageSrc: string;
+  image: MediaImageItemType | null;
+  setImage: (image: MediaImageItemType | null) => void;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
-  setImageName: (src: string) => void;
 };
 export const useImageViewer = create<ImageViewerType>((set) => ({
-  imageSrc: "",
+  image: null,
+  setImage(image) {
+    set(() => ({
+      image,
+      isOpen: true,
+    }));
+    bodyLock(true);
+  },
   isOpen: false,
   onOpen: () => {
     set(() => ({ isOpen: true }));
@@ -65,21 +73,13 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
   setEditMode(editMode) {
     set(() => ({ editMode }));
   },
-  setImageName(src) {
-    set(() => ({
-      imageSrc: src,
-      albumImages: [],
-      isOpen: true,
-    }));
-    bodyLock(true);
-  },
 }));
 
 export default function ImageViewer() {
   const { imageItemList } = useImageState();
   const { charaList } = useCharaState();
   const nav = useNavigate();
-  const { isOpen, onClose, imageSrc, setImageName, editMode, setEditMode } =
+  const { isOpen, onClose, image, setImage, editMode, setEditMode } =
     useImageViewer();
   const { pathname, search: searchStr } = useLocation();
   const { items } = useGalleryObject();
@@ -95,6 +95,8 @@ export default function ImageViewer() {
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
   const { isComplete } = useDataState();
 
+  useLayoutEffect(() => {}, [imageItemList, albumParam, imageParam]);
+
   const backAction = useCallback(() => {
     nav(-1);
     const href = location.href;
@@ -107,13 +109,27 @@ export default function ImageViewer() {
     }, 10);
   }, [query, nav]);
 
+  const imageFinder = useCallback(
+    (imageParam: string, albumParam?: string) => {
+      const albumItemList = albumParam
+        ? imageItemList.filter(({ album }) => album?.name === albumParam)
+        : imageItemList;
+      return (
+        albumItemList.find((image) =>
+          image.originName?.startsWith(imageParam)
+        ) ?? null
+      );
+    },
+    [imageItemList]
+  );
+
   useLayoutEffect(() => {
     if (!imageParam) {
       if (isOpen) onClose();
     } else {
-      setImageName(imageParam);
+      setImage(imageFinder(imageParam, albumParam));
     }
-  }, [imageParam, isOpen]);
+  }, [imageParam, albumParam, isOpen]);
   useLayoutEffect(() => {
     switch (modeParam) {
       case "edit":
@@ -124,22 +140,6 @@ export default function ImageViewer() {
         break;
     }
   }, [modeParam]);
-
-  const image = useMemo(() => {
-    if (!imageParam) return null;
-    const albumItemList = albumParam
-      ? imageItemList.filter(({ album }) => album?.name === albumParam)
-      : imageItemList;
-    return imageSrc
-      ? albumItemList.find((image) =>
-          image.originName?.startsWith(imageParam)
-        ) || {
-          URL: imageSrc,
-          src: imageSrc,
-          name: imageSrc,
-        }
-      : null;
-  }, [imageItemList, albumParam, imageParam, imageSrc]);
 
   const groupImageList = useMemo(
     () => galleryItem?.list ?? [],
@@ -167,6 +167,60 @@ export default function ImageViewer() {
         ? image.src.startsWith(image.name)
         : true,
     [image]
+  );
+
+  const PreviewArea = useCallback(
+    () => (
+      <div className="preview">
+        {image ? (
+          <>
+            {image.embed && (image.type === "embed" || image.type === "3d") ? (
+              <>
+                <EmbedNode className="wh-all-fill" embed={image.embed} />
+              </>
+            ) : (
+              <div className="wh-fill">
+                <a
+                  title="別タブで画像を開く"
+                  href={(isProd ? image.URL : image.origin) || image.src}
+                  target="_blank"
+                  className="fullscreen-button"
+                >
+                  <RiFullscreenFill />
+                </a>
+                {image.embed ? (
+                  image.type === "ebook" ? (
+                    <Link
+                      title="よむ"
+                      to={MakeRelativeURL({
+                        pathname: "/gallery/ebook",
+                        query: { name: image.embed },
+                      })}
+                      className="read-button"
+                    >
+                      <RiBook2Fill />
+                    </Link>
+                  ) : image.type === "pdf" ? (
+                    <a
+                      title="ひらく"
+                      href={getEmbedURL(image.embed)}
+                      target="_blank"
+                      className="read-button"
+                    >
+                      <RiFilePdf2Fill />
+                    </a>
+                  ) : null
+                ) : null}
+                <div className="wh-all-fill imageArea">
+                  <ImageMee imageItem={image} title={image.name || image.src} />
+                </div>
+              </div>
+            )}
+          </>
+        ) : null}
+      </div>
+    ),
+    [image, isProd]
   );
 
   const InfoCmp = useCallback(
@@ -329,60 +383,6 @@ export default function ImageViewer() {
       query,
       isComplete,
     ]
-  );
-
-  const PreviewArea = useCallback(
-    () => (
-      <div className="preview">
-        {image ? (
-          <>
-            {image.embed && (image.type === "embed" || image.type === "3d") ? (
-              <>
-                <EmbedNode className="wh-all-fill" embed={image.embed} />
-              </>
-            ) : (
-              <div className="wh-fill">
-                <a
-                  title="別タブで画像を開く"
-                  href={(isProd ? image.URL : image.origin) || image.src}
-                  target="_blank"
-                  className="fullscreen-button"
-                >
-                  <RiFullscreenFill />
-                </a>
-                {image.embed ? (
-                  image.type === "ebook" ? (
-                    <Link
-                      title="よむ"
-                      to={MakeRelativeURL({
-                        pathname: "/gallery",
-                        query: { ebook: image.embed },
-                      })}
-                      className="read-button"
-                    >
-                      <RiBook2Fill />
-                    </Link>
-                  ) : image.type === "pdf" ? (
-                    <a
-                      title="ひらく"
-                      href={getEmbedURL(image.embed)}
-                      target="_blank"
-                      className="read-button"
-                    >
-                      <RiFilePdf2Fill />
-                    </a>
-                  ) : null
-                ) : null}
-                <div className="wh-all-fill imageArea">
-                  <ImageMee imageItem={image} title={image.name || image.src} />
-                </div>
-              </div>
-            )}
-          </>
-        ) : null}
-      </div>
-    ),
-    [image, isProd]
   );
 
   return (

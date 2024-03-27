@@ -26,7 +26,7 @@ interface GalleryListProps extends GalleryListPropsBase {
 }
 
 export interface GalleryItemObjectType extends GalleryListPropsBase {
-  name: string;
+  name?: string;
   match?: string | RegExp;
   format?: GroupFormat;
 }
