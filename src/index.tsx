@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { renderToString } from "react-dom/server";
 import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
+import { buildAddVer } from "./data/env";
 
 const app = new Hono();
 
@@ -15,8 +16,8 @@ app.get("*", (c) => {
         <head>
           <DefaultMeta />
           <SetMetaServerSide path={c.req.path} />
-          <script type="module" src="/static/client.js" />
-          <link rel="stylesheet" href="/static/styles.css" />
+          <script type="module" src={"/static/client.js" + buildAddVer} />
+          <link rel="stylesheet" href={"/static/styles.css" + buildAddVer} />
         </head>
         <DefaultBody />
       </html>
