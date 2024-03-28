@@ -139,6 +139,10 @@ body::-webkit-scrollbar-track {
   background: var(--background-top);
 }
 
+.fixed {
+  position: fixed;
+}
+
 body,
 .window,
 .fc-scroller {
@@ -158,11 +162,13 @@ body,
 
   &.loading,
   &.lockScroll {
-    &,
-    .fixed {
-      padding-right: var(--scroll-margin) !important;
-    }
     &:not(.mobile) {
+      &,
+      .siteMenu,
+      .siteMenuButton,
+      .fixed {
+        padding-right: var(--scroll-margin) !important;
+      }
       .toast,
       .InPageMenu,
       header > div:first-child {
@@ -590,6 +596,7 @@ header {
     }
   }
   .siteMenuButton {
+    cursor: pointer;
     display: block;
     position: absolute;
     right: 0;

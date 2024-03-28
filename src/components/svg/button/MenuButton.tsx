@@ -2,7 +2,7 @@ import React, { SVGAttributes } from "react";
 
 type MenuButtonProps = {
   isOpen?: boolean;
-} & SVGAttributes<SVGElement>
+} & SVGAttributes<SVGElement>;
 
 export default function MenuButton({
   className,
@@ -16,15 +16,10 @@ export default function MenuButton({
       viewBox="0 0 60 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={
-        "MenuButton hover:cursor-pointer" + (className ? ` ${className}` : "")
-      }
+      className={"MenuButton" + (className ? " " + className : "")}
       {...attributes}
     >
-      <path
-        d="M0 0H60V60H0V0Z"
-        fillOpacity="0.8"
-      />
+      <path d="M0 0H60V60H0V0Z" fillOpacity="0.8" />
       <g className={isOpen ? "hidden" : ""}>
         <rect
           className="Line1"
