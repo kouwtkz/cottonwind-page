@@ -5,6 +5,7 @@ type FeedArticleType = {
   title: string;
   description: string;
   link: string;
+  category: string[];
   date: Date;
 };
 
@@ -15,13 +16,13 @@ type FeedStateType = {
   list?: FeedArticleType[];
   isSet: boolean;
   isBlank: boolean;
-  set: () => void;
+  set: (limit?: number) => void;
 };
 
 export const useFeedState = create<FeedStateType>((set) => ({
   isSet: false,
   isBlank: true,
-  set: () => {
+  set: (limit = 3) => {
     fetch("/get/rss")
       .then((res) => {
         return res.headers.get("Content-Type")?.startsWith("application/xml")
@@ -36,13 +37,16 @@ export const useFeedState = create<FeedStateType>((set) => ({
           const link = dom.querySelector("link")?.textContent!;
           const description = dom.querySelector("description")?.textContent!;
           const articles = Array.from(
-            dom.querySelectorAll("item:nth-of-type(-n+20)")
+            dom.querySelectorAll(`item:nth-of-type(-n+${limit})`)
           );
           const list = articles.map((item) => {
             return {
               title: item.querySelector("title")?.textContent!,
               description: item.querySelector("description")?.textContent!,
               link: item.querySelector("link")?.textContent!,
+              category: Array.from(item.querySelectorAll("category")).map(
+                (el) => el.textContent!
+              ),
               date: new Date(item.querySelector("pubDate")?.textContent!),
             };
           });
