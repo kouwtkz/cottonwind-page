@@ -164,15 +164,13 @@ body,
     }
     &:not(.mobile) {
       .toast,
+      .InPageMenu,
       header > div:first-child {
         margin-right: var(--scroll-margin) !important;
       }
     }
     .fixed .absolute.right-0 {
       right: var(--scroll-margin) !important;
-    }
-    .InPageMenu {
-      display: none;
     }
   }
   &.mobile {

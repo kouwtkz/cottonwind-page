@@ -12,6 +12,8 @@ import {
 import {
   ReactNode,
   createRef,
+  forwardRef,
+  memo,
   useCallback,
   useLayoutEffect,
   useMemo,
@@ -32,7 +34,7 @@ import {
   filterPickFixed,
 } from "../data/functions/FilterImages";
 import { create } from "zustand";
-import InPageMenu from "../components/layout/InPageMenu";
+import { InPageMenu } from "../components/layout/InPageMenu";
 import GallerySearchArea from "../components/tag/GallerySearchArea";
 import GalleryTagsSelect from "../components/tag/GalleryTagsSelect";
 import { useDropzone } from "react-dropzone";
@@ -458,25 +460,25 @@ function UploadChain({
   );
 }
 
-function GalleryBody() {
+const GalleryBody = memo(function GalleryBody() {
   const { items } = useGalleryObject();
+  const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
+  const inPageList = useMemo(
+    () =>
+      items?.map(({ name, label }, i) => ({
+        name: label || name || "",
+        ref: refList[i],
+      })),
+    [items]
+  );
   const count = useMemo(
     () => items?.reduce((a, c) => a + (c.list?.length ?? 0), 0),
     [items]
   );
-  const firstTopRef = createRef<HTMLDivElement>();
-  const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   return (
     <div className="galleryObject">
-      <InPageMenu
-        list={items?.map(({ name, label }, i) => ({
-          name: label || name || "",
-          ref: refList[i],
-        }))}
-        firstTopRef={firstTopRef}
-        adjust={64}
-      />
-      <div ref={firstTopRef}>
+      <InPageMenu list={inPageList} adjust={64} />
+      <div>
         <div className="galleryHeader">
           {count !== undefined ? (
             <span className="count">({count})</span>
@@ -485,163 +487,175 @@ function GalleryBody() {
           <GalleryTagsSelect />
         </div>
         {items?.map((item, i) => (
-          <div ref={refList[i]} key={i}>
+          <div key={i}>
             {import.meta.env.DEV ? (
               <UploadChain item={item}>
-                <GalleryContent item={item} />
+                <GalleryContent ref={refList[i]} item={item} />
               </UploadChain>
             ) : (
-              <GalleryContent item={item} />
+              <GalleryContent ref={refList[i]} item={item} />
             )}
           </div>
         ))}
       </div>
     </div>
   );
-}
-function GalleryContent({ item }: { item: GalleryItemObjectType }) {
-  const nav = useNavigate();
-  const { isComplete } = useDataState();
-  const yearSelectRef = useRef<HTMLSelectElement>(null);
-  const {
-    name,
-    linkLabel,
-    h2,
-    h4,
-    label,
-    filterButton = true,
-    yearList,
-    list = [],
-    max = 20,
-    step = 20,
-  } = item;
-  const { search } = useLocation();
-  const params = useMemo(
-    () => Object.fromEntries(new URLSearchParams(search)) as KeyValueStringType,
-    [search]
-  );
-  const { year } = params;
-  const HeadingElm = useCallback(
-    ({ label }: { label?: string }) =>
-      label && linkLabel ? (
-        <Link
-          to={typeof linkLabel === "string" ? linkLabel : "/gallery/" + name}
-        >
-          {label}
-        </Link>
-      ) : (
-        <>{label}</>
-      ),
-    [linkLabel, name]
-  );
-  const [curMax, setCurMax] = useState(max);
-  const showMoreButton = curMax < (list.length || 0);
-  const visibleMax = showMoreButton ? curMax - 1 : curMax;
+});
 
-  const currentAlbumImageList = useMemo(
-    () =>
-      list
-        .filter((_, i) => i < visibleMax)
-        .map((image, i) => (
+interface GalleryContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  item: GalleryItemObjectType;
+}
+
+const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
+  function GalleryContent({ item, ...args }, ref) {
+    const nav = useNavigate();
+    const { isComplete } = useDataState();
+    const yearSelectRef = useRef<HTMLSelectElement>(null);
+    const {
+      name,
+      linkLabel,
+      h2,
+      h4,
+      label,
+      filterButton = true,
+      yearList,
+      list = [],
+      max = 20,
+      step = 20,
+    } = item;
+    const { search } = useLocation();
+    const params = useMemo(
+      () =>
+        Object.fromEntries(new URLSearchParams(search)) as KeyValueStringType,
+      [search]
+    );
+    const { year } = params;
+    const HeadingElm = useCallback(
+      ({ label }: { label?: string }) =>
+        label && linkLabel ? (
           <Link
-            key={i}
-            className="item"
-            {...(image.direct
-              ? { to: image.direct }
-              : {
-                  to: MakeRelativeURL({
-                    query: {
-                      ...params,
-                      image: image.originName,
-                      ...(image.album?.name ? { album: image.album.name } : {}),
-                      ...(image.album?.name !== name ? { group: name } : {}),
-                    },
-                  }),
-                  preventScrollReset: true,
-                })}
+            to={typeof linkLabel === "string" ? linkLabel : "/gallery/" + name}
           >
-            <div>
-              {image.embed ? (
-                image.type === "ebook" ? (
-                  <div className="translucent-comics-button">
-                    <RiBook2Fill />
-                  </div>
-                ) : image.type === "pdf" ? (
-                  <div className="translucent-comics-button">
-                    <RiFilePdf2Fill />
-                  </div>
-                ) : null
-              ) : null}
-              <ImageMeeThumbnail imageItem={image} loadingScreen={true} />
-            </div>
+            {label}
           </Link>
-        )),
-    [list, visibleMax]
-  );
-
-  if (!item.list?.length) return <></>;
-  return (
-    <>
-      {h2 || h4 ? (
-        <div className="galleryLabel outLabel">
-          {h2 ? <h2>{h2}</h2> : null}
-          {h4 ? <h4>{h4}</h4> : null}
-        </div>
-      ) : null}
-      <div className="galleryContainer">
-        <div className="galleryLabel">
-          {filterButton ? (
-            <div className="filterArea">
-              <select
-                title="フィルタリング"
-                ref={yearSelectRef}
-                value={year || ""}
-                onChange={() => {
-                  if (yearSelectRef.current) {
-                    const yearSelect = yearSelectRef.current;
-                    const query = { ...params };
-                    if (yearSelect.value) query.year = yearSelect.value;
-                    else delete query.year;
-                    nav(MakeRelativeURL({ query }), {
-                      preventScrollReset: true,
-                    });
-                  }
-                }}
-              >
-                <option value="">
-                  all ({yearList?.reduce((a, c) => a + c.count, 0)})
-                </option>
-                {yearList?.map(({ year, count }, i) => (
-                  <option key={i} value={year}>
-                    {year} ({count})
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
-          <h2>
-            <HeadingElm label={label} />
-          </h2>
-        </div>
-        {isComplete ? (
-          <div className={`list${list.length < 3 ? " min2" : ""}`}>
-            {currentAlbumImageList}
-            {showMoreButton ? (
-              <MoreButton
-                className="gallery-button-more"
-                onClick={() => {
-                  setCurMax((c) => c + step);
-                }}
-              />
-            ) : null}
-          </div>
         ) : (
-          <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
-        )}
+          <>{label}</>
+        ),
+      [linkLabel, name]
+    );
+    const [curMax, setCurMax] = useState(max);
+    const showMoreButton = curMax < (list.length || 0);
+    const visibleMax = showMoreButton ? curMax - 1 : curMax;
+
+    const currentAlbumImageList = useMemo(
+      () =>
+        list
+          .filter((_, i) => i < visibleMax)
+          .map((image, i) => (
+            <Link
+              key={i}
+              className="item"
+              {...(image.direct
+                ? { to: image.direct }
+                : {
+                    to: MakeRelativeURL({
+                      query: {
+                        ...params,
+                        image: image.originName,
+                        ...(image.album?.name
+                          ? { album: image.album.name }
+                          : {}),
+                        ...(image.album?.name !== name ? { group: name } : {}),
+                      },
+                    }),
+                    preventScrollReset: true,
+                  })}
+            >
+              <div>
+                {image.embed ? (
+                  image.type === "ebook" ? (
+                    <div className="translucent-comics-button">
+                      <RiBook2Fill />
+                    </div>
+                  ) : image.type === "pdf" ? (
+                    <div className="translucent-comics-button">
+                      <RiFilePdf2Fill />
+                    </div>
+                  ) : null
+                ) : null}
+                <ImageMeeThumbnail imageItem={image} loadingScreen={true} />
+              </div>
+            </Link>
+          )),
+      [list, visibleMax]
+    );
+
+    if (!item.list?.length) return <></>;
+    return (
+      <div {...args} ref={ref}>
+        {h2 || h4 ? (
+          <div className="galleryLabel outLabel">
+            {h2 ? <h2>{h2}</h2> : null}
+            {h4 ? <h4>{h4}</h4> : null}
+          </div>
+        ) : null}
+        <div className="galleryContainer">
+          <div className="galleryLabel">
+            {filterButton ? (
+              <div className="filterArea">
+                <select
+                  title="フィルタリング"
+                  ref={yearSelectRef}
+                  value={year || ""}
+                  onChange={() => {
+                    if (yearSelectRef.current) {
+                      const yearSelect = yearSelectRef.current;
+                      const query = { ...params };
+                      if (yearSelect.value) query.year = yearSelect.value;
+                      else delete query.year;
+                      nav(MakeRelativeURL({ query }), {
+                        preventScrollReset: true,
+                      });
+                    }
+                  }}
+                >
+                  <option value="">
+                    all ({yearList?.reduce((a, c) => a + c.count, 0)})
+                  </option>
+                  {yearList?.map(({ year, count }, i) => (
+                    <option key={i} value={year}>
+                      {year} ({count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            <h2>
+              <HeadingElm label={label} />
+            </h2>
+          </div>
+          {isComplete ? (
+            <div className={`list${list.length < 3 ? " min2" : ""}`}>
+              {currentAlbumImageList}
+              {showMoreButton ? (
+                <MoreButton
+                  className="gallery-button-more"
+                  onClick={() => {
+                    setCurMax((c) => c + step);
+                  }}
+                />
+              ) : null}
+            </div>
+          ) : (
+            <div className="loadingNow text-main-soft my-4">
+              よみこみちゅう…
+            </div>
+          )}
+        </div>
       </div>
-    </>
-  );
-}
+    );
+  }
+);
 
 function getYear(date?: Date | null) {
   return date?.toLocaleString("ja", { timeZone: "JST" }).split("/", 1)[0];
