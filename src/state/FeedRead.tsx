@@ -14,13 +14,13 @@ type FeedStateType = {
   description?: string;
   list?: FeedArticleType[];
   isSet: boolean;
-  isFirst: boolean;
+  isBlank: boolean;
   set: () => void;
 };
 
 export const useFeedState = create<FeedStateType>((set) => ({
   isSet: false,
-  isFirst: true,
+  isBlank: true,
   set: () => {
     fetch("/get/rss")
       .then((res) => {
@@ -46,23 +46,23 @@ export const useFeedState = create<FeedStateType>((set) => ({
               date: new Date(item.querySelector("pubDate")?.textContent!),
             };
           });
-          set({ title, link, description, list, isSet: true, isFirst: false });
-        } else set({ isFirst: false });
+          set({ title, link, description, list, isSet: true, isBlank: false });
+        } else set({ isSet: true });
       });
   },
 }));
 
 export function FeedState() {
-  const {} = useFeedState();
+  const { isSet, set } = useFeedState();
+  useLayoutEffect(() => {
+    if (!isSet) set();
+  }, [isSet]);
   return <></>;
 }
 
 export const FeedRead = memo(function FeedRead() {
-  const { isSet, isFirst, title, link, set, list } = useFeedState();
-  useLayoutEffect(() => {
-    if (isFirst) set();
-  }, [isFirst]);
-  if (!isSet) return <></>;
+  const { isBlank, title, link, list } = useFeedState();
+  if (isBlank) return <></>;
   return (
     <div className="blog">
       <a className="title" href={link} title={title} target="blog">

@@ -8,7 +8,7 @@ import CharaState, { useCharaState } from "./CharaState";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
-import { FeedState } from "./FeedRead";
+import { FeedState, useFeedState } from "./FeedRead";
 
 export function StateSet() {
   return (
@@ -20,7 +20,6 @@ export function StateSet() {
       <ThemeState />
       {import.meta.env.DEV ? (
         <>
-          <FeedState />
           <EmbedState />
         </>
       ) : null}
@@ -34,6 +33,7 @@ function DataStateSet() {
       <SoundState />
       <ImageState />
       <CharaState />
+      <FeedState />
     </>
   );
 }
@@ -57,7 +57,12 @@ export const useDataState = create<DataStateType>((set) => ({
 }));
 
 export function DataState() {
-  const stateList = [useCharaState(), useImageState(), useSoundState()];
+  const stateList = [
+    useCharaState(),
+    useImageState(),
+    useSoundState(),
+    useFeedState(),
+  ];
   const { isComplete, setComplete } = useDataState();
   const first = useRef(true);
   const loading = useRef(true);

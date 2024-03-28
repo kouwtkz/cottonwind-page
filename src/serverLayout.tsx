@@ -6,7 +6,7 @@ import { serverSite as site } from "./data/server/site";
 const serverData = { site, characters };
 
 export function SetMetaServerSide(args: SetMetaBaseProps) {
-  return <SetMeta {...args} {...serverData} />
+  return <SetMeta {...args} {...serverData} />;
 }
 
 export function DefaultMeta() {
@@ -21,8 +21,8 @@ export function DefaultMeta() {
 export function DefaultBody() {
   return (
     <body className="loading">
+      <Loading />
       <div id="root">
-        <Loading />
         <div hidden>
           <header>
             <h2>{site.title}</h2>
