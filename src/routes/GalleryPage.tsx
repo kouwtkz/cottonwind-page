@@ -259,32 +259,6 @@ export function GalleryObject({
     [qParam]
   );
 
-  const albumSort = useCallback(
-    (list: MediaImageItemType[], sortList: sortObjectType[]) => {
-      sortList.forEach(({ key, order }) => {
-        switch (key) {
-          case "time":
-            list.sort((a, b) => {
-              const atime = a.time?.getTime() || 0;
-              const btime = b.time?.getTime() || 0;
-              if (atime === btime) return 0;
-              else {
-                const result = atime > btime;
-                return (order === "asc" ? result : !result) ? 1 : -1;
-              }
-            });
-            break;
-          default:
-            list.sort((a, b) => {
-              if (a[key] === b[key]) return 0;
-              const result = a[key] > b[key];
-              return (order === "asc" ? result : !result) ? 1 : -1;
-            });
-        }
-      });
-    },
-    []
-  );
   useLayoutEffect(() => {
     items.forEach((item) => {
       if (!item.list) return;
@@ -363,7 +337,27 @@ export function GalleryObject({
       item.yearList = getYearObjects(item.list.map((item) => item.time));
       if (year)
         item.list = item.list.filter((item) => getYear(item.time) === year);
-      albumSort(item.list, sortList);
+      sortList.forEach(({ key, order }) => {
+        switch (key) {
+          case "time":
+            item.list?.sort((a, b) => {
+              const atime = a.time?.getTime() || 0;
+              const btime = b.time?.getTime() || 0;
+              if (atime === btime) return 0;
+              else {
+                const result = atime > btime;
+                return (order === "asc" ? result : !result) ? 1 : -1;
+              }
+            });
+            break;
+          default:
+            item.list?.sort((a, b) => {
+              if (a[key] === b[key]) return 0;
+              const result = a[key] > b[key];
+              return (order === "asc" ? result : !result) ? 1 : -1;
+            });
+        }
+      });
     });
     setItems(items);
   }, [
@@ -374,7 +368,6 @@ export function GalleryObject({
     filterMonthly,
     tags,
     searches,
-    albumSort,
     sortList,
     year,
   ]);
@@ -547,49 +540,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const showMoreButton = curMax < (list.length || 0);
     const visibleMax = showMoreButton ? curMax - 1 : curMax;
 
-    const currentAlbumImageList = useMemo(
-      () =>
-        list
-          .filter((_, i) => i < visibleMax)
-          .map((image, i) => (
-            <Link
-              key={i}
-              className="item"
-              {...(image.direct
-                ? { to: image.direct }
-                : {
-                    to: MakeRelativeURL({
-                      query: {
-                        ...params,
-                        image: image.originName,
-                        ...(image.album?.name
-                          ? { album: image.album.name }
-                          : {}),
-                        ...(image.album?.name !== name ? { group: name } : {}),
-                      },
-                    }),
-                    preventScrollReset: true,
-                  })}
-            >
-              <div>
-                {image.embed ? (
-                  image.type === "ebook" ? (
-                    <div className="translucent-comics-button">
-                      <RiBook2Fill />
-                    </div>
-                  ) : image.type === "pdf" ? (
-                    <div className="translucent-comics-button">
-                      <RiFilePdf2Fill />
-                    </div>
-                  ) : null
-                ) : null}
-                <ImageMeeThumbnail imageItem={image} loadingScreen={true} />
-              </div>
-            </Link>
-          )),
-      [list, visibleMax]
-    );
-
     if (!item.list?.length) return <></>;
     return (
       <div {...args} ref={ref}>
@@ -636,7 +586,49 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
           </div>
           {isComplete ? (
             <div className={`list${list.length < 3 ? " min2" : ""}`}>
-              {currentAlbumImageList}
+              {list
+                .filter((_, i) => i < visibleMax)
+                .map((image, i) => (
+                  <Link
+                    key={i}
+                    className="item"
+                    {...(image.direct
+                      ? { to: image.direct }
+                      : {
+                          to: MakeRelativeURL({
+                            query: {
+                              ...params,
+                              image: image.originName,
+                              ...(image.album?.name
+                                ? { album: image.album.name }
+                                : {}),
+                              ...(image.album?.name !== name
+                                ? { group: name }
+                                : {}),
+                            },
+                          }),
+                          preventScrollReset: true,
+                        })}
+                  >
+                    <div>
+                      {image.embed ? (
+                        image.type === "ebook" ? (
+                          <div className="translucent-comics-button">
+                            <RiBook2Fill />
+                          </div>
+                        ) : image.type === "pdf" ? (
+                          <div className="translucent-comics-button">
+                            <RiFilePdf2Fill />
+                          </div>
+                        ) : null
+                      ) : null}
+                      <ImageMeeThumbnail
+                        imageItem={image}
+                        loadingScreen={true}
+                      />
+                    </div>
+                  </Link>
+                ))}
               {showMoreButton ? (
                 <MoreButton
                   className="gallery-button-more"
