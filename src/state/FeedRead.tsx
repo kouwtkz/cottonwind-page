@@ -19,7 +19,7 @@ type FeedStateType = {
 export const useFeedState = create<FeedStateType>((set) => ({
   isSet: false,
   set: () => {
-    fetch(import.meta.env.DEV ? "/_data/test/rss.xml" : "/get/rss")
+    fetch("/get/rss")
       .then((res) => {
         return res.text();
       })

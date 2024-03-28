@@ -9,9 +9,11 @@ import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
 
 const app = new Hono();
 
-app.get("/get/rss", async (c) => {
-  return c.newResponse(await FetchBody(serverSite.feedDev), XmlHeader);
-});
+if (serverSite.feedDev)
+  app.get("/get/rss", async (c) => {
+    return c.newResponse(await FetchBody(serverSite.feedDev), XmlHeader);
+  });
+else app.get("/get/rss", serveStatic({ path: "./_data/test/rss.xml" }));
 
 app.get("/src/*", serveStatic({ root: "./" }));
 app.get("/_data/*", serveStatic({ root: "./" }));
