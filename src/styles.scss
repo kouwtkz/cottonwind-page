@@ -694,7 +694,7 @@ footer {
     margin: 0;
     padding: 0.5rem 0;
     li {
-      margin: 0.25rem 1rem;
+      margin: $size_2 $size_4;
       display: inline;
       a {
         text-decoration-line: none;
@@ -742,11 +742,12 @@ footer {
         justify-content: flex-start;
         align-items: center;
         .date {
-          margin-right: 0.5rem;
+          margin-right: $size_2;
           min-width: 5em;
           text-align: right;
         }
         .title {
+          margin-right: $size_2;
           text-align: left;
           flex: 1;
         }
