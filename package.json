@@ -4,7 +4,12 @@
     "dev": "vite",
     "host": "vite --host",
     "build": "vite build --mode client && vite build",
-    "update": "node ./src/mediaScripts/MediaUpdate.mjs",
+    "update": "node ./src/mediaScripts/DataUpdate.mjs",
+    "update-site": "node ./src/mediaScripts/DataUpdate.mjs site",
+    "update-image": "node ./src/mediaScripts/DataUpdate.mjs image",
+    "update-character": "node ./src/mediaScripts/DataUpdate.mjs character",
+    "update-embed": "node ./src/mediaScripts/DataUpdate.mjs embed",
+    "update-sound": "node ./src/mediaScripts/DataUpdate.mjs sound",
     "preview": "wrangler pages dev dist",
     "test": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch hono",
     "deploy": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch master"

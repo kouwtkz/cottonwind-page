@@ -18,5 +18,25 @@
     { "label": "build", "task": "npm: build" },
     { "label": "preview", "task": "npm: preview" },
     { "label": "deploy", "task": "npm: deploy" }
-  ]
+  ],
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "_data.site.yaml",
+        "cmd": "npm run update-site"
+      },
+      {
+        "match": "_data.characters.yaml",
+        "cmd": "npm run update-character"
+      },
+      {
+        "match": "_data.sound._data\\.yaml",
+        "cmd": "npm run update-sound"
+      },
+      {
+        "match": "_data._media.*_data\\.yaml",
+        "cmd": "npm run update-image"
+      }
+    ]
+  }
 }
