@@ -125,12 +125,14 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
   );
 }
 
-export function getYear(date?: Date | null) {
-  return date?.toLocaleString("ja", { timeZone: "JST" }).split("/", 1)[0];
+// 日本標準時で年の取得をする
+export function getJSTYear(date?: Date | null) {
+  if (!date) return 0;
+  return new Date(date.getTime() + 32400000).getUTCFullYear();
 }
 function getYearObjects(dates: (Date | null | undefined)[]) {
   return dates
-    .map((date) => Number(getYear(date)))
+    .map((date) => getJSTYear(date))
     .reduce((a, c) => {
       const g = a.find(({ year }) => c === year);
       if (g) g.count++;

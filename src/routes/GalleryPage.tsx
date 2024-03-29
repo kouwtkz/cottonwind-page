@@ -38,7 +38,7 @@ import {
   GalleryYearFilter,
   GallerySearchArea,
   GalleryTagsSelect,
-  getYear,
+  getJSTYear,
 } from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
@@ -204,6 +204,7 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
     useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
 
+  const { query } = useParamsState(({ query }) => ({ query }));
   const {
     sort: sortParam,
     filter: filterParam,
@@ -211,8 +212,8 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
     month: monthParam,
     q: qParam,
     tag: tagParam,
-    year,
-  } = useParamsState(({ query }) => ({ query })).query;
+  } = query;
+  const year = Number(query.year);
   const monthlyEventMode = useMemo(
     () => filterParam === "monthlyOnly",
     [filterParam]
@@ -342,7 +343,8 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
         return images;
       });
     const yfList = fList.map((images) => {
-      if (year) images = images.filter((item) => getYear(item.time) === year);
+      if (year)
+        images = images.filter((item) => getJSTYear(item.time) === year);
       sortList.forEach(({ key, order }) => {
         switch (key) {
           case "time":
