@@ -631,12 +631,14 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                   </Link>
                 ))}
               {showMoreButton ? (
-                <MoreButton
-                  className="gallery-button-more"
-                  onClick={() => {
-                    setCurMax((c) => c + step);
-                  }}
-                />
+                <div className="item">
+                  <MoreButton
+                    className="gallery-button-more"
+                    onClick={() => {
+                      setCurMax((c) => c + step);
+                    }}
+                  />
+                </div>
               ) : null}
             </div>
           ) : (

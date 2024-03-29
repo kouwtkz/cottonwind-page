@@ -448,7 +448,7 @@ code {
 
 .InPageMenu {
   position: fixed;
-  z-index: 10;
+  z-index: 25;
   right: 0;
   bottom: 0;
   margin-bottom: 0.5rem;
@@ -1164,8 +1164,6 @@ select.YearFilter {
 }
 
 .galleryContainer {
-  $size1p4: 24.532%;
-  $margin1p4: 0.234%;
   width: 100%;
   padding: $size_4 auto;
   margin-bottom: $size_4;
@@ -1182,8 +1180,10 @@ select.YearFilter {
     max-width: 1120px;
     margin: auto;
     @extend %userSelectNone;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 0.1rem;
+    row-gap: 0.1rem;
     &.min2 {
       justify-content: center;
     }
@@ -1192,14 +1192,11 @@ select.YearFilter {
       margin: 1rem auto;
     }
     .item {
-      width: $size1p4;
-      padding-top: $size1p4;
-      margin: $margin1p4;
-      position: relative;
+      aspect-ratio: 1;
       overflow: hidden;
+      position: relative;
       cursor: pointer;
       > div {
-        position: absolute;
         &,
         & > img {
           object-fit: cover;
@@ -1233,8 +1230,7 @@ select.YearFilter {
   }
   .gallery-button-more {
     height: auto;
-    width: $size1p4;
-    margin: $margin1p4;
+    width: 100%;
     cursor: pointer;
     @extend %galleryTransition;
     fill: var(--main-color-soft);
