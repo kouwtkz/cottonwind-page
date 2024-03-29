@@ -486,15 +486,21 @@ function GalleryBody({
         })),
     [yfList, items]
   );
+  const GalleryHeader = useMemo(
+    () => (
+      <div className="galleryHeader">
+        <GalleryYearFilter />
+        <GallerySearchArea />
+        <GalleryTagsSelect />
+      </div>
+    ),
+    []
+  );
   return (
     <div className="galleryObject">
       <InPageMenu list={inPageList} adjust={64} />
       <div>
-        <div className="galleryHeader">
-          <GalleryYearFilter />
-          <GallerySearchArea />
-          <GalleryTagsSelect />
-        </div>
+        {GalleryHeader}
         {items
           .map((item, i) => ({ ...item, i }))
           .filter(({ i }) => yfList[i].length)

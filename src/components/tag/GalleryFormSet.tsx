@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { MakeRelativeURL } from "../doc/MakeURL";
@@ -23,15 +23,19 @@ export function GalleryYearFilter() {
   const { year } = query;
   const yearSelectRef = React.useRef<HTMLSelectElement>(null);
 
-  const yearList = getYearObjects(
-    fList.reduce((a, c) => {
-      c.forEach(({ time }) => {
-        if (time) a.push(time);
-      });
-      return a;
-    }, [] as Date[])
+  const yearList = useMemo(
+    () =>
+      getYearObjects(
+        fList.reduce((a, c) => {
+          c.forEach(({ time }) => {
+            if (time) a.push(time);
+          });
+          return a;
+        }, [] as Date[])
+      ),
+    [fList]
   );
-
+  
   return (
     <select
       title="年ごとのフィルタリング"
