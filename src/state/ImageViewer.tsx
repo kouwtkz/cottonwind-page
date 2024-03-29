@@ -69,20 +69,26 @@ export default function ImageViewer() {
   const { isOpen, onClose, image, setImage, editMode, setEditMode } =
     useImageViewer();
   const { pathname, search: searchStr } = useLocation();
-  const { items } = useGalleryObject();
   const search = new URLSearchParams(searchStr);
   const query = Object.fromEntries(search);
   const imageParam = query.image;
   const albumParam = query.album;
   const groupParam = query.group ?? albumParam;
-  const galleryItem = items?.find((item) => item.name === groupParam);
   const modeParam = query.mode;
   const isProd = import.meta.env.PROD;
   const isDev = import.meta.env.DEV;
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
   const { isComplete } = useDataState();
 
-  useLayoutEffect(() => {}, [imageItemList, albumParam, imageParam]);
+  const { items, yfList } = useGalleryObject();
+  const galleryItemIndex = useMemo(
+    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
+    [items, groupParam]
+  );
+  const groupImageList = useMemo(
+    () => yfList[galleryItemIndex] ?? [],
+    [yfList, galleryItemIndex]
+  );
 
   const backAction = useCallback(() => {
     nav(-1);
@@ -127,11 +133,6 @@ export default function ImageViewer() {
         break;
     }
   }, [modeParam]);
-
-  const groupImageList = useMemo(
-    () => galleryItem?.list ?? [],
-    [galleryItem?.list]
-  );
 
   const imageIndex = useMemo(
     () => groupImageList.findIndex(({ URL }) => image?.URL === URL),
