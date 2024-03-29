@@ -15,5 +15,16 @@
     "typescript-config/consistent-casing": "off",
     "no-inline-styles": "off",
     "create-element-svg": "off"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not and_chr <= 119",
+    "not chrome <= 119",
+    "not edge <= 119",
+    "not ios_saf <= 17.1",
+    "not opera <= 103",
+    "not safari <= 17.1",
+    "not samsung <= 23"
+  ]
 }
