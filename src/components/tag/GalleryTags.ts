@@ -12,7 +12,7 @@ export interface GalleryTagsOption {
 
 export const defaultTags: GalleryTagsOption[] = [
   {
-    label: "タイプ", name: "type", options: [
+    label: "タイプ", name: "type", editable: false, options: [
       { value: "type:illust", label: "🎨イラスト" },
       { value: "type:ebook", label: "📖ブック" },
       { value: "type:3d", label: "🧶3D" },
@@ -115,7 +115,8 @@ export const defaultSortTags: GalleryTagsOption[] = [
 
 export function getTagsOptions(tags: GalleryTagsOption[]) {
   return tags.reduce(
-    (a, c) => a.concat(c.options || c),
+    (a, { options, ...c }) => a.concat(options?.map((d) => ({ ...c, ...d })) || c)
+    ,
     [] as GalleryTagsOption[]
   );
 }

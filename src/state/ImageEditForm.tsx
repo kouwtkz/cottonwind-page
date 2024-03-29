@@ -266,8 +266,8 @@ export default function ImageEditForm({ className, ...args }: Props) {
     ({ option }: { option?: labelValue }) => {
       const chara = charaList.find((chara) => chara.id === option?.value);
       return (
-        <div>
-          <span className="mr-1">
+        <div className="flex center">
+          <span className="label-sl">
             {chara?.media?.icon ? (
               <ImageMee
                 imageItem={chara.media.icon}
@@ -327,7 +327,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
           </button>
         ) : (
           <button
-            title="ブログ用テキストのコピー"
+            title="マークダウン用のコピー"
             type="button"
             className="round rb"
             onClick={() => {
@@ -354,8 +354,8 @@ export default function ImageEditForm({ className, ...args }: Props) {
           className={"edit window" + (className ? ` ${className}` : "")}
         >
           <label>
-            <p>タイトル</p>
-            <div className="wide px-1 w-[100%]">
+            <div className="label">タイトル</div>
+            <div className="wide">
               <input
                 className="title block w-[100%] rounded-none px-1 text-xl md:text-2xl text-main-dark"
                 title="タイトル"
@@ -365,12 +365,11 @@ export default function ImageEditForm({ className, ...args }: Props) {
             </div>
           </label>
           <div>
-            <div>
+            <div className="label">
               <span>説明文</span>
               <button
                 title="プレビューモードの切り替え"
                 type="button"
-                className="plain inline-block text-main-strong hover:text-main-dark ml-2 px-2 rounded-lg"
                 onClick={() => togglePreviewMode(getValues("description"))}
               >
                 {previewMode ? "編集に戻る" : "プレビュー"}
@@ -379,14 +378,14 @@ export default function ImageEditForm({ className, ...args }: Props) {
             <div className="wide">
               <PostTextarea
                 title="説明文"
-                className="description rounded-none w-[100%] px-1 min-h-[8rem] text-lg md:text-xl"
+                className="description"
                 registed={register("description")}
               />
             </div>
           </div>
           <div>
-            <div>キャラクタータグ</div>
-            <div className="px-1 w-[100%]">
+            <div className="label">キャラクタータグ</div>
+            <div className="wide">
               <Controller
                 control={control}
                 name="charaTags"
@@ -413,12 +412,11 @@ export default function ImageEditForm({ className, ...args }: Props) {
             </div>
           </div>
           <div>
-            <div>
+            <div className="label">
               <span>その他のタグ</span>
               <button
                 title="新規タグ"
                 type="button"
-                className="plain inline-block text-main-strong hover:text-main-dark ml-2 px-2 py-1 rounded-lg"
                 onClick={() => {
                   const answer = prompt("追加するタグの名前を入力してください");
                   if (answer !== null) {
@@ -437,7 +435,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
                 ＋新規タグの追加
               </button>
             </div>
-            <div className="px-1 w-[100%]">
+            <div className="wide">
               <Controller
                 control={control}
                 name="otherTags"
@@ -455,28 +453,24 @@ export default function ImageEditForm({ className, ...args }: Props) {
                       field.onChange(newValues.map((v) => v?.value));
                     }}
                     onBlur={field.onBlur}
-                  ></ReactSelect>
+                  />
                 )}
               />
             </div>
           </div>
           <div>
-            <p>固定設定</p>
-            <div className="px-1 w-[100%] flex justify-around">
+            <div className="label">固定設定</div>
+            <div className="wide flex around">
               <label>
-                トップ画像
-                <select
-                  className="ml-1"
-                  title="トップ画像"
-                  {...register("topImage")}
-                >
+                <span className="label-sl">トップ画像</span>
+                <select title="トップ画像" {...register("topImage")}>
                   <option value="undefined">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>
                 </select>
               </label>
               <label>
-                ピックアップ
+                <span className="label-sl">ピックアップ</span>
                 <select
                   className="ml-1"
                   title="ピックアップ画像"
@@ -490,48 +484,38 @@ export default function ImageEditForm({ className, ...args }: Props) {
             </div>
           </div>
           <label>
-            <p>リンク</p>
-            <div className="mx-1 flex-1">
-              <input
-                className="rounded-none w-[100%] px-1 text-lg md:text-xl"
-                title="リンク"
-                type="text"
-                {...register("link")}
-              />
+            <div className="label">リンク</div>
+            <div className="wide">
+              <input title="リンク" type="text" {...register("link")} />
             </div>
           </label>
           <label>
-            <div className="inline-block mr-4">埋め込み</div>
-            <input
-              className="py-1 px-2 text-lg md:text-xl rounded-md flex-1"
-              title="埋め込み"
-              type="text"
-              list="galleryEditEmbedList"
-              {...register("embed")}
-            />
-            <datalist id="galleryEditEmbedList">
-              {embedList.map((embed, i) => {
-                return (
-                  <option key={i} value={embed}>
-                    {embed}
-                  </option>
-                );
-              })}
-            </datalist>
+            <div className="label">埋め込み</div>
+            <div className="wide">
+              <input
+                title="埋め込み"
+                type="text"
+                list="galleryEditEmbedList"
+                {...register("embed")}
+              />
+              <datalist id="galleryEditEmbedList">
+                {embedList.map((embed, i) => {
+                  return (
+                    <option key={i} value={embed}>
+                      {embed}
+                    </option>
+                  );
+                })}
+              </datalist>
+            </div>
           </label>
           <label>
-            <div className="inline-block mr-4">時間</div>
-            <input
-              className="rounded-none px-1 text-lg md:text-xl"
-              title="時間"
-              type="datetime-local"
-              {...register("time")}
-            />
+            <div className="label-l">時間</div>
+            <input title="時間" type="datetime-local" {...register("time")} />
           </label>
           <label>
-            <div className="inline-block mr-4">コピーライト</div>
+            <div className="label-l">コピーライト</div>
             <input
-              className="py-1 px-2 text-lg md:text-xl rounded-md"
               title="コピーライト"
               type="text"
               list="galleryEditCopyrightList"
@@ -544,12 +528,8 @@ export default function ImageEditForm({ className, ...args }: Props) {
             </datalist>
           </label>
           <label>
-            <div className="inline-block mr-4">アルバム移動</div>
-            <select
-              className="py-1 px-2 text-lg md:text-xl rounded-md"
-              title="移動"
-              {...register("move")}
-            >
+            <div className="label-l">アルバム移動</div>
+            <select title="移動" {...register("move")}>
               {imageAlbumList
                 .filter((album) => album.listup && !album.name.startsWith("/"))
                 .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
@@ -560,11 +540,11 @@ export default function ImageEditForm({ className, ...args }: Props) {
                 ))}
             </select>
           </label>
-          <label className="flex">
-            <div className="inline-block mr-4">ファイル名変更</div>
+          <label className="around">
+            <div className="label-l">ファイル名変更</div>
             <input
               title="ファイル名変更"
-              className="flex-1 py-1 px-2 rounded-md"
+              className="flex-1"
               {...register("rename")}
             />
           </label>

@@ -3,7 +3,7 @@ import { GetYamlImageList } from "./GetImageList.mjs"
 import { mkdirSync, renameSync, unlinkSync, writeFileSync, utimesSync } from "fs";
 import { resolve as pathResolve } from "path";
 import { UpdateImageYaml } from "./UpdateImage.mjs";
-import { MediaUpdate } from "./MediaUpdateProcess.mjs";
+import { MediaUpdate } from "./DataUpdateProcess.mjs";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 export async function GalleryPatch(data: any) {
@@ -61,7 +61,7 @@ export async function uploadAttached({ attached, attached_mtime = [], tags = [],
   if (attached.length > 0) {
     retVal = true;
     const now = new Date();
-    const dataDir = process.env.DATA_DIR || "";
+    const dataDir = import.meta.env?.VITE_DATA_DIR ?? process.env.VITE_DATA_DIR ?? "";
     const publicDir = "public";
     const uploadImageDir = `${fromto.from}/${uploadDir}`;
     const uploadImagesFullDir = pathResolve(`${cwd}/${dataDir}/${uploadImageDir}`);

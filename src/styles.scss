@@ -114,6 +114,54 @@ $size_16: 4rem;
 $size_20: 5rem;
 $size_24: 6rem;
 
+$defaultLineHeight: 1.25em;
+
+* {
+  line-height: $defaultLineHeight;
+  -webkit-tap-highlight-color: var(--main-color-fluo);
+  ::selection {
+    background-color: var(--main-color-soft);
+    color: white;
+  }
+}
+body,
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-KosugiMaru);
+}
+
+style {
+  display: none !important;
+}
+
+[disabled] {
+  pointer-events: none;
+}
+
+.lockScroll {
+  overflow: hidden;
+}
+
+.flex {
+  display: flex;
+  &.center {
+    align-items: center;
+  }
+  &.around {
+    justify-content: space-around;
+  }
+}
+.flex-1 {
+  flex: 1;
+}
+
+%userSelectNone {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -198,31 +246,6 @@ body,
       }
     }
   }
-}
-
-* {
-  -webkit-tap-highlight-color: var(--main-color-fluo);
-  ::selection {
-    background-color: var(--main-color-soft);
-    color: white;
-  }
-}
-
-style {
-  display: none !important;
-}
-
-[disabled] {
-  pointer-events: none;
-}
-
-.lockScroll {
-  overflow: hidden;
-}
-
-%userSelectNone {
-  -webkit-user-select: none;
-  user-select: none;
 }
 
 button,
@@ -423,10 +446,6 @@ code {
 //   transition: background-color 1s;
 // }
 
-.flex-1 {
-  flex: 1;
-}
-
 .InPageMenu {
   position: fixed;
   z-index: 10;
@@ -524,7 +543,6 @@ body {
   padding-top: $size_16;
   padding-bottom: $size_8;
   text-align: center;
-  font-family: var(--font-KosugiMaru);
   .content-parent {
     margin-left: auto;
     margin-right: auto;
@@ -550,7 +568,6 @@ header {
     height: 3.5rem;
     > div {
       display: flex;
-      font-family: var(--font-KosugiMaru);
       @extend %userSelectNone;
       justify-content: center;
       a {
@@ -663,7 +680,6 @@ footer {
 }
 
 .topPage {
-  font-family: var(--font-KosugiMaru);
   font-size: 2em;
   margin: $size_6 auto;
   .topImageArea {
@@ -824,10 +840,6 @@ form select {
   border: solid 1px var(--main-color-deep);
   border-radius: 0.5em;
   box-sizing: border-box;
-}
-
-input[list] {
-  line-height: normal;
 }
 
 form select {
@@ -1103,8 +1115,8 @@ select.YearFilter {
 
 %galleryTransition {
   transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform,
-    filter, backdrop-filter;
+    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
+    backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -1477,7 +1489,7 @@ button.round {
     flex-direction: column;
     justify-content: space-between;
     @media (min-width: $mobileWidth) {
-      min-width: 28em;
+      min-width: 30em;
       width: 40vw;
     }
     .info {
@@ -1486,7 +1498,7 @@ button.round {
       flex-direction: column;
       text-align: center;
       .title {
-        margin: $size_8 $size_1;
+        margin: $size_8 $size_1 $size_4;
         text-align: center;
         color: var(--main-color-deep);
         word-break: break-all;
@@ -1494,6 +1506,7 @@ button.round {
       }
       .description {
         font-size: $text_xl;
+        margin: 0 $size_2;
         p {
           margin: $size_4 auto;
           white-space: pre-line;
@@ -1547,6 +1560,7 @@ button.round {
         }
         .description {
           font-size: $text_lg;
+          margin: 0 $size_4;
         }
       }
     }
@@ -1590,7 +1604,6 @@ button.round {
       padding: $size_2;
       margin: 0;
       * {
-        font-family: var(--font-KosugiMaru);
         font-size: $text_base;
       }
       > * {
@@ -1599,22 +1612,53 @@ button.round {
         align-items: center;
         margin-top: $size_4;
         margin-bottom: $size_4;
-        p {
-          margin: 0;
+      }
+      .label,
+      .label-s {
+        margin-bottom: $size_1;
+      }
+      .label-l {
+        margin-right: $size_2;
+      }
+      .label-sl {
+        margin-right: $size_1;
+      }
+      .label,
+      .label span,
+      .label-l {
+        font-size: $text_lg;
+      }
+      button {
+        display: inline-block;
+        margin-left: $size_2;
+        padding: 0 $size_2;
+        color: var(--main-color-strong);
+        background-color: transparent;
+        border: none;
+        font-weight: normal;
+        &:hover {
+          color: var(--main-color-dark);
         }
       }
+      input,
+      select,
+      textarea,
+      .preview-area {
+        display: inline-block;
+        border-radius: 0.25rem;
+        padding: $size_1 $size_2;
+      }
       .wide {
-        padding: $size_1;
+        padding: 0 $size_1;
         width: 100%;
-        & > * {
+        > input,
+        > textarea,
+        > .preview-area {
           display: block;
           width: 100%;
-          border-radius: 0;
-          padding: $size_1 $size_2;
         }
       }
       .description {
-        border-radius: 0;
         min-height: 8rem;
       }
       @media (min-width: $mobileWidth) {
@@ -1624,7 +1668,10 @@ button.round {
           font-size: $text_xl;
         }
         .description {
-          font-size: $text_lg;
+          &,
+          * {
+            font-size: $text_lg;
+          }
         }
       }
     }
