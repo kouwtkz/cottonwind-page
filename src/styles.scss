@@ -1091,9 +1091,11 @@ select.YearFilter {
   margin: 0.5rem;
   height: 1.5rem;
   min-width: 4rem;
+  cursor: pointer;
+  color: var(--main-color);
   background-color: transparent;
   border: none;
-  color: var(--main-color);
+
   option {
     color: var(--main-color-dark);
   }
