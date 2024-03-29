@@ -1,9 +1,10 @@
 import { HTMLAttributes, Suspense, useEffect, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { create } from "zustand";
 import { BiLeftArrow } from "react-icons/bi";
 import { UrlObject } from "url";
 import { KeyValueStringType } from "../../types/ValueType";
+import { useParamsState } from "../../state/ParamsState";
 
 type BackButtonType = {
   backUrl: string | UrlObject;
@@ -32,9 +33,9 @@ export function queryCheck({
 }
 
 function BackButtonInner() {
-  const { pathname, search } = useLocation();
+  const { pathname, search } = useParamsState();
   const { backUrl: backUrl_bc, setBackUrl: setBackUrl_bc } = useBackButton();
-  const entriesSearch = Array.from(new URLSearchParams(search).entries());
+  const entriesSearch = Array.from(search.entries());
   const joinSearch = entriesSearch.map(([k, v]) => `${k}=${v}`).join("&");
   const existsSearch = entriesSearch.length > 0;
   useEffect(

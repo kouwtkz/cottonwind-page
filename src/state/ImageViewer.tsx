@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useLayoutEffect, useMemo } from "react";
 import { create } from "zustand";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MultiParser from "../components/doc/MultiParser";
 import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions";
 import { ImageMee } from "../components/layout/ImageMee";
@@ -19,6 +19,7 @@ import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { MediaImageItemType } from "../types/MediaImageDataType";
+import { useParamsState } from "./ParamsState";
 
 const body = typeof window === "object" ? document?.body : null;
 const bodyLock = (m: boolean) => {
@@ -68,9 +69,7 @@ export function ImageViewer() {
   const nav = useNavigate();
   const { isOpen, onClose, image, setImage, editMode, setEditMode } =
     useImageViewer();
-  const { pathname, search: searchStr } = useLocation();
-  const search = new URLSearchParams(searchStr);
-  const query = Object.fromEntries(search);
+  const { pathname, query } = useParamsState();
   const imageParam = query.image;
   const albumParam = query.album;
   const groupParam = query.group ?? albumParam;
@@ -318,7 +317,7 @@ export function ImageViewer() {
                   className="prev"
                   to={MakeRelativeURL({
                     query: {
-                      ...Object.fromEntries(search),
+                      ...query,
                       image: beforeAfterImage.before.originName,
                       ...(beforeAfterImage.before.album?.name
                         ? { album: beforeAfterImage.before.album.name }
@@ -339,7 +338,7 @@ export function ImageViewer() {
                   className="next"
                   to={MakeRelativeURL({
                     query: {
-                      ...Object.fromEntries(search),
+                      ...query,
                       image: beforeAfterImage.after.originName,
                       ...(beforeAfterImage.after.album?.name
                         ? { album: beforeAfterImage.after.album.name }
@@ -368,7 +367,6 @@ export function ImageViewer() {
       isDev,
       onClose,
       pathname,
-      search,
       tagsOptions,
       titleEqFilename,
       query,

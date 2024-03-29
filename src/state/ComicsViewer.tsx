@@ -3,10 +3,10 @@ import { useImageState } from "./ImageState";
 import { MediaImageAlbumType } from "../types/MediaImageDataType";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
-import { useLocation } from "react-router-dom";
 import { GalleryObject } from "../routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
+import { useParamsState } from "./ParamsState";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -29,7 +29,7 @@ interface ePubMetadataType {
 }
 
 export function ComicsViewer() {
-  const s = new URLSearchParams(useLocation().search);
+  const s = useParamsState((state) => state.search);
   const src = s.get("name") ?? "";
   if (src)
     if (/\.epub$/i.test(src)) {

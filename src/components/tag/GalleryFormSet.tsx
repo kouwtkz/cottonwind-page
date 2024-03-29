@@ -109,7 +109,7 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const search = new URLSearchParams(useLocation().search);
+  const { search } = useParamsState();
   const q = search.get("q") || "";
   const qRef = React.useRef(q);
   React.useEffect(() => {
@@ -173,7 +173,7 @@ interface SelectAreaProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function GalleryTagsSelect({ className }: SelectAreaProps) {
   const nav = useNavigate();
-  const search = new URLSearchParams(useLocation().search);
+  const search = useParamsState((state) => state.search);
   const searchTags = search.get("tag")?.split(",") || [];
   const searchType =
     search
