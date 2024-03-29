@@ -84,7 +84,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
       ...getImageTagsObject(image),
       time:
         image?.time
-          ?.toLocaleString("sv-SE", { timeZone: "JST" })
+          ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
           .replace(" ", "T") || "",
       copyright: image?.copyright || "",
       link: image?.link || "",

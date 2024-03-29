@@ -3,5 +3,5 @@
  * @returns 
  */
 export function ToJST(date) {
-  return date.toLocaleString("sv-SE", { timeZone: "JST" }) + "+09:00";
+  return date.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" }) + "+09:00";
 }

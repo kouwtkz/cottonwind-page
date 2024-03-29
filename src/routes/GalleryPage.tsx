@@ -31,7 +31,6 @@ import {
   GalleryYearFilter,
   GallerySearchArea,
   GalleryTagsSelect,
-  getJSTYear,
 } from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
@@ -42,6 +41,7 @@ import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { useParamsState } from "../state/ParamsState";
+import { getJSTYear } from "../data/functions/TimeFunctions";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   return (

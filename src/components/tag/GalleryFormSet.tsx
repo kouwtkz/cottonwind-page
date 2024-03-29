@@ -14,6 +14,7 @@ import {
 import ReactSelect from "react-select";
 import { HTMLAttributes } from "react";
 import { callReactSelectTheme } from "../theme/main";
+import { getJSTYear } from "../../data/functions/TimeFunctions";
 
 export function GalleryYearFilter() {
   const nav = useNavigate();
@@ -152,11 +153,6 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
   );
 }
 
-// 日本標準時で年の取得をする
-export function getJSTYear(date?: Date | null) {
-  if (!date) return 0;
-  return new Date(date.getTime() + 32400000).getUTCFullYear();
-}
 function getYearObjects(dates: (Date | null | undefined)[]) {
   return dates
     .map((date) => getJSTYear(date))

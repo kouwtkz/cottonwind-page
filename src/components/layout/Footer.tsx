@@ -1,4 +1,5 @@
 import { buildTime } from "../../data/env";
+import { getJSTYear } from "../../data/functions/TimeFunctions";
 import { serverSite } from "../../data/server/site";
 import { SiteSnsItemType } from "../../types/SiteDataType";
 
@@ -6,12 +7,7 @@ export function Footer() {
   return (
     <footer>
       <div className="copyright">
-        © {serverSite.author.since}-
-        {
-          (buildTime ?? new Date())
-            .toLocaleDateString("ja", { timeZone: "JST" })
-            .split("/", 1)[0]
-        }{" "}
+        © {serverSite.author.since}-{getJSTYear(buildTime ?? new Date())}{" "}
         {serverSite.author.ename}
       </div>
       <SnsList snsList={serverSite.menu?.sns || []} />
