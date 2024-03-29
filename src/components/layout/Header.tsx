@@ -11,8 +11,17 @@ export const SiteTitle = React.memo(function SiteTitle({
 }) {
   return (
     <div className="title-container">
-      <Link to="/">
-        <div id="siteTitle">{title}</div>
+      <Link
+        id="siteTitle"
+        to="/"
+        onClick={(e) => {
+          if (scrollY > 0) {
+            scrollTo({ top: 0, behavior: "smooth" });
+            e.preventDefault();
+          }
+        }}
+      >
+        {title}
       </Link>
     </div>
   );

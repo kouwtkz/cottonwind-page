@@ -516,23 +516,36 @@ header {
   .backButton {
     position: absolute;
     left: 0;
-    margin: 0.25rem;
-    width: 3.5rem;
-    height: 3.5rem;
-    > div {
+    margin-left: 0.25rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    a {
+      width: 2rem;
+      height: 2rem;
+      padding: 0.5rem;
       display: flex;
-      @extend %userSelectNone;
       justify-content: center;
+      align-items: center;
+      @extend %userSelectNone;
+      color: var(--main-color-soft);
+      &:hover {
+        color: var(--main-color-pale);
+      }
+    }
+    svg {
+      height: 2rem;
+      width: 2rem;
+    }
+    @media (min-width: $mobileWidth) {
       a {
+        width: 2.5rem;
+        height: 2.5rem;
         padding: 0.75rem;
-        color: var(--main-color-soft);
-        &:hover {
-          color: var(--main-color-pale);
-        }
       }
       svg {
-        height: 2rem;
-        width: 2rem;
+        height: 2.25rem;
+        width: 2.25rem;
       }
     }
   }
@@ -549,19 +562,20 @@ header {
   .title-container {
     margin: 0.75rem auto;
     display: inline-block;
-    & > a {
-      padding: 0 0.5rem;
-      height: 2.5rem;
-      display: inline-block;
+    padding: 0 0.5rem;
+    height: 2.5rem;
+    display: inline-block;
+    a {
       text-decoration-line: none;
-      #siteTitle {
-        font-size: $text_2xl;
-        line-height: 2.5rem;
-        font-family: var(--font-MochiyPopOne);
-        color: var(--main-color);
-        @media (min-width: $mobileWidth) {
-          font-size: $text_3xl;
-        }
+    }
+    #siteTitle {
+      font-size: $text_2xl;
+      line-height: 2.5rem;
+      font-family: var(--font-MochiyPopOne);
+      color: var(--main-color);
+      cursor: pointer;
+      @media (min-width: $mobileWidth) {
+        font-size: $text_3xl;
       }
     }
   }
