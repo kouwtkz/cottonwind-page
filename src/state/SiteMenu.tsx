@@ -73,7 +73,9 @@ export function SiteMenu() {
 }
 
 export function SiteMenuButton() {
-  const { isOpen, ToggleIsOpen } = useSiteMenuState();
+  const { isOpen, ToggleIsOpen } = useSiteMenuState(
+    ({ isOpen, ToggleIsOpen }) => ({ isOpen, ToggleIsOpen })
+  );
   return (
     <MenuButton
       isOpen={isOpen}

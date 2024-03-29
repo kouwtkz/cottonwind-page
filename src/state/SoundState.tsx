@@ -4,7 +4,7 @@ import {
   SoundAlbumType,
   SoundItemType,
 } from "../types/MediaSoundType";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import axios from "axios";
 import { useSoundPlayer } from "./SoundPlayer";
 import { buildAddVer } from "../data/env";
@@ -47,28 +47,30 @@ export const useSoundState = create<SoundDataType>((set) => ({
   },
 }));
 
-export default function SoundState({ url = defaultUrl }: { url?: string }) {
-  const { RegistPlaylist } = useSoundPlayer();
-  const { SetSoundAlbum, SetDefaultPlaylist } = useSoundState();
-  const isSet = useRef(false);
-  useEffect(() => {
-    if (!isSet.current)
-      axios(url).then((r) => {
-        const album = r.data as SoundAlbumType;
-        SetSoundAlbum(album);
-        const setupPlaylist = album.playlist?.find((playlist) =>
-          playlist.list.some((item) => item.setup)
-        ) || { list: [] };
-        const setupSoundIndex = setupPlaylist?.list.findIndex(
-          (item) => item.setup
-        );
-        if (setupPlaylist?.list.length > 0) {
-          SetDefaultPlaylist(setupPlaylist);
-          RegistPlaylist({ playlist: setupPlaylist, current: setupSoundIndex });
-        }
-      });
-    isSet.current = true;
-  });
+export function SoundState({ url = defaultUrl }: { url?: string }) {
+  const RegistPlaylist = useSoundPlayer((state) => state.RegistPlaylist);
+  const { SetSoundAlbum, SetDefaultPlaylist } = useSoundState(
+    ({ SetSoundAlbum, SetDefaultPlaylist }) => ({
+      SetSoundAlbum,
+      SetDefaultPlaylist,
+    })
+  );
+  useLayoutEffect(() => {
+    axios(url).then((r) => {
+      const album = r.data as SoundAlbumType;
+      SetSoundAlbum(album);
+      const setupPlaylist = album.playlist?.find((playlist) =>
+        playlist.list.some((item) => item.setup)
+      ) || { list: [] };
+      const setupSoundIndex = setupPlaylist?.list.findIndex(
+        (item) => item.setup
+      );
+      if (setupPlaylist?.list.length > 0) {
+        SetDefaultPlaylist(setupPlaylist);
+        RegistPlaylist({ playlist: setupPlaylist, current: setupSoundIndex });
+      }
+    });
+  }, [url]);
 
   return <></>;
 }

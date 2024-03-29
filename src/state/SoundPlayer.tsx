@@ -1,11 +1,7 @@
-import { Suspense, useRef } from "react";
+import { useRef } from "react";
 import { create } from "zustand";
 import SoundFixed from "../components/layout/SoundFixed";
-import {
-  LoopMode,
-  PlaylistType,
-  SoundItemType,
-} from "../types/MediaSoundType";
+import { LoopMode, PlaylistType, SoundItemType } from "../types/MediaSoundType";
 import { getBasename } from "../components/doc/PathParse";
 const LoopModeList: LoopMode[] = ["loop", "loopOne", "playUntilEnd", "off"];
 
@@ -151,7 +147,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
 }));
 
-function Main() {
+export function SoundPlayer() {
   const refAudio = useRef<HTMLAudioElement>(null);
   const audioElm = refAudio.current;
   const { paused, ended, Stop, playlist, current, loopMode, Next } =
@@ -198,13 +194,5 @@ function Main() {
         }}
       />
     </>
-  );
-}
-
-export default function SoundPlayer() {
-  return (
-    <Suspense>
-      <Main />
-    </Suspense>
   );
 }

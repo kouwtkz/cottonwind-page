@@ -1,10 +1,10 @@
 import { Toaster } from "react-hot-toast";
-import SoundPlayer from "./SoundPlayer";
-import ImageViewer from "./ImageViewer";
-import SoundState, { useSoundState } from "./SoundState";
-import ImageState, { useImageState } from "./ImageState";
+import { SoundPlayer } from "./SoundPlayer";
+import { ImageViewer } from "./ImageViewer";
+import { SoundState, useSoundState } from "./SoundState";
+import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
-import CharaState, { useCharaState } from "./CharaState";
+import { CharaState, useCharaState } from "./CharaState";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
@@ -65,7 +65,9 @@ export function DataState() {
     useSoundState(),
     useFeedState(),
   ];
-  const { isComplete, setComplete } = useDataState();
+  const { isComplete, setComplete } = useDataState(
+    ({ isComplete, setComplete }) => ({ isComplete, setComplete })
+  );
   const first = useRef(true);
   const loading = useRef(true);
   const isFirsIncomplete = useRef(true);

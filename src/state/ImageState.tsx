@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect } from "react";
 import { create } from "zustand";
 import {
   MediaImageItemType,
@@ -56,13 +56,10 @@ export const useImageState = create<ImageDataType>((set) => ({
   },
 }));
 
-export default function ImageState({ url }: { url?: string }) {
-  const { setImageFromUrl } = useImageState();
-  const setImage = useRef(false);
-  useEffect(() => {
-    if (!setImage.current) setImageFromUrl(url);
-    setImage.current = true;
-  });
-
+export function ImageState({ url }: { url?: string }) {
+  const setImageFromUrl = useImageState((state) => state.setImageFromUrl);
+  useLayoutEffect(() => {
+    setImageFromUrl(url);
+  }, [url]);
   return <></>;
 }

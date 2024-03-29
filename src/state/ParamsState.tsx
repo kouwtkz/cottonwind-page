@@ -20,7 +20,7 @@ export const useParamsState = create<ParamsStateType>((set) => ({
 
 export function ParamsState() {
   const { search } = useLocation();
-  const { searchSet } = useParamsState();
+  const searchSet = useParamsState((state) => state.searchSet);
   React.useLayoutEffect(() => {
     searchSet(search);
   }, [search]);

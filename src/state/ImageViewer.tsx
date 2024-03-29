@@ -62,7 +62,7 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
   },
 }));
 
-export default function ImageViewer() {
+export function ImageViewer() {
   const { imageItemList } = useImageState();
   const { charaList } = useCharaState();
   const nav = useNavigate();
@@ -80,7 +80,10 @@ export default function ImageViewer() {
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
   const { isComplete } = useDataState();
 
-  const { items, yfList } = useGalleryObject();
+  const { items, yfList } = useGalleryObject(({ items, yfList }) => ({
+    items,
+    yfList,
+  }));
   const galleryItemIndex = useMemo(
     () => items?.findIndex((item) => item.name === groupParam) ?? -1,
     [items, groupParam]

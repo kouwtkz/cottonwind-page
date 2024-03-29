@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { CharaType, CharaObjectType } from "../types/CharaType";
 import { create } from "zustand";
 import axios from "axios";
@@ -30,11 +30,15 @@ export const useCharaState = create<CharaStateType>((set) => ({
   },
 }));
 
-export default function CharaState({ url = defaultUrl }: { url?: string }) {
-  const { isSet, setCharaObject } = useCharaState();
-  const { imageItemList, imageAlbumList } = useImageState();
-  const { SoundItemList, defaultPlaylist } = useSoundState();
-  useEffect(() => {
+export function CharaState({ url = defaultUrl }: { url?: string }) {
+  const { setCharaObject, isSet } = useCharaState(
+    ({ setCharaObject, isSet }) => ({ setCharaObject, isSet })
+  );
+  const imageItemList = useImageState((state) => state.imageItemList);
+  const { SoundItemList, defaultPlaylist } = useSoundState(
+    ({ SoundItemList, defaultPlaylist }) => ({ SoundItemList, defaultPlaylist })
+  );
+  useLayoutEffect(() => {
     if (!isSet && imageItemList.length > 0 && SoundItemList.length > 0) {
       axios(url).then((r) => {
         type mediaKindType = "icon" | "image" | "headerImage";
@@ -92,7 +96,7 @@ export default function CharaState({ url = defaultUrl }: { url?: string }) {
         setCharaObject(data);
       });
     }
-  });
+  }, [isSet, url, imageItemList, SoundItemList]);
 
   return <></>;
 }
