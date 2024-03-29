@@ -18,7 +18,7 @@ export interface GalleryListPropsBase {
   hideWhenFilter?: boolean;
 }
 
-export type YearListType = { year: number; count: number };
+export type YearListType = { year: number; value?: string; label?: string; count: number };
 
 interface GalleryListProps extends GalleryListPropsBase {
   album: MediaImageAlbumType | null;

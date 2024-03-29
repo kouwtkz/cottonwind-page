@@ -20,10 +20,11 @@ export function GalleryYearFilter() {
   const nav = useNavigate();
   const { fList } = useGalleryObject(({ fList }) => ({ fList }));
   const { query } = useParamsState(({ query }) => ({ query }));
-  const { year } = query;
+  const year = Number(query.year);
+  const isOlder = query.sort === "leastRecently";
   const yearSelectRef = React.useRef<HTMLSelectElement>(null);
 
-  const yearList = useMemo(
+  const yearListBase = useMemo(
     () =>
       getYearObjects(
         fList.reduce((a, c) => {
@@ -35,10 +36,36 @@ export function GalleryYearFilter() {
       ),
     [fList]
   );
-  
+
+  const yearListBase2 = useMemo(() => {
+    const addedList =
+      isNaN(year) || !yearListBase.every((y) => y.year !== year)
+        ? yearListBase
+        : yearListBase.concat({ year, count: 0 });
+    addedList.forEach((y) => {
+      y.label = `${y.year} (${y.count})`;
+      y.value = String(y.year);
+    });
+    return addedList;
+  }, [yearListBase, year]);
+
+  const yearList = useMemo(() => {
+    const sortedList = isOlder
+      ? yearListBase2.sort((a, b) => a.year - b.year)
+      : yearListBase2.sort((a, b) => b.year - a.year);
+    const count = sortedList.reduce((a, c) => a + c.count, 0);
+    sortedList.unshift({
+      year: 0,
+      count,
+      label: `all (${count})`,
+      value: "",
+    });
+    return sortedList;
+  }, [yearListBase2, isOlder]);
+
   return (
     <select
-      title="年ごとのフィルタリング"
+      title="年フィルタ"
       className="yearFilter"
       ref={yearSelectRef}
       value={year || ""}
@@ -54,12 +81,9 @@ export function GalleryYearFilter() {
         }
       }}
     >
-      <option value="">
-        all ({yearList?.reduce((a, c) => a + c.count, 0)})
-      </option>
-      {yearList?.map(({ year, count }, i) => (
-        <option key={i} value={year}>
-          {year} ({count})
+      {yearList.map(({ value, label }, i) => (
+        <option key={i} value={value}>
+          {label}
         </option>
       ))}
     </select>
