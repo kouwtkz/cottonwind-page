@@ -11,19 +11,13 @@ export interface GalleryListPropsBase {
   max?: number;
   step?: number;
   autoDisable?: boolean;
-  filterButton?: boolean;
   tags?: string | string[];
-  list?: MediaImageItemType[]
-  // yearList?: YearListType[];
+  list?: MediaImageItemType[];
   hideWhenFilter?: boolean;
+  hideWhenEmpty?: boolean;
 }
 
 export type YearListType = { year: number; value?: string; label?: string; count: number };
-
-interface GalleryListProps extends GalleryListPropsBase {
-  album: MediaImageAlbumType | null;
-  loading?: boolean;
-}
 
 export interface GalleryItemObjectType extends GalleryListPropsBase {
   name?: string;
@@ -34,7 +28,3 @@ export interface GalleryItemObjectType extends GalleryListPropsBase {
 export type GalleryItemType = string | GalleryItemObjectType;
 
 export type GalleryItemsType = GalleryItemType | GalleryItemType[];
-
-interface GalleryItemProps extends GalleryListPropsBase {
-  item: GalleryItemObjectType;
-}

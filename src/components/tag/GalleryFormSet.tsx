@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { MakeRelativeURL } from "../doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
-import { KeyValueStringType } from "../../types/ValueType";
 import { useParamsState } from "../../state/ParamsState";
 import { YearListType } from "../../types/GalleryType";
 import {

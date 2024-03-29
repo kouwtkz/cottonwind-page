@@ -19,15 +19,8 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  MediaImageAlbumType,
-  MediaImageItemType,
-} from "../types/MediaImageDataType";
-import { KeyValueStringType } from "../types/ValueType";
-import {
-  filterMonthList,
-  filterMonthType,
-} from "../components/tag/GalleryTags";
+import { MediaImageItemType } from "../types/MediaImageDataType";
+import { filterMonthList } from "../components/tag/GalleryTags";
 import {
   filterImagesTags,
   filterPickFixed,
@@ -105,7 +98,7 @@ export function GalleryGroupPage() {
         max={40}
         step={28}
         linkLabel={false}
-        filterButton={true}
+        hideWhenEmpty={false}
       />
     </>
   );
@@ -143,8 +136,8 @@ export function GalleryObjectConvert({
           item.label = item.label ?? item.name;
           item.max = item.max ?? 20;
           item.linkLabel = item.linkLabel ?? false;
-          item.filterButton = item.filterButton ?? true;
           item.hideWhenFilter = true;
+          item.hideWhenEmpty = true;
           break;
         default:
           const album = imageAlbumList.find((album) => album.name === name);
@@ -154,7 +147,7 @@ export function GalleryObjectConvert({
             item.max = item.max ?? args.max ?? 20;
             item.step = item.step ?? args.step;
             item.linkLabel = item.linkLabel ?? args.linkLabel ?? true;
-            item.filterButton = item.filterButton ?? args.filterButton ?? true;
+            item.hideWhenEmpty = item.hideWhenEmpty ?? args.hideWhenEmpty;
           }
           break;
       }
@@ -199,11 +192,11 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
   },
 }));
 
-export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
-  const { setItems, setYFList } = useGalleryObject(
-    useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
-  );
-
+export function GalleryObject({
+  items: _items,
+}: {
+  items: GalleryItemObjectType[];
+}) {
   const { query } = useParamsState(({ query }) => ({ query }));
   const {
     sort: sortParam,
@@ -213,19 +206,37 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
     q: qParam,
     tag: tagParam,
   } = query;
+  const filterParams = useMemo(
+    () => (filterParam || "").split(","),
+    [filterParam]
+  );
+  const topicParams = useMemo(
+    () => filterParams.filter((p) => p === "topImage" || p === "pickup"),
+    [filterParams]
+  );
   const year = Number(query.year);
   const monthlyEventMode = useMemo(
-    () =>
-      filterParam
-        ? filterParam === "monthTag"
-          ? false
-          : filterParam === "monthlyOnly"
-        : true,
-    [filterParam]
+    () => !filterParams.some((p) => p === "monthTag"),
+    [filterParams]
   );
   const filterMonthly = useMemo(
     () => filterMonthList.find(({ month }) => String(month) === monthParam),
     [monthParam]
+  );
+  const notHideParam = useMemo(
+    () => filterParams.some((p) => p === "notHide"),
+    [filterParams]
+  );
+  const items = useMemo(() => {
+    if (notHideParam)
+      return _items.map((item) => ({
+        ...item,
+        hideWhenEmpty: false,
+      }));
+    else return _items;
+  }, [_items, notHideParam]);
+  const { setItems, setYFList } = useGalleryObject(
+    useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
 
   const sortList = useMemo(() => {
@@ -275,7 +286,8 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
   const { fList, yfList } = useMemo(() => {
     const fList = items
       .map((item) =>
-        item.hideWhenFilter && (typeParam || tags || searches || monthParam)
+        item.hideWhenFilter &&
+        (topicParams.length > 0 || typeParam || tags || searches || monthParam)
           ? []
           : item.list ?? []
       )
@@ -294,9 +306,9 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
             });
           }
         }
-        if (filterParam === "topImage" || filterParam === "pickup") {
-          images = images.filter((image) => image[filterParam]);
-        }
+        topicParams.forEach((p) => {
+          images = images.filter((image) => image[p]);
+        });
         if (typeParam) images = images.filter(({ type }) => type === typeParam);
         if (tags)
           images = filterImagesTags({
@@ -376,7 +388,7 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
     return { fList, yfList };
   }, [
     items,
-    filterParam,
+    topicParams,
     typeParam,
     monthParam,
     filterMonthly,
@@ -508,7 +520,9 @@ function GalleryBody({
         {GalleryHeader}
         {items
           .map((item, i) => ({ ...item, i }))
-          .filter(({ i }) => yfList[i].length)
+          .filter(({ hideWhenEmpty = true, i }) =>
+            hideWhenEmpty ? yfList[i].length : true
+          )
           .map(({ i, ...item }) => (
             <div key={i}>
               {import.meta.env.DEV ? (
@@ -537,16 +551,7 @@ interface GalleryContentProps extends React.HTMLAttributes<HTMLDivElement> {
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent({ item, list, ...args }, ref) {
     const { isComplete } = useDataState();
-    const {
-      name,
-      linkLabel,
-      h2,
-      h4,
-      label,
-      filterButton = true,
-      max = 20,
-      step = 20,
-    } = item;
+    const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
     const { query } = useParamsState();
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
@@ -565,7 +570,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const showMoreButton = curMax < (list.length || 0);
     const visibleMax = showMoreButton ? curMax - 1 : curMax;
 
-    if (!list.length) return <></>;
     return (
       <div {...args} ref={ref}>
         {h2 || h4 ? (

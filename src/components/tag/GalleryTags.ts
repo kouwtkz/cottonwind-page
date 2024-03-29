@@ -95,8 +95,9 @@ export const defaultFilterTags: GalleryTagsOption[] = [
   {
     label: "固定編集用",
     options: [
-      { value: "filter:topImage", label: "📍トップ画像" },
+      { value: "filter:topImage", label: "🪄トップ画像" },
       { value: "filter:pickup", label: "📍ピックアップ" },
+      { value: "filter:notHide", label: "🔬アルバム全表示" },
     ],
   },
 ]
