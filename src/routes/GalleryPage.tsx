@@ -215,7 +215,12 @@ export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
   } = query;
   const year = Number(query.year);
   const monthlyEventMode = useMemo(
-    () => filterParam === "monthlyOnly",
+    () =>
+      filterParam
+        ? filterParam === "monthTag"
+          ? false
+          : filterParam === "monthlyOnly"
+        : true,
     [filterParam]
   );
   const filterMonthly = useMemo(

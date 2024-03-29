@@ -20,7 +20,7 @@ export const defaultTags: GalleryTagsOption[] = [
   },
   {
     label: "マンスリー", name: "monthly", options: [
-      { value: "filter:monthlyOnly", label: "🔎マンスリータグ", editable: false },
+      { value: "filter:monthTag", label: "🔎月タグ", editable: false },
       { value: "month:1", label: "🎍1月" },
       { value: "month:2", label: "👹2月" },
       { value: "month:3", label: "🎎3月" },
