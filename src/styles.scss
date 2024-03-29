@@ -1075,9 +1075,6 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
   & > * {
     margin: 0.25rem;
   }
-  .count {
-    color: var(--main-color-deep);
-  }
   .gallerySearch {
     font-size: $text_base;
     width: 14rem;
@@ -1086,6 +1083,69 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
   .galleryTagSelect {
     min-width: 18rem;
     text-align: left;
+  }
+}
+
+select.YearFilter {
+  font-size: $text_xl;
+  margin: 0.5rem;
+  height: 1.5rem;
+  min-width: 4rem;
+  background-color: transparent;
+  border: none;
+  color: var(--main-color);
+  option {
+    color: var(--main-color-dark);
+  }
+}
+
+%galleryTransition {
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke, opacity, box-shadow, transform,
+    filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.galleryLabel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  &.outLabel {
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+  h2 {
+    display: inline-block;
+    padding: $size_4 0;
+    margin: auto;
+    color: var(--main-color);
+    font-size: $text_2xl;
+    text-align: center;
+    line-height: $text_4xl;
+  }
+  h4 {
+    display: inline-block;
+    color: var(--main-color-soft);
+    margin: auto;
+  }
+  .count {
+    color: var(--main-color);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    margin-right: $size_2;
+    top: 0;
+    right: 0;
+  }
+  @media (min-width: $mobileWidth) {
+    h2 {
+      font-size: $text_3xl;
+    }
+    .count {
+      margin-right: $size_8;
+    }
   }
 }
 
@@ -1099,56 +1159,10 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
     text-decoration-line: none;
   }
   .galleryLabel {
-    position: relative;
-    &.outLabel {
-      padding-top: 1.5rem;
-      padding-bottom: 0.5rem;
-    }
     h2 {
-      display: inline-block;
-      padding: $size_4 0;
-      margin: auto;
-      color: var(--main-color);
-      font-size: $text_2xl;
-      text-align: center;
       font-family: var(--font-LuloClean);
       line-height: $text_4xl;
     }
-    h4 {
-      color: var(--main-color-soft);
-    }
-    .filterArea {
-      right: 0;
-      height: 100%;
-      position: absolute;
-      display: flex;
-      align-items: center;
-      select {
-        font-size: $text_xl;
-        margin: 0.5rem;
-        height: 1.5rem;
-        min-width: 4rem;
-        background-color: transparent;
-        border: none;
-        color: var(--main-color);
-        option {
-          color: var(--main-color-dark);
-        }
-      }
-    }
-    @media (min-width: $mobileWidth) {
-      h2 {
-        font-size: $text_3xl;
-      }
-    }
-  }
-
-  %transition {
-    transition-property: color, background-color, border-color,
-      text-decoration-color, fill, stroke, opacity, box-shadow, transform,
-      filter, backdrop-filter;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
   }
   .list {
     max-width: 1120px;
@@ -1178,7 +1192,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
           top: 0;
           width: 100%;
           height: 100%;
-          @extend %transition;
+          @extend %galleryTransition;
         }
         .translucent-comics-button {
           @extend .translucent-button;
@@ -1208,7 +1222,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
     width: $size1p4;
     margin: $margin1p4;
     cursor: pointer;
-    @extend %transition;
+    @extend %galleryTransition;
     fill: var(--main-color-soft);
     &:hover {
       fill: var(--main-color-pale);

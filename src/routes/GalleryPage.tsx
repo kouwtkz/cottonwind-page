@@ -7,7 +7,6 @@ import {
   GalleryItemType,
   GalleryItemsType,
   GalleryListPropsBase,
-  YearListType,
 } from "../types/GalleryType";
 import {
   ReactNode,
@@ -35,8 +34,12 @@ import {
 } from "../data/functions/FilterImages";
 import { create } from "zustand";
 import { InPageMenu } from "../components/layout/InPageMenu";
-import GallerySearchArea from "../components/tag/GallerySearchArea";
-import GalleryTagsSelect from "../components/tag/GalleryTagsSelect";
+import {
+  GalleryYearFilter,
+  GallerySearchArea,
+  GalleryTagsSelect,
+  getYear,
+} from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -45,6 +48,7 @@ import { MakeRelativeURL } from "../components/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
+import { useParamsState } from "../state/ParamsState";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   return (
@@ -173,27 +177,33 @@ interface sortObjectType {
 }
 
 interface GalleryObjectType {
-  items?: GalleryItemObjectType[];
+  items: GalleryItemObjectType[];
+  fList: MediaImageItemType[][];
+  yfList: MediaImageItemType[][];
   setItems: (items: GalleryItemObjectType[]) => void;
+  setYFList: (
+    fList: MediaImageItemType[][],
+    yfList: MediaImageItemType[][]
+  ) => void;
 }
 
 export const useGalleryObject = create<GalleryObjectType>((set) => ({
+  items: [],
+  fList: [],
+  yfList: [],
   setItems(items) {
     set({ items });
   },
+  setYFList(fList, yfList) {
+    set({ fList, yfList });
+  },
 }));
 
-export function GalleryObject({
-  items: _items,
-}: {
-  items: GalleryItemObjectType[];
-}) {
-  const { search } = useLocation();
-  const items = useMemo(
-    () => _items.map((item) => ({ ...item })),
-    [_items, search]
+export function GalleryObject({ items }: { items: GalleryItemObjectType[] }) {
+  const { setItems, setYFList } = useGalleryObject(
+    useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
-  const { setItems } = useGalleryObject();
+
   const {
     sort: sortParam,
     filter: filterParam,
@@ -202,10 +212,7 @@ export function GalleryObject({
     q: qParam,
     tag: tagParam,
     year,
-  } = useMemo(
-    () => Object.fromEntries(new URLSearchParams(search)) as KeyValueStringType,
-    [search]
-  );
+  } = useParamsState(({ query }) => ({ query })).query;
   const monthlyEventMode = useMemo(
     () => filterParam === "monthlyOnly",
     [filterParam]
@@ -259,88 +266,87 @@ export function GalleryObject({
     [qParam]
   );
 
-  useLayoutEffect(() => {
-    items.forEach((item) => {
-      if (!item.list) return;
-      if (
-        item.hideWhenFilter &&
-        (typeParam || tags || searches || monthParam)
-      ) {
-        item.list = [];
-        return;
-      }
-      if (filterMonthly) {
-        if (monthlyEventMode) {
-          item.list = filterImagesTags({
-            images: item.list,
-            tags: filterMonthly.tags,
-            every: false,
-          });
-        } else {
-          item.list = filterImagesTags({
-            images: item.list,
-            tags: filterMonthly.tags.filter((v, i) => i === 0),
-          });
+  const { fList, yfList } = useMemo(() => {
+    const fList = items
+      .map((item) =>
+        item.hideWhenFilter && (typeParam || tags || searches || monthParam)
+          ? []
+          : item.list ?? []
+      )
+      .map((images) => {
+        if (filterMonthly) {
+          if (monthlyEventMode) {
+            images = filterImagesTags({
+              images,
+              tags: filterMonthly.tags,
+              every: false,
+            });
+          } else {
+            images = filterImagesTags({
+              images,
+              tags: filterMonthly.tags.filter((v, i) => i === 0),
+            });
+          }
         }
-      }
-
-      if (filterParam === "topImage" || filterParam === "pickup") {
-        item.list = item.list.filter((image) => image[filterParam]);
-      }
-
-      if (typeParam)
-        item.list = item.list.filter(({ type }) => type === typeParam);
-
-      if (tags) item.list = filterImagesTags({ images: item.list, tags });
-
-      if (searches)
-        item.list = item.list.filter((image) => {
-          const ImageDataStr = [
-            image.name,
-            image.description,
-            image.src,
-            image.copyright,
-          ]
-            .concat(image.tags)
-            .join(" ");
-          return searches.every(({ key, value, option, reg }) => {
-            switch (key) {
-              case "tag":
-              case "hashtag":
-                let result = false;
-                if (key === "hashtag" && image.description)
-                  result = Boolean(reg?.test(image.description));
-                return (
-                  result ||
-                  image.tags?.some((tag) => {
-                    switch (option) {
-                      case "match":
-                        return tag.match(value);
-                      default:
-                        return tag === value;
-                    }
-                  })
-                );
-              case "name":
-              case "description":
-              case "URL":
-              case "copyright":
-              case "embed":
-                const imageValue = image[key];
-                if (imageValue) return imageValue.match(value);
-                else return false;
-              default:
-                return ImageDataStr.match(value);
-            }
+        if (filterParam === "topImage" || filterParam === "pickup") {
+          images = images.filter((image) => image[filterParam]);
+        }
+        if (typeParam) images = images.filter(({ type }) => type === typeParam);
+        if (tags)
+          images = filterImagesTags({
+            images,
+            tags,
           });
-        });
-      item.yearList = getYearObjects(item.list.map((item) => item.time));
-      if (year)
-        item.list = item.list.filter((item) => getYear(item.time) === year);
+
+        if (searches)
+          images = images.filter((image) => {
+            const ImageDataStr = [
+              image.name,
+              image.description,
+              image.src,
+              image.copyright,
+            ]
+              .concat(image.tags)
+              .join(" ");
+            return searches.every(({ key, value, option, reg }) => {
+              switch (key) {
+                case "tag":
+                case "hashtag":
+                  let result = false;
+                  if (key === "hashtag" && image.description)
+                    result = Boolean(reg?.test(image.description));
+                  return (
+                    result ||
+                    image.tags?.some((tag) => {
+                      switch (option) {
+                        case "match":
+                          return tag.match(value);
+                        default:
+                          return tag === value;
+                      }
+                    })
+                  );
+                case "name":
+                case "description":
+                case "URL":
+                case "copyright":
+                case "embed":
+                  const imageValue = image[key];
+                  if (imageValue) return imageValue.match(value);
+                  else return false;
+                default:
+                  return ImageDataStr.match(value);
+              }
+            });
+          });
+        return images;
+      });
+    const yfList = fList.map((images) => {
+      if (year) images = images.filter((item) => getYear(item.time) === year);
       sortList.forEach(({ key, order }) => {
         switch (key) {
           case "time":
-            item.list?.sort((a, b) => {
+            images.sort((a, b) => {
               const atime = a.time?.getTime() || 0;
               const btime = b.time?.getTime() || 0;
               if (atime === btime) return 0;
@@ -351,15 +357,16 @@ export function GalleryObject({
             });
             break;
           default:
-            item.list?.sort((a, b) => {
+            images.sort((a, b) => {
               if (a[key] === b[key]) return 0;
               const result = a[key] > b[key];
               return (order === "asc" ? result : !result) ? 1 : -1;
             });
         }
       });
+      return images;
     });
-    setItems(items);
+    return { fList, yfList };
   }, [
     items,
     filterParam,
@@ -371,7 +378,13 @@ export function GalleryObject({
     sortList,
     year,
   ]);
-  return <GalleryBody />;
+  useLayoutEffect(() => {
+    setYFList(fList, yfList);
+  }, [fList, yfList]);
+  useLayoutEffect(() => {
+    setItems(items);
+  }, [items]);
+  return <GalleryBody items={items} yfList={yfList} />;
 }
 
 function UploadChain({
@@ -453,57 +466,64 @@ function UploadChain({
   );
 }
 
-const GalleryBody = memo(function GalleryBody() {
-  const { items } = useGalleryObject();
+function GalleryBody({
+  items,
+  yfList,
+}: {
+  items: GalleryItemObjectType[];
+  yfList: MediaImageItemType[][];
+}) {
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const inPageList = useMemo(
     () =>
-      items?.map(({ name, label }, i) => ({
-        name: label || name || "",
-        ref: refList[i],
-      })),
-    [items]
-  );
-  const count = useMemo(
-    () => items?.reduce((a, c) => a + (c.list?.length ?? 0), 0),
-    [items]
+      yfList
+        .map((_, i) => items[i])
+        .map(({ label, name }, i) => ({
+          name: label || name || "",
+          ref: refList[i],
+        })),
+    [yfList, items]
   );
   return (
     <div className="galleryObject">
       <InPageMenu list={inPageList} adjust={64} />
       <div>
         <div className="galleryHeader">
-          {count !== undefined ? (
-            <span className="count">({count})</span>
-          ) : null}
+          <GalleryYearFilter />
           <GallerySearchArea />
           <GalleryTagsSelect />
         </div>
-        {items?.map((item, i) => (
-          <div key={i}>
-            {import.meta.env.DEV ? (
-              <UploadChain item={item}>
-                <GalleryContent ref={refList[i]} item={item} />
-              </UploadChain>
-            ) : (
-              <GalleryContent ref={refList[i]} item={item} />
-            )}
-          </div>
-        ))}
+        {items
+          .map((item, i) => ({ ...item, i }))
+          .filter(({ i }) => yfList[i].length)
+          .map(({ i, ...item }) => (
+            <div key={i}>
+              {import.meta.env.DEV ? (
+                <UploadChain item={item}>
+                  <GalleryContent
+                    ref={refList[i]}
+                    list={yfList[i]}
+                    item={item}
+                  />
+                </UploadChain>
+              ) : (
+                <GalleryContent ref={refList[i]} list={yfList[i]} item={item} />
+              )}
+            </div>
+          ))}
       </div>
     </div>
   );
-});
+}
 
 interface GalleryContentProps extends React.HTMLAttributes<HTMLDivElement> {
   item: GalleryItemObjectType;
+  list: MediaImageItemType[];
 }
 
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
-  function GalleryContent({ item, ...args }, ref) {
-    const nav = useNavigate();
+  function GalleryContent({ item, list, ...args }, ref) {
     const { isComplete } = useDataState();
-    const yearSelectRef = useRef<HTMLSelectElement>(null);
     const {
       name,
       linkLabel,
@@ -511,18 +531,10 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       h4,
       label,
       filterButton = true,
-      yearList,
-      list = [],
       max = 20,
       step = 20,
     } = item;
-    const { search } = useLocation();
-    const params = useMemo(
-      () =>
-        Object.fromEntries(new URLSearchParams(search)) as KeyValueStringType,
-      [search]
-    );
-    const { year } = params;
+    const { query } = useParamsState();
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -540,7 +552,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const showMoreButton = curMax < (list.length || 0);
     const visibleMax = showMoreButton ? curMax - 1 : curMax;
 
-    if (!item.list?.length) return <></>;
+    if (!list.length) return <></>;
     return (
       <div {...args} ref={ref}>
         {h2 || h4 ? (
@@ -551,38 +563,10 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ) : null}
         <div className="galleryContainer">
           <div className="galleryLabel">
-            {filterButton ? (
-              <div className="filterArea">
-                <select
-                  title="フィルタリング"
-                  ref={yearSelectRef}
-                  value={year || ""}
-                  onChange={() => {
-                    if (yearSelectRef.current) {
-                      const yearSelect = yearSelectRef.current;
-                      const query = { ...params };
-                      if (yearSelect.value) query.year = yearSelect.value;
-                      else delete query.year;
-                      nav(MakeRelativeURL({ query }), {
-                        preventScrollReset: true,
-                      });
-                    }
-                  }}
-                >
-                  <option value="">
-                    all ({yearList?.reduce((a, c) => a + c.count, 0)})
-                  </option>
-                  {yearList?.map(({ year, count }, i) => (
-                    <option key={i} value={year}>
-                      {year} ({count})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
             <h2>
               <HeadingElm label={label} />
             </h2>
+            <div className="count">({list.length})</div>
           </div>
           {isComplete ? (
             <div className={`list${list.length < 3 ? " min2" : ""}`}>
@@ -597,7 +581,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                       : {
                           to: MakeRelativeURL({
                             query: {
-                              ...params,
+                              ...query,
                               image: image.originName,
                               ...(image.album?.name
                                 ? { album: image.album.name }
@@ -648,17 +632,3 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     );
   }
 );
-
-function getYear(date?: Date | null) {
-  return date?.toLocaleString("ja", { timeZone: "JST" }).split("/", 1)[0];
-}
-function getYearObjects(dates: (Date | null | undefined)[]) {
-  return dates
-    .map((date) => getYear(date))
-    .reduce((a, c) => {
-      const g = a.find(({ year }) => c === year);
-      if (g) g.count++;
-      else if (c) a.push({ year: c, count: 1 });
-      return a;
-    }, [] as YearListType[]);
-}

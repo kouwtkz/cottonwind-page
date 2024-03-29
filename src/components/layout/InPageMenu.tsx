@@ -47,7 +47,8 @@ export const InPageMenu = memo(function InPageMenu({
     const max = list.length - 1;
     list.forEach((item, i) => {
       const offsetTop = item.element.offsetTop;
-      item.currentMode = offsetTop <= jy;
+      if (i !== 0) item.currentMode = offsetTop <= jy;
+      else item.currentMode = jy < offsetTop + item.element.offsetHeight;
       if (i === max && !item.currentMode) item.currentMode = isLastScroll;
     });
     const lastCurrentMode = list.findLastIndex((item) => item.currentMode);

@@ -14,11 +14,11 @@ export interface GalleryListPropsBase {
   filterButton?: boolean;
   tags?: string | string[];
   list?: MediaImageItemType[]
-  yearList?: YearListType[];
+  // yearList?: YearListType[];
   hideWhenFilter?: boolean;
 }
 
-export type YearListType = { year: string; count: number };
+export type YearListType = { year: number; count: number };
 
 interface GalleryListProps extends GalleryListPropsBase {
   album: MediaImageAlbumType | null;
