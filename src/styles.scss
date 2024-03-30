@@ -140,10 +140,6 @@ style {
   pointer-events: none;
 }
 
-.lockScroll {
-  overflow: hidden;
-}
-
 .flex {
   display: flex;
   &.center {
@@ -168,19 +164,6 @@ body {
   background-color: transparent;
   overflow-y: scroll;
   font-family: var(--font-KosugiMaru);
-
-  &::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-attachment: fixed;
-    background-color: var(--background-top);
-    z-index: -9999;
-  }
   &.loading {
     min-height: 5000rem;
     padding-right: var(--scroll-margin) !important;
@@ -193,10 +176,14 @@ body {
 }
 
 :root {
-  scrollbar-width: none;
+  background-color: var(--background-top);
+  // scrollbar-width: none;
+  scrollbar-width: thin;
   scrollbar-color: var(--main-color-soft) transparent;
   .window,
   .fc-scroller {
+    overflow-y: auto;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
   }
 }
@@ -511,7 +498,7 @@ body {
 header {
   position: fixed;
   width: 100%;
-  z-index: 10;
+  z-index: 30;
   text-align: center;
   .backButton {
     position: absolute;
@@ -1148,11 +1135,33 @@ select.YearFilter {
     margin: auto;
     @extend %userSelectNone;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(8, 1fr);
+    > * {
+      grid-column: span 2;
+    }
     column-gap: 0.1rem;
     row-gap: 0.1rem;
-    &.min2 {
-      justify-content: center;
+    & > *:only-child {
+      grid-column: span 2 / 6;
+    }
+    .item:first-child:nth-last-child(2) {
+      & {
+        grid-column: span 2 / 5;
+      }
+      ~ *:nth-of-type(2) {
+        grid-column: span 2 / 7;
+      }
+    }
+    .item:first-child:nth-last-child(3) {
+      & {
+        grid-column: span 2 / 4;
+      }
+      ~ *:nth-of-type(2) {
+        grid-column: span 2 / 6;
+      }
+      ~ *:nth-of-type(3) {
+        grid-column: span 2 / 8;
+      }
     }
     .loadingNow {
       color: var(--main-color-soft);
@@ -1460,6 +1469,7 @@ button.round {
       display: flex;
       flex-direction: column;
       text-align: center;
+      flex: 1;
       .title {
         margin: $size_8 $size_1 $size_4;
         text-align: center;

@@ -1,7 +1,7 @@
-import { HTMLAttributes, Suspense, useEffect, useMemo } from "react";
+import { HTMLAttributes, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { create } from "zustand";
-import { BiHomeAlt, BiLeftArrow } from "react-icons/bi";
+import { BiLeftArrow } from "react-icons/bi";
 import { UrlObject } from "url";
 import { KeyValueStringType } from "../../types/ValueType";
 import { useParamsState } from "../../state/ParamsState";
@@ -56,9 +56,6 @@ export default function BackButton(args: HTMLAttributes<HTMLDivElement>) {
         <>
           <Link to={String(backUrl)} title="ひとつ前に戻る">
             <BiLeftArrow />
-          </Link>
-          <Link to="/" title="ホームへ戻る">
-          <BiHomeAlt />
           </Link>
         </>
       ) : null}

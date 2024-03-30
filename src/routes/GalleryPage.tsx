@@ -586,7 +586,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
             <div className="count">({list.length})</div>
           </div>
           {isComplete ? (
-            <div className={`list${list.length < 3 ? " min2" : ""}`}>
+            <div className="list">
               {list
                 .filter((_, i) => i < visibleMax)
                 .map((image, i) => (

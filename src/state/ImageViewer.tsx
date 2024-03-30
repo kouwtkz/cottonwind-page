@@ -24,9 +24,9 @@ import { useParamsState } from "./ParamsState";
 const body = typeof window === "object" ? document?.body : null;
 const bodyLock = (m: boolean) => {
   if (m) {
-    body?.classList.add("lockScroll");
+    body?.classList.add("scrollLock");
   } else {
-    body?.classList.remove("lockScroll");
+    body?.classList.remove("scrollLock");
   }
 };
 
