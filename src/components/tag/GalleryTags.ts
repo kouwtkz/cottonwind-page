@@ -14,10 +14,10 @@ export const defaultTags: GalleryTagsOption[] = [
   {
     label: "タイプ", name: "type", editable: false, options: [
       { value: "type:illust", label: "🎨イラスト" },
-      { value: "type:goods", label: "🛍️グッズ" },
-      { value: "type:ebook", label: "📖ブック" },
-      { value: "type:movie", label: "🎬ムービー" },
-      { value: "type:picture", label: "📷ピクチャ" },
+      { value: "type:ebook", label: "📖漫画・小説" },
+      { value: "type:goods", label: "🛍️販売・グッズ" },
+      { value: "type:movie", label: "🎬動画・アニメ" },
+      { value: "type:picture", label: "📷写真・VRC" },
       { value: "type:3d", label: "🧶3Dモデル" },
     ]
   },
