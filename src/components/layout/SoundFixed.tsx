@@ -33,7 +33,7 @@ export default function SoundFixed() {
           <div>
             <div>
               <StopButton onClick={() => Stop()} />
-              <LoopButton onClick={() => NextLoopMode()} />
+              <LoopButton loopMode={loopMode} onClick={() => NextLoopMode()} />
               <ShuffleButton
                 shuffle={shuffle}
                 onClick={() => ToggleShuffle()}
