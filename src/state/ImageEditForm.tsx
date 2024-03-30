@@ -36,6 +36,7 @@ import {
 } from "../components/form/input/PostTextarea";
 import { useCharaState } from "./CharaState";
 import { toggleEditParam } from "../components/doc/SetSearchParams";
+import { AutoImageItemType } from "../data/functions/images";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {}
@@ -82,6 +83,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
       topImage: String(image?.topImage),
       pickup: String(image?.pickup),
       ...getImageTagsObject(image),
+      type: image?.originType || "",
       time:
         image?.time
           ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
@@ -126,11 +128,14 @@ export default function ImageEditForm({ className, ...args }: Props) {
         rename,
         size,
         type,
+        originType,
+        setType,
         ..._image
       } = image;
       const res = await axios.patch("/gallery/send", {
         ..._image,
         albumDir: album?.dir,
+        type: setType,
         move,
         rename,
         deleteMode,
@@ -161,6 +166,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
     },
     [imageAlbumList, nav]
   );
+
   const getCompareValues = (values: FieldValues) => {
     const setValues: FieldValues = {};
     Object.entries(values).forEach(([k, v]) => {
@@ -220,12 +226,21 @@ export default function ImageEditForm({ className, ...args }: Props) {
                 break;
             }
             break;
+          case "type":
+            if (v !== image.originType) image.setType = v;
+            break;
           default:
             image[k] = v;
             break;
         }
       });
       sendUpdate({ image, otherSubmit });
+      if ("setType" in image) {
+        image.type = image.setType ?? autoImageItemType;
+        if (image.setType) image.originType = image.setType;
+        else image.originType = image.setType;
+        delete image.setType;
+      }
     },
     [isDirty, getValues, defaultValues, reset, sendUpdate]
   );
@@ -288,6 +303,21 @@ export default function ImageEditForm({ className, ...args }: Props) {
   );
 
   const { togglePreviewMode, previewMode } = usePreviewMode();
+  const TypeTagsOption = useMemo(
+    () =>
+      (defaultTags.find(({ name }) => name === "type")?.options ?? []).map(
+        (o) => {
+          const v = o.value ?? "";
+          const value = v.slice(v.indexOf(":") + 1);
+          return { ...o, value };
+        }
+      ),
+    [defaultTags]
+  );
+  const autoImageItemType = useMemo(
+    () => AutoImageItemType(image?.embed, image?.album?.type),
+    [image?.embed, image?.album?.type]
+  );
 
   return (
     <>
@@ -458,6 +488,22 @@ export default function ImageEditForm({ className, ...args }: Props) {
               />
             </div>
           </div>
+          <label>
+            <span className="label-l">画像の種類</span>
+            <select title="種類の選択" {...register("type")}>
+              <option value="">
+                自動(
+                {TypeTagsOption.find((item) => item.value === autoImageItemType)
+                  ?.label ?? autoImageItemType}
+                )
+              </option>
+              {TypeTagsOption.map((v, i) => (
+                <option value={v.value} key={i}>
+                  {v.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <div>
             <div className="label">固定設定</div>
             <div className="wide flex around">
@@ -471,11 +517,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
               </label>
               <label>
                 <span className="label-sl">ピックアップ</span>
-                <select
-                  className="ml-1"
-                  title="ピックアップ画像"
-                  {...register("pickup")}
-                >
+                <select title="ピックアップ画像" {...register("pickup")}>
                   <option value="undefined">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>

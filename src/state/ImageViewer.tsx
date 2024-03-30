@@ -301,7 +301,7 @@ export function ImageViewer() {
                           {image.time.toLocaleString("ja", opt)}
                         </div>
                       ) : null}
-                      {image.type === "ebook" ? (
+                      {image.embed && image.type === "ebook" ? (
                         <div>本のマークから読むことができる作品です！</div>
                       ) : null}
                     </div>

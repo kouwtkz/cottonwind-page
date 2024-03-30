@@ -14,9 +14,11 @@ export const defaultTags: GalleryTagsOption[] = [
   {
     label: "タイプ", name: "type", editable: false, options: [
       { value: "type:illust", label: "🎨イラスト" },
-      { value: "type:ebook", label: "📖ブック" },
       { value: "type:goods", label: "🛍️グッズ" },
-      { value: "type:3d", label: "🧶3D" },
+      { value: "type:ebook", label: "📖ブック" },
+      { value: "type:movie", label: "🎬ムービー" },
+      { value: "type:picture", label: "📷ピクチャ" },
+      { value: "type:3d", label: "🧶3Dモデル" },
     ]
   },
   {

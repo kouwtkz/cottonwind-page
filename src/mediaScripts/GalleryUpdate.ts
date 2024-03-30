@@ -30,6 +30,7 @@ export async function GalleryPatch(data: any) {
         });
         if (imageItem.topImage === null) delete imageItem.topImage;
         if (imageItem.pickup === null) delete imageItem.pickup;
+        if (!imageItem.type) delete imageItem.type;
         if (move || rename) {
           const imageFullpath = pathResolve(`${cwd}/${editYaml.from}/${origin}`);
           const moveYaml = (move ? yamls.find(album => album.dir === move) : null) || editYaml;

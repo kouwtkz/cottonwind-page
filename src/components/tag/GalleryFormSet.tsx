@@ -211,6 +211,7 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
         options={tags}
         value={currentTags}
         isMulti
+        isSearchable={false}
         classNamePrefix="select"
         placeholder="ソート / フィルタ"
         instanceId="galleryTagSelect"

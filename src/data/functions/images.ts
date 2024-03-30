@@ -12,23 +12,8 @@ export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
       item.album = album;
       item.time = item.time ? new Date(item.time) : undefined;
       imageList.push(item);
-      if (!item.type) {
-        if (item.embed) {
-          if (/\.(epub)$/i.test(item.embed)) {
-            item.type = "ebook";
-          } else if (/\.(pdf)$/i.test(item.embed)) {
-            item.type = "pdf";
-          } else if (/^3d\//i.test(item.embed)) {
-            item.type = "3d";
-          } else {
-            item.type = "embed";
-          }
-        } else if (album.type) {
-          item.type = album.type;
-        } else {
-          item.type = "illust";
-        }
-      }
+      item.originType = item.type;
+      if (!item.type) item.type = AutoImageItemType(item.embed, album.type);
     });
   });
   return imageList;
@@ -58,4 +43,22 @@ export function getCopyRightList(imageItemList: MediaImageItemType[]) {
       return list;
     }, [] as ValueCountType[])
     .sort((a, b) => (a.value > b.value ? 1 : -1));
+}
+
+export function AutoImageItemType(embed?: string, albumType?: string) {
+  if (embed) {
+    if (/\.(epub)$/i.test(embed)) {
+      return "ebook";
+    } else if (/\.(pdf)$/i.test(embed)) {
+      return "pdf";
+    } else if (/^3d\//i.test(embed)) {
+      return "3d";
+    } else {
+      return "embed";
+    }
+  } else if (albumType) {
+    return albumType;
+  } else {
+    return "illust";
+  }
 }

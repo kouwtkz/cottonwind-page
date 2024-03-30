@@ -19,7 +19,6 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
   // yamlを管理するメディアディレクトリ
   const baseDir = `${cwd}/${args.from}`;
   const dataDir = import.meta.env?.VITE_DATA_DIR ?? process.env.VITE_DATA_DIR ?? "";
-  console.log({ test: "test", dataDir, ...import.meta.env });
   const yamls = _yamls || await GetYamlImageList(args);
   const mtimeYamlPath = resolve(`${cwd}/${dataDir}/yamldata_mtimes.json`);
   /** @type {{[key: string]: Date}} */
