@@ -8,9 +8,13 @@ export interface ParamsStateType {
   query: KeyValueStringType;
   pathname: string;
   hash: string;
+  state: any;
+  key: string;
   searchSet: (str: string) => void;
   pathnameSet: (str: string) => void;
   hashSet: (str: string) => void;
+  stateSet: (str: any) => void;
+  keySet: (str: string) => void;
 }
 
 export const useParamsState = create<ParamsStateType>((set) => ({
@@ -18,6 +22,8 @@ export const useParamsState = create<ParamsStateType>((set) => ({
   query: {},
   pathname: "",
   hash: "",
+  state: null,
+  key: "",
   searchSet(str) {
     const search = new URLSearchParams(str);
     const query = Object.fromEntries(search);
@@ -29,19 +35,32 @@ export const useParamsState = create<ParamsStateType>((set) => ({
   hashSet(hash) {
     set({ hash });
   },
+  stateSet(state) {
+    set({ state });
+  },
+  keySet(key) {
+    set({ key });
+  },
 }));
 
 export function ParamsState() {
-  const { search, pathname, hash } = useLocation();
-  const { searchSet, pathnameSet, hashSet } = useParamsState();
+  const v = useLocation();
+  const { searchSet, pathnameSet, hashSet, stateSet, keySet } =
+    useParamsState();
   useLayoutEffect(() => {
-    searchSet(search);
-  }, [search]);
+    searchSet(v.search);
+  }, [v.search]);
   useLayoutEffect(() => {
-    pathnameSet(pathname);
-  }, [pathname]);
+    pathnameSet(v.pathname);
+  }, [v.pathname]);
   useLayoutEffect(() => {
-    hashSet(hash);
-  }, [hash]);
+    hashSet(v.hash);
+  }, [v.hash]);
+  useLayoutEffect(() => {
+    stateSet(v.state);
+  }, [v.state]);
+  useLayoutEffect(() => {
+    keySet(v.key);
+  }, [v.key]);
   return <></>;
 }

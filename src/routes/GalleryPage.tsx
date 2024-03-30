@@ -608,6 +608,9 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                                 : {}),
                             },
                           }),
+                          state: {
+                            from: location.pathname,
+                          },
                           preventScrollReset: true,
                         })}
                   >

@@ -18,7 +18,7 @@ import {
   autoFixTagsOptions,
   GalleryTagsOption,
 } from "../components/tag/GalleryTags";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEmbedState } from "./Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
@@ -47,6 +47,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
   const { charaList } = useCharaState();
   const { list: embedList } = useEmbedState();
   const nav = useNavigate();
+  const { state } = useLocation();
   const refForm = useRef<HTMLFormElement>(null);
   const isDev = import.meta.env.DEV;
 
@@ -328,7 +329,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
           className="round saveEdit"
           onClick={() => {
             if (editMode) SubmitImage(image);
-            toggleEditParam({ nav });
+            toggleEditParam({ nav, options: { state } });
           }}
         >
           {editMode ? <MdLibraryAddCheck /> : <AiFillEdit />}
@@ -341,14 +342,12 @@ export default function ImageEditForm({ className, ...args }: Props) {
             onClick={async () => {
               if (confirm("本当に削除しますか？")) {
                 if (image && (await sendUpdate({ image, deleteMode: true }))) {
-                  nav(-1);
-                  const href = location.href;
-                  setTimeout(() => {
-                    if (href === location.href)
-                      nav(location.pathname, {
-                        preventScrollReset: false,
-                      });
-                  }, 10);
+                  if (state) nav(-1);
+                  else {
+                    nav(location.pathname, {
+                      preventScrollReset: false,
+                    });
+                  }
                 }
               }
             }}

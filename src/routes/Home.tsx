@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useRef, useState } from "react";
@@ -8,6 +8,7 @@ import { ImageMee } from "../components/layout/ImageMee";
 import { FeedRead } from "../state/FeedRead";
 
 export default function Home() {
+  const nav = useNavigate();
   return (
     <>
       <HomeImage />

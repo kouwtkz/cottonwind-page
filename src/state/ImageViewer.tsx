@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useLayoutEffect, useMemo } from "react";
 import { create } from "zustand";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import MultiParser from "../components/doc/MultiParser";
 import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions";
 import { ImageMee } from "../components/layout/ImageMee";
@@ -69,7 +69,7 @@ export function ImageViewer() {
   const nav = useNavigate();
   const { isOpen, onClose, image, setImage, editMode, setEditMode } =
     useImageViewer();
-  const { pathname, query } = useParamsState();
+  const { pathname, query, state } = useParamsState();
   const imageParam = query.image;
   const albumParam = query.album;
   const groupParam = query.group ?? albumParam;
@@ -93,16 +93,13 @@ export function ImageViewer() {
   );
 
   const backAction = useCallback(() => {
-    nav(-1);
-    const href = location.href;
-    setTimeout(() => {
-      if (href === location.href) {
-        delete query.image;
-        delete query.pic;
-        nav(MakeRelativeURL({ query }), { preventScrollReset: false });
-      }
-    }, 10);
-  }, [query, nav]);
+    if (state) nav(-1);
+    else {
+      delete query.image;
+      delete query.pic;
+      nav(MakeRelativeURL({ query }), { preventScrollReset: false });
+    }
+  }, [query, nav, state]);
 
   const imageFinder = useCallback(
     (imageParam: string, albumParam?: string) => {
@@ -324,6 +321,7 @@ export function ImageViewer() {
                         : {}),
                     },
                   })}
+                  state={state}
                   preventScrollReset={false}
                   replace={true}
                 >
@@ -345,6 +343,7 @@ export function ImageViewer() {
                         : {}),
                     },
                   })}
+                  state={state}
                   preventScrollReset={false}
                   replace={true}
                 >
