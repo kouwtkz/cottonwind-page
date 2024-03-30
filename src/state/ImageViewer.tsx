@@ -322,7 +322,7 @@ export function ImageViewer() {
                     },
                   })}
                   state={state}
-                  preventScrollReset={false}
+                  preventScrollReset={true}
                   replace={true}
                 >
                   <div className="cursor">≪</div>
@@ -344,7 +344,7 @@ export function ImageViewer() {
                     },
                   })}
                   state={state}
-                  preventScrollReset={false}
+                  preventScrollReset={true}
                   replace={true}
                 >
                   <div>{beforeAfterImage.after.name}</div>
