@@ -557,14 +557,18 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
           <Link
-            to={typeof linkLabel === "string" ? linkLabel : "/gallery/" + name}
+            to={MakeRelativeURL({
+              pathname:
+                typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
+              query,
+            })}
           >
             {label}
           </Link>
         ) : (
           <>{label}</>
         ),
-      [linkLabel, name]
+      [linkLabel, name, query]
     );
     const [curMax, setCurMax] = useState(max);
     const showMoreButton = curMax < (list.length || 0);
