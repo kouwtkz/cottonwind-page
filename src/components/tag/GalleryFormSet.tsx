@@ -147,7 +147,7 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
         placeholder="ギャラリー検索"
         defaultValue={q}
         ref={searchRef}
-        className="gallerySearch"
+        className="search"
       />
     </form>
   );
@@ -215,7 +215,7 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
         classNamePrefix="select"
         placeholder="ソート / フィルタ"
         instanceId="galleryTagSelect"
-        className="galleryTagSelect"
+        className="tagSelect"
         theme={callReactSelectTheme}
         styles={{
           menuList: (style) => ({ ...style, minHeight: "22rem" }),
