@@ -29,7 +29,7 @@ interface ePubMetadataType {
 }
 
 export function ComicsViewer() {
-  const s = useParamsState((state) => state.search);
+  const s = useParamsState((state) => state.searchParams);
   const src = s.get("name") ?? "";
   if (src)
     if (/\.epub$/i.test(src)) {

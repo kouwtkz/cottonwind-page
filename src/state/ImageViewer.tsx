@@ -36,8 +36,6 @@ type ImageViewerType = {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
 };
 export const useImageViewer = create<ImageViewerType>((set) => ({
   image: null,
@@ -57,18 +55,13 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
     set(() => ({ isOpen: false, editMode: false, imageSrc: "" }));
     bodyLock(false);
   },
-  editMode: false,
-  setEditMode(editMode) {
-    set(() => ({ editMode }));
-  },
 }));
 
 export function ImageViewer() {
   const { imageItemList } = useImageState();
   const { charaList } = useCharaState();
   const nav = useNavigate();
-  const { isOpen, onClose, image, setImage, editMode, setEditMode } =
-    useImageViewer();
+  const { isOpen, onClose, image, setImage } = useImageViewer();
   const { pathname, query, state } = useParamsState();
   const imageParam = query.image;
   const albumParam = query.album;
@@ -122,16 +115,6 @@ export function ImageViewer() {
       if (isComplete) setImage(imageFinder(imageParam, albumParam));
     }
   }, [imageParam, albumParam, isOpen, isComplete]);
-  useLayoutEffect(() => {
-    switch (modeParam) {
-      case "edit":
-        setEditMode(true);
-        break;
-      default:
-        setEditMode(false);
-        break;
-    }
-  }, [modeParam]);
 
   const imageIndex = useMemo(
     () => groupImageList.findIndex(({ URL }) => image?.URL === URL),
@@ -217,7 +200,7 @@ export function ImageViewer() {
           <>
             {isComplete ? (
               <>
-                {editMode ? null : (
+                {state?.mode === "edit" ? null : (
                   <div className="info window">
                     {image.album.visible.title &&
                     (image.album.visible.filename || !titleEqFilename) ? (
@@ -361,7 +344,6 @@ export function ImageViewer() {
     [
       beforeAfterImage,
       charaList,
-      editMode,
       image,
       isDev,
       onClose,
@@ -370,6 +352,7 @@ export function ImageViewer() {
       titleEqFilename,
       query,
       isComplete,
+      state,
     ]
   );
 

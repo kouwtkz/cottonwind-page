@@ -33,9 +33,9 @@ export function queryCheck({
 }
 
 export default function BackButton(args: HTMLAttributes<HTMLDivElement>) {
-  const { pathname, search } = useParamsState();
+  const { pathname, searchParams } = useParamsState();
   const { backUrl: backUrl_bc, setBackUrl: setBackUrl_bc } = useBackButton();
-  const entriesSearch = Array.from(search.entries());
+  const entriesSearch = Array.from(searchParams.entries());
   const joinSearch = entriesSearch.map(([k, v]) => `${k}=${v}`).join("&");
   const existsSearch = entriesSearch.length > 0;
   useEffect(

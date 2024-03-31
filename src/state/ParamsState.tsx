@@ -4,7 +4,8 @@ import { useLocation } from "react-router-dom";
 import { useLayoutEffect } from "react";
 
 export interface ParamsStateType {
-  search: URLSearchParams;
+  search: string;
+  searchParams: URLSearchParams;
   query: KeyValueStringType;
   pathname: string;
   hash: string;
@@ -18,16 +19,17 @@ export interface ParamsStateType {
 }
 
 export const useParamsState = create<ParamsStateType>((set) => ({
-  search: new URLSearchParams(),
+  search: "",
+  searchParams: new URLSearchParams(),
   query: {},
   pathname: "",
   hash: "",
   state: null,
   key: "",
-  searchSet(str) {
-    const search = new URLSearchParams(str);
-    const query = Object.fromEntries(search);
-    set({ search, query });
+  searchSet(search) {
+    const searchParams = new URLSearchParams(search);
+    const query = Object.fromEntries(searchParams);
+    set({ search, searchParams, query });
   },
   pathnameSet(pathname) {
     set({ pathname });

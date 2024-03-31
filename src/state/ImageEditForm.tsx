@@ -47,7 +47,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
   const { charaList } = useCharaState();
   const { list: embedList } = useEmbedState();
   const nav = useNavigate();
-  const { state } = useLocation();
+  const { state, search, pathname } = useLocation();
   const refForm = useRef<HTMLFormElement>(null);
   const isDev = import.meta.env.DEV;
 
@@ -62,7 +62,8 @@ export default function ImageEditForm({ className, ...args }: Props) {
   const [otherTags, setOtherTags] = useState(
     autoFixTagsOptions(getTagsOptions(defaultTags))
   );
-  const { editMode, image } = useImageViewer();
+  const { image } = useImageViewer();
+  const editMode = state?.mode === "edit";
 
   const getImageTagsObject = useCallback(
     (image?: MediaImageItemType | null) => {
@@ -282,12 +283,12 @@ export default function ImageEditForm({ className, ...args }: Props) {
     const _state: KeyValueStringType = state ?? {};
     if (_state.mode) delete _state.mode;
     else _state.mode = "edit";
-    nav(location.search, {
+    nav(search, {
       state: _state,
       replace: true,
       preventScrollReset: true,
     });
-  }, [state]);
+  }, [state, search]);
 
   const CharaTagsLabel = useCallback(
     ({ option }: { option?: labelValue }) => {
@@ -355,7 +356,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
                 if (image && (await sendUpdate({ image, deleteMode: true }))) {
                   if (state) nav(-1);
                   else {
-                    nav(location.pathname, {
+                    nav(pathname, {
                       preventScrollReset: false,
                     });
                   }

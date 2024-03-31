@@ -31,6 +31,7 @@ import {
   GalleryYearFilter,
   GallerySearchArea,
   GalleryTagsSelect,
+  GalleryPageEditSwitch,
 } from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
@@ -506,6 +507,7 @@ function GalleryBody({
   const GalleryHeader = useMemo(
     () => (
       <div className="galleryHeader">
+        {import.meta.env.DEV ? <GalleryPageEditSwitch /> : null}
         <GalleryYearFilter />
         <GallerySearchArea />
         <GalleryTagsSelect />
@@ -552,7 +554,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent({ item, list, ...args }, ref) {
     const { isComplete } = useDataState();
     const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
-    const { query } = useParamsState();
+    const { query, pathname, state } = useParamsState();
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -613,7 +615,8 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                             },
                           }),
                           state: {
-                            from: location.pathname,
+                            ...state,
+                            from: pathname,
                           },
                           preventScrollReset: true,
                         })}

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { MakeRelativeURL } from "../doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
@@ -15,6 +15,7 @@ import ReactSelect from "react-select";
 import { HTMLAttributes } from "react";
 import { callReactSelectTheme } from "../theme/main";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
+import { AiFillEdit, AiOutlineCheck } from "react-icons/ai";
 
 export function GalleryYearFilter() {
   const nav = useNavigate();
@@ -110,8 +111,8 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const { search } = useParamsState();
-  const q = search.get("q") || "";
+  const { searchParams } = useParamsState();
+  const q = searchParams.get("q") || "";
   const qRef = React.useRef(q);
   React.useEffect(() => {
     if (qRef.current !== q) {
@@ -130,7 +131,7 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
       onSubmit={(e) => {
         if (searchRef.current) {
           const q = searchRef.current.value;
-          const query = Object.fromEntries(search);
+          const query = Object.fromEntries(searchParams);
           if (q) query.q = q;
           else delete query.q;
           delete query.p;
@@ -169,7 +170,7 @@ interface SelectAreaProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function GalleryTagsSelect({ className }: SelectAreaProps) {
   const nav = useNavigate();
-  const search = useParamsState((state) => state.search);
+  const search = useParamsState((state) => state.searchParams);
   const searchTags = search.get("tag")?.split(",") || [];
   const searchType =
     search
@@ -258,5 +259,18 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
         }}
       />
     </div>
+  );
+}
+
+export function GalleryPageEditSwitch() {
+  const { state } = useLocation();
+  const _state = { ...state };
+  const isEdit = _state.mode === "edit";
+  if (isEdit) delete _state.mode;
+  else _state.mode = "edit";
+  return (
+    <Link to="" state={_state} replace={true} preventScrollReset={true}>
+      {isEdit ? <AiOutlineCheck /> : <AiFillEdit />}
+    </Link>
   );
 }
