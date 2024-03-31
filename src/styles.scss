@@ -1617,13 +1617,16 @@ button.round {
           color: var(--main-color-dark);
         }
       }
+      input[type="text"] {
+        padding: $size_1 $size_2;
+      }
       input,
       select,
       textarea,
       .preview-area {
         display: inline-block;
         border-radius: 0.25rem;
-        padding: $size_1 $size_2;
+        padding: 0.125rem;
       }
       .wide {
         padding: 0 $size_1;

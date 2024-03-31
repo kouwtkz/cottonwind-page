@@ -73,7 +73,7 @@ export function ImageViewer() {
   const imageParam = query.image;
   const albumParam = query.album;
   const groupParam = query.group ?? albumParam;
-  const modeParam = query.mode;
+  const modeParam = state?.mode;
   const isProd = import.meta.env.PROD;
   const isDev = import.meta.env.DEV;
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));

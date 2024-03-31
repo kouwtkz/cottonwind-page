@@ -15,13 +15,3 @@ export function SetSearchParams({ nav, query, options }: SetSearchParamProps) {
 export function getSearchParams() {
   return Object.fromEntries(new URLSearchParams(location.search));
 }
-
-export function toggleEditParam({ options, ...args }: SetSearchParamBaseProps) {
-  const query = getSearchParams();
-  if (query.mode === "edit") {
-    delete query.mode;
-  } else {
-    query.mode = "edit";
-  }
-  SetSearchParams({ query, options: { replace: true, preventScrollReset: true, ...options }, ...args });
-}

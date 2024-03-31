@@ -35,8 +35,8 @@ import {
   usePreviewMode,
 } from "../components/form/input/PostTextarea";
 import { useCharaState } from "./CharaState";
-import { toggleEditParam } from "../components/doc/SetSearchParams";
 import { AutoImageItemType } from "../data/functions/images";
+import { KeyValueStringType } from "../types/ValueType";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {}
@@ -278,6 +278,17 @@ export default function ImageEditForm({ className, ...args }: Props) {
     otherTags,
   ]);
 
+  const toggleEditParam = useCallback(() => {
+    const _state: KeyValueStringType = state ?? {};
+    if (_state.mode) delete _state.mode;
+    else _state.mode = "edit";
+    nav(location.search, {
+      state: _state,
+      replace: true,
+      preventScrollReset: true,
+    });
+  }, [state]);
+
   const CharaTagsLabel = useCallback(
     ({ option }: { option?: labelValue }) => {
       const chara = charaList.find((chara) => chara.id === option?.value);
@@ -329,7 +340,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
           className="round saveEdit"
           onClick={() => {
             if (editMode) SubmitImage(image);
-            toggleEditParam({ nav, options: { state } });
+            toggleEditParam();
           }}
         >
           {editMode ? <MdLibraryAddCheck /> : <AiFillEdit />}
@@ -377,7 +388,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
           {...args}
           ref={refForm}
           onSubmit={handleSubmit((e) => {
-            toggleEditParam({ nav });
+            toggleEditParam();
             e.preventDefault();
           })}
           className={"edit window" + (className ? ` ${className}` : "")}
@@ -386,7 +397,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
             <div className="label">タイトル</div>
             <div className="wide">
               <input
-                className="title block w-[100%] rounded-none px-1 text-xl md:text-2xl text-main-dark"
+                className="title"
                 title="タイトル"
                 type="text"
                 {...register("name")}
