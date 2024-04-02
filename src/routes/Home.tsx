@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MediaImageItemType } from "../types/MediaImageDataType";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee } from "../components/layout/ImageMee";
@@ -37,9 +37,13 @@ export default function Home() {
 }
 
 export function HomeImage() {
-  const { imageItemList } = useImageState();
+  const { imageAlbumList } = useImageState();
+  const images = useMemo(
+    () => imageAlbumList.find(({ name }) => name === "art")?.list ?? [],
+    [imageAlbumList]
+  );
   const topImages = filterPickFixed({
-    images: imageItemList,
+    images,
     name: "topImage",
   });
   const [topImageState, setTopImage] = useState<MediaImageItemType>();
@@ -59,7 +63,7 @@ export function HomeImage() {
     if (curIndex >= 0 && curIndex <= imageIndex) imageIndex++;
     setTopImage(topImages[imageIndex]);
   };
-  if (firstLoad.current && imageItemList.length > 0) {
+  if (firstLoad.current && images.length > 0) {
     setRndTopImage();
     firstLoad.current = false;
   }
