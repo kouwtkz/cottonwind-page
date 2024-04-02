@@ -45,10 +45,11 @@ export const InPageMenu = memo(function InPageMenu({
   const filterList = useMemo(() => {
     const list = parsedList.filter(({ element }) => element);
     const max = list.length - 1;
+    const secondOffsetTop = list[1]?.element.offsetTop;
     list.forEach((item, i) => {
       const offsetTop = item.element.offsetTop;
       if (i !== 0) item.currentMode = offsetTop <= jy;
-      else item.currentMode = jy < offsetTop + item.element.offsetHeight;
+      else item.currentMode = !secondOffsetTop || secondOffsetTop > jy;
       if (i === max && !item.currentMode) item.currentMode = isLastScroll;
     });
     const lastCurrentMode = list.findLastIndex((item) => item.currentMode);
