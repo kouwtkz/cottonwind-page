@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
 import { serverSite } from "../data/server/site";
 import { useDataState } from "../state/StateSet";
@@ -32,16 +32,16 @@ import {
   GallerySearchArea,
   GalleryTagsSelect,
   GalleryPageEditSwitch,
+  GalleryPageOriginImageSwitch,
 } from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
 import ArrowUpButton from "../components/svg/button/arrow/ArrowUpButton";
-import { MakeRelativeURL } from "../components/doc/MakeURL";
+import { LinkMee, MakeRelativeURL, SearchSet } from "../components/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
-import { useParamsState } from "../state/ParamsState";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
@@ -124,36 +124,46 @@ export function GalleryObjectConvert({
       typeof item === "string" ? { name: item } : item,
     []
   );
-  const albums = convertItemArrayType(items).map((item) =>
-    convertItemObjectType(item)
-  );
-  albums.forEach((item) => {
-    if (!item.list) {
-      const name = item.name;
-      switch (name) {
-        case "pickup":
-        case "topImage":
-          item.list = filterPickFixed({ images: imageItemList, name });
-          item.label = item.label ?? item.name;
-          item.max = item.max ?? 20;
-          item.linkLabel = item.linkLabel ?? false;
-          item.hideWhenFilter = true;
-          item.hideWhenEmpty = true;
-          break;
-        default:
-          const album = imageAlbumList.find((album) => album.name === name);
-          if (album) {
-            item.list = album.list;
-            item.label = item.label ?? album.name;
-            item.max = item.max ?? args.max ?? 20;
-            item.step = item.step ?? args.step;
-            item.linkLabel = item.linkLabel ?? args.linkLabel ?? true;
-            item.hideWhenEmpty = item.hideWhenEmpty ?? args.hideWhenEmpty;
+  const albums = useMemo(
+    () =>
+      convertItemArrayType(items)
+        .map((item) => convertItemObjectType(item))
+        .map((item) => {
+          if (!item.list) {
+            const name = item.name;
+            switch (name) {
+              case "pickup":
+              case "topImage":
+                return {
+                  ...item,
+                  list: filterPickFixed({ images: imageItemList, name }),
+                  label: item.label ?? item.name,
+                  max: item.max ?? 20,
+                  linkLabel: item.linkLabel ?? false,
+                  hideWhenFilter: true,
+                  hideWhenEmpty: true,
+                };
+              default:
+                const album = imageAlbumList.find(
+                  (album) => album.name === name
+                );
+                if (album) {
+                  return {
+                    ...item,
+                    list: album.list,
+                    label: item.label ?? album.name,
+                    max: item.max ?? args.max ?? 20,
+                    step: item.step ?? args.step,
+                    linkLabel: item.linkLabel ?? args.linkLabel ?? true,
+                    hideWhenEmpty: item.hideWhenEmpty ?? args.hideWhenEmpty,
+                  };
+                }
+            }
           }
-          break;
-      }
-    }
-  });
+          return item;
+        }),
+    [items, imageItemList, imageAlbumList]
+  );
 
   return <GalleryObject items={albums} />;
 }
@@ -198,7 +208,8 @@ export function GalleryObject({
 }: {
   items: GalleryItemObjectType[];
 }) {
-  const { query } = useParamsState(({ query }) => ({ query }));
+  const search = useLocation().search;
+  const { query } = useMemo(() => SearchSet(search), [search]);
   const {
     sort: sortParam,
     filter: filterParam,
@@ -459,11 +470,9 @@ function UploadChain({
         toast("アップロードしました！", {
           duration: 2000,
         });
-        if (!import.meta.env.DEV) {
-          setTimeout(() => {
-            setImageFromUrl();
-          }, 10 * targetFiles.length);
-        }
+        setTimeout(() => {
+          setImageFromUrl();
+        }, 10 * targetFiles.length);
       }
     });
   }, []);
@@ -507,7 +516,12 @@ function GalleryBody({
   const GalleryHeader = useMemo(
     () => (
       <div className="galleryHeader">
-        {import.meta.env.DEV ? <GalleryPageEditSwitch /> : null}
+        {import.meta.env.DEV ? (
+          <>
+            <GalleryPageOriginImageSwitch />
+            <GalleryPageEditSwitch />
+          </>
+        ) : null}
         <GalleryYearFilter />
         <GallerySearchArea />
         <GalleryTagsSelect />
@@ -554,7 +568,9 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent({ item, list, ...args }, ref) {
     const { isComplete } = useDataState();
     const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
-    const { query, pathname, state } = useParamsState();
+    const { search, state } = useLocation();
+    const { query } = useMemo(() => SearchSet(search), [search]);
+    const isOrigin = useMemo(() => state?.showOrigin === "on", [state?.showOrigin]);
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -596,27 +612,24 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
               {list
                 .filter((_, i) => i < visibleMax)
                 .map((image, i) => (
-                  <Link
+                  <LinkMee
                     key={i}
                     className="item"
                     {...(image.direct
                       ? { to: image.direct }
                       : {
-                          to: MakeRelativeURL({
-                            query: {
-                              ...query,
-                              image: image.originName,
-                              ...(image.album?.name
-                                ? { album: image.album.name }
-                                : {}),
-                              ...(image.album?.name !== name
-                                ? { group: name }
-                                : {}),
-                            },
-                          }),
-                          state: {
-                            ...state,
-                            from: pathname,
+                          to: ({ search }) => {
+                            const query = SearchSet(search).query;
+                            query.image = image.originName;
+                            if (image.album?.name)
+                              query.album = image.album.name;
+                            if (image.album?.name !== name) query.group = name;
+                            return { query };
+                          },
+                          state: ({ state, pathname }) => {
+                            if (!state) state = {};
+                            state.from = pathname;
+                            return state;
                           },
                           preventScrollReset: true,
                         })}
@@ -636,9 +649,10 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                       <ImageMeeThumbnail
                         imageItem={image}
                         loadingScreen={true}
+                        originWhenDev={isOrigin}
                       />
                     </div>
-                  </Link>
+                  </LinkMee>
                 ))}
               {showMoreButton ? (
                 <div className="item">

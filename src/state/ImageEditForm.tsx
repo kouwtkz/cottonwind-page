@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useImageViewer } from "./ImageViewer";
+import { GalleryViewerPaging, useImageViewer } from "./ImageViewer";
 import { MediaImageItemType } from "../types/MediaImageDataType";
 import { ImageMee } from "../components/layout/ImageMee";
 import axios from "axios";
@@ -39,17 +39,17 @@ import { AutoImageItemType } from "../data/functions/images";
 import { KeyValueStringType } from "../types/ValueType";
 type labelValue = { label: string; value: string };
 
-interface Props extends HTMLAttributes<HTMLFormElement> {}
+interface Props extends HTMLAttributes<HTMLFormElement> {
+  image: MediaImageItemType | null;
+}
 
-export default function ImageEditForm({ className, ...args }: Props) {
-  const { imageAlbumList, imageItemList, copyrightList, setImageFromUrl } =
-    useImageState();
+export default function ImageEditForm({ className, image, ...args }: Props) {
+  const { imageAlbumList, copyrightList, setImageFromUrl } = useImageState();
   const { charaList } = useCharaState();
   const { list: embedList } = useEmbedState();
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
   const refForm = useRef<HTMLFormElement>(null);
-  const isDev = import.meta.env.DEV;
 
   const getCharaLabelValues = useCallback(() => {
     return charaList.map(({ name, id }) => ({
@@ -62,8 +62,8 @@ export default function ImageEditForm({ className, ...args }: Props) {
   const [otherTags, setOtherTags] = useState(
     autoFixTagsOptions(getTagsOptions(defaultTags))
   );
-  const { image } = useImageViewer();
-  const editMode = state?.mode === "edit";
+
+  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
 
   const getImageTagsObject = useCallback(
     (image?: MediaImageItemType | null) => {
@@ -146,7 +146,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
         toast(deleteMode ? "削除しました" : "更新しました！", {
           duration: 2000,
         });
-        if (!isDev) setImageFromUrl();
+        setImageFromUrl();
         if (!otherSubmit && (move || rename)) {
           const query = Object.fromEntries(
             new URLSearchParams(location.search)
@@ -166,7 +166,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
         return false;
       }
     },
-    [imageAlbumList, nav]
+    [imageAlbumList, nav, setImageFromUrl]
   );
 
   const getCompareValues = (values: FieldValues) => {
@@ -247,42 +247,10 @@ export default function ImageEditForm({ className, ...args }: Props) {
     [isDirty, getValues, defaultValues, reset, sendUpdate]
   );
 
-  const refImage = useRef<MediaImageItemType | null>(null);
-  useEffect(() => {
-    if (image && refImage.current?.URL !== image?.URL) {
-      (async () => {
-        if (editMode && isDirty) SubmitImage(refImage.current, true);
-        const imageDefaultValues = getDefaultValues(image);
-        reset(imageDefaultValues);
-        setOtherTags((t) => {
-          const imageOnlyOtherTags =
-            imageDefaultValues.otherTags.filter((item) =>
-              t.every(({ value }) => value !== item)
-            ) || [];
-          if (imageOnlyOtherTags.length > 0)
-            return t.concat(
-              imageOnlyOtherTags.map((d) => ({ value: d, label: d }))
-            );
-          else return t;
-        });
-        refImage.current = image;
-      })();
-    }
-  }, [
-    editMode,
-    getDefaultValues,
-    getValues,
-    image,
-    isDirty,
-    SubmitImage,
-    reset,
-    otherTags,
-  ]);
-
   const toggleEditParam = useCallback(() => {
     const _state: KeyValueStringType = state ?? {};
-    if (_state.mode) delete _state.mode;
-    else _state.mode = "edit";
+    if (_state.edit === "on") delete _state.edit;
+    else _state.edit = "on";
     nav(search, {
       state: _state,
       replace: true,
@@ -336,17 +304,17 @@ export default function ImageEditForm({ className, ...args }: Props) {
     <>
       <div className="rbButtonArea">
         <button
-          title={editMode ? "保存" : "編集"}
+          title={isEdit ? "保存" : "編集"}
           type="button"
           className="round saveEdit"
           onClick={() => {
-            if (editMode) SubmitImage(image);
+            if (isEdit) SubmitImage(image);
             toggleEditParam();
           }}
         >
-          {editMode ? <MdLibraryAddCheck /> : <AiFillEdit />}
+          {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
         </button>
-        {editMode ? (
+        {isEdit ? (
           <button
             title="削除"
             type="button"
@@ -357,7 +325,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
                   if (state) nav(-1);
                   else {
                     nav(pathname, {
-                      preventScrollReset: false,
+                      preventScrollReset: true,
                     });
                   }
                 }
@@ -384,7 +352,7 @@ export default function ImageEditForm({ className, ...args }: Props) {
           </button>
         )}
       </div>
-      {editMode ? (
+      {isEdit ? (
         <form
           {...args}
           ref={refForm}
@@ -603,6 +571,12 @@ export default function ImageEditForm({ className, ...args }: Props) {
           </label>
         </form>
       ) : null}
+      <GalleryViewerPaging
+        image={image}
+        onClick={() => {
+          if (isEdit) SubmitImage(image);
+        }}
+      />
     </>
   );
 }

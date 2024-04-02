@@ -6,7 +6,7 @@ import { getEmbedURL } from "./Embed";
 import { GalleryObject } from "../routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
-import { useParamsState } from "./ParamsState";
+import { useLocation } from "react-router-dom";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -29,7 +29,8 @@ interface ePubMetadataType {
 }
 
 export function ComicsViewer() {
-  const s = useParamsState((state) => state.searchParams);
+  const search = useLocation().search;
+  const s = useMemo(() => new URLSearchParams(search), [search]);
   const src = s.get("name") ?? "";
   if (src)
     if (/\.epub$/i.test(src)) {

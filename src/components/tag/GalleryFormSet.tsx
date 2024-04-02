@@ -1,9 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
-import { MakeRelativeURL } from "../doc/MakeURL";
+import { LinkMee, MakeRelativeURL, SearchSet } from "../doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
-import { useParamsState } from "../../state/ParamsState";
 import { YearListType } from "../../types/GalleryType";
 import {
   defaultFilterTags,
@@ -15,12 +14,13 @@ import ReactSelect from "react-select";
 import { HTMLAttributes } from "react";
 import { callReactSelectTheme } from "../theme/main";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
-import { AiFillEdit, AiOutlineCheck } from "react-icons/ai";
+import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 
 export function GalleryYearFilter() {
   const nav = useNavigate();
   const { fList } = useGalleryObject(({ fList }) => ({ fList }));
-  const { query } = useParamsState(({ query }) => ({ query }));
+  const search = useLocation().search;
+  const { query } = useMemo(() => SearchSet(search), [search]);
   const year = Number(query.year);
   const isOlder = query.sort === "leastRecently";
   const yearSelectRef = React.useRef<HTMLSelectElement>(null);
@@ -111,7 +111,8 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const { searchParams } = useParamsState();
+  const search = useLocation().search;
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
   const q = searchParams.get("q") || "";
   const qRef = React.useRef(q);
   React.useEffect(() => {
@@ -170,25 +171,26 @@ interface SelectAreaProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function GalleryTagsSelect({ className }: SelectAreaProps) {
   const nav = useNavigate();
-  const search = useParamsState((state) => state.searchParams);
-  const searchTags = search.get("tag")?.split(",") || [];
+  const search = useLocation().search;
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const searchTags = searchParams.get("tag")?.split(",") || [];
   const searchType =
-    search
+    searchParams
       .get("type")
       ?.split(",")
       .map((v) => `type:${v}`) || [];
   const searchMonth =
-    search
+    searchParams
       .get("month")
       ?.split(",")
       .map((v) => `month:${v}`) || [];
   const searchFilters =
-    search
+    searchParams
       .get("filter")
       ?.split(",")
       .map((v) => `filter:${v}`) || [];
   const searchSort =
-    search
+    searchParams
       .get("sort")
       ?.split(",")
       .map((v) => `sort:${v}`) || [];
@@ -250,7 +252,7 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
                 break;
             }
           });
-          const query = Object.fromEntries(search);
+          const query = Object.fromEntries(searchParams);
           Object.entries(listObj).forEach(([key, list]) => {
             if (list.length > 0) query[key] = list.join(",");
             else delete query[key];
@@ -264,13 +266,44 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
 
 export function GalleryPageEditSwitch() {
   const { state } = useLocation();
-  const _state = { ...state };
-  const isEdit = _state.mode === "edit";
-  if (isEdit) delete _state.mode;
-  else _state.mode = "edit";
+  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
   return (
-    <Link to="" state={_state} replace={true} preventScrollReset={true}>
-      {isEdit ? <AiOutlineCheck /> : <AiFillEdit />}
-    </Link>
+    <LinkMee
+      title={isEdit ? "元に戻す" : "常に編集モードにする"}
+      state={({ state }) => {
+        if (!state) state = {};
+        const isEdit = state.edit === "on";
+        if (isEdit) delete state.edit;
+        else state.edit = "on";
+        return state;
+      }}
+      style={{ opacity: isEdit ? 1 : 0.4 }}
+      replace={true}
+      preventScrollReset={true}
+    >
+      <AiFillEdit />
+    </LinkMee>
+  );
+}
+
+export function GalleryPageOriginImageSwitch() {
+  const { state } = useLocation();
+  const isOrigin = useMemo(() => state?.showOrigin === "on", [state?.showOrigin]);
+  return (
+    <LinkMee
+      title={isOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
+      state={({ state }) => {
+        if (!state) state = {};
+        const isOrigin = state.showOrigin === "on";
+        if (isOrigin) delete state.showOrigin;
+        else state.showOrigin = "on";
+        return state;
+      }}
+      style={{ opacity: isOrigin ? 1 : 0.4 }}
+      replace={true}
+      preventScrollReset={true}
+    >
+      <AiOutlineFileImage />
+    </LinkMee>
   );
 }

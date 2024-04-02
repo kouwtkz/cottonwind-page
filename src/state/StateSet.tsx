@@ -9,7 +9,6 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "./FeedRead";
-import { ParamsState } from "./ParamsState";
 
 export function StateSet() {
   return (
@@ -19,7 +18,6 @@ export function StateSet() {
       <Toaster />
       <DataState />
       <ThemeState />
-      <ParamsState />
       {import.meta.env.DEV ? (
         <>
           <EmbedState />

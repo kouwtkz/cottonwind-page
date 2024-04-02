@@ -5,6 +5,7 @@ import { SiteDataType } from "../../types/SiteDataType";
 export interface SetMetaBaseProps {
   path: string;
   query?: QueryType;
+  characters?: CharaObjectType | null;
 }
 
 export interface SetMetaProps extends SetMetaBaseProps {

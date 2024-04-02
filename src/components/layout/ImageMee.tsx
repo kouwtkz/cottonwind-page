@@ -11,9 +11,9 @@ interface ImageMeeProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   hoverSrc?: string;
   hoverImageItem?: MediaImageItemType;
   mode?: ResizeMode;
-  unoptimized?: boolean;
   size?: number;
   loadingScreen?: boolean;
+  originWhenDev?: boolean;
 }
 export function ImageMee({
   imageItem,
@@ -24,11 +24,11 @@ export function ImageMee({
   hoverImageItem,
   loading,
   srcSet,
-  unoptimized,
   size,
   width,
   height,
   loadingScreen = false,
+  originWhenDev = false,
   style,
   onLoad,
   ...attributes
@@ -37,9 +37,9 @@ export function ImageMee({
   const refImg = useRef<HTMLImageElement | null>(null);
   const refImgSrc = useRef("");
   const refShowList = useRef<string[]>([]);
-  const isDev = import.meta.env.DEV;
+  const isSetOrigin = originWhenDev && import.meta.env.DEV;
 
-  const src = _src || (isDev ? imageItem?.origin : imageItem?.URL) || "";
+  const src = _src || (isSetOrigin ? imageItem?.origin : imageItem?.URL) || "";
   const alt = _alt || imageItem?.name || imageItem?.src || "";
 
   [width, height] = useMemo(() => {
@@ -64,12 +64,12 @@ export function ImageMee({
   );
   const imageSrc = useMemo(
     () =>
-      mode === "simple" || isDev
+      mode === "simple" || isSetOrigin
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
         : imageItem?.resized?.find((item) => item.mode === mode)?.src || src,
-    [imageItem, mode, src, thumbnail, isDev]
+    [imageItem, mode, src, thumbnail, isSetOrigin]
   );
   const imageShowList = useMemo(() => {
     const list: string[] = [];
@@ -135,6 +135,7 @@ interface ImageMeeSimpleProps
   imageItem: MediaImageItemType;
   size?: number;
   loadingScreen?: boolean;
+  originWhenDev?: boolean;
 }
 
 export function ImageMeeIcon({ size, ...args }: ImageMeeSimpleProps) {

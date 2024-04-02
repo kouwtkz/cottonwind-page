@@ -1,4 +1,10 @@
-import { ReactNode, useCallback, useLayoutEffect, useMemo } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 import { create } from "zustand";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MultiParser from "../components/doc/MultiParser";
@@ -12,14 +18,18 @@ import {
   getTagsOptions,
   autoFixTagsOptions,
 } from "../components/tag/GalleryTags";
-import { MakeRelativeURL } from "../components/doc/MakeURL";
+import {
+  LinkMee,
+  LocationStateType,
+  MakeRelativeURL,
+  SearchSet,
+} from "../components/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiFullscreenFill } from "react-icons/ri";
 import { useCharaState } from "../state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { MediaImageItemType } from "../types/MediaImageDataType";
-import { useParamsState } from "./ParamsState";
 
 const body = typeof window === "object" ? document?.body : null;
 const bodyLock = (m: boolean) => {
@@ -61,36 +71,27 @@ export function ImageViewer() {
   const { imageItemList } = useImageState();
   const { charaList } = useCharaState();
   const nav = useNavigate();
-  const { isOpen, onClose, image, setImage } = useImageViewer();
-  const { pathname, query, state } = useParamsState();
+  const { isOpen, onOpen, onClose } = useImageViewer();
+  const search = useLocation().search;
+  const { query } = useMemo(() => SearchSet(search), [search]);
+  const l = useLocation();
+  const pathname = l.pathname;
+  const state = l.state as LocationStateType;
   const imageParam = query.image;
   const albumParam = query.album;
-  const groupParam = query.group ?? albumParam;
-  const modeParam = state?.mode;
   const isProd = import.meta.env.PROD;
   const isDev = import.meta.env.DEV;
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
   const { isComplete } = useDataState();
 
-  const { items, yfList } = useGalleryObject(({ items, yfList }) => ({
-    items,
-    yfList,
-  }));
-  const galleryItemIndex = useMemo(
-    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
-    [items, groupParam]
-  );
-  const groupImageList = useMemo(
-    () => yfList[galleryItemIndex] ?? [],
-    [yfList, galleryItemIndex]
-  );
-
   const backAction = useCallback(() => {
-    if (state) nav(-1);
+    if (state?.from) nav(-1);
     else {
       delete query.image;
       delete query.pic;
-      nav(MakeRelativeURL({ query }), { preventScrollReset: false });
+      delete query.group;
+      delete query.album;
+      nav(MakeRelativeURL({ query }), { preventScrollReset: true });
     }
   }, [query, nav, state]);
 
@@ -108,26 +109,20 @@ export function ImageViewer() {
     [imageItemList]
   );
 
-  useLayoutEffect(() => {
-    if (!imageParam) {
-      if (isOpen) onClose();
-    } else {
-      if (isComplete) setImage(imageFinder(imageParam, albumParam));
+  const image = useMemo(() => {
+    if (isComplete && imageParam) {
+      const foundImage = imageFinder(imageParam, albumParam);
+      return foundImage;
+    } else return null;
+  }, [imageParam, albumParam, isComplete, state?.image]);
+
+  useEffect(() => {
+    if (isOpen && !image) {
+      onClose();
+    } else if (image) {
+      if (!isOpen) onOpen();
     }
-  }, [imageParam, albumParam, isOpen, isComplete]);
-
-  const imageIndex = useMemo(
-    () => groupImageList.findIndex(({ URL }) => image?.URL === URL),
-    [image?.URL, groupImageList]
-  );
-
-  const beforeAfterImage = useMemo(
-    () => ({
-      before: groupImageList[imageIndex - 1],
-      after: groupImageList[imageIndex + 1],
-    }),
-    [groupImageList, imageIndex]
-  );
+  }, [isOpen, image]);
 
   const titleEqFilename = useMemo(
     () =>
@@ -192,6 +187,7 @@ export function ImageViewer() {
     ),
     [image, isProd]
   );
+  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
 
   const InfoCmp = useCallback(
     ({ children }: { children?: ReactNode }) => (
@@ -200,7 +196,7 @@ export function ImageViewer() {
           <>
             {isComplete ? (
               <>
-                {state?.mode === "edit" ? null : (
+                {isEdit ? null : (
                   <div className="info window">
                     {image.album.visible.title &&
                     (image.album.visible.filename || !titleEqFilename) ? (
@@ -288,61 +284,18 @@ export function ImageViewer() {
                     {children}
                   </div>
                 )}
-                {isDev ? <ImageEditForm /> : null}
+                {isDev ? (
+                  <ImageEditForm image={image} />
+                ) : (
+                  <GalleryViewerPaging image={image} />
+                )}
               </>
             ) : null}
-            <div className="paging">
-              {beforeAfterImage?.before ? (
-                <Link
-                  className="prev"
-                  to={MakeRelativeURL({
-                    query: {
-                      ...query,
-                      image: beforeAfterImage.before.originName,
-                      ...(beforeAfterImage.before.album?.name
-                        ? { album: beforeAfterImage.before.album.name }
-                        : {}),
-                    },
-                  })}
-                  state={state}
-                  preventScrollReset={true}
-                  replace={true}
-                >
-                  <div className="cursor">≪</div>
-                  <div>{beforeAfterImage.before.name}</div>
-                </Link>
-              ) : (
-                <div className="flex-1" />
-              )}
-              {beforeAfterImage?.after ? (
-                <Link
-                  className="next"
-                  to={MakeRelativeURL({
-                    query: {
-                      ...query,
-                      image: beforeAfterImage.after.originName,
-                      ...(beforeAfterImage.after.album?.name
-                        ? { album: beforeAfterImage.after.album.name }
-                        : {}),
-                    },
-                  })}
-                  state={state}
-                  preventScrollReset={true}
-                  replace={true}
-                >
-                  <div>{beforeAfterImage.after.name}</div>
-                  <div className="cursor">≫</div>
-                </Link>
-              ) : (
-                <div className="flex-1" />
-              )}
-            </div>
           </>
         ) : null}
       </div>
     ),
     [
-      beforeAfterImage,
       charaList,
       image,
       isDev,
@@ -383,6 +336,95 @@ export function ImageViewer() {
         </div>
       ) : (
         <></>
+      )}
+    </div>
+  );
+}
+
+interface GalleryViewerPagingProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  image: MediaImageItemType | null;
+}
+
+export function GalleryViewerPaging({
+  image,
+  className,
+  ...args
+}: GalleryViewerPagingProps) {
+  const { search, state } = useLocation();
+  const { query } = useMemo(() => SearchSet(search), [search]);
+  const albumParam = query.album;
+  const groupParam = query.group ?? albumParam;
+  const { items, yfList } = useGalleryObject(({ items, yfList }) => ({
+    items,
+    yfList,
+  }));
+  const galleryItemIndex = useMemo(
+    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
+    [items, groupParam]
+  );
+
+  const groupImageList = useMemo(
+    () => yfList[galleryItemIndex] ?? [],
+    [yfList, galleryItemIndex]
+  );
+  const imageIndex = useMemo(
+    () => groupImageList.findIndex(({ URL }) => image?.URL === URL),
+    [image?.URL, groupImageList]
+  );
+
+  const prevNextImage = useMemo(
+    () => ({
+      before: groupImageList[imageIndex - 1],
+      after: groupImageList[imageIndex + 1],
+    }),
+    [groupImageList, imageIndex]
+  );
+  return (
+    <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
+      {prevNextImage?.before ? (
+        <LinkMee
+          className="prev"
+          to={{
+            query: {
+              ...query,
+              image: prevNextImage.before.originName,
+              ...(prevNextImage.before.album?.name
+                ? { album: prevNextImage.before.album.name }
+                : {}),
+            },
+          }}
+          state={state}
+          preventScrollReset={true}
+          replace={true}
+        >
+          <div className="cursor">≪</div>
+          <div>{prevNextImage.before.name}</div>
+        </LinkMee>
+      ) : (
+        <div className="flex-1" />
+      )}
+      {prevNextImage?.after ? (
+        <LinkMee
+          className="next"
+          to={{
+            query: {
+              ...query,
+              image: prevNextImage.after.originName,
+              ...(prevNextImage.after.album?.name
+                ? { album: prevNextImage.after.album.name }
+                : {}),
+            },
+          }}
+          state={state}
+          preventScrollReset={true}
+          replace={true}
+        >
+          <div>{prevNextImage.after.name}</div>
+          <div className="cursor">≫</div>
+        </LinkMee>
+      ) : (
+        <div className="flex-1" />
       )}
     </div>
   );

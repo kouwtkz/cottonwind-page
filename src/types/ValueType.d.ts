@@ -4,5 +4,9 @@ export interface ValueCountType {
 }
 
 export interface KeyValueStringType {
-  [k: string]: string | undefined
+  [k: string]: string | undefined;
+}
+
+export interface KeyValueAnyType {
+  [k: string]: any;
 }

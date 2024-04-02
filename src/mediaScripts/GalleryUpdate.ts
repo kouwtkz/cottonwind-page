@@ -47,7 +47,7 @@ export async function GalleryPatch(data: any) {
     }
   }
   await UpdateImageYaml({ yamls, deleteImage: false, ...fromto })
-  MediaUpdate();
+  MediaUpdate("image");
 }
 
 type Props = {
@@ -58,14 +58,17 @@ type Props = {
 }
 export async function uploadAttached({ attached, attached_mtime = [], tags = [], uploadDir }: Props) {
   let retVal = false
+  if (!Array.isArray(attached)) {
+    attached = [attached];
+    attached_mtime = [attached_mtime];
+  }
   attached = attached.filter(file => Boolean(file.name));
   if (attached.length > 0) {
     retVal = true;
     const now = new Date();
-    const dataDir = import.meta.env?.VITE_DATA_DIR ?? process.env.VITE_DATA_DIR ?? "";
     const publicDir = "public";
     const uploadImageDir = `${fromto.from}/${uploadDir}`;
-    const uploadImagesFullDir = pathResolve(`${cwd}/${dataDir}/${uploadImageDir}`);
+    const uploadImagesFullDir = pathResolve(`${cwd}/${uploadImageDir}`);
     const uploadPublicImagesFullDir = pathResolve(`${cwd}/${publicDir}/${uploadImageDir}`);
     try { mkdirSync(uploadImagesFullDir, { recursive: true }); } catch { }
     try { mkdirSync(uploadPublicImagesFullDir, { recursive: true }); } catch { }
@@ -81,6 +84,7 @@ export async function uploadAttached({ attached, attached_mtime = [], tags = [],
     await new Promise<void>((resolve, reject) => {
       setTimeout(async () => {
         UpdateImageYaml({ ...fromto }).then(async () => {
+          if (!Array.isArray(tags)) tags = [tags];
           const tagsFlag = tags.length > 0;
           if (tagsFlag) {
             const yamls = await GetYamlImageList({ ...fromto, filter: { group: uploadDir, endsWith: true } });
@@ -97,7 +101,7 @@ export async function uploadAttached({ attached, attached_mtime = [], tags = [],
         });
       }, 10);
     });
-    MediaUpdate();
+    MediaUpdate("image");
     return retVal;
   }
   return retVal;

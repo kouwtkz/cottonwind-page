@@ -6,6 +6,7 @@ import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
+import { serverCharacters as characters } from "./data/server/characters";
 
 const app = new Hono();
 
@@ -43,7 +44,11 @@ app.get("*", (c, next) => {
       <html lang="ja">
         <head>
           <DefaultMeta />
-          <SetMetaServerSide path={c.req.path} query={c.req.query()} />
+          <SetMetaServerSide
+            path={c.req.path}
+            query={c.req.query()}
+            characters={characters}
+          />
           <link rel="stylesheet" href="/src/styles.css" />
           <script type="module" src="/src/client.tsx" />
         </head>

@@ -10,6 +10,7 @@ import { CharaType } from "../types/CharaType";
 import { HTMLAttributes, memo, useMemo } from "react";
 import { useImageState } from "../state/ImageState";
 import MultiParser from "../components/doc/MultiParser";
+import { GalleryItemObjectType } from "../types/GalleryType";
 
 export function CharaPage() {
   const { name: charaName } = useParams();
@@ -174,13 +175,14 @@ const CharaDetail = memo(function CharaDetail({
                 return {
                   name: item.name,
                   label: item.name,
+                  tags: chara.id,
                   list:
                     matchAlbum?.list.filter((image) =>
                       image.tags?.some((tag) => tag === chara.id)
                     ) ?? [],
-                };
+                } as GalleryItemObjectType;
               })
-              .filter((item) => item.list?.length > 0)}
+              .filter((item) => item.list && item.list.length > 0)}
           />
         </div>
       ) : null}
