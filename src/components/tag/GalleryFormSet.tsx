@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { LinkMee, MakeRelativeURL, SearchSet } from "../doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
@@ -111,8 +116,7 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const search = useLocation().search;
-  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const [searchParams] = useSearchParams();
   const q = searchParams.get("q") || "";
   const qRef = React.useRef(q);
   React.useEffect(() => {
@@ -171,8 +175,7 @@ interface SelectAreaProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function GalleryTagsSelect({ className }: SelectAreaProps) {
   const nav = useNavigate();
-  const search = useLocation().search;
-  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const [searchParams] = useSearchParams();
   const searchTags = searchParams.get("tag")?.split(",") || [];
   const searchType =
     searchParams
@@ -288,7 +291,10 @@ export function GalleryPageEditSwitch() {
 
 export function GalleryPageOriginImageSwitch() {
   const { state } = useLocation();
-  const isOrigin = useMemo(() => state?.showOrigin === "on", [state?.showOrigin]);
+  const isOrigin = useMemo(
+    () => state?.showOrigin === "on",
+    [state?.showOrigin]
+  );
   return (
     <LinkMee
       title={isOrigin ? "元に戻す" : "画像を元のファイルで表示する"}

@@ -1,5 +1,5 @@
 import { HTMLAttributes, useEffect, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { create } from "zustand";
 import { BiLeftArrow } from "react-icons/bi";
 import { UrlObject } from "url";
@@ -32,8 +32,8 @@ export function queryCheck({
 }
 
 export default function BackButton(args: HTMLAttributes<HTMLDivElement>) {
-  const { pathname, search } = useLocation();
-  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
   const { backUrl: backUrl_bc, setBackUrl: setBackUrl_bc } = useBackButton();
   const entriesSearch = Array.from(searchParams.entries());
   const joinSearch = entriesSearch.map(([k, v]) => `${k}=${v}`).join("&");

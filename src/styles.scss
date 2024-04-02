@@ -17,6 +17,7 @@
   --text-color: #27231d;
   --background-top: #fdfde4;
   --background-bottom: #fffcd4;
+  --warm-color: #f87171;
 }
 
 :root.theme-orange {
@@ -124,6 +125,11 @@ $defaultLineHeight: 1.25em;
     color: white;
   }
 }
+
+.warm {
+  color: var(--warm-color);
+}
+
 body,
 input,
 select,
@@ -144,6 +150,9 @@ style {
   display: flex;
   &.center {
     align-items: center;
+  }
+  &.column {
+    flex-direction: column;
   }
   &.around {
     justify-content: space-around;
@@ -179,8 +188,7 @@ body {
   background-color: var(--background-top);
   scrollbar-width: thin;
   scrollbar-color: var(--main-color-soft) transparent;
-  .window,
-  .fc-scroller {
+  .window {
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
@@ -196,9 +204,13 @@ button,
     font-weight: 700;
     border: 0;
     outline: none;
+    border-radius: 0.5rem;
     @extend %userSelectNone;
     &:hover {
       color: white;
+      background-color: var(--main-color-soft);
+    }
+    &:disabled {
       background-color: var(--main-color-soft);
     }
   }
@@ -923,75 +935,54 @@ form select {
       margin: $size_4;
     }
   }
+  .edit {
+    max-width: 40rem;
+    margin: auto;
+    * {
+      font-size: $text_lg;
+    }
+    > * {
+      margin: $size_3 0;
+    }
+    input,
+    textarea {
+      padding: 0.2rem 0.4rem;
+    }
+    .charaIcon {
+      font-size: $text_4xl;
+    }
+    .flex {
+      flex-wrap: wrap;
+      > * {
+        &.mini {
+          width: 8rem;
+        }
+        &:not(.mini) {
+          flex: 1;
+        }
+        .label-l {
+          flex: 0.25;
+        }
+      }
+    }
+    textarea {
+      min-width: -moz-fit-content;
+      min-width: fit-content;
+      width: 100%;
+      &.description {
+        min-height: 8rem;
+        height: 16rem;
+      }
+    }
+    button {
+      padding: 0.4rem 1.2rem;
+      font-size: $text_xl;
+    }
+  }
 }
 
 iframe {
   max-width: 100%;
-}
-
-.fc {
-  line-height: 1.1em;
-  --fc-event-bg-color: var(--main-color-strong);
-  --fc-button-hover-bg-color: var(--main-color-soft);
-  --fc-event-border-color: var(--main-color-strong);
-  --fc-event-border-color: var(--main-color-strong);
-  --fc-button-bg-color: var(--main-color);
-  --fc-button-hover-border-color: var(--main-color-soft);
-  --fc-button-active-bg-color: var(--main-color-deep);
-  --fc-button-active-border-color: var(--main-color-deep);
-  --fc-button-border-color: var(--main-color-deep);
-  --fc-button-active-border-color: var(--main-color-dark);
-  --fc-neutral-bg-color: var(--main-color-pale-fluo);
-  --fc-list-event-hover-bg-color: var(--main-color-pale);
-  --fc-today-bg-color: var(--main-color-pale-fluo);
-  .fc-day-sat {
-    --fc-non-business-color: rgba(95, 146, 240, 0.132);
-  }
-  .fc-day-sun {
-    --fc-non-business-color: rgba(240, 95, 95, 0.132);
-  }
-  .fc-h-event:hover {
-    --fc-event-bg-color: var(--main-color);
-  }
-  .fc-list-empty {
-    --fc-neutral-bg-color: var(--main-color-grayish-fluo);
-  }
-  .fc-h-event {
-    color: white;
-  }
-  a:hover {
-    color: var(--main-color-dark);
-  }
-
-  .fc-toolbar-title,
-  .fc-col-header,
-  .fc-daygrid-day-top,
-  .fc-list-day {
-    font-family: var(--font-Mandali), Arial, sans-serif;
-  }
-  .fc-col-header {
-    line-height: 1.3em;
-  }
-  .fc-button-group button:focus {
-    box-shadow: none !important;
-  }
-  .fc-today-button:disabled {
-    opacity: 1;
-  }
-  .fc-button-primary {
-    font-size: 0.9em;
-  }
-  .fc-toolbar {
-    .fc-toolbar-title {
-      font-size: 1.2em;
-    }
-    &.fc-header-toolbar {
-      margin-bottom: 0.25em;
-      .fc-toolbar-chunk:last-child {
-        text-align: right;
-      }
-    }
-  }
 }
 
 .modal-background {
@@ -1324,7 +1315,8 @@ select.YearFilter {
   }
 }
 
-button.round {
+button.round,
+.button.round {
   padding: 0;
   width: $size_12;
   height: $size_12;
@@ -1345,6 +1337,22 @@ button.round {
     width: $size_10;
     height: $size_10;
   }
+}
+
+.label,
+.label-s {
+  margin-bottom: $size_1;
+}
+.label-l {
+  margin-right: $size_2;
+}
+.label-sl {
+  margin-right: $size_1;
+}
+.label,
+.label span,
+.label-l {
+  font-size: $text_lg;
 }
 
 #image_viewer {
@@ -1588,21 +1596,6 @@ button.round {
         align-items: center;
         margin-top: $size_4;
         margin-bottom: $size_4;
-      }
-      .label,
-      .label-s {
-        margin-bottom: $size_1;
-      }
-      .label-l {
-        margin-right: $size_2;
-      }
-      .label-sl {
-        margin-right: $size_1;
-      }
-      .label,
-      .label span,
-      .label-l {
-        font-size: $text_lg;
       }
       button {
         display: inline-block;

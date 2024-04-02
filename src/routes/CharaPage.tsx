@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   ImageMee,
   ImageMeeIcon,
@@ -11,12 +11,25 @@ import { HTMLAttributes, memo, useMemo } from "react";
 import { useImageState } from "../state/ImageState";
 import MultiParser from "../components/doc/MultiParser";
 import { GalleryItemObjectType } from "../types/GalleryType";
+import CharaEditForm, {
+  CharaEditButton,
+} from "../components/form/edit/CharaEdit";
 
 export function CharaPage() {
   const { name: charaName } = useParams();
+  const [search] = useSearchParams();
+  const isEdit = search.get("edit") === "on";
+  const isDev = import.meta.env.DEV;
   return (
     <div className="charaPage">
-      {charaName ? <CharaDetail charaName={charaName} /> : <CharaList />}
+      {isDev && isEdit ? (
+        <CharaEditForm />
+      ) : (
+        <>
+          {isDev ? <CharaEditButton /> : null}
+          {charaName ? <CharaDetail charaName={charaName} /> : <CharaList />}
+        </>
+      )}
     </div>
   );
 }

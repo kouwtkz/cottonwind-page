@@ -6,7 +6,8 @@ import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
-import { serverCharacters as characters } from "./data/server/characters";
+import { SetCharaData } from "./data/functions/SetCharaData";
+// import { serverCharacters as characters } from "./data/server/characters";
 
 const app = new Hono();
 
@@ -29,12 +30,19 @@ app.post("/gallery/send", async (c, next) => {
   });
   return c.newResponse(null);
 });
-app.patch("/gallery/send", async (c, next) => {
+app.patch("/gallery/send", async (c) => {
   await GalleryPatch(await c.req.json());
   return c.newResponse(null);
 });
+app.patch("/gallery/send", async (c) => {
+  await GalleryPatch(await c.req.json());
+  return c.newResponse(null);
+});
+app.post("/character/send", async (c) => {
+  return c.json(await SetCharaData(await c.req.formData()));
+});
 
-app.get("/embed/get", async (c, next) => {
+app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
 });
 
@@ -47,7 +55,7 @@ app.get("*", (c, next) => {
           <SetMetaServerSide
             path={c.req.path}
             query={c.req.query()}
-            characters={characters}
+            // characters={characters}
           />
           <link rel="stylesheet" href="/src/styles.css" />
           <script type="module" src="/src/client.tsx" />

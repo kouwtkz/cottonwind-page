@@ -12,7 +12,7 @@ import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions"
 import { ImageMee } from "../components/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
-import ImageEditForm from "./ImageEditForm";
+import ImageEditForm from "../components/form/edit/ImageEditForm";
 import {
   defaultTags,
   getTagsOptions,

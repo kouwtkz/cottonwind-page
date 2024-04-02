@@ -6,22 +6,22 @@ import {
   useRef,
   useState,
 } from "react";
-import { GalleryViewerPaging, useImageViewer } from "./ImageViewer";
-import { MediaImageItemType } from "../types/MediaImageDataType";
-import { ImageMee } from "../components/layout/ImageMee";
+import { GalleryViewerPaging, useImageViewer } from "../../../state/ImageViewer";
+import { MediaImageItemType } from "../../../types/MediaImageDataType";
+import { ImageMee } from "../../layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useImageState } from "./ImageState";
+import { useImageState } from "../../../state/ImageState";
 import {
   defaultTags,
   getTagsOptions,
   autoFixTagsOptions,
   GalleryTagsOption,
-} from "../components/tag/GalleryTags";
+} from "../../tag/GalleryTags";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEmbedState } from "./Embed";
+import { useEmbedState } from "../../../state/Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";
-import { MakeRelativeURL } from "../components/doc/MakeURL";
+import { MakeRelativeURL } from "../../doc/MakeURL";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdDeleteForever,
@@ -29,14 +29,14 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "../components/theme/main";
+import { callReactSelectTheme } from "../../theme/main";
 import {
   PostTextarea,
   usePreviewMode,
-} from "../components/form/input/PostTextarea";
-import { useCharaState } from "./CharaState";
-import { AutoImageItemType } from "../data/functions/images";
-import { KeyValueStringType } from "../types/ValueType";
+} from "../input/PostTextarea";
+import { useCharaState } from "../../../state/CharaState";
+import { AutoImageItemType } from "../../../data/functions/images";
+import { KeyValueStringType } from "../../../types/ValueType";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
