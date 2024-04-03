@@ -1,93 +1,106 @@
 import { memo } from "react";
-import { CharaObjectType } from "../../types/CharaType";
+import { CharaObjectType, CharaType } from "../../types/CharaType";
 import { SiteDataType } from "../../types/SiteDataType";
+import { MediaImageItemType } from "../../mediaScripts/GetImageList.mjs";
+import { imageFindFromName } from "./images";
 
-export interface SetMetaBaseProps {
+export interface SetMetaProps {
+  site: SiteDataType;
   path: string;
   query?: QueryType;
   characters?: CharaObjectType | null;
+  images?: MediaImageItemType[];
 }
 
-export interface SetMetaProps extends SetMetaBaseProps {
-  site: SiteDataType;
-  characters?: CharaObjectType | null;
-}
-
-export function SetTitleStr({ path, query, site, characters }: SetMetaProps) {
-  const list = path.split("/");
-  const queryParams = QueryToParams(query);
-  switch (list[1]) {
-    case "gallery":
-      return "ギャラリー | " + site.title;
-    case "character":
-      const name = list[2] ?? queryParams?.name;
-      const chara = characters && name ? characters[name] : null;
-      if (chara) return chara.name + " - キャラクター | " + site.title;
-      else return "キャラクター | " + site.title;
-    case "work":
-      return "かつどう | " + site.title;
-    case "sound":
-      return "おんがく | " + site.title;
-    case "info":
-      return "じょうほう | " + site.title;
-    default:
-      return site.title;
-  }
-}
-
-export function SetDescriptionStr({
+type MetaStrsReturnType = {
+  title: string;
+  description: string;
+  image: string;
+};
+export function MetaStrs({
   path,
   query,
   site,
   characters,
-}: SetMetaProps) {
+  images,
+}: SetMetaProps): MetaStrsReturnType {
+  let title: string | undefined;
+  let description: string | undefined;
+  let image: string | undefined | null;
   const list = path.split("/");
   const queryParams = QueryToParams(query);
   switch (list[1]) {
     case "gallery":
-      return "わたかぜコウの作品など";
+      title = "ギャラリー | " + site.title;
+      description = "わたかぜコウの作品など";
+      break;
     case "character":
       const name = list[2] ?? queryParams?.name;
       const chara = characters && name ? characters[name] : null;
-      return (
-        chara?.overview || chara?.description || "わたかぜコウのキャラクター"
-      );
+      title = chara
+        ? chara.name + " - キャラクター | " + site.title
+        : "キャラクター | " + site.title;
+      description =
+        chara?.overview || chara?.description || "わたかぜコウのキャラクター";
+      if (images && chara?.image) {
+        const charaImage = chara.image;
+        image = images?.find(({ URL }) => URL?.match(charaImage))?.URL;
+      }
+      break;
     case "work":
-      return "わたかぜコウの活動";
+      title = "かつどう | " + site.title;
+      description = "わたかぜコウの活動";
+      break;
     case "sound":
-      return "わたかぜコウが作った音楽";
+      title = "おんがく | " + site.title;
+      description = "わたかぜコウが作った音楽";
+      break;
     case "info":
-      return "わたかぜコウやサイトの情報";
-    default:
-      return site.description;
+      title = "じょうほう | " + site.title;
+      description = "わたかぜコウやサイトの情報";
+      break;
   }
+  const imageParam = queryParams?.image;
+  const albumParam = queryParams?.album;
+  if (imageParam && albumParam) {
+    const foundImage = imageFindFromName({
+      imageParam,
+      albumParam,
+      imageItemList: images,
+    });
+    if (foundImage) {
+      title = (foundImage.name || foundImage.src) + " - " + title;
+      image = foundImage.URL;
+    }
+  }
+  if (!title) title = site.title;
+  if (!description) description = site.description;
+  if (!image) image = site.image;
+  return { title, description, image: site.url + image };
 }
 
 export function MetaTags({
   title,
   description,
   image,
-  baseUrl,
   card = "summary_large_image",
 }: {
   title: string;
   description: string;
   image: string;
-  baseUrl: string;
   card: "summary_large_image";
 }) {
-  const imageUrl = baseUrl + image;
   return (
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={imageUrl} />
+      <meta property="og:image" content={image} />
       <meta name="twitter:card" content={card} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={imageUrl} />
+      <meta name="twitter:image" content={image} />
     </>
   );
 }
@@ -104,12 +117,6 @@ export function QueryToParams(query?: QueryType) {
 
 export function SetMeta({ site, ...args }: SetMetaProps) {
   return (
-    <MetaTags
-      title={SetTitleStr({ ...args, site }) || site.title}
-      description={SetDescriptionStr({ ...args, site }) || site.description}
-      image={site.image}
-      baseUrl={site.url}
-      card="summary_large_image"
-    />
+    <MetaTags {...MetaStrs({ ...args, site })} card="summary_large_image" />
   );
 }

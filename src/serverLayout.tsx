@@ -1,10 +1,10 @@
 import { SnsList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
-import { SetMeta, SetMetaBaseProps } from "./data/functions/SetMeta";
+import { SetMeta, SetMetaProps } from "./data/functions/SetMeta";
 import { serverSite as site } from "./data/server/site";
 const serverData = { site };
 
-export function SetMetaServerSide(args: SetMetaBaseProps) {
+export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
   return <SetMeta {...args} {...serverData} />;
 }
 

@@ -8,6 +8,7 @@ import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 // import { serverCharacters as characters } from "./data/server/characters";
+// import { serverImageItemList as images } from "./data/server/images";
 
 const app = new Hono();
 
@@ -56,6 +57,7 @@ app.get("*", (c, next) => {
             path={c.req.path}
             query={c.req.query()}
             // characters={characters}
+            // images={images}
           />
           <link rel="stylesheet" href="/src/styles.css" />
           <script type="module" src="/src/client.tsx" />

@@ -30,6 +30,7 @@ import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { MediaImageItemType } from "../types/MediaImageDataType";
+import { imageFindFromName } from "../data/functions/images";
 
 const body = typeof window === "object" ? document?.body : null;
 const bodyLock = (m: boolean) => {
@@ -96,16 +97,8 @@ export function ImageViewer() {
   }, [query, nav, state]);
 
   const imageFinder = useCallback(
-    (imageParam: string, albumParam?: string) => {
-      const albumItemList = albumParam
-        ? imageItemList.filter(({ album }) => album?.name === albumParam)
-        : imageItemList;
-      return (
-        albumItemList.find((image) =>
-          image.originName?.startsWith(imageParam)
-        ) ?? null
-      );
-    },
+    (imageParam: string, albumParam?: string) =>
+      imageFindFromName({ imageParam, albumParam, imageItemList }),
     [imageItemList]
   );
 

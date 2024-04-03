@@ -62,3 +62,16 @@ export function AutoImageItemType(embed?: string, albumType?: string) {
     return "illust";
   }
 }
+
+export function imageFindFromName
+  ({ imageItemList, imageParam, albumParam }:
+    { imageItemList?: MediaImageItemType[], imageParam: string, albumParam?: string }) {
+  const albumItemList = albumParam
+    ? imageItemList?.filter(({ album }) => album?.name === albumParam)
+    : imageItemList;
+  return (
+    albumItemList?.find((image) =>
+      image.originName?.startsWith(imageParam)
+    ) ?? null
+  );
+}

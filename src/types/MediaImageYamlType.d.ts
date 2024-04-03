@@ -1,7 +1,6 @@
-import { AlbumVisibleType, MediaImageItemBaseType } from "./MediaImageDataType";
+import { AlbumVisibleType, MediaImageItemType } from "./MediaImageDataType";
 
-export interface MediaImageInYamlType extends MediaImageItemBaseType {
-  time?: Date;
+export interface MediaImageInYamlType extends MediaImageItemType {
   fullPath?: string;
   resizeOptions?: ResizeOptionType[];
 }

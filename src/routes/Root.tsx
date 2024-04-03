@@ -2,25 +2,29 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { ReactNode, useLayoutEffect, useRef } from "react";
-import { StateSet } from "../state/StateSet";
-import { SetTitleStr } from "../data/functions/SetMeta";
+import { StateSet, useDataState } from "../state/StateSet";
+import { MetaStrs } from "../data/functions/SetMeta";
 import { useCharaState } from "../state/CharaState";
 import { serverSite as site } from "../data/server/site";
 import { isMobile } from "react-device-detect";
+import { useImageState } from "../state/ImageState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
   const { charaObject: characters } = useCharaState();
+  const { imageItemList: images } = useImageState();
+  const { isComplete } = useDataState();
   const notFirst = useRef(false);
   if (notFirst.current) {
-    document.title = SetTitleStr({
+    document.title = MetaStrs({
       path: pathname,
       query: search,
       characters,
+      images,
       site,
-    })!;
+    })!.title;
   } else {
-    notFirst.current = true;
+    if (isComplete) notFirst.current = true;
   }
   return <></>;
 }

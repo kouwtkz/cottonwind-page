@@ -5,6 +5,7 @@ import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
 import { serverCharacters as characters } from "./data/server/characters";
+import { serverImageItemList as images } from "./data/server/images";
 
 const app = new Hono();
 
@@ -26,6 +27,7 @@ app.get("*", (c) => {
             path={c.req.path}
             query={c.req.query()}
             characters={characters}
+            images={images}
           />
           <script type="module" src={"/static/client.js" + buildAddVer} />
           <link rel="stylesheet" href={"/static/styles.css" + buildAddVer} />

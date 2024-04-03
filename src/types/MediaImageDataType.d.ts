@@ -19,7 +19,7 @@ export interface AlbumVisibleType { info?: boolean, title?: boolean, filename?: 
 export interface ResizedType { src: string, mode: ResizeMode }
 
 /** @comments ひとつの画像用の定義 */
-export interface MediaImageItemBaseType {
+export interface MediaImageItemType {
   name: string;
   src: string;
   dir?: string;
@@ -35,6 +35,7 @@ export interface MediaImageItemBaseType {
   topImage?: boolean | null;
   pickup?: boolean | null;
   tool?: string | string[];
+  time?: Date | null;
   resizeOption?: ResizeOptionType | ResizeOptionType[];
   resized?: ResizedType[]
   album?: MediaImageAlbumType;
@@ -44,7 +45,4 @@ export interface MediaImageItemBaseType {
   size?: { w: number; h: number }
   type?: string;
   [name: string]: any;
-}
-export interface MediaImageItemType extends MediaImageItemBaseType {
-  time?: Date | null;
 }
