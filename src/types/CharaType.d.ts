@@ -2,7 +2,7 @@
 import { MediaImageItemType } from "./MediaImageDataType";
 import { PlaylistType } from "./MediaSoundType";
 
-interface CharaTypeBase {
+interface CharaType {
   name: string,
   honorific?: string,
   defEmoji?: string,
@@ -15,6 +15,9 @@ interface CharaTypeBase {
   headerImage?: string,
   embed?: string,
   playlist?: string[],
+  id: string
+  time?: Date,
+  birthday?: Date,
   media?: {
     icon?: MediaImageItemType | null,
     image?: MediaImageItemType | null,
@@ -24,17 +27,13 @@ interface CharaTypeBase {
   [k: string]: any
 }
 
-export interface CharaType extends CharaTypeBase {
-  id: string
-  time?: Date,
-}
-
 export interface CharaObjectType {
   [name: string]: CharaType
 }
 
-export interface CharaDataType extends CharaTypeBase {
+export interface CharaDataType extends Omit<CharaType, "time" | "birthday" | "id"> {
   time?: string
+  birthday?: string,
 }
 
 export interface CharaDataObjectType {

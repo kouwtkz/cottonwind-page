@@ -6,7 +6,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { GalleryViewerPaging, useImageViewer } from "../../../state/ImageViewer";
+import {
+  GalleryViewerPaging,
+  useImageViewer,
+} from "../../../state/ImageViewer";
 import { MediaImageItemType } from "../../../types/MediaImageDataType";
 import { ImageMee } from "../../layout/ImageMee";
 import axios from "axios";
@@ -30,13 +33,11 @@ import {
 } from "react-icons/md";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "../../theme/main";
-import {
-  PostTextarea,
-  usePreviewMode,
-} from "../input/PostTextarea";
+import { PostTextarea, usePreviewMode } from "../input/PostTextarea";
 import { useCharaState } from "../../../state/CharaState";
 import { AutoImageItemType } from "../../../data/functions/images";
 import { KeyValueStringType } from "../../../types/ValueType";
+import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -86,10 +87,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       pickup: String(image?.pickup),
       ...getImageTagsObject(image),
       type: image?.originType || "",
-      time:
-        image?.time
-          ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
-          .replace(" ", "T") || "",
+      time: ToFormJST(image?.time),
       copyright: image?.copyright || "",
       link: image?.link || "",
       embed: image?.embed || "",
@@ -532,7 +530,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </label>
           <label>
             <div className="label-l">時間</div>
-            <input title="時間" type="datetime-local" {...register("time")} />
+            <input
+              title="時間"
+              type="datetime-local"
+              step={1}
+              {...register("time")}
+            />
           </label>
           <label>
             <div className="label-l">コピーライト</div>

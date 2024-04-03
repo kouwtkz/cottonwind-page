@@ -43,6 +43,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
 import { CharaListItem } from "../../../routes/CharaPage";
+import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
@@ -51,6 +52,7 @@ export default function CharaEditForm() {
   const imageState = useImageState();
   const soundState = useSoundState();
   const chara = charaObject && name ? charaObject[name] : null;
+  console.log(chara)
   const getDefaultValues = useCallback(
     (chara: CharaType | null) => ({
       id: chara?.id || "",
@@ -62,6 +64,8 @@ export default function CharaEditForm() {
       icon: chara?.icon || "",
       image: chara?.image || "",
       headerImage: chara?.headerImage || "",
+      time: ToFormJST(chara?.time),
+      birthday: ToFormJST(chara?.birthday),
       playlist: chara?.playlist || [],
     }),
     []
@@ -194,6 +198,28 @@ export default function CharaEditForm() {
             className="flex-1"
             placeholder="メイン画像"
             {...register("image")}
+          />
+        </label>
+      </div>
+      <div className="flex column">
+        <label className="flex center">
+          <span className="label-l">できた日</span>
+          <input
+            className="flex-1"
+            placeholder="初めてキャラクターができた日"
+            step={1}
+            type="datetime-local"
+            {...register("time")}
+          />
+        </label>
+        <label className="flex center">
+          <span className="label-l">お誕生日</span>
+          <input
+            className="flex-1"
+            placeholder="キャラクターの誕生日"
+            step={1}
+            type="datetime-local"
+            {...register("birthday")}
           />
         </label>
       </div>
@@ -407,7 +433,13 @@ function SortableItem({ chara }: { chara: CharaType }) {
     transition,
   };
   return (
-    <div className="item" ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      className="item"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+    >
       <CharaListItem chara={chara} />
     </div>
   );
