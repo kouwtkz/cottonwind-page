@@ -7,12 +7,14 @@ import {
 import { useCharaState } from "../state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { CharaType } from "../types/CharaType";
-import { HTMLAttributes, memo, useMemo } from "react";
+import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
 import { useImageState } from "../state/ImageState";
 import MultiParser from "../components/doc/MultiParser";
 import { GalleryItemObjectType } from "../types/GalleryType";
 import CharaEditForm, {
   CharaEditButton,
+  SortableObject,
+  useEditSwitchState,
 } from "../components/form/edit/CharaEdit";
 
 export function CharaPage() {
@@ -41,29 +43,50 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
-const CharaList = memo(function CharaList() {
-  const { charaList } = useCharaState();
+export const CharaListItem = memo(function CharaListItem({
+  chara,
+  ...args
+}: {
+  chara: CharaType;
+  className?: string;
+}) {
   return (
-    <div className="charaList">
-      {charaList.map((chara, i) => {
-        return (
-          <Link to={`/character/${chara.id}`} className="item" key={chara.id}>
-            <div>
-              {chara.media?.image ? (
-                <ImageMeeThumbnail
-                  imageItem={chara.media.image}
-                  className="image"
-                  loadingScreen={true}
-                />
-              ) : null}
-              <div className="name">{chara.name}</div>
-            </div>
-          </Link>
-        );
-      })}
+    <div className="inner" {...args}>
+      {chara.media?.image ? (
+        <ImageMeeThumbnail
+          imageItem={chara.media.image}
+          className="image"
+          loadingScreen={true}
+        />
+      ) : null}
+      <div className="name">{chara.name}</div>
     </div>
   );
 });
+function CharaList() {
+  const { charaList } = useCharaState();
+  const [items, setItems] = useState(charaList);
+  const { sortable } = useEditSwitchState();
+  useEffect(() => {
+    setItems(charaList);
+  }, [charaList]);
+  return (
+    <>
+      {import.meta.env.DEV ? (
+        <SortableObject items={items} setItems={setItems} />
+      ) : null}
+      {sortable ? null : (
+        <div className="charaList">
+          {items.map((chara, i) => (
+            <Link to={`/character/${chara.id}`} className="item" key={i}>
+              <CharaListItem chara={chara} />
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
 const CharaBeforeAfter = memo(function CharaBeforeAfter({
   chara,
 }: {
@@ -77,10 +100,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
     <div className="beforeAfter">
       <div className="before">
         {beforeChara ? (
-          <Link
-            to={"/character/" + beforeChara.id}
-            className="flex items-center h-8"
-          >
+          <Link to={"/character/" + beforeChara.id} className="flex">
             <span className="cursor">＜</span>
             {beforeChara.media?.icon ? (
               <ImageMeeIcon
@@ -95,10 +115,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
       </div>
       <div className="after">
         {afterChara ? (
-          <Link
-            to={"/character/" + afterChara.id}
-            className="flex items-center h-8"
-          >
+          <Link to={"/character/" + afterChara.id} className="flex">
             {afterChara.media?.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.media.icon}

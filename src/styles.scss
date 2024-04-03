@@ -857,7 +857,8 @@ form select {
       width: 50%;
       font-size: $text_xl;
       text-decoration-line: none;
-      & > div {
+      color: var(--main-color);
+      .inner {
         padding: 1rem;
       }
       &:hover {

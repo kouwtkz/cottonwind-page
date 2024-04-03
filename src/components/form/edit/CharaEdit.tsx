@@ -1,4 +1,11 @@
-import { CSSProperties, useCallback, useEffect, useMemo } from "react";
+import {
+  CSSProperties,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +25,24 @@ import { useSoundState } from "../../../state/SoundState";
 import { ImageMeeIcon } from "../../layout/ImageMee";
 import { CharaType } from "../../../types/CharaType";
 import { callReactSelectTheme } from "../../theme/main";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS as dndCSS } from "@dnd-kit/utilities";
+import { CharaListItem } from "../../../routes/CharaPage";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
@@ -115,10 +140,7 @@ export default function CharaEditForm() {
   }
 
   return (
-    <form
-      className="edit"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="edit" onSubmit={handleSubmit(onSubmit)}>
       <div>
         {chara?.media?.icon ? (
           <ImageMeeIcon
@@ -129,19 +151,13 @@ export default function CharaEditForm() {
         ) : null}
       </div>
       <div>
-        <input
-          placeholder="キャラクターID"
-          {...register("id")}
-        />
+        <input placeholder="キャラクターID" {...register("id")} />
         {"id" in errors ? (
           <p className="warm">{errors.id?.message?.toString()}</p>
         ) : null}
       </div>
       <div className="flex">
-        <input
-          placeholder="名前"
-          {...register("name")}
-        />
+        <input placeholder="名前" {...register("name")} />
         <input placeholder="敬称" {...register("honorific")} />
         <input
           className="mini"
@@ -153,10 +169,7 @@ export default function CharaEditForm() {
         ) : null}
       </div>
       <div>
-        <textarea
-          placeholder="概要"
-          {...register("overview")}
-        />
+        <textarea placeholder="概要" {...register("overview")} />
       </div>
       <div className="flex column">
         <label className="flex center">
@@ -214,10 +227,7 @@ export default function CharaEditForm() {
         />
       </div>
       <div>
-        <button
-          disabled={!isDirty}
-          type="submit"
-        >
+        <button disabled={!isDirty} type="submit">
           送信
         </button>
       </div>
@@ -300,6 +310,105 @@ export function CharaEditButton() {
       >
         {name ? <MdEditNote /> : <MdAdd />}
       </LinkMee>
+    </div>
+  );
+}
+
+export function SortableObject({
+  items,
+  setItems,
+}: {
+  items: CharaType[];
+  setItems: Dispatch<SetStateAction<CharaType[]>>;
+}) {
+  const { charaList, setIsSet } = useCharaState();
+  const {
+    sortable,
+    save: saveFlag,
+    reset: resetFlag,
+    set,
+  } = useEditSwitchState();
+  useEffect(() => {
+    if (!sortable) {
+      if (saveFlag) {
+        const isDirty = !items.every(({ id }, i) => charaList[i].id === id);
+        if (isDirty) {
+          const formData = new FormData();
+          items.forEach(({ id }) => formData.append("sorts[]", id));
+          axios.post("/character/send", formData).then((res) => {
+            toast(res.data.message, { duration: 2000 });
+            if (res.status === 200) {
+              if (res.data.update.chara) setIsSet(false);
+            }
+          });
+        }
+        set({ save: false });
+      } else if (resetFlag) {
+        setItems(charaList);
+        set({ reset: false });
+      }
+    }
+  }, [
+    charaList,
+    items,
+    resetFlag,
+    saveFlag,
+    set,
+    setIsSet,
+    setItems,
+    sortable,
+  ]);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) {
+        return;
+      }
+      if (active.id !== over.id) {
+        const oldIndex = items.findIndex((v) => v.id === active.id);
+        const newIndex = items.findIndex((v) => v.id === over.id);
+        setItems(arrayMove(items, oldIndex, newIndex));
+      }
+    },
+    [items, setItems]
+  );
+  if (!sortable) return null;
+
+  return (
+    <div className="charaList">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={items} strategy={rectSortingStrategy}>
+          {items.map((chara) => {
+            return <SortableItem chara={chara} key={chara.id} />;
+          })}
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+}
+
+function SortableItem({ chara }: { chara: CharaType }) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: chara.id });
+  const style: CSSProperties = {
+    cursor: "move",
+    listStyle: "none",
+    transform: dndCSS.Transform.toString(transform),
+    transition,
+  };
+  return (
+    <div className="item" ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <CharaListItem chara={chara} />
     </div>
   );
 }
