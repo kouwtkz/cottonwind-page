@@ -134,6 +134,12 @@ export function ImageViewer() {
     [image]
   );
 
+  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
+  const isOrigin = useMemo(
+    () => state?.showOrigin === "on",
+    [state?.showOrigin]
+  );
+
   const PreviewArea = useCallback(
     () => (
       <div className="preview">
@@ -177,7 +183,11 @@ export function ImageViewer() {
                   ) : null
                 ) : null}
                 <div className="wh-all-fill imageArea">
-                  <ImageMee imageItem={image} title={image.name || image.src} />
+                  <ImageMee
+                    imageItem={image}
+                    title={image.name || image.src}
+                    originWhenDev={isOrigin}
+                  />
                 </div>
               </div>
             )}
@@ -185,9 +195,8 @@ export function ImageViewer() {
         ) : null}
       </div>
     ),
-    [image, isProd]
+    [image, isProd, isOrigin]
   );
-  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
 
   const InfoCmp = useCallback(
     ({ children }: { children?: ReactNode }) => (
