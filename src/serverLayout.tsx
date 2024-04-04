@@ -1,6 +1,6 @@
 import { SnsList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
-import { SetMeta, SetMetaProps } from "./data/functions/SetMeta";
+import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
 const serverData = { site };
 

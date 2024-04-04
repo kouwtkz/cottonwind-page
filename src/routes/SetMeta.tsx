@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { CharaObjectType, CharaType } from "../../types/CharaType";
-import { SiteDataType } from "../../types/SiteDataType";
-import { MediaImageItemType } from "../../mediaScripts/GetImageList.mjs";
-import { imageFindFromName } from "./images";
+import { CharaObjectType, CharaType } from "../types/CharaType";
+import { SiteDataType } from "../types/SiteDataType";
+import { MediaImageItemType } from "../mediaScripts/GetImageList.mjs";
+import { imageFindFromName } from "../data/functions/images";
 
 export interface SetMetaProps {
   site: SiteDataType;

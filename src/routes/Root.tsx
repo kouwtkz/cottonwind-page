@@ -3,7 +3,7 @@ import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { ReactNode, useLayoutEffect, useRef } from "react";
 import { StateSet, useDataState } from "../state/StateSet";
-import { MetaStrs } from "../data/functions/SetMeta";
+import { MetaStrs } from "./SetMeta";
 import { useCharaState } from "../state/CharaState";
 import { serverSite as site } from "../data/server/site";
 import { isMobile } from "react-device-detect";
