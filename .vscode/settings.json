@@ -19,6 +19,14 @@
     { "label": "preview", "task": "npm: preview" },
     { "label": "deploy", "task": "npm: deploy" }
   ],
+  // Explorer で非表示にするもの
+  "files.exclude": {
+    "**/cmd/redirect": true,
+    "**/.wrangler": true,
+    "**/.env.local": true,
+    "**/node_modules": true,
+    "**/desktop.ini": true
+  },
   "emeraldwalk.runonsave": {
     "commands": [
       {
