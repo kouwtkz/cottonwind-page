@@ -54,6 +54,7 @@ app.get("*", (c, next) => {
         <head>
           <DefaultMeta />
           <SetMetaServerSide
+            url={c.req.url}
             path={c.req.path}
             query={c.req.query()}
             // characters={characters}

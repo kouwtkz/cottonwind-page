@@ -1,13 +1,14 @@
-import { memo } from "react";
 import { CharaObjectType, CharaType } from "../types/CharaType";
 import { SiteDataType } from "../types/SiteDataType";
 import { MediaImageItemType } from "../mediaScripts/GetImageList.mjs";
 import { imageFindFromName } from "../data/functions/images";
+import { WebSite, WithContext } from "schema-dts";
 
 export interface SetMetaProps {
   site: SiteDataType;
   path: string;
   query?: QueryType;
+  url?: string;
   characters?: CharaObjectType | null;
   images?: MediaImageItemType[];
 }
@@ -83,17 +84,27 @@ export function MetaStrs({
   return { title, description, image: site.url + image };
 }
 
-export function MetaTags({
-  title,
-  description,
-  image,
-  card = "summary_large_image",
-}: {
+interface MetaTagsProps extends SetMetaProps {
   title: string;
   description: string;
   image: string;
   card: "summary_large_image";
-}) {
+}
+export function MetaTags({
+  title,
+  description,
+  image,
+  url,
+  card = "summary_large_image",
+  site,
+}: MetaTagsProps) {
+  const jsonLd: WithContext<WebSite> = {
+    "@type": "WebSite",
+    "@context": "https://schema.org",
+    url: url || site.url,
+    name: title || site.title,
+    alternateName: site.author.name,
+  };
   return (
     <>
       <title>{title}</title>
@@ -105,6 +116,10 @@ export function MetaTags({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </>
   );
 }
@@ -119,8 +134,12 @@ export function QueryToParams(query?: QueryType) {
     : null;
 }
 
-export function SetMeta({ site, ...args }: SetMetaProps) {
+export function SetMeta(args: SetMetaProps) {
   return (
-    <MetaTags {...MetaStrs({ ...args, site })} card="summary_large_image" />
+    <MetaTags
+      {...MetaStrs({ ...args, site: args.site })}
+      card="summary_large_image"
+      {...args}
+    />
   );
 }
