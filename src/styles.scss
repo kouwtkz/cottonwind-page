@@ -1686,14 +1686,20 @@ ul {
 }
 
 .h1h4Page {
-  padding-top: $size_24;
   text-align: center;
+  &.middle {
+    min-height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
   h1 {
     font-family: var(--font-LuloClean);
     font-size: $text_3xl;
     color: var(--main-color);
-    margin-top: $size_12;
-    margin-bottom: $size_3;
+    margin-top: $size_8;
+    margin-bottom: $size_5;
   }
   h4 {
     color: var(--main-color-soft);
@@ -1703,6 +1709,26 @@ ul {
   @media (min-width: $mobileWidth) {
     h1 {
       font-size: $text_4xl;
+    }
+  }
+}
+
+.gridLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  a {
+    width: -moz-fit-content;
+    width: fit-content;
+    display: inline-block;
+    text-decoration-line: none;
+    padding: $size_2;
+    > * {
+      margin: 0.25em auto;
+    }
+    &:hover {
+      color: var(--main-color-deep);
+      background-color: var(--main-color-pale-fluo);
     }
   }
 }

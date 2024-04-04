@@ -21,7 +21,7 @@ export default function ErrorPage(a: any) {
   const errorObj = errorList[error.status];
   return (
     <Base>
-      <div className="h1h4Page">
+      <div className="h1h4Page middle">
         {errorObj ? (
           <>
             <h1>{errorObj.h1}</h1>

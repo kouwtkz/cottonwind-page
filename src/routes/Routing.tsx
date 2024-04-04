@@ -7,6 +7,7 @@ import { GalleryGroupPage, GalleryPage } from "./GalleryPage";
 import { ComicsViewer } from "../state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import InfoPage from "./InfoPage";
+import SuggestPage from "./SuggestPage";
 
 export const Routing: RouteObject[] = [
   {
@@ -45,6 +46,10 @@ export const Routing: RouteObject[] = [
       {
         path: "info",
         element: <InfoPage />,
+      },
+      {
+        path: "suggest",
+        element: <SuggestPage />,
       },
     ],
   },

@@ -59,6 +59,10 @@ export function MetaStrs({
       title = "じょうほう | " + site.title;
       description = "わたかぜコウやサイトの情報";
       break;
+    case "suggest":
+      title = "ていあん | " + site.title;
+      description = "打ち間違いなど用の誘導";
+      break;
   }
   const imageParam = queryParams?.image;
   const albumParam = queryParams?.album;
