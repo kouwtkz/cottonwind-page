@@ -130,6 +130,10 @@ $defaultLineHeight: 1.25em;
   color: var(--warm-color);
 }
 
+.pixel {
+  image-rendering: pixelated;
+}
+
 body,
 input,
 select,
@@ -486,6 +490,8 @@ body {
     }
     img {
       margin: 1rem;
+      width: auto;
+      height: 128;
     }
   }
 }

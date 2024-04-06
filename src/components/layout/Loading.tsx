@@ -3,8 +3,9 @@ export function Loading() {
     <div className="loadingWindow">
       <span className="loadingNow">よみこみちゅう…</span>
       <img
-        src="/static/images/gif/watakaze_icon_background.gif"
+        src="/static/images/gif/わたかぜくんカーソル_待機.gif"
         alt="読み込み中の画像"
+        className="pixel"
       />
       <noscript>
         <p>Javascriptが無効のようです</p>
