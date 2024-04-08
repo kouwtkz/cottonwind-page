@@ -27,7 +27,7 @@ const SetSiteMenu = React.memo(function SiteMenu({
 }) {
   const { SetIsOpen } = useSiteMenuState();
   return (
-    <div className="siteMenu absolute right-0 bg-white bg-opacity-90 flex font-LuloClean flex-wrap justify-center flex-col text-right select-none">
+    <div className="siteMenu">
       {nav.map((item, i) => {
         if (item.url)
           return (
