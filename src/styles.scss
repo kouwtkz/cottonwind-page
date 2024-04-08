@@ -178,9 +178,10 @@ body {
   overflow-y: scroll;
   font-family: var(--font-KosugiMaru);
   &.loading {
-    min-height: 5000rem;
-    padding-right: var(--scroll-margin) !important;
     overflow-y: hidden;
+    &.dummy {
+      min-height: 5000rem;
+    }
   }
 }
 

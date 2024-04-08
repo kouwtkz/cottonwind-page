@@ -19,7 +19,7 @@ export function DefaultMeta() {
 
 export function DefaultBody() {
   return (
-    <body className="loading">
+    <body className="loading dummy">
       <Loading />
       <div id="root">
         <div hidden>

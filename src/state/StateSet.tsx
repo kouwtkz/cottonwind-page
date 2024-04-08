@@ -5,7 +5,12 @@ import { SoundState, useSoundState } from "./SoundState";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { CharaState, useCharaState } from "./CharaState";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "./FeedRead";
@@ -69,7 +74,8 @@ export function DataState() {
   const first = useRef(true);
   const loading = useRef(true);
   const isFirsIncomplete = useRef(true);
-  const doSetComplete = () => {
+  const [fScrollY] = useState(window.scrollY);
+  const doSetComplete = useCallback(() => {
     if (isFirsIncomplete.current && !isComplete) {
       const comp = stateList.every((v) => v.isSet);
       if (comp) {
@@ -77,22 +83,24 @@ export function DataState() {
         isFirsIncomplete.current = false;
       }
     }
-  };
+  }, [isComplete, fScrollY, stateList]);
   useEffect(() => {
     doSetComplete();
     if (first.current) {
+      document.body.classList.remove("dummy");
       setTimeout(() => {
-        if (!isComplete) setComplete(true);
+        if (isFirsIncomplete.current && !isComplete) setComplete(true);
       }, 5000);
       first.current = false;
     }
   });
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (loading.current && isComplete) {
+      scrollTo({ top: fScrollY });
       document.body.classList.remove("loading");
       loading.current = false;
     }
-  });
+  }, [fScrollY, isComplete]);
   return (
     <>
       {isComplete ? null : first.current && reloadFunction ? (
