@@ -12,19 +12,27 @@ export default function InfoPage() {
       </div>
       <div>
         <a
-          href="?invite=discord"
+          title="Discordの招待リンク（合言葉入力式）"
+          href="#discord"
+          target="discord"
           onClick={(e) => {
-            e.preventDefault();
-            const answer = prompt("わたかぜコウの代理キャラクターの名前は？");
-            if (answer !== null) {
-              axios
-                .post("/discord/invite/fetch", { invite_password: answer })
-                .then((r) => {
-                  open(r.data);
-                })
-                .catch((e) => {
-                  toast.error(`認証に失敗しました [${e}]`);
-                });
+            const element = e.target as HTMLAnchorElement;
+            if (!element.hasAttribute("invited")) {
+              e.preventDefault();
+              const answer = prompt("わたかぜコウの代理キャラクターの名前は？");
+              if (answer !== null) {
+                axios
+                  .post("/discord/invite/fetch", { invite_password: answer })
+                  .then((r) => {
+                    element.title = "Discordの招待リンク"
+                    element.href = r.data;
+                    element.setAttribute("invited", "");
+                    element.click();
+                  })
+                  .catch((e) => {
+                    toast.error(`認証に失敗しました [${e}]`);
+                  });
+              }
             }
           }}
         >
