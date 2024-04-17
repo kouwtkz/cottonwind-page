@@ -3,6 +3,7 @@ import { SiteDataType } from "../types/ConfigSiteType";
 import { MediaImageItemType } from "../mediaScripts/GetImageList.mjs";
 import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
+import { toUpperFirstCase } from "../components/doc/StrFunctions.mjs";
 
 export interface SetMetaProps {
   site: SiteDataType;
@@ -30,41 +31,46 @@ export function MetaStrs({
   let image: string | undefined | null;
   const list = path.split("/");
   const queryParams = QueryToParams(query);
-  switch (list[1]) {
-    case "gallery":
-      title = "ギャラリー | " + site.title;
-      description = "わたかぜコウの作品など";
-      break;
-    case "character":
-      const name = list[2] ?? queryParams?.name;
-      const chara = characters && name ? characters[name] : null;
-      title = chara
-        ? chara.name + " - キャラクター | " + site.title
-        : "キャラクター | " + site.title;
-      description =
-        chara?.overview || chara?.description || "わたかぜコウのキャラクター";
-      if (images && chara?.image) {
-        const charaImage = chara.image;
-        image = images?.find(({ URL }) => URL?.match(charaImage))?.URL;
-      }
-      break;
-    case "work":
-      title = "かつどう | " + site.title;
-      description = "わたかぜコウの活動";
-      break;
-    case "sound":
-      title = "おんがく | " + site.title;
-      description = "わたかぜコウが作った音楽";
-      break;
-    case "info":
-      title = "じょうほう | " + site.title;
-      description = "わたかぜコウやサイトの情報";
-      break;
-    case "suggest":
-      title = "ていあん | " + site.title;
-      description = "打ち間違いなど用の誘導";
-      break;
+  if (queryParams?.invite) {
+    title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${site.title}`;
+    description = "Discordへの招待ページ（合言葉式）";
   }
+  if (!title)
+    switch (list[1]) {
+      case "gallery":
+        title = "ギャラリー | " + site.title;
+        description = "わたかぜコウの作品など";
+        break;
+      case "character":
+        const name = list[2] ?? queryParams?.name;
+        const chara = characters && name ? characters[name] : null;
+        title = chara
+          ? chara.name + " - キャラクター | " + site.title
+          : "キャラクター | " + site.title;
+        description =
+          chara?.overview || chara?.description || "わたかぜコウのキャラクター";
+        if (images && chara?.image) {
+          const charaImage = chara.image;
+          image = images?.find(({ URL }) => URL?.match(charaImage))?.URL;
+        }
+        break;
+      case "work":
+        title = "かつどう | " + site.title;
+        description = "わたかぜコウの活動";
+        break;
+      case "sound":
+        title = "おんがく | " + site.title;
+        description = "わたかぜコウが作った音楽";
+        break;
+      case "info":
+        title = "じょうほう | " + site.title;
+        description = "わたかぜコウやサイトの情報";
+        break;
+      case "suggest":
+        title = "ていあん | " + site.title;
+        description = "打ち間違いなど用の誘導";
+        break;
+    }
   const imageParam = queryParams?.image;
   const albumParam = queryParams?.album;
   if (imageParam && albumParam) {

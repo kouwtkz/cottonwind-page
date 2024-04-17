@@ -18,9 +18,8 @@ const cwd = `${process.cwd()}/${process.env.ROOT || ""}`; 7
 export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readSize = true, deleteImage = true, ...args }) {
   // yamlを管理するメディアディレクトリ
   const baseDir = `${cwd}/${args.from}`;
-  const dataDir = import.meta.env?.VITE_DATA_DIR ?? process.env.VITE_DATA_DIR ?? "";
   const yamls = _yamls || await GetYamlImageList(args);
-  const mtimeYamlPath = resolve(`${cwd}/${dataDir}/yamldata_mtimes.json`);
+  const mtimeYamlPath = resolve(`${cwd}/_data/yamldata_mtimes.json`);
   /** @type {{[key: string]: Date}} */
   const mtimeYamlList = (() => {
     let JsonStr = "{}";
