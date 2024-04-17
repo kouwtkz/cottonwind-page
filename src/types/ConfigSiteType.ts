@@ -1,6 +1,6 @@
 import { GalleryItemType } from "./GalleryType"
 
-type SiteDataType = {
+export type SiteDataType = {
   title: string
   description: string
   short: { description: string }
@@ -13,7 +13,6 @@ type SiteDataType = {
   feedFrom?: string
   feedDev?: string
   enableEmoji?: boolean
-  enableRobotsTXT?: boolean
   menu?: {
     nav?: SiteMenuItemType[],
     sns?: SiteSnsItemType[],
@@ -22,6 +21,12 @@ type SiteDataType = {
     default?: GalleryItemType[]
     generate?: GalleryItemType[]
   }
+}
+
+export type ServerDataType = {
+  enableRobotsTXT?: boolean;
+  discordInvite?: string;
+  discordInvitePassword?: string;
 }
 
 export type SiteAuthorType = {

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { exportJsonOut, exportTsOut } from "./MediaUpdateModules.mjs";
+import { dataImportDir, exportJsonOut, exportTsOut } from "./MediaUpdateModules.mjs";
 import CopyDirDiff from "./CopyDirDiff.mjs";
 import { GetMediaImageAlbums } from "./GetImageList.mjs";
 import { ReadImageFromYamls } from "./ReadImage.mjs";
@@ -8,8 +8,8 @@ import { UpdateImageYaml } from "./UpdateImage.mjs";
 import { fromto } from "./UpdateOption.mjs";
 import { retouchImageFromYamls } from "./RetouchImage.mjs";
 import { getSoundAlbum } from "../data/functions/FunctionsSoundData.mjs";
-import { getCharaObjectFromYaml } from "../data/functions/FunctionsCharaData.mjs";
-import { getSiteData } from "../data/functions/FunctionsSiteData.mjs";
+import { readCharaObject } from "../data/functions/FunctionsCharaData.mjs";
+import { readServerConfig, readSiteConfig } from "../data/functions/FunctionsSiteData.mjs";
 
 const mode = process.argv[2] ?? null;
 /** @type string[] */
@@ -17,13 +17,15 @@ const doneList = [];
 
 // サイトデータのコピー
 if (!mode || mode === "site") {
-  exportTsOut("site", getSiteData());
+  exportTsOut("site", readSiteConfig());
+  exportJsonOut("server", readServerConfig(), { dir: dataImportDir });
   doneList.push("サイト");
 }
 
 // キャラクターデータのコピー
 if (!mode || mode === "character") {
-  exportJsonOut("characters", getCharaObjectFromYaml());
+  const characterData = readCharaObject();
+  exportJsonOut("characters", characterData);
   doneList.push("キャラクター");
 }
 

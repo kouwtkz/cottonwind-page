@@ -1,5 +1,5 @@
 import { GetYamlImageList } from "../../mediaScripts/GetImageList.mjs";
-import { getCharaObjectFromYaml, setCharaObjectToYaml } from "./FunctionsCharaData.mjs";
+import { readCharaObject, writeCharaObject } from "./FunctionsCharaData.mjs";
 import { fromto } from "../../mediaScripts/UpdateOption.mjs";
 import { UpdateImageYaml } from "../../mediaScripts/UpdateImage.mjs";
 import { CharaType } from "../../types/CharaType";
@@ -7,7 +7,7 @@ import { MediaUpdate } from "../../mediaScripts/DataUpdateProcess.mjs";
 
 export async function SetCharaData(formData: FormData) {
   const res = { message: "", update: { chara: false, image: false } };
-  const charaList = Object.entries(getCharaObjectFromYaml(false)!);
+  const charaList = Object.entries(readCharaObject(false)!);
   const target = formData.get("target")?.toString();
   if (target) formData.delete("target");
   const id = formData.get("id")?.toString();
@@ -71,7 +71,7 @@ export async function SetCharaData(formData: FormData) {
       else charaList.push([id, chara]);
     }
   }
-  setCharaObjectToYaml(Object.fromEntries(charaList));
+  writeCharaObject(Object.fromEntries(charaList));
   MediaUpdate("character");
   res.update.chara = true;
   res.message = "更新に成功しました";

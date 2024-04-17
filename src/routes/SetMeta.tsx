@@ -1,5 +1,5 @@
 import { CharaObjectType, CharaType } from "../types/CharaType";
-import { SiteDataType } from "../types/SiteDataType";
+import { SiteDataType } from "../types/ConfigSiteType";
 import { MediaImageItemType } from "../mediaScripts/GetImageList.mjs";
 import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";

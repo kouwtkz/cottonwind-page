@@ -1,4 +1,4 @@
-import { SiteDataType } from "../../types/SiteDataType";
+import { SiteDataType } from "../../types/ConfigSiteType";
 import { site as data } from "../import/site";
 
 export const serverSite: SiteDataType = data;

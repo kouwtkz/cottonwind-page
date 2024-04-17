@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { SiteMenuItemType } from "../types/SiteDataType";
+import { SiteMenuItemType } from "../types/ConfigSiteType";
 import MenuButton from "../components/svg/button/MenuButton";
 import { create } from "zustand";
 import { ThemeChangeButton } from "./ThemeSetter";

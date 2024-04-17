@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { renderToString } from "react-dom/server";
-import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
+import { DefaultBody, DefaultMeta, SetMetaServerSide, discordInviteMatch } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
@@ -15,6 +15,11 @@ const app = new Hono();
 
 app.get("/get/rss", async (c) => {
   return c.newResponse(await FetchBody(serverSite.feedFrom), XmlHeader);
+});
+
+app.post("/discord/invite/fetch", async (c) => {
+  const value = await discordInviteMatch(c.req);
+  return c.newResponse(value, { status: value ? 200 : 401 });
 });
 
 app.get("*", (c) => {

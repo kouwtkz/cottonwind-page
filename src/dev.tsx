@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { renderToString } from "react-dom/server";
-import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
+import {
+  DefaultBody,
+  DefaultMeta,
+  SetMetaServerSide,
+  discordInviteMatch,
+} from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
@@ -45,6 +50,11 @@ app.post("/character/send", async (c) => {
 
 app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
+});
+
+app.post("/discord/invite/fetch", async (c) => {
+  const value = await discordInviteMatch(c.req);
+  return c.newResponse(value, { status: value ? 200 : 401 });
 });
 
 app.get("*", (c, next) => {

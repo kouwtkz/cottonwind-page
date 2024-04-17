@@ -1,4 +1,7 @@
 {
+  "files.associations": {
+    "config*.json": "jsonc"
+  },
   "liveSassCompile.settings.formats": [
     {
       "format": "expanded",

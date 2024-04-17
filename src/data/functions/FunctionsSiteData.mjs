@@ -1,23 +1,16 @@
 // @ts-check
 
 import { readFileSync } from "fs";
-import { load } from "js-yaml";
-
-/**
- * @typedef { import("../../types/SiteDataType.d").SiteDataType } SiteDataType
- * @typedef { import("../../types/SiteDataType.d").SiteAuthorType } SiteAuthorType
- * @typedef { import("../../types/SiteDataType.d").SiteMenuItemType } SiteMenuItemType
- * @typedef { import("../../types/SiteDataType.d").SiteSnsItemType } SiteSnsItemType
- */
-
+import { parse } from "jsonc-parser"
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
-/** @returns { SiteDataType } */
-export function getSiteData() {
+const siteConfigName = "config.site";
+/** @returns { import("../../types/ConfigSiteType").SiteDataType } */
+export function readSiteConfig() {
   /** @type any */
   let rawData = {}
   try {
-    rawData = load(readFileSync(`${cwd}/_data/site.yaml`, "utf8"));
+    rawData = parse(readFileSync(`${cwd}/_data/${siteConfigName}.json`, "utf8"));
   } catch (e) {
     console.error(e);
     rawData = { title: "title", description: "description", short: { description: "short" }, author: { since: 2023 } }
@@ -25,6 +18,16 @@ export function getSiteData() {
   return rawData;
 }
 
-const site = getSiteData();
-
-export { site };
+const serverConfigName = "config.server";
+/** @returns { import("../../types/ConfigSiteType").ServerDataType } */
+export function readServerConfig() {
+  /** @type any */
+  let rawData = {}
+  try {
+    rawData = parse(readFileSync(`${cwd}/_data/${serverConfigName}.json`, "utf8"));
+  } catch (e) {
+    console.error(e);
+    rawData = {}
+  }
+  return rawData;
+}

@@ -3,11 +3,11 @@
 /** @typedef { import("../../types/CharaType.d").CharaType } CharaType */
 /** @typedef { import("../../types/CharaType.d").CharaObjectType } CharaObjectType */
 
-import { readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
-import { load, dump } from "js-yaml";
+import { readFileSync } from "fs";
+import { exportJsonOut } from "../../mediaScripts/MediaUpdateModules.mjs";
+import { parse } from "jsonc-parser";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
-const charaYamlPath = resolve(`${cwd}/_data/characters.yaml`)
+const charaConfigName = "config.characters";
 
 /** @param {CharaObjectType} charaObject  */
 function setCharaId(charaObject) {
@@ -16,10 +16,10 @@ function setCharaId(charaObject) {
   });
 }
 
-export function getCharaObjectFromYaml(setId = true) {
+export function readCharaObject(setId = true) {
   try {
     /** @type {any} */
-    const rawData = load(readFileSync(charaYamlPath, "utf8"));
+    const rawData = parse(readFileSync(`${cwd}/_data/${charaConfigName}.json`, "utf8"));
     if (rawData) {
       /** @type {CharaObjectType} */
       const CharaObject = rawData;
@@ -32,6 +32,6 @@ export function getCharaObjectFromYaml(setId = true) {
 }
 
 /** @param {CharaObjectType} charaObject  */
-export function setCharaObjectToYaml(charaObject) {
-  return writeFileSync(charaYamlPath, dump(charaObject));
+export function writeCharaObject(charaObject) {
+  return exportJsonOut(charaConfigName, charaObject, { dir: "_data", space: 2 });
 }

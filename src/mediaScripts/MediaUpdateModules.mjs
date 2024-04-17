@@ -1,26 +1,25 @@
 // @ts-check
 
-import { configDotenv } from 'dotenv'
-configDotenv();
-
 import { writeFileSync, mkdirSync } from "fs"
 
-const JsonDataDir = "./public/static/data/"
+export const dataJsonDir = "./public/static/data/"
 /**
  * @param {string} name
  * @param {any} obj
+ * @param {{dir?: string, space?: number}} args
  */
-export function exportJsonOut(name, obj, dir = JsonDataDir) {
+export function exportJsonOut(name, obj, { dir = dataJsonDir, space } = {}) {
   try { mkdirSync(dir, { recursive: true }) } catch { }
-  writeFileSync(dir + "/" + name + ".json", JSON.stringify(obj))
+  writeFileSync(dir + "/" + name + ".json", JSON.stringify(obj, null, space))
 }
 
-const ExportDataDir = "./src/data/import/"
+export const dataImportDir = "./src/data/import/"
 /**
  * @param {string} name
  * @param {any} obj 
+ * @param {{dir?: string, space?: number}} args
  */
-export function exportTsOut(name, obj, dir = ExportDataDir) {
+export function exportTsOut(name, obj, { dir = dataImportDir, space } = {}) {
   try { mkdirSync(dir, { recursive: true }) } catch { }
   writeFileSync(dir + "/" + name + ".ts", "export var " + name + ": any = " + JSON.stringify(obj))
 }
