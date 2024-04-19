@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { renderToString } from "react-dom/server";
-import { DefaultBody, DefaultMeta, SetMetaServerSide, discordInviteMatch } from "./serverLayout";
+import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
-import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
+import { FetchBody, XmlHeader, discordInviteMatch } from "./data/functions/ServerContent";
 import { serverCharacters as characters } from "./data/server/characters";
 import { serverImageItemList as images } from "./data/server/images";
 

@@ -2,8 +2,6 @@ import { SnsList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
-import { HonoRequest } from "hono";
-import { serverConfig } from "./data/server/config";
 const serverData = { site };
 
 export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
@@ -35,11 +33,4 @@ export function DefaultBody() {
       </div>
     </body>
   );
-}
-
-export async function discordInviteMatch(req: HonoRequest<string, any>) {
-  return serverConfig.discordInvite &&
-    (await req.json()).invite_password === serverConfig.discordInvitePassword
-    ? serverConfig.discordInvite
-    : null;
 }

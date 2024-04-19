@@ -5,12 +5,11 @@ import {
   DefaultBody,
   DefaultMeta,
   SetMetaServerSide,
-  discordInviteMatch,
 } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
-import { FetchBody, XmlHeader } from "./data/functions/ServerContent";
+import { FetchBody, XmlHeader, discordInviteMatch } from "./data/functions/ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 // import { serverCharacters as characters } from "./data/server/characters";
 // import { serverImageItemList as images } from "./data/server/images";
