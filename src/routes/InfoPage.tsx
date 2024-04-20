@@ -1,8 +1,9 @@
 import axios from "axios";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { useDataState } from "../state/StateSet";
+import { MakeRelativeURL } from "../components/doc/MakeURL";
 
 export default function InfoPage() {
   return (
@@ -29,6 +30,9 @@ function InviteDiscordLink({
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const invite = search.get("invite");
   const { isComplete } = useDataState();
+  const question = useMemo(async () => {
+    return axios.get("/discord/invite/fetch").then((r) => r.data);
+  }, []);
   useEffect(() => {
     if (isComplete && invite === "discord") {
       anchorRef.current!.click();
@@ -42,14 +46,19 @@ function InviteDiscordLink({
       href="?invite=discord"
       target="discord"
       ref={anchorRef}
-      onClick={(e) => {
+      onClick={async (e) => {
         const element = anchorRef.current!;
         if (!element.hasAttribute("invited")) {
           e.preventDefault();
-          const answer = prompt("わたかぜコウの代理キャラクターの名前は？");
-          if (answer !== null) {
+          const answer = prompt(await question);
+          if (answer) {
             axios
-              .post("/discord/invite/fetch", { invite_password: answer })
+              .get(
+                MakeRelativeURL({
+                  pathname: "/discord/invite/fetch",
+                  query: { invite_password: answer },
+                })
+              )
               .then((r) => {
                 element.title = "Discordの招待リンク";
                 element.href = r.data;

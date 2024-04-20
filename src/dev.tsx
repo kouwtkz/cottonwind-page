@@ -9,7 +9,7 @@ import {
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
-import { FetchBody, XmlHeader, discordInviteMatch } from "./data/functions/ServerContent";
+import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 // import { serverCharacters as characters } from "./data/server/characters";
 // import { serverImageItemList as images } from "./data/server/images";
@@ -51,9 +51,8 @@ app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
 });
 
-app.post("/discord/invite/fetch", async (c) => {
-  const value = await discordInviteMatch(c.req);
-  return c.newResponse(value, { status: value ? 200 : 401 });
+app.get("/discord/invite/fetch", async (c) => {
+  return discordInviteMatch(c);
 });
 
 app.get("*", (c, next) => {

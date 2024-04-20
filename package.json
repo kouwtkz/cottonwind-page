@@ -11,8 +11,8 @@
     "update-embed": "node ./src/mediaScripts/DataUpdate.mjs embed",
     "update-sound": "node ./src/mediaScripts/DataUpdate.mjs sound",
     "preview": "wrangler pages dev dist",
-    "test": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch hono",
-    "deploy": "wrangler pages deploy dist --project-name kouwtkz --commit-dirty true --branch master"
+    "test": "wrangler pages deploy dist --commit-dirty true --branch hono",
+    "deploy": "wrangler pages deploy dist --commit-dirty true --branch master"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

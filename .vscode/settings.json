@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "config*.json": "jsonc"
+    "config*.json": "jsonc",
+    ".dev.vars": "toml"
   },
   "liveSassCompile.settings.formats": [
     {

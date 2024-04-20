@@ -1,3 +1,4 @@
+import { Context, Env } from "hono"
 import { GalleryItemType } from "./GalleryType"
 
 export type SiteDataType = {
@@ -24,7 +25,6 @@ export type SiteDataType = {
 }
 
 export type ServerDataType = {
-  enableRobotsTXT?: boolean;
   discordInvite?: string;
   discordInvitePassword?: string;
 }
@@ -60,3 +60,5 @@ export type SiteSnsItemType = {
   hidden?: boolean
   none?: boolean
 }
+
+export type CommonContext = Context<Env, string, any>;

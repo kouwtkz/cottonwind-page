@@ -1,5 +1,6 @@
 import pages from '@hono/vite-cloudflare-pages'
 import devServer from '@hono/vite-dev-server'
+import adapter from '@hono/vite-dev-server/cloudflare'
 import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync } from "fs"
@@ -46,6 +47,7 @@ export default defineConfig(({ mode }) => {
         pages(),
         devServer({
           entry: 'src/dev.tsx',
+          adapter
         })
       ]
     }
