@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "update",
+			"problemMatcher": [],
+			"label": "npm: update",
+			"detail": "node ./src/mediaScripts/DataUpdate.mjs"
+		},
+		{
+			"type": "npm",
+			"script": "preview",
+			"problemMatcher": [],
+			"label": "npm: preview",
+			"detail": "wrangler pages dev dist"
+		}
+	]
+}

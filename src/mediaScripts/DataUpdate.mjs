@@ -9,7 +9,7 @@ import { fromto } from "./UpdateOption.mjs";
 import { retouchImageFromYamls } from "./RetouchImage.mjs";
 import { getSoundAlbum } from "../data/functions/FunctionsSoundData.mjs";
 import { readCharaObject } from "../data/functions/FunctionsCharaData.mjs";
-import { readServerConfig, readSiteConfig } from "../data/functions/FunctionsSiteData.mjs";
+import { readSiteConfig } from "../data/functions/FunctionsSiteData.mjs";
 
 const mode = process.argv[2] ?? null;
 /** @type string[] */
@@ -18,7 +18,6 @@ const doneList = [];
 // サイトデータのコピー
 if (!mode || mode === "site") {
   exportTsOut("site", readSiteConfig());
-  exportJsonOut("server", readServerConfig(), { dir: dataImportDir });
   doneList.push("サイト");
 }
 
