@@ -6,9 +6,9 @@ DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名�
 # DISCORD_INVITE_ANSWER = ""
 # DISCORD_INVITE_URL = ""
 
-# [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+[[kv_namespaces]]
+binding = "KV"
+id = "c4d890a161dc4d8abc299dd09d8b3165"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"

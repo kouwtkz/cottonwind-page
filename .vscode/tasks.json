@@ -16,10 +16,43 @@
       "detail": "wrangler pages dev dist"
     },
     {
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "vite"
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: build",
+      "detail": "vite build --mode client && vite build"
+    },
+    {
+      "type": "npm",
+      "script": "deploy",
+      "problemMatcher": [],
+      "label": "npm: deploy",
+      "detail": "npm run build && wrangler pages deploy dist --commit-dirty true --branch master"
+    },
+    {
+      "type": "shell",
+      "command": "curl http://localhost:5173",
+      "label": "curl: home",
+      "group": "test"
+    },
+    {
       "type": "shell",
       "command": "curl -X POST http://localhost:5173/test --data-urlencode 'text=${input:text}'",
-      "label": "test: post",
+      "label": "curl: test post",
       "group": "test"
+    },
+    {
+      "type": "shell",
+      "command": "wrangler ${input:wranglerSelect} ${input:text}",
+      "label": "wrangler"
     }
   ],
   "inputs": [
@@ -27,6 +60,13 @@
       "type": "promptString",
       "id": "text",
       "description": "text message",
+      "default": ""
+    },
+    {
+      "type": "pickString",
+      "id": "wranglerSelect",
+      "description": "select wrangler scripts.",
+      "options": ["kv:namespace create"],
       "default": ""
     }
   ]

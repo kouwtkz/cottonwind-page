@@ -5,12 +5,7 @@ import { SoundState, useSoundState } from "./SoundState";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { CharaState, useCharaState } from "./CharaState";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "./FeedRead";
@@ -53,6 +48,22 @@ type DataStateType = {
   isComplete: boolean;
   setComplete: (value: boolean) => void;
 };
+
+export const useAccessCounter = create<{
+  current: number;
+  month: number;
+  total: number;
+  date: Date;
+}>(() => {
+  const v = { current: 0, month: 0, total: 0, date: new Date() };
+  const data = document.getElementById("accessCountData");
+  if (data) {
+    v.current = Number(data.dataset.current);
+    v.month = Number(data.dataset.month);
+    v.total = Number(data.dataset.total);
+  }
+  return v;
+});
 
 export const useDataState = create<DataStateType>((set) => ({
   isComplete: false,

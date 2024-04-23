@@ -5,9 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee } from "../components/layout/ImageMee";
 import { FeedRead } from "../state/FeedRead";
+import { useAccessCounter } from "../state/StateSet";
 
 export default function Home() {
-  const nav = useNavigate();
+  const { current, month, total, date } = useAccessCounter();
   return (
     <>
       <HomeImage />
@@ -30,6 +31,15 @@ export default function Home() {
           </li>
         </ul>
         <FeedRead />
+        <div className="access-counter">
+          <div>
+            {date.getFullYear()}/{date.getMonth() + 1} で {current}ばんめぇの
+            アクセス
+          </div>
+          <div>
+            (こんげつ{month}、ごうけい{total})
+          </div>
+        </div>
       </div>
     </>
   );
