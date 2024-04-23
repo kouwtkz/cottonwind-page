@@ -76,9 +76,9 @@ export async function ServerLayout({
   if (!isBot) {
     const kv: KVNamespace = (c.env as any).KV;
     const count = JSON.parse((await kv.get("count")) || "{}");
-    current = Number(getCookie(c, "count")) || 0;
     month = Number(count.month || 0);
     total = Number(count.total || 0);
+    current = Number(getCookie(c, "count")) || 0;
     if (!current) {
       month++;
       total++;
