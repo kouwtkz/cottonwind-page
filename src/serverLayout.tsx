@@ -4,7 +4,6 @@ import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 const serverData = { site };
 
 export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
@@ -70,37 +69,10 @@ export async function ServerLayout({
       ? parseImageItems(await r_images.json())
       : undefined;
   }
-  let current = 0,
-    month = 0,
-    total = 0;
-  if (!isBot) {
-    const kv: KVNamespace = (c.env as any).KV;
-    const count = JSON.parse((await kv.get("count")) || "{}");
-    month = Number(count.month || 0);
-    total = Number(count.total || 0);
-    current = Number(getCookie(c, "count")) || 0;
-    if (!current) {
-      month++;
-      total++;
-      await kv.put("count", JSON.stringify({ month, total }));
-      current = month;
-      const today = new Date();
-      const expires = new Date(today.getFullYear() + "-1-1");
-      expires.setMonth(today.getMonth() + 1);
-      expires.setMilliseconds(-1);
-      setCookie(c, "count", String(current), { expires });
-    }
-  }
   return (
     <html lang="ja">
       <head>
         <DefaultMeta />
-        <script
-          id="accessCountData"
-          data-current={current}
-          data-month={month}
-          data-total={total}
-        />
         <SetMetaServerSide
           url={url}
           path={c.req.path}

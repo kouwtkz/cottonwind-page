@@ -49,22 +49,6 @@ type DataStateType = {
   setComplete: (value: boolean) => void;
 };
 
-export const useAccessCounter = create<{
-  current: number;
-  month: number;
-  total: number;
-  date: Date;
-}>(() => {
-  const v = { current: 0, month: 0, total: 0, date: new Date() };
-  const data = document.getElementById("accessCountData");
-  if (data) {
-    v.current = Number(data.dataset.current);
-    v.month = Number(data.dataset.month);
-    v.total = Number(data.dataset.total);
-  }
-  return v;
-});
-
 export const useDataState = create<DataStateType>((set) => ({
   isComplete: false,
   setComplete: (value) => {
