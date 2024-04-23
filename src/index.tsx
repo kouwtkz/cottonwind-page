@@ -1,12 +1,11 @@
 import { Hono } from "hono";
-import { renderToString } from "react-dom/server";
-import { DefaultBody, DefaultMeta, SetMetaServerSide } from "./serverLayout";
+import { ServerLayout, SetMetaServerSide } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
-import { serverCharacters as characters } from "./data/server/characters";
-import { serverImageItemList as images } from "./data/server/images";
 import { honoTest } from "./functions";
+import { renderToString } from "react-dom/server";
+import { serverCharacters as characters } from "./data/server/characters";
 
 const app = new Hono();
 
@@ -21,26 +20,21 @@ app.get("/discord/invite/fetch", async (c) => {
   return discordInviteMatch(c);
 });
 
-honoTest(app);
+// honoTest(app);
 
-app.get("*", (c) => {
+app.get("*", async (c) => {
   return c.html(
     renderToString(
-      <html>
-        <head>
-          <DefaultMeta />
-          <SetMetaServerSide
-            url={c.req.url}
-            path={c.req.path}
-            query={c.req.query()}
-            characters={characters}
-            images={images}
-          />
-          <script type="module" src={"/static/client.js" + buildAddVer} />
-          <link rel="stylesheet" href={"/static/styles.css" + buildAddVer} />
-        </head>
-        <DefaultBody />
-      </html>
+      await ServerLayout({
+        c,
+        characters,
+        meta: (
+          <>
+            <script type="module" src={"/static/client.js" + buildAddVer} />
+            <link rel="stylesheet" href={"/static/styles.css" + buildAddVer} />
+          </>
+        ),
+      })
     )
   );
 });

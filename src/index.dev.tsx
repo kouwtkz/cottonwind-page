@@ -1,19 +1,13 @@
 import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { renderToString } from "react-dom/server";
-import {
-  DefaultBody,
-  DefaultMeta,
-  SetMetaServerSide,
-} from "./serverLayout";
+import { ServerLayout, SetMetaServerSide } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
-// import { serverCharacters as characters } from "./data/server/characters";
-// import { serverImageItemList as images } from "./data/server/images";
+import { renderToString } from "react-dom/server";
 
 const app = new Hono();
 honoTest(app);
@@ -57,29 +51,23 @@ app.get("/discord/invite/fetch", async (c) => {
   return discordInviteMatch(c);
 });
 
-app.get('/test', async (c) => {
-  console.log(c.req.header('cf-connecting-ip'));
-	return c.json((c.req.raw as any).cf);
-})
+app.get("/test", async (c) => {
+  console.log(c.req.header("cf-connecting-ip"));
+  return c.json((c.req.raw as any).cf);
+});
 
-app.get("*", (c, next) => {
+app.get("*", async (c) => {
   return c.html(
     renderToString(
-      <html lang="ja">
-        <head>
-          <DefaultMeta />
-          <SetMetaServerSide
-            url={c.req.url}
-            path={c.req.path}
-            query={c.req.query()}
-            // characters={characters}
-            // images={images}
-          />
-          <link rel="stylesheet" href="/src/styles.css" />
-          <script type="module" src="/src/client.tsx" />
-        </head>
-        <DefaultBody />
-      </html>
+      await ServerLayout({
+        c,
+        meta: (
+          <>
+            <link rel="stylesheet" href="/src/styles.css" />
+            <script type="module" src="/src/client.tsx" />
+          </>
+        ),
+      })
     )
   );
 });

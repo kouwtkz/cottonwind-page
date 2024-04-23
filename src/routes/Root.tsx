@@ -1,7 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
-import { ReactNode, useLayoutEffect, useRef } from "react";
+import { ReactNode, useLayoutEffect, useState } from "react";
 import { StateSet, useDataState } from "../state/StateSet";
 import { MetaStrs } from "./SetMeta";
 import { useCharaState } from "../state/CharaState";
@@ -14,8 +14,8 @@ function SetTitle() {
   const { charaObject: characters } = useCharaState();
   const { imageItemList: images } = useImageState();
   const { isComplete } = useDataState();
-  const notFirst = useRef(false);
-  if (notFirst.current) {
+  const [notFirst, setNotFirst] = useState(false);
+  if (notFirst) {
     document.title = MetaStrs({
       path: pathname,
       query: search,
@@ -23,9 +23,7 @@ function SetTitle() {
       images,
       site,
     })!.title;
-  } else {
-    if (isComplete) notFirst.current = true;
-  }
+  } else if (isComplete) setNotFirst(true);
   return <></>;
 }
 
