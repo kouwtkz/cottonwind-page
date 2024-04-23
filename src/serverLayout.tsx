@@ -53,6 +53,7 @@ export async function ServerLayout({
   meta: React.ReactNode;
 }) {
   const url = c.req.url;
+  const Url = new URL(url);
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
     c.req.header("user-agent") ?? ""
   );
@@ -61,8 +62,7 @@ export async function ServerLayout({
   }: {
     images?: MediaImageItemType[];
   } = {};
-  if (isBot) {
-    const Url = new URL(url);
+  if (isBot && Url.searchParams.has("image")) {
     const dataPath = "/static/data";
     const r_images = await fetch(Url.origin + dataPath + "/images.json");
     images = judgeJson(r_images)

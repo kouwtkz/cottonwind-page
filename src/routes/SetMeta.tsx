@@ -70,7 +70,7 @@ export function MetaStrs({
     }
   const imageParam = queryParams?.image;
   const albumParam = queryParams?.album;
-  if (imageParam && albumParam) {
+  if (imageParam) {
     const foundImage = imageFindFromName({
       imageParam,
       albumParam,
