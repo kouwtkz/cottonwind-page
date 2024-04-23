@@ -1,6 +1,4 @@
-import { HonoRequest } from "hono";
-import { serverConfig } from "./data/server/config";
-import { CommonContext } from "./types/ConfigSiteType";
+import { CommonContext } from "./types/HonoCustomType";
 
 export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },

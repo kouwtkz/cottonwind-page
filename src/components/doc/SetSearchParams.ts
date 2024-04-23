@@ -1,6 +1,5 @@
 import { NavigateFunction, NavigateOptions } from "react-router-dom";
 import { MakeRelativeURL } from "./MakeURL";
-import { KeyValueStringType } from "../../types/ValueType";
 
 interface SetSearchParamBaseProps {
   nav: NavigateFunction;

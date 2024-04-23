@@ -1,5 +1,3 @@
-import { PlaylistType, SoundAlbumType, SoundItemType } from "../../types/MediaSoundType";
-
 export function parseSoundItems(soundAlbum: SoundAlbumType) {
   const soundList: SoundItemType[] = [];
   soundAlbum.playlist?.forEach((playlist) => {
@@ -16,7 +14,7 @@ export function getSetupPlaylist(soundAlbum: SoundAlbumType) {
   ) || { list: [] }
 }
 
-export function getSetupSoundIndex(playlist: PlaylistType) {
+export function getSetupSoundIndex(playlist: SoundPlaylistType) {
   return playlist?.list.findIndex(
     (item) => item.setup
   )

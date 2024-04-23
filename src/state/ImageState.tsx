@@ -1,9 +1,5 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
-import {
-  MediaImageItemType,
-  MediaImageAlbumType,
-} from "../types/MediaImageDataType";
 import axios from "axios";
 import { buildAddVer } from "../data/env";
 import {

@@ -1,7 +1,5 @@
-import { ResizeMode, ResizeOptionType } from "./MediaImageYamlType";
-
 /** @comments ひとつのアルバムの変数 */
-export interface MediaImageAlbumType {
+interface MediaImageAlbumType {
   dir?: string;
   name: string;
   group?: string;
@@ -15,11 +13,11 @@ export interface MediaImageAlbumType {
   list: MediaImageItemType[];
 }
 
-export interface AlbumVisibleType { info?: boolean, title?: boolean, filename?: boolean }
-export interface ResizedType { src: string, mode: ResizeMode }
+interface AlbumVisibleType { info?: boolean, title?: boolean, filename?: boolean }
+interface ResizedType { src: string, mode: ResizeMode }
 
 /** @comments ひとつの画像用の定義 */
-export interface MediaImageItemType {
+interface MediaImageItemType {
   name: string;
   src: string;
   dir?: string;

@@ -1,4 +1,3 @@
-import { KeyValueStringType } from "../../types/ValueType";
 import { getExtension } from "./PathParse";
 
 export const mimeList: KeyValueStringType = {

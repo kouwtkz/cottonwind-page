@@ -1,11 +1,5 @@
 // @ts-check
 
-/**
- * @typedef { import("../../types/MediaSoundType").SoundAlbumType } SoundAlbumType
- * @typedef { import("../../types/MediaSoundType").PlaylistType } PlaylistType
- * @typedef { import("../../types/MediaSoundType").SoundItemType } SoundItemType
- */
-
 import { readFileSync } from "fs";
 import { load } from "js-yaml";
 export const yamlPath = `_data/sound/_data.yaml`;

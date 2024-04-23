@@ -1,5 +1,4 @@
 import { useLayoutEffect } from "react";
-import { CharaType, CharaObjectType } from "../types/CharaType";
 import { create } from "zustand";
 import axios from "axios";
 import { useImageState } from "./ImageState";

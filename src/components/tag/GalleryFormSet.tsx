@@ -8,7 +8,6 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { LinkMee, MakeRelativeURL, SearchSet } from "../doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
-import { YearListType } from "../../types/GalleryType";
 import {
   defaultFilterTags,
   defaultSortTags,

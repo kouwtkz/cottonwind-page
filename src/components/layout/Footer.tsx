@@ -1,7 +1,6 @@
 import { buildTime } from "../../data/env";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
 import { serverSite } from "../../data/server/site";
-import { SiteSnsItemType } from "../../types/ConfigSiteType";
 
 export function Footer() {
   return (

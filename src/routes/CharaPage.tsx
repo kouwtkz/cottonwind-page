@@ -6,11 +6,9 @@ import {
 } from "../components/layout/ImageMee";
 import { useCharaState } from "../state/CharaState";
 import { GalleryObject } from "./GalleryPage";
-import { CharaType } from "../types/CharaType";
 import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
 import { useImageState } from "../state/ImageState";
 import MultiParser from "../components/doc/MultiParser";
-import { GalleryItemObjectType } from "../types/GalleryType";
 import CharaEditForm, {
   CharaEditButton,
   SortableObject,

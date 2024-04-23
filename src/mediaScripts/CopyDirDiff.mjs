@@ -7,7 +7,7 @@ const cwd = resolve(`${process.cwd()}/${process.env.ROOT || ""}`);
 /**
  * @param {string} from
  * @param {string} to
- * @param {import("../types/CopyDirDiffType").CopyDirOptions} options
+ * @param {CopyDirOptions} options
  * @returns 
  */
 export default function CopyDirDiff(from, to, { identical = false, withDir = true, force = false, ignore, ignoreDir } = {}) {

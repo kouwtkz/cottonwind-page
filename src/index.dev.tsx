@@ -11,10 +11,12 @@ import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
+import { honoTest } from "./functions";
 // import { serverCharacters as characters } from "./data/server/characters";
 // import { serverImageItemList as images } from "./data/server/images";
 
 const app = new Hono();
+honoTest(app);
 
 if (serverSite.feedDev)
   app.get("/get/rss", async (c) => {
@@ -54,6 +56,11 @@ app.get("/embed/get", async (c) => {
 app.get("/discord/invite/fetch", async (c) => {
   return discordInviteMatch(c);
 });
+
+app.get('/test', async (c) => {
+  console.log(c.req.header('cf-connecting-ip'));
+	return c.json((c.req.raw as any).cf);
+})
 
 app.get("*", (c, next) => {
   return c.html(

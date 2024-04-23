@@ -1,12 +1,12 @@
-export interface ValueCountType {
+interface ValueCountType {
   value: string;
   count: number;
 }
 
-export interface KeyValueStringType {
+interface KeyValueStringType {
   [k: string]: string | undefined;
 }
 
-export interface KeyValueAnyType {
+interface KeyValueAnyType {
   [k: string]: any;
 }

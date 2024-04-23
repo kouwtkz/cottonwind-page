@@ -5,7 +5,7 @@ import { parse } from "jsonc-parser"
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 const siteConfigName = "config.site";
-/** @returns { import("../../types/ConfigSiteType").SiteDataType } */
+/** @returns { SiteDataType } */
 export function readSiteConfig() {
   /** @type any */
   let rawData = {}
@@ -19,7 +19,7 @@ export function readSiteConfig() {
 }
 
 const serverConfigName = "config.server";
-/** @returns { import("../../types/ConfigSiteType").ServerDataType } */
+/** @returns { ServerDataType } */
 export function readServerConfig() {
   /** @type any */
   let rawData = {}

@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 import * as z from "zod";
 
-export type AutoInputItemType = {
+type AutoInputItemType = {
   label?: string;
   name: string;
   type: string;

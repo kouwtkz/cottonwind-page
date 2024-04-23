@@ -1,15 +1,13 @@
-import { AlbumVisibleType, MediaImageItemType } from "./MediaImageDataType";
-
-export interface MediaImageInYamlType extends MediaImageItemType {
+interface MediaImageInYamlType extends MediaImageItemType {
   fullPath?: string;
   resizeOptions?: ResizeOptionType[];
 }
 
-export type GroupFormat = "image" | "comic";
-export type ResizeMode = "icon" | "thumbnail" | "simple";
-export type FitMethod = "fill" | "contain" | "cover" | "outside" | "inside";
+type GroupFormat = "image" | "comic";
+type ResizeMode = "icon" | "thumbnail" | "simple";
+type FitMethod = "fill" | "contain" | "cover" | "outside" | "inside";
 
-export interface ResizeOptionType {
+interface ResizeOptionType {
   mode?: ResizeMode;
   ext?: string;
   size?: number | {
@@ -21,7 +19,7 @@ export interface ResizeOptionType {
   url?: string;
 }
 
-export interface YamlDataType {
+interface YamlDataType {
   recursive?: boolean;
   listup?: boolean;
   name?: string;
@@ -39,7 +37,7 @@ export interface YamlDataType {
   resizeOption?: ResizeOptionType | ResizeOptionType[];
 }
 
-export type YamlGroupType = {
+type YamlGroupType = {
   name: string;
   from: string;
   to?: string;
@@ -50,7 +48,7 @@ export type YamlGroupType = {
   mtime?: Date;
 };
 
-export type GetYamlImageFilterType = {
+type GetYamlImageFilterType = {
   path?: string | RegExp;
   group?: string[] | string | RegExp;
   tags?: string[] | string;
@@ -60,7 +58,7 @@ export type GetYamlImageFilterType = {
   endsWith?: boolean;
 }
 
-export interface GetYamlImageListBaseProps {
+interface GetYamlImageListBaseProps {
   from: string;
   /**
    * @default path
@@ -76,24 +74,24 @@ export interface GetYamlImageListBaseProps {
   readSize?: boolean;
 }
 
-export interface GetYamlImageListProps extends GetYamlImageListBaseProps {
+interface GetYamlImageListProps extends GetYamlImageListBaseProps {
   readImageHandle?: (arg0: readImageHandleProps) => Promise<void>;
   retouchImageHandle?: (arg0: retouchImageHandleProps) => Promise<void>;
 }
 
-export interface UpdateImageYamlProps extends GetYamlImageListBaseProps {
+interface UpdateImageYamlProps extends GetYamlImageListBaseProps {
   yamls?: YamlGroupType[];
   retouchImageHandle?: (arg0: retouchImageHandleProps) => Promise<void>;
 }
 
-export type OutputOptionType = {
+type OutputOptionType = {
   get?: boolean; // Jsonとかで使うかどうか
   webp?: boolean;
   time?: boolean;
   info?: boolean;
 }
 
-export interface readImageHandleProps {
+interface readImageHandleProps {
   yamls: YamlGroupType[];
   readSize?: boolean;
   resizedDir?: string;
@@ -101,7 +99,7 @@ export interface readImageHandleProps {
   deleteImage?: boolean;
 }
 
-export interface retouchImageHandleProps {
+interface retouchImageHandleProps {
   yamls: YamlGroupType[];
   publicDir?: string;
   deleteImage?: boolean;

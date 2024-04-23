@@ -1,19 +1,33 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "update",
-			"problemMatcher": [],
-			"label": "npm: update",
-			"detail": "node ./src/mediaScripts/DataUpdate.mjs"
-		},
-		{
-			"type": "npm",
-			"script": "preview",
-			"problemMatcher": [],
-			"label": "npm: preview",
-			"detail": "wrangler pages dev dist"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "update",
+      "problemMatcher": [],
+      "label": "npm: update",
+      "detail": "node ./src/mediaScripts/DataUpdate.mjs"
+    },
+    {
+      "type": "npm",
+      "script": "preview",
+      "problemMatcher": [],
+      "label": "npm: preview",
+      "detail": "wrangler pages dev dist"
+    },
+    {
+      "type": "shell",
+      "command": "curl -X POST http://localhost:5173/test --data-urlencode 'text=${input:text}'",
+      "label": "test: post",
+      "group": "test"
+    }
+  ],
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "text",
+      "description": "text message",
+      "default": ""
+    }
+  ]
 }

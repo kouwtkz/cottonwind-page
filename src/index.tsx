@@ -6,6 +6,7 @@ import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { serverCharacters as characters } from "./data/server/characters";
 import { serverImageItemList as images } from "./data/server/images";
+import { honoTest } from "./functions";
 
 const app = new Hono();
 
@@ -16,10 +17,11 @@ const app = new Hono();
 app.get("/get/rss", async (c) => {
   return c.newResponse(await FetchBody(serverSite.feedFrom), XmlHeader);
 });
-
 app.get("/discord/invite/fetch", async (c) => {
   return discordInviteMatch(c);
 });
+
+honoTest(app);
 
 app.get("*", (c) => {
   return c.html(

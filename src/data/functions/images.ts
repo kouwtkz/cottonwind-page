@@ -1,6 +1,3 @@
-import { MediaImageAlbumType, MediaImageItemType } from "../../types/MediaImageDataType";
-import { ValueCountType } from "../../types/ValueType";
-
 export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
   const imageList: MediaImageItemType[] = [];
   imageAlbums.forEach((album) => {

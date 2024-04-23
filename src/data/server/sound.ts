@@ -1,4 +1,3 @@
-import { SoundAlbumType } from "../../types/MediaSoundType";
 import { getSetupPlaylist, getSetupSoundIndex, parseSoundItems } from "../functions/sound";
 import data from "../../../public/static/data/sound.json"
 

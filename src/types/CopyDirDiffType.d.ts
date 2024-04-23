@@ -1,4 +1,4 @@
-export interface CopyDirOptions {
+interface CopyDirOptions {
   /** @default false */
   identical?: boolean
   /** @default true */

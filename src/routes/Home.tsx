@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MediaImageItemType } from "../types/MediaImageDataType";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee } from "../components/layout/ImageMee";
 import { FeedRead } from "../state/FeedRead";

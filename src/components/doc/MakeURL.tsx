@@ -7,7 +7,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import type { UrlObject } from "url";
-import { KeyValueAnyType, KeyValueStringType } from "../../types/ValueType";
 type TypeUrl = string | UrlObject;
 
 export function RelativeURL(url: URL) {

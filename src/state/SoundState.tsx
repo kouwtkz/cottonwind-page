@@ -1,9 +1,4 @@
 import { create } from "zustand";
-import {
-  PlaylistType,
-  SoundAlbumType,
-  SoundItemType,
-} from "../types/MediaSoundType";
 import { useLayoutEffect, useRef } from "react";
 import axios from "axios";
 import { useSoundPlayer } from "./SoundPlayer";
@@ -22,10 +17,10 @@ function parseSoundItems(soundAlbum: SoundAlbumType) {
 type SoundDataType = {
   SoundAlbum: SoundAlbumType | null;
   SoundItemList: Array<SoundItemType>;
-  defaultPlaylist: PlaylistType | null;
+  defaultPlaylist: SoundPlaylistType | null;
   isSet: boolean;
   SetSoundAlbum: (album: SoundAlbumType) => void;
-  SetDefaultPlaylist: (playlist: PlaylistType) => void;
+  SetDefaultPlaylist: (playlist: SoundPlaylistType) => void;
 };
 
 export const useSoundState = create<SoundDataType>((set) => ({

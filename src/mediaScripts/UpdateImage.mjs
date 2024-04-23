@@ -8,11 +8,6 @@ import { dump } from 'js-yaml';
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`; 7
 
 /**
- * @typedef { import("../types/MediaImageYamlType.d.ts").UpdateImageYamlProps } UpdateImageYamlProps
- * @typedef { import("../types/MediaImageYamlType.d.ts").MediaImageInYamlType } MediaImageInYamlType
- */
-
-/**
  * @param {UpdateImageYamlProps} param0 
  */
 export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readSize = true, deleteImage = true, ...args }) {

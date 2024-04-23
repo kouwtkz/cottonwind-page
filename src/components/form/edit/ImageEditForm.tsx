@@ -10,7 +10,6 @@ import {
   GalleryViewerPaging,
   useImageViewer,
 } from "../../../state/ImageViewer";
-import { MediaImageItemType } from "../../../types/MediaImageDataType";
 import { ImageMee } from "../../layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -36,7 +35,6 @@ import { callReactSelectTheme } from "../../theme/main";
 import { PostTextarea, usePreviewMode } from "../input/PostTextarea";
 import { useCharaState } from "../../../state/CharaState";
 import { AutoImageItemType } from "../../../data/functions/images";
-import { KeyValueStringType } from "../../../types/ValueType";
 import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
 type labelValue = { label: string; value: string };
 

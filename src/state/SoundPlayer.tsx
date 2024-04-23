@@ -1,16 +1,15 @@
 import { useRef } from "react";
 import { create } from "zustand";
 import SoundFixed from "../components/layout/SoundFixed";
-import { LoopMode, PlaylistType, SoundItemType } from "../types/MediaSoundType";
 import { getBasename } from "../components/doc/PathParse";
-const LoopModeList: LoopMode[] = ["loop", "loopOne", "playUntilEnd", "off"];
+const LoopModeList: SoundLoopMode[] = ["loop", "loopOne", "playUntilEnd", "off"];
 
 type PlaylistRegistType =
   | string
   | string[]
   | SoundItemType
   | SoundItemType[]
-  | PlaylistType;
+  | SoundPlaylistType;
 export type PlaylistRegistProps = {
   playlist?: PlaylistRegistType;
   current?: number;
@@ -20,16 +19,16 @@ export type PlaylistRegistProps = {
 type SoundPlayerType = {
   paused: boolean;
   ended: boolean;
-  playlist: PlaylistType;
+  playlist: SoundPlaylistType;
   current: number;
-  loopMode: LoopMode;
+  loopMode: SoundLoopMode;
   shuffle: boolean;
   special: boolean;
   SetPaused: (paused: boolean) => void;
   SetEnded: (ended: boolean) => void;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   SetCurrent: (current: number) => void;
-  SetLoopMode: (loopMode: LoopMode, current?: number) => void;
+  SetLoopMode: (loopMode: SoundLoopMode, current?: number) => void;
   SetShuffle: (shuffle: boolean) => void;
   Play: (args?: PlaylistRegistProps) => void;
   Pause: () => void;
@@ -56,7 +55,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
-      playlist?: PlaylistType;
+      playlist?: SoundPlaylistType;
       current?: number;
       special?: boolean;
     } = { current };
@@ -76,7 +75,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
         };
       else if (_playlist) {
         if ((_playlist as any).list !== undefined) {
-          value.playlist = _playlist as PlaylistType;
+          value.playlist = _playlist as SoundPlaylistType;
         } else {
           value.playlist = { list: [_playlist as SoundItemType] };
         }

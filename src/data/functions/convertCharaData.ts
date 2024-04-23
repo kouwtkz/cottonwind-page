@@ -1,5 +1,3 @@
-import { CharaObjectType, CharaType } from "../../types/CharaType";
-
 interface convertCharaDataProps {
   data: any;
   convert?: (CharaType: CharaType) => void;

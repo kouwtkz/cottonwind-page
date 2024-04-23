@@ -29,7 +29,6 @@ import { useCharaState } from "../state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
-import { MediaImageItemType } from "../types/MediaImageDataType";
 import { imageFindFromName } from "../data/functions/images";
 
 const body = typeof window === "object" ? document?.body : null;

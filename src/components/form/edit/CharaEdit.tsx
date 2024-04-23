@@ -23,7 +23,6 @@ import { useCharaState } from "../../../state/CharaState";
 import { useImageState } from "../../../state/ImageState";
 import { useSoundState } from "../../../state/SoundState";
 import { ImageMeeIcon } from "../../layout/ImageMee";
-import { CharaType } from "../../../types/CharaType";
 import { callReactSelectTheme } from "../../theme/main";
 import {
   DndContext,

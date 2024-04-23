@@ -5,9 +5,6 @@ import fs from "fs";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 /**
- * @typedef { import("../types/MediaImageYamlType.d.ts").readImageHandleProps } readImageHandleProps
- * /
-/**
  * @param {readImageHandleProps} args
  */
 export async function ReadImageFromYamls({ yamls, readSize = true, resizedDir = 'resized', retouchImageHandle, deleteImage }) {

@@ -1,4 +1,3 @@
-import { MediaImageItemType } from "../../types/MediaImageDataType";
 import { filterMonthList } from "../../components/tag/GalleryTags";
 export const publicParam = { list: <Array<MediaImageItemType>>[] };
 const currentTime = new Date();

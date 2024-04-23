@@ -1,21 +1,21 @@
-export type SoundAlbumType = {
+type SoundAlbumType = {
   title: string;
   src: string;
   name: string;
-  playlist?: PlaylistType[];
+  playlist?: SoundPlaylistType[];
   setupSound?: string;
   dir?: string;
 }
 
-export type PlaylistType = {
+type SoundPlaylistType = {
   title?: string;
   list: SoundItemType[];
 }
 
-export type SoundItemType = {
+type SoundItemType = {
   src: string;
   title: string;
   setup?: boolean;
 }
 
-export type LoopMode = "off" | "loop" | "loopOne" | "playUntilEnd";
+type SoundLoopMode = "off" | "loop" | "loopOne" | "playUntilEnd";

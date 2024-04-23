@@ -7,12 +7,6 @@ const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 /**
  * @typedef {{ name: string; dir: string; }} _Dirent
- * @typedef { import("../types/MediaImageYamlType.d.ts").YamlGroupType } YamlGroupType
- * @typedef { import("../types/MediaImageYamlType.d.ts").MediaImageInYamlType } MediaImageInYamlType
- * @typedef { import("../types/MediaImageYamlType.d.ts").GetYamlImageListProps } GetYamlImageListProps
- * @typedef { import("../types/MediaImageYamlType.d.ts").YamlDataType } YamlDataType
- * @typedef { import("../types/MediaImageDataType.d.ts").MediaImageItemType } MediaImageItemType
- * @typedef { import("../types/MediaImageDataType.d.ts").MediaImageAlbumType } MediaImageAlbumType
  */
 
 /**

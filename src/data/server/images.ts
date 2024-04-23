@@ -1,4 +1,3 @@
-import { MediaImageAlbumType } from "../../types/MediaImageDataType";
 import { getCopyRightList, getTagList, parseImageItems } from "../functions/images";
 import data from "../../../public/static/data/images.json"
 

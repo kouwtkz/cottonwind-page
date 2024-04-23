@@ -1,6 +1,4 @@
 import React, { memo, useMemo, useRef, useState } from "react";
-import { MediaImageItemType } from "../../types/MediaImageDataType";
-import { ResizeMode } from "../../types/MediaImageYamlType";
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "../doc/MakeURL";
 const blankImage =

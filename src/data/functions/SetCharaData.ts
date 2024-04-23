@@ -2,7 +2,6 @@ import { GetYamlImageList } from "../../mediaScripts/GetImageList.mjs";
 import { readCharaObject, writeCharaObject } from "./FunctionsCharaData.mjs";
 import { fromto } from "../../mediaScripts/UpdateOption.mjs";
 import { UpdateImageYaml } from "../../mediaScripts/UpdateImage.mjs";
-import { CharaType } from "../../types/CharaType";
 import { MediaUpdate } from "../../mediaScripts/DataUpdateProcess.mjs";
 
 export async function SetCharaData(formData: FormData) {

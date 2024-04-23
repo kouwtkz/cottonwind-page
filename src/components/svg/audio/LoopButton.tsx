@@ -1,8 +1,7 @@
-import { LoopMode } from "../../../types/MediaSoundType";
 import { SVGAttributes } from "react";
 
 type LoopButtonProps = {
-  loopMode?: LoopMode;
+  loopMode?: SoundLoopMode;
 } & SVGAttributes<SVGSVGElement>;
 
 export default function LoopButton({

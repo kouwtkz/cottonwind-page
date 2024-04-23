@@ -1,7 +1,4 @@
 
-import { MediaImageItemType } from "./MediaImageDataType";
-import { PlaylistType } from "./MediaSoundType";
-
 interface CharaType {
   name: string,
   honorific?: string,
@@ -22,20 +19,20 @@ interface CharaType {
     icon?: MediaImageItemType | null,
     image?: MediaImageItemType | null,
     headerImage?: MediaImageItemType | null,
-    playlist?: PlaylistType,
+    playlist?: SoundPlaylistType,
   },
   [k: string]: any
 }
 
-export interface CharaObjectType {
+interface CharaObjectType {
   [name: string]: CharaType
 }
 
-export interface CharaDataType extends Omit<CharaType, "time" | "birthday" | "id"> {
+interface CharaDataType extends Omit<CharaType, "time" | "birthday" | "id"> {
   time?: string
   birthday?: string,
 }
 
-export interface CharaDataObjectType {
+interface CharaDataObjectType {
   [name: string]: CharaDataType
 }

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useImageState } from "./ImageState";
-import { MediaImageAlbumType } from "../types/MediaImageDataType";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
 import { GalleryObject } from "../routes/GalleryPage";

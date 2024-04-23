@@ -1,8 +1,5 @@
 // @ts-check
 
-/** @typedef { import("../../types/CharaType.d").CharaType } CharaType */
-/** @typedef { import("../../types/CharaType.d").CharaObjectType } CharaObjectType */
-
 import { readFileSync } from "fs";
 import { exportJsonOut } from "../../mediaScripts/MediaUpdateModules.mjs";
 import { parse } from "jsonc-parser";

@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       plugins: [
         pages(),
         devServer({
-          entry: 'src/dev.tsx',
+          entry: 'src/index.dev.tsx',
           adapter
         })
       ]

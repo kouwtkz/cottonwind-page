@@ -7,7 +7,6 @@ const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 /**
  * @typedef {"contain" | "cover" | "fill" | "outside" | "inside"} FitMethod
- * @typedef { import("../types/MediaImageYamlType.d.ts").retouchImageHandleProps } retouchImageHandleProps
  */
 
 /**

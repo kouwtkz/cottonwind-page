@@ -1,7 +1,4 @@
-import { Context, Env } from "hono"
-import { GalleryItemType } from "./GalleryType"
-
-export type SiteDataType = {
+type SiteDataType = {
   title: string
   description: string
   short: { description: string }
@@ -24,12 +21,12 @@ export type SiteDataType = {
   }
 }
 
-export type ServerDataType = {
+type ServerDataType = {
   discordInvite?: string;
   discordInvitePassword?: string;
 }
 
-export type SiteAuthorType = {
+type SiteAuthorType = {
   name: string
   account: string
   ename: string
@@ -42,14 +39,14 @@ export type SiteAuthorType = {
   }
 }
 
-export type SiteMenuItemType = {
+type SiteMenuItemType = {
   name: string
   short?: string
   url?: string
   switch?: "theme"
 }
 
-export type SiteSnsItemType = {
+type SiteSnsItemType = {
   name: string
   url: string
   title?: string
@@ -60,5 +57,3 @@ export type SiteSnsItemType = {
   hidden?: boolean
   none?: boolean
 }
-
-export type CommonContext = Context<Env, string, any>;

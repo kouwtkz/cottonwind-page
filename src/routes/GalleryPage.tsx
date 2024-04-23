@@ -3,12 +3,6 @@ import { useImageState } from "../state/ImageState";
 import { serverSite } from "../data/server/site";
 import { useDataState } from "../state/StateSet";
 import {
-  GalleryItemObjectType,
-  GalleryItemType,
-  GalleryItemsType,
-  GalleryListPropsBase,
-} from "../types/GalleryType";
-import {
   ReactNode,
   createRef,
   forwardRef,
@@ -19,7 +13,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { MediaImageItemType } from "../types/MediaImageDataType";
 import { filterMonthList } from "../components/tag/GalleryTags";
 import {
   filterImagesTags,
