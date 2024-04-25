@@ -13,6 +13,7 @@
   ],
   "liveSassCompile.settings.showOutputWindowOn": "None",
   "liveSassCompile.settings.watchOnLaunch": true,
+  "liveSassCompile.settings.generateMap": false,
   "vs-browser.url": "http://localhost:5173/",
   "VsCodeTaskButtons.tasks": [
     { "task": "npm" },

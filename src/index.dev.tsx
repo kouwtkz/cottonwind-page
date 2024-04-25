@@ -66,8 +66,8 @@ app.get("*", async (c) => {
         c,
         meta: (
           <>
-            <link rel="stylesheet" href="/src/styles.css" />
             <script type="module" src="/src/client.tsx" />
+            <link rel="stylesheet" href="/src/styles.css" />
           </>
         ),
       })
