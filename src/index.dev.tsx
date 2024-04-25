@@ -8,6 +8,7 @@ import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
+import { app_workers } from "./workers";
 
 const app = new Hono();
 honoTest(app);
@@ -55,6 +56,8 @@ app.get("/test", async (c) => {
   console.log(c.req.header("cf-connecting-ip"));
   return c.json((c.req.raw as any).cf);
 });
+
+app.route("/workers", app_workers);
 
 app.get("*", async (c) => {
   return c.html(

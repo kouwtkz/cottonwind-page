@@ -11,6 +11,10 @@ DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名�
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
 
+[[kv_namespaces]]
+binding = "NOTICE_FEED_KV"
+id = "ded0df1afdc3450ca2baab60314fa9dd"
+
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"

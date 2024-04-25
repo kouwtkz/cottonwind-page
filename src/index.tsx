@@ -6,6 +6,7 @@ import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
+import { app_workers } from "./workers";
 
 const app = new Hono();
 
@@ -19,6 +20,8 @@ app.get("/get/rss", async (c) => {
 app.get("/discord/invite/fetch", async (c) => {
   return discordInviteMatch(c);
 });
+
+app.route("/workers", app_workers);
 
 // honoTest(app);
 
