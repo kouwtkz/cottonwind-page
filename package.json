@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "host": "vite --host",
+    "dev": "vite --host",
+    "private": "vite",
     "build": "vite build --mode client && vite build",
     "update": "node ./src/mediaScripts/DataUpdate.mjs",
     "update-site": "node ./src/mediaScripts/DataUpdate.mjs site",
