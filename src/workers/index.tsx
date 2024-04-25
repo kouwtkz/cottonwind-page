@@ -7,19 +7,25 @@ export const app = new Hono();
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
 
-app.get("/", (c)=>{
-	return c.html(renderToString(<HtmlLayout title="めぇめぇワーカー">
-    <h1>めぇめぇワーカー</h1>
-    <a href="/workers/notice-feed">めぇめぇつうしん</a>
-    <a href="/workers/twix">Twitterれんけい</a>
-  </HtmlLayout>));
-})
+app.get("/", (c) => {
+  return c.html(
+    renderToString(
+      <HtmlLayout title="めぇめぇワーカー">
+        <h1>めぇめぇワーカー</h1>
+        <a href="/workers/notice-feed">めぇめぇつうしん</a>
+        <a href="/workers/twix">Twitterれんけい</a>
+      </HtmlLayout>
+    )
+  );
+});
 
 export function HtmlLayout({
   title,
+  meta,
   children,
 }: {
   title: string;
+  meta?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
@@ -30,11 +36,11 @@ export function HtmlLayout({
         <title>{title}</title>
         <link
           rel="stylesheet"
-          href={import.meta.env.DEV ? "/src/styles.css" : "/static/styles.css"}
+          href={import.meta.env.DEV ? "/src/styles.css" : "/static/css/styles.css"}
         />
+        {meta}
       </head>
       <body className="workers">
-        <div id="root" />
         {children}
       </body>
     </html>

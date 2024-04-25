@@ -33,8 +33,8 @@ app.get("*", async (c) => {
         characters,
         meta: (
           <>
-            <script type="module" src={"/static/client.js" + buildAddVer} />
-            <link rel="stylesheet" href={"/static/styles.css" + buildAddVer} />
+            <script type="module" src={"/static/js/client.js" + buildAddVer} />
+            <link rel="stylesheet" href={"/static/css/styles.css" + buildAddVer} />
           </>
         ),
       })

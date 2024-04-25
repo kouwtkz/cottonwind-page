@@ -19,18 +19,25 @@ export default defineConfig(({ mode }) => {
   if (mode === 'client') {
     config = {
       build: {
-        target: ['es2022', 'edge89', 'firefox89', 'chrome89', 'safari15'],
         rollupOptions: {
-          input: ['./src/client.tsx', './src/styles.css'],
+          input: [
+            './src/client.tsx',
+            './src/styles.scss',
+            'src/workers/twix/twixClient.tsx'
+          ],
           output: {
-            entryFileNames: 'static/client.js',
-            assetFileNames: ({ name, source, type }) => {
-              if (name?.endsWith(".css")) {
-                return 'static/' + name;
-              } else {
-                return ''
+            entryFileNames: `static/js/[name].js`,
+            chunkFileNames: `static/js/[name].js`,
+            assetFileNames: (assetInfo) => {
+              const name = assetInfo?.name ?? "";
+              if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
+                return 'static/images/[name].[ext]';
               }
-            },
+              if (/\.css$/.test(name)) {
+                return 'static/css/[name].[ext]';
+              }
+              return 'static/[name].[ext]';
+            }
           }
         },
         chunkSizeWarningLimit: 3000,

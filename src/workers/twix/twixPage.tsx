@@ -114,16 +114,11 @@ app.get("/", async (c) => {
             </span>
           ) : null}
           {token ? (
-            <div id="copyArea" className="pointer">
+            <div id="copyArea" className="pointer" data-token={token?.access_token}>
               アクセストークンのコピー
             </div>
           ) : null}
         </p>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `document.getElementById("copyArea").onclick=((e)=>{navigator.clipboard.writeText("${token?.access_token}")})`,
-          }}
-        />
         {token?.access_token ? (
           <form className="inline-block" method="post">
             <p>
@@ -149,8 +144,17 @@ app.get("/", async (c) => {
         ) : (
           <a href="?authorize">twitter連携をする</a>
         )}
+        <div id="app" />
         <a href="/workers/notice-feed">めぇめぇつうしんへもどる</a>
         <a href="/workers">ワーカーページにもどる</a>
+        <script
+          type="module"
+          src={
+            import.meta.env.DEV
+              ? "/src/workers/twix/twixClient.tsx"
+              : "/static/js/twixClient.js"
+          }
+        />
       </HtmlLayout>
     )
   );
