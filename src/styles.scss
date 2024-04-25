@@ -130,6 +130,10 @@ $defaultLineHeight: 1.25em;
   color: var(--warm-color);
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .pixel {
   image-rendering: pixelated;
 }

@@ -113,8 +113,17 @@ app.get("/", async (c) => {
               )
             </span>
           ) : null}
-          {token ? <div>{token?.access_token}</div> : null}
+          {token ? (
+            <div id="copyArea" className="pointer">
+              アクセストークンのコピー
+            </div>
+          ) : null}
         </p>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.getElementById("copyArea").onclick=((e)=>{navigator.clipboard.writeText("${token?.access_token}")})`,
+          }}
+        />
         {token?.access_token ? (
           <form className="inline-block" method="post">
             <p>
