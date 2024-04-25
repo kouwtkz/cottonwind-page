@@ -21,7 +21,7 @@ app.post("/", async (c) => {
   const body = await c.req.parseBody();
   if (typeof body.post === "string") {
     await PostTest({ text: body.post, token });
-    return c.redirect("/twix");
+    return c.redirect("/workers/twix");
   }
 });
 
@@ -66,7 +66,7 @@ app.get("/", async (c) => {
     }
     if (code_verifier) deleteCookie(c, "twitter_code_verifier");
     if (state) deleteCookie(c, "twitter_code_state");
-    return c.redirect("/twix");
+    return c.redirect("/workers/twix");
   }
   const token = await SyncToken(c.env);
   if (token?.access_token && "refresh" in query) {
@@ -113,6 +113,7 @@ app.get("/", async (c) => {
               )
             </span>
           ) : null}
+          {token ? <div>{token?.access_token}</div> : null}
         </p>
         {token?.access_token ? (
           <form className="inline-block" method="post">

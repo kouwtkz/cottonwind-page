@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer'
-import { encodeRFC3986 } from '../encode';
 
 const OAUTH2_AUTHRIZE = 'https://twitter.com/i/oauth2/authorize';
 const OAUTH2_ACCESSTOKEN = 'https://api.twitter.com/2/oauth2/token';
@@ -16,6 +15,22 @@ export function generateRandomStr(l = 0) {
     r += c[Math.floor(Math.random() * cl)];
   }
   return r;
+}
+
+// パーセントエンコード化（RFC3986）
+export function encodeRFC3986(text: string) {
+  let encodedText = encodeURIComponent(text);
+  const encoders: { [k: string]: string } = {
+    '!': '%21',
+    "'": '%27',
+    '(': '%28',
+    ')': '%29',
+    '*': '%2A'
+  }
+  for (let key in encoders) {
+    encodedText = encodedText.replaceAll(key, encoders[key]);
+  }
+  return encodedText;
 }
 
 export function getOauth2AuthorizeUrl(
