@@ -93,12 +93,21 @@ export async function ServerLayout({
   );
 }
 
-export function Style({ children, href }: { children?: any; href?: string }) {
+export function Style({
+  children,
+  href,
+  compact = true,
+}: {
+  children?: any;
+  href?: string;
+  compact?: boolean;
+}) {
   if (href) {
     return <link rel="stylesheet" href={href} />;
   } else {
-    if (typeof children === "string")
-      return <style dangerouslySetInnerHTML={{ __html: children }} />;
-    else return <style>{children}</style>;
+    if (typeof children === "string") {
+      const __html = compact ? children.replace(/\s+/g, " ") : children;
+      return <style dangerouslySetInnerHTML={{ __html }} />;
+    } else return <style>{children}</style>;
   }
 }
