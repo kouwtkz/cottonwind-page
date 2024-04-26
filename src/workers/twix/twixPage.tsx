@@ -98,7 +98,19 @@ app.get("/", async (c) => {
   }
   return c.html(
     renderToString(
-      <WorkersLayout title="めぇめぇTwitterれんけい">
+      <WorkersLayout
+        title="めぇめぇTwitterれんけい"
+        script={
+          <script
+            type="module"
+            src={
+              import.meta.env.DEV
+                ? "/src/workers/twix/twixClient.tsx"
+                : "/static/js/twixClient.js"
+            }
+          />
+        }
+      >
         <p>
           <span>{token?.access_token ? "ログイン中" : "未ログイン"}</span>
           {token?.user ? (
@@ -114,7 +126,11 @@ app.get("/", async (c) => {
             </span>
           ) : null}
           {token ? (
-            <div id="copyArea" className="pointer" data-token={token?.access_token}>
+            <div
+              id="copyArea"
+              className="pointer"
+              data-token={token?.access_token}
+            >
               アクセストークンのコピー
             </div>
           ) : null}
@@ -147,14 +163,6 @@ app.get("/", async (c) => {
         <div id="app" />
         <a href="/workers/notice-feed">めぇめぇつうしんへもどる</a>
         <a href="/workers">ワーカーページにもどる</a>
-        <script
-          type="module"
-          src={
-            import.meta.env.DEV
-              ? "/src/workers/twix/twixClient.tsx"
-              : "/static/js/twixClient.js"
-          }
-        />
       </WorkersLayout>
     )
   );

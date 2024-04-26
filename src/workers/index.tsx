@@ -30,11 +30,13 @@ export function WorkersLayout({
   title,
   meta,
   style = defaultStyle,
+  script,
   children,
 }: {
   title: string;
   meta?: React.ReactNode;
   style?: React.ReactNode;
+  script?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
@@ -46,7 +48,10 @@ export function WorkersLayout({
         {meta}
         {style}
       </head>
-      <body className="workers">{children}</body>
+      <body className="workers">
+        {children}
+        {script}
+      </body>
     </html>
   );
 }
