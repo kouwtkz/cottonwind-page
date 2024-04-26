@@ -29,28 +29,36 @@ function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
       import.meta.env.DEV ||
       ("CF_AppSession" in cookies && "CF_Authorization" in cookies)
     )
-      list.push({ name: "workers", url: "/workers" });
+      list.push({ name: "workers", url: "/workers", out: true });
     return list;
   }, [nav, cookies]);
   return (
     <div className="siteMenu">
       {list.map((item, i) => {
-        if (item.url)
-          return (
-            <Link
-              key={i}
-              to={item.url}
-              className="item"
-              onClick={() => {
-                setTimeout(() => {
-                  SetIsOpen(false);
-                }, 350);
-              }}
-            >
-              {item.short || item.name}
-            </Link>
-          );
-        else {
+        if (item.url) {
+          if (item.out) {
+            return (
+              <a key={i} href={item.url} className="item">
+                {item.short || item.name}
+              </a>
+            );
+          } else {
+            return (
+              <Link
+                key={i}
+                to={item.url}
+                className="item"
+                onClick={() => {
+                  setTimeout(() => {
+                    SetIsOpen(false);
+                  }, 350);
+                }}
+              >
+                {item.short || item.name}
+              </Link>
+            );
+          }
+        } else {
           switch (item.switch) {
             case "theme":
               return (

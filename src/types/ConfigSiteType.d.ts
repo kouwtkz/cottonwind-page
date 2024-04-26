@@ -40,10 +40,11 @@ type SiteAuthorType = {
 }
 
 type SiteMenuItemType = {
-  name: string
-  short?: string
-  url?: string
-  switch?: "theme"
+  name: string;
+  short?: string;
+  url?: string;
+  out?: boolean;
+  switch?: "theme";
 }
 
 type SiteSnsItemType = {
