@@ -21,6 +21,7 @@ app.get("/", async (c) => {
         <h1>めぇめぇワーカー</h1>
         <a href="/workers/notice-feed">めぇめぇつうしん</a>
         <a href="/workers/twix">Twitterれんけい</a>
+        <a href="/">ホームページへ戻る</a>
       </WorkersLayout>
     )
   );

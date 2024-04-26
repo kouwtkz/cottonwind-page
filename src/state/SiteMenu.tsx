@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import MenuButton from "../components/svg/button/MenuButton";
 import { create } from "zustand";
 import { ThemeChangeButton } from "./ThemeSetter";
 import { serverSite as site } from "../data/server/site";
+import { useCookies } from "react-cookie";
 type SiteMenuStateType = {
   isOpen: boolean;
   SetIsOpen: (isOpen: boolean) => void;
@@ -19,15 +20,21 @@ export const useSiteMenuState = create<SiteMenuStateType>((set) => ({
   },
 }));
 
-const SetSiteMenu = React.memo(function SiteMenu({
-  nav,
-}: {
-  nav: SiteMenuItemType[];
-}) {
+function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
   const { SetIsOpen } = useSiteMenuState();
+  const [cookies] = useCookies();
+  const list = useMemo(() => {
+    const list = nav.concat();
+    if (
+      import.meta.env.DEV ||
+      ("CF_AppSession" in cookies && "CF_Authorization" in cookies)
+    )
+      list.push({ name: "workers", url: "/workers" });
+    return list;
+  }, [nav, cookies]);
   return (
     <div className="siteMenu">
-      {nav.map((item, i) => {
+      {list.map((item, i) => {
         if (item.url)
           return (
             <Link
@@ -56,7 +63,7 @@ const SetSiteMenu = React.memo(function SiteMenu({
       })}
     </div>
   );
-});
+}
 
 export function SiteMenu() {
   const { isOpen } = useSiteMenuState();
