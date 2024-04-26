@@ -12,6 +12,7 @@ const defaultStyle = (
 );
 
 export const app = new Hono();
+
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
 

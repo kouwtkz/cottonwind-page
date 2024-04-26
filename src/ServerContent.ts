@@ -1,3 +1,4 @@
+import { Next } from "hono";
 import { CommonContext } from "./types/HonoCustomType";
 
 export const XmlHeader = {
@@ -33,4 +34,12 @@ export async function discordInviteMatch(c: CommonContext) {
   } else {
     return c.newResponse(env.DISCORD_INVITE_QUESTION);
   }
+}
+
+async function TrimTrailingContext(c: CommonContext, next: Next) {
+  const Url = new URL(c.req.url);
+  if (/.+\/+$/.test(Url.pathname)) {
+    Url.pathname = Url.pathname.replace(/\/+$/, "");
+    return c.redirect(Url.href);
+  } else return next();
 }
