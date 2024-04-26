@@ -48,7 +48,6 @@ export default defineConfig(({ mode }) => {
     }
   } else {
     config.ssr = { external: ['react', 'react-dom'] };
-    config.assetsInclude = ["assets/*"];
     config.plugins!.push([
       pages(),
       devServer({
