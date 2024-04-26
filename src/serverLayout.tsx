@@ -19,7 +19,7 @@ export function DefaultMeta() {
   );
 }
 
-export function DefaultBody() {
+export function DefaultBody({ after }: { after?: React.ReactNode }) {
   return (
     <body className="loading dummy">
       <Loading />
@@ -33,6 +33,7 @@ export function DefaultBody() {
           </footer>
         </div>
       </div>
+      {after}
     </body>
   );
 }
@@ -47,10 +48,14 @@ export async function ServerLayout({
   c,
   characters,
   meta,
+  styles,
+  script,
 }: {
   c: CommonContext;
   characters?: CharaObjectType;
-  meta: React.ReactNode;
+  meta?: React.ReactNode;
+  styles?: React.ReactNode;
+  script?: React.ReactNode;
 }) {
   const url = c.req.url;
   const Url = new URL(url);
@@ -81,8 +86,19 @@ export async function ServerLayout({
           images={images}
         />
         {meta}
+        {styles}
       </head>
-      <DefaultBody />
+      <DefaultBody after={script} />
     </html>
   );
+}
+
+export function Style({ children, href }: { children?: any; href?: string }) {
+  if (href) {
+    return <link rel="stylesheet" href={href} />;
+  } else {
+    if (typeof children === "string")
+      return <style dangerouslySetInnerHTML={{ __html: children }} />;
+    else return <style>{children}</style>;
+  }
 }

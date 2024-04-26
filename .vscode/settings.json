@@ -3,17 +3,6 @@
     "config*.json": "jsonc",
     ".dev.vars": "toml"
   },
-  "liveSassCompile.settings.formats": [
-    {
-      "format": "expanded",
-      "extensionName": ".css",
-      "savePath": "/src",
-      "savePathReplacementPairs": null
-    }
-  ],
-  "liveSassCompile.settings.showOutputWindowOn": "None",
-  "liveSassCompile.settings.watchOnLaunch": true,
-  "liveSassCompile.settings.generateMap": false,
   "vs-browser.url": "http://localhost:5173/",
   "VsCodeTaskButtons.tasks": [
     { "task": "npm" },

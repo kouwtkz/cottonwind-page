@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { ServerLayout, SetMetaServerSide } from "./serverLayout";
+import { ServerLayout, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
@@ -64,12 +64,8 @@ app.get("*", async (c) => {
     renderToString(
       await ServerLayout({
         c,
-        meta: (
-          <>
-            <script type="module" src="/src/client.tsx" />
-            <link rel="stylesheet" href="/src/styles.css" />
-          </>
-        ),
+        styles: <Style>{(await import("@/styles.scss")).default}</Style>,
+        script: <script type="module" src="/src/client.tsx" />,
       })
     )
   );

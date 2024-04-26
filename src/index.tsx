@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { ServerLayout, SetMetaServerSide } from "./serverLayout";
+import { ServerLayout, SetMetaServerSide, Style } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
-import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { app_workers } from "./workers";
@@ -31,11 +30,9 @@ app.get("*", async (c) => {
       await ServerLayout({
         c,
         characters,
-        meta: (
-          <>
-            <script type="module" src={"/static/js/client.js" + buildAddVer} />
-            <link rel="stylesheet" href={"/static/css/styles.css" + buildAddVer} />
-          </>
+        styles: <Style href={"/static/css/styles.css" + buildAddVer} />,
+        script: (
+          <script type="module" src={"/static/js/client.js" + buildAddVer} />
         ),
       })
     )

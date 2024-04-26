@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { renderToString } from "react-dom/server";
-import { HtmlLayout } from "..";
+import { WorkersLayout } from "..";
 import {
   SyncToken,
   SetAccessToken,
@@ -98,7 +98,7 @@ app.get("/", async (c) => {
   }
   return c.html(
     renderToString(
-      <HtmlLayout title="めぇめぇTwitterれんけい">
+      <WorkersLayout title="めぇめぇTwitterれんけい">
         <p>
           <span>{token?.access_token ? "ログイン中" : "未ログイン"}</span>
           {token?.user ? (
@@ -155,7 +155,7 @@ app.get("/", async (c) => {
               : "/static/js/twixClient.js"
           }
         />
-      </HtmlLayout>
+      </WorkersLayout>
     )
   );
 });

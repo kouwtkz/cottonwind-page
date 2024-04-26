@@ -4,6 +4,7 @@ import adapter from '@hono/vite-dev-server/cloudflare'
 import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync } from "fs"
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const localEnv = ".env.local"
 function EnvBuildDateWrite() {
@@ -15,50 +16,46 @@ function EnvBuildDateWrite() {
 
 export default defineConfig(({ mode }) => {
   EnvBuildDateWrite();
-  let config: UserConfig = {};
+  let config: UserConfig = {
+    optimizeDeps: { include: [] },
+    plugins: [tsconfigPaths()]
+  };
   if (mode === 'client') {
-    config = {
-      build: {
-        rollupOptions: {
-          input: [
-            './src/client.tsx',
-            './src/styles.scss',
-            'src/workers/twix/twixClient.tsx'
-          ],
-          output: {
-            entryFileNames: `static/js/[name].js`,
-            chunkFileNames: `static/js/[name].js`,
-            assetFileNames: (assetInfo) => {
-              const name = assetInfo?.name ?? "";
-              if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
-                return 'static/images/[name].[ext]';
-              }
-              if (/\.css$/.test(name)) {
-                return 'static/css/[name].[ext]';
-              }
-              return 'static/[name].[ext]';
+    config.build = {
+      rollupOptions: {
+        input: [
+          './src/client.tsx',
+          './src/styles.scss',
+          'src/workers/twix/twixClient.tsx'
+        ],
+        output: {
+          entryFileNames: `static/js/[name].js`,
+          chunkFileNames: `static/js/[name].js`,
+          assetFileNames: (assetInfo) => {
+            const name = assetInfo?.name ?? "";
+            if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
+              return 'static/images/[name].[ext]';
             }
+            if (/\.css$/.test(name)) {
+              return 'static/css/[name].[ext]';
+            }
+            return 'static/[name].[ext]';
           }
-        },
-        chunkSizeWarningLimit: 3000,
-        // manifest: true
-      }
-    };
-  } else {
-    config = {
-      ssr: {
-        external: ['react', 'react-dom']
+        }
       },
-      assetsInclude: ["assets/*"],
-      plugins: [
-        pages(),
-        devServer({
-          entry: 'src/index.dev.tsx',
-          adapter
-        })
-      ]
+      // manifest: true,
+      chunkSizeWarningLimit: 3000
     }
+  } else {
+    config.ssr = { external: ['react', 'react-dom'] };
+    config.assetsInclude = ["assets/*"];
+    config.plugins!.push([
+      pages(),
+      devServer({
+        entry: 'src/index.dev.tsx',
+        adapter,
+      })
+    ])
   }
-  config.optimizeDeps = { include: [] };
   return config;
 })

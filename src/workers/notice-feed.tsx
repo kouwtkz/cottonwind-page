@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { renderToString } from "react-dom/server";
-import { HtmlLayout } from ".";
+import { WorkersLayout } from ".";
 
 const app = new Hono();
 app.get("/", (c) => {
@@ -12,11 +12,11 @@ const defaultTitle = "めぇめぇつうしん";
 export function TopPage() {
   const layoutAttr = { title: defaultTitle };
   return (
-    <HtmlLayout {...layoutAttr}>
+    <WorkersLayout {...layoutAttr}>
       <h1>{defaultTitle}</h1>
       <a href="/workers/twix">Twitterれんけい</a>
       <a href="/workers">ワーカーページにもどる</a>
-    </HtmlLayout>
+    </WorkersLayout>
   );
 }
 

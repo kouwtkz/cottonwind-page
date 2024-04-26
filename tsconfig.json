@@ -1,16 +1,36 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "allowJs": true,
-    "lib": ["DOM", "ESNext"],
+    "skipLibCheck": true,
+    
     "types": ["@cloudflare/workers-types", "vite/client"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting (使われてない部分の警告など) */
+    "strict": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    "allowJs": true,
+    "jsxImportSource": "react",
     "esModuleInterop": true,
-    "outDir": "dist"
-  }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }],
 }
