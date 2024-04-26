@@ -25,10 +25,7 @@ function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
   const [cookies] = useCookies();
   const list = useMemo(() => {
     const list = nav.concat();
-    if (
-      import.meta.env.DEV ||
-      ("CF_AppSession" in cookies && "CF_Authorization" in cookies)
-    )
+    if (cookies.VisibleWorkers)
       list.push({ name: "workers", url: "/workers", out: true });
     return list;
   }, [nav, cookies]);

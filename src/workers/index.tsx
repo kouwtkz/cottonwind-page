@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { app_twix } from "./twix/twixPage";
 import { app_noticeFeed } from "./notice-feed";
 import { renderToString } from "react-dom/server";
@@ -15,17 +16,34 @@ app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
 
 app.get("/", async (c) => {
+  const Url = new URL(c.req.url);
+  const cookieKey = "VisibleWorkers";
+  const switchCookieKey = "viewCookie";
+  if (Url.searchParams.has(switchCookieKey)) {
+    const cookieMode = Url.searchParams.get(switchCookieKey);
+    if (cookieMode === "on") {
+      setCookie(c, cookieKey, "on", { maxAge: 32e6 });
+    } else if (cookieMode === "off") {
+      deleteCookie(c, cookieKey);
+    }
+    return c.redirect(Url.pathname);
+  }
+  const cookieValue = getCookie(c, cookieKey);
   return c.html(
     renderToString(
       <WorkersLayout title="めぇめぇワーカー">
         <h1>めぇめぇワーカー</h1>
         <a href="/workers/notice-feed">めぇめぇつうしん</a>
         <a href="/workers/twix">Twitterれんけい</a>
+        <a href={`?${switchCookieKey}=${cookieValue ? "off" : "on"}`}>
+          メニュー{cookieValue ? "から外す" : "に入れる"}
+        </a>
         <a href="/">ホームページへ戻る</a>
       </WorkersLayout>
     )
   );
 });
+app.post("/", async (c) => {});
 
 export function WorkersLayout({
   title,
