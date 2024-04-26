@@ -9,10 +9,9 @@ import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { app_workers } from "./workers";
+import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
-const compactStyles = (
-  typeof importStyles === "string" ? importStyles : ""
-).replace(/\s+/g, " ");
+const compactStyles = CompactCode(importStyles);
 
 const app = new Hono();
 
