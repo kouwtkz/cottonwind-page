@@ -9,8 +9,15 @@ import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { app_workers } from "./workers";
+import importStyles from "@/styles.scss";
+const compactStyles = (
+  typeof importStyles === "string" ? importStyles : ""
+).replace(/\s+/g, " ");
 
 const app = new Hono();
+
+const stylePath = "/styles.scss";
+app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 
 if (serverSite.feedDev)
@@ -64,7 +71,7 @@ app.get("*", async (c) => {
     renderToString(
       await ServerLayout({
         c,
-        styles: <Style>{(await import("@/styles.scss")).default}</Style>,
+        styles: <Style href={stylePath} />,
         script: <script type="module" src="/src/client.tsx" />,
       })
     )

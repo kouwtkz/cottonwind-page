@@ -6,9 +6,7 @@ import { Style } from "@/serverLayout";
 
 const defaultStyle = (
   <Style
-    {...(import.meta.env.DEV
-      ? { children: (await import("@/styles.scss")).default }
-      : { href: "/static/css/styles.css" })}
+    href={import.meta.env.DEV ? "/styles.scss" : "/static/css/styles.css"}
   />
 );
 
