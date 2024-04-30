@@ -9,14 +9,14 @@ const defaultUrl = "/static/data/characters.json" + buildAddVer;
 
 type CharaStateType = {
   charaList: Array<CharaType>;
-  charaObject: CharaObjectType | null;
+  charaObject: CharaObjectType;
   isSet: boolean;
   setIsSet: (flag: boolean) => void;
   setCharaObject: (list: CharaObjectType) => void;
 };
 
 export const useCharaState = create<CharaStateType>((set) => ({
-  charaObject: null,
+  charaObject: {},
   charaList: [],
   isSet: false,
   setIsSet: (flag) => set(() => ({ isSet: flag })),

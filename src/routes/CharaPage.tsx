@@ -16,7 +16,7 @@ import CharaEditForm, {
 } from "../components/form/edit/CharaEdit";
 
 export function CharaPage() {
-  const { name: charaName } = useParams();
+  const { charaName } = useParams();
   const [search] = useSearchParams();
   const isEdit = search.get("edit") === "on";
   const isDev = import.meta.env.DEV;
@@ -135,7 +135,7 @@ const CharaDetail = memo(function CharaDetail({
 }: {
   charaName: string;
 }) {
-  const { charaObject } = useCharaState();
+  const { charaObject, isSet: isCharaState } = useCharaState();
   const { imageAlbumList } = useImageState();
   const chara = useMemo(
     () => (charaObject ?? {})[charaName],
@@ -154,7 +154,7 @@ const CharaDetail = memo(function CharaDetail({
   );
   return (
     <>
-      {charaObject ? (
+      {isCharaState ? (
         <div className="charaDetail">
           <CharaBeforeAfter chara={chara} />
           <div className="head">

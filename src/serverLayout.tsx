@@ -62,17 +62,25 @@ export async function ServerLayout({
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
     c.req.header("user-agent") ?? ""
   );
-  let {
-    images,
-  }: {
-    images?: MediaImageItemType[];
-  } = {};
-  if (isBot && Url.searchParams.has("image")) {
+  let images: MediaImageItemType[] | undefined;
+  if (isBot) {
     const dataPath = "/static/data";
-    const r_images = await fetch(Url.origin + dataPath + "/images.json");
-    images = judgeJson(r_images)
-      ? parseImageItems(await r_images.json())
-      : undefined;
+    const params = c.req.param() as KeyValueStringType;
+    const isCharaName = Boolean(params.charaName);
+    if (isCharaName && !characters) {
+      const r_characters = await fetch(
+        Url.origin + dataPath + "/characters.json"
+      );
+      characters = judgeJson(r_characters)
+        ? await r_characters.json()
+        : undefined;
+    }
+    if (isCharaName || Url.searchParams.has("image")) {
+      const r_images = await fetch(Url.origin + dataPath + "/images.json");
+      images = judgeJson(r_images)
+        ? parseImageItems(await r_images.json())
+        : undefined;
+    }
   }
   return (
     <html lang="ja">

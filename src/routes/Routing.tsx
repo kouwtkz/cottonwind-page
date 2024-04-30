@@ -25,7 +25,7 @@ export const Routing: RouteObject[] = [
         element: <CharaPage />,
       },
       {
-        path: "character/:name",
+        path: "character/:charaName",
         element: <CharaPage />,
       },
       {

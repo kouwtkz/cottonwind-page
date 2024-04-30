@@ -69,7 +69,7 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
 
 export function ImageViewer() {
   const { imageItemList } = useImageState();
-  const { charaList } = useCharaState();
+  const { charaObject } = useCharaState();
   const nav = useNavigate();
   const { isOpen, onOpen, onClose } = useImageViewer();
   const search = useLocation().search;
@@ -209,10 +209,9 @@ export function ImageViewer() {
                       <MultiParser>{image.description}</MultiParser>
                     </div>
                     <div className="tagList">
-                      {charaList
-                        .filter((chara) =>
-                          image.tags?.some((tag) => chara.id === tag)
-                        )
+                      {image.tags
+                        ?.map((tag) => charaObject[tag])
+                        .filter((v) => v)
                         .map((chara, i) => {
                           return (
                             <Link
@@ -297,7 +296,7 @@ export function ImageViewer() {
       </div>
     ),
     [
-      charaList,
+      charaObject,
       image,
       isDev,
       onClose,

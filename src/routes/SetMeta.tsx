@@ -1,6 +1,11 @@
 import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
 import { toUpperFirstCase } from "../components/doc/StrFunctions.mjs";
+import {
+  autoFixTagsOptions,
+  defaultTags,
+  getTagsOptions,
+} from "@/components/tag/GalleryTags";
 
 export interface SetMetaProps {
   site: SiteDataType;
@@ -78,7 +83,53 @@ export function MetaStrs({
     });
     if (foundImage) {
       title = (foundImage.name || foundImage.src) + " - " + title;
-      image = foundImage.URL;
+      const charaListFound = characters
+        ? (foundImage.tags ?? []).map((tag) => characters[tag]).filter((v) => v)
+        : [];
+      const charaList = charaListFound
+        .slice(0, 2)
+        .map((chara) => chara.name + (chara.honorific ?? ""));
+      const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
+      const content = (foundImage.tags ?? []).find((tag) =>
+        tagsOptions.some(({ value }) => value === tag)
+      );
+      let picDescription =
+        charaList.length > 0
+          ? charaList.join("と") + (charaListFound.length > 2 ? "など" : "")
+          : "";
+      if (content) {
+        picDescription =
+          picDescription +
+          (picDescription ? "の" : "") +
+          tagsOptions.find(({ value }) => value === content)!.label;
+      }
+      if (picDescription) {
+        switch (foundImage.type?.toLocaleLowerCase()) {
+          case "illust":
+            picDescription = picDescription + "のイラスト";
+            break;
+          case "picture":
+            picDescription = picDescription + "の写真";
+            break;
+          case "goods":
+            picDescription = picDescription + "のグッズ";
+            break;
+          case "3d":
+            picDescription = picDescription + "の3Dモデル";
+            break;
+          case "given":
+            picDescription = picDescription + "のファンアート";
+            break;
+          default:
+            picDescription = picDescription + "の画像";
+            break;
+        }
+      }
+      if (foundImage.description)
+        picDescription = picDescription
+          ? foundImage.description + "\n(" + picDescription + ")"
+          : foundImage.description;
+      description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
   if (!title) title = site.title;

@@ -1,5 +1,5 @@
 export const RoutingList = [
-  "/", "character", "character/:name",
+  "/", "character", "character/:charaName",
   "gallery", "gallery/ebook", "gallery/:group",
   "sound", "info", "suggest"
 ] as const;
