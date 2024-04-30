@@ -16,21 +16,23 @@ export interface SetMetaProps {
   images?: MediaImageItemType[];
 }
 
-type MetaStrsReturnType = {
+type MetaValuesReturnType = {
   title: string;
   description: string;
   image: string;
+  imageSize: { w: number; h: number };
 };
-export function MetaStrs({
+export function MetaValues({
   path,
   query,
   site,
   characters,
   images,
-}: SetMetaProps): MetaStrsReturnType {
+}: SetMetaProps): MetaValuesReturnType {
   let title: string | undefined;
   let description: string | undefined;
   let image: string | undefined | null;
+  let imageSize = { w: 600, h: 600 };
   const list = path.split("/");
   const queryParams = QueryToParams(query);
   if (queryParams?.invite) {
@@ -53,7 +55,18 @@ export function MetaStrs({
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
         if (images && chara?.image) {
           const charaImage = chara.image;
-          image = images?.find(({ URL }) => URL?.match(charaImage))?.URL;
+          const charaImageItem = images?.find(({ URL }) =>
+            URL?.match(charaImage)
+          );
+          if (charaImageItem) {
+            image = charaImageItem.URL;
+            if (charaImageItem.size) {
+              imageSize = {
+                w: charaImageItem.size.w,
+                h: charaImageItem.size.h,
+              };
+            }
+          }
         }
         break;
       case "work":
@@ -83,6 +96,13 @@ export function MetaStrs({
     });
     if (foundImage) {
       title = (foundImage.name || foundImage.src) + " - " + title;
+      image = foundImage.URL;
+      if (foundImage.size) {
+        imageSize = {
+          w: foundImage.size.w,
+          h: foundImage.size.h,
+        };
+      }
       const charaListFound = characters
         ? (foundImage.tags ?? []).map((tag) => characters[tag]).filter((v) => v)
         : [];
@@ -135,19 +155,21 @@ export function MetaStrs({
   if (!title) title = site.title;
   if (!description) description = site.description;
   if (!image) image = site.image;
-  return { title, description, image: site.url + image };
+  return { title, description, image: site.url + image, imageSize };
 }
 
 interface MetaTagsProps extends SetMetaProps {
   title: string;
   description: string;
   image: string;
+  imageSize: { w: number; h: number };
   card: "summary_large_image";
 }
 export function MetaTags({
   title,
   description,
   image,
+  imageSize,
   url,
   card = "summary_large_image",
   site,
@@ -165,7 +187,11 @@ export function MetaTags({
       <meta name="description" content={description} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content="website" />
       <meta property="og:image" content={image} />
+      <meta property="og:image:width" content={String(imageSize.w)} />
+      <meta property="og:image:height" content={String(imageSize.h)} />
       <meta name="twitter:card" content={card} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
@@ -191,7 +217,7 @@ export function QueryToParams(query?: QueryType) {
 export function SetMeta(args: SetMetaProps) {
   return (
     <MetaTags
-      {...MetaStrs({ ...args, site: args.site })}
+      {...MetaValues({ ...args, site: args.site })}
       card="summary_large_image"
       {...args}
     />

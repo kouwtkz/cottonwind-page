@@ -3,7 +3,7 @@ import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { StateSet, useDataState } from "../state/StateSet";
-import { MetaStrs } from "./SetMeta";
+import { MetaValues } from "./SetMeta";
 import { useCharaState } from "../state/CharaState";
 import { serverSite as site } from "../data/server/site";
 import { isMobile } from "react-device-detect";
@@ -16,7 +16,7 @@ function SetTitle() {
   const { isComplete } = useDataState();
   const [notFirst, setNotFirst] = useState(false);
   if (notFirst) {
-    document.title = MetaStrs({
+    document.title = MetaValues({
       path: pathname,
       query: search,
       characters,
