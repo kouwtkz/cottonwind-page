@@ -32,7 +32,7 @@ export function MetaValues({
   let title: string | undefined;
   let description: string | undefined;
   let image: string | undefined | null;
-  let imageSize = { w: 600, h: 600 };
+  let imageSize = { w: 1000, h: 1000 };
   const list = path.split("/");
   const queryParams = QueryToParams(query);
   if (queryParams?.invite) {
