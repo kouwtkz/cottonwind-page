@@ -46,12 +46,11 @@ import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
-  const { name } = useParams();
+  const { charaName } = useParams();
   const { charaObject, setIsSet } = useCharaState();
   const imageState = useImageState();
   const soundState = useSoundState();
-  const chara = charaObject && name ? charaObject[name] : null;
-  console.log(chara)
+  const chara = charaObject && charaName ? charaObject[charaName] : null;
   const getDefaultValues = useCallback(
     (chara: CharaType | null) => ({
       id: chara?.id || "",
@@ -276,11 +275,11 @@ export const useEditSwitchState = create<{
 
 export function CharaEditButton() {
   const { isComplete } = useDataState();
-  const { name } = useParams();
+  const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
-  Url.query = name ? { mode: "edit", name } : { mode: "add" };
+  Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
   const style: CSSProperties = {
     margin: "0.5rem",
     width: "3rem",
@@ -292,7 +291,7 @@ export function CharaEditButton() {
   };
   return (
     <div className="rbButtonArea z30">
-      {name ? null : sortable ? (
+      {charaName ? null : sortable ? (
         <>
           <button
             type="button"
@@ -333,7 +332,7 @@ export function CharaEditButton() {
         style={style}
         className="button round large"
       >
-        {name ? <MdEditNote /> : <MdAdd />}
+        {charaName ? <MdEditNote /> : <MdAdd />}
       </LinkMee>
     </div>
   );
