@@ -39,6 +39,7 @@ app.get("/", async (c) => {
         <h1>めぇめぇワーカー</h1>
         <a href="/workers/notice-feed">めぇめぇつうしん</a>
         <a href="/workers/twix">Twitterれんけい</a>
+        <a href="/workers/info">サーバーの情報</a>
         <a href={`?${switchCookieKey}=${cookieValue ? "off" : "on"}`}>
           メニュー{cookieValue ? "から外す" : "に入れる"}
         </a>
