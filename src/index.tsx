@@ -36,9 +36,8 @@ async function ReactHtml(c: CommonContext) {
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),
       isLogin:
-        c.env &&
-        "CF_Authorization" in c.env &&
-        c.env.LOGIN_TOKEN === getCookie(c, "LoginToken"),
+        Boolean(getCookie(c, "CF_Authorization")) &&
+        c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
     })
   );
 }
