@@ -16,12 +16,11 @@ export const app = new Hono();
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
 app.get("/info", async (c) => {
-  return c.json({...c, ...{cookie: getCookie(c)}});
+  return c.json({ ...c, ...{ cookie: getCookie(c) } });
 });
-
 app.get("/", async (c) => {
   const Url = new URL(c.req.url);
-  const cookieKey = "VisibleWorkers";
+  const cookieKey = "VISIBLE_WORKERS";
   const switchCookieKey = "viewCookie";
   if (Url.searchParams.has(switchCookieKey)) {
     const cookieMode = Url.searchParams.get(switchCookieKey);
@@ -32,6 +31,9 @@ app.get("/", async (c) => {
     }
     return c.redirect(Url.pathname);
   }
+  const loginToken = getCookie(c, "LOGIN_TOKEN");
+  if (loginToken !== c.env?.LOGIN_TOKEN)
+    setCookie(c, "LOGIN_TOKEN", String(c.env?.LOGIN_TOKEN), { maxAge: 32e6 });
   const cookieValue = getCookie(c, cookieKey);
   return c.html(
     renderToString(

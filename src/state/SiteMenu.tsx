@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { ThemeChangeButton } from "./ThemeSetter";
 import { serverSite as site } from "../data/server/site";
 import { useCookies } from "react-cookie";
+import { useManageState } from "./StateSet";
 type SiteMenuStateType = {
   isOpen: boolean;
   SetIsOpen: (isOpen: boolean) => void;
@@ -22,13 +23,13 @@ export const useSiteMenuState = create<SiteMenuStateType>((set) => ({
 
 function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
   const { SetIsOpen } = useSiteMenuState();
-  const [cookies] = useCookies();
+  const { visibleWorkers } = useManageState();
   const list = useMemo(() => {
     const list = nav.concat();
-    if (cookies.VisibleWorkers)
+    if (visibleWorkers)
       list.push({ name: "workers", url: "/workers", out: true });
     return list;
-  }, [nav, cookies]);
+  }, [nav, visibleWorkers]);
   return (
     <div className="siteMenu">
       {list.map((item, i) => {
