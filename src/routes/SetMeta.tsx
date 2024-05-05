@@ -77,7 +77,7 @@ export function MetaValues({
         title = "おんがく | " + site.title;
         description = "わたかぜコウが作った音楽";
         break;
-      case "info":
+      case "about":
         title = "じょうほう | " + site.title;
         description = "わたかぜコウやサイトの情報";
         break;

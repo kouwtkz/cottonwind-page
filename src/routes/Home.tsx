@@ -25,7 +25,7 @@ export default function Home() {
             <Link to="/sound">おんがく</Link>
           </li>
           <li>
-            <Link to="/info">じょうほう</Link>
+            <Link to="/about">じょうほう</Link>
           </li>
         </ul>
         <FeedRead />

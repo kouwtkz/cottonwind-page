@@ -5,10 +5,10 @@ import { useSearchParams } from "react-router-dom";
 import { useDataState } from "../state/StateSet";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
 
-export default function InfoPage() {
+export default function AboutPage() {
   return (
-    <div className="infoPage">
-      <h2>Infomation</h2>
+    <div className="aboutPage">
+      <h2>About</h2>
       <h3>プロフィール</h3>
       <div>
         <p>わたかぜコウです！</p>

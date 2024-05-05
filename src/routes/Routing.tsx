@@ -6,7 +6,7 @@ import { CharaPage } from "./CharaPage";
 import { GalleryGroupPage, GalleryPage } from "./GalleryPage";
 import { ComicsViewer } from "../state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
-import InfoPage from "./InfoPage";
+import AboutPage from "./AboutPage";
 import SuggestPage from "./SuggestPage";
 import { RoutingUnion } from "./RoutingList";
 
@@ -45,8 +45,8 @@ export const Routing: RouteObject[] = [
         element: <SoundPage />,
       },
       {
-        path: "info",
-        element: <InfoPage />,
+        path: "about",
+        element: <AboutPage />,
       },
       {
         path: "suggest",
