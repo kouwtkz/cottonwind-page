@@ -15,6 +15,9 @@ export const app = new Hono();
 
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
+app.get("/info", async (c) => {
+  return c.json({...c, ...{cookie: getCookie(c)}});
+});
 
 app.get("/", async (c) => {
   const Url = new URL(c.req.url);
