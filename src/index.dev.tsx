@@ -14,6 +14,7 @@ import { renderToString } from "react-dom/server";
 import { app_workers } from "./workers";
 import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
+import { getCookie } from "hono/cookie";
 const compactStyles = CompactCode(importStyles);
 
 const app = new Hono({ strict: true });
@@ -74,6 +75,7 @@ async function ReactHtml(c: CommonContext) {
       c,
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
+      isLogin: c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken")
     })
   );
 }

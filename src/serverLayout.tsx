@@ -4,7 +4,6 @@ import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import { getCookie } from "hono/cookie";
 const serverData = { site };
 
 export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
@@ -51,12 +50,14 @@ export async function ServerLayout({
   meta,
   styles,
   script,
+  isLogin = false,
 }: {
   c: CommonContext;
   characters?: CharaObjectType;
   meta?: React.ReactNode;
   styles?: React.ReactNode;
   script?: React.ReactNode;
+  isLogin?: boolean;
 }) {
   const url = c.req.url;
   const Url = new URL(url);
@@ -100,10 +101,7 @@ export async function ServerLayout({
       <DefaultBody
         after={
           <>
-            <script
-              id="server-data"
-              data-is-login={c.env?.LOGIN_TOKEN === getCookie(c, "LOGIN_TOKEN")}
-            />
+            <script id="server-data" data-is-login={isLogin} />
             {script}
           </>
         }

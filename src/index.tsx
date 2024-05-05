@@ -9,6 +9,7 @@ import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { app_workers } from "./workers";
+import { getCookie } from "hono/cookie";
 
 const app = new Hono({ strict: true });
 
@@ -34,6 +35,10 @@ async function ReactHtml(c: CommonContext) {
       script: (
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),
+      isLogin:
+        c.env &&
+        "CF_Authorization" in c.env &&
+        c.env.LOGIN_TOKEN === getCookie(c, "LoginToken"),
     })
   );
 }

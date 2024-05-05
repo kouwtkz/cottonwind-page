@@ -136,7 +136,7 @@ function ManageState() {
     setIsLogin(serverData?.dataset.isLogin === "true");
   }, [setIsLogin]);
   useEffect(() => {
-    if (isLogin) setVisibleWorkers("VISIBLE_WORKERS" in cookies);
+    if (isLogin) setVisibleWorkers("VisibleWorkers" in cookies);
   }, [isLogin, cookies]);
   return <></>;
 }
