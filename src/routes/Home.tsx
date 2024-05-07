@@ -13,19 +13,19 @@ export default function Home() {
       <div className="topPage">
         <ul>
           <li>
-            <Link to="/gallery">ギャラリー</Link>
+            <Link to="/gallery">GALLERY</Link>
           </li>
           <li>
-            <Link to="/character">キャラクター</Link>
+            <Link to="/character">CHARACTER</Link>
           </li>
           {/* <li>
-            <Link to="/work">かつどう</Link>
+            <Link to="/work">WORK</Link>
           </li> */}
           <li>
-            <Link to="/sound">おんがく</Link>
+            <Link to="/sound">SOUND</Link>
           </li>
           <li>
-            <Link to="/about">じょうほう</Link>
+            <Link to="/about">ABOUT</Link>
           </li>
         </ul>
         <FeedRead />

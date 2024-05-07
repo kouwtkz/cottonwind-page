@@ -193,6 +193,16 @@ body {
   position: fixed;
 }
 
+.lulo {
+  font-family: var(--font-LuloClean);
+}
+
+%a-line-none {
+  a {
+    text-decoration-line: none;
+  }
+}
+
 :root {
   background-color: var(--background-top);
   scrollbar-width: thin;
@@ -574,9 +584,7 @@ header {
     padding: 0 0.5rem;
     height: 2.5rem;
     display: inline-block;
-    a {
-      text-decoration-line: none;
-    }
+    @extend %a-line-none;
     #siteTitle {
       font-size: $text_2xl;
       line-height: 2.5rem;
@@ -622,9 +630,7 @@ header {
         background-color: var(--main-color-soft);
       }
     }
-    a {
-      text-decoration-line: none;
-    }
+    @extend %a-line-none;
   }
 }
 
@@ -682,6 +688,7 @@ footer {
     flex-wrap: wrap;
     justify-content: center;
   }
+  @extend %a-line-none;
   ul {
     display: flex;
     flex-direction: column;
@@ -693,9 +700,16 @@ footer {
     li {
       margin: $size_2 $size_4;
       display: inline;
-      a {
-        text-decoration-line: none;
+    }
+  }
+  ul li,
+  h3 {
+    a {
+      color: var(--main-color);
+      &:hover {
+        color: var(--main-color-soft);
       }
+      font-family: var(--font-LuloClean);
     }
   }
   @media (min-width: $tabletWidth) {
@@ -711,16 +725,11 @@ footer {
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    a {
-      text-decoration-line: none;
-    }
-    & > .title {
-      margin: $size_4 0;
-      h3 {
-        margin: 0;
-        font-size: 1.75rem;
-        line-height: 2rem;
-      }
+    h3 {
+      margin: 0;
+      font-size: 1.75rem;
+      line-height: 2rem;
+      margin: $size_2;
     }
     & > .list {
       flex: 1 1 0%;
@@ -1127,9 +1136,7 @@ select.YearFilter {
 .galleryContainer {
   width: 100%;
   margin-bottom: $size_4;
-  a {
-    text-decoration-line: none;
-  }
+  @extend %a-line-none;
   .galleryLabel {
     h2 {
       font-family: var(--font-LuloClean);
@@ -1694,6 +1701,7 @@ ul {
   h3 {
     color: var(--main-color-dark);
   }
+  @extend %a-line-none;
 }
 
 .h1h4Page {
@@ -1778,6 +1786,6 @@ body.workers {
     display: inline-block;
   }
   > a {
-    margin: 0.25rem
+    margin: 0.25rem;
   }
 }

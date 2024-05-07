@@ -69,9 +69,11 @@ export const FeedRead = memo(function FeedRead() {
   if (isBlank) return <></>;
   return (
     <div className="blog">
-      <a className="title" href={link} title={title} target="blog">
-        <h3 className="text-3xl">ノート</h3>
-      </a>
+      <h3>
+        <a className="title" href={link} title={title} target="blog">
+          NOTE
+        </a>
+      </h3>
       <div className="list">
         {list?.slice(0, 3).map(({ date, link, title, description }, i) => (
           <a href={link} className="article" target="note" key={i}>

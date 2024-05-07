@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "kouwtkz"
+name = "cottonwind-page"
 pages_build_output_dir = "./dist"
 
 [vars]
