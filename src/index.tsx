@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { serveStatic } from "hono/cloudflare-workers";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
-import { ServerLayout, ServerNotFound, SetMetaServerSide, Style } from "./serverLayout";
+import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
