@@ -5,6 +5,9 @@ import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
+import Sitemap from "vite-plugin-sitemap";
+import { serverSite } from "./src/data/server/site";
+import { RoutingList } from './src/routes/RoutingList'
 
 const localEnv = ".env.local"
 function EnvBuildDateWrite() {
@@ -53,7 +56,12 @@ export default defineConfig(({ mode }) => {
       devServer({
         entry: 'src/index.dev.tsx',
         adapter,
-      })
+      }),
+      Sitemap({
+        hostname: serverSite.url,
+        generateRobotsTxt: true,
+        dynamicRoutes: RoutingList.filter(v => !/:/.test(v))
+      }),
     ])
   }
   return config;
