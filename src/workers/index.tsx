@@ -5,11 +5,7 @@ import { app_noticeFeed } from "./notice-feed";
 import { renderToString } from "react-dom/server";
 import { Style } from "@/serverLayout";
 
-const defaultStyle = (
-  <Style
-    href={import.meta.env.DEV ? "/styles.scss" : "/static/css/styles.css"}
-  />
-);
+const defaultStyle = <Style href="/css/styles.css" />;
 
 export const app = new Hono();
 

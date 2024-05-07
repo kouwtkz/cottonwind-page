@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => {
               return 'static/images/[name].[ext]';
             }
             if (/\.css$/.test(name)) {
-              return 'static/css/[name].[ext]';
+              return 'css/[name].[ext]';
             }
             return 'static/[name].[ext]';
           }
@@ -56,11 +56,22 @@ export default defineConfig(({ mode }) => {
       devServer({
         entry: 'src/index.dev.tsx',
         adapter,
+        exclude: [
+          // /.*\.css$/,
+          /.*\.ts$/,
+          /.*\.tsx$/,
+          /^\/@.+$/,
+          /\?t\=\d+$/,
+          /^\/favicon\.ico$/,
+          /^\/static\/.+/,
+          /^\/node_modules\/.*/,
+        ],
       }),
       Sitemap({
         hostname: serverSite.url,
         generateRobotsTxt: true,
-        dynamicRoutes: RoutingList.filter(v => !/:/.test(v))
+        dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
+        exclude: ["/404"]
       }),
     ])
   }

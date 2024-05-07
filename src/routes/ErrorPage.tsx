@@ -1,4 +1,4 @@
-import { useRouteError } from "react-router-dom";
+import { Link, useRouteError } from "react-router-dom";
 import { Base } from "./Root";
 
 const errorList: {
@@ -10,7 +10,7 @@ const errorList: {
   },
 };
 
-export default function ErrorPage(a: any) {
+export default function ErrorPage() {
   let error: {
     status: number;
     statusText: string;
@@ -26,11 +26,13 @@ export default function ErrorPage(a: any) {
           <>
             <h1>{errorObj.h1}</h1>
             <h4>{errorObj.h4}</h4>
+            <Link to="/">トップページへ戻る</Link>
           </>
         ) : (
           <>
             <h1>Error</h1>
             <h4>{error.statusText}</h4>
+            <Link to="/">トップページへ戻る</Link>
           </>
         )}
       </div>

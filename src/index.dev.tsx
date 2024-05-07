@@ -3,7 +3,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
-import { ServerLayout, Style } from "./serverLayout";
+import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import { serverSite } from "./data/server/site";
@@ -19,7 +19,7 @@ const compactStyles = CompactCode(importStyles);
 
 const app = new Hono({ strict: true });
 
-const stylePath = "/styles.scss";
+const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 
@@ -75,7 +75,7 @@ async function ReactHtml(c: CommonContext) {
       c,
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
-      isLogin: c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken")
+      isLogin: c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
     })
   );
 }
@@ -83,12 +83,14 @@ async function ReactHtml(c: CommonContext) {
 RoutingList.forEach((path) => {
   app.get(path, (c) => c.html(ReactHtml(c)));
 });
-app.get("*", async (c, next) => {
+
+app.all("*", async (c, next) => {
   const Url = new URL(c.req.url);
   if (!/.+\/+$/.test(Url.pathname))
-    return c.html(ReactHtml(c), { status: 404 });
+    return c.html(renderToString(<ServerNotFound />), { status: 404 });
   else return next();
 });
+
 app.use(trimTrailingSlash());
 
 export default app;

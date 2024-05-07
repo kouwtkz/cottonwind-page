@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { serveStatic } from "hono/cloudflare-pages";
+import { serveStatic } from "hono/cloudflare-workers";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
-import { ServerLayout, SetMetaServerSide, Style } from "./serverLayout";
+import { ServerLayout, ServerNotFound, SetMetaServerSide, Style } from "./serverLayout";
 import { buildAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
@@ -30,7 +30,7 @@ async function ReactHtml(c: CommonContext) {
     await ServerLayout({
       c,
       characters,
-      styles: <Style href={"/static/css/styles.css" + buildAddVer} />,
+      styles: <Style href={"/css/styles.css" + buildAddVer} />,
       script: (
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),
@@ -44,12 +44,14 @@ async function ReactHtml(c: CommonContext) {
 RoutingList.forEach((path) => {
   app.get(path, (c) => c.html(ReactHtml(c)));
 });
-app.get("*", async (c, next) => {
+
+app.all("*", async (c, next) => {
   const Url = new URL(c.req.url);
   if (!/.+\/+$/.test(Url.pathname))
-    return c.html(ReactHtml(c), { status: 404 });
+    return c.html(renderToString(<ServerNotFound />), { status: 404 });
   else return next();
 });
+
 app.use(trimTrailingSlash());
 
 export default app;

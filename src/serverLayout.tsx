@@ -4,6 +4,7 @@ import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
+import { buildAddVer } from "./data/env";
 const serverData = { site };
 
 export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
@@ -107,6 +108,44 @@ export async function ServerLayout({
         }
       />
     </html>
+  );
+}
+
+export function ServerSimpleLayout({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  return (
+    <html lang="ja">
+      <head>
+        <DefaultMeta />
+        <title>{site.title}</title>
+        <Style href={"/css/styles.css" + buildAddVer} />
+      </head>
+      <body>
+        <header id="header">
+          <div className="title-container">
+            <a id="siteTitle" href="/">
+              {site.title}
+            </a>
+          </div>
+        </header>
+        <div className="content-base">{children}</div>
+      </body>
+    </html>
+  );
+}
+
+export function ServerNotFound() {
+  return (
+    <ServerSimpleLayout>
+      <div className="h1h4Page middle">
+        <h1>404 not found</h1>
+        <h4>ページが見つかりませんでした</h4>
+        <a href="/">トップページへ戻る</a>
+      </div>
+    </ServerSimpleLayout>
   );
 }
 
