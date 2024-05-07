@@ -1,6 +1,7 @@
 import pages from '@hono/vite-cloudflare-pages'
 import devServer from '@hono/vite-dev-server'
 import adapter from '@hono/vite-dev-server/cloudflare'
+import ssg from '@hono/vite-ssg'
 import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync } from "fs"
@@ -67,6 +68,7 @@ export default defineConfig(({ mode }) => {
           /^\/node_modules\/.*/,
         ],
       }),
+      ssg({entry: "./src/ssg.tsx"}),
       Sitemap({
         hostname: serverSite.url,
         generateRobotsTxt: true,
