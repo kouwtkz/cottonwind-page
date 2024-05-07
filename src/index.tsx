@@ -14,8 +14,6 @@ import { getCookie } from "hono/cookie";
 
 const app = new Hono({ strict: true });
 
-app.get("/robots.txt", serveStatic());
-app.get("/sitemap.xml", serveStatic());
 // app.get("/assets/*", serveStatic());
 
 app.get("/get/rss", async (c) => {
@@ -47,7 +45,6 @@ RoutingList.forEach((path) => {
   app.get(path, (c) => c.html(ReactHtml(c)));
 });
 app.get("*", async (c, next) => {
-  console.log(await (c.env as any).ASSETS.fetch(c.req));
   const Url = new URL(c.req.url);
   if (!/.+\/+$/.test(Url.pathname))
     return c.html(ReactHtml(c), { status: 404 });
