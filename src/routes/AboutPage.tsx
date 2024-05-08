@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { useDataState } from "../state/StateSet";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
+import SiteConfigList from "@/data/config.list";
+console.log(SiteConfigList);
 
 export default function AboutPage() {
   return (

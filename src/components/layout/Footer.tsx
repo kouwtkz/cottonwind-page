@@ -1,15 +1,15 @@
 import { buildTime } from "../../data/env";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
-import { serverSite } from "../../data/server/site";
+import SiteConfigList from "@/data/config.list";
 
 export function Footer() {
   return (
     <footer>
       <div className="copyright">
-        © {serverSite.author.since}-{getJSTYear(buildTime ?? new Date())}{" "}
-        {serverSite.author.ename}
+        © {import.meta.env.VITE_SINCE}-{getJSTYear(buildTime ?? new Date())}{" "}
+        {import.meta.env.VITE_AUTHOR_ENAME}
       </div>
-      <SnsList snsList={serverSite.menu?.sns || []} />
+      <SnsList snsList={SiteConfigList.sns || []} />
     </footer>
   );
 }

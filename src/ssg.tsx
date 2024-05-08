@@ -8,7 +8,7 @@ import {
 import { RoutingList } from "@/routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
 
-const app = new Hono({ strict: true });
+const app = new Hono<MeeBindings>({ strict: true });
 
 app.get("/404", async (c) => {
   return c.html(renderToString(<ServerNotFound />), { status: 404 });
@@ -27,6 +27,26 @@ app.get("/suggest", async (c) => {
     )
   );
 });
+
+// app.get("robots.txt", (c) => {
+//   const env = c.env;
+//   const AccessList = [
+//     {
+//       "User-agent": "*",
+//       Allow: "/",
+//     },
+//   ] as { [k: string]: string }[];
+//   const sitemap = import.meta.env.VITE_URL + "/sitemap.xml";
+//   return c.text(
+//     AccessList.concat({ sitemap })
+//       .map((v) =>
+//         Object.entries(v)
+//           .map(([k, v]) => `${k}: ${v}`)
+//           .join("\n")
+//       )
+//       .join("\n\n")
+//   );
+// });
 
 app.get("_routes.json", (c) => {
   const exclude = [

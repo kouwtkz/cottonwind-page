@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useImageState } from "../state/ImageState";
-import { serverSite } from "../data/server/site";
+import SiteConfigList from "@/data/config.list";
 import { useDataState } from "../state/StateSet";
 import {
   ReactNode,
@@ -47,10 +47,10 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 }
 
 function GalleryPageMain() {
-  const galleryDefault = serverSite.gallery?.default;
+  const galleryList = SiteConfigList.gallery.list;
   const { isComplete } = useDataState();
   if (!isComplete) return <></>;
-  return <GalleryObjectConvert items={galleryDefault} />;
+  return <GalleryObjectConvert items={galleryList} />;
 }
 
 export function GalleryGroupPage() {
@@ -78,7 +78,7 @@ export function GalleryGroupPage() {
   );
   const items = useMemo(
     () =>
-      serverSite.gallery?.generate?.find(
+      SiteConfigList.gallery.generate.find(
         (_group) =>
           (typeof _group === "string" ? _group : _group.name) === group
       ) || group,

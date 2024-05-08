@@ -7,7 +7,7 @@ import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
-import { serverSite } from "./src/data/server/site";
+// import { serverSite } from "./src/data/server/site";
 import { RoutingList } from './src/routes/RoutingList'
 
 function DateUTCString(date: Date = new Date()) {
@@ -58,6 +58,7 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000
     }
   } else {
+    configDotenv();
     config.ssr = { external: ['react', 'react-dom'] };
     config.plugins!.push([
       pages(),
@@ -77,7 +78,7 @@ export default defineConfig(({ mode }) => {
       }),
       ssg({ entry: "./src/ssg.tsx" }),
       Sitemap({
-        hostname: serverSite.url,
+        hostname: process.env.VITE_URL,
         generateRobotsTxt: true,
         dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
         exclude: ["/404", "/500", "/suggest"]

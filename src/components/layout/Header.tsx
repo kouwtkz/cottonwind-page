@@ -1,5 +1,4 @@
 import React from "react";
-import { serverSite } from "../../data/server/site";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
 import { SiteMenu, SiteMenuButton } from "../../state/SiteMenu";
@@ -32,7 +31,7 @@ export function Header() {
     <header id="header">
       <div>
         <BackButton className="backButton" />
-        <SiteTitle title={serverSite.title} />
+        <SiteTitle title={import.meta.env.VITE_TITLE} />
         <SiteMenuButton />
         <SiteMenu />
       </div>

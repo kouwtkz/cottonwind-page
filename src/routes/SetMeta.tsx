@@ -8,7 +8,6 @@ import {
 } from "@/components/tag/GalleryTags";
 
 export interface SetMetaProps {
-  site: SiteDataType;
   path: string;
   query?: QueryType;
   url?: string;
@@ -25,10 +24,10 @@ type MetaValuesReturnType = {
 export function MetaValues({
   path,
   query,
-  site,
   characters,
   images,
 }: SetMetaProps): MetaValuesReturnType {
+  const siteTitle = import.meta.env.VITE_TITLE;
   let title: string | undefined;
   let description: string | undefined;
   let image: string | undefined | null;
@@ -36,21 +35,21 @@ export function MetaValues({
   const list = path.split("/");
   const queryParams = QueryToParams(query);
   if (queryParams?.invite) {
-    title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${site.title}`;
+    title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${siteTitle}`;
     description = "Discordへの招待ページ（合言葉式）";
   }
   if (!title)
     switch (list[1]) {
       case "gallery":
-        title = "ギャラリー | " + site.title;
+        title = "ギャラリー | " + siteTitle;
         description = "わたかぜコウの作品など";
         break;
       case "character":
         const name = list[2] ?? queryParams?.name;
         const chara = characters && name ? characters[name] : null;
         title = chara
-          ? chara.name + " - キャラクター | " + site.title
-          : "キャラクター | " + site.title;
+          ? chara.name + " - キャラクター | " + siteTitle
+          : "キャラクター | " + siteTitle;
         description =
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
         if (images && chara?.image) {
@@ -70,19 +69,19 @@ export function MetaValues({
         }
         break;
       case "work":
-        title = "かつどう | " + site.title;
+        title = "かつどう | " + siteTitle;
         description = "わたかぜコウの活動";
         break;
       case "sound":
-        title = "おんがく | " + site.title;
+        title = "おんがく | " + siteTitle;
         description = "わたかぜコウが作った音楽";
         break;
       case "about":
-        title = "じょうほう | " + site.title;
+        title = "じょうほう | " + siteTitle;
         description = "わたかぜコウやサイトの情報";
         break;
       case "suggest":
-        title = "ていあん | " + site.title;
+        title = "ていあん | " + siteTitle;
         description = "打ち間違いなど用の誘導";
         break;
     }
@@ -152,10 +151,15 @@ export function MetaValues({
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
-  if (!title) title = site.title;
-  if (!description) description = site.description;
-  if (!image) image = site.image;
-  return { title, description, image: site.url + image, imageSize };
+  if (!title) title = siteTitle;
+  if (!description) description = import.meta.env.VITE_DESCRIPTION;
+  if (!image) image = import.meta.env.VITE_SITE_IMAGE;
+  return {
+    title,
+    description,
+    image: import.meta.env.VITE_URL + image,
+    imageSize,
+  };
 }
 
 interface MetaTagsProps extends SetMetaProps {
@@ -172,14 +176,13 @@ export function MetaTags({
   imageSize,
   url,
   card = "summary_large_image",
-  site,
 }: MetaTagsProps) {
   const jsonLd: WithContext<WebSite> = {
     "@type": "WebSite",
     "@context": "https://schema.org",
-    url: url || site.url,
-    name: title || site.title,
-    alternateName: site.author.name,
+    url: url || import.meta.env.VITE_URL,
+    name: title || import.meta.env.VITE_TITLE,
+    alternateName: import.meta.env.VITE_AUTHOR_NAME,
   };
   return (
     <>
@@ -217,7 +220,7 @@ export function QueryToParams(query?: QueryType) {
 export function SetMeta(args: SetMetaProps) {
   return (
     <MetaTags
-      {...MetaValues({ ...args, site: args.site })}
+      {...MetaValues(args)}
       card="summary_large_image"
       {...args}
     />

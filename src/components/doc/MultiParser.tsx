@@ -12,6 +12,7 @@ import { parse } from "marked";
 import { useNavigate } from "react-router-dom";
 import { GetUrlFlag, MakeRelativeURL, ToURL } from "./MakeURL";
 import { GetImageItemFromSrc } from "../layout/ImageMee";
+import SiteConfigList from "@/data/config.list";
 // import { useMediaImageState } from "@/app/context/image/MediaImageState";
 // import { useSiteState } from "@/app/context/site/SiteState";
 
@@ -52,7 +53,6 @@ function MultiParser({
 }: MultiParserProps) {
   const nav = useNavigate();
   // const { imageItemList, isSet: imagesIsSet } = useMediaImageState();
-  // const { site } = useSiteState();
   if (only) {
     markdown = only.markdown ?? false;
     toDom = only.toDom ?? false;
@@ -133,7 +133,7 @@ function MultiParser({
                     switch (v.attribs["data-kind"]) {
                       case "sns":
                         // ulAdd =
-                        //   site?.menu?.sns
+                        //   SiteConfigList.sns
                         //     ?.filter(({ hidden, none }) => !(hidden || none))
                         //     .map(
                         //       (item) =>

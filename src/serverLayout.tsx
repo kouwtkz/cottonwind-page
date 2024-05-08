@@ -1,14 +1,13 @@
 import { Footer, SnsList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
-import { serverSite as site } from "./data/server/site";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
 import { stylesAddVer } from "./data/env";
-const serverData = { site };
+import SiteConfigList from "./data/config.list";
 
-export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
-  return <SetMeta {...args} {...serverData} />;
+export function SetMetaServerSide(args: SetMetaProps) {
+  return <SetMeta {...args} />;
 }
 
 export function DefaultMeta() {
@@ -27,10 +26,10 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
       <div id="root">
         <div hidden>
           <header>
-            <h2>{site.title}</h2>
+            <h2>{import.meta.env.VITE_TITLE}</h2>
           </header>
           <footer>
-            <SnsList snsList={site.menu?.sns || []} maskImage={false} />
+            <SnsList snsList={SiteConfigList.sns || []} maskImage={false} />
           </footer>
         </div>
       </div>
@@ -122,7 +121,7 @@ export function ServerSimpleLayout({
     <html lang="ja">
       <head>
         <DefaultMeta />
-        <title>{site.title}</title>
+        <title>{import.meta.env.VITE_TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
         <Style href={"/css/styles.css" + stylesAddVer} />
       </head>
@@ -130,7 +129,7 @@ export function ServerSimpleLayout({
         <header id="header">
           <div className="title-container">
             <a id="siteTitle" href="/">
-              {site.title}
+              {import.meta.env.VITE_TITLE}
             </a>
           </div>
         </header>

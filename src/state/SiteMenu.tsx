@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import MenuButton from "../components/svg/button/MenuButton";
 import { create } from "zustand";
 import { ThemeChangeButton } from "./ThemeSetter";
-import { serverSite as site } from "../data/server/site";
 import { useCookies } from "react-cookie";
 import { useManageState } from "./StateSet";
+import SiteConfigList from "@/data/config.list";
 type SiteMenuStateType = {
   isOpen: boolean;
   SetIsOpen: (isOpen: boolean) => void;
@@ -75,9 +75,9 @@ export function SiteMenu() {
   const { isOpen } = useSiteMenuState();
   return (
     <>
-      {site.menu?.nav ? (
+      {SiteConfigList.nav ? (
         <div style={isOpen ? {} : { display: "none" }}>
-          <SetSiteMenu nav={site.menu.nav} />
+          <SetSiteMenu nav={SiteConfigList.nav} />
         </div>
       ) : null}
     </>

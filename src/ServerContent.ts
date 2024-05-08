@@ -25,15 +25,14 @@ export async function FetchText(src?: string) {
 
 export async function discordInviteMatch(c: CommonContext) {
   const Url = new URL(c.req.url);
-  const env = c.env as any;
   const invite_password = Url.searchParams.get("invite_password");
   if (invite_password) {
-    if (env.DISCORD_INVITE_ANSWER === invite_password) {
-      return c.newResponse(env.DISCORD_INVITE_URL);
+    if (c.env.DISCORD_INVITE_URL && c.env.DISCORD_INVITE_ANSWER === invite_password) {
+      return c.newResponse(c.env.DISCORD_INVITE_URL);
     } else return c.newResponse("failed", { status: 401 })
-  } else {
-    return c.newResponse(env.DISCORD_INVITE_QUESTION);
-  }
+  } else if (c.env.DISCORD_INVITE_QUESTION) {
+    return c.newResponse(c.env.DISCORD_INVITE_QUESTION);
+  } else return c.text("")
 }
 
 async function TrimTrailingContext(c: CommonContext, next: Next) {

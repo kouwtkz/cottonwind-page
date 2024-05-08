@@ -6,7 +6,6 @@ import { RoutingList } from "./routes/RoutingList";
 import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
-import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
@@ -17,17 +16,13 @@ import importStyles from "@/styles.scss";
 import { getCookie } from "hono/cookie";
 const compactStyles = CompactCode(importStyles);
 
-const app = new Hono({ strict: true });
+const app = new Hono<MeeBindings>({ strict: true });
 
 const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 
-if (serverSite.feedDev)
-  app.get("/get/rss", async (c) => {
-    return c.newResponse(await FetchBody(serverSite.feedDev), XmlHeader);
-  });
-else app.get("/get/rss", serveStatic({ path: "./_data/test/rss.xml" }));
+app.get("/get/rss", serveStatic({ path: "./_data/test/rss.xml" }));
 
 app.get("/src/*", serveStatic({ root: "./" }));
 app.get("/_data/*", serveStatic({ root: "./" }));

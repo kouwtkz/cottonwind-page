@@ -5,7 +5,6 @@ import { ReactNode, useLayoutEffect, useState } from "react";
 import { StateSet, useDataState } from "../state/StateSet";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "../state/CharaState";
-import { serverSite as site } from "../data/server/site";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "../state/ImageState";
 
@@ -21,7 +20,6 @@ function SetTitle() {
       query: search,
       characters,
       images,
-      site,
     })!.title;
   } else if (isComplete) setNotFirst(true);
   return <></>;

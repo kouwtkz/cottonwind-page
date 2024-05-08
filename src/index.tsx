@@ -4,20 +4,22 @@ import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
 import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer, stylesAddVer } from "./data/env";
-import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { app_workers } from "./workers";
 import { getCookie } from "hono/cookie";
 
-const app = new Hono({ strict: true });
+const app = new Hono<MeeBindings>({ strict: true });
 
 // app.get("/assets/*", serveStatic());
 
-app.get("/get/rss", async (c) => {
-  return c.newResponse(await FetchBody(serverSite.feedFrom), XmlHeader);
+app.get("/get/rss", async (c, next) => {
+  if (c.env.FEED_FROM) {
+    return c.newResponse(await FetchBody(c.env.FEED_FROM), XmlHeader);
+  } else return next();
 });
+
 app.get("/fetch/discord/invite", async (c) => {
   return discordInviteMatch(c);
 });

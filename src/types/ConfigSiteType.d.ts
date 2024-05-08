@@ -1,23 +1,9 @@
-type SiteDataType = {
-  title: string
-  description: string
-  short: { description: string }
-  url: string
-  pagesUrl?: string
-  wavebox?: string
-  image: string
-  author: SiteAuthorType
-  manifest: any
-  feedFrom?: string
-  feedDev?: string
-  enableEmoji?: boolean
-  menu?: {
-    nav?: SiteMenuItemType[],
-    sns?: SiteSnsItemType[],
-  }
-  gallery?: {
-    default?: GalleryItemType[]
-    generate?: GalleryItemType[]
+interface SiteConfigListType {
+  nav: Array<SiteMenuItemType>;
+  sns: Array<SiteSnsItemType>;
+  gallery: {
+    list: Array<GalleryItemType>;
+    generate: Array<GalleryItemType>;
   }
 }
 
