@@ -48,10 +48,6 @@ export const Routing: RouteObject[] = [
         path: "about",
         element: <AboutPage />,
       },
-      {
-        path: "suggest",
-        element: <SuggestPage />,
-      },
     ] as (RouteObject & { path: RoutingUnion })[],
   },
 ];

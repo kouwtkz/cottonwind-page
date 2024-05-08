@@ -68,12 +68,12 @@ export default defineConfig(({ mode }) => {
           /^\/node_modules\/.*/,
         ],
       }),
-      ssg({entry: "./src/ssg.tsx"}),
+      ssg({ entry: "./src/ssg.tsx" }),
       Sitemap({
         hostname: serverSite.url,
         generateRobotsTxt: true,
         dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
-        exclude: ["/404"]
+        exclude: ["/404", "/500", "/suggest"]
       }),
     ])
   }

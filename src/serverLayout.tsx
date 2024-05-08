@@ -1,4 +1,4 @@
-import { SnsList } from "./components/layout/Footer";
+import { Footer, SnsList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
@@ -112,8 +112,10 @@ export async function ServerLayout({
 }
 
 export function ServerSimpleLayout({
+  noindex,
   children,
 }: {
+  noindex?: boolean;
   children?: React.ReactNode;
 }) {
   return (
@@ -121,6 +123,7 @@ export function ServerSimpleLayout({
       <head>
         <DefaultMeta />
         <title>{site.title}</title>
+        {noindex ? <meta name="robots" content="noindex" /> : null}
         <Style href={"/css/styles.css" + buildAddVer} />
       </head>
       <body>
@@ -131,7 +134,10 @@ export function ServerSimpleLayout({
             </a>
           </div>
         </header>
-        <div className="content-base">{children}</div>
+        <div className="content-base">
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   );
@@ -139,10 +145,22 @@ export function ServerSimpleLayout({
 
 export function ServerNotFound() {
   return (
-    <ServerSimpleLayout>
+    <ServerSimpleLayout noindex={true}>
       <div className="h1h4Page middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
+        <a href="/">トップページへ戻る</a>
+      </div>
+    </ServerSimpleLayout>
+  );
+}
+
+export function ServerError() {
+  return (
+    <ServerSimpleLayout noindex={true}>
+      <div className="h1h4Page middle">
+        <h1>500 Internal Server Error</h1>
+        <h4>サーバー側でエラーが発生しました</h4>
         <a href="/">トップページへ戻る</a>
       </div>
     </ServerSimpleLayout>
