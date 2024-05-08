@@ -6,7 +6,6 @@
     "build": "vite build --mode client && vite build",
     "build-worker": "vite build",
     "update": "node ./src/mediaScripts/DataUpdate.mjs",
-    "update-site": "node ./src/mediaScripts/DataUpdate.mjs site",
     "update-image": "node ./src/mediaScripts/DataUpdate.mjs image",
     "update-character": "node ./src/mediaScripts/DataUpdate.mjs character",
     "update-embed": "node ./src/mediaScripts/DataUpdate.mjs embed",
