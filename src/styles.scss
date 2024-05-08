@@ -1702,7 +1702,8 @@ ul {
     color: var(--main-color-dark);
   }
   img.authorImage {
-    width: 20em;
+    height: 20em;
+    max-width: 100%;
   }
   @extend %a-line-none;
 }
