@@ -1701,6 +1701,9 @@ ul {
   h3 {
     color: var(--main-color-dark);
   }
+  img.authorImage {
+    width: 20em;
+  }
   @extend %a-line-none;
 }
 

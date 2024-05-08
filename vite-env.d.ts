@@ -13,6 +13,7 @@ interface ImportMetaEnv {
   readonly VITE_AUTHOR_ACCOUNT: string
   readonly VITE_AUTHOR_ENAME: string
   readonly VITE_AUTHOR_NAME: string
+  readonly VITE_AUTHOR_IMAGE: string
 }
 
 interface ImportMeta {

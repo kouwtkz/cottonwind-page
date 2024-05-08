@@ -4,14 +4,20 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { useDataState } from "../state/StateSet";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
-import SiteConfigList from "@/data/config.list";
-console.log(SiteConfigList);
 
 export default function AboutPage() {
+  console.log(import.meta.env);
   return (
     <div className="aboutPage">
       <h2>About</h2>
       <h3>プロフィール</h3>
+      {import.meta.env.VITE_AUTHOR_IMAGE ? (
+        <img
+          className="authorImage"
+          src={import.meta.env.VITE_AUTHOR_IMAGE}
+          alt="プロフィール画像"
+        />
+      ) : null}
       <div>
         <p>わたかぜコウです！</p>
         <p>もふもふなイラストを描くのが好きです！</p>
