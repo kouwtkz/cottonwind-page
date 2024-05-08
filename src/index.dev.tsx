@@ -14,6 +14,7 @@ import { app_workers } from "./workers";
 import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
 import { getCookie } from "hono/cookie";
+import ssg from "./ssg";
 const compactStyles = CompactCode(importStyles);
 
 const app = new Hono<MeeBindings>({ strict: true });
@@ -74,6 +75,8 @@ async function ReactHtml(c: CommonContext) {
     })
   );
 }
+
+app.route("/", ssg);
 
 RoutingList.forEach((path) => {
   app.get(path, (c) => c.html(ReactHtml(c)));

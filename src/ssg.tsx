@@ -21,7 +21,10 @@ app.get("/500", async (c) => {
 app.get("/suggest", async (c) => {
   return c.html(
     renderToString(
-      <ServerSimpleLayout noindex={true}>
+      <ServerSimpleLayout
+        noindex={true}
+        title={"ていあん | " + import.meta.env.VITE_TITLE}
+      >
         <SuggestPage />
       </ServerSimpleLayout>
     )

@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_SINCE: string
   readonly VITE_DESCRIPTION: string
   readonly VITE_OVERVIEW: string
+  readonly VITE_ALTERNATE: string
   readonly VITE_SITE_IMAGE: string
   readonly VITE_WAVEBOX: string
   readonly VITE_AUTHOR_ACCOUNT: string

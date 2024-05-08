@@ -111,9 +111,11 @@ export async function ServerLayout({
 }
 
 export function ServerSimpleLayout({
+  title = import.meta.env.VITE_TITLE,
   noindex,
   children,
 }: {
+  title?: string;
   noindex?: boolean;
   children?: React.ReactNode;
 }) {
@@ -121,7 +123,7 @@ export function ServerSimpleLayout({
     <html lang="ja">
       <head>
         <DefaultMeta />
-        <title>{import.meta.env.VITE_TITLE}</title>
+        <title>{title}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
         <Style href={"/css/styles.css" + stylesAddVer} />
       </head>
@@ -144,7 +146,10 @@ export function ServerSimpleLayout({
 
 export function ServerNotFound() {
   return (
-    <ServerSimpleLayout noindex={true}>
+    <ServerSimpleLayout
+      title={"404 | " + import.meta.env.VITE_TITLE}
+      noindex={true}
+    >
       <div className="h1h4Page middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
@@ -156,7 +161,10 @@ export function ServerNotFound() {
 
 export function ServerError() {
   return (
-    <ServerSimpleLayout noindex={true}>
+    <ServerSimpleLayout
+      title={"500 | " + import.meta.env.VITE_TITLE}
+      noindex={true}
+    >
       <div className="h1h4Page middle">
         <h1>500 Internal Server Error</h1>
         <h4>サーバー側でエラーが発生しました</h4>

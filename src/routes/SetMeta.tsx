@@ -151,7 +151,7 @@ export function MetaValues({
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
-  if (!title) title = siteTitle;
+  if (!title) title = siteTitle + " - " + import.meta.env.VITE_OVERVIEW;
   if (!description) description = import.meta.env.VITE_DESCRIPTION;
   if (!image) image = import.meta.env.VITE_SITE_IMAGE;
   return {
@@ -177,12 +177,13 @@ export function MetaTags({
   url,
   card = "summary_large_image",
 }: MetaTagsProps) {
+  const siteTitle = import.meta.env.VITE_TITLE;
   const jsonLd: WithContext<WebSite> = {
     "@type": "WebSite",
     "@context": "https://schema.org",
     url: url || import.meta.env.VITE_URL,
     name: title || import.meta.env.VITE_TITLE,
-    alternateName: import.meta.env.VITE_AUTHOR_NAME,
+    alternateName: import.meta.env.VITE_ALTERNATE.split(","),
   };
   return (
     <>
@@ -191,6 +192,7 @@ export function MetaTags({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
+      <meta property="og:site_name" content={siteTitle} />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={image} />
       <meta property="og:image:width" content={String(imageSize.w)} />
@@ -219,10 +221,6 @@ export function QueryToParams(query?: QueryType) {
 
 export function SetMeta(args: SetMetaProps) {
   return (
-    <MetaTags
-      {...MetaValues(args)}
-      card="summary_large_image"
-      {...args}
-    />
+    <MetaTags {...MetaValues(args)} card="summary_large_image" {...args} />
   );
 }
