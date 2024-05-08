@@ -34,7 +34,7 @@ function InviteDiscordLink({
   const invite = search.get("invite");
   const { isComplete } = useDataState();
   const question = useMemo(async () => {
-    return axios.get("/discord/invite/fetch").then((r) => r.data);
+    return axios.get("/fetch/discord/invite").then((r) => r.data);
   }, []);
   useEffect(() => {
     if (isComplete && invite === "discord") {
@@ -58,7 +58,7 @@ function InviteDiscordLink({
             axios
               .get(
                 MakeRelativeURL({
-                  pathname: "/discord/invite/fetch",
+                  pathname: "/fetch/discord/invite",
                   query: { invite_password: answer },
                 })
               )

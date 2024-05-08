@@ -18,7 +18,7 @@ const app = new Hono({ strict: true });
 app.get("/get/rss", async (c) => {
   return c.newResponse(await FetchBody(serverSite.feedFrom), XmlHeader);
 });
-app.get("/discord/invite/fetch", async (c) => {
+app.get("/fetch/discord/invite", async (c) => {
   return discordInviteMatch(c);
 });
 

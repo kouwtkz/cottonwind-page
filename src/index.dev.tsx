@@ -58,7 +58,7 @@ app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
 });
 
-app.get("/discord/invite/fetch", async (c) => {
+app.get("/fetch/discord/invite", async (c) => {
   return discordInviteMatch(c);
 });
 
