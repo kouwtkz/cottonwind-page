@@ -6,7 +6,6 @@ import { useDataState } from "../state/StateSet";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
 
 export default function AboutPage() {
-  console.log(import.meta.env);
   return (
     <div className="aboutPage">
       <h2>About</h2>

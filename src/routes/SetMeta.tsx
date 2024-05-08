@@ -6,6 +6,7 @@ import {
   defaultTags,
   getTagsOptions,
 } from "@/components/tag/GalleryTags";
+import SiteConfigList from "@/data/config.list";
 
 export interface SetMetaProps {
   path: string;
@@ -42,7 +43,20 @@ export function MetaValues({
     switch (list[1]) {
       case "gallery":
         title = "ギャラリー | " + siteTitle;
-        description = "わたかぜコウの作品など";
+        const group = list[2];
+        if (group) {
+          const gallery = SiteConfigList.gallery.generate.find(
+            (v) => v.name === group
+          );
+          if (gallery) {
+            title =
+              (gallery.label ?? gallery.name).toUpperCase() + " - " + title;
+            description = gallery.description ?? gallery.h4 ?? gallery.h2;
+          }
+          description =
+            (description ? description + " - " : "") +
+            "わたかぜコウの作品一覧ページ";
+        }
         break;
       case "character":
         const name = list[2] ?? queryParams?.name;
@@ -94,7 +108,7 @@ export function MetaValues({
       imageItemList: images,
     });
     if (foundImage) {
-      title = (foundImage.name || foundImage.src) + " - " + title;
+      title = (foundImage.name || foundImage.src) + " | " + title;
       image = foundImage.URL;
       if (foundImage.size) {
         imageSize = {

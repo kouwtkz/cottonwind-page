@@ -5,6 +5,8 @@ import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
 import { stylesAddVer } from "./data/env";
 import SiteConfigList from "./data/config.list";
+import { renderToString } from "react-dom/server";
+import { Context, Next } from "hono";
 
 export function SetMetaServerSide(args: SetMetaProps) {
   return <SetMeta {...args} />;
@@ -44,6 +46,15 @@ function judgeJson(r: Response) {
   );
 }
 
+export interface ServerLayoutProps {
+  c: CommonContext;
+  path: string;
+  characters?: CharaObjectType;
+  meta?: React.ReactNode;
+  styles?: React.ReactNode;
+  script?: React.ReactNode;
+  isLogin?: boolean;
+}
 export async function ServerLayout({
   c,
   characters,
@@ -51,14 +62,7 @@ export async function ServerLayout({
   styles,
   script,
   isLogin = false,
-}: {
-  c: CommonContext;
-  characters?: CharaObjectType;
-  meta?: React.ReactNode;
-  styles?: React.ReactNode;
-  script?: React.ReactNode;
-  isLogin?: boolean;
-}) {
+}: ServerLayoutProps) {
   const url = c.req.url;
   const Url = new URL(url);
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
@@ -107,6 +111,38 @@ export async function ServerLayout({
         }
       />
     </html>
+  );
+}
+
+export async function ReactResponse({
+  c,
+  next,
+  path,
+  characters,
+  ...args
+}: ServerLayoutProps & { next: Next }) {
+  switch (path) {
+    case "character":
+      const name = c.req.query("name");
+      if (name) return c.redirect("/character/" + name);
+      break;
+    case "character/:charaName":
+      if (characters) {
+        const req = (c as Context<MeeBindings, typeof path, any>).req;
+        const name = req.param("charaName");
+        const chara = characters[name];
+        if (!chara) return next();
+      }
+      break;
+    case "gallery/:group":
+      const req = (c as Context<MeeBindings, typeof path, any>).req;
+      const group = req.param("group");
+      const f = SiteConfigList.gallery.generate.some((v) => v.name === group);
+      if (!f) return next();
+      break;
+  }
+  return c.html(
+    renderToString(await ServerLayout({ c, path, characters, ...args }))
   );
 }
 

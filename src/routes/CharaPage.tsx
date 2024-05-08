@@ -14,6 +14,7 @@ import CharaEditForm, {
   SortableObject,
   useEditSwitchState,
 } from "../components/form/edit/CharaEdit";
+import { ErrorContent } from "./ErrorPage";
 
 export function CharaPage() {
   const { charaName } = useParams();
@@ -142,77 +143,84 @@ const CharaDetail = memo(function CharaDetail({
     [charaObject, charaName]
   );
   const galleryList: CharaGalleryAlbumProps[] = useMemo(
-    () => [
-      { chara, name: "art" },
-      { chara, name: "goods" },
-      { chara, name: "3D" },
-      { chara, name: "picture" },
-      { chara, name: "parody", max: 12 },
-      { chara, name: "given", label: "Fanart", max: 40 },
-    ],
+    () =>
+      chara
+        ? [
+            { chara, name: "art" },
+            { chara, name: "goods" },
+            { chara, name: "3D" },
+            { chara, name: "picture" },
+            { chara, name: "parody", max: 12 },
+            { chara, name: "given", label: "Fanart", max: 40 },
+          ]
+        : [],
     [chara]
   );
   return (
     <>
       {isCharaState ? (
-        <div className="charaDetail">
-          <CharaBeforeAfter chara={chara} />
-          <div className="head">
-            <h1 className="title">
-              {chara.media?.icon ? (
-                <ImageMeeIcon
-                  imageItem={chara.media.icon}
-                  size={40}
-                  className="charaIcon"
+        chara ? (
+          <div className="charaDetail">
+            <CharaBeforeAfter chara={chara} />
+            <div className="head">
+              <h1 className="title">
+                {chara.media?.icon ? (
+                  <ImageMeeIcon
+                    imageItem={chara.media.icon}
+                    size={40}
+                    className="charaIcon"
+                  />
+                ) : null}
+                <span>{chara.name + (chara.honorific ?? "")}</span>
+              </h1>
+              <div className="overview">{chara.overview}</div>
+            </div>
+            {chara.media?.headerImage ? (
+              <div>
+                <ImageMee
+                  imageItem={chara.media.headerImage}
+                  className="headerImage"
+                  loading="eager"
+                  suppressHydrationWarning={true}
                 />
-              ) : null}
-              <span>{chara.name + (chara.honorific ?? "")}</span>
-            </h1>
-            <div className="overview">{chara.overview}</div>
+              </div>
+            ) : null}
+            {chara.media?.image ? (
+              <div>
+                <ImageMee
+                  imageItem={chara.media.image}
+                  className="mainImage"
+                  mode="thumbnail"
+                  loading="eager"
+                  suppressHydrationWarning={true}
+                  style={{ objectFit: "cover" }}
+                  height={340}
+                />
+              </div>
+            ) : null}
+            <MultiParser>{chara.description}</MultiParser>
+            <GalleryObject
+              items={galleryList
+                .map((item) => {
+                  const matchAlbum = imageAlbumList.find(
+                    (album) => album.name === item.name
+                  );
+                  return {
+                    name: item.name,
+                    label: item.name,
+                    tags: chara.id,
+                    list:
+                      matchAlbum?.list.filter((image) =>
+                        image.tags?.some((tag) => tag === chara.id)
+                      ) ?? [],
+                  } as GalleryItemObjectType;
+                })
+                .filter((item) => item.list && item.list.length > 0)}
+            />
           </div>
-          {chara.media?.headerImage ? (
-            <div>
-              <ImageMee
-                imageItem={chara.media.headerImage}
-                className="headerImage"
-                loading="eager"
-                suppressHydrationWarning={true}
-              />
-            </div>
-          ) : null}
-          {chara.media?.image ? (
-            <div>
-              <ImageMee
-                imageItem={chara.media.image}
-                className="mainImage"
-                mode="thumbnail"
-                loading="eager"
-                suppressHydrationWarning={true}
-                style={{ objectFit: "cover" }}
-                height={340}
-              />
-            </div>
-          ) : null}
-          <MultiParser>{chara.description}</MultiParser>
-          <GalleryObject
-            items={galleryList
-              .map((item) => {
-                const matchAlbum = imageAlbumList.find(
-                  (album) => album.name === item.name
-                );
-                return {
-                  name: item.name,
-                  label: item.name,
-                  tags: chara.id,
-                  list:
-                    matchAlbum?.list.filter((image) =>
-                      image.tags?.some((tag) => tag === chara.id)
-                    ) ?? [],
-                } as GalleryItemObjectType;
-              })
-              .filter((item) => item.list && item.list.length > 0)}
-          />
-        </div>
+        ) : (
+          <ErrorContent status={404} />
+        )
       ) : null}
     </>
   );

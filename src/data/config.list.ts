@@ -123,22 +123,26 @@ const SiteConfigList: SiteConfigListType = {
       {
         "name": "art",
         "h2": "メインイラスト！",
-        "h4": "オリジナルキャラのイラストです！"
+        "h4": "オリジナルキャラのイラストです！",
+        "description": "オリジナルキャラクターのイラストです！"
       },
       {
         "name": "3D",
         "h2": "作った3Dモデル！",
-        "h4": "これから増やしたい"
+        "h4": "これから増やしたい",
+        "description": "Blenderなどで作った3Dモデルです！"
       },
       {
         "name": "works",
         "h2": "依頼で描いたイラスト！",
-        "h4": "お仕事依頼受け付けてます"
+        "h4": "お仕事依頼受け付けてます",
+        "description": "案件などのイラストです！"
       },
       {
         "name": "goods",
         "h2": "作ったグッズなど！",
-        "h4": "今は販売してないものもあります"
+        "h4": "今は販売してないものもあります",
+        "description": "グッズやスタンプなどを載せてます！"
       },
       {
         "name": "parody",
@@ -149,7 +153,8 @@ const SiteConfigList: SiteConfigListType = {
         "name": "given",
         "label": "given art",
         "h2": "描いてくれてありがとめぇ！",
-        "h4": "#わたかぜメ絵"
+        "h4": "#わたかぜメ絵",
+        "description": "描いてくれたファンアートイラストです！"
       },
       {
         "name": "picture",

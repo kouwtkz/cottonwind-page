@@ -10,32 +10,40 @@ const errorList: {
   },
 };
 
+type ErrorType = {
+  status?: number;
+  statusText?: string;
+  internal?: boolean;
+  data?: string;
+  error?: Error;
+};
+
+export function ErrorContent({ status, statusText }: ErrorType) {
+  const errorObj = status ? errorList[status] : null;
+  return (
+    <div className="h1h4Page middle">
+      {errorObj ? (
+        <>
+          <h1>{errorObj.h1}</h1>
+          <h4>{errorObj.h4}</h4>
+          <Link to="/">トップページへ戻る</Link>
+        </>
+      ) : (
+        <>
+          <h1>Error</h1>
+          <h4>{statusText}</h4>
+          <Link to="/">トップページへ戻る</Link>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function ErrorPage() {
-  let error: {
-    status: number;
-    statusText: string;
-    internal: boolean;
-    data: string;
-    error: Error;
-  } = useRouteError() as any;
-  const errorObj = errorList[error.status];
+  const error = useRouteError() as ErrorType;
   return (
     <Base>
-      <div className="h1h4Page middle">
-        {errorObj ? (
-          <>
-            <h1>{errorObj.h1}</h1>
-            <h4>{errorObj.h4}</h4>
-            <Link to="/">トップページへ戻る</Link>
-          </>
-        ) : (
-          <>
-            <h1>Error</h1>
-            <h4>{error.statusText}</h4>
-            <Link to="/">トップページへ戻る</Link>
-          </>
-        )}
-      </div>
+      <ErrorContent {...error} />
     </Base>
   );
 }

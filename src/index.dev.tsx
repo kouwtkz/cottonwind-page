@@ -1,12 +1,11 @@
 import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
-import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
+import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
-import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
+import { discordInviteMatch } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
@@ -65,26 +64,23 @@ app.get("/test", async (c) => {
 
 app.route("/workers", app_workers);
 
-async function ReactHtml(c: CommonContext) {
-  return renderToString(
-    await ServerLayout({
+app.route("/", ssg);
+
+RoutingList.forEach((path) => {
+  app.get(path, (c, next) =>
+    ReactResponse({
       c,
+      next,
+      path,
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
       isLogin: c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
     })
   );
-}
-
-app.route("/", ssg);
-
-RoutingList.forEach((path) => {
-  app.get(path, (c) => c.html(ReactHtml(c)));
 });
 
 app.all("*", async (c, next) => {
-  const Url = new URL(c.req.url);
-  if (!/.+\/+$/.test(Url.pathname))
+  if (!/.+\/+$/.test(c.req.path))
     return c.html(renderToString(<ServerNotFound />), { status: 404 });
   else return next();
 });

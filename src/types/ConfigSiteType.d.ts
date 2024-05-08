@@ -3,7 +3,7 @@ interface SiteConfigListType {
   sns: Array<SiteSnsItemType>;
   gallery: {
     list: Array<GalleryItemType>;
-    generate: Array<GalleryItemType>;
+    generate: Array<GalleryItemObjectType>;
   }
 }
 

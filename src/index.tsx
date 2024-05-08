@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
-import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
+import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer, stylesAddVer } from "./data/env";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { renderToString } from "react-dom/server";
@@ -26,10 +25,12 @@ app.get("/fetch/discord/invite", async (c) => {
 
 app.route("/workers", app_workers);
 
-async function ReactHtml(c: CommonContext) {
-  return renderToString(
-    await ServerLayout({
+RoutingList.forEach((path) => {
+  app.get(path, (c, next) =>
+    ReactResponse({
       c,
+      next,
+      path,
       characters,
       styles: <Style href={"/css/styles.css" + stylesAddVer} />,
       script: (
@@ -40,15 +41,10 @@ async function ReactHtml(c: CommonContext) {
         c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
     })
   );
-}
-
-RoutingList.forEach((path) => {
-  app.get(path, (c) => c.html(ReactHtml(c)));
 });
 
 app.all("*", async (c, next) => {
-  const Url = new URL(c.req.url);
-  if (!/.+\/+$/.test(Url.pathname))
+  if (!/.+\/+$/.test(c.req.path))
     return c.html(renderToString(<ServerNotFound />), { status: 404 });
   else return next();
 });
