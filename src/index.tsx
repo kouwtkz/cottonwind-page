@@ -3,7 +3,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { CommonContext } from "./types/HonoCustomType";
 import { RoutingList } from "./routes/RoutingList";
 import { ServerLayout, ServerNotFound, Style } from "./serverLayout";
-import { buildAddVer } from "./data/env";
+import { buildAddVer, stylesAddVer } from "./data/env";
 import { serverSite } from "./data/server/site";
 import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
 import { renderToString } from "react-dom/server";
@@ -29,7 +29,7 @@ async function ReactHtml(c: CommonContext) {
     await ServerLayout({
       c,
       characters,
-      styles: <Style href={"/css/styles.css" + buildAddVer} />,
+      styles: <Style href={"/css/styles.css" + stylesAddVer} />,
       script: (
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),

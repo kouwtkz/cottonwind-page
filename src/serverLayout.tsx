@@ -4,7 +4,7 @@ import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { serverSite as site } from "./data/server/site";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import { buildAddVer } from "./data/env";
+import { stylesAddVer } from "./data/env";
 const serverData = { site };
 
 export function SetMetaServerSide(args: Omit<SetMetaProps, "site">) {
@@ -124,7 +124,7 @@ export function ServerSimpleLayout({
         <DefaultMeta />
         <title>{site.title}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
-        <Style href={"/css/styles.css" + buildAddVer} />
+        <Style href={"/css/styles.css" + stylesAddVer} />
       </head>
       <body>
         <header id="header">

@@ -4,18 +4,25 @@ import adapter from '@hono/vite-dev-server/cloudflare'
 import ssg from '@hono/vite-ssg'
 import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
-import { writeFileSync } from "fs"
+import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { serverSite } from "./src/data/server/site";
 import { RoutingList } from './src/routes/RoutingList'
 
-const localEnv = ".env.local"
+function DateUTCString(date: Date = new Date()) {
+  return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
+}
 function EnvBuildDateWrite() {
+  const localEnv = ".env.local"
   const parsed = configDotenv({ path: localEnv }).parsed;
   const env: { [k: string]: string } = parsed ? parsed as any : {}
-  env.VITE_BUILD_TIME = new Date().toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
-  writeFileSync(localEnv, Object.entries(env).map(([k, v]) => `${k}=${v}`).join("\n"))
+  env.VITE_BUILD_TIME = DateUTCString();
+  const cssFile = "./src/styles.scss";
+  try {
+    env.VITE_STYLES_TIME = DateUTCString(statSync(cssFile).mtime);
+  } catch { }
+  writeFileSync(localEnv, Object.entries(env).map(([k, v]) => `${k}=${v}`).join("\n"));
 }
 
 export default defineConfig(({ mode }) => {
