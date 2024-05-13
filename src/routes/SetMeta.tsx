@@ -53,10 +53,10 @@ export function MetaValues({
               (gallery.label ?? gallery.name).toUpperCase() + " - " + title;
             description = gallery.description ?? gallery.h4 ?? gallery.h2;
           }
-          description =
-            (description ? description + " - " : "") +
-            "わたかぜコウの作品一覧ページ";
         }
+        description =
+          (description ? description + " - " : "") +
+          "わたかぜコウやわたかぜっこの作品、イラストなどのページ";
         break;
       case "character":
         const name = list[2] ?? queryParams?.name;
@@ -208,6 +208,7 @@ export function MetaTags({
       <meta property="og:url" content={url} />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:type" content="website" />
+      <meta property="og:keywords" content={import.meta.env.VITE_ALTERNATE} />
       <meta property="og:image" content={image} />
       <meta property="og:image:width" content={String(imageSize.w)} />
       <meta property="og:image:height" content={String(imageSize.h)} />
