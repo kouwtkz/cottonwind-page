@@ -5,7 +5,12 @@ import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
-import { discordInviteMatch } from "./ServerContent";
+import {
+  FeedSet,
+  FetchBody,
+  XmlHeader,
+  discordInviteMatch,
+} from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
@@ -22,7 +27,12 @@ const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 
-app.get("/get/rss", serveStatic({ path: "./_data/test/rss.xml" }));
+app.get("/get/test/rss", serveStatic({ path: "./_data/test/rss.xml" }));
+app.get("get/feed", async (c, next) => {
+  const Url = new URL(c.req.url);
+  const url = c.env.FEED_DEV_FROM ?? Url.origin + "/get/test/rss";
+  return c.json(await FeedSet({ url, c, minute: 1 }));
+});
 
 app.get("/src/*", serveStatic({ root: "./" }));
 app.get("/_data/*", serveStatic({ root: "./" }));

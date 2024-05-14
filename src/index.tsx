@@ -3,7 +3,12 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer, stylesAddVer } from "./data/env";
-import { FetchBody, XmlHeader, discordInviteMatch } from "./ServerContent";
+import {
+  FeedSet,
+  FetchBody,
+  XmlHeader,
+  discordInviteMatch,
+} from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { app_workers } from "./workers";
@@ -13,9 +18,9 @@ const app = new Hono<MeeBindings>({ strict: true });
 
 // app.get("/assets/*", serveStatic());
 
-app.get("/get/rss", async (c, next) => {
+app.get("/get/feed", async (c, next) => {
   if (c.env.FEED_FROM) {
-    return c.newResponse(await FetchBody(c.env.FEED_FROM), XmlHeader);
+    return c.json(FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
   } else return next();
 });
 

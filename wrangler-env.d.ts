@@ -3,6 +3,8 @@ interface MeeEnv {
   NOTICE_FEED_KV: KVNamespace;
   AUTHOR_EMAIL?: string;
   FEED_FROM?: string;
+  FEED_DEV_FROM?: string;
+  ZENN_UPDATE_FROM?: string;
   DISCORD_INVITE_QUESTION?: string;
   DISCORD_INVITE_ANSWER?: string;
   DISCORD_INVITE_URL?: string;

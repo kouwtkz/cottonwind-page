@@ -1,57 +1,25 @@
 import { memo, useLayoutEffect, useMemo } from "react";
 import { create } from "zustand";
 
-type FeedArticleType = {
-  title: string;
-  description: string;
-  link: string;
-  category: string[];
-  date: Date;
-};
-
-type FeedStateType = {
-  title?: string;
-  link?: string;
-  description?: string;
-  list?: FeedArticleType[];
+interface FeedStateType extends FeedKVType {
   isSet: boolean;
   isBlank: boolean;
   set: (limit?: number) => void;
-};
+}
 
 export const useFeedState = create<FeedStateType>((set) => ({
   isSet: false,
   isBlank: true,
   set: (limit = 3) => {
-    fetch("/get/rss")
+    fetch("/get/feed")
       .then((res) => {
-        return res.headers.get("Content-Type")?.startsWith("application/xml")
-          ? res.text()
-          : "";
+        return res.headers.get("Content-Type")?.startsWith("application/json")
+          ? res.json()
+          : null;
       })
-      .then((text) => {
-        if (text) {
-          const p = new DOMParser();
-          const dom = p.parseFromString(text, "application/xml");
-          const title = dom.querySelector("title")?.textContent!;
-          const link = dom.querySelector("link")?.textContent!;
-          const description = dom.querySelector("description")?.textContent!;
-          const articles = Array.from(
-            dom.querySelectorAll(`item:nth-of-type(-n+${limit})`)
-          );
-          const list = articles.map((item) => {
-            return {
-              title: item.querySelector("title")?.textContent!,
-              description: item.querySelector("description")?.textContent!,
-              link: item.querySelector("link")?.textContent!,
-              category: Array.from(item.querySelectorAll("category")).map(
-                (el) => el.textContent!
-              ),
-              date: new Date(item.querySelector("pubDate")?.textContent!),
-            };
-          });
-          set({ title, link, description, list, isSet: true, isBlank: false });
-        } else set({ isSet: true });
+      .then((json) => {
+        if (json) set({ ...(json as FeedKVType), isSet: true, isBlank: false });
+        else set({ isSet: true });
       });
   },
 }));
@@ -64,8 +32,9 @@ export function FeedState() {
   return <></>;
 }
 
-export const FeedRead = memo(function FeedRead() {
-  const { isBlank, title, link, list } = useFeedState();
+export function NoteView() {
+  const { isBlank, note } = useFeedState();
+  const { title, link, list } = note ?? {};
   if (isBlank) return <></>;
   return (
     <div className="blog">
@@ -77,11 +46,35 @@ export const FeedRead = memo(function FeedRead() {
       <div className="list">
         {list?.slice(0, 3).map(({ date, link, title, description }, i) => (
           <a href={link} className="article" target="note" key={i}>
-            <div className="date">{date.toLocaleDateString("ja")}</div>
+            <div className="date">
+              {new Date(date).toLocaleDateString("ja")}
+            </div>
             <div className="title">{title || description.slice(0, 32)}</div>
           </a>
         ))}
       </div>
     </div>
   );
-});
+}
+
+export function ChangeLog() {
+  const { changeLog } = useFeedState();
+  if (!changeLog || !changeLog.list) return <></>;
+  return (
+    <div className="changeLog">
+      <h3>
+        <a href={changeLog.url} title={changeLog.title} target="changeLog">
+          サイトの更新履歴
+        </a>
+      </h3>
+      <ul>
+        {changeLog.list.slice(0, 10).map((item, i) => (
+          <li key={i}>
+            <span className="date">{new Date(item.created_at).toLocaleDateString("ja")}</span>
+            <span className="body" dangerouslySetInnerHTML={{ __html: item.body_html }}></span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

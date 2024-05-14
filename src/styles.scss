@@ -1708,6 +1708,28 @@ ul {
   @extend %a-line-none;
 }
 
+.changeLog {
+  margin: 2rem 0 1rem;
+  h3 {
+    margin: 0;
+  }
+  ul {
+    display: flex;
+    margin: auto;
+    max-width: 60rem;
+    li {
+      display: flex;
+      align-items: center;
+    }
+    .date {
+      margin: 0 1rem;
+    }
+    .body {
+      text-align: left;
+    }
+  }
+}
+
 .h1h4Page {
   text-align: center;
   &.middle {

@@ -4,15 +4,20 @@ import { app_twix } from "./twix/twixPage";
 import { app_noticeFeed } from "./notice-feed";
 import { renderToString } from "react-dom/server";
 import { Style } from "@/serverLayout";
+import { FeedSet } from "@/ServerContent";
 
 const defaultStyle = <Style href="/css/styles.css" />;
 
-export const app = new Hono();
+export const app = new Hono<MeeBindings>();
 
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);
 app.get("/info", async (c) => {
   return c.json({ ...c, ...{ cookie: getCookie(c) } });
+});
+app.get("/feed-update", async (c) => {
+  await FeedSet({ c, minute: 1 });
+  return c.redirect("/");
 });
 app.get("/", async (c) => {
   const Url = new URL(c.req.url);
@@ -35,6 +40,7 @@ app.get("/", async (c) => {
     renderToString(
       <WorkersLayout title="めぇめぇワーカー">
         <h1>めぇめぇワーカー</h1>
+        <a href="/workers/feed-update">フィードの更新</a>
         <a href="/workers/notice-feed">めぇめぇつうしん</a>
         <a href="/workers/twix">Twitterれんけい</a>
         <a href="/workers/info">サーバーの情報</a>

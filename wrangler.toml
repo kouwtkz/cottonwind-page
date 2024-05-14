@@ -8,7 +8,7 @@ DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名�
 # DISCORD_INVITE_URL = ""
 
 FEED_FROM = "https://note.com/kouwtkz/rss"
-# FEED_FROM = "https://bsky.app/profile/did:plc:27df3xmlj52mumyihflzh4vr/rss"
+ZENN_UPDATE_FROM = "https://zenn.dev/api/scraps/97bdba87d0a07f"
 
 # Workers env
 # X_CLIENT_ID = ""

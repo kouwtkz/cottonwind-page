@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { useDataState } from "../state/StateSet";
 import { MakeRelativeURL } from "../components/doc/MakeURL";
+import { ChangeLog } from "@/state/FeedRead";
 
 export default function AboutPage() {
   return (
@@ -27,6 +28,7 @@ export default function AboutPage() {
       <p>
         <a href="/suggest">Suggest page (links for miss typo)</a>
       </p>
+      <ChangeLog />
     </div>
   );
 }

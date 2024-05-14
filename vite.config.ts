@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
     }
   } else {
     configDotenv();
-    config.ssr = { external: ['react', 'react-dom'] };
+    config.ssr = { external: ['react', 'react-dom', 'jsdom'] };
     config.plugins!.push([
       pages(),
       devServer({
