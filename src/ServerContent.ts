@@ -1,6 +1,7 @@
 import { Next } from "hono";
 import { CommonContext } from "./types/HonoCustomType";
-import { JSDOM } from "jsdom";
+import { DOMParser } from "xmldom";
+import xpath from "xpath";
 
 export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },
@@ -46,30 +47,28 @@ async function TrimTrailingContext(c: CommonContext, next: Next) {
 
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
-  let { last, ...kv_feed } = await c.env.KV.get("feed", "json") as FeedKVType;
+  let { last, ...kv_feed } = (await c.env.KV.get("feed", "json") ?? {}) as FeedKVType;
   const doProcess = last ? new Date().getTime() - new Date(last).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
     if (url) {
-      const xml = await JSDOM.fromURL(url);
-      const dom = xml.window.document;
-      const title = dom.querySelector("title")?.textContent!;
-      const link = dom.querySelector("link")?.textContent!;
-      const description = dom.querySelector("description")?.textContent!;
-      const articles = Array.from(
-        dom.querySelectorAll(`item:nth-of-type(-n+${100})`)
-      );
-      const list = articles.map((item) => {
-        return {
-          title: item.querySelector("title")?.textContent!,
-          description: item.querySelector("description")?.textContent!,
-          link: item.querySelector("link")?.textContent!,
-          category: Array.from(item.querySelectorAll("category")).map(
-            (el) => el.textContent!
-          ),
-          date: item.querySelector("pubDate")?.textContent!,
-        };
-      });
+      const text = await fetch(url).then(r => r.text());
+      const p = new DOMParser();
+      const xml = p.parseFromString(text);
+      const select = xpath.useNamespaces(Object.fromEntries(
+        Object.values(xml.documentElement.attributes)
+          .filter(({ prefix }) => prefix === "xmlns")
+          .map(item => ([item.localName, item.value]))))
+      const title = select("string(/rss/channel/title)", xml) as string;
+      const link = select("string(/rss/channel/link)", xml) as string;
+      const description = select("string(/rss/channel/description)", xml) as string;
+      const list = (select("/rss/channel/item", xml)! as Node[]).map(item => ({
+        title: select("string(title)", item) as string,
+        description: select("string(description)", item) as string,
+        link: select("string(link)", item) as string,
+        date: select("string(pubDate)", item) as string,
+        category: (select("category/text()", item) as Node[]).map(v => v.nodeValue!)
+      }));
       note = { title, link, description, list }
     }
     let changeLog: ZennChangeLogType | undefined;

@@ -1,7 +1,7 @@
-import { memo, useLayoutEffect, useMemo } from "react";
+import { useLayoutEffect } from "react";
 import { create } from "zustand";
 
-interface FeedStateType extends FeedKVType {
+interface FeedStateType extends Omit<FeedKVType, "last"> {
   isSet: boolean;
   isBlank: boolean;
   set: (limit?: number) => void;
@@ -18,8 +18,10 @@ export const useFeedState = create<FeedStateType>((set) => ({
           : null;
       })
       .then((json) => {
-        if (json) set({ ...(json as FeedKVType), isSet: true, isBlank: false });
-        else set({ isSet: true });
+        if (json) {
+          const { note, changeLog } = json as FeedKVType;
+          set({ note, changeLog, isSet: true, isBlank: false });
+        } else set({ isSet: true });
       });
   },
 }));
@@ -70,8 +72,13 @@ export function ChangeLog() {
       <ul>
         {changeLog.list.slice(0, 10).map((item, i) => (
           <li key={i}>
-            <span className="date">{new Date(item.created_at).toLocaleDateString("ja")}</span>
-            <span className="body" dangerouslySetInnerHTML={{ __html: item.body_html }}></span>
+            <span className="date">
+              {new Date(item.created_at).toLocaleDateString("ja")}
+            </span>
+            <span
+              className="body"
+              dangerouslySetInnerHTML={{ __html: item.body_html }}
+            ></span>
           </li>
         ))}
       </ul>

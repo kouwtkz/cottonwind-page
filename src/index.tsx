@@ -20,7 +20,7 @@ const app = new Hono<MeeBindings>({ strict: true });
 
 app.get("/get/feed", async (c, next) => {
   if (c.env.FEED_FROM) {
-    return c.json(FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
+    return c.json(await FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
   } else return next();
 });
 
