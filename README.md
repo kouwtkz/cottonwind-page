@@ -1,4 +1,4 @@
-このプロジェクトは[Hono](https://hono.dev/)と[React](https://ja.legacy.reactjs.org/)を使用したわたかぜコウのサイトです！
+このプロジェクトは[Hono](https://hono.dev/)と[React](https://react.dev/)を使用したわたかぜコウのサイトです！
 
 https://cottonwind.com
 
