@@ -1,2 +1,2 @@
-DROP TABLE IF EXISTS Lastmod;
-CREATE TABLE Lastmod (name TEXT, date TEXT, PRIMARY KEY (`name`));
+DROP TABLE IF EXISTS Feed;
+CREATE TABLE Feed (name TEXT, date TEXT, data TEXT, PRIMARY KEY (`name`));

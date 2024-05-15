@@ -47,11 +47,12 @@ async function TrimTrailingContext(c: CommonContext, next: Next) {
 
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
-  const kv_feed_str = await c.env.KV.get("feed");
-  let kv_feed = (kv_feed_str ? JSON.parse(kv_feed_str) : {}) as FeedKVType;
-  const lastmodName = "feed";
-  const lastmod = await c.env.DB.prepare("SELECT * FROM Lastmod where name = ?").bind(lastmodName).first() as ({ name: string, date: string } | null);
-  const doProcess = lastmod?.date ? new Date().getTime() - new Date(lastmod.date).getTime() > 6e4 * minute : true;
+  const keyName = "regular";
+  const tableName = "Feed";
+  const dbData = await c.env.DB.prepare(`SELECT * FROM ${tableName} where name = ?`).bind(keyName).first() as (FeedDBType | null);
+  const feedStr = dbData?.data;
+  let feedObj = (feedStr ? JSON.parse(feedStr) : {}) as FeedContentsType;
+  const doProcess = dbData?.date ? new Date().getTime() - new Date(dbData.date).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
     if (url) {
@@ -65,7 +66,7 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
       const title = select("string(/rss/channel/title)", xml) as string;
       const link = select("string(/rss/channel/link)", xml) as string;
       const description = select("string(/rss/channel/description)", xml) as string;
-      const list = (select("/rss/channel/item", xml)! as Node[]).map(item => ({
+      const list = (select("/rss/channel/item[position()<4]", xml)! as Node[]).map(item => ({
         title: select("string(title)", item) as string,
         description: select("string(description)", item) as string,
         link: select("string(link)", item) as string,
@@ -79,21 +80,22 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
       const scrap = (await fetch(c.env.ZENN_UPDATE_FROM).then(r => r.json()) as any).scrap;
       changeLog = { url: "https://zenn.dev" + scrap.path, title: scrap.title };
       changeLog.list = (scrap?.comments as any[])
-        ?.filter(v => !v.pinned)
+        ?.reverse()
+        .filter(v => !v.pinned)
+        .slice(0, 100)
         .map((v) => ({
           id: v.id, created_at: v.created_at, body_html: v.body_html
         }));
-      changeLog.list?.reverse();
     }
-    const update_kv_feed = { note, changeLog };
-    const update_kv_feed_str = JSON.stringify(update_kv_feed);
-    if (update_kv_feed_str !== kv_feed_str) {
-      kv_feed = update_kv_feed;
-      c.env.KV.put("feed", update_kv_feed_str);
-    }
+    const updateFeedObj = { note, changeLog };
+    const updateFeedObjStr = JSON.stringify(updateFeedObj);
     const date = new Date().toISOString();
-    if (lastmod) await c.env.DB.prepare("UPDATE Lastmod SET date = ? WHERE name = ?").bind(date, lastmodName).run();
-    else await c.env.DB.prepare("INSERT INTO Lastmod(name, date) VALUES(?, ?)").bind(lastmodName, date).run();
+    if (dbData) {
+      if (updateFeedObjStr !== feedStr) {
+        feedObj = updateFeedObj;
+        await c.env.DB.prepare(`UPDATE ${tableName} SET date = ?, data = ? WHERE name = ?`).bind(date, updateFeedObjStr, keyName).run();
+      } else await c.env.DB.prepare(`UPDATE ${tableName} SET date = ? WHERE name = ?`).bind(date, keyName).run();
+    } else await c.env.DB.prepare(`INSERT INTO ${tableName}(name, date, data) VALUES(?, ?, ?)`).bind(keyName, date, updateFeedObjStr).run();
   }
-  return kv_feed;
+  return feedObj;
 }

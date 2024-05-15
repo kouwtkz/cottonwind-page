@@ -24,7 +24,13 @@ type ZennChangeLogType = {
   list?: ZennChangeLogArticleType[];
 }
 
-type FeedKVType = {
+type FeedContentsType = {
   note?: FeedContentType;
   changeLog?: ZennChangeLogType;
+}
+
+type FeedDBType = {
+  name: string,
+  date: string,
+  data: string
 }

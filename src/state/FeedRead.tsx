@@ -1,7 +1,7 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
 
-interface FeedStateType extends FeedKVType {
+interface FeedStateType extends FeedContentsType {
   isSet: boolean;
   isBlank: boolean;
   set: (limit?: number) => void;
@@ -19,7 +19,7 @@ export const useFeedState = create<FeedStateType>((set) => ({
       })
       .then((json) => {
         if (json) {
-          const { note, changeLog } = json as FeedKVType;
+          const { note, changeLog } = json as FeedContentsType;
           set({ note, changeLog, isSet: true, isBlank: false });
         } else set({ isSet: true });
       });

@@ -1715,14 +1715,17 @@ ul {
   }
   ul {
     display: flex;
+    flex-direction: column;
     margin: auto;
+    padding: 0;
     max-width: 60rem;
     li {
       display: flex;
       align-items: center;
+      margin: 0 1rem;
     }
     .date {
-      margin: 0 1rem;
+      margin: 0 1rem 0 0;
     }
     .body {
       text-align: left;
