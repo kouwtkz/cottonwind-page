@@ -66,13 +66,14 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
       const title = select("string(/rss/channel/title)", xml) as string;
       const link = select("string(/rss/channel/link)", xml) as string;
       const description = select("string(/rss/channel/description)", xml) as string;
-      const list = (select("/rss/channel/item[position()<4]", xml)! as Node[]).map(item => ({
-        title: select("string(title)", item) as string,
-        description: select("string(description)", item) as string,
-        link: select("string(link)", item) as string,
-        date: select("string(pubDate)", item) as string,
-        category: (select("category/text()", item) as Node[]).map(v => v.nodeValue!)
-      }));
+      const list = (select("/rss/channel/item[position()<4]", xml)! as Node[]).map(item => {
+        return {
+          title: select("string(title)", item) as string || (select("string(description)", item) as string).slice(0, 128),
+          link: select("string(link)", item) as string,
+          date: select("string(pubDate)", item) as string,
+          category: (select("category/text()", item) as Node[]).map(v => v.nodeValue!)
+        }
+      });
       note = { title, link, description, list }
     }
     let changeLog: ZennChangeLogType | undefined;

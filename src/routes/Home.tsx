@@ -4,7 +4,7 @@ import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee } from "../components/layout/ImageMee";
-import { NoteView } from "../state/FeedRead";
+import { NoteView } from "@/state/FeedState";
 
 export default function Home() {
   return (

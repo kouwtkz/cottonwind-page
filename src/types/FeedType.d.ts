@@ -1,6 +1,5 @@
 type FeedArticleType = {
   title: string;
-  description: string;
   link: string;
   category: string[];
   date: string;

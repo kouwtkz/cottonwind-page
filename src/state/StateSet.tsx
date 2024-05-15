@@ -8,7 +8,7 @@ import { CharaState, useCharaState } from "./CharaState";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
-import { FeedState, useFeedState } from "./FeedRead";
+import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
 
 export function StateSet() {
