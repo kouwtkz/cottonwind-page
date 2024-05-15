@@ -1,5 +1,5 @@
 import { convertCharaData, convertCharaList } from "../../data/functions/convertCharaData";
-import data from "../../../public/static/data/characters.json"
+import data from "../../../public/json/characters.json"
 
 export const serverCharacters = convertCharaData({ data });
 

@@ -12,24 +12,33 @@ type FeedContentType = {
   list?: FeedArticleType[];
 };
 
-type ZennChangeLogArticleType = {
+type ZennScrapCommentType = {
   id: string;
   created_at: string;
   body_html: string;
 }
-type ZennChangeLogType = {
+type ZennScrapType = {
   title: string;
   url: string;
-  list?: ZennChangeLogArticleType[];
+  list?: ZennScrapCommentType[];
 }
 
 type FeedContentsType = {
   note?: FeedContentType;
-  changeLog?: ZennChangeLogType;
 }
 
 type FeedDBType = {
   name: string,
   date: string,
   data: string
+}
+
+interface GitItemType {
+  date: string;
+  messages: string[];
+}
+
+interface GitObjectType {
+  remote_url?: string;
+  list: GitItemType[];
 }

@@ -319,15 +319,6 @@ h4 {
   }
 }
 
-.readmore:not(.extend) > * {
-  display: none;
-}
-
-.readmore:not(.extend):before {
-  content: "もっと読む";
-  cursor: pointer;
-}
-
 .wh-fill,
 .wh-all-fill,
 .wh-all-fill * {
@@ -1716,19 +1707,29 @@ ul {
   ul {
     display: flex;
     flex-direction: column;
-    margin: auto;
+    margin: 1rem auto;
     padding: 0;
     max-width: 60rem;
     li {
       display: flex;
-      align-items: center;
       margin: 0 1rem;
+      p {
+        margin: 0.25rem 0;
+      }
     }
     .date {
-      margin: 0 1rem 0 0;
+      display: inline-block;
+      margin: 0.25rem 1rem;
+      cursor: pointer;
     }
     .body {
       text-align: left;
+    }
+    .readmore {
+      color: var(--main-color-dark-grayish);
+      cursor: pointer;
+      margin-left: 0.5rem;
+      text-decoration: underline var(--main-color-grayish);
     }
   }
 }

@@ -2,7 +2,7 @@
 
 import { writeFileSync, mkdirSync } from "fs"
 
-export const dataJsonDir = "./public/static/data/"
+export const dataJsonDir = "./public/json/"
 /**
  * @param {string} name
  * @param {any} obj

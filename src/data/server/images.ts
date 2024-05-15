@@ -1,5 +1,5 @@
 import { getCopyRightList, getTagList, parseImageItems } from "../functions/images";
-import data from "../../../public/static/data/images.json"
+import data from "../../../public/json/images.json"
 
 export const serverImageAlbumList: MediaImageAlbumType[] = data as any;
 export const serverImageItemList = parseImageItems(serverImageAlbumList)

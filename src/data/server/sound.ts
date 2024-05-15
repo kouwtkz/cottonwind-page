@@ -1,5 +1,5 @@
 import { getSetupPlaylist, getSetupSoundIndex, parseSoundItems } from "../functions/sound";
-import data from "../../../public/static/data/sound.json"
+import data from "../../../public/json/sound.json"
 
 export const serverSoundAlbum: SoundAlbumType = data as any;
 export const serverSoundItemList = parseSoundItems(serverSoundAlbum);

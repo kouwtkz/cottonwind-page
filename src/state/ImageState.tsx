@@ -7,7 +7,7 @@ import {
   getTagList,
   parseImageItems,
 } from "../data/functions/images";
-const defaultUrl = "/static/data/images.json" + buildAddVer;
+const defaultUrl = "/json/images.json" + buildAddVer;
 
 interface ValueCountType {
   value: string;

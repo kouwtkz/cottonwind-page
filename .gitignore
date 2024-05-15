@@ -9,7 +9,7 @@ yarn.lock
 pnpm-lock.yaml
 bun.lockb
 
-public/static/data
+public/json
 public/static/_media
 public/static/embed
 public/static/sound

@@ -70,7 +70,7 @@ export async function ServerLayout({
   );
   let images: MediaImageItemType[] | undefined;
   if (isBot) {
-    const dataPath = "/static/data";
+    const dataPath = "/json";
     const params = c.req.param() as KeyValueStringType;
     const isCharaName = Boolean(params.charaName);
     if (isCharaName && !characters) {

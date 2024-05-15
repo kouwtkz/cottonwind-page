@@ -7,6 +7,7 @@ import {
 } from "./serverLayout";
 import { RoutingList } from "@/routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
+import { getGitLog } from "@/data/functions/gitlog.mjs";
 
 const app = new Hono<MeeBindings>({ strict: true });
 
@@ -29,6 +30,10 @@ app.get("/suggest", async (c) => {
       </ServerSimpleLayout>
     )
   );
+});
+
+app.get("/json/gitlog.json", (c) => {
+  return c.json(getGitLog());
 });
 
 // app.get("robots.txt", (c) => {
@@ -57,6 +62,7 @@ app.get("_routes.json", (c) => {
     "/404",
     "/suggest",
     "/css/*",
+    "/json/*",
     "/static/*",
     "/sitemap.xml",
     "/robots.txt",

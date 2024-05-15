@@ -10,6 +10,7 @@ import { create } from "zustand";
 import { ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
+import GitState, { useGitState } from "./GitState";
 
 export function StateSet() {
   return (
@@ -36,6 +37,7 @@ function DataStateSet() {
       <ImageState />
       <CharaState />
       <FeedState />
+      <GitState />
     </>
   );
 }
@@ -64,6 +66,7 @@ function DataState() {
     useImageState(),
     useSoundState(),
     useFeedState(),
+    useGitState(),
   ];
   const { isComplete, setComplete } = useDataState(
     ({ isComplete, setComplete }) => ({ isComplete, setComplete })

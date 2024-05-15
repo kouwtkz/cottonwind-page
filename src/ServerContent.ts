@@ -45,6 +45,48 @@ async function TrimTrailingContext(c: CommonContext, next: Next) {
   } else return next();
 }
 
+export async function RssFeedGet(
+  url: string, { limit = 3 }: { limit?: number } = {}
+) {
+  const text = await fetch(url).then(r => r.text());
+  const p = new DOMParser();
+  const xml = p.parseFromString(text);
+  const select = xpath.useNamespaces(Object.fromEntries(
+    Object.values(xml.documentElement.attributes)
+      .filter(({ prefix }) => prefix === "xmlns")
+      .map(item => ([item.localName, item.value]))))
+  const title = select("string(/rss/channel/title)", xml) as string;
+  const link = select("string(/rss/channel/link)", xml) as string;
+  const description = select("string(/rss/channel/description)", xml) as string;
+  const list = (select(`/rss/channel/item[position()<=${limit}]`, xml)! as Node[]).map(item => {
+    return {
+      title: select("string(title)", item) as string || (select("string(description)", item) as string).slice(0, 128),
+      link: select("string(link)", item) as string,
+      date: select("string(pubDate)", item) as string,
+      category: (select("category/text()", item) as Node[]).map(v => v.nodeValue!)
+    }
+  });
+  const feed: FeedContentType = { title, link, description, list };
+  return feed;
+}
+
+export async function ZenScrapGet(
+  apiUrl: string,
+  { reverse = false, include_pinned = true, limit = 100 }
+    : { reverse?: boolean, include_pinned?: boolean, limit?: number } = {}
+) {
+  const scrap = (await fetch(apiUrl).then(r => r.json()) as any).scrap;
+  const scrapObject: ZennScrapType = { url: "https://zenn.dev" + scrap.path, title: scrap.title };
+  let comments: any[] = scrap?.comments ?? [];
+  if (reverse) comments.reverse();
+  if (!include_pinned) comments = comments.filter(v => !v.pinned);
+  scrapObject.list = comments.slice(0, limit)
+    .map((v) => ({
+      id: v.id, created_at: v.created_at, body_html: v.body_html
+    }));
+  return scrapObject;
+}
+
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
   const keyName = "regular";
@@ -55,40 +97,8 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
   const doProcess = dbData?.date ? new Date().getTime() - new Date(dbData.date).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
-    if (url) {
-      const text = await fetch(url).then(r => r.text());
-      const p = new DOMParser();
-      const xml = p.parseFromString(text);
-      const select = xpath.useNamespaces(Object.fromEntries(
-        Object.values(xml.documentElement.attributes)
-          .filter(({ prefix }) => prefix === "xmlns")
-          .map(item => ([item.localName, item.value]))))
-      const title = select("string(/rss/channel/title)", xml) as string;
-      const link = select("string(/rss/channel/link)", xml) as string;
-      const description = select("string(/rss/channel/description)", xml) as string;
-      const list = (select("/rss/channel/item[position()<4]", xml)! as Node[]).map(item => {
-        return {
-          title: select("string(title)", item) as string || (select("string(description)", item) as string).slice(0, 128),
-          link: select("string(link)", item) as string,
-          date: select("string(pubDate)", item) as string,
-          category: (select("category/text()", item) as Node[]).map(v => v.nodeValue!)
-        }
-      });
-      note = { title, link, description, list }
-    }
-    let changeLog: ZennChangeLogType | undefined;
-    if (c.env.ZENN_UPDATE_FROM) {
-      const scrap = (await fetch(c.env.ZENN_UPDATE_FROM).then(r => r.json()) as any).scrap;
-      changeLog = { url: "https://zenn.dev" + scrap.path, title: scrap.title };
-      changeLog.list = (scrap?.comments as any[])
-        ?.reverse()
-        .filter(v => !v.pinned)
-        .slice(0, 100)
-        .map((v) => ({
-          id: v.id, created_at: v.created_at, body_html: v.body_html
-        }));
-    }
-    const updateFeedObj = { note, changeLog };
+    if (url) note = await RssFeedGet(url);
+    const updateFeedObj = { note };
     const updateFeedObjStr = JSON.stringify(updateFeedObj);
     const date = new Date().toISOString();
     if (dbData) {

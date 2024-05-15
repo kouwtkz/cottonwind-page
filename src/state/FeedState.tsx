@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
+import { GitDetails } from "./GitState";
 
 interface FeedStateType extends FeedContentsType {
   isSet: boolean;
@@ -19,8 +20,8 @@ export const useFeedState = create<FeedStateType>((set) => ({
       })
       .then((json) => {
         if (json) {
-          const { note, changeLog } = json as FeedContentsType;
-          set({ note, changeLog, isSet: true, isBlank: false });
+          const { note } = json as FeedContentsType;
+          set({ note, isSet: true, isBlank: false });
         } else set({ isSet: true });
       });
   },
@@ -55,33 +56,6 @@ export function NoteView() {
           </a>
         ))}
       </div>
-    </div>
-  );
-}
-
-export function ChangeLog() {
-  const { changeLog } = useFeedState();
-  if (!changeLog || !changeLog.list) return <></>;
-  return (
-    <div className="changeLog">
-      <h3>
-        <a href={changeLog.url} title={changeLog.title} target="changeLog">
-          サイトの更新履歴
-        </a>
-      </h3>
-      <ul>
-        {changeLog.list.slice(0, 10).map((item, i) => (
-          <li key={i}>
-            <span className="date">
-              {new Date(item.created_at).toLocaleDateString("ja")}
-            </span>
-            <span
-              className="body"
-              dangerouslySetInnerHTML={{ __html: item.body_html }}
-            ></span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

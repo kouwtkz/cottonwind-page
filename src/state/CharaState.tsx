@@ -5,7 +5,7 @@ import { useImageState } from "./ImageState";
 import { useSoundState } from "./SoundState";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { buildAddVer } from "../data/env";
-const defaultUrl = "/static/data/characters.json" + buildAddVer;
+const defaultUrl = "/json/characters.json" + buildAddVer;
 
 type CharaStateType = {
   charaList: Array<CharaType>;

@@ -19,6 +19,7 @@ import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
 import { getCookie } from "hono/cookie";
 import ssg from "./ssg";
+import { getGitLog } from "@/data/functions/gitlog.mjs";
 const compactStyles = CompactCode(importStyles);
 
 const app = new Hono<MeeBindings>({ strict: true });
@@ -36,6 +37,11 @@ app.get("get/feed", async (c, next) => {
 
 app.get("/src/*", serveStatic({ root: "./" }));
 app.get("/_data/*", serveStatic({ root: "./" }));
+
+app.get("/json/gitlog.json", (c) => {
+  return c.json(getGitLog());
+});
+app.get("/json/*", serveStatic({ root: "./public/" }));
 
 app.post("/gallery/send", async (c, next) => {
   const formData = await c.req.parseBody();
