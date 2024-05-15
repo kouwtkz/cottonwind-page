@@ -27,5 +27,4 @@ type ZennChangeLogType = {
 type FeedKVType = {
   note?: FeedContentType;
   changeLog?: ZennChangeLogType;
-  last?: string;
 }

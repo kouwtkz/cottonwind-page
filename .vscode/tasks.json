@@ -53,6 +53,11 @@
       "type": "shell",
       "command": "wrangler ${input:wranglerSelect} ${input:text}",
       "label": "wrangler"
+    },
+    {
+      "type": "shell",
+      "command": "wrangler d1 execute cottonwind-db ${input:dbLastmodSelect}",
+      "label": "db:lastmod"
     }
   ],
   "inputs": [
@@ -67,6 +72,18 @@
       "id": "wranglerSelect",
       "description": "select wrangler scripts.",
       "options": ["kv:namespace create"],
+      "default": ""
+    },
+    {
+      "type": "pickString",
+      "id": "dbLastmodSelect",
+      "description": "select db action.",
+      "options": [
+        "--file=./schema.sql --local",
+        "--command='SELECT * FROM Lastmod' --local",
+        "--file=./schema.sql --remote",
+        "--command='SELECT * FROM Lastmod' --remote"
+      ],
       "default": ""
     }
   ]

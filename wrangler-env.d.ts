@@ -1,6 +1,7 @@
 interface MeeEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
+  DB: D1Database;
   AUTHOR_EMAIL?: string;
   FEED_FROM?: string;
   FEED_DEV_FROM?: string;

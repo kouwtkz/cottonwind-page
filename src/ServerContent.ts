@@ -47,8 +47,10 @@ async function TrimTrailingContext(c: CommonContext, next: Next) {
 
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
-  let { last, ...kv_feed } = (await c.env.KV.get("feed", "json") ?? {}) as FeedKVType;
-  const doProcess = last ? new Date().getTime() - new Date(last).getTime() > 6e4 * minute : true;
+  let kv_feed = (await c.env.KV.get("feed", "json") ?? {}) as FeedKVType;
+  const lastmodName = "feed";
+  const lastmod = await c.env.DB.prepare("SELECT * FROM Lastmod where name = ?").bind(lastmodName).first() as ({ name: string, date: string } | null);
+  const doProcess = lastmod?.date ? new Date().getTime() - new Date(lastmod.date).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
     if (url) {
@@ -82,8 +84,16 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
         }));
       changeLog.list?.reverse();
     }
-    kv_feed = { note, changeLog };
-    c.env.KV.put("feed", JSON.stringify({ last: new Date(), ...kv_feed }));
+    const update_kv_feed = { note, changeLog };
+    const update_kv_feed_str = JSON.stringify(update_kv_feed);
+    const kv_feed_str = JSON.stringify(kv_feed);
+    if (update_kv_feed_str !== kv_feed_str) {
+      kv_feed = update_kv_feed;
+      c.env.KV.put("feed", update_kv_feed_str);
+    }
+    const date = new Date().toISOString();
+    if (lastmod) await c.env.DB.prepare("UPDATE Lastmod SET date = ? WHERE name = ?").bind(date, lastmodName).run();
+    else await c.env.DB.prepare("INSERT INTO Lastmod(name, date) VALUES(?, ?)").bind(lastmodName, date).run();
   }
   return kv_feed;
 }
