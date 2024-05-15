@@ -1,7 +1,7 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
 
-interface FeedStateType extends Omit<FeedKVType, "last"> {
+interface FeedStateType extends FeedKVType {
   isSet: boolean;
   isBlank: boolean;
   set: (limit?: number) => void;
