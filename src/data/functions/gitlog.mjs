@@ -19,7 +19,7 @@ export function getGitLog() {
       else gitLogReduced.push({ date: ymd, messages: [message] });
     });
     gitLogReduced.forEach(log => {
-      log.messages.sort((a, b) => b.length < 8 ? -1 : 0)
+      log.messages.sort((a, b) => b.startsWith("Update ") || b.length < 8 ? -1 : 0)
     })
     /** @type {GitObjectType} */
     const gitObject = { list: gitLogReduced, remote_url };

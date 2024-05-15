@@ -77,7 +77,7 @@ function GitlogItem({ item }: { item: GitItemType }) {
       <div>
         <span
           tabIndex={0}
-          className="date cursor-pointer inline-flex items-center"
+          className={"date" + (item.messages.length <= 1 ? " once" : "")}
           onClick={handleToggle}
           onKeyDown={(e) => {
             if (e.code === "Enter") handleToggle();
@@ -87,7 +87,7 @@ function GitlogItem({ item }: { item: GitItemType }) {
           <span>{item.date}</span>
         </span>
       </div>
-      <div className="body flex-1">
+      <div className="body">
         {readMore ? (
           item.messages.map((m, i) => <p key={i}>{m}</p>)
         ) : (
@@ -95,10 +95,7 @@ function GitlogItem({ item }: { item: GitItemType }) {
             <p>
               {item.messages[0]}
               {item.messages.length > 1 ? (
-                <span
-                  className="readmore"
-                  onClick={handleToggle}
-                >
+                <span className="readmore" onClick={handleToggle}>
                   ({"他" + (item.messages.length - 1) + "件"})
                 </span>
               ) : null}

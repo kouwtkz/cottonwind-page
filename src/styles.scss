@@ -1718,9 +1718,21 @@ ul {
       }
     }
     .date {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       margin: 0.25rem 1rem;
+      min-width: 6rem;
+      text-align: left;
       cursor: pointer;
+      svg {
+        color: var(--main-color-dark-grayish);
+      }
+      &.once {
+        cursor: initial;
+        svg {
+          visibility: hidden;
+        }
+      }
     }
     .body {
       text-align: left;
