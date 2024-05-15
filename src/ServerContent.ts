@@ -47,7 +47,8 @@ async function TrimTrailingContext(c: CommonContext, next: Next) {
 
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
-  let kv_feed = (await c.env.KV.get("feed", "json") ?? {}) as FeedKVType;
+  const kv_feed_str = await c.env.KV.get("feed");
+  let kv_feed = (kv_feed_str ? JSON.parse(kv_feed_str) : {}) as FeedKVType;
   const lastmodName = "feed";
   const lastmod = await c.env.DB.prepare("SELECT * FROM Lastmod where name = ?").bind(lastmodName).first() as ({ name: string, date: string } | null);
   const doProcess = lastmod?.date ? new Date().getTime() - new Date(lastmod.date).getTime() > 6e4 * minute : true;
@@ -86,7 +87,6 @@ export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonC
     }
     const update_kv_feed = { note, changeLog };
     const update_kv_feed_str = JSON.stringify(update_kv_feed);
-    const kv_feed_str = JSON.stringify(kv_feed);
     if (update_kv_feed_str !== kv_feed_str) {
       kv_feed = update_kv_feed;
       c.env.KV.put("feed", update_kv_feed_str);
