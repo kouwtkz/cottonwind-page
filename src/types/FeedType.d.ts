@@ -32,13 +32,3 @@ type FeedDBType = {
   date: string,
   data: string
 }
-
-interface GitItemType {
-  date: string;
-  messages: string[];
-}
-
-interface GitObjectType {
-  remote_url?: string;
-  list: GitItemType[];
-}
