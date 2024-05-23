@@ -1,6 +1,5 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
-import { GitDetails } from "./GitState";
 
 interface FeedStateType extends FeedContentsType {
   isSet: boolean;

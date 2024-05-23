@@ -26,7 +26,7 @@ export function getGitLogDataList({ branch = "master", dir } = {}) {
  * @returns 
  */
 export function getGitLogReduced(gitLogList) {
-  /** @type { GitItemType[] } */
+  /** @type { GitItemJsonType[] } */
   const gitLogReduced = [];
   gitLogList.forEach(({ ymd, message }) => {
     const found = gitLogReduced.find(a => a.date === ymd);
@@ -49,7 +49,7 @@ export function GitLogObject() {
     list = list.concat(getGitLogDataList());
     list.sort((a, b) => a.date < b.date ? 1 : -1)
     const gitLogReduced = getGitLogReduced(list);
-    /** @type {GitObjectType} */
+    /** @type {GitObjectJsonType} */
     const gitObject = { list: gitLogReduced, remote_url };
     return gitObject;
   } catch (e) {
