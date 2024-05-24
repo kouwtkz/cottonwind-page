@@ -1718,6 +1718,9 @@ ul {
     span {
       flex: 1;
     }
+    .date {
+      min-width: 6rem;
+    }
     .text {
       margin-left: 0.25rem;
     }
@@ -1749,7 +1752,6 @@ ul {
     display: inline-flex;
     align-items: center;
     margin: 0.25rem;
-    min-width: 6rem;
     text-align: left;
     cursor: pointer;
     svg {
