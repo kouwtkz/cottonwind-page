@@ -26,31 +26,31 @@ const SiteConfigList: SiteConfigListType = {
       "switch": "theme"
     }
   ],
-  "sns": [
+  "links": [
     {
       "name": "𝕏 (Twitter)",
       "url": "https://x.com/kouwtkz",
-      "mask": "/static/_media/mask/sns/twitter.webp"
+      "mask": "/static/_media/mask/links/twitter.webp"
     },
     {
       "name": "youtube",
       "url": "https://www.youtube.com/@kouwtkz",
-      "mask": "/static/_media/mask/sns/youtube.webp"
+      "mask": "/static/_media/mask/links/youtube.webp"
     },
     {
       "name": "pixiv",
       "url": "https://www.pixiv.net/users/5577703",
-      "mask": "/static/_media/mask/sns/pixiv.webp"
+      "mask": "/static/_media/mask/links/pixiv.webp"
     },
     {
       "name": "instagram",
       "url": "https://www.instagram.com/kouwtkz/",
-      "mask": "/static/_media/mask/sns/instagram.webp"
+      "mask": "/static/_media/mask/links/instagram.webp"
     },
     {
       "name": "github",
       "url": "https://github.com/kouwtkz",
-      "mask": "/static/_media/mask/sns/github.webp",
+      "mask": "/static/_media/mask/links/github.webp",
       "none": true
     },
     {
@@ -58,7 +58,7 @@ const SiteConfigList: SiteConfigListType = {
       "rel": "me",
       "title": "Misskey design",
       "url": "https://misskey.design/@kouwtkz",
-      "mask": "/static/_media/mask/sns/misskey_design.webp",
+      "mask": "/static/_media/mask/links/misskey_design.webp",
       "hidden": true,
       "row": 2
     },
@@ -67,20 +67,20 @@ const SiteConfigList: SiteConfigListType = {
       "rel": "me",
       "title": "マスコどん",
       "url": "https://mascodon.jp/@kouwtkz",
-      "mask": "/static/_media/mask/sns/wtkz_mascodon.webp",
+      "mask": "/static/_media/mask/links/wtkz_mascodon.webp",
       "row": 2
     },
     {
       "name": "Bluesky",
       "rel": "me",
       "url": "https://bsky.app/profile/kouwtkz.cottonwind.com",
-      "mask": "/static/_media/mask/sns/bluesky.webp",
+      "mask": "/static/_media/mask/links/bluesky.webp",
       "row": 2
     },
     {
       "name": "kouwtkz",
       "title": "info",
-      "mask": "/static/_media/mask/sns/other.webp",
+      "mask": "/static/_media/mask/links/other.webp",
       "url": "/info",
       "none": true,
       "row": 2
@@ -89,7 +89,7 @@ const SiteConfigList: SiteConfigListType = {
       "name": "VTdon",
       "rel": "me",
       "url": "https://vtdon.com/@kouwtkz",
-      "mask": "/static/_media/mask/sns/vtdon.webp",
+      "mask": "/static/_media/mask/links/vtdon.webp",
       "hidden": true,
       "row": 3
     }

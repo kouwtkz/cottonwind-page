@@ -9,44 +9,44 @@ export function Footer() {
         © {import.meta.env.VITE_SINCE}-{getJSTYear(buildTime ?? new Date())}{" "}
         {import.meta.env.VITE_AUTHOR_ENAME}
       </div>
-      <SnsList snsList={SiteConfigList.sns || []} />
+      <LinksList myLinks={SiteConfigList.links || []} />
     </footer>
   );
 }
 
-export function SnsList({
-  snsList,
+export function LinksList({
+  myLinks,
   maskImage = true,
 }: {
-  snsList: SiteSnsItemType[];
+  myLinks: SiteMyLinksItemType[];
   maskImage?: boolean;
 }) {
   return (
     <>
-      {snsList.length > 0 ? (
+      {myLinks.length > 0 ? (
         <ul className="footerLink">
-          {snsList
-            .filter((sns) => !sns.none && sns.mask)
-            .map((sns, i) => (
-              <li key={i} hidden={sns.hidden}>
+          {myLinks
+            .filter((link) => !link.none && link.mask)
+            .map((link, i) => (
+              <li key={i} hidden={link.hidden}>
                 <a
-                  title={sns.title || sns.name}
-                  href={sns.url}
-                  target={/^\w+:\/\//.test(sns.url) ? "_blank" : ""}
-                  rel={sns.rel}
+                  title={link.title || link.name}
+                  href={link.url}
+                  target={/^\w+:\/\//.test(link.url) ? "_blank" : ""}
+                  rel={link.rel}
                 >
                   {maskImage ? (
                     <div
                       className="mask"
                       style={{
-                        WebkitMaskImage: `url(${sns.mask})`,
-                        maskImage: `url(${sns.mask})`,
+                        WebkitMaskImage: `url(${link.mask})`,
+                        maskImage: `url(${link.mask})`,
                         maskSize: "cover",
                         WebkitMaskSize: "cover",
                       }}
                     />
                   ) : (
-                    sns.title || sns.name
+                    link.title || link.name
                   )}
                 </a>
               </li>

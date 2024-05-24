@@ -1,4 +1,4 @@
-import { Footer, SnsList } from "./components/layout/Footer";
+import { Footer, LinksList } from "./components/layout/Footer";
 import { Loading } from "./components/layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
@@ -31,7 +31,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
             <h2>{import.meta.env.VITE_TITLE}</h2>
           </header>
           <footer>
-            <SnsList snsList={SiteConfigList.sns || []} maskImage={false} />
+            <LinksList myLinks={SiteConfigList.links || []} maskImage={false} />
           </footer>
         </div>
       </div>

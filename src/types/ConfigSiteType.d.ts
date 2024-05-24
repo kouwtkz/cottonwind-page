@@ -1,6 +1,6 @@
 interface SiteConfigListType {
   nav: Array<SiteMenuItemType>;
-  sns: Array<SiteSnsItemType>;
+  links: Array<SiteMyLinksItemType>;
   gallery: {
     list: Array<GalleryItemType>;
     generate: Array<GalleryItemObjectType>;
@@ -33,7 +33,7 @@ type SiteMenuItemType = {
   switch?: "theme";
 }
 
-type SiteSnsItemType = {
+type SiteMyLinksItemType = {
   name: string
   url: string
   title?: string
