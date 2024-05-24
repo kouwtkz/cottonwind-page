@@ -190,15 +190,20 @@ export function MetaTags({
   imageSize,
   url,
   card = "summary_large_image",
+  path,
 }: MetaTagsProps) {
-  const siteTitle = import.meta.env.VITE_TITLE;
-  const jsonLd: WithContext<WebSite> = {
-    "@type": "WebSite",
-    "@context": "https://schema.org",
-    url: url || import.meta.env.VITE_URL,
-    name: title || import.meta.env.VITE_TITLE,
-    alternateName: import.meta.env.VITE_ALTERNATE.split(","),
-  };
+  let jsonLd: WithContext<WebSite> | undefined;
+  switch (path) {
+    case "/":
+      jsonLd = {
+        "@type": "WebSite",
+        "@context": "https://schema.org",
+        url: url || import.meta.env.VITE_URL,
+        name: import.meta.env.VITE_TITLE,
+        alternateName: import.meta.env.VITE_ALTERNATE.split(","),
+      };
+      break;
+  }
   return (
     <>
       <title>{title}</title>
@@ -206,7 +211,7 @@ export function MetaTags({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
-      <meta property="og:site_name" content={siteTitle} />
+      <meta property="og:site_name" content={import.meta.env.VITE_TITLE} />
       <meta property="og:type" content="website" />
       <meta property="og:keywords" content={import.meta.env.VITE_ALTERNATE} />
       <meta property="og:image" content={image} />
@@ -216,10 +221,12 @@ export function MetaTags({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
     </>
   );
 }
