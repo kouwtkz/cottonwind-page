@@ -1,5 +1,6 @@
 :root {
   --main-color: #bed440;
+  --main-color-highlight: #d1de43;
   --main-color-soft: #ccdb74;
   --main-color-pale: #dfec98;
   --main-color-fluo: #c5d85840;
@@ -22,6 +23,7 @@
 
 :root.theme-orange {
   --main-color: #ecae75;
+  --main-color-highlight: #efba79;
   --main-color-soft: #fac798;
   --main-color-pale: #ffd8a2;
   --main-color-fluo: #f8b06d40;
@@ -36,6 +38,7 @@
 
 :root.theme-aqua {
   --main-color: #53c3dd;
+  --main-color-highlight: #59d6e4;
   --main-color-soft: #6ed5ed;
   --main-color-pale: #a9e9f7;
   --main-color-fluo: #47b7d040;
@@ -44,8 +47,8 @@
   --main-color-deep: #32b2ce;
   --main-color-dark: #2ea3be;
   --text-color: #1d2227;
-  --background-top: #e3fff8;
-  --background-bottom: #d2f5f3;
+  --background-top: #e5fcf6;
+  --background-bottom: #d9f8f6;
 }
 
 :root {
@@ -1733,6 +1736,9 @@ ul {
         color: white;
       }
       background-color: var(--main-color);
+    }
+    &:nth-child(even) > .summary {
+      background-color: var(--main-color-highlight);
     }
   }
   .monthItem {
