@@ -8,12 +8,14 @@ type SoundAlbumType = {
 }
 
 type SoundPlaylistType = {
+  dir?: string;
   title?: string;
   list: SoundItemType[];
 }
 
 type SoundItemType = {
   src: string;
+  dir?: string;
   title: string;
   setup?: boolean;
 }

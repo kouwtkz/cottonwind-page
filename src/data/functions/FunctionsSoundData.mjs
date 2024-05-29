@@ -18,7 +18,10 @@ export function getSoundAlbum() {
     soundAlbum.playlist?.forEach(
       sounds => {
         sounds.list.forEach(
-          (sound) => { sound.src = `${outputStaticDir}${soundAlbum.dir ?? outputSoundDir}/${sound.src}` })
+          (sound) => {
+            const soundDir = sound.dir ?? sounds.dir;
+            sound.src = `${outputStaticDir}${soundAlbum.dir ?? outputSoundDir}/${soundDir ? (soundDir + '/') : ''}${sound.src}`
+          })
       })
     return soundAlbum;
   } else return null;
