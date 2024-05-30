@@ -141,7 +141,7 @@ const SiteConfigList: SiteConfigListType = {
       {
         "name": "goods",
         "h2": "作ったグッズなど！",
-        "h4": "今は販売してないものもあります",
+        "h4": "今は販売してない場合があります",
         "description": "グッズやスタンプなどを載せてます！"
       },
       {
