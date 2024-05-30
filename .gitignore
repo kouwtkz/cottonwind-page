@@ -18,3 +18,5 @@ src/data/import
 
 .env.local
 .env.*.local
+
+vite.config.ts.timestamp-*
