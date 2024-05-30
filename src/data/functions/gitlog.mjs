@@ -47,6 +47,14 @@ export function GitLogObject() {
     const remote_url = execSync('git remote get-url ' + remote).toString().replace(/^\s+|\s+$/g, '');
     let list = getGitLogDataList({ branch: "main", dir: "_data" });
     list = list.concat(getGitLogDataList());
+    list = list.filter(item => {
+      switch (item.message) {
+        case "update _data":
+        case "データ更新":
+          return false;
+        default: return true;
+      }
+    });
     list.sort((a, b) => a.date < b.date ? 1 : -1)
     const gitLogReduced = getGitLogReduced(list);
     /** @type {GitObjectJsonType} */
