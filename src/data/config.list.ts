@@ -18,6 +18,10 @@ const SiteConfigList: SiteConfigListType = {
       "url": "/sound"
     },
     {
+      "name": "link",
+      "url": "/link"
+    },
+    {
       "name": "about",
       "url": "/about"
     },

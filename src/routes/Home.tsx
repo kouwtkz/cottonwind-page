@@ -25,6 +25,9 @@ export default function Home() {
             <Link to="/sound">SOUND</Link>
           </li>
           <li>
+            <Link to="/link">LINK</Link>
+          </li>
+          <li>
             <Link to="/about">ABOUT</Link>
           </li>
         </ul>

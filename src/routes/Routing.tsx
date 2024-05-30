@@ -7,8 +7,8 @@ import { GalleryGroupPage, GalleryPage } from "./GalleryPage";
 import { ComicsViewer } from "../state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
-import SuggestPage from "./SuggestPage";
 import { RoutingUnion } from "./RoutingList";
+import LinkPage from "./LinkPage";
 
 export const Routing: RouteObject[] = [
   {
@@ -48,6 +48,7 @@ export const Routing: RouteObject[] = [
         path: "about",
         element: <AboutPage />,
       },
+      { path: "link", element: <LinkPage /> },
     ] as (RouteObject & { path: RoutingUnion })[],
   },
 ];
