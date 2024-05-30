@@ -32,7 +32,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import ArrowUpButton from "../components/svg/button/arrow/ArrowUpButton";
 import { LinkMee, MakeRelativeURL, SearchSet } from "../components/doc/MakeURL";
-import { RiBook2Fill, RiFilePdf2Fill } from "react-icons/ri";
+import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
@@ -563,7 +563,10 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
     const { search, state } = useLocation();
     const { query } = useMemo(() => SearchSet(search), [search]);
-    const isOrigin = useMemo(() => state?.showOrigin === "on", [state?.showOrigin]);
+    const isOrigin = useMemo(
+      () => state?.showOrigin === "on",
+      [state?.showOrigin]
+    );
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -628,12 +631,19 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                         })}
                   >
                     <div>
-                      {image.embed ? (
-                        image.type === "ebook" ? (
+                      {image.type === "ebook" || image.type === "goods" ? (
+                        image.embed ? (
                           <div className="translucent-comics-button">
                             <RiBook2Fill />
                           </div>
-                        ) : image.type === "pdf" ? (
+                        ) : image.link ? (
+                          <div className="translucent-comics-button">
+                            <RiStore3Fill />
+                          </div>
+                        ) : null
+                      ) : null}
+                      {image.embed ? (
+                        image.type === "pdf" ? (
                           <div className="translucent-comics-button">
                             <RiFilePdf2Fill />
                           </div>
