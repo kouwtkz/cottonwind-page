@@ -573,12 +573,18 @@ header {
     z-index: -10;
   }
   .title-container {
-    margin: 0.75rem auto;
+    margin: 0.5rem auto;
     display: inline-block;
     padding: 0 0.5rem;
-    height: 2.5rem;
+    height: 3rem;
     display: inline-block;
     @extend %a-line-none;
+    h2 {
+      margin: 0;
+    }
+    img {
+      height: 100%;
+    }
     #siteTitle {
       font-size: $text_2xl;
       line-height: 2.5rem;
@@ -685,7 +691,7 @@ footer {
   @extend %a-line-none;
   ul {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
@@ -694,6 +700,9 @@ footer {
     li {
       margin: $size_2 $size_4;
       display: inline;
+      img {
+        width: 10rem;
+      }
     }
   }
   ul li,

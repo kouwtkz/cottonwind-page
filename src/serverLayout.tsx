@@ -27,8 +27,15 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
       <Loading />
       <div id="root">
         <div hidden>
-          <header>
-            <h2>{import.meta.env.VITE_TITLE}</h2>
+          <header className="title-container">
+            <a href="/">
+              <h2>
+                <img
+                  src="/static/images/webp/こっとんうぃんどロゴ.webp"
+                  alt={import.meta.env.VITE_TITLE}
+                />
+              </h2>
+            </a>
           </header>
           <footer>
             <LinksList myLinks={SiteConfigList.links || []} maskImage={false} />
@@ -167,7 +174,12 @@ export function ServerSimpleLayout({
         <header id="header">
           <div className="title-container">
             <a id="siteTitle" href="/">
-              {import.meta.env.VITE_TITLE}
+              <h2>
+                <img
+                  src="/static/images/webp/こっとんうぃんどロゴ.webp"
+                  alt={import.meta.env.VITE_TITLE}
+                />
+              </h2>
             </a>
           </div>
         </header>
