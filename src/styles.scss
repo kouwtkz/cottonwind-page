@@ -698,10 +698,13 @@ footer {
     margin: 0;
     padding: 0.5rem 0;
     li {
-      margin: $size_2 $size_4;
+      margin: $size_1;
       display: inline;
       img {
         width: 10rem;
+        @media (min-width: $mobileWidth) {
+          width: 14rem;
+        }
       }
     }
   }

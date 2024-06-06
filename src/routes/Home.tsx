@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <HomeImage />
-      <div className="topPage">
+      <div className="topPage wide">
         <ul>
           <li>
             <Link to="/gallery">
@@ -31,15 +31,6 @@ export default function Home() {
             </Link>
           </li>
           <li>
-            <Link to="/works">
-              <ImageMee
-                src="/static/images/webp/button_works_default.webp"
-                hoverSrc="/static/images/webp/button_works_hover.webp"
-                alt="WORKS"
-              />
-            </Link>
-          </li>
-          <li>
             <Link to="/sound">
               <ImageMee
                 src="/static/images/webp/button_sound_default.webp"
@@ -54,6 +45,15 @@ export default function Home() {
                 src="/static/images/webp/button_links_default.webp"
                 hoverSrc="/static/images/webp/button_links_hover.webp"
                 alt="LINKS"
+              />
+            </Link>
+          </li>
+          <li>
+            <Link to="/works">
+              <ImageMee
+                src="/static/images/webp/button_works_default.webp"
+                hoverSrc="/static/images/webp/button_works_hover.webp"
+                alt="WORKS"
               />
             </Link>
           </li>
