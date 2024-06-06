@@ -6,25 +6,25 @@ const blankImage =
 
 interface ImageMeeProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   imageItem?: MediaImageItemType;
-  hoverSrc?: string;
   hoverImageItem?: MediaImageItemType;
   mode?: ResizeMode;
   size?: number;
   loadingScreen?: boolean;
   originWhenDev?: boolean;
+  v?: string | number;
 }
 export function ImageMee({
   imageItem,
   mode = "simple",
   alt: _alt,
   src: _src,
-  hoverSrc,
   hoverImageItem,
   loading,
   srcSet,
   size,
   width,
   height,
+  v,
   loadingScreen = false,
   originWhenDev = false,
   style,
@@ -107,22 +107,6 @@ export function ImageMee({
         if (showIndex < max) setShowIndex(showIndex + 1);
         else if (onLoad) onLoad(e);
       }}
-      {...(hoverSrc
-        ? {
-            onMouseEnter: () => {
-              if (refImg.current) {
-                if (hoverSrc) refImg.current.src = hoverSrc;
-                else if (hoverImageItem?.URL)
-                  refImg.current.src = hoverSrc || hoverImageItem?.URL;
-              }
-            },
-            onMouseLeave: () => {
-              if (refImg.current) {
-                if (hoverSrc || hoverImageItem) refImg.current.src = imageSrc;
-              }
-            },
-          }
-        : {})}
       {...attributes}
     />
   );
@@ -174,4 +158,27 @@ export function GetImageURLFromSrc({ src, list }: GetImageItemFromSrcProps) {
   if (imageItem) return imageItem.URL;
   if (pagenameFlag) return "";
   else return url;
+}
+
+interface ImgSwitchProps
+  extends React.DetailedHTMLProps<
+    React.ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  > {
+  hoverSrc?: string;
+}
+
+export function ImgSwitch({
+  src,
+  hoverSrc,
+  className,
+  ...args
+}: ImgSwitchProps) {
+  className = className ? className + " " : "";
+  return (
+    <div className="switch-img">
+      {src ? <img src={src} className={className + "normal"} {...args} /> : null}
+      {hoverSrc ? <img src={hoverSrc} className={className + "hover"} {...args} /> : null}
+    </div>
+  );
 }

@@ -3,7 +3,7 @@ import { useImageState } from "../state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { ImageMee } from "../components/layout/ImageMee";
+import { ImageMee, ImgSwitch } from "../components/layout/ImageMee";
 import { NoteView } from "@/state/FeedState";
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
         <ul>
           <li>
             <Link to="/gallery">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_gallery_default.webp"
                 hoverSrc="/static/images/webp/button_gallery_hover.webp"
                 alt="GALLERY"
@@ -23,7 +23,7 @@ export default function Home() {
           </li>
           <li>
             <Link to="/character">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_character_default.webp"
                 hoverSrc="/static/images/webp/button_character_hover.webp"
                 alt="CHARACTER"
@@ -32,7 +32,7 @@ export default function Home() {
           </li>
           <li>
             <Link to="/sound">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_sound_default.webp"
                 hoverSrc="/static/images/webp/button_sound_hover.webp"
                 alt="SOUND"
@@ -41,7 +41,7 @@ export default function Home() {
           </li>
           <li>
             <Link to="/links">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_links_default.webp"
                 hoverSrc="/static/images/webp/button_links_hover.webp"
                 alt="LINKS"
@@ -50,7 +50,7 @@ export default function Home() {
           </li>
           <li>
             <Link to="/works">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_works_default.webp"
                 hoverSrc="/static/images/webp/button_works_hover.webp"
                 alt="WORKS"
@@ -59,7 +59,7 @@ export default function Home() {
           </li>
           <li>
             <Link to="/about">
-              <ImageMee
+              <ImgSwitch
                 src="/static/images/webp/button_about_default.webp"
                 hoverSrc="/static/images/webp/button_about_hover.webp"
                 alt="ABOUT"

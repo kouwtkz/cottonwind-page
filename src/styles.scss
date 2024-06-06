@@ -322,6 +322,22 @@ h4 {
   }
 }
 
+.switch-img {
+  img:not(.normal) {
+    display: none;
+  }
+  &:hover {
+    img {
+      &.normal {
+        display: none;
+      }
+      &.hover {
+        display: inherit;
+      }
+    }
+  }
+}
+
 .wh-fill,
 .wh-all-fill,
 .wh-all-fill * {
