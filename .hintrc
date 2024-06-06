@@ -8,7 +8,8 @@
       "default",
       {
         "ignore": [
-          "-webkit-tap-highlight-color"
+          "-webkit-tap-highlight-color",
+          "min-width: fit-content"
         ]
       }
     ],
