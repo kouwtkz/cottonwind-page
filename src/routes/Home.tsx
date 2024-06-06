@@ -13,22 +13,58 @@ export default function Home() {
       <div className="topPage">
         <ul>
           <li>
-            <Link to="/gallery">GALLERY</Link>
+            <Link to="/gallery">
+              <ImageMee
+                src="/static/images/webp/button_gallery_default.webp"
+                hoverSrc="/static/images/webp/button_gallery_hover.webp"
+                alt="GALLERY"
+              />
+            </Link>
           </li>
           <li>
-            <Link to="/character">CHARACTER</Link>
-          </li>
-          {/* <li>
-            <Link to="/work">WORK</Link>
-          </li> */}
-          <li>
-            <Link to="/sound">SOUND</Link>
-          </li>
-          <li>
-            <Link to="/link">LINK</Link>
+            <Link to="/character">
+              <ImageMee
+                src="/static/images/webp/button_character_default.webp"
+                hoverSrc="/static/images/webp/button_character_hover.webp"
+                alt="CHARACTER"
+              />
+            </Link>
           </li>
           <li>
-            <Link to="/about">ABOUT</Link>
+            <Link to="/works">
+              <ImageMee
+                src="/static/images/webp/button_works_default.webp"
+                hoverSrc="/static/images/webp/button_works_hover.webp"
+                alt="WORKS"
+              />
+            </Link>
+          </li>
+          <li>
+            <Link to="/sound">
+              <ImageMee
+                src="/static/images/webp/button_sound_default.webp"
+                hoverSrc="/static/images/webp/button_sound_hover.webp"
+                alt="SOUND"
+              />
+            </Link>
+          </li>
+          <li>
+            <Link to="/links">
+              <ImageMee
+                src="/static/images/webp/button_links_default.webp"
+                hoverSrc="/static/images/webp/button_links_hover.webp"
+                alt="LINKS"
+              />
+            </Link>
+          </li>
+          <li>
+            <Link to="/about">
+              <ImageMee
+                src="/static/images/webp/button_about_default.webp"
+                hoverSrc="/static/images/webp/button_about_hover.webp"
+                alt="ABOUT"
+              />
+            </Link>
           </li>
         </ul>
         <NoteView />
