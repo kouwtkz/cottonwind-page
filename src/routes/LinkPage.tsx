@@ -16,6 +16,23 @@ export default function LinkPage() {
       <p>
         <a href="/suggest">Suggest page (links for miss typo)</a>
       </p>
+      <div>
+        <h4>サイトのバナー</h4>
+        <div>
+          <div>200×40 px</div>
+          <img
+            src="/static/images/png/banner_cottonwind_200_40.png"
+            alt="200×40バナー"
+          />
+        </div>
+        <div>
+          <div>234×60 px</div>
+          <img
+            src="/static/images/png/banner_cottonwind_234_60.png"
+            alt="234×60バナー"
+          />
+        </div>
+      </div>
     </div>
   );
 }
