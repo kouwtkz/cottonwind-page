@@ -7,6 +7,7 @@ import {
   getTagsOptions,
 } from "@/components/tag/GalleryTags";
 import SiteConfigList from "@/data/config.list";
+import { RoutingUnion } from "@/routes/RoutingList";
 
 export interface SetMetaProps {
   path: string;
@@ -40,7 +41,7 @@ export function MetaValues({
     description = "Discordへの招待ページ（合言葉式）";
   }
   if (!title)
-    switch (list[1]) {
+    switch (list[1] as RoutingUnion) {
       case "gallery":
         title = "ギャラリー | " + siteTitle;
         const group = list[2];
@@ -82,9 +83,13 @@ export function MetaValues({
           }
         }
         break;
-      case "work":
-        title = "かつどう | " + siteTitle;
-        description = "わたかぜコウの活動";
+      case "links":
+        title = "リンク | " + siteTitle;
+        description = "わたかぜコウのリンクページ";
+        break;
+      case "works":
+        title = "おしごと | " + siteTitle;
+        description = "わたかぜコウのおしごとページ";
         break;
       case "sound":
         title = "おんがく | " + siteTitle;

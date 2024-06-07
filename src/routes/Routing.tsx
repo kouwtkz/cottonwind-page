@@ -8,7 +8,8 @@ import { ComicsViewer } from "../state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
-import LinkPage from "@/routes/LinksPage";
+import LinksPage from "@/routes/LinksPage";
+import WorksPage from "./WorksPage";
 
 export const Routing: RouteObject[] = [
   {
@@ -48,8 +49,8 @@ export const Routing: RouteObject[] = [
         path: "about",
         element: <AboutPage />,
       },
-      { path: "links", element: <LinkPage /> },
-      { path: "works", element: <LinkPage /> },
+      { path: "links", element: <LinksPage /> },
+      { path: "works", element: <WorksPage /> },
     ] as (RouteObject & { path: RoutingUnion })[],
   },
 ];

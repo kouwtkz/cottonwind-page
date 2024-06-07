@@ -5,10 +5,10 @@ import { useSearchParams } from "react-router-dom";
 import { useDataState } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/components/doc/MakeURL";
 
-export default function LinkPage() {
+export default function LinksPage() {
   return (
     <div className="aboutPage">
-      <h2>Link</h2>
+      <h2>LINKS</h2>
       <h3>リンクページ(仮)</h3>
       <div>
         <InviteDiscordLink />
