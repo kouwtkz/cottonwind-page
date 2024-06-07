@@ -8,7 +8,7 @@ import { ComicsViewer } from "../state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
-import LinkPage from "./LinkPage";
+import LinkPage from "@/routes/LinksPage";
 
 export const Routing: RouteObject[] = [
   {
