@@ -18,6 +18,7 @@ export default function Home() {
                 src="/static/images/webp/button_gallery_default.webp"
                 hoverSrc="/static/images/webp/button_gallery_hover.webp"
                 alt="GALLERY"
+                v="2"
               />
             </Link>
           </li>
@@ -27,6 +28,7 @@ export default function Home() {
                 src="/static/images/webp/button_character_default.webp"
                 hoverSrc="/static/images/webp/button_character_hover.webp"
                 alt="CHARACTER"
+                v="2"
               />
             </Link>
           </li>
@@ -36,6 +38,7 @@ export default function Home() {
                 src="/static/images/webp/button_sound_default.webp"
                 hoverSrc="/static/images/webp/button_sound_hover.webp"
                 alt="SOUND"
+                v="2"
               />
             </Link>
           </li>
@@ -45,6 +48,7 @@ export default function Home() {
                 src="/static/images/webp/button_links_default.webp"
                 hoverSrc="/static/images/webp/button_links_hover.webp"
                 alt="LINKS"
+                v="2"
               />
             </Link>
           </li>
@@ -54,6 +58,7 @@ export default function Home() {
                 src="/static/images/webp/button_works_default.webp"
                 hoverSrc="/static/images/webp/button_works_hover.webp"
                 alt="WORKS"
+                v="2"
               />
             </Link>
           </li>
@@ -63,6 +68,7 @@ export default function Home() {
                 src="/static/images/webp/button_about_default.webp"
                 hoverSrc="/static/images/webp/button_about_hover.webp"
                 alt="ABOUT"
+                v="2"
               />
             </Link>
           </li>

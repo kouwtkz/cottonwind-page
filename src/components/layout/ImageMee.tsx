@@ -166,19 +166,22 @@ interface ImgSwitchProps
     HTMLImageElement
   > {
   hoverSrc?: string;
+  v?: string | number;
 }
 
 export function ImgSwitch({
   src,
   hoverSrc,
   className,
+  v,
   ...args
 }: ImgSwitchProps) {
+  let queryStr = v ? "?v=" + v : "";
   className = className ? className + " " : "";
   return (
     <div className="switch-img">
-      {src ? <img src={src} className={className + "normal"} {...args} /> : null}
-      {hoverSrc ? <img src={hoverSrc} className={className + "hover"} {...args} /> : null}
+      {src ? <img src={src + queryStr} className={className + "normal"} {...args} /> : null}
+      {hoverSrc ? <img src={hoverSrc + queryStr} className={className + "hover"} {...args} /> : null}
     </div>
   );
 }

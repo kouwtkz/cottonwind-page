@@ -22,7 +22,7 @@ export const SiteTitle = React.memo(function SiteTitle({
         }}
       >
         <h2>
-          <ImageMee src="/static/images/webp/こっとんうぃんどロゴ.webp" alt={title} />
+          <ImageMee src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2" alt={title} />
         </h2>
       </Link>
     </div>

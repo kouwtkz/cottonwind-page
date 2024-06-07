@@ -31,7 +31,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
             <a href="/">
               <h2>
                 <img
-                  src="/static/images/webp/こっとんうぃんどロゴ.webp"
+                  src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
                   alt={import.meta.env.VITE_TITLE}
                 />
               </h2>
@@ -176,7 +176,7 @@ export function ServerSimpleLayout({
             <a id="siteTitle" href="/">
               <h2>
                 <img
-                  src="/static/images/webp/こっとんうぃんどロゴ.webp"
+                  src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
                   alt={import.meta.env.VITE_TITLE}
                 />
               </h2>

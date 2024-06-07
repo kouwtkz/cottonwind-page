@@ -21,14 +21,14 @@ export default function LinkPage() {
         <div>
           <div>200×40 px</div>
           <img
-            src="/static/images/png/banner_cottonwind_200_40.png"
+            src="/static/images/banner/banner_cottonwind_200_40.png"
             alt="200×40バナー"
           />
         </div>
         <div>
           <div>234×60 px</div>
           <img
-            src="/static/images/png/banner_cottonwind_234_60.png"
+            src="/static/images/banner/banner_cottonwind_234_60.png"
             alt="234×60バナー"
           />
         </div>
