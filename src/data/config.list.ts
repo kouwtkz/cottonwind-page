@@ -86,6 +86,13 @@ const SiteConfigList: SiteConfigListType = {
       "row": 2
     },
     {
+      "name": "BOOTH",
+      "rel": "me",
+      "url": "https://cottonwind.booth.pm/",
+      "mask": "/static/_media/mask/links/booth.webp",
+      "row": 2
+    },
+    {
       "name": "kouwtkz",
       "title": "info",
       "mask": "/static/_media/mask/links/other.webp",
