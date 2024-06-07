@@ -58,7 +58,7 @@ export default function Home() {
                 src="/static/images/webp/button_works_default.webp"
                 hoverSrc="/static/images/webp/button_works_hover.webp"
                 alt="WORKS"
-                v="2"
+                v="3"
               />
             </Link>
           </li>
