@@ -7,6 +7,7 @@ import { stylesAddVer } from "./data/env";
 import SiteConfigList from "./data/config.list";
 import { renderToString } from "react-dom/server";
 import { Context, Next } from "hono";
+import { getPostsData } from "./components/blog/postDataFunction";
 
 export function SetMetaServerSide(args: SetMetaProps) {
   return <SetMeta {...args} />;
@@ -75,10 +76,11 @@ export async function ServerLayout({
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
     c.req.header("user-agent") ?? ""
   );
+  const params = c.req.param() as KeyValueStringType;
   let images: MediaImageItemType[] | undefined;
+  let posts: Post[] = [];
   if (isBot) {
     const dataPath = "/json";
-    const params = c.req.param() as KeyValueStringType;
     const isCharaName = Boolean(params.charaName);
     if (isCharaName && !characters) {
       const r_characters = await fetch(
@@ -94,6 +96,7 @@ export async function ServerLayout({
         ? parseImageItems(await r_images.json())
         : undefined;
     }
+    if (Url.searchParams.has("postId")) posts = await getPostsData(c);
   }
   return (
     <html lang="ja">
@@ -105,6 +108,7 @@ export async function ServerLayout({
           query={c.req.query()}
           characters={characters}
           images={images}
+          posts={posts}
         />
         {meta}
         {styles}

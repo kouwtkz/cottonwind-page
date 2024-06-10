@@ -7,6 +7,7 @@ import { MetaValues } from "./SetMeta";
 import { useCharaState } from "../state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "../state/ImageState";
+import { usePostState } from "@/components/blog/PostState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -14,12 +15,14 @@ function SetTitle() {
   const { imageItemList: images } = useImageState();
   const { isComplete } = useDataState();
   const [notFirst, setNotFirst] = useState(false);
+  const { posts } = usePostState();
   if (notFirst) {
     document.title = MetaValues({
       path: pathname,
       query: search,
       characters,
       images,
+      posts,
     })!.title;
   } else if (isComplete) setNotFirst(true);
   return <></>;

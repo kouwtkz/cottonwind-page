@@ -8,6 +8,7 @@ import {
 } from "@/components/tag/GalleryTags";
 import SiteConfigList from "@/data/config.list";
 import { RoutingUnion } from "@/routes/RoutingList";
+import { parse } from "marked";
 
 export interface SetMetaProps {
   path: string;
@@ -15,6 +16,7 @@ export interface SetMetaProps {
   url?: string;
   characters?: CharaObjectType | null;
   images?: MediaImageItemType[];
+  posts?: Post[];
 }
 
 type MetaValuesReturnType = {
@@ -28,6 +30,7 @@ export function MetaValues({
   query,
   characters,
   images,
+  posts,
 }: SetMetaProps): MetaValuesReturnType {
   const siteTitle = import.meta.env.VITE_TITLE;
   let title: string | undefined;
@@ -35,8 +38,8 @@ export function MetaValues({
   let image: string | undefined | null;
   let imageSize = { w: 1000, h: 1000 };
   const list = path.split("/");
-  const queryParams = QueryToParams(query);
-  if (queryParams?.invite) {
+  const queryParams = QueryToParams(query) ?? {};
+  if (queryParams.invite) {
     title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${siteTitle}`;
     description = "Discordへの招待ページ（合言葉式）";
   }
@@ -60,7 +63,7 @@ export function MetaValues({
           "わたかぜコウやわたかぜっこの作品、イラストなどのページ";
         break;
       case "character":
-        const name = list[2] ?? queryParams?.name;
+        const name = list[2] ?? queryParams.name;
         const chara = characters && name ? characters[name] : null;
         title = chara
           ? chara.name + " - キャラクター | " + siteTitle
@@ -99,13 +102,29 @@ export function MetaValues({
         title = "じょうほう | " + siteTitle;
         description = "わたかぜコウやサイトの情報";
         break;
+      case "blog":
+        title = "ブログ | " + siteTitle;
+        const postId = queryParams.postId;
+        const postItem = posts?.find((item) => item.postId === postId);
+        if (postItem) {
+          title = postItem.title + " - " + title;
+          const parsed = String(parse(postItem.body || "", { async: false }))
+            .replace(/\<.+\>/g, "")
+            .replace(/\s+/g, " ");
+          let sliced = parsed.slice(0, 300);
+          if (parsed.length > sliced.length) sliced = sliced + "…";
+          description = sliced;
+        } else {
+          description = "わたかぜコウのサイト内ブログ";
+        }
+        break;
       case "suggest":
         title = "ていあん | " + siteTitle;
         description = "打ち間違いなど用の誘導";
         break;
     }
-  const imageParam = queryParams?.image;
-  const albumParam = queryParams?.album;
+  const imageParam = queryParams.image;
+  const albumParam = queryParams.album;
   if (imageParam) {
     const foundImage = imageFindFromName({
       imageParam,
@@ -236,7 +255,7 @@ export function MetaTags({
   );
 }
 
-type QueryType = string | { [k: string]: string };
+type QueryType = string | { [k: string]: string | undefined };
 
 export function QueryToParams(query?: QueryType) {
   return query
