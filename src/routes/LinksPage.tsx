@@ -4,37 +4,54 @@ import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDataState } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/components/doc/MakeURL";
+import SiteConfigList from "@/data/config.list";
 
 export default function LinksPage() {
   return (
-    <div className="aboutPage">
-      <h2>LINKS</h2>
-      <h3>リンクページ(仮)</h3>
+    <div className="linkPage">
+      <h2 className="lulo">LINKS</h2>
       <div>
-        <InviteDiscordLink />
+        <h3 className="leaf">各拠点</h3>
+        <ul>
+          {SiteConfigList.links.map((item, i) => {
+            return (
+              <li key={i}>
+                <a href={item.url} target="_blank">{item.title ?? item.name}</a>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-      <p>
-        <Link to="/blog">サイト内ブログ</Link>
-      </p>
-      <p>
-        <a href="/suggest">Suggest page (links for miss typo)</a>
-      </p>
       <div>
-        <h4>サイトのバナー</h4>
-        <div>
-          <div>200×40 px</div>
-          <img
-            src="/static/images/banner/banner_cottonwind_200_40.png"
-            alt="200×40バナー"
-          />
+        <h3 className="leaf">サイトのバナー</h3>
+        <div className="bannerArea">
+          <div>
+            <div>200×40 px</div>
+            <img
+              src="/static/images/banner/banner_cottonwind_200_40.png"
+              alt="200×40バナー"
+            />
+          </div>
+          <div>
+            <div>234×60 px</div>
+            <img
+              src="/static/images/banner/banner_cottonwind_234_60.png"
+              alt="234×60バナー"
+            />
+          </div>
         </div>
+      </div>
+      <div>
+        <h3 className="leaf">その他</h3>
         <div>
-          <div>234×60 px</div>
-          <img
-            src="/static/images/banner/banner_cottonwind_234_60.png"
-            alt="234×60バナー"
-          />
+          <InviteDiscordLink />
         </div>
+        <p>
+          <Link to="/blog">サイト内ブログ</Link>
+        </p>
+        <p>
+          <a href="/suggest">Suggest page (links for miss typo)</a>
+        </p>
       </div>
     </div>
   );

@@ -73,7 +73,7 @@ const SiteConfigList: SiteConfigListType = {
     {
       "name": "Mascodon",
       "rel": "me",
-      "title": "マスコどん",
+      "title": "マスコどん！",
       "url": "https://mascodon.jp/@kouwtkz",
       "mask": "/static/_media/mask/links/wtkz_mascodon.webp",
       "row": 2
@@ -92,22 +92,6 @@ const SiteConfigList: SiteConfigListType = {
       "mask": "/static/_media/mask/links/booth.webp",
       "row": 2
     },
-    {
-      "name": "kouwtkz",
-      "title": "info",
-      "mask": "/static/_media/mask/links/other.webp",
-      "url": "/info",
-      "none": true,
-      "row": 2
-    },
-    {
-      "name": "VTdon",
-      "rel": "me",
-      "url": "https://vtdon.com/@kouwtkz",
-      "mask": "/static/_media/mask/links/vtdon.webp",
-      "hidden": true,
-      "row": 3
-    }
   ],
   "gallery": {
     "list": [

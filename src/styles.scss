@@ -8,6 +8,7 @@
   --main-color-strong: #aec52f;
   --main-color-deep: #9fb427;
   --main-color-dark: #8c9f20;
+  --main-color-text: #31332b;
   --main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
   --main-color-dark-grayish: #6d6e5e;
   --main-color-grayish: #a9a99f;
@@ -31,6 +32,7 @@
   --main-color-strong: #d88b44;
   --main-color-deep: #b56316;
   --main-color-dark: #a55a14;
+  --main-color-text: #2f2b27;
   --text-color: #27231d;
   --background-top: #fff8e3;
   --background-bottom: #fff1e4;
@@ -46,6 +48,7 @@
   --main-color-strong: #43beda;
   --main-color-deep: #32b2ce;
   --main-color-dark: #2ea3be;
+  --main-color-text: #2e3638;
   --text-color: #1d2227;
   --background-top: #e5fcf6;
   --background-bottom: #d9f8f6;
@@ -408,7 +411,7 @@ h4 {
   font-family: var(--font-LuloClean);
   font-size: $text_3xl;
   color: var(--main-color);
-  margin-bottom: $size_8;
+  margin-bottom: $size_4;
   @media (min-width: $mobileWidth) {
     font-size: $text_4xl;
   }
@@ -751,7 +754,7 @@ footer {
   }
   ul.footerLink {
     padding: 1rem 0;
-    margin: 0;
+    margin: auto;
     li {
       display: inline-block;
       margin: 0 0.25rem;
@@ -2175,4 +2178,85 @@ form.blogEdit {
 
 .hashtag {
   margin: auto 0.2rem;
+}
+
+.linkPage {
+  max-width: 20rem;
+  font-size: $text_lg;
+  h2 {
+    @extend .common-h2;
+  }
+  h3 {
+    color: var(--main-color-dark);
+  }
+  > * {
+    margin: 1rem auto;
+  }
+  ul {
+    text-align: left;
+    width: max-content;
+    min-width: 12rem;
+    margin: auto;
+    li {
+      margin: 0.25rem;
+      padding: 0;
+      display: block;
+    }
+  }
+  .bannerArea {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    > * {
+      margin: 0.5rem 1rem;
+    }
+  }
+}
+
+.stickyLine {
+  display: inline-block;
+  color: var(--main-color-text);
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  background: var(--main-color-pale);
+  border-left: solid 0.75rem var(--main-color-strong);
+  @at-root a#{&} {
+    &:hover {
+      color: white;
+      background: var(--main-color-soft);
+    }
+  }
+}
+
+.stitch {
+  display: inline-block;
+  color: var(--main-color-text);
+  background: var(--main-color-pale);
+  box-shadow: 0px 0px 0px 5px var(--main-color-pale);
+  border: dashed 1px var(--main-color-deep);
+  padding: 0.2em 0.5em;
+}
+
+.leaf {
+  display: inline-block;
+  font-size: 1.5rem;
+  position: relative;
+  color: var(--main-color);
+  padding: 10px 0;
+  text-align: center;
+  margin: 1.5rem 0;
+  &::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 150px;
+    height: 58px;
+    border-radius: 50%;
+    border: 5px solid var(--main-color-soft);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+  }
 }
