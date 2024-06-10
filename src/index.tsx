@@ -14,6 +14,7 @@ import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { app_workers } from "./workers";
 import { getCookie } from "hono/cookie";
+import { app_blog } from "./components/blog";
 
 const app = new Hono<MeeBindings>({ strict: true });
 
@@ -30,6 +31,7 @@ app.get("/fetch/discord/invite", async (c) => {
 });
 
 app.route("/workers", app_workers);
+app.route("/blog", app_blog);
 
 RoutingList.forEach((path) => {
   app.get(path, (c, next) =>
