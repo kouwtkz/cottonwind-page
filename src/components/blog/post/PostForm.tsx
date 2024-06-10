@@ -439,11 +439,11 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
               placeholder="pin"
               className="pin"
             />
-            ピン
+            <span>ピン</span>
           </label>
           <label>
             <input {...register("draft")} type="checkbox" />
-            下書き
+            <span>下書き</span>
           </label>
           <input
             {...register("date")}

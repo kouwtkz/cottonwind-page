@@ -173,6 +173,12 @@ style {
   flex: 1;
 }
 
+label {
+  span {
+    display: inline-block;
+  }
+}
+
 %userSelectNone {
   -webkit-user-select: none;
   user-select: none;
@@ -210,15 +216,14 @@ body {
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-end;
-        margin: $size_2;
-        margin-left: 16rem;
+        margin: 0.5rem;
+        margin-left: 10rem;
         > * {
           &:not(.list) {
             pointer-events: auto;
           }
           &.list {
             display: flex;
-            flex-wrap: wrap;
             justify-content: flex-end;
             > * {
               pointer-events: auto;
@@ -2087,6 +2092,8 @@ body.workers {
 
 form.blogEdit {
   padding-top: 0.5rem;
+  max-width: 40rem;
+  margin: auto;
   input,
   textarea,
   select,
@@ -2124,14 +2131,12 @@ form.blogEdit {
     flex-direction: row;
     align-items: center;
     margin: auto;
-    padding: 0.5rem 0.75rem;
-    min-width: 25rem;
+    min-width: 20rem;
     width: max-content;
-    max-width: 80%;
+    max-width: 95%;
   }
   .modifier {
     margin: auto;
-    max-width: 40rem;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -2150,8 +2155,7 @@ form.blogEdit {
   }
   .body {
     margin: auto;
-    width: 85%;
-    max-width: 40rem;
+    width: 90%;
     min-height: 20rem;
     padding: 0.5rem;
     text-align: start;
