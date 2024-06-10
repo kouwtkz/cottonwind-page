@@ -67,7 +67,7 @@ app.get("_routes.json", (c) => {
     "/sitemap.xml",
     "/robots.txt",
   ];
-  let include = ["/get/*", "/workers/*", "/fetch/*", "/api/*"];
+  let include = ["/get/*", "/workers/*", "/fetch/*", "/api/*", "/blog/*"];
   const routing = RoutingList.map((v) =>
     v.replace(/\:[^\/]+/g, "*").replace(/^([^\/])/, "/$1")
   );
