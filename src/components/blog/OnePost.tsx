@@ -5,9 +5,11 @@ import { HTMLAttributes, useCallback, useMemo } from "react";
 import { ToHref } from "@/components/doc/MakeURL";
 import { useLocalDraftPost } from "./post/postLocalDraft";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useManageState } from "@/state/StateSet";
 type Props = { post?: Post; detail?: boolean };
 
 export default function OnePost({ post, detail = false }: Props) {
+  const isLogin = import.meta.env.DEV || useManageState().isLogin;
   const { removeLocalDraft } = useLocalDraftPost();
   const nav = useNavigate();
   useHotkeys("b", () => {
@@ -16,6 +18,7 @@ export default function OnePost({ post, detail = false }: Props) {
 
   const EditLink = useCallback(
     ({ children = "編集", className }: HTMLAttributes<HTMLElement>) => {
+      if (!isLogin) return <></>;
       const query: { [k: string]: string } = {};
       if (post?.postId) query.target = post.postId;
       if (post?.localDraft) query.draft = "";
@@ -28,7 +31,7 @@ export default function OnePost({ post, detail = false }: Props) {
         </Link>
       );
     },
-    [post]
+    [isLogin, post]
   );
   const formattedDate = useMemo(
     () => (post?.date ? post.date.toLocaleString("ja", opt) : ""),
