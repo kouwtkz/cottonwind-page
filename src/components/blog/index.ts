@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { getPostsData, setPostsData } from "./postDataFunction";
-import { uploadAttached } from "@/mediaScripts/GalleryUpdate";
 import { MakeRss } from "./functions/GeneratePosts";
 import { IsLogin } from "@/ServerContent";
 
@@ -21,15 +20,8 @@ app.post("/send", async (c) => {
   if (!IsLogin(c)) return new Response("ログインしていません", { status: 403 });
   const formData = await c.req.formData();
   let success = false;
-  success =
-    success ||
-    (await uploadAttached({
-      attached: (formData.getAll("attached[]") || []) as File[],
-      attached_mtime: formData.getAll("attached_mtime[]") || [],
-      uploadDir: "images/blog/uploads",
-    }));
 
-  const userId = "kouwtkz";
+  const userId = import.meta.env.VITE_AUTHOR_ACCOUNT;
 
   const data = {} as PostFormType & Post;
 
