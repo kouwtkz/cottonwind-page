@@ -23,13 +23,29 @@ export async function MakeRss(c: CommonContext) {
       language: "ja",
       image_url: `${SITE_URL}${import.meta.env.VITE_SITE_IMAGE}`,
       items:
-        GetPostsRssOption(await getPostsData(c)).map((post) => ({
-          title: post.title || "",
-          description: String(parse((post.body || "").replace(/(\[[^\]]*\]\()(\/[^)]+\))/g, `$1${SITE_URL}$2`), { async: false })),
-          url: `${SITE_URL}/blog?postId=${post.postId}`,
-          guid: `${SITE_URL}/blog?postId=${post.postId}`,
-          date: post.date || new Date(0),
-        }))
+        GetPostsRssOption(await getPostsData(c)).map((post) => {
+          let Url = new URL(`${SITE_URL}/blog?postId=${post.postId}`);
+          let description = String(parse(post.body || "", { async: false }));
+          description = description.replace(/(href=")([^"]+)(")/g, (m, m1, m2, m3) => {
+            if (!/^https?\:\/\//.test(m2)) {
+              if (/^[^\/\?\#]/.test(m2)) m2 = "/" + m2;
+              return m1 + SITE_URL + m2 + m3;
+            } else return m;
+          })
+          description = description.replace(/(<img .*src=")(\?[^"]+)(".*>)/g, (m, m1, m2, m3) => {
+            const alt_m = String(m3).match(/alt="([^"]+)"/);
+            const alt = "[画像]" + (alt_m ? alt_m[1] : "");
+            const s = { ...Object.fromEntries(Url.searchParams), ...Object.fromEntries(new URLSearchParams(m2)) };
+            return `<a href="${Url.origin + Url.pathname + "?" + String(new URLSearchParams(s))}">${alt}</a>`
+          });
+          return ({
+            title: post.title || "",
+            description,
+            url: Url.href,
+            guid: `${SITE_URL}/blog?postId=${post.postId}`,
+            date: post.date || new Date(0),
+          })
+        })
     }
   )
 }
