@@ -25,11 +25,30 @@ function EnvBuildDateWrite() {
   writeFileSync(localEnv, Object.entries(env).map(([k, v]) => `${k}=${v}`).join("\n"));
 }
 
+// envファイルのtrueやfalseをbooleanに変換する
+const envStringToBoolean = () => ({
+  name: 'env-string-to-boolean',
+  configResolved(config: any) {
+    const entries = Object.entries(config.env as Record<string, string>).map(([key, value]) => {
+      const target = typeof value === 'string' ? value.toLowerCase() : value
+      const results = {
+        true: true,
+        false: false,
+        null: null
+      } as any;
+      return [key, results[target] === undefined ? value : results[target]]
+    })
+
+    config.env = Object.fromEntries(entries)
+    return config
+  }
+})
+
 export default defineConfig(({ mode }) => {
   EnvBuildDateWrite();
   let config: UserConfig = {
     optimizeDeps: { include: [] },
-    plugins: [tsconfigPaths()]
+    plugins: [tsconfigPaths(), envStringToBoolean()]
   };
   if (mode === 'client') {
     config.build = {
