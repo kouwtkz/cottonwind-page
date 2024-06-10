@@ -192,9 +192,9 @@ export function ImageViewer() {
 
   const InfoCmp = useCallback(
     ({ children }: { children?: ReactNode }) => (
-      <div className="infoArea">
+      <>
         {!("pic" in query) && image?.album?.visible?.info ? (
-          <>
+          <div className="infoArea">
             {isComplete ? (
               <>
                 {isEdit ? null : (
@@ -291,9 +291,9 @@ export function ImageViewer() {
                 )}
               </>
             ) : null}
-          </>
+          </div>
         ) : null}
-      </div>
+      </>
     ),
     [
       charaObject,

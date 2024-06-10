@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "../doc/MakeURL";
 const blankImage =

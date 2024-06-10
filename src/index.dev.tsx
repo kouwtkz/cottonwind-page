@@ -8,18 +8,22 @@ import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import {
   FeedSet,
   FetchBody,
+  IsLogin,
   XmlHeader,
   discordInviteMatch,
 } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
-import { app_workers } from "./workers";
 import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
 import { getCookie } from "hono/cookie";
 import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/gitlog.mjs";
+
+import { app_workers } from "./workers";
+import { app_blog } from "@/components/blog";
+
 const compactStyles = CompactCode(importStyles);
 
 const app = new Hono<MeeBindings>({ strict: true });
@@ -29,7 +33,7 @@ app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 
 app.get("/get/test/rss", serveStatic({ path: "./_data/test/rss.xml" }));
-app.get("get/feed", async (c, next) => {
+app.get("/get/feed", async (c, next) => {
   const Url = new URL(c.req.url);
   const url = c.env.FEED_DEV_FROM ?? Url.origin + "/get/test/rss";
   return c.json(await FeedSet({ url, c, minute: 0.01 }));
@@ -79,6 +83,7 @@ app.get("/test", async (c) => {
 });
 
 app.route("/workers", app_workers);
+app.route("/blog", app_blog);
 
 app.route("/", ssg);
 
@@ -90,7 +95,7 @@ RoutingList.forEach((path) => {
       path,
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
-      isLogin: c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
+      isLogin: IsLogin(c),
     })
   );
 });

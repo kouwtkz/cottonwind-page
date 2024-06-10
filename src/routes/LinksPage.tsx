@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDataState } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/components/doc/MakeURL";
 
@@ -13,6 +13,9 @@ export default function LinksPage() {
       <div>
         <InviteDiscordLink />
       </div>
+      <p>
+        <Link to="/blog">サイト内ブログ</Link>
+      </p>
       <p>
         <a href="/suggest">Suggest page (links for miss typo)</a>
       </p>

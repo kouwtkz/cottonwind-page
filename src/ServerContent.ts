@@ -2,9 +2,15 @@ import { Next } from "hono";
 import { CommonContext } from "./types/HonoCustomType";
 import { DOMParser } from "xmldom";
 import xpath from "xpath";
+import { getCookie } from "hono/cookie";
 
 export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },
+}
+
+export function IsLogin(c: CommonContext) {
+  return (import.meta.env.DEV ? true : Boolean(getCookie(c, "CF_Authorization")))
+    && c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken")
 }
 
 export async function FetchBody(src?: string) {

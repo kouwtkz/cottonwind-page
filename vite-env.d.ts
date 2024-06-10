@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   readonly VITE_AUTHOR_ENAME: string
   readonly VITE_AUTHOR_NAME: string
   readonly VITE_AUTHOR_IMAGE: string
+  readonly VITE_UPLOAD_SERVICE: string
+  readonly VITE_UPLOAD_BRACKET: boolean
 }
 
 interface ImportMeta {

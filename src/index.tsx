@@ -6,6 +6,7 @@ import { buildAddVer, stylesAddVer } from "./data/env";
 import {
   FeedSet,
   FetchBody,
+  IsLogin,
   XmlHeader,
   discordInviteMatch,
 } from "./ServerContent";
@@ -41,9 +42,7 @@ RoutingList.forEach((path) => {
       script: (
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),
-      isLogin:
-        Boolean(getCookie(c, "CF_Authorization")) &&
-        c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"),
+      isLogin: IsLogin(c),
     })
   );
 });

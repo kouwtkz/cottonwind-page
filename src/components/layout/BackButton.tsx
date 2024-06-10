@@ -3,7 +3,6 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { create } from "zustand";
 import { BiLeftArrow } from "react-icons/bi";
 import { UrlObject } from "url";
-import { KeyValueStringType } from "../../types/ValueType";
 
 type BackButtonType = {
   backUrl: string | UrlObject;

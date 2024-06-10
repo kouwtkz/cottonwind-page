@@ -202,9 +202,8 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
     searchFilters,
     searchSort
   );
-  const isDev = import.meta.env.DEV;
   const tags = defaultSortTags.concat(
-    isDev ? defaultFilterTags : [],
+    import.meta.env.DEV ? defaultFilterTags : [],
     defaultTags
   );
   const currentTags = getTagsOptions(tags).filter((tag) =>

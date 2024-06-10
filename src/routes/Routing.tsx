@@ -10,6 +10,8 @@ import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
 import LinksPage from "@/routes/LinksPage";
 import WorksPage from "./WorksPage";
+import { BlogPage } from "@/components/blog/PostsPage";
+import PostForm from "@/components/blog/post/PostForm";
 
 export const Routing: RouteObject[] = [
   {
@@ -51,6 +53,8 @@ export const Routing: RouteObject[] = [
       },
       { path: "links", element: <LinksPage /> },
       { path: "works", element: <WorksPage /> },
+      { path: "blog", element: <BlogPage /> },
+      { path: "blog/post", element: <PostForm /> },
     ] as (RouteObject & { path: RoutingUnion })[],
   },
 ];

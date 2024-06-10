@@ -85,6 +85,10 @@ export function ToURL(src: string | UrlObject | URL) {
     : MakeURL(src);
 }
 
+export function ToHref(src: string | UrlObject | URL) {
+  return ToURL(src).href;
+}
+
 export function GetUrlFlag(Url: URL) {
   const host = location.origin === Url.origin;
   const pathname = host && location.pathname === Url.pathname;
