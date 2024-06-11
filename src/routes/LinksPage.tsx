@@ -30,6 +30,8 @@ export default function LinksPage() {
             <img
               src="/static/images/banner/banner_cottonwind_200_40.png"
               alt="200×40バナー"
+              width={200}
+              height={40}
             />
           </div>
           <div>
@@ -37,6 +39,8 @@ export default function LinksPage() {
             <img
               src="/static/images/banner/banner_cottonwind_234_60.png"
               alt="234×60バナー"
+              width={234}
+              height={60}
             />
           </div>
         </div>
