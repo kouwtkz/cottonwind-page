@@ -196,11 +196,17 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
   },
 }));
 
-export function GalleryObject({
-  items: _items,
-}: {
+interface GalleryBodyOptions {
+  showInPageMenu?: boolean;
+  showGalleryHeader?: boolean;
+  showGalleryLabel?: boolean;
+  showCount?: boolean;
+}
+interface GalleryObjectProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
-}) {
+}
+
+export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const search = useLocation().search;
   const { query } = useMemo(() => SearchSet(search), [search]);
   const {
@@ -408,7 +414,7 @@ export function GalleryObject({
   useLayoutEffect(() => {
     setItems(items);
   }, [items]);
-  return <GalleryBody items={items} yfList={yfList} />;
+  return <GalleryBody items={items} yfList={yfList} {...args} />;
 }
 
 function UploadChain({
@@ -488,13 +494,24 @@ function UploadChain({
   );
 }
 
+interface GalleryBodyProps extends GalleryBodyOptions {
+  items: GalleryItemObjectType[];
+  yfList: MediaImageItemType[][];
+}
 function GalleryBody({
   items,
   yfList,
-}: {
-  items: GalleryItemObjectType[];
-  yfList: MediaImageItemType[][];
-}) {
+  showInPageMenu = true,
+  showGalleryHeader = true,
+  showGalleryLabel = true,
+  showCount = true,
+}: GalleryBodyProps) {
+  const args = {
+    showInPageMenu,
+    showGalleryHeader,
+    showGalleryLabel,
+    showCount,
+  };
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const inPageList = useMemo(
     () =>
@@ -506,27 +523,23 @@ function GalleryBody({
         })),
     [yfList, items]
   );
-  const GalleryHeader = useMemo(
-    () => (
-      <div className="galleryHeader">
-        {import.meta.env.DEV ? (
-          <>
-            <GalleryPageOriginImageSwitch />
-            <GalleryPageEditSwitch />
-          </>
-        ) : null}
-        <GalleryYearFilter />
-        <GallerySearchArea />
-        <GalleryTagsSelect />
-      </div>
-    ),
-    []
-  );
   return (
     <div className="galleryObject">
-      <InPageMenu list={inPageList} adjust={64} />
+      {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
       <div>
-        {GalleryHeader}
+        {showGalleryHeader ? (
+          <div className="galleryHeader">
+            {import.meta.env.DEV ? (
+              <>
+                <GalleryPageOriginImageSwitch />
+                <GalleryPageEditSwitch />
+              </>
+            ) : null}
+            <GalleryYearFilter />
+            <GallerySearchArea />
+            <GalleryTagsSelect />
+          </div>
+        ) : null}
         {items
           .map((item, i) => ({ ...item, i }))
           .filter(({ hideWhenEmpty = true, i }) =>
@@ -540,10 +553,16 @@ function GalleryBody({
                     ref={refList[i]}
                     list={yfList[i]}
                     item={item}
+                    {...args}
                   />
                 </UploadChain>
               ) : (
-                <GalleryContent ref={refList[i]} list={yfList[i]} item={item} />
+                <GalleryContent
+                  ref={refList[i]}
+                  list={yfList[i]}
+                  item={item}
+                  {...args}
+                />
               )}
             </div>
           ))}
@@ -552,13 +571,18 @@ function GalleryBody({
   );
 }
 
-interface GalleryContentProps extends React.HTMLAttributes<HTMLDivElement> {
+interface GalleryContentProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    GalleryBodyOptions {
   item: GalleryItemObjectType;
   list: MediaImageItemType[];
 }
 
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
-  function GalleryContent({ item, list, ...args }, ref) {
+  function GalleryContent(
+    { item, list, showGalleryLabel, showCount, ...args },
+    ref
+  ) {
     const { isComplete } = useDataState();
     const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
     const { search, state } = useLocation();
@@ -597,12 +621,14 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
           </div>
         ) : null}
         <div className="galleryContainer">
-          <div className="galleryLabel">
-            <h2>
-              <HeadingElm label={label} />
-            </h2>
-            <div className="count">({list.length})</div>
-          </div>
+          {showGalleryLabel ? (
+            <div className="galleryLabel">
+              <h2>
+                <HeadingElm label={label} />
+              </h2>
+              {showCount ? <div className="count">({list.length})</div> : null}
+            </div>
+          ) : null}
           {isComplete ? (
             <div className="list">
               {list

@@ -20,7 +20,7 @@ export function GoogleForm() {
             }
             width="640"
             height="1150"
-            style={{ margin: 0, border: "none", overflow: "hidden" }}
+            style={{ margin: 0, border: "none" }}
           >
             読み込んでいます…
           </iframe>

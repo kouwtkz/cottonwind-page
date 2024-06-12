@@ -8,9 +8,15 @@ export default function WorksPage() {
   return (
     <div className="worksPage">
       <h2 className="lulo">WORKS</h2>
-      {work ? <GalleryObject items={[work]} /> : null}
+      {work ? (
+        <GalleryObject
+          items={[work]}
+          showInPageMenu={false}
+          showGalleryHeader={false}
+          showGalleryLabel={false}
+        />
+      ) : null}
       <ContactPage />
     </div>
   );
 }
-
