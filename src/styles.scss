@@ -1551,23 +1551,23 @@ select.YearFilter {
     .sketchfab-embed-wrapper iframe {
       min-height: 64vh;
     }
-    &:hover .fullscreen-button {
+    &:hover .hover-visible {
       color: $translucent-button-default-color;
       background-color: $translucent-button-default-bg;
     }
-    .fullscreen-button {
-      @extend .translucent-button;
+    .hover-visible {
       color: transparent;
       background-color: transparent;
       &:hover {
         color: $translucent-button-hover-color;
         background-color: $translucent-button-hover-bg;
       }
+    }
+    .fullscreen {
       top: 0;
       right: 0;
     }
-    .open-button {
-      @extend .translucent-button;
+    .open {
       bottom: 0;
       right: 0;
       width: 6rem;
@@ -1583,7 +1583,7 @@ select.YearFilter {
       iframe {
         max-height: max-content;
       }
-      .open-button {
+      .open {
         width: 8rem;
         height: 8rem;
       }

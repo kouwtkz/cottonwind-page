@@ -153,7 +153,7 @@ export function ImageViewer() {
                   title="別タブで画像を開く"
                   href={(isProd ? image.URL : image.origin) || image.src}
                   target="_blank"
-                  className="fullscreen-button"
+                  className="translucent-button hover-visible fullscreen"
                 >
                   <RiFullscreenFill />
                 </a>
@@ -163,7 +163,7 @@ export function ImageViewer() {
                       title="販売ページを見る"
                       href={image.link}
                       target="_blank"
-                      className="open-button"
+                      className="translucent-button hover-visible open"
                     >
                       <RiStore3Fill />
                     </a>
@@ -172,7 +172,7 @@ export function ImageViewer() {
                       title="リンクを開く"
                       href={image.link}
                       target="_blank"
-                      className="open-button"
+                      className="translucent-button hover-visible open"
                     >
                       <RiLinkM />
                     </a>
@@ -185,7 +185,7 @@ export function ImageViewer() {
                         pathname: "/gallery/ebook",
                         query: { name: image.embed },
                       })}
-                      className="open-button"
+                      className="translucent-button open"
                     >
                       <RiBook2Fill />
                     </Link>
@@ -194,7 +194,7 @@ export function ImageViewer() {
                       title="ひらく"
                       href={getEmbedURL(image.embed)}
                       target="_blank"
-                      className="open-button"
+                      className="open"
                     >
                       <RiFilePdf2Fill />
                     </a>
