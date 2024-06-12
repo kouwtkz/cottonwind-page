@@ -633,18 +633,18 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                     <div>
                       {image.type === "ebook" || image.type === "goods" ? (
                         image.embed ? (
-                          <div className="translucent-comics-button">
+                          <div className="translucent-special-button">
                             <RiBook2Fill />
                           </div>
                         ) : image.link ? (
-                          <div className="translucent-comics-button">
+                          <div className="translucent-special-button">
                             <RiStore3Fill />
                           </div>
                         ) : null
                       ) : null}
                       {image.embed ? (
                         image.type === "pdf" ? (
-                          <div className="translucent-comics-button">
+                          <div className="translucent-special-button">
                             <RiFilePdf2Fill />
                           </div>
                         ) : null

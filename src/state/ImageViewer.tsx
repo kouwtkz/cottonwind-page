@@ -24,7 +24,13 @@ import {
   MakeRelativeURL,
   SearchSet,
 } from "../components/doc/MakeURL";
-import { RiBook2Fill, RiFilePdf2Fill, RiFullscreenFill } from "react-icons/ri";
+import {
+  RiBook2Fill,
+  RiFilePdf2Fill,
+  RiFullscreenFill,
+  RiLinkM,
+  RiStore3Fill,
+} from "react-icons/ri";
 import { useCharaState } from "../state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
@@ -151,7 +157,27 @@ export function ImageViewer() {
                 >
                   <RiFullscreenFill />
                 </a>
-                {image.embed ? (
+                {image.link ? (
+                  image.type === "ebook" || image.type === "goods" ? (
+                    <a
+                      title="販売ページを見る"
+                      href={image.link}
+                      target="_blank"
+                      className="open-button"
+                    >
+                      <RiStore3Fill />
+                    </a>
+                  ) : (
+                    <a
+                      title="リンクを開く"
+                      href={image.link}
+                      target="_blank"
+                      className="open-button"
+                    >
+                      <RiLinkM />
+                    </a>
+                  )
+                ) : image.embed ? (
                   image.type === "ebook" ? (
                     <Link
                       title="よむ"
@@ -159,7 +185,7 @@ export function ImageViewer() {
                         pathname: "/gallery/ebook",
                         query: { name: image.embed },
                       })}
-                      className="read-button"
+                      className="open-button"
                     >
                       <RiBook2Fill />
                     </Link>
@@ -168,7 +194,7 @@ export function ImageViewer() {
                       title="ひらく"
                       href={getEmbedURL(image.embed)}
                       target="_blank"
-                      className="read-button"
+                      className="open-button"
                     >
                       <RiFilePdf2Fill />
                     </a>
