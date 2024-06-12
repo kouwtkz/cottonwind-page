@@ -110,6 +110,14 @@ export async function ServerLayout({
           images={images}
           posts={posts}
         />
+        {import.meta.env.VITE_RECAPTCHA_SITEKEY ? (
+          <script
+            src={
+              "https://www.google.com/recaptcha/api.js?render=" +
+              import.meta.env.VITE_RECAPTCHA_SITEKEY
+            }
+          />
+        ) : null}
         {meta}
         {styles}
       </head>

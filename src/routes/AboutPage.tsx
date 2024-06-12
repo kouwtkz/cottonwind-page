@@ -4,7 +4,7 @@ import { ChangeLog } from "@/state/GitState";
 export default function AboutPage() {
   return (
     <div className="aboutPage">
-      <h2>About</h2>
+      <h2 className="lulo">About</h2>
       <h3>プロフィール</h3>
       {import.meta.env.VITE_AUTHOR_IMAGE ? (
         <img

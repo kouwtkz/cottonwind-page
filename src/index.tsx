@@ -5,16 +5,11 @@ import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer, stylesAddVer } from "./data/env";
 import {
   FeedSet,
-  FetchBody,
   IsLogin,
-  XmlHeader,
-  discordInviteMatch,
 } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
-import { app_workers } from "./workers";
-import { getCookie } from "hono/cookie";
-import { app_blog } from "./components/blog";
+import { ServerCommon } from "./server";
 
 const app = new Hono<MeeBindings>({ strict: true });
 
@@ -26,12 +21,8 @@ app.get("/get/feed", async (c, next) => {
   } else return next();
 });
 
-app.get("/fetch/discord/invite", async (c) => {
-  return discordInviteMatch(c);
-});
 
-app.route("/workers", app_workers);
-app.route("/blog", app_blog);
+ServerCommon(app);
 
 RoutingList.forEach((path) => {
   app.get(path, (c, next) =>

@@ -1,7 +1,8 @@
 {
   "files.associations": {
     "config*.json": "jsonc",
-    ".dev.vars": "toml"
+    ".dev.vars": "toml",
+    ".env.*": "properties"
   },
   "vs-browser.url": "http://localhost:5173/",
   "VsCodeTaskButtons.tasks": [
@@ -15,7 +16,7 @@
   // Explorer で非表示にするもの
   "files.exclude": {
     "**/cmd/redirect": true,
-    // "**/.env.local": true,
+    "**/.env.*.local": true,
     "**/node_modules": true,
     "**/desktop.ini": true
   },

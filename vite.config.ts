@@ -3,26 +3,30 @@ import devServer from '@hono/vite-dev-server'
 import adapter from '@hono/vite-dev-server/cloudflare'
 import ssg from '@hono/vite-ssg'
 import { configDotenv } from 'dotenv'
-import { UserConfig, defineConfig } from 'vite'
+import { UserConfig, defineConfig, loadEnv } from 'vite'
 import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
-// import { serverSite } from "./src/data/server/site";
 import { RoutingList } from './src/routes/RoutingList'
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
 }
-function EnvBuildDateWrite() {
-  const localEnv = ".env.local"
-  const parsed = configDotenv({ path: localEnv }).parsed;
-  const env: { [k: string]: string } = parsed ? parsed as any : {}
+type EnvType = { [k: string]: string | undefined };
+function readEnv(path: string): EnvType {
+  const parsed = configDotenv({ path }).parsed;
+  return parsed ? parsed as any : {};
+}
+function writeEnv(path: string, env: EnvType) {
+  writeFileSync(path, Object.entries(env).map(([k, v]) => `${k}=${v}`).join("\n"));
+}
+function SetBuildDate(env: EnvType) {
   env.VITE_BUILD_TIME = DateUTCString();
   const cssFile = "./src/styles.scss";
   try {
     env.VITE_STYLES_TIME = DateUTCString(statSync(cssFile).mtime);
   } catch { }
-  writeFileSync(localEnv, Object.entries(env).map(([k, v]) => `${k}=${v}`).join("\n"));
+  return env;
 }
 
 // envファイルのtrueやfalseをbooleanに変換する
@@ -38,14 +42,22 @@ const envStringToBoolean = () => ({
       } as any;
       return [key, results[target] === undefined ? value : results[target]]
     })
-
     config.env = Object.fromEntries(entries)
     return config
   }
 })
 
 export default defineConfig(({ mode }) => {
-  EnvBuildDateWrite();
+  const envLocalPath = `.env.${mode}.local`;
+  let env: EnvType = {};
+  SetBuildDate(env);
+  switch (mode) {
+    case 'client':
+      const prodEnv = readEnv('.env.production');
+      env = { ...env, ...prodEnv };
+      break;
+  }
+  writeEnv(envLocalPath, env);
   let config: UserConfig = {
     optimizeDeps: { include: [] },
     plugins: [tsconfigPaths(), envStringToBoolean()]
@@ -78,7 +90,7 @@ export default defineConfig(({ mode }) => {
     }
   } else {
     configDotenv();
-    config.ssr = { external: ['react', 'react-dom', 'xmldom', 'xpath'] };
+    config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
     config.plugins!.push([
       pages(),
       devServer({

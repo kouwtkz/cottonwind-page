@@ -407,6 +407,7 @@ h4 {
   font-size: $text_xl;
 }
 
+h2.lulo,
 .common-h2 {
   font-family: var(--font-LuloClean);
   font-size: $text_3xl;
@@ -1313,18 +1314,22 @@ select.YearFilter {
           height: 100%;
           @extend %galleryTransition;
         }
-        .translucent-comics-button {
+        .translucent-special-button {
           @extend .translucent-button;
           background-color: rgb(100 110 88 / 74%);
-          max-width: 50%;
-          max-height: 50%;
+          max-width: 35%;
+          max-height: 35%;
+          margin: 0.25rem;
           z-index: 10;
           right: 0;
           bottom: 0;
           pointer-events: none;
+          @media (min-width: $mobileWidth) {
+            margin: 0.75rem;
+          }
         }
         &:hover {
-          .translucent-comics-button {
+          .translucent-special-button {
             background-color: rgba(86, 104, 63, 0.85);
           }
           img {
@@ -1561,12 +1566,12 @@ select.YearFilter {
       top: 0;
       right: 0;
     }
-    .read-button {
+    .open-button {
       @extend .translucent-button;
       bottom: 0;
       right: 0;
-      width: 8rem;
-      height: 8rem;
+      width: 6rem;
+      height: 6rem;
     }
     img,
     iframe {
@@ -1578,7 +1583,11 @@ select.YearFilter {
       iframe {
         max-height: max-content;
       }
-    }
+      .open-button {
+        width: 8rem;
+        height: 8rem;
+      }
+      }
   }
   .infoArea {
     background-color: var(--lightbox-background-text);
@@ -1790,9 +1799,6 @@ ul {
 }
 
 .aboutPage {
-  h2 {
-    @extend .common-h2;
-  }
   h3 {
     color: var(--main-color-dark);
   }
@@ -2183,9 +2189,6 @@ form.blogEdit {
 .linkPage {
   max-width: 20rem;
   font-size: $text_lg;
-  h2 {
-    @extend .common-h2;
-  }
   h3 {
     color: var(--main-color-dark);
   }

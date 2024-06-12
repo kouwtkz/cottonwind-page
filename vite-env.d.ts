@@ -17,6 +17,8 @@ interface ImportMetaEnv {
   readonly VITE_AUTHOR_IMAGE: string
   readonly VITE_UPLOAD_SERVICE: string
   readonly VITE_UPLOAD_BRACKET: boolean
+  readonly VITE_CONTACT_FORM_GOOGLE?: string;
+  readonly VITE_RECAPTCHA_SITEKEY?: string;
 }
 
 interface ImportMeta {

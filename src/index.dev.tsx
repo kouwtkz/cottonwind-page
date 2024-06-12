@@ -7,22 +7,17 @@ import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
 import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
 import {
   FeedSet,
-  FetchBody,
   IsLogin,
-  XmlHeader,
-  discordInviteMatch,
 } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { CompactCode } from "./components/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
-import { getCookie } from "hono/cookie";
 import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/gitlog.mjs";
 
-import { app_workers } from "./workers";
-import { app_blog } from "@/components/blog";
+import { ServerCommon } from "./server";
 
 const compactStyles = CompactCode(importStyles);
 
@@ -73,19 +68,17 @@ app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
 });
 
-app.get("/fetch/discord/invite", async (c) => {
-  return discordInviteMatch(c);
-});
-
 app.get("/test", async (c) => {
   console.log(c.req.header("cf-connecting-ip"));
   return c.json((c.req.raw as any).cf);
 });
 
-app.route("/workers", app_workers);
-app.route("/blog", app_blog);
+ServerCommon(app);
 
 app.route("/", ssg);
+app.post("/", async (c) => {
+  return c.json(Object.fromEntries(await c.req.formData()));
+})
 
 RoutingList.forEach((path) => {
   app.get(path, (c, next) =>
