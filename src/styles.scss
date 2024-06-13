@@ -1,3 +1,13 @@
+// size
+:root {
+  --ct-width: 128rem;
+  body {
+    max-width: var(--ct-width);
+    margin: auto;
+  }
+}
+
+// color
 :root {
   --main-color: #bed440;
   --main-color-highlight: #d1de43;
@@ -17,9 +27,16 @@
   --sub-color-soft: #d8bb8a;
   --sub-color-strong: #96815c;
   --text-color: #27231d;
-  --background-top: #fdfde4;
-  --background-bottom: #fffcd4;
+  --dark-text-color: white;
+  --background-color: #fdfde4;
+  --play-background-color: #ecfffe;
+  --dark-background-color: hsl(80, 10%, 14%);
   --warm-color: #f87171;
+  --lightbox-background: rgba(0, 0, 0, 0.3);
+  --lightbox-background-preview: rgba(146, 147, 127, 0.8);
+  --lightbox-background-text: rgb(246, 246, 243);
+  --light-form-background-color: white;
+  --dark-form-background-color: var(--dark-background-color);
 }
 
 :root.theme-orange {
@@ -34,8 +51,9 @@
   --main-color-dark: #a55a14;
   --main-color-text: #2f2b27;
   --text-color: #27231d;
-  --background-top: #fff8e3;
-  --background-bottom: #fff1e4;
+  --background-color: #fff8e3;
+  --play-background-color: #fffbdf;
+  --dark-background-color: hsl(45, 10%, 14%);
 }
 
 :root.theme-aqua {
@@ -50,32 +68,34 @@
   --main-color-dark: #2ea3be;
   --main-color-text: #2e3638;
   --text-color: #1d2227;
-  --background-top: #e5fcf6;
-  --background-bottom: #d9f8f6;
+  --background-color: #e5fcf6;
+  --play-background-color: #d9f8f6;
+  --dark-background-color: hsl(150, 10%, 10%);
+}
+
+// dark mode
+%lightMode {
+  --current-text-color: var(--text-color);
+  --background: var(--background-color);
+  --form-background-color: var(--light-form-background-color);
+}
+@mixin darkMode() {
+  --current-text-color: var(--dark-text-color);
+  --background: var(--dark-background-color);
+  --form-background-color: var(--dark-form-background-color);
 }
 
 :root {
-  --play-background-color-top: #ecfffe;
-  --play-background-color-bottom: #f4ffd1;
-  --play-background: linear-gradient(
-    var(--play-background-color-top) 30%,
-    var(--play-background-color-bottom)
-  );
-  --lightbox-background: rgba(0, 0, 0, 0.3);
-  --lightbox-background-preview: rgba(146, 147, 127, 0.8);
-  --lightbox-background-text: rgb(246, 246, 243);
-}
-:root.theme-orange {
-  --play-background-color-top: #fffbdf;
-  --play-background-color-bottom: #fff4d6;
-}
-
-:root {
-  --background: linear-gradient(
-    var(--background-top) 30%,
-    var(--background-bottom)
-  );
-  --scroll-margin: 10px;
+  color: var(--current-text-color);
+  @extend %lightMode;
+  &.dark {
+    @include darkMode();
+  }
+  @media (prefers-color-scheme: dark) {
+    &.auto {
+      @include darkMode();
+    }
+  }
 }
 
 @import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+1p&family=Mandali&family=Mochiy+Pop+One&display=swap");
@@ -266,7 +286,7 @@ body {
 }
 
 :root {
-  background-color: var(--background-top);
+  background-color: var(--background);
   scrollbar-width: thin;
   scrollbar-color: var(--main-color-soft) transparent;
   .window {
@@ -502,21 +522,19 @@ code {
   /* transition: opacity 1s; */
   width: 100vw;
   height: 100vh;
-  background: var(--play-background);
+  background: var(--play-background-color);
 }
-
-.audio_play {
-  // body::-webkit-scrollbar-track {
-  //   background: var(--play-background);
-  // }
-  #audio_background {
-    opacity: 1;
-  }
+:root,
+.headerBackground {
+  transition: background-color 1s;
+}
+:root.audio_play {
+  &,
   .headerBackground {
-    background-color: var(--play-background-color-top);
+    background-color: var(--play-background-color);
   }
 }
-// .bg-background-top,
+// .bg-background,
 // .bg-background-bottom,
 // :root {
 //   transition: background-color 1s;
@@ -575,7 +593,7 @@ code {
     }
   }
   .background {
-    background-color: var(--background-top);
+    background-color: var(--background);
     opacity: 0.7;
     position: absolute;
     top: 0;
@@ -596,8 +614,9 @@ body {
     position: fixed;
     top: 0;
     width: 100vw;
+    max-width: var(--ct-width);
     height: 100vh;
-    background-color: var(--background-top);
+    background-color: var(--background);
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -636,6 +655,7 @@ body {
 header {
   position: fixed;
   width: 100%;
+  max-width: var(--ct-width);
   z-index: 30;
   text-align: center;
   .backButton {
@@ -680,7 +700,7 @@ header {
     margin: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--background-top);
+    background-color: var(--background);
     opacity: 0.9;
     z-index: -10;
   }
@@ -937,6 +957,10 @@ footer {
   }
 }
 
+input:not(:disabled):hover {
+  border-color: var(--main-color);
+}
+
 form input,
 form textarea,
 form .preview-area,
@@ -1125,6 +1149,9 @@ form select {
 
 iframe {
   max-width: 100%;
+  @media (prefers-color-scheme: dark) {
+    background: var(--background-color);
+  }
 }
 
 .modal-background {
@@ -1587,7 +1614,7 @@ select.YearFilter {
         width: 8rem;
         height: 8rem;
       }
-      }
+    }
   }
   .infoArea {
     background-color: var(--lightbox-background-text);

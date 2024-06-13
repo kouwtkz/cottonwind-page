@@ -9,5 +9,6 @@ export const callReactSelectTheme: ThemeConfig = (theme) => ({
     primary25: "var(--main-color-pale)",
     primary50: "var(--main-color-soft)",
     primary75: "var(--main-color)",
+    neutral0: "var(--form-background-color)",
   },
 });
