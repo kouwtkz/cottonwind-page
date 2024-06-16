@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "ES2015",
     "useDefineForClassFields": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    
+
     "types": ["@cloudflare/workers-types", "vite/client"],
     "outDir": "dist",
     "baseUrl": ".",
@@ -26,10 +26,11 @@
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    
+
     "allowJs": true,
     "jsxImportSource": "react",
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
