@@ -15,7 +15,8 @@ export async function GalleryPatch(data: any) {
   const editYaml = yamls.find(album => album.dir === albumDir);
   if (editYaml) {
     if (deleteMode) {
-      const uploadImagesFullDir = pathResolve(`${cwd}/${editYaml.from}/${origin}`);
+      const uploadImagesFullDir = pathResolve(`${cwd}/${origin}`);
+      console.log(uploadImagesFullDir);
       try { unlinkSync(uploadImagesFullDir) } catch { }
       editYaml.list = editYaml.list.filter(item => item.origin !== origin);
       editYaml.data.list = editYaml.data.list?.filter(item => item.origin !== origin);

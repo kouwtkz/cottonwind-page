@@ -56,10 +56,6 @@ app.patch("/gallery/send", async (c) => {
   await GalleryPatch(await c.req.json());
   return c.newResponse(null);
 });
-app.patch("/gallery/send", async (c) => {
-  await GalleryPatch(await c.req.json());
-  return c.newResponse(null);
-});
 app.post("/character/send", async (c) => {
   return c.json(await SetCharaData(await c.req.formData()));
 });
