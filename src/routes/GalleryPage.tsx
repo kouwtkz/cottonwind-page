@@ -6,11 +6,9 @@ import {
   ReactNode,
   createRef,
   forwardRef,
-  memo,
   useCallback,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { filterMonthList } from "../components/tag/GalleryTags";
@@ -30,12 +28,12 @@ import {
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
-import ArrowUpButton from "../components/svg/button/arrow/ArrowUpButton";
 import { LinkMee, MakeRelativeURL, SearchSet } from "../components/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "../components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
+import { MdFileUpload } from "react-icons/md";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   return (
@@ -68,7 +66,7 @@ export function GalleryGroupPage() {
               if (uploadElm) (uploadElm as HTMLInputElement).click();
             }}
           >
-            <ArrowUpButton />
+            <MdFileUpload />
           </button>
         </div>
       ) : (
@@ -580,7 +578,7 @@ interface GalleryContentProps
 
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent(
-    { item, list, showGalleryLabel, showCount, ...args },
+    { item, list, showGalleryLabel, showCount, showGalleryHeader, showInPageMenu, ...args },
     ref
   ) {
     const { isComplete } = useDataState();

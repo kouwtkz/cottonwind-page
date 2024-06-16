@@ -280,15 +280,6 @@ export function CharaEditButton() {
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
-  const style: CSSProperties = {
-    margin: "0.5rem",
-    width: "3rem",
-    height: "3rem",
-    borderRadius: "9999px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
   return (
     <div className="rbButtonArea z30">
       {charaName ? null : sortable ? (
@@ -300,7 +291,6 @@ export function CharaEditButton() {
             onClick={() =>
               setEditSwitch({ sortable: false, save: false, reset: true })
             }
-            style={style}
           >
             <MdClose />
           </button>
@@ -309,7 +299,6 @@ export function CharaEditButton() {
             className="round"
             title="ソートの完了"
             onClick={() => setEditSwitch({ sortable: false, save: true })}
-            style={style}
           >
             <MdDoneOutline />
           </button>
@@ -322,14 +311,12 @@ export function CharaEditButton() {
           onClick={() =>
             setEditSwitch({ sortable: true, save: false, reset: false })
           }
-          style={style}
         >
           <TbArrowsMove />
         </button>
       )}
       <LinkMee
         to={{ query: { edit: "on" } }}
-        style={style}
         className="button round large"
       >
         {charaName ? <MdEditNote /> : <MdAdd />}
