@@ -279,6 +279,7 @@ export function GalleryPageEditSwitch() {
         return state;
       }}
       style={{ opacity: isEdit ? 1 : 0.4 }}
+      to={location.search}
       replace={true}
       preventScrollReset={true}
     >
@@ -304,6 +305,7 @@ export function GalleryPageOriginImageSwitch() {
         return state;
       }}
       style={{ opacity: isOrigin ? 1 : 0.4 }}
+      to={location.search}
       replace={true}
       preventScrollReset={true}
     >
