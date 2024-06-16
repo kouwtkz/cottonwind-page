@@ -152,10 +152,15 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             : null;
           if (movedAlbum) query.album = movedAlbum.name;
           if (rename) query.image = rename;
-          nav(MakeRelativeURL({ query }), {
-            replace: true,
-            preventScrollReset: false,
-          });
+          setTimeout(() => {
+            if (location.search === search && location.pathname === pathname) {
+              nav(MakeRelativeURL({ query }), {
+                replace: true,
+                preventScrollReset: false,
+                state,
+              });
+            }
+          }, 200);
         }
         return true;
       } else {
