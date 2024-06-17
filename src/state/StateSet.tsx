@@ -7,7 +7,7 @@ import { EmbedState } from "./Embed";
 import { CharaState, useCharaState } from "./CharaState";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
-import { ThemeState } from "./ThemeSetter";
+import { DarkThemeState, ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
 import GitState, { useGitState } from "./GitState";
@@ -21,6 +21,7 @@ export function StateSet() {
       <DataState />
       <ManageState />
       <ThemeState />
+      <DarkThemeState />
       {import.meta.env.DEV ? (
         <>
           <EmbedState />

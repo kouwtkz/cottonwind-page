@@ -1,11 +1,18 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import MenuButton from "../components/svg/button/MenuButton";
 import { create } from "zustand";
-import { ThemeChangeButton } from "./ThemeSetter";
-import { useCookies } from "react-cookie";
+import {
+  DarkThemeChangeButton,
+  ThemeChangeButton,
+  useDarkThemeState,
+  useThemeState,
+} from "./ThemeSetter";
 import { useManageState } from "./StateSet";
 import SiteConfigList from "@/data/config.list";
+import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
+import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
+
 type SiteMenuStateType = {
   isOpen: boolean;
   SetIsOpen: (isOpen: boolean) => void;
@@ -57,16 +64,60 @@ function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
             );
           }
         } else {
-          switch (item.switch) {
-            case "theme":
-              return (
-                <ThemeChangeButton key={i} className="item theme">
-                  {item.name}
-                </ThemeChangeButton>
-              );
+          if (item.switch) {
+            switch (item.name) {
+              case "color":
+                return (
+                  <ThemeChangeButton key={i} className="item theme">
+                    {item.name}
+                  </ThemeChangeButton>
+                );
+              case "dark":
+                return (
+                  <DarkThemeChangeButton key={i} className="item theme">
+                    {item.name}
+                  </DarkThemeChangeButton>
+                );
+              default:
+                return <ThemeSwitchButtons />;
+            }
           }
         }
       })}
+    </div>
+  );
+}
+
+function ThemeSwitchButtons({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  const { theme: colortheme } = useThemeState();
+  const { theme: darktheme } = useDarkThemeState();
+  className = useMemo(
+    () => (className ? className + " " : "") + "theme",
+    [className]
+  );
+  return (
+    <div {...props} className={className}>
+      <ThemeChangeButton className="item">
+        {colortheme === "theme-orange" ? (
+          <PiOrangeSlice />
+        ) : colortheme === "theme-aqua" ? (
+          <PiDrop />
+        ) : (
+          <PiLeaf />
+        )}
+      </ThemeChangeButton>
+      <DarkThemeChangeButton className="item">
+        {darktheme === "auto" ? (
+          <CgDarkMode />
+        ) : darktheme === "dark" ? (
+          <CgMoon />
+        ) : (
+          <CgSun />
+        )}
+      </DarkThemeChangeButton>
     </div>
   );
 }
