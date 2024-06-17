@@ -474,7 +474,14 @@ function UploadChain({
     });
   }, []);
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => upload(acceptedFiles),
+    (acceptedFiles: File[]) => {
+      const now = new Date();
+      const nowTime = now.getTime();
+      const list = acceptedFiles.filter(
+        (f) => Math.abs(nowTime - f.lastModified) > 10
+      );
+      upload(list);
+    },
     [upload]
   );
   const { getRootProps, getInputProps } = useDropzone({
@@ -578,7 +585,15 @@ interface GalleryContentProps
 
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent(
-    { item, list, showGalleryLabel, showCount, showGalleryHeader, showInPageMenu, ...args },
+    {
+      item,
+      list,
+      showGalleryLabel,
+      showCount,
+      showGalleryHeader,
+      showInPageMenu,
+      ...args
+    },
     ref
   ) {
     const { isComplete } = useDataState();
