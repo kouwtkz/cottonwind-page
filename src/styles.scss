@@ -31,6 +31,7 @@
   --background-color: #fdfde4;
   --play-background-color: #ecfffe;
   --dark-background-color: hsl(80, 10%, 14%);
+  --dark-play-background-color: hsl(0, 0%, 18%);
   --warm-color: #f87171;
   --lightbox-background: rgba(0, 0, 0, 0.3);
   --lightbox-background-preview: rgba(146, 147, 127, 0.8);
@@ -81,7 +82,10 @@
 }
 @mixin darkMode() {
   --current-text-color: var(--dark-text-color);
+  --main-color-pale: var(--main-color-dark);
+  --main-color-soft: var(--main-color-deep);
   --background: var(--dark-background-color);
+  --play-background-color: var(--dark-play-background-color);
   --form-background-color: var(--dark-form-background-color);
 }
 
@@ -97,6 +101,21 @@
     }
   }
 }
+:root,
+.headerBackground {
+  transition: background-color 1s;
+}
+:root.audio_play {
+  &,
+  .headerBackground {
+    background-color: var(--play-background-color);
+  }
+}
+// .bg-background,
+// .bg-background-bottom,
+// :root {
+//   transition: background-color 1s;
+// }
 
 @import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+1p&family=Mandali&family=Mochiy+Pop+One&display=swap");
 @font-face {
@@ -512,34 +531,6 @@ code {
   width: 99%;
   min-width: unset;
 }
-
-#audio_background {
-  overflow: hidden;
-  opacity: 0;
-  position: fixed;
-  background-attachment: fixed;
-  z-index: -50;
-  top: 0;
-  /* transition: opacity 1s; */
-  width: 100vw;
-  height: 100vh;
-  background: var(--play-background-color);
-}
-:root,
-.headerBackground {
-  transition: background-color 1s;
-}
-:root.audio_play {
-  &,
-  .headerBackground {
-    background-color: var(--play-background-color);
-  }
-}
-// .bg-background,
-// .bg-background-bottom,
-// :root {
-//   transition: background-color 1s;
-// }
 
 .InPageMenu {
   position: fixed;
