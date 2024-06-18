@@ -342,7 +342,7 @@ export function ImageViewer() {
           onClick={(e) => {
             if (e.target === e.currentTarget) backAction();
           }}
-          className="viewer"
+          className="viewer scrollThrough"
         >
           <div>
             <CloseButton
