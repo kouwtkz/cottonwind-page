@@ -84,7 +84,9 @@
   --current-text-color: var(--dark-text-color);
   --main-color-pale: var(--main-color-dark);
   --main-color-soft: var(--main-color-deep);
+  --main-color-light-grayish: var(--main-color-dark-grayish);
   --background: var(--dark-background-color);
+  --lightbox-background-text: var(--dark-background-color);
   --play-background-color: var(--dark-play-background-color);
   --form-background-color: var(--dark-form-background-color);
 }
@@ -307,7 +309,12 @@ body {
 :root {
   background-color: var(--background);
   scrollbar-width: thin;
-  scrollbar-color: var(--main-color-soft) transparent;
+  &, * {
+    scrollbar-color: var(--main-color-soft) transparent;
+  }
+  &.scrollLock {
+    scrollbar-color: var(--main-color-light-grayish) transparent;
+  }
   .window {
     overflow-y: auto;
     overscroll-behavior: contain;

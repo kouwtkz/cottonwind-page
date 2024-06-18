@@ -79,7 +79,7 @@ function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
                   </DarkThemeChangeButton>
                 );
               default:
-                return <ThemeSwitchButtons />;
+                return <ThemeSwitchButtons key={i} />;
             }
           }
         }

@@ -37,12 +37,12 @@ import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 
-const body = typeof window === "object" ? document?.body : null;
-const bodyLock = (m: boolean) => {
+const html = typeof window === "object" ? document.querySelector("html") : null;
+const scrollLock = (m: boolean) => {
   if (m) {
-    body?.classList.add("scrollLock");
+    html?.classList.add("scrollLock");
   } else {
-    body?.classList.remove("scrollLock");
+    html?.classList.remove("scrollLock");
   }
 };
 
@@ -60,16 +60,16 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
       image,
       isOpen: true,
     }));
-    bodyLock(true);
+    scrollLock(true);
   },
   isOpen: false,
   onOpen: () => {
     set(() => ({ isOpen: true }));
-    bodyLock(true);
+    scrollLock(true);
   },
   onClose: () => {
     set(() => ({ isOpen: false, editMode: false, imageSrc: "" }));
-    bodyLock(false);
+    scrollLock(false);
   },
 }));
 
