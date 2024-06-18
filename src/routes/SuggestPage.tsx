@@ -1,6 +1,6 @@
 export default function SuggestPage() {
   return (
-    <div className="h1h4Page">
+    <main className="h1h4Page">
       <h1>SUGGEST</h1>
       <h4>類似サイトへの誘導</h4>
       <div className="gridLink">
@@ -20,6 +20,6 @@ export default function SuggestPage() {
           <div>わたかぜコウのサイトはこちらです！</div>
         </a>
       </div>
-    </div>
+    </main>
   );
 }

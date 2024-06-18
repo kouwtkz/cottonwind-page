@@ -26,7 +26,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
   return (
     <body className="loading dummy">
       <Loading />
-      <div id="root">
+      <main id="root">
         <div hidden>
           <header className="title-container">
             <a href="/">
@@ -42,7 +42,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
             <LinksList myLinks={SiteConfigList.links || []} maskImage={false} />
           </footer>
         </div>
-      </div>
+      </main>
       {after}
     </body>
   );
@@ -210,11 +210,11 @@ export function ServerNotFound() {
       title={"404 | " + import.meta.env.VITE_TITLE}
       noindex={true}
     >
-      <div className="h1h4Page middle">
+      <main className="h1h4Page middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
         <a href="/">トップページへ戻る</a>
-      </div>
+      </main>
     </ServerSimpleLayout>
   );
 }
@@ -225,11 +225,11 @@ export function ServerError() {
       title={"500 | " + import.meta.env.VITE_TITLE}
       noindex={true}
     >
-      <div className="h1h4Page middle">
+      <main className="h1h4Page middle">
         <h1>500 Internal Server Error</h1>
         <h4>サーバー側でエラーが発生しました</h4>
         <a href="/">トップページへ戻る</a>
-      </div>
+      </main>
     </ServerSimpleLayout>
   );
 }
