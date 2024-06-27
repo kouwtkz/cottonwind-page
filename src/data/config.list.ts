@@ -56,12 +56,6 @@ const SiteConfigList: SiteConfigListType = {
       "mask": "/static/_media/mask/links/instagram.webp"
     },
     {
-      "name": "github",
-      "url": "https://github.com/kouwtkz",
-      "mask": "/static/_media/mask/links/github.webp",
-      "none": true
-    },
-    {
       "name": "MisskeyDesign",
       "rel": "me",
       "title": "Misskey design",
@@ -84,6 +78,11 @@ const SiteConfigList: SiteConfigListType = {
       "url": "https://bsky.app/profile/kouwtkz.cottonwind.com",
       "mask": "/static/_media/mask/links/bluesky.webp",
       "row": 2
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com/kouwtkz",
+      "mask": "/static/_media/mask/links/github.webp",
     },
     {
       "name": "BOOTH",
