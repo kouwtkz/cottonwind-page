@@ -185,7 +185,7 @@ export function setOperation({
   onChangePostId: () => void
   onDuplication: () => void
   onDelete: () => void
-  jsonUrl: string
+  jsonUrl?: string
 }
 ) {
   if (!selectOperation) return;
@@ -200,8 +200,10 @@ export function setOperation({
       onDelete();
       break;
     case 'download':
-      if (confirm("記事データを一括で取得しますか？")) {
-        location.href = jsonUrl + "?dl";
+      if (jsonUrl) {
+        if (confirm("記事データを一括で取得しますか？")) {
+          location.href = jsonUrl + "?dl";
+        }
       }
       break;
     case 'upload':

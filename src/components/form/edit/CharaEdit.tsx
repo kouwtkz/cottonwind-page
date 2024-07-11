@@ -364,9 +364,6 @@ export function SortableObject({
     items,
     resetFlag,
     saveFlag,
-    set,
-    setIsSet,
-    setItems,
     sortable,
   ]);
   const sensors = useSensors(

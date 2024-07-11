@@ -1,5 +1,5 @@
 import OnePost from "./OnePost";
-import { usePostState } from "./PostState";
+import PostState, { usePostState } from "./PostState";
 import { Link, useSearchParams } from "react-router-dom";
 import { findMany } from "./functions/findMany.mjs";
 import getPosts from "./functions/getPosts.mjs";
@@ -20,7 +20,6 @@ export function BlogPage({
   title?: string;
   blogEnable?: boolean;
 }) {
-  const { setBackUrl } = useBackButton();
   const [search] = useSearchParams();
   const p = search.get("p") || undefined;
   const q = search.get("q") || undefined;
@@ -40,6 +39,7 @@ export function BlogPage({
   }
   return (
     <>
+      <PostState />
       <div className="blogPage">
         <div className="header">
           <Link
@@ -73,10 +73,7 @@ export function PostsPage({
   q?: string;
   postId?: string;
 }) {
-  const { isSetCheck, isSet: postsIsSet } = usePostState();
-  useLayoutEffect(() => {
-    isSetCheck();
-  }, [isSetCheck]);
+  const { isSet: postsIsSet } = usePostState();
   const page = Number(p);
   const { posts } = usePostState();
   const take = postId ? undefined : 10;

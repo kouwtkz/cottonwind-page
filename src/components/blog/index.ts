@@ -17,7 +17,7 @@ type PostFormType = {
 };
 
 app.post("/send", async (c) => {
-  if (!IsLogin(c)) return new Response("ログインしていません", { status: 403 });
+  if (!IsLogin(c)) return c.text("ログインしていません", 403);
   const formData = await c.req.formData();
   let success = false;
 

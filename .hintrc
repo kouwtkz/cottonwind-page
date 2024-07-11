@@ -1,10 +1,18 @@
 {
-  "extends": ["development"],
+  "extends": [
+    "development"
+  ],
   "hints": {
     "compat-api/css": [
       "default",
       {
-        "ignore": ["-webkit-tap-highlight-color", "min-width: fit-content"]
+        "ignore": [
+          "-webkit-tap-highlight-color",
+          "min-width: fit-content",
+          "overscroll-behavior",
+          "scrollbar-color",
+          "scrollbar-width"
+        ]
       }
     ],
     "no-inline-styles": "off",

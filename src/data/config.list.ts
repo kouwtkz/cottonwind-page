@@ -28,10 +28,6 @@ const SiteConfigList: SiteConfigListType = {
     {
       "name": "about",
       "url": "/about"
-    },
-    {
-      "name": "theme",
-      "switch": "theme"
     }
   ],
   "links": [

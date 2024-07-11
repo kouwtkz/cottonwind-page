@@ -25,7 +25,7 @@ interface CharaType {
 }
 
 interface CharaObjectType {
-  [name: string]: CharaType
+  [name: string]: CharaType | undefined
 }
 
 interface CharaDataType extends Omit<CharaType, "time" | "birthday" | "id"> {

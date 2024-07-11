@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { useSoundPlayer } from "../state/SoundPlayer";
-import { useSoundState } from "../state/SoundState";
+import { SoundState, useSoundState } from "../state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 
@@ -19,6 +19,7 @@ export function SoundPage() {
 
   return (
     <div className="soundPage">
+      <SoundState />
       <h1
         className="title"
         onClick={() => {

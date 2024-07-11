@@ -7,16 +7,11 @@ const defaultUrl = "/json/gitlog.json";
 type GitStateType = {
   git?: GitObjectType;
   isSet: boolean;
-  url: string;
   setLog: (value: GitObjectJsonType) => void;
-  setUrl: (url?: string, setFlag?: boolean) => void;
-  setLogFromUrl: (url?: string) => void;
-  isSetCheck: () => void;
 };
 
 export const useGitState = create<GitStateType>((set) => ({
   isSet: false,
-  url: "",
   setLog: (value) => {
     const list = value.list.map((item) => {
       const [year, month, day] = item.date.split("/").map((v) => Number(v));
@@ -28,33 +23,6 @@ export const useGitState = create<GitStateType>((set) => ({
       ymlist: YearMonthList(list),
     };
     set({ git, isSet: true });
-  },
-  setUrl(url, setFlag = true) {
-    if (setFlag) {
-      set((state) => {
-        state.setLogFromUrl(url);
-        return state;
-      });
-    } else {
-      set(() => {
-        return { url };
-      });
-    }
-  },
-  setLogFromUrl(url?: string) {
-    set((state) => {
-      axios(url || state.url).then((r) => {
-        const data: GitObjectJsonType = r.data;
-        state.setLog(data);
-      });
-      return url ? { url } : state;
-    });
-  },
-  isSetCheck() {
-    set((state) => {
-      if (!state.isSet) state.setLogFromUrl();
-      return state;
-    });
   },
 }));
 
@@ -90,21 +58,16 @@ function YearMonthList(list: GitItemType[] = []) {
   return ylist;
 }
 
-export default function GitState({
-  url = defaultUrl,
-  setFlag,
-}: {
-  url?: string;
-  setFlag?: boolean;
-}) {
-  const { setUrl } = useGitState();
-  const isSet = useRef(false);
+export default function GitState({ url = defaultUrl }: { url?: string }) {
+  const { isSet, setLog } = useGitState();
   useEffect(() => {
-    if (!isSet.current) {
-      setUrl(url, setFlag);
-      isSet.current = true;
+    if (!isSet) {
+      axios(url).then((r) => {
+        const data: GitObjectJsonType = r.data;
+        setLog(data);
+      });
     }
-  });
+  }, []);
   return <></>;
 }
 
@@ -222,32 +185,42 @@ function YearItem({
 }
 
 export function ChangeLog() {
-  const { git, isSet } = useGitState();
-  if (!git) return <></>;
+  const { git } = useGitState();
   return (
     <div className="changeLog">
-      <div className="title">
-        <a href={git.remote_url} title="サイトのGithubページ" target="github">
-          <h3>サイトの更新履歴</h3>
-          <span>
-            {git.list.length > 0 ? (
-              <>
-                <span>最終更新:</span>
-                <span className="date">{git.list[0].date}</span>
-              </>
-            ) : isSet ? (
-              "(データなし)"
-            ) : (
-              "よみこみちゅう…"
-            )}
-          </span>
-        </a>
-      </div>
-      <div className="list">
-        {git.ymlist.map((item, i) => (
-          <YearItem item={item} key={i} opened={i === 0} />
-        ))}
-      </div>
+      <GitState />
+      {git ? (
+        <>
+          <div className="title">
+            <a
+              href={git.remote_url}
+              title="サイトのGithubページ"
+              target="github"
+            >
+              <h3>サイトの更新履歴</h3>
+              <span>
+                {git.list.length > 0 ? (
+                  <>
+                    <span>最終更新:</span>
+                    <span className="date">{git.list[0].date}</span>
+                  </>
+                ) : (
+                  "(データなし)"
+                )}
+              </span>
+            </a>
+          </div>
+          <div className="list">
+            {git.ymlist.map((item, i) => (
+              <YearItem item={item} key={i} opened={i === 0} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <span>よみこみちゅう…</span>
+        </>
+      )}
     </div>
   );
 }

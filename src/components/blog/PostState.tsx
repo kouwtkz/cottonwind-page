@@ -10,65 +10,39 @@ function parsePosts(posts: Post[]) {
   });
   return posts;
 }
-type PostStateType = {
+interface PostStateType {
   posts: Post[];
+  url?: string;
   isSet: boolean;
-  url: string;
-  setPosts: (value: any) => void;
-  setUrl: (url?: string, setFlag?: boolean) => void;
-  setPostsFromUrl: (url?: string) => void;
-  isSetCheck: () => void;
-};
+  setPosts: (value: any, url?: string) => void;
+  isReload: boolean;
+  Reload: () => void;
+}
 export const usePostState = create<PostStateType>((set) => ({
   posts: [],
   isSet: false,
-  url: defaultUrl,
-  setPosts(value) {
-    set(() => ({ posts: parsePosts(value), isSet: true }));
+  setPosts(value, url) {
+    set(() => ({
+      posts: parsePosts(value),
+      url,
+      isSet: true,
+      isReload: false,
+    }));
   },
-  setUrl(url = defaultUrl, setFlag = true) {
-    if (setFlag) {
-      set((state) => {
-        state.setPostsFromUrl(url);
-        return state;
-      });
-    } else {
-      set(() => {
-        return { url };
-      });
-    }
-  },
-  setPostsFromUrl(url) {
-    set((state) => {
-      axios(url || state.url).then((r) => {
-        state.setPosts(r.data);
-      });
-      return url ? { url } : state;
-    });
-  },
-  isSetCheck() {
-    set((state) => {
-      if (!state.isSet) state.setPostsFromUrl();
-      return state;
-    });
+  isReload: true,
+  Reload() {
+    set(() => ({ isReload: true }));
   },
 }));
 
-export default function PostState({
-  url,
-  setFlag,
-}: {
-  url: string;
-  setFlag?: boolean;
-}) {
-  const { setUrl } = usePostState();
-  const isSet = useRef(false);
+export default function PostState({ url = defaultUrl }: { url?: string }) {
+  const { setPosts, isReload } = usePostState();
   useEffect(() => {
-    if (!isSet.current) {
-      setUrl(url, setFlag);
-      isSet.current = true;
+    if (isReload) {
+      axios(url).then((r) => {
+        setPosts(r.data, url);
+      });
     }
-  });
-
+  }, [isReload]);
   return <></>;
 }

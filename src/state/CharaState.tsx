@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { create } from "zustand";
 import axios from "axios";
 import { useImageState } from "./ImageState";
@@ -13,6 +13,8 @@ type CharaStateType = {
   isSet: boolean;
   setIsSet: (flag: boolean) => void;
   setCharaObject: (list: CharaObjectType) => void;
+  isReload: boolean;
+  Reload: () => void;
 };
 
 export const useCharaState = create<CharaStateType>((set) => ({
@@ -22,23 +24,24 @@ export const useCharaState = create<CharaStateType>((set) => ({
   setIsSet: (flag) => set(() => ({ isSet: flag })),
   setCharaObject: (data) => {
     set(() => ({
-      charaList: Object.values(data),
+      charaList: Object.values(data) as CharaType[],
       charaObject: data,
       isSet: true,
+      isReload: false,
     }));
+  },
+  isReload: true,
+  Reload() {
+    set(() => ({ isReload: true }));
   },
 }));
 
 export function CharaState({ url = defaultUrl }: { url?: string }) {
-  const { setCharaObject, isSet } = useCharaState(
-    ({ setCharaObject, isSet }) => ({ setCharaObject, isSet })
-  );
+  const { setCharaObject, isReload, charaList } = useCharaState();
   const imageItemList = useImageState((state) => state.imageItemList);
-  const { SoundItemList, defaultPlaylist } = useSoundState(
-    ({ SoundItemList, defaultPlaylist }) => ({ SoundItemList, defaultPlaylist })
-  );
+  const { SoundItemList, defaultPlaylist } = useSoundState();
   useLayoutEffect(() => {
-    if (!isSet && imageItemList.length > 0 && SoundItemList.length > 0) {
+    if (isReload && imageItemList.length > 0) {
       axios(url).then((r) => {
         type mediaKindType = "icon" | "image" | "headerImage";
         const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
@@ -64,38 +67,44 @@ export function CharaState({ url = defaultUrl }: { url?: string }) {
                 );
               }
             });
-            let playlist = chara.playlist;
-            if (playlist) {
-              const playlistTitle = `${chara.name}のプレイリスト`;
-              chara.media.playlist = {
-                title: playlistTitle,
-                list: playlist
-                  .reduce((a, c) => {
-                    if (c === "default") {
-                      defaultPlaylist?.list.forEach(({ src }) => {
-                        const foundIndex = SoundItemList.findIndex(
-                          (item) => item.src === src
-                        );
-                        if (foundIndex >= 0) a.push(foundIndex);
-                      });
-                    } else {
-                      const foundIndex = SoundItemList.findIndex((item) =>
-                        item.src.endsWith(c)
-                      );
-                      if (foundIndex >= 0) a.push(foundIndex);
-                    }
-                    return a;
-                  }, [] as number[])
-                  .filter((i) => i >= 0)
-                  .map((i) => SoundItemList[i]),
-              };
-            }
           },
         });
         setCharaObject(data);
       });
     }
-  }, [isSet, url, imageItemList, SoundItemList]);
-
+  }, [isReload, imageItemList]);
+  useEffect(() => {
+    if (charaList && SoundItemList.length > 0) {
+      charaList.forEach((chara) => {
+        let playlist = chara.playlist;
+        if (playlist) {
+          const playlistTitle = `${chara.name}のプレイリスト`;
+          if (!chara.media) chara.media = {};
+          chara.media.playlist = {
+            title: playlistTitle,
+            list: playlist
+              .reduce((a, c) => {
+                if (c === "default") {
+                  defaultPlaylist?.list.forEach(({ src }) => {
+                    const foundIndex = SoundItemList.findIndex(
+                      (item) => item.src === src
+                    );
+                    if (foundIndex >= 0) a.push(foundIndex);
+                  });
+                } else {
+                  const foundIndex = SoundItemList.findIndex((item) =>
+                    item.src.endsWith(c)
+                  );
+                  if (foundIndex >= 0) a.push(foundIndex);
+                }
+                return a;
+              }, [] as number[])
+              .filter((i) => i >= 0)
+              .map((i) => SoundItemList[i]),
+          };
+        }
+      });
+    }
+  }, [SoundItemList, charaList]);
   return <></>;
 }

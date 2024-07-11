@@ -1,16 +1,13 @@
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
-import { SoundState, useSoundState } from "./SoundState";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
-import { CharaState, useCharaState } from "./CharaState";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import { DarkThemeState, ThemeState } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
-import GitState, { useGitState } from "./GitState";
 
 export function StateSet() {
   return (
@@ -34,11 +31,8 @@ export function StateSet() {
 function DataStateSet() {
   return (
     <>
-      <SoundState />
       <ImageState />
-      <CharaState />
       <FeedState />
-      <GitState />
     </>
   );
 }
@@ -62,13 +56,7 @@ export const useDataState = create<DataStateType>((set) => ({
 }));
 
 function DataState() {
-  const stateList = [
-    useCharaState(),
-    useImageState(),
-    useSoundState(),
-    useFeedState(),
-    useGitState(),
-  ];
+  const stateList = [useImageState(), useFeedState()];
   const { isComplete, setComplete } = useDataState(
     ({ isComplete, setComplete }) => ({ isComplete, setComplete })
   );

@@ -4,7 +4,7 @@ import {
   ImageMeeIcon,
   ImageMeeThumbnail,
 } from "../components/layout/ImageMee";
-import { useCharaState } from "../state/CharaState";
+import { CharaState, useCharaState } from "../state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
 import { useImageState } from "../state/ImageState";
@@ -15,6 +15,7 @@ import CharaEditForm, {
   useEditSwitchState,
 } from "../components/form/edit/CharaEdit";
 import { ErrorContent } from "./ErrorPage";
+import { useSoundPlayer } from "@/state/SoundPlayer";
 
 export function CharaPage() {
   const { charaName } = useParams();
@@ -23,6 +24,7 @@ export function CharaPage() {
   const isDev = import.meta.env.DEV;
   return (
     <div className="charaPage">
+      <CharaState />
       {isDev && isEdit ? (
         <CharaEditForm />
       ) : (
@@ -138,6 +140,7 @@ const CharaDetail = memo(function CharaDetail({
 }) {
   const { charaObject, isSet: isCharaState } = useCharaState();
   const { imageAlbumList } = useImageState();
+  const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
     () => (charaObject ?? {})[charaName],
     [charaObject, charaName]
@@ -156,6 +159,11 @@ const CharaDetail = memo(function CharaDetail({
         : [],
     [chara]
   );
+  useEffect(() => {
+    if (chara?.media?.playlist) {
+      RegistPlaylist({ playlist: chara?.media?.playlist });
+    }
+  }, [chara?.media?.playlist?.title]);
   return (
     <>
       {isCharaState ? (

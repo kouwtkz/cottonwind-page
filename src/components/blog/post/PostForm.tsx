@@ -32,7 +32,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/form/hook/SetRegister";
 import axios from "axios";
-import { usePostState } from "../PostState";
+import PostState, { usePostState } from "../PostState";
 import { findMany } from "../functions/findMany.mjs";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
@@ -82,10 +82,7 @@ function dateJISOfromDate(date?: Date | null) {
 }
 
 function Main({ params }: { params: { [k: string]: string | undefined } }) {
-  const { isSetCheck, posts, setUrl: setPostsFromUrl, url } = usePostState();
-  useLayoutEffect(() => {
-    isSetCheck();
-  }, [isSetCheck]);
+  const { posts, Reload, url } = usePostState();
   const nav = useNavigate();
   const duplicationMode = Boolean(params.base);
   const targetPostId = params.target || params.base;
@@ -228,7 +225,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
         })
         .then((r) => {
           toast("削除しました", { duration: 2000 });
-          setPostsFromUrl();
+          Reload();
           nav("/blog", { replace: true });
         });
     }
@@ -356,7 +353,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
           toast(updateMode ? "更新しました" : "投稿しました", {
             duration: 2000,
           });
-          setPostsFromUrl();
+          Reload();
           if (attached) setImageFromUrl();
           refIsSubmitted.current = true;
           setTimeout(() => {
@@ -380,12 +377,12 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
     postCategories,
     nav,
     setImageFromUrl,
-    setPostsFromUrl,
     updateMode,
   ]);
 
   return (
     <>
+      <PostState />
       <form
         method={"POST"}
         action="/blog/send"

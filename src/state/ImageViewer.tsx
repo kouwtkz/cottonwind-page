@@ -31,7 +31,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { useCharaState } from "../state/CharaState";
+import { CharaState, useCharaState } from "../state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
@@ -221,6 +221,7 @@ export function ImageViewer() {
       <>
         {!("pic" in query) && image?.album?.visible?.info ? (
           <div className="infoArea">
+            <CharaState />
             {isComplete ? (
               <>
                 {isEdit ? null : (
@@ -236,7 +237,7 @@ export function ImageViewer() {
                     </div>
                     <div className="tagList">
                       {image.tags
-                        ?.map((tag) => charaObject[tag])
+                        ?.map((tag) => charaObject[tag] as CharaType)
                         .filter((v) => v)
                         .map((chara, i) => {
                           return (

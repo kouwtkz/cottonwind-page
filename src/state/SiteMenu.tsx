@@ -35,6 +35,7 @@ function SetSiteMenu({ nav }: { nav: SiteMenuItemType[] }) {
     const list = nav.concat();
     if (visibleWorkers)
       list.push({ name: "workers", url: "/workers", out: true });
+    list.push({ name: "theme", switch: "theme" });
     return list;
   }, [nav, visibleWorkers]);
   return (

@@ -9,8 +9,8 @@ export const XmlHeader = {
 }
 
 export function IsLogin(c: CommonContext) {
-  return (import.meta.env.DEV ? true : Boolean(getCookie(c, "CF_Authorization")))
-    && c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken")
+  return import.meta.env.DEV
+    || (Boolean(getCookie(c, "CF_Authorization")) && c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"))
 }
 
 export async function FetchBody(src?: string) {
