@@ -1,36 +1,22 @@
 {
+  "exclude": ["node_modules", "static", "dist"],
   "compilerOptions": {
-    "target": "ES2015",
-    "useDefineForClassFields": true,
+    "target": "es2016",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "skipLibCheck": true,
-
-    "types": ["@cloudflare/workers-types", "vite/client"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "allowJs": true,
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting (使われてない部分の警告など) */
-    "strict": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "allowJs": true,
-    "jsxImportSource": "react",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "references": [{ "path": "./tsconfig.node.json" }]
+    }
+  }
 }
