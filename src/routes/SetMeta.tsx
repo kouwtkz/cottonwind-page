@@ -141,7 +141,9 @@ export function MetaValues({
         };
       }
       const charaListFound = characters
-        ? (foundImage.tags ?? []).map((tag) => characters[tag]).filter((v) => v)
+        ? ((foundImage.tags ?? [])
+            .map((tag) => characters[tag])
+            .filter((v) => v) as CharaType[])
         : [];
       const charaList = charaListFound
         .slice(0, 2)

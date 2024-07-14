@@ -73,8 +73,32 @@ export default function Home() {
             </Link>
           </li>
         </ul>
+        <TopPageBannerLink />
         <NoteView />
       </div>
+    </>
+  );
+}
+
+export function TopPageBannerLink() {
+  return (
+    <>
+      <ul>
+        <li>
+          <a
+            href="https://cottonwind.booth.pm/"
+            target="_blank"
+            title="わたかぜや (BOOTH)"
+            rel="noopener"
+            className="overlay"
+          >
+            <img
+              src="/static/images/webp/cottonwind_booth_300_100.webp"
+              alt="BOOTH"
+            />
+          </a>
+        </li>
+      </ul>
     </>
   );
 }

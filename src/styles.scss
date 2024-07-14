@@ -441,6 +441,13 @@ img {
   height: auto;
 }
 
+a.overlay {
+  transition: filter 100ms;
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+
 h1 {
   font-size: $text_4xl;
 }
