@@ -50,7 +50,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
 
 function judgeJson(r: Response) {
   return (
-    r.status === 200 && r.headers.get("content-type") === "application/json"
+    r.status === 200 && r.headers.get("content-type")?.includes("application/json") 
   );
 }
 
@@ -61,6 +61,7 @@ export interface ServerLayoutProps {
   meta?: React.ReactNode;
   styles?: React.ReactNode;
   script?: React.ReactNode;
+  noindex?: boolean;
   isLogin?: boolean;
 }
 export async function ServerLayout({
@@ -69,6 +70,7 @@ export async function ServerLayout({
   meta,
   styles,
   script,
+  noindex,
   isLogin = false,
 }: ServerLayoutProps) {
   const url = c.req.url;
@@ -91,7 +93,8 @@ export async function ServerLayout({
         : undefined;
     }
     if (isCharaName || Url.searchParams.has("image")) {
-      const r_images = await fetch(Url.origin + dataPath + "/images.json");
+      const jsonPath = Url.origin + dataPath + "/images.json";
+      const r_images = await fetch(jsonPath);
       images = judgeJson(r_images)
         ? parseImageItems(await r_images.json())
         : undefined;
@@ -109,6 +112,7 @@ export async function ServerLayout({
           characters={characters}
           images={images}
           posts={posts}
+          noindex={noindex}
         />
         {import.meta.env.VITE_RECAPTCHA_SITEKEY ? (
           <script

@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom";
+import { NonIndexRouteObject, RouteObject } from "react-router-dom";
 import Root from "./Root";
 import ErrorPage from "./ErrorPage";
 import Home from "./Home";
@@ -13,6 +13,11 @@ import WorksPage from "./WorksPage";
 import { BlogPage } from "@/components/blog/PostsPage";
 import PostForm from "@/components/blog/post/PostForm";
 import ContactPage from "./ContactPage";
+
+export interface MeeRouteObject extends NonIndexRouteObject {
+  path: RoutingUnion;
+  noindex: boolean;
+}
 
 export const Routing: RouteObject[] = [
   {
@@ -35,6 +40,7 @@ export const Routing: RouteObject[] = [
       {
         path: "gallery",
         element: <GalleryPage />,
+        noindex: true,
       },
       {
         path: "gallery/ebook",
@@ -56,7 +62,7 @@ export const Routing: RouteObject[] = [
       { path: "works", element: <WorksPage /> },
       { path: "contact", element: <ContactPage /> },
       { path: "blog", element: <BlogPage /> },
-      { path: "blog/post", element: <PostForm /> },
-    ] as (RouteObject & { path: RoutingUnion })[],
+      { path: "blog/post", element: <PostForm />, isindex: false },
+    ] as MeeRouteObject[],
   },
 ];

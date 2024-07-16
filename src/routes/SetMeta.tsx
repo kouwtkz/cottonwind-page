@@ -17,6 +17,7 @@ export interface SetMetaProps {
   characters?: CharaObjectType | null;
   images?: MediaImageItemType[];
   posts?: Post[];
+  noindex?: boolean;
 }
 
 type MetaValuesReturnType = {
@@ -24,6 +25,7 @@ type MetaValuesReturnType = {
   description: string;
   image: string;
   imageSize: { w: number; h: number };
+  noindex?: boolean;
 };
 export function MetaValues({
   path,
@@ -31,6 +33,7 @@ export function MetaValues({
   characters,
   images,
   posts,
+  noindex,
 }: SetMetaProps): MetaValuesReturnType {
   const siteTitle = import.meta.env.VITE_TITLE;
   let title: string | undefined;
@@ -103,6 +106,7 @@ export function MetaValues({
         description = "わたかぜコウやサイトの情報";
         break;
       case "blog":
+        noindex = true;
         title = "ブログ | " + siteTitle;
         const postId = queryParams.postId;
         const postItem = posts?.find((item) => item.postId === postId);
@@ -123,8 +127,10 @@ export function MetaValues({
         description = "打ち間違いなど用の誘導";
         break;
     }
+  if (queryParams.p) noindex = true;
   const imageParam = queryParams.image;
   const albumParam = queryParams.album;
+  if (imageParam) noindex = true;
   if (imageParam) {
     const foundImage = imageFindFromName({
       imageParam,
@@ -199,6 +205,7 @@ export function MetaValues({
     description,
     image: import.meta.env.VITE_URL + image,
     imageSize,
+    noindex,
   };
 }
 
@@ -217,6 +224,7 @@ export function MetaTags({
   url,
   card = "summary_large_image",
   path,
+  noindex,
 }: MetaTagsProps) {
   let jsonLd: WithContext<WebSite> | undefined;
   switch (path) {
@@ -247,6 +255,7 @@ export function MetaTags({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+      {noindex ? <meta name="robots" content="noindex" /> : null}
       {jsonLd ? (
         <script
           type="application/ld+json"
@@ -269,6 +278,6 @@ export function QueryToParams(query?: QueryType) {
 
 export function SetMeta(args: SetMetaProps) {
   return (
-    <MetaTags {...MetaValues(args)} card="summary_large_image" {...args} />
+    <MetaTags {...args} {...MetaValues(args)} card="summary_large_image" />
   );
 }
