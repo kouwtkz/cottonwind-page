@@ -7,7 +7,7 @@ export function Footer() {
     <footer>
       <div className="copyright">
         © {import.meta.env.VITE_SINCE}-{getJSTYear(buildTime ?? new Date())}{" "}
-        {import.meta.env.VITE_AUTHOR_ENAME}
+        {import.meta.env.VITE_AUTHOR_ACCOUNT}
       </div>
       <LinksList myLinks={SiteConfigList.links || []} />
     </footer>

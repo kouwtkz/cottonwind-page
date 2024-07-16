@@ -16,7 +16,12 @@ export default function SuggestPage() {
         </a>
         <a href="/" title="トップに戻る">
           <h2>こっとんうぃんど (cottonwind.com)</h2>
-          <h4>Portfolio site of artist Kou Watakaze. (This site)</h4>
+          <h4>
+            Portfolio site of artist "
+            {import.meta.env.VITE_AUTHOR_EN_NAME_ON_PROP ||
+              import.meta.env.VITE_AUTHOR_EN_NAME}
+            ". (This site)
+          </h4>
           <div>わたかぜコウのサイトはこちらです！</div>
         </a>
       </div>

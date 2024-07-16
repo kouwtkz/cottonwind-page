@@ -1848,7 +1848,19 @@ ul {
 
 .aboutPage {
   h3 {
+    font-size: 1.75rem;
     color: var(--main-color-dark);
+  }
+  h4 {
+    font-size: 2rem;
+    margin: 1rem auto;
+    color: var(--main-color);
+  }
+  h5 {
+    font-size: 1.25rem;
+    margin: 1rem auto;
+    font-family: sans-serif;
+    color: var(--main-color-soft);
   }
   img.authorImage {
     height: 20em;

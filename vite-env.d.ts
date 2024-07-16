@@ -10,9 +10,11 @@ interface ImportMetaEnv {
   readonly VITE_OVERVIEW: string
   readonly VITE_ALTERNATE: string
   readonly VITE_SITE_IMAGE: string
-  readonly VITE_WAVEBOX: string
+  readonly VITE_WAVEBOX?: string
   readonly VITE_AUTHOR_ACCOUNT: string
-  readonly VITE_AUTHOR_ENAME: string
+  readonly VITE_AUTHOR_EN_NAME?: string
+  readonly VITE_AUTHOR_EN_PROP?: string
+  readonly VITE_AUTHOR_EN_NAME_ON_PROP?: string
   readonly VITE_AUTHOR_NAME: string
   readonly VITE_AUTHOR_IMAGE: string
   readonly VITE_UPLOAD_SERVICE: string
