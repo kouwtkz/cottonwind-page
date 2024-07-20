@@ -26,7 +26,7 @@ app.get("/", async (c) => {
   if (Url.searchParams.has(switchCookieKey)) {
     const cookieMode = Url.searchParams.get(switchCookieKey);
     if (cookieMode === "on") {
-      setCookie(c, cookieKey, "on", { maxAge: 32e6 });
+      setCookie(c, cookieKey, "on", { maxAge: 34e6 });
     } else if (cookieMode === "off") {
       deleteCookie(c, cookieKey);
     }

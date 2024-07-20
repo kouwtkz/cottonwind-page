@@ -2,7 +2,8 @@ import { HTMLAttributes, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { create, StoreApi, UseBoundStore } from "zustand";
 
-export interface ThemeChangeButtonProps extends HTMLAttributes<HTMLDivElement> {}
+export interface ThemeChangeButtonProps
+  extends HTMLAttributes<HTMLDivElement> {}
 
 type ThemeStateType = {
   index: number;
@@ -62,9 +63,9 @@ export class ThemeStateClass {
           }
           if (index >= 0) {
             document.documentElement.classList.add(theme);
-            setCookie(this.cookieKey, theme);
+            setCookie(this.cookieKey, theme, { maxAge: 34e6, path: "/" });
           } else {
-            removeCookie(this.cookieKey);
+            removeCookie(this.cookieKey, { path: "/" });
           }
           refIndex.current = index;
         }
