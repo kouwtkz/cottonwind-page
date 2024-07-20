@@ -5,9 +5,18 @@ import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
-import { DarkThemeState, ThemeState } from "./ThemeSetter";
+import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
+
+export const ThemeState = new ThemeStateClass("theme", [
+  "theme-orange",
+  "theme-aqua",
+]);
+export const DarkThemeState = new ThemeStateClass("darktheme", [
+  "dark",
+  "auto",
+]);
 
 export function StateSet() {
   return (
@@ -17,8 +26,8 @@ export function StateSet() {
       <Toaster />
       <DataState />
       <ManageState />
-      <ThemeState />
-      <DarkThemeState />
+      {ThemeState.State()}
+      {DarkThemeState.State()}
       {import.meta.env.DEV ? (
         <>
           <EmbedState />

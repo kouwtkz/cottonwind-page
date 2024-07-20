@@ -2,16 +2,35 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import MenuButton from "../components/svg/button/MenuButton";
 import { create } from "zustand";
-import {
-  DarkThemeChangeButton,
-  ThemeChangeButton,
-  useDarkThemeState,
-  useThemeState,
-} from "./ThemeSetter";
-import { useManageState } from "./StateSet";
+import { ThemeChangeButtonProps } from "./ThemeSetter";
+import { DarkThemeState, ThemeState, useManageState } from "./StateSet";
 import SiteConfigList from "@/data/config.list";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
+
+export function ThemeChangeButton({
+  children = "いろかえ",
+  ...args
+}: ThemeChangeButtonProps) {
+  const { next } = ThemeState.use();
+  return (
+    <div {...args} onClick={next}>
+      {children}
+    </div>
+  );
+}
+
+function DarkThemeChangeButton({
+  children = "ダークテーマ",
+  ...args
+}: ThemeChangeButtonProps) {
+  const { next } = DarkThemeState.use();
+  return (
+    <div {...args} onClick={next}>
+      {children}
+    </div>
+  );
+}
 
 type SiteMenuStateType = {
   isOpen: boolean;
@@ -93,8 +112,8 @@ function ThemeSwitchButtons({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { theme: colortheme } = useThemeState();
-  const { theme: darktheme } = useDarkThemeState();
+  const { theme: colortheme } = ThemeState.use();
+  const { theme: darktheme } = DarkThemeState.use();
   className = useMemo(
     () => (className ? className + " " : "") + "theme",
     [className]

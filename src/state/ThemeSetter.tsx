@@ -1,6 +1,8 @@
 import { HTMLAttributes, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
-import { create } from "zustand";
+import { create, StoreApi, UseBoundStore } from "zustand";
+
+export interface ThemeChangeButtonProps extends HTMLAttributes<HTMLDivElement> {}
 
 type ThemeStateType = {
   index: number;
@@ -38,100 +40,46 @@ export function createThemeState(list: string[]) {
   }));
 }
 
-const ThemeList = ["theme-orange", "theme-aqua"];
-export const useThemeState = createThemeState(ThemeList);
-
-export function ThemeState() {
-  const { index, theme, list, setIndex } = useThemeState();
-  const cookieKey = "theme";
-  const [cookies, setCookie, removeCookie] = useCookies([cookieKey]);
-  const isSet = useRef(false);
-  const refIndex = useRef(-1);
-  useEffect(() => {
-    if (isSet.current) {
-      if (refIndex.current !== index) {
-        if (refIndex.current >= 0) {
-          document.documentElement.classList.remove(list[refIndex.current]);
+export class ThemeStateClass {
+  themes: string[];
+  cookieKey: string;
+  use: UseBoundStore<StoreApi<ThemeStateType>>;
+  constructor(cookieKey: string, themes: string[]) {
+    this.cookieKey = cookieKey;
+    this.themes = themes;
+    this.use = createThemeState(this.themes);
+  }
+  State() {
+    const { index, theme, list, setIndex } = this.use();
+    const [cookies, setCookie, removeCookie] = useCookies([this.cookieKey]);
+    const isSet = useRef(false);
+    const refIndex = useRef(-1);
+    useEffect(() => {
+      if (isSet.current) {
+        if (refIndex.current !== index) {
+          if (refIndex.current >= 0) {
+            document.documentElement.classList.remove(list[refIndex.current]);
+          }
+          if (index >= 0) {
+            document.documentElement.classList.add(theme);
+            setCookie(this.cookieKey, theme);
+          } else {
+            removeCookie(this.cookieKey);
+          }
+          refIndex.current = index;
         }
-        if (index >= 0) {
-          document.documentElement.classList.add(theme);
-          setCookie(cookieKey, theme);
-        } else {
-          removeCookie(cookieKey);
+      } else {
+        isSet.current = true;
+        if (cookies[this.cookieKey]) {
+          document?.documentElement.classList.add(cookies[this.cookieKey]);
+          const cookieIndex = list.findIndex(
+            (v) => v === cookies[this.cookieKey]
+          );
+          setIndex(cookieIndex);
+          refIndex.current = cookieIndex;
         }
-        refIndex.current = index;
       }
-    } else {
-      isSet.current = true;
-      if (cookies[cookieKey]) {
-        document?.documentElement.classList.add(cookies[cookieKey]);
-        const cookieIndex = list.findIndex((v) => v === cookies[cookieKey]);
-        setIndex(cookieIndex);
-        refIndex.current = cookieIndex;
-      }
-    }
-  });
-  return <></>;
-}
-
-interface ThemeChangeButtonProps extends HTMLAttributes<HTMLDivElement> {}
-
-export function ThemeChangeButton({
-  children = "いろかえ",
-  ...args
-}: ThemeChangeButtonProps) {
-  const { next } = useThemeState();
-  return (
-    <div {...args} onClick={next}>
-      {children}
-    </div>
-  );
-}
-
-const DarkThemeList = ["dark", "auto"];
-export const useDarkThemeState = createThemeState(DarkThemeList);
-
-export function DarkThemeState() {
-  const { index, theme, list, setIndex } = useDarkThemeState();
-  const cookieKey = "darktheme";
-  const [cookies, setCookie, removeCookie] = useCookies([cookieKey]);
-  const isSet = useRef(false);
-  const refIndex = useRef(-1);
-  useEffect(() => {
-    if (isSet.current) {
-      if (refIndex.current !== index) {
-        if (refIndex.current >= 0) {
-          document.documentElement.classList.remove(list[refIndex.current]);
-        }
-        if (index >= 0) {
-          document.documentElement.classList.add(theme);
-          setCookie(cookieKey, theme);
-        } else {
-          removeCookie(cookieKey);
-        }
-        refIndex.current = index;
-      }
-    } else {
-      isSet.current = true;
-      if (cookies[cookieKey]) {
-        document?.documentElement.classList.add(cookies[cookieKey]);
-        const cookieIndex = list.findIndex((v) => v === cookies[cookieKey]);
-        setIndex(cookieIndex);
-        refIndex.current = cookieIndex;
-      }
-    }
-  });
-  return <></>;
-}
-
-export function DarkThemeChangeButton({
-  children = "ダークテーマ",
-  ...args
-}: ThemeChangeButtonProps) {
-  const { next } = useDarkThemeState();
-  return (
-    <div {...args} onClick={next}>
-      {children}
-    </div>
-  );
+    });
+    return <></>;
+  }
 }
