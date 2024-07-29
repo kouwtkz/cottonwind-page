@@ -1,8 +1,8 @@
 {
-  "include": ["src", "import", "**/*.d.ts"],
+  "include": ["src", "import", "**/*.d.ts", "./*.ts"],
   "compilerOptions": {
     "target": "es2017",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["@cloudflare/workers-types", "vite/client"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -18,6 +18,5 @@
     "paths": {
       "@/*": ["src/*"]
     }
-  },
-  "references": [{ "path": "./tsconfig.vite.json" }]
+  }
 }
