@@ -8,6 +8,7 @@ import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList'
+import { envStringToBoolean, envStringToObject } from './BuildEnv'
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
@@ -29,24 +30,6 @@ function SetBuildDate(env: EnvType) {
   return env;
 }
 
-// envファイルのtrueやfalseをbooleanに変換する
-const envStringToBoolean = () => ({
-  name: 'env-string-to-boolean',
-  configResolved(config: any) {
-    const entries = Object.entries(config.env as Record<string, string>).map(([key, value]) => {
-      const target = typeof value === 'string' ? value.toLowerCase() : value
-      const results = {
-        true: true,
-        false: false,
-        null: null
-      } as any;
-      return [key, results[target] === undefined ? value : results[target]]
-    })
-    config.env = Object.fromEntries(entries)
-    return config
-  }
-})
-
 export default defineConfig(({ mode }) => {
   const envLocalPath = `.env.${mode}.local`;
   let env: EnvType = {};
@@ -60,7 +43,7 @@ export default defineConfig(({ mode }) => {
   writeEnv(envLocalPath, env);
   let config: UserConfig = {
     optimizeDeps: { include: [] },
-    plugins: [tsconfigPaths(), envStringToBoolean()]
+    plugins: [tsconfigPaths(), envStringToBoolean(), envStringToObject()]
   };
   if (mode === 'client') {
     config.build = {

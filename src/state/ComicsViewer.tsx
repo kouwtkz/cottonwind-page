@@ -44,6 +44,7 @@ function EBookGallery() {
     <GalleryObject
       items={[
         {
+          name: "comics",
           label: "comics",
           list: imageItemList.filter((image) => image.type === "ebook"),
         },

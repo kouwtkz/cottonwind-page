@@ -1,8 +1,9 @@
 {
-  "exclude": ["node_modules", "static", "dist"],
+  "include": ["src", "import", "**/*.d.ts"],
   "compilerOptions": {
-    "target": "es2016",
+    "target": "es2017",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
@@ -13,10 +14,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "allowJs": true,
-    "outDir": "dist",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
-  }
+  },
+  "references": [{ "path": "./tsconfig.vite.json" }]
 }

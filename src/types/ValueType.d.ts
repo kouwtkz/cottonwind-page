@@ -10,3 +10,7 @@ interface KeyValueStringType {
 interface KeyValueAnyType {
   [k: string]: any;
 }
+
+interface KeyValueType<T> {
+  [k: string]: T;
+}

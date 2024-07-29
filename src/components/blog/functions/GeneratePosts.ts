@@ -1,6 +1,6 @@
 // @ts-check
 
-import getPosts from "./getPosts.mjs";
+import getPosts from "./getPosts";
 import { parse } from "marked";
 import { getPostsData } from "../postDataFunction";
 import { CommonContext } from "@/types/HonoCustomType";

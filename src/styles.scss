@@ -133,8 +133,9 @@
   --font-LuloClean: "LuloCleanW01-OneBold";
 }
 
-$mobileWidth: 768px;
-$tabletWidth: 1024px;
+$mobileWidth: 520px;
+$tabletWidth: 768px;
+$desktopWidth: 1024px;
 
 $text_xs: 0.75rem;
 $text_sm: 0.875rem;
@@ -619,7 +620,7 @@ body {
   &.loading .loadingWindow {
     position: fixed;
     top: 0;
-    width: 100vw;
+    width: 100%;
     max-width: var(--ct-width);
     height: 100vh;
     background-color: var(--background);
@@ -632,7 +633,7 @@ body {
     text-align: center;
     .loadingNow {
       color: var(--main-color);
-      font-size: $text_2xl;
+      font-size: 1.5rem;
     }
     img {
       margin: 1rem;
@@ -871,7 +872,7 @@ footer {
       font-family: var(--font-LuloClean);
     }
   }
-  @media (min-width: $tabletWidth) {
+  @media (min-width: $desktopWidth) {
     ul {
       flex-direction: row;
     }
@@ -1527,7 +1528,7 @@ select.YearFilter {
   z-index: 40;
   .viewer {
     @extend .modal-background;
-    // width: 100vw;
+    // width: 100%;
     // height: 100vh;
     display: flex;
     justify-content: center;
