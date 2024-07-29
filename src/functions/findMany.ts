@@ -1,4 +1,4 @@
-import { AutoAllotDate } from "@/components/doc/DateFunctions";
+import { AutoAllotDate } from "./DateFunctions";
 
 export function findMany<T>({
   list,
