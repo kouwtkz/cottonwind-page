@@ -1,26 +1,19 @@
-// @ts-check
-
 import fs from "fs";
 import { resolve } from "path";
-import { GetYamlImageList } from "./GetImageList.mjs";
-import { ReadImageFromYamls } from "./ReadImage.mjs";
+import { GetYamlImageList } from "./GetImageList";
+import { ReadImageFromYamls } from "./ReadImage";
 import { dump } from 'js-yaml';
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`; 7
 
-/**
- * @param {UpdateImageYamlProps} param0 
- */
-export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readSize = true, deleteImage = true, ...args }) {
+export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readSize = true, deleteImage = true, ...args }: UpdateImageYamlProps) {
   // yamlを管理するメディアディレクトリ
   const baseDir = `${cwd}/${args.from}`;
   const yamls = _yamls || await GetYamlImageList(args);
   const mtimeYamlPath = resolve(`${cwd}/_data/yamldata_mtimes.json`);
-  /** @type {{[key: string]: Date}} */
-  const mtimeYamlList = (() => {
+  const mtimeYamlList: { [k: string]: Date } = (() => {
     let JsonStr = "{}";
     try { JsonStr = String(fs.readFileSync(mtimeYamlPath)); } catch { }
-    /** @type {{[key: string]: string}} */
-    const _mtimeYamlList = JSON.parse(JsonStr);
+    const _mtimeYamlList: { [k: string]: string } = JSON.parse(JsonStr);
     return Object.fromEntries(Object.entries(_mtimeYamlList)
       .map(([key, value]) => { try { return [key, new Date(String(value))] } catch { return [key, null] } })
       .filter((key, value) => value !== null));
@@ -39,8 +32,7 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
     }
   }).forEach(y => {
     y.data.list?.forEach(img => {
-      /** @type {{ index: number, dir: string } | undefined} */
-      let foundListItem;
+      let foundListItem: { index: number, dir: string } | undefined;
       yamls.some((y) => {
         if (!y.data.listup) return false;
         const foundIndex = (y.list || []).findIndex(d => (d.src === img.src));
@@ -50,8 +42,7 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
         }
       }, []);
       if (foundListItem) {
-        /** @type MediaImageInYamlType | undefined */
-        let gotItem;
+        let gotItem: MediaImageInYamlType | undefined;
         if (y.dir === foundListItem.dir) {
           const foundImage = y.list[foundListItem.index];
           if ((img.dir || '') !== foundImage.dir) {
@@ -98,8 +89,7 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
           else
             delete foundSelfImg.dir;
         } else {
-          /** @type {{ index: number, dir: string } | undefined} */
-          let foundYamlItem;
+          let foundYamlItem: { index: number, dir: string } | undefined;
           yamls.some((y) => {
             const foundIndex = (y.data.list || []).findIndex(_img => (_img.src === img.src) && !y.list.some(item => item.src === _img.src));
             if (foundIndex >= 0) {
@@ -108,8 +98,7 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
             }
           }, []);
           if (foundYamlItem) {
-            /** @type MediaImageInYamlType | undefined */
-            let gotItem;
+            let gotItem: MediaImageInYamlType | undefined;
             if (y.dir !== foundYamlItem.dir) {
               const spliceItems = yamls.find(y => y.dir === foundYamlItem?.dir)?.data.list?.splice(foundYamlItem.index, 1) || [];
               if (spliceItems.length > 0) gotItem = spliceItems[0];
@@ -130,8 +119,7 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
 
   // リストの重複削除とリスト内処理
   yamls.forEach((y) => {
-    /** @type Map<string, MediaImageInYamlType> */
-    const map = new Map();
+    const map = new Map<string, MediaImageInYamlType>();
     y.data.list?.forEach(item => { if (!map.has(item.src)) map.set(item.src, item) })
     const values = Array.from(map.values());
     y.data.notfound = y.data.notfound || [];

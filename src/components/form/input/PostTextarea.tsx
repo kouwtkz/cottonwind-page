@@ -1,5 +1,5 @@
 import { SetRegisterReturn } from "../hook/SetRegister";
-import MultiParser from "../../doc/MultiParser";
+import MultiParser from "@/functions/doc/MultiParser";
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 

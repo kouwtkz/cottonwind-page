@@ -4,7 +4,7 @@ import getPosts from "./getPosts";
 import { parse } from "marked";
 import { getPostsData } from "../postDataFunction";
 import { CommonContext } from "@/types/HonoCustomType";
-import GenerateRss from "@/components/doc/GenerateRss";
+import GenerateRss from "@/functions/doc/GenerateRss";
 
 const SITE_URL = import.meta.env.VITE_URL;
 

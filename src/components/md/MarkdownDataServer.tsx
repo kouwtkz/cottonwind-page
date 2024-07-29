@@ -1,4 +1,4 @@
-import MultiParser from "../doc/MultiParser";
+import MultiParser from "@/functions/doc/MultiParser";
 import { GetMarkdownData } from "./MarkdownData.mjs";
 
 export function MdServerNode({

@@ -1,13 +1,8 @@
-// @ts-check
-
 import { imageMeta } from "image-meta";
 import fs from "fs";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
-/**
- * @param {readImageHandleProps} args
- */
-export async function ReadImageFromYamls({ yamls, readSize = true, resizedDir = 'resized', retouchImageHandle, deleteImage }) {
+export async function ReadImageFromYamls({ yamls, readSize = true, resizedDir = 'resized', retouchImageHandle, deleteImage }: readImageHandleProps) {
   for (const y of yamls) {
     // 画像URLの定義
     for (const image of y.list) {

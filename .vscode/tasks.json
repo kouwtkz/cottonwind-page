@@ -6,7 +6,7 @@
       "script": "update",
       "problemMatcher": [],
       "label": "npm: update",
-      "detail": "node ./src/mediaScripts/DataUpdate.mjs"
+      "detail": "DataUpdate"
     },
     {
       "type": "npm",

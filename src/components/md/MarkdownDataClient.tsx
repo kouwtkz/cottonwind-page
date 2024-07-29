@@ -1,4 +1,4 @@
-import MultiParser from "../doc/MultiParser";
+import MultiParser from "@/functions/doc/MultiParser";
 import { useMarkdownDataState } from "./MarkdownDataState";
 
 export function MdClientNode({

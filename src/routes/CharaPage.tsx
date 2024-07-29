@@ -3,12 +3,12 @@ import {
   ImageMee,
   ImageMeeIcon,
   ImageMeeThumbnail,
-} from "../components/layout/ImageMee";
-import { CharaState, useCharaState } from "../state/CharaState";
+} from "@/layout/ImageMee";
+import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
-import { useImageState } from "../state/ImageState";
-import MultiParser from "../components/doc/MultiParser";
+import { useImageState } from "@/state/ImageState";
+import MultiParser from "@/functions/doc/MultiParser";
 import CharaEditForm, {
   CharaEditButton,
   SortableObject,

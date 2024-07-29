@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
-import { SiteMenu, SiteMenuButton } from "../../state/SiteMenu";
+import { SiteMenu, SiteMenuButton } from "@/state/SiteMenu";
 import { ImageMee } from "./ImageMee";
 
 export const SiteTitle = React.memo(function SiteTitle({

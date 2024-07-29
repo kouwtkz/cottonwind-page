@@ -1,16 +1,8 @@
-// @ts-check
-
-/**
- * @param {Date | null | undefined} date
- */
-export function ToJST(date) {
+export function ToJST(date?: Date | null) {
   return (date?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" }) + "+09:00") ?? "";
 }
 
-/**
- * @param {Date | null | undefined} date
- */
-export function ToFormJST(date) {
+export function ToFormJST(date?: Date | null) {
   return date
     ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
     .replace(" ", "T") ?? ""

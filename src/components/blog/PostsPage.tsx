@@ -9,8 +9,8 @@ import { getLocalDraft, useLocalDraftPost } from "./post/postLocalDraft";
 import { useEffect, useLayoutEffect, useMemo } from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
-import { ToHref } from "@/components/doc/MakeURL";
-import { useBackButton, queryCheck } from "@/components/layout/BackButton";
+import { ToHref } from "@/functions/doc/MakeURL";
+import { useBackButton, queryCheck } from "@/layout/BackButton";
 import { MdClientNode } from "@/components/md/MarkdownDataClient";
 import { useManageState } from "@/state/StateSet";
 

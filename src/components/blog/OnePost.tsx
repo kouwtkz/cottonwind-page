@@ -1,8 +1,8 @@
-import MultiParser from "@/components/doc/MultiParser";
+import MultiParser from "@/functions/doc/MultiParser";
 import { Link, useNavigate } from "react-router-dom";
-import { BlogDateOptions as opt } from "@/components/doc/DateTimeFormatOptions";
+import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { HTMLAttributes, useCallback, useMemo } from "react";
-import { ToHref } from "@/components/doc/MakeURL";
+import { ToHref } from "@/functions/doc/MakeURL";
 import { useLocalDraftPost } from "./post/postLocalDraft";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useManageState } from "@/state/StateSet";

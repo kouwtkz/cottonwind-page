@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDataState } from "@/state/StateSet";
-import { MakeRelativeURL } from "@/components/doc/MakeURL";
+import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import SiteConfigList from "@/data/config.list";
 
 export default function LinksPage() {

@@ -1,5 +1,5 @@
-import { buildTime } from "../../data/env";
-import { getJSTYear } from "../../data/functions/TimeFunctions";
+import { buildTime } from "@/data/env";
+import { getJSTYear } from "@/data/functions/TimeFunctions";
 import SiteConfigList from "@/data/config.list";
 
 export function Footer() {

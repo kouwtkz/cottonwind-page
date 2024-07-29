@@ -11,7 +11,7 @@ import {
 import { parse } from "marked";
 import { useNavigate } from "react-router-dom";
 import { GetUrlFlag, MakeRelativeURL, MakeURL, ToHref, ToURL } from "./MakeURL";
-import { GetImageItemFromSrc } from "../layout/ImageMee";
+import { GetImageItemFromSrc } from "@/layout/ImageMee";
 import { useImageState } from "@/state/ImageState";
 
 type MultiParserOptions = {

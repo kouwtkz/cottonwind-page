@@ -4,15 +4,12 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
-import { GetEmbed } from "./mediaScripts/GetEmbed.mjs";
-import {
-  FeedSet,
-  IsLogin,
-} from "./ServerContent";
+import { GetEmbed } from "./mediaScripts/GetEmbed";
+import { FeedSet, IsLogin } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
-import { CompactCode } from "./components/doc/StrFunctions.mjs";
+import { CompactCode } from "@/functions/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
 import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/gitlog.mjs";
@@ -74,7 +71,7 @@ ServerCommon(app);
 app.route("/", ssg);
 app.post("/", async (c) => {
   return c.json(Object.fromEntries(await c.req.formData()));
-})
+});
 
 RoutingList.forEach((path) => {
   app.get(path, (c, next) =>

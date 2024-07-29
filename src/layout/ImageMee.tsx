@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { UrlObject } from "url";
-import { GetUrlFlag, ToURL } from "../doc/MakeURL";
+import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
 const blankImage =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 

@@ -7,9 +7,9 @@ import {
 } from "react";
 import { create } from "zustand";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import MultiParser from "../components/doc/MultiParser";
-import { BlogDateOptions as opt } from "../components/doc/DateTimeFormatOptions";
-import { ImageMee } from "../components/layout/ImageMee";
+import MultiParser from "@/functions/doc/MultiParser";
+import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
+import { ImageMee } from "@/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
 import ImageEditForm from "../components/form/edit/ImageEditForm";
@@ -23,7 +23,7 @@ import {
   LocationStateType,
   MakeRelativeURL,
   SearchSet,
-} from "../components/doc/MakeURL";
+} from "@/functions/doc/MakeURL";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,
@@ -31,7 +31,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { CharaState, useCharaState } from "../state/CharaState";
+import { CharaState, useCharaState } from "@/state/CharaState";
 import { useImageState } from "./ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";

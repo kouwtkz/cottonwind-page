@@ -1,7 +1,7 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { useImageState } from "../state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import SiteConfigList from "@/data/config.list";
-import { useDataState } from "../state/StateSet";
+import { useDataState } from "@/state/StateSet";
 import {
   ReactNode,
   createRef,
@@ -17,7 +17,7 @@ import {
   filterPickFixed,
 } from "../data/functions/FilterImages";
 import { create } from "zustand";
-import { InPageMenu } from "../components/layout/InPageMenu";
+import { InPageMenu } from "@/layout/InPageMenu";
 import {
   GalleryYearFilter,
   GallerySearchArea,
@@ -28,9 +28,9 @@ import {
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { LinkMee, MakeRelativeURL, SearchSet } from "../components/doc/MakeURL";
+import { LinkMee, MakeRelativeURL, SearchSet } from "@/functions/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
-import { ImageMeeThumbnail } from "../components/layout/ImageMee";
+import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";

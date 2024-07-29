@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { create } from "zustand";
-import SoundFixed from "../components/layout/SoundFixed";
-import { getBasename } from "../components/doc/PathParse";
+import SoundFixed from "@/layout/SoundFixed";
+import { getBasename } from "@/functions/doc/PathParse";
 const LoopModeList: SoundLoopMode[] = ["loop", "loopOne", "playUntilEnd", "off"];
 
 type PlaylistRegistType =

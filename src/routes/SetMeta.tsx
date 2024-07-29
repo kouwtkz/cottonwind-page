@@ -1,6 +1,6 @@
 import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
-import { toUpperFirstCase } from "../components/doc/StrFunctions.mjs";
+import { toUpperFirstCase } from "@/functions/doc/StrFunctions.mjs";
 import {
   autoFixTagsOptions,
   defaultTags,

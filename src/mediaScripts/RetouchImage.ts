@@ -1,24 +1,15 @@
-// @ts-check
-
 import fs from "fs";
 import sharp from "sharp";
 import { resolve, dirname, parse } from "path";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
-/**
- * @typedef {"contain" | "cover" | "fill" | "outside" | "inside"} FitMethod
- */
+type FitMethod = "contain" | "cover" | "fill" | "outside" | "inside";
 
-/**
- * @param {retouchImageHandleProps} args
- */
-export async function retouchImageFromYamls({ yamls, deleteImage = false, publicDir = 'public', selfRoot = false }) {
-  /** @type {string[]} */
-  const outputPublicImages = [];
+export async function retouchImageFromYamls({ yamls, deleteImage = false, publicDir = 'public', selfRoot = false }: retouchImageHandleProps) {
+  const outputPublicImages: string[] = [];
   const publicFullDir = resolve((selfRoot ? "." : cwd) + "/" + publicDir);
   const toList = Array.from(new Set(yamls.map(({ to }) => to)));
-  /** @type {{ isFile: boolean, path: string }[]} */
-  let currentPublicItems = [];
+  let currentPublicItems: { isFile: boolean, path: string }[] = [];
   toList.forEach(to => {
     const path = resolve(`${publicFullDir}/${to}`);
     try { fs.mkdirSync(path, { recursive: true }) } catch { }
@@ -90,11 +81,14 @@ export async function retouchImageFromYamls({ yamls, deleteImage = false, public
   }
 }
 
-/**
- * @param {{ src: string; output: string; size?: number | { h: number, w: number } | null; quality?: number; fit?: FitMethod; }} param0 
- * @returns 
- */
-export async function RetouchImage({ src, output, size = null, quality, fit = "cover" }) {
+interface RetouchImageProps {
+  src: string;
+  output: string;
+  size?: number | { h: number, w: number } | null;
+  quality?: number; fit?: FitMethod;
+}
+
+export async function RetouchImage({ src, output, size = null, quality, fit = "cover" }: RetouchImageProps) {
   if ((() => {
     try {
       const toTime = fs.statSync(output).mtime;

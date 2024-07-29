@@ -9,11 +9,11 @@ import {
 import {
   GalleryViewerPaging,
   useImageViewer,
-} from "../../../state/ImageViewer";
-import { ImageMee } from "../../layout/ImageMee";
+} from "@/state/ImageViewer";
+import { ImageMee } from "@/layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useImageState } from "../../../state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import {
   defaultTags,
   getTagsOptions,
@@ -21,9 +21,9 @@ import {
   GalleryTagsOption,
 } from "../../tag/GalleryTags";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEmbedState } from "../../../state/Embed";
+import { useEmbedState } from "@/state/Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";
-import { MakeRelativeURL } from "../../doc/MakeURL";
+import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdDeleteForever,
@@ -31,11 +31,11 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "../../theme/main";
+import { callReactSelectTheme } from "@/theme/main";
 import { PostTextarea, usePreviewMode } from "../input/PostTextarea";
-import { useCharaState } from "../../../state/CharaState";
+import { useCharaState } from "@/state/CharaState";
 import { AutoImageItemType } from "../../../data/functions/images";
-import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
+import { ToFormJST } from "@/functions/DateFormat";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {

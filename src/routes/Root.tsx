@@ -1,12 +1,12 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
-import { Header } from "../components/layout/Header";
-import { Footer } from "../components/layout/Footer";
+import { Header } from "@/layout/Header";
+import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
-import { StateSet, useDataState } from "../state/StateSet";
+import { StateSet, useDataState } from "@/state/StateSet";
 import { MetaValues } from "./SetMeta";
-import { useCharaState } from "../state/CharaState";
+import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
-import { useImageState } from "../state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/components/blog/PostState";
 
 function SetTitle() {

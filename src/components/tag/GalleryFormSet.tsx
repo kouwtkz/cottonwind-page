@@ -6,7 +6,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
-import { LinkMee, MakeRelativeURL, SearchSet } from "../doc/MakeURL";
+import { LinkMee, MakeRelativeURL, SearchSet } from "@/functions/doc/MakeURL";
 import { useGalleryObject } from "../../routes/GalleryPage";
 import {
   defaultFilterTags,
@@ -16,7 +16,7 @@ import {
 } from "./GalleryTags";
 import ReactSelect from "react-select";
 import { HTMLAttributes } from "react";
-import { callReactSelectTheme } from "../theme/main";
+import { callReactSelectTheme } from "@/theme/main";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 

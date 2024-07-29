@@ -1,5 +1,5 @@
-import { Footer, LinksList } from "./components/layout/Footer";
-import { Loading } from "./components/layout/Loading";
+import { Footer, LinksList } from "@/layout/Footer";
+import { Loading } from "@/layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";

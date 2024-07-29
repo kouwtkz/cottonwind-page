@@ -37,8 +37,8 @@ import { findMany } from "@/functions/findMany";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
 import { backupStorageKey, getLocalDraft } from "./postLocalDraft";
-import { callReactSelectTheme } from "@/components/theme/main";
-import { useBackButton, queryCheck } from "@/components/layout/BackButton";
+import { callReactSelectTheme } from "@/theme/main";
+import { useBackButton, queryCheck } from "@/layout/BackButton";
 
 type labelValues = { label: string; value: string }[];
 

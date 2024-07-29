@@ -1,25 +1,17 @@
-// @ts-check
-
 import { writeFileSync, mkdirSync } from "fs"
 
+type optionsType = {dir?: string, space?: number};
+
 export const dataJsonDir = "./public/json/"
-/**
- * @param {string} name
- * @param {any} obj
- * @param {{dir?: string, space?: number}} args
- */
-export function exportJsonOut(name, obj, { dir = dataJsonDir, space } = {}) {
+
+export function exportJsonOut(name: string, obj: any, { dir = dataJsonDir, space }: optionsType = {}) {
   try { mkdirSync(dir, { recursive: true }) } catch { }
   writeFileSync(dir + "/" + name + ".json", JSON.stringify(obj, null, space))
 }
 
 export const dataImportDir = "./src/data/import/"
-/**
- * @param {string} name
- * @param {any} obj 
- * @param {{dir?: string, space?: number}} args
- */
-export function exportTsOut(name, obj, { dir = dataImportDir, space } = {}) {
+
+export function exportTsOut(name: string, obj: any, { dir = dataImportDir, space }: optionsType = {}) {
   try { mkdirSync(dir, { recursive: true }) } catch { }
   writeFileSync(dir + "/" + name + ".ts", "export var " + name + ": any = " + JSON.stringify(obj))
 }

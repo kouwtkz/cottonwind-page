@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
-import { useSoundPlayer } from "../state/SoundPlayer";
-import { SoundState, useSoundState } from "../state/SoundState";
+import { useSoundPlayer } from "@/state/SoundPlayer";
+import { SoundState, useSoundState } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 

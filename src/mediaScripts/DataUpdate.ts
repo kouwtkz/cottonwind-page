@@ -1,18 +1,15 @@
-// @ts-check
-
-import { dataImportDir, exportJsonOut, exportTsOut } from "./MediaUpdateModules.mjs";
-import CopyDirDiff from "./CopyDirDiff.mjs";
-import { GetMediaImageAlbums } from "./GetImageList.mjs";
-import { ReadImageFromYamls } from "./ReadImage.mjs";
-import { UpdateImageYaml } from "./UpdateImage.mjs";
-import { fromto } from "./UpdateOption.mjs";
-import { retouchImageFromYamls } from "./RetouchImage.mjs";
-import { getSoundAlbum } from "../data/functions/FunctionsSoundData.mjs";
-import { readCharaObject } from "../data/functions/FunctionsCharaData.mjs";
+import { dataImportDir, exportJsonOut, exportTsOut } from "./MediaUpdateModules";
+import CopyDirDiff from "./CopyDirDiff";
+import { GetMediaImageAlbums } from "./GetImageList";
+import { ReadImageFromYamls } from "./ReadImage";
+import { UpdateImageYaml } from "./UpdateImage";
+import { fromto } from "./UpdateOption";
+import { retouchImageFromYamls } from "./RetouchImage";
+import { getSoundAlbum } from "@/data/functions/FunctionsSoundData";
+import { readCharaObject } from "@/data/functions/FunctionsCharaData";
 
 const mode = process.argv[2] ?? null;
-/** @type string[] */
-const doneList = [];
+const doneList: string[] = [];
 
 // キャラクターデータのコピー
 if (!mode || mode === "character") {

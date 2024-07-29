@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es2017",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["@cloudflare/workers-types", "vite/client"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,

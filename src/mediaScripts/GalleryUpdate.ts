@@ -1,9 +1,9 @@
-import { fromto } from "./UpdateOption.mjs";
-import { GetYamlImageList } from "./GetImageList.mjs"
+import { fromto } from "./UpdateOption";
+import { GetYamlImageList } from "./GetImageList"
 import { mkdirSync, renameSync, unlinkSync, writeFileSync, utimesSync } from "fs";
 import { resolve as pathResolve } from "path";
-import { UpdateImageYaml } from "./UpdateImage.mjs";
-import { MediaUpdate } from "./DataUpdateProcess.mjs";
+import { UpdateImageYaml } from "./UpdateImage";
+import { MediaUpdate } from "./DataUpdateProcess";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 export async function GalleryPatch(data: any) {

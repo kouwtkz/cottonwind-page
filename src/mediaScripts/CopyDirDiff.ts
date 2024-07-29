@@ -1,23 +1,15 @@
-// @ts-check
-
 import { mkdirSync, readdirSync, copyFileSync, statSync, rmSync, rmdirSync } from "fs";
 import { basename, resolve } from "path";
 const cwd = resolve(`${process.cwd()}/${process.env.ROOT || ""}`);
 
-/**
- * @param {string} from
- * @param {string} to
- * @param {CopyDirOptions} options
- * @returns 
- */
-export default function CopyDirDiff(from, to, { identical = false, withDir = true, force = false, ignore, ignoreDir } = {}) {
+export default function CopyDirDiff(from: string, to: string,
+  { identical = false, withDir = true, force = false, ignore, ignoreDir }: CopyDirOptions = {}) {
   from = from.replace(/[\\/]+/g, "/").replace(/\/$/, "");
   to = (withDir ? to + "/" + basename(from) : to).replace(/[\\/]+/g, "/");
   try { mkdirSync(to, { recursive: true }) } catch { }
   const alreadyDirents = readdirSync(to, { recursive: true, withFileTypes: true })
     .map(dirent => ({ path: resolve(`${dirent.path}/${dirent.name}`), isFile: dirent.isFile() }));
-  /** @type {{path: string, isFile: boolean}[]} */
-  const outputDirents = [];
+  const outputDirents: { path: string, isFile: boolean }[] = [];
   const cwdFrom = resolve(`${cwd}/${from}`);
   readdirSync(cwdFrom, { recursive: true, withFileTypes: true }).forEach(dirent => {
     const cutPath = dirent.path.replace(cwd, "").replace(/[\\/]+/g, "/").replace(/^\//, "");

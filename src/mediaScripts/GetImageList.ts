@@ -1,24 +1,15 @@
-// @ts-check
-
 import { load } from "js-yaml";
 import fs from "fs";
 import { resolve, extname, parse } from "path";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
-/**
- * @typedef {{ name: string; dir: string; }} _Dirent
- */
+type _Dirent = { name: string; dir: string; };
 
-/**
- * @param {GetYamlImageListProps} param0 
- * @returns 
- */
-export async function GetYamlImageList({ from, to: _to, filter, readImageHandle, retouchImageHandle, deleteImage = false, readSize }) {
+export async function GetYamlImageList({ from, to: _to, filter, readImageHandle, retouchImageHandle, deleteImage = false, readSize }: GetYamlImageListProps) {
   from = from.replace(/[\\/]+/g, "/");
   const to = _to === undefined ? from : _to;
   // ディレクトリ内の各ファイルを取得
-  /** @type {fs.Dirent[]} */
-  let files = [];
+  let files: fs.Dirent[] = [];
   const _from = resolve(`${cwd}/${from}`);
   try {
     files = fs.readdirSync(_from, { recursive: true, withFileTypes: true })
@@ -28,8 +19,7 @@ export async function GetYamlImageList({ from, to: _to, filter, readImageHandle,
   }
   const ls = files.reduce((a, dirent) => {
     const dirChild = dirent.path.replace(_from, "").replace(/\\/g, "/");
-    /** @type { _Dirent } */
-    const v = { name: dirent.name, dir: dirChild }
+    const v: _Dirent = { name: dirent.name, dir: dirChild }
     const ext = extname(dirent.name);
     if (/^\.(ya?ml)$/i.test(ext))
       a.yamls.push(v);
@@ -40,22 +30,16 @@ export async function GetYamlImageList({ from, to: _to, filter, readImageHandle,
     return a;
   },
     {
-      /** @type {_Dirent[]} */
-      yamls: [],
-      /** @type {_Dirent[]} */
-      images: [],
-      /** @type {_Dirent[]} */
-      data: []
+      yamls: [] as _Dirent[],
+      images: [] as _Dirent[],
+      data: [] as _Dirent[]
     })
 
   // 次にyamlファイルのリストを作成
-  /** @type {YamlGroupType[]} */
-  let yamls = ls.yamls.map((yaml) => {
+  let yamls: YamlGroupType[] = ls.yamls.map((yaml) => {
     const dataStr = String(fs.readFileSync(resolve(`${cwd}/${from}/${yaml.dir}/${yaml.name}`)))
-    /** @type {YamlDataType} */
-    const data = dataStr ? load(dataStr) ?? {} : {};
-    /** @type {MediaImageInYamlType[]} */
-    const list = [];
+    const data: YamlDataType = dataStr ? load(dataStr) ?? {} : {};
+    const list: MediaImageInYamlType[] = [];
     return { data, list, from, to, already: Boolean(dataStr), ...yaml };
   }).filter((y) => y.already).sort((a, b) => a < b ? 1 : -1);
   ls.images.forEach(img => {
@@ -135,17 +119,12 @@ export async function GetYamlImageList({ from, to: _to, filter, readImageHandle,
   return yamls;
 }
 
-/**
- * @param {YamlGroupType[]} yamls 
- * @returns {MediaImageAlbumType[]}
- */
-export function GetMediaImageAlbumFromYamls(yamls) {
+export function GetMediaImageAlbumFromYamls(yamls: YamlGroupType[]): MediaImageAlbumType[] {
   return yamls.map((y) => {
     const { list: ydList, name: ydName, description = "", visible = {}, type, direction, time: ydTime = null, listup } = y.data;
     const list = y.list.map((item) => {
       const { time = null, ..._item } = item
-      /** @type {MediaImageItemType} */
-      const mediaImageItem = { ..._item, time: (time ? new Date(time) : null) }
+      const mediaImageItem: MediaImageItemType = { ..._item, time: (time ? new Date(time) : null) }
       return mediaImageItem;
     });
     const name = ydName || y.dir;
@@ -154,22 +133,14 @@ export function GetMediaImageAlbumFromYamls(yamls) {
   })
 }
 
-/**
- * @param {GetYamlImageListProps} args
- */
-export async function GetMediaImageAlbums(args) {
+export async function GetMediaImageAlbums(args: GetYamlImageListProps) {
   return GetMediaImageAlbumFromYamls(
     await GetYamlImageList(args)
   );
 }
 
-/**
- * @param {MediaImageAlbumType[]} albums 
- * @returns {MediaImageItemType[]}
- */
-export function CastMediaImagesFromAlbums(albums) {
-  /** @type {MediaImageItemType[]} */
-  const items = [];
+export function CastMediaImagesFromAlbums(albums: MediaImageAlbumType[]): MediaImageItemType[] {
+  const items: MediaImageItemType[] = [];
   albums.forEach((group) => {
     group.list.forEach((item) => {
       item.album = group;
@@ -179,10 +150,7 @@ export function CastMediaImagesFromAlbums(albums) {
   return items;
 }
 
-/**
- * @param {GetYamlImageListProps} args
- */
-export async function GetMediaImages(args) {
+export async function GetMediaImages(args: GetYamlImageListProps) {
   return CastMediaImagesFromAlbums(
     await GetMediaImageAlbums(args)
   );

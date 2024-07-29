@@ -12,18 +12,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
-import { useDataState } from "../../../state/StateSet";
+import { useDataState } from "@/state/StateSet";
 import { MdAdd, MdClose, MdDoneOutline, MdEditNote } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
-import { LinkMee } from "../../doc/MakeURL";
+import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useCharaState } from "../../../state/CharaState";
-import { useImageState } from "../../../state/ImageState";
-import { useSoundState } from "../../../state/SoundState";
-import { ImageMeeIcon } from "../../layout/ImageMee";
-import { callReactSelectTheme } from "../../theme/main";
+import { useCharaState } from "@/state/CharaState";
+import { useImageState } from "@/state/ImageState";
+import { useSoundState } from "@/state/SoundState";
+import { ImageMeeIcon } from "@/layout/ImageMee";
+import { callReactSelectTheme } from "@/theme/main";
 import {
   DndContext,
   closestCenter,
@@ -42,7 +42,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
 import { CharaListItem } from "../../../routes/CharaPage";
-import { ToFormJST } from "../../../mediaScripts/DateFormat.mjs";
+import { ToFormJST } from "@/functions/DateFormat";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
@@ -52,7 +52,7 @@ export default function CharaEditForm() {
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
   const getDefaultValues = useCallback(
-    (chara: CharaType | null) => ({
+    (chara?: CharaType | null) => ({
       id: chara?.id || "",
       name: chara?.name || "",
       honorific: chara?.honorific || "",

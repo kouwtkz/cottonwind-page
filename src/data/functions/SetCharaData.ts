@@ -1,6 +1,6 @@
 import { GetYamlImageList } from "../../mediaScripts/GetImageList.mjs";
 import { readCharaObject, writeCharaObject } from "./FunctionsCharaData.mjs";
-import { fromto } from "../../mediaScripts/UpdateOption.mjs";
+import { fromto } from "./UpdateOption";
 import { UpdateImageYaml } from "../../mediaScripts/UpdateImage.mjs";
 import { MediaUpdate } from "../../mediaScripts/DataUpdateProcess.mjs";
 

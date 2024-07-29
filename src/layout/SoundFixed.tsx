@@ -1,11 +1,11 @@
 import React from "react";
-import { useSoundPlayer } from "../../state/SoundPlayer";
-import PlayPauseButton from "../svg/audio/PlayPauseButton";
-import StopButton from "../svg/audio/StopButton";
-import LoopButton from "../svg/audio/LoopButton";
-import PrevButton from "../svg/audio/PrevButton";
-import NextButton from "../svg/audio/NextButton";
-import ShuffleButton from "../svg/audio/ShuffleButton";
+import { useSoundPlayer } from "@/state/SoundPlayer";
+import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
+import StopButton from "@/components/svg/audio/StopButton";
+import LoopButton from "@/components/svg/audio/LoopButton";
+import PrevButton from "@/components/svg/audio/PrevButton";
+import NextButton from "@/components/svg/audio/NextButton";
+import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import { useLocation } from "react-router-dom";
 
 export default function SoundFixed() {

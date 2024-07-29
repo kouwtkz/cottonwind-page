@@ -1,5 +1,5 @@
 {
-  "include": ["*.config.ts", "*.ts", "src/routes/RoutingList.ts"],
+  "include": ["*.config.ts", "*.ts"],
   "compilerOptions": {
     "composite": true,
     "skipLibCheck": true,
