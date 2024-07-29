@@ -7,7 +7,18 @@
       "request": "launch",
       "command": "npm run dev",
       "serverReadyAction": {
-        "pattern": "//localhost:.+m([0-9]+)",
+        "pattern": "//localhost.+m([0-9]+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "debugWithChrome"
+      }
+    },
+    {
+      "name": "preview",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run preview",
+      "serverReadyAction": {
+        "pattern": "//127.0.0.1.([0-9]+)",
         "uriFormat": "http://localhost:%s",
         "action": "debugWithChrome"
       }
