@@ -33,7 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/form/hook/SetRegister";
 import axios from "axios";
 import PostState, { usePostState } from "../PostState";
-import { findMany } from "../functions/findMany";
+import { findMany } from "@/functions/findMany";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
 import { backupStorageKey, getLocalDraft } from "./postLocalDraft";

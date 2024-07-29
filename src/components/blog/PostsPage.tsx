@@ -1,7 +1,7 @@
 import OnePost from "./OnePost";
 import PostState, { usePostState } from "./PostState";
 import { Link, useSearchParams } from "react-router-dom";
-import { findMany } from "./functions/findMany";
+import { findMany } from "@/functions/findMany";
 import getPosts from "./functions/getPosts";
 import PostsPageFixed from "./fixed/PostsPageFixed";
 import PostDetailFixed from "./fixed/PostDetailFixed";

@@ -1,4 +1,4 @@
-import { findMany, setWhere } from "./findMany";
+import { findMany, setWhere } from "@/functions/findMany";
 
 interface getPostsProps {
   posts: Post[]
