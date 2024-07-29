@@ -4,7 +4,7 @@ interface convertCharaDataProps {
 }
 export function convertCharaData({ data, convert }: convertCharaDataProps) {
   const charaData: CharaObjectType = data;
-  const charaList = Object.values(charaData);
+  const charaList = Object.values(charaData) as CharaType[];
   charaList.forEach((chara) => {
     if (typeof chara.time === "string") chara.time = new Date(chara.time);
     if (typeof chara.birthday === "string") chara.birthday = new Date(chara.birthday);
@@ -14,7 +14,7 @@ export function convertCharaData({ data, convert }: convertCharaDataProps) {
 }
 
 export function convertCharaList(charactersData: CharaObjectType) {
-  return Object.entries(charactersData)
+  return (Object.entries(charactersData) as [string, CharaType][])
     .map(([id, chara]) => (
       {
         ...chara, id,

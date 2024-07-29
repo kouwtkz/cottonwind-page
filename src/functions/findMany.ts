@@ -116,8 +116,9 @@ function createFilterEntry(
 }
 
 function getKeyFromOptions<T>(key: string, options: WhereOptionsKvType<T>) {
-  return typeof options[key] === "object" && options[key].key
-    ? options[key].key
+  const _options = options as any;
+  return typeof _options[key] === "object" && ("key" in _options[key])
+    ? _options[key].key
     : key;
 }
 
@@ -160,16 +161,16 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
           case "object":
-            filterOptions = options[filterKey];
+            filterOptions = (options as any)[filterKey];
             break;
           case "function":
-            filterOptions = { where: options[filterKey] };
+            filterOptions = { where: (options as any)[filterKey] };
             break;
           case "undefined":
             filterOptions = {};
             break;
           default:
-            filterOptions = { key: options[filterKey] };
+            filterOptions = { key: (options as any)[filterKey] };
             break;
         }
         let filterTake = filterOptions.take;

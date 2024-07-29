@@ -12,7 +12,7 @@ import { renderToString } from "react-dom/server";
 import { CompactCode } from "@/functions/doc/StrFunctions.mjs";
 import importStyles from "@/styles.scss";
 import ssg from "./ssg";
-import { GitLogObject } from "@/data/functions/gitlog.mjs";
+import { GitLogObject } from "@/data/functions/gitlog";
 
 import { ServerCommon } from "./server";
 

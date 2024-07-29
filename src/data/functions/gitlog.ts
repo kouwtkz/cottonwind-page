@@ -1,13 +1,8 @@
-// @ts-check
 import { execSync } from "child_process";
 
-/**
- * @param {{branch?: string, dir?: string}} param0 
- */
-export function getGitLogDataList({ branch = "master", dir } = {}) {
+export function getGitLogDataList({ branch = "master", dir }: {branch?: string, dir?: string} = {}) {
   try {
-    /** @type string[] */
-    const execList = [];
+    const execList: string[] = [];
     if (dir) execList.push('cd ' + dir);
     execList.push(`git log --first-parent ${branch} --no-merges --pretty=format:"%ad__,%s" --date=format:"%Y/%m/%d %H:%M:%S"`);
     const gitLog = execSync(execList.join(' & '));
@@ -20,14 +15,8 @@ export function getGitLogDataList({ branch = "master", dir } = {}) {
   }
 }
 
-/**
- * 
- * @param {GitLogDataType[]} gitLogList 
- * @returns 
- */
-export function getGitLogReduced(gitLogList) {
-  /** @type { GitItemJsonType[] } */
-  const gitLogReduced = [];
+export function getGitLogReduced(gitLogList: GitLogDataType[]) {
+  const gitLogReduced: GitItemJsonType[] = [];
   gitLogList.forEach(({ ymd, message }) => {
     const found = gitLogReduced.find(a => a.date === ymd);
     if (found) {
@@ -57,8 +46,7 @@ export function GitLogObject() {
     });
     list.sort((a, b) => a.date < b.date ? 1 : -1)
     const gitLogReduced = getGitLogReduced(list);
-    /** @type {GitObjectJsonType} */
-    const gitObject = { list: gitLogReduced, remote_url };
+    const gitObject: GitObjectJsonType = { list: gitLogReduced, remote_url };
     return gitObject;
   } catch (e) {
     console.log(e);

@@ -1,12 +1,12 @@
-import { GetYamlImageList } from "../../mediaScripts/GetImageList.mjs";
-import { readCharaObject, writeCharaObject } from "./FunctionsCharaData.mjs";
-import { fromto } from "./UpdateOption";
-import { UpdateImageYaml } from "../../mediaScripts/UpdateImage.mjs";
-import { MediaUpdate } from "../../mediaScripts/DataUpdateProcess.mjs";
+import { GetYamlImageList } from "@/mediaScripts/GetImageList";
+import { readCharaObject, writeCharaObject } from "./FunctionsCharaData";
+import { fromto } from "@/mediaScripts/UpdateOption";
+import { UpdateImageYaml } from "@/mediaScripts/UpdateImage";
+import { MediaUpdate } from "@/mediaScripts/DataUpdateProcess";
 
 export async function SetCharaData(formData: FormData) {
   const res = { message: "", update: { chara: false, image: false } };
-  const charaList = Object.entries(readCharaObject(false)!);
+  const charaList = Object.entries(readCharaObject(false)!) as [string, CharaType][];
   const target = formData.get("target")?.toString();
   if (target) formData.delete("target");
   const id = formData.get("id")?.toString();

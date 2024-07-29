@@ -7,7 +7,7 @@ import {
 } from "./serverLayout";
 import { RoutingList } from "@/routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
-import { GitLogObject } from "@/data/functions/gitlog.mjs";
+import { GitLogObject } from "@/data/functions/gitlog";
 
 const app = new Hono<MeeBindings>({ strict: true });
 
