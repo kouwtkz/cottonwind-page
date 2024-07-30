@@ -160,7 +160,7 @@ export function setMedia(
       }
       break;
     case 'upload':
-      if (import.meta.env.VITE_UPLOAD_BRACKET) replacePostTextarea({ textarea, before: '![](', after: ')' });
+      if (import.meta.env.VITE_UPLOAD_BRACKET === "true") replacePostTextarea({ textarea, before: '![](', after: ')' });
       else textarea.focus();
       window.open(import.meta.env.VITE_UPLOAD_SERVICE, 'upload');
       break;

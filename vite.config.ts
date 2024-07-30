@@ -7,8 +7,7 @@ import { UserConfig, defineConfig, loadEnv } from 'vite'
 import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
-import { RoutingList } from './src/routes/RoutingList'
-import { envStringToBoolean, envStringToObject } from './BuildEnv'
+import { RoutingList } from './src/routes/RoutingList';
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
@@ -43,7 +42,7 @@ export default defineConfig(({ mode }) => {
   writeEnv(envLocalPath, env);
   let config: UserConfig = {
     optimizeDeps: { include: [] },
-    plugins: [tsconfigPaths(), envStringToBoolean(), envStringToObject()]
+    plugins: [tsconfigPaths()]
   };
   if (mode === 'client') {
     config.build = {
