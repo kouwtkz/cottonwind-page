@@ -10,9 +10,9 @@
     },
     {
       "type": "npm",
-      "script": "preview",
+      "script": "start",
       "problemMatcher": [],
-      "label": "npm: preview",
+      "label": "npm: start",
       "detail": "wrangler pages dev dist"
     },
     {

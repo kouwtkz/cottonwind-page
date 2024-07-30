@@ -10,7 +10,7 @@
     { "label": "update", "task": "npm: update" },
     { "label": "dev", "task": "npm: dev" },
     { "label": "build", "task": "npm: build" },
-    { "label": "preview", "task": "npm: preview" },
+    { "label": "start", "task": "npm: start" },
     { "label": "deploy", "task": "npm: deploy" }
   ],
   // Explorer で非表示にするもの

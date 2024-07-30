@@ -10,7 +10,7 @@
     "update-character": "npx tsx ./src/mediaScripts/DataUpdate.ts character",
     "update-embed": "npx tsx ./src/mediaScripts/DataUpdate.ts embed",
     "update-sound": "npx tsx ./src/mediaScripts/DataUpdate.ts sound",
-    "preview": "wrangler pages dev --port 4173",
+    "start": "wrangler pages dev --port 4173",
     "test": "wrangler pages deploy dist --commit-dirty true --branch hono",
     "deploy": "npm run build && npm run deploy-only",
     "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master"
