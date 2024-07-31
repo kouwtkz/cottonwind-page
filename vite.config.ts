@@ -8,7 +8,7 @@ import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
-import { dataUpdateServer } from './src/mediaScripts/dataUpdate/updateServer'
+import { dataUpdateServerPlugins } from './src/mediaScripts/dataUpdate/updateServer'
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
@@ -72,11 +72,13 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000
     }
   } else {
-    if (mode === "development") dataUpdateServer();
     configDotenv();
+    // if (mode === "development") console.log(process)
+    // if (mode === "development") dataUpdateServer();
     config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
     config.plugins!.push([
       pages(),
+      dataUpdateServerPlugins(),
       devServer({
         entry: 'src/index.dev.tsx',
         adapter,

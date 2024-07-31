@@ -42,6 +42,7 @@ app.get("/json/*", serveStatic({ root: "./public/" }));
 app.post("/gallery/send", async (c, next) => {
   const formData = await c.req.parseBody();
   await uploadAttached({
+    c,
     attached: formData["attached[]"] as File[],
     attached_mtime: (formData["attached_mtime[]"] ?? []) as string[],
     tags: (formData["tags[]"] ?? []) as string[],
@@ -50,11 +51,11 @@ app.post("/gallery/send", async (c, next) => {
   return c.newResponse(null);
 });
 app.patch("/gallery/send", async (c) => {
-  await GalleryPatch(await c.req.json());
+  await GalleryPatch(c);
   return c.newResponse(null);
 });
 app.post("/character/send", async (c) => {
-  return c.json(await SetCharaData(await c.req.formData()));
+  return c.json(await SetCharaData(c));
 });
 
 app.get("/embed/get", async (c) => {

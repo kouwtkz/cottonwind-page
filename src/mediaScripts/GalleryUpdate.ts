@@ -4,10 +4,11 @@ import { mkdirSync, renameSync, unlinkSync, writeFileSync, utimesSync } from "fs
 import { resolve as pathResolve } from "path";
 import { UpdateImageYaml } from "./UpdateImage";
 import { MediaUpdate } from "./dataUpdate/updateProcess";
+import { CommonContext } from "@/types/HonoCustomType";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
-export async function GalleryPatch(data: any) {
-  const { albumDir, src, origin, dir, time, deleteMode, move, rename, ...image } = data;
+export async function GalleryPatch(c: CommonContext) {
+  const { albumDir, src, origin, dir, time, deleteMode, move, rename, ...image } = await c.req.json();
   const group = [albumDir];
   if (move) group.push(move);
   const yamls = await GetYamlImageList({ ...fromto, filter: { group, endsWith: true } });
@@ -48,16 +49,17 @@ export async function GalleryPatch(data: any) {
     }
   }
   await UpdateImageYaml({ yamls, deleteImage: false, ...fromto })
-  await MediaUpdate("image");
+  await MediaUpdate({ c, targets: "image" });
 }
 
 type Props = {
+  c: CommonContext;
   attached: File[];
   attached_mtime?: any[];
   tags?: any[];
   uploadDir: string;
 }
-export async function uploadAttached({ attached, attached_mtime = [], tags = [], uploadDir }: Props) {
+export async function uploadAttached({ c, attached, attached_mtime = [], tags = [], uploadDir }: Props) {
   let retVal = false
   if (!Array.isArray(attached)) {
     attached = [attached];
@@ -102,7 +104,7 @@ export async function uploadAttached({ attached, attached_mtime = [], tags = [],
         });
       }, 10);
     });
-    await MediaUpdate("image");
+    await MediaUpdate({ c, targets: "image" });
     return retVal;
   }
   return retVal;

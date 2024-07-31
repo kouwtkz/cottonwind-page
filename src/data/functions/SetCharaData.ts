@@ -3,8 +3,10 @@ import { readCharaObject, writeCharaObject } from "./FunctionsCharaData";
 import { fromto } from "@/mediaScripts/UpdateOption";
 import { UpdateImageYaml } from "@/mediaScripts/UpdateImage";
 import { MediaUpdate } from "@/mediaScripts/dataUpdate/updateProcess";
+import { CommonContext } from "@/types/HonoCustomType";
 
-export async function SetCharaData(formData: FormData) {
+export async function SetCharaData(c: CommonContext) {
+  const formData = await c.req.formData();
   const res = { message: "", update: { chara: false, image: false } };
   const charaList = Object.entries(readCharaObject(false)!) as [string, CharaType][];
   const target = formData.get("target")?.toString();
@@ -65,13 +67,13 @@ export async function SetCharaData(formData: FormData) {
         }))
         res.update.image = true;
         await UpdateImageYaml({ yamls: symls, deleteImage: false, ...fromto })
-        await MediaUpdate("image");
+        await MediaUpdate({ c, targets: "image" });
       }
       else charaList.push([id, chara]);
     }
   }
   writeCharaObject(Object.fromEntries(charaList));
-  await MediaUpdate("character");
+  await MediaUpdate({ c, targets: "character" });
   res.update.chara = true;
   res.message = "更新に成功しました";
   return res;
