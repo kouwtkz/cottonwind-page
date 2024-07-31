@@ -1,5 +1,5 @@
 {
-  "include": ["src", "import", "**/*.d.ts", "./*.ts"],
+  "include": ["src", "**/*.d.ts", "./*.ts"],
   "compilerOptions": {
     "target": "es2017",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
