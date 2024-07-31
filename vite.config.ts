@@ -3,11 +3,12 @@ import devServer from '@hono/vite-dev-server'
 import adapter from '@hono/vite-dev-server/cloudflare'
 import ssg from '@hono/vite-ssg'
 import { configDotenv } from 'dotenv'
-import { UserConfig, defineConfig, loadEnv } from 'vite'
+import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync, statSync } from "fs"
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
+import { dataUpdateServer } from './src/mediaScripts/dataUpdate/updateServer'
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
@@ -71,6 +72,7 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000
     }
   } else {
+    if (mode === "development") dataUpdateServer();
     configDotenv();
     config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
     config.plugins!.push([

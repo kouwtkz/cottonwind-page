@@ -469,7 +469,7 @@ function UploadChain({
         });
         setTimeout(() => {
           setImageFromUrl();
-        }, 10 * targetFiles.length);
+        }, 200 + 200 * targetFiles.length);
       }
     });
   }, []);

@@ -3,7 +3,7 @@ import { GetYamlImageList } from "./GetImageList"
 import { mkdirSync, renameSync, unlinkSync, writeFileSync, utimesSync } from "fs";
 import { resolve as pathResolve } from "path";
 import { UpdateImageYaml } from "./UpdateImage";
-import { MediaUpdate } from "./DataUpdateProcess";
+import { MediaUpdate } from "./dataUpdate/updateProcess";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 export async function GalleryPatch(data: any) {
@@ -48,7 +48,7 @@ export async function GalleryPatch(data: any) {
     }
   }
   await UpdateImageYaml({ yamls, deleteImage: false, ...fromto })
-  MediaUpdate("image");
+  await MediaUpdate("image");
 }
 
 type Props = {
@@ -102,7 +102,7 @@ export async function uploadAttached({ attached, attached_mtime = [], tags = [],
         });
       }, 10);
     });
-    MediaUpdate("image");
+    await MediaUpdate("image");
     return retVal;
   }
   return retVal;

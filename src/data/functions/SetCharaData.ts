@@ -2,7 +2,7 @@ import { GetYamlImageList } from "@/mediaScripts/GetImageList";
 import { readCharaObject, writeCharaObject } from "./FunctionsCharaData";
 import { fromto } from "@/mediaScripts/UpdateOption";
 import { UpdateImageYaml } from "@/mediaScripts/UpdateImage";
-import { MediaUpdate } from "@/mediaScripts/DataUpdateProcess";
+import { MediaUpdate } from "@/mediaScripts/dataUpdate/updateProcess";
 
 export async function SetCharaData(formData: FormData) {
   const res = { message: "", update: { chara: false, image: false } };
@@ -65,13 +65,13 @@ export async function SetCharaData(formData: FormData) {
         }))
         res.update.image = true;
         await UpdateImageYaml({ yamls: symls, deleteImage: false, ...fromto })
-        MediaUpdate("image");
+        await MediaUpdate("image");
       }
       else charaList.push([id, chara]);
     }
   }
   writeCharaObject(Object.fromEntries(charaList));
-  MediaUpdate("character");
+  await MediaUpdate("character");
   res.update.chara = true;
   res.message = "更新に成功しました";
   return res;
