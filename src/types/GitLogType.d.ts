@@ -26,8 +26,13 @@ interface GitObjectType {
   ymlist: KeyYearType[];
 }
 
-interface GitLogDataType {
+interface GitLogItemType {
   ymd: string;
   date: Date;
   message: string;
+}
+
+interface GitLogDataType {
+  remote_url?: string;
+  list: GitLogItemType[];
 }

@@ -1,6 +1,19 @@
 import { execSync } from "child_process";
+import { resolve } from "path";
+import { writeFileSync } from "fs";
 
-export function getGitLogDataList({ branch = "master", dir }: {branch?: string, dir?: string} = {}) {
+interface getGitLogDataProps { branch?: string, dir?: string };
+export function getGitLogData(args: getGitLogDataProps = {}): GitLogDataType {
+  let remote_url: string | undefined;
+  try {
+    const remote = execSync('git remote').toString().replace(/^\s+|\s+$/g, '');
+    remote_url = execSync('git remote get-url ' + remote).toString().replace(/^\s+|\s+$/g, '');
+  } catch { }
+  return { remote_url, list: getGitLogItemList(args) };
+}
+export function getGitLogItemList({
+  branch = execSync('git branch --contains').toString().slice(2, -1), dir
+}: getGitLogDataProps = {}): GitLogItemType[] {
   try {
     const execList: string[] = [];
     if (dir) execList.push('cd ' + dir);
@@ -15,7 +28,13 @@ export function getGitLogDataList({ branch = "master", dir }: {branch?: string, 
   }
 }
 
-export function getGitLogReduced(gitLogList: GitLogDataType[]) {
+export function writeGitLogData() {
+  const outputPath = resolve(process.argv[2] ?? "gitlog.json");
+  writeFileSync(outputPath, JSON.stringify(getGitLogData()));
+  console.log("Written " + outputPath);
+}
+
+export function getGitLogReduced(gitLogList: GitLogItemType[]) {
   const gitLogReduced: GitItemJsonType[] = [];
   gitLogList.forEach(({ ymd, message }) => {
     const found = gitLogReduced.find(a => a.date === ymd);
@@ -28,28 +47,4 @@ export function getGitLogReduced(gitLogList: GitLogDataType[]) {
     log.messages.sort((a, b) => b.startsWith("Update ") || b.length < 8 ? -1 : 0)
   })
   return gitLogReduced;
-}
-
-export function GitLogObject() {
-  try {
-    const remote = execSync('git remote').toString().replace(/^\s+|\s+$/g, '');
-    const remote_url = execSync('git remote get-url ' + remote).toString().replace(/^\s+|\s+$/g, '');
-    let list = getGitLogDataList({ branch: "main", dir: "_data" });
-    list = list.concat(getGitLogDataList());
-    list = list.filter(item => {
-      switch (item.message) {
-        case "update _data":
-        case "データ更新":
-          return false;
-        default: return true;
-      }
-    });
-    list.sort((a, b) => a.date < b.date ? 1 : -1)
-    const gitLogReduced = getGitLogReduced(list);
-    const gitObject: GitObjectJsonType = { list: gitLogReduced, remote_url };
-    return gitObject;
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
 }
