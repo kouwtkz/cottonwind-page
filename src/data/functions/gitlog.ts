@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { resolve } from "path";
 import { writeFileSync } from "fs";
 
-interface getGitLogDataProps { branch?: string, dir?: string };
+export interface getGitLogDataProps { branch?: string, dir?: string };
 export function getGitLogData(args: getGitLogDataProps = {}): GitLogDataType {
   let remote_url: string | undefined;
   try {
