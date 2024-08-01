@@ -1,9 +1,23 @@
-import { getGitLogData, getGitLogDataProps, getGitLogItemList, getGitLogReduced } from "./gitlog";
+import { getGitLogData, getGitLogDataProps, getGitLogItemList } from "./gitlog";
 import { readdirSync, readFileSync } from "fs";
 import { resolve } from "path";
 
 interface GitLogObjectProps extends getGitLogDataProps {
   gitlogJsonPath?: string
+}
+export function getGitLogReduced(gitLogList: GitLogItemType[]) {
+  const gitLogReduced: GitItemJsonType[] = [];
+  gitLogList.forEach(({ ymd, message }) => {
+    const found = gitLogReduced.find(a => a.date === ymd);
+    if (found) {
+      if (found.messages.every(m => m !== message)) found.messages.push(message);
+    }
+    else gitLogReduced.push({ date: ymd, messages: [message] });
+  });
+  gitLogReduced.forEach(log => {
+    log.messages.sort((a, b) => b.startsWith("Update ") || b.length < 8 ? -1 : 0)
+  })
+  return gitLogReduced;
 }
 export function GitLogObject({ gitlogJsonPath = "./_data/gitlog", ...args }: GitLogObjectProps = {}) {
   let { list, remote_url } = getGitLogData(args)
