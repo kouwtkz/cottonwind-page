@@ -10,4 +10,10 @@ export function ServerCommon(app: CommonHono) {
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });
+  app.post("/check", async (c) => {
+    const body = await c.req.text();
+    const result = c.env.LIFE_CHECK_CHALLENGE === body;
+    if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");
+    else return c.text("401 Unauthorized", 401);
+  });
 }

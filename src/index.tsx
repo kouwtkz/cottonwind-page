@@ -3,10 +3,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { buildAddVer, stylesAddVer } from "./data/env";
-import {
-  FeedSet,
-  IsLogin,
-} from "./ServerContent";
+import { FeedSet, IsLogin } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";
@@ -21,10 +18,18 @@ app.get("/get/feed", async (c, next) => {
   } else return next();
 });
 
-
 ServerCommon(app);
 
 RoutingList.forEach((path) => {
+  app.get(path, async (c, next) => {
+    if (
+      c.req.url.startsWith(c.env.PAGES_DEV_URL ?? "") &&
+      (await c.env.NOTICE_FEED_KV.get("life-check")) !== "false"
+    ) {
+      return c.redirect(import.meta.env.VITE_URL);
+    }
+    return next();
+  });
   app.get(path, (c, next) =>
     ReactResponse({
       c,

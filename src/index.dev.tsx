@@ -22,7 +22,9 @@ const app = new Hono<MeeBindings>({ strict: true });
 
 const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));
+
 honoTest(app);
+ServerCommon(app);
 
 app.get("/get/test/rss", serveStatic({ path: "./_data/test/rss.xml" }));
 app.get("/get/feed", async (c, next) => {
@@ -67,7 +69,11 @@ app.get("/test", async (c) => {
   return c.json((c.req.raw as any).cf);
 });
 
-ServerCommon(app);
+app.get("/check/:bool", async (c) => {
+  const bool = c.req.param().bool;
+  await c.env.NOTICE_FEED_KV.put("life-check", bool);
+  return c.text("written life-check:" + bool);
+});
 
 app.route("/", ssg);
 app.post("/", async (c) => {

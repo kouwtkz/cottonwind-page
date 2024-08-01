@@ -3,6 +3,7 @@ name = "cottonwind-page"
 pages_build_output_dir = "./dist"
 
 [vars]
+PAGES_DEV_URL = "https://cottonwind.pages.dev/"
 DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名前は？"
 # DISCORD_INVITE_ANSWER = ""
 # DISCORD_INVITE_URL = ""
