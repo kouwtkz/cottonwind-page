@@ -13,13 +13,16 @@ type GitStateType = {
 export const useGitState = create<GitStateType>((set) => ({
   isSet: false,
   setLog: (value) => {
+    value.list.sort((a, b) => (a.date < b.date ? 1 : -1));
+    const lastUpdate = value.list[0].date;
     const list = value.list.map((item) => {
       const [year, month, day] = item.date.split("/").map((v) => Number(v));
       return { ...item, year, month, day } as GitItemType;
     });
     const git: GitObjectType = {
-      list,
       remote_url: value.remote_url,
+      list,
+      lastUpdate,
       ymlist: YearMonthList(list),
     };
     set({ git, isSet: true });
@@ -202,7 +205,7 @@ export function ChangeLog() {
                 {git.list.length > 0 ? (
                   <>
                     <span>最終更新:</span>
-                    <span className="date">{git.list[0].date}</span>
+                    <span className="date">{git.lastUpdate}</span>
                   </>
                 ) : (
                   "(データなし)"

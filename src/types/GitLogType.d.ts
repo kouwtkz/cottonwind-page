@@ -23,6 +23,7 @@ type KeyYearType = { year: number; value: KeyMonthType[]; };
 interface GitObjectType {
   remote_url?: string;
   list: GitItemType[];
+  lastUpdate?: string;
   ymlist: KeyYearType[];
 }
 
