@@ -1,6 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "cottonwind-page"
 pages_build_output_dir = "./dist"
+compatibility_date = "2024-08-02"
 
 [vars]
 PAGES_DEV_URL = "https://cottonwind.pages.dev/"

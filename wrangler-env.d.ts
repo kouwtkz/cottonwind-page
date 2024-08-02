@@ -13,7 +13,6 @@ interface MeeEnv {
   X_CLIENT_ID?: string;
   X_CLIENT_SECRET?: string;
   LOGIN_TOKEN?: string;
-  PAGES_DEV_URL?: string;
   LIFE_CHECKER_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
