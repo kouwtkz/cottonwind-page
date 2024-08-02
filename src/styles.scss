@@ -310,7 +310,8 @@ body {
 :root {
   background-color: var(--background);
   scrollbar-width: thin;
-  &, * {
+  &,
+  * {
     scrollbar-color: var(--main-color-soft) transparent;
   }
   &.scrollLock {
@@ -395,10 +396,10 @@ a {
     display: inline-block;
     padding: 0.4rem 1rem;
     border-radius: 1rem;
+    background-color: var(--main-color);
     &.external::after {
       background-color: white;
     }
-    background-color: var(--main-color);
     &:hover {
       background-color: var(--main-color-soft);
     }
@@ -866,10 +867,10 @@ footer {
   h3 {
     a {
       color: var(--main-color);
+      font-family: var(--font-LuloClean);
       &:hover {
         color: var(--main-color-soft);
       }
-      font-family: var(--font-LuloClean);
     }
   }
   @media (min-width: $desktopWidth) {
@@ -1318,11 +1319,11 @@ select.YearFilter {
     @extend %userSelectNone;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
+    column-gap: 0.1rem;
+    row-gap: 0.1rem;
     > * {
       grid-column: span 2;
     }
-    column-gap: 0.1rem;
-    row-gap: 0.1rem;
     & > *:only-child {
       grid-column: span 2 / 6;
     }
@@ -1899,11 +1900,11 @@ ul {
   .yearItem {
     > .summary {
       padding-left: 0.25rem;
+      background-color: var(--main-color);
       &,
       svg {
         color: white;
       }
-      background-color: var(--main-color);
     }
     &:nth-child(even) > .summary {
       background-color: var(--main-color-highlight);
