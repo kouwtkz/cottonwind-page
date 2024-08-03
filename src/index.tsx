@@ -26,7 +26,12 @@ RoutingList.forEach((path) => {
       c.req.url.startsWith(c.env.PAGES_DEV_URL ?? "") &&
       (await c.env.NOTICE_FEED_KV.get("life-check")) !== "false"
     ) {
-      return c.redirect(import.meta.env.VITE_URL);
+      const Url = new URL(c.req.url);
+      const redirectUrl = new URL(import.meta.env.VITE_URL);
+      redirectUrl.pathname = Url.pathname;
+      redirectUrl.search = Url.search;
+      redirectUrl.hash = Url.hash;
+      return c.redirect(redirectUrl.href);
     }
     return next();
   });
