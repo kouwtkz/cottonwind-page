@@ -7,10 +7,12 @@ import { getCookie } from "hono/cookie";
 export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },
 }
+const isLocalhostReg = /^http\:\/\/(localhost|127\.0\.0\.1)[/:\/]/;
 
 export function IsLogin(c: CommonContext) {
   return import.meta.env.DEV
     || (Boolean(getCookie(c, "CF_Authorization")) && c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"))
+    || isLocalhostReg.test(c.req.url)
 }
 
 export async function FetchBody(src?: string) {
