@@ -7,7 +7,7 @@ import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
-import { usePostState } from "@/components/blog/PostState";
+import { usePostState } from "@/blog/PostState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();

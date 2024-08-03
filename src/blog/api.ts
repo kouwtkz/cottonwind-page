@@ -1,20 +1,8 @@
 import { Hono } from "hono";
-import { getPostsData, setPostsData } from "./postDataFunction";
-import { MakeRss } from "./functions/GeneratePosts";
+import { getPostsData, setPostsData } from "@/blog/be-functions";
 import { IsLogin } from "@/ServerContent";
 
 export const app = new Hono<MeeBindings>();
-
-type PostFormType = {
-  title?: string;
-  body?: string;
-  category?: string[];
-  pin?: number;
-  draft?: boolean;
-  date?: Date;
-  postId?: string;
-  userId?: string;
-};
 
 app.post("/send", async (c) => {
   if (!IsLogin(c)) return c.text("ログインしていません", 403);
@@ -140,28 +128,4 @@ function autoPostId() {
   );
 }
 
-app.get("/posts.json", async (c) => {
-  try {
-    const posts = await getPostsData(c);
-    if ('dl' in c.req.query() && IsLogin(c))
-      return c.newResponse(JSON.stringify(posts), {
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-      });
-    return c.json(posts);
-  } catch (e) {
-    console.error(e);
-    return c.json([]);
-  }
-});
-
-app.get("/rss.xml", async (c) => {
-  return new Response(await MakeRss(c), {
-    headers: {
-      "Content-Type": "application/xml",
-    },
-  });
-});
-
-export const app_blog = app;
+export const app_blog_api = app;

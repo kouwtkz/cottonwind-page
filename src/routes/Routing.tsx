@@ -10,8 +10,8 @@ import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
 import LinksPage from "@/routes/LinksPage";
 import WorksPage from "./WorksPage";
-import { BlogPage } from "@/components/blog/PostsPage";
-import PostForm from "@/components/blog/post/PostForm";
+import { BlogPage } from "@/blog/client";
+import PostForm from "@/blog/PostForm";
 import ContactPage from "./ContactPage";
 
 export interface MeeRouteObject extends NonIndexRouteObject {

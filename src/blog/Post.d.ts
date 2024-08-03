@@ -14,3 +14,14 @@ type Post = {
   flags?: number | null;
   memo?: string | null;
 }
+
+type PostFormType = {
+  title?: string;
+  body?: string;
+  category?: string[];
+  pin?: number;
+  draft?: boolean;
+  date?: Date;
+  postId?: string;
+  userId?: string;
+};

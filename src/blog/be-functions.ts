@@ -1,17 +1,28 @@
-// @ts-check
-
-import getPosts from "./getPosts";
-import { parse } from "marked";
-import { getPostsData } from "../postDataFunction";
 import { CommonContext } from "@/types/HonoCustomType";
 import GenerateRss from "@/functions/doc/GenerateRss";
+import { parse } from "marked";
+import getPosts from "@/blog/getPosts";
 
-const SITE_URL = import.meta.env.VITE_URL;
+export async function getPostsData(c: CommonContext) {
+  const rawPosts: Post[] = JSON.parse(await c.env.KV.get("posts") || '[]');
+  const posts = rawPosts.filter(post => post);
+  posts.forEach(post => {
+    post.date = post.date ? new Date(post.date) : null;
+    post.updatedAt = post.updatedAt ? new Date(post.updatedAt) : null;
+  })
+  return posts;
+}
+export async function setPostsData(c: CommonContext, posts: Post[]) {
+  posts.forEach((post) => { post.body = post.body?.replace(/\r\n/g, "\n") });
+  await c.env.KV.put("posts", JSON.stringify(posts));
+}
 
 export function GetPostsRssOption(rawPosts: Post[]) {
   const { posts } = getPosts({ posts: rawPosts, take: 30, common: true })
   return posts;
 }
+
+const SITE_URL = import.meta.env.VITE_URL;
 
 export async function MakeRss(c: CommonContext) {
   return GenerateRss(

@@ -12,14 +12,6 @@ import {
 } from "@/components/form/input/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  setAttached,
-  setColorChange,
-  setDecoration,
-  setMedia,
-  setOperation,
-  setPostInsert,
-} from "./PostFormFunctions";
 import toast from "react-hot-toast";
 import { HotkeyRunEvent } from "@/components/form/event/EventSet";
 import * as z from "zod";
@@ -32,13 +24,39 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/form/hook/SetRegister";
 import axios from "axios";
-import PostState, { usePostState } from "../PostState";
+import PostState, { usePostState } from "@/blog/PostState";
 import { findMany } from "@/functions/findMany";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
-import { backupStorageKey, getLocalDraft } from "./postLocalDraft";
 import { callReactSelectTheme } from "@/theme/main";
 import { useBackButton, queryCheck } from "@/layout/BackButton";
+import { create } from "zustand";
+
+const backupStorageKey = "backupPostDraft";
+
+export const useLocalDraftPost = create<{
+  localDraft: Post | null;
+  setLocalDraft: (post: Post | null) => void;
+  removeLocalDraft: () => void;
+}>((set) => ({
+  localDraft: null,
+  setLocalDraft: (post) => {
+    set({ localDraft: post });
+  },
+  removeLocalDraft: () => {
+    localStorage.removeItem(backupStorageKey);
+    set({ localDraft: null });
+  },
+}));
+
+export function getLocalDraft() {
+  const itemStr = localStorage.getItem(backupStorageKey);
+  if (!itemStr) return;
+  const item = JSON.parse(itemStr) as any;
+  item.date = item.date ? new Date(item.date) : undefined;
+  item.localDraft = true;
+  return item as Post;
+}
 
 type labelValues = { label: string; value: string }[];
 
@@ -220,7 +238,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
       axios
-        .delete("/blog/send", {
+        .delete("/api/blog/send", {
           data: JSON.stringify({ postId: getValues("postId") }),
         })
         .then((r) => {
@@ -348,7 +366,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
         }
       });
       if (sendEnable) {
-        const res = await axios.post("/blog/send", formData);
+        const res = await axios.post("/api/blog/send", formData);
         if (res.status === 200) {
           toast(updateMode ? "更新しました" : "投稿しました", {
             duration: 2000,
@@ -385,7 +403,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
       <PostState />
       <form
         method={"POST"}
-        action="/blog/send"
+        action="/api/blog/send"
         id="postForm"
         ref={formRef}
         encType="multipart/form-data"
@@ -585,4 +603,228 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
       </form>
     </>
   );
+}
+
+export function setCategory(
+  {
+    selectCategory,
+    newCategoryBase
+  }: {
+    selectCategory: HTMLSelectElement | null,
+    newCategoryBase: HTMLOptionElement | null
+  }
+) {
+  if (!selectCategory || !newCategoryBase) return;
+  if (selectCategory.value === "new") {
+    const answer = prompt("新規カテゴリーを入力してください");
+    if (answer === null || answer === "new") {
+      selectCategory.value = selectCategory.dataset.before || "";
+    } else if (answer && !selectCategory.querySelector(`[value="${answer}"]`)) {
+      const newCategoryID = "newCategory";
+      let newCategory = selectCategory.querySelector(
+        `option#${newCategoryID}`
+      ) as HTMLOptionElement;
+      if (!newCategory) {
+        newCategory = document.createElement("option");
+        newCategory.id = newCategoryID;
+        newCategoryBase.after(newCategory as any);
+      }
+      newCategory.value = answer;
+      newCategory.innerText = answer;
+      selectCategory.value = answer;
+    } else {
+      selectCategory.value = answer;
+    }
+  }
+  selectCategory.dataset.before = selectCategory.value;
+}
+type textareaType = {
+  textarea: HTMLTextAreaElement | null
+}
+export function replacePostTextarea({ textarea, before = '', after }: textareaType & { before: string, after?: string }) {
+  if (!textarea) return;
+  if (after === undefined) after = before;
+  const { selectionStart, selectionEnd } = textarea;
+  const selection = textarea.value.slice(selectionStart, selectionEnd);
+  textarea.setRangeText(`${before}${selection}${after}`, selectionStart, selectionEnd);
+  if (selectionStart === selectionEnd) {
+    const selectionStartReset = selectionStart + before.length;
+    textarea.setSelectionRange(selectionStartReset, selectionStartReset);
+  }
+  textarea.focus();
+}
+
+export function setDecoration(
+  {
+    selectDecoration,
+    textarea,
+    colorChanger
+  }: textareaType & {
+    selectDecoration: HTMLSelectElement | null,
+    colorChanger: HTMLInputElement | null
+  }
+) {
+  if (!selectDecoration || !textarea) return;
+  switch (selectDecoration.value) {
+    case 'color':
+      if (colorChanger) colorChanger.click();
+      break;
+    case 'italic':
+      replacePostTextarea({ textarea, before: '*' })
+      break;
+    case 'bold':
+      replacePostTextarea({ textarea, before: '**' })
+      break;
+    case 'strikethrough':
+      replacePostTextarea({ textarea, before: '~~' })
+      break;
+  }
+  selectDecoration.value = '';
+}
+
+export function setColorChange(
+  {
+    textarea,
+    colorChanger
+  }: textareaType & {
+    colorChanger: HTMLInputElement | null
+  }
+) {
+  if (colorChanger && textarea) replacePostTextarea({ textarea, before: `<span style="color:${colorChanger.value}">`, after: '</span>' })
+}
+
+export function setPostInsert(
+  {
+    selectInsert,
+    textarea,
+  }: textareaType & {
+    selectInsert: HTMLSelectElement | null,
+  }
+) {
+  if (!selectInsert || !textarea) return;
+  switch (selectInsert.value) {
+    case 'br':
+      replacePostTextarea({ textarea, before: "\n<br/>\n\n", after: "" })
+      break;
+    case 'more':
+      replacePostTextarea({ textarea, before: "\n<details>\n<summary>もっと読む</summary>\n\n", after: "\n</details>" })
+      break;
+    case 'h2':
+      replacePostTextarea({ textarea, before: '## ', after: '' })
+      break;
+    case 'h3':
+      replacePostTextarea({ textarea, before: '### ', after: '' })
+      break;
+    case 'h4':
+      replacePostTextarea({ textarea, before: '#### ', after: '' })
+      break;
+    case 'li':
+      replacePostTextarea({ textarea, before: '- ', after: '' })
+      break;
+    case 'ol':
+      replacePostTextarea({ textarea, before: '+ ', after: '' })
+      break;
+    case 'code':
+      replacePostTextarea({ textarea, before: "```\n", after: "\n```" })
+      break;
+  }
+  selectInsert.value = '';
+}
+
+export function setAttached({ inputAttached, textarea }: textareaType & { inputAttached: HTMLInputElement | null, textarea: HTMLTextAreaElement | null }) {
+  if (!inputAttached || !textarea) return;
+  const files = inputAttached.files || [];
+  Array.from(files).forEach((file) => {
+    const filename = file.name;
+    const uploadname = filename.replaceAll(' ', '_');
+    if (!textarea.value.match(uploadname)) {
+      const value = `\n![](?image=${uploadname}&pic)`;
+      textarea.setRangeText(value);
+      textarea.focus();
+    }
+  })
+  inputAttached.style.display = (files.length === 0) ? 'none' : '';
+}
+
+export function setMedia(
+  {
+    selectMedia,
+    inputAttached,
+    textarea,
+  }: textareaType & {
+    selectMedia: HTMLSelectElement | null,
+    inputAttached: HTMLInputElement | null,
+  }
+) {
+  if (!selectMedia || !textarea) return;
+  switch (selectMedia.value) {
+    case 'attached':
+      if (inputAttached) {
+        if (inputAttached.style.display === 'none') inputAttached.value = '';
+        inputAttached.click();
+      }
+      break;
+    case 'upload':
+      if (import.meta.env.VITE_UPLOAD_BRACKET === "true") replacePostTextarea({ textarea, before: '![](', after: ')' });
+      else textarea.focus();
+      window.open(import.meta.env.VITE_UPLOAD_SERVICE, 'upload');
+      break;
+    case 'gallery':
+      window.open('/gallery/', 'gallery', "width=620px,height=720px");
+      break;
+    case 'link':
+      replacePostTextarea({ textarea, before: '[', after: ']()' })
+      break;
+  }
+  selectMedia.value = '';
+}
+
+export function setOperation({
+  selectOperation,
+  onChangePostId,
+  onDuplication,
+  onDelete,
+  jsonUrl,
+}: {
+  selectOperation: HTMLSelectElement | null,
+  onChangePostId: () => void
+  onDuplication: () => void
+  onDelete: () => void
+  jsonUrl?: string
+}
+) {
+  if (!selectOperation) return;
+  switch (selectOperation.value) {
+    case 'postid':
+      onChangePostId();
+      break;
+    case 'duplication':
+      onDuplication();
+      break;
+    case 'delete':
+      onDelete();
+      break;
+    case 'download':
+      if (jsonUrl) {
+        if (confirm("記事データを一括で取得しますか？")) {
+          location.href = jsonUrl + "?dl";
+        }
+      }
+      break;
+    case 'upload':
+      const uploadFileSelector = document.createElement('input');
+      uploadFileSelector.type = "file";
+      uploadFileSelector.accept = "application/json"
+      uploadFileSelector.onchange = (() => {
+        if (uploadFileSelector.files && confirm("記事データを一括で上書きしますか？")) {
+          axios.post("/blog/send/all", uploadFileSelector.files[0]).then(() => {
+            alert("記事データを上書きしました。");
+            location.href = "/blog";
+          })
+        }
+      })
+      uploadFileSelector.click();
+      break;
+  }
+  selectOperation.value = '';
 }

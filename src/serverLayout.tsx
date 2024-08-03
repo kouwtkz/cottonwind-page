@@ -7,7 +7,7 @@ import { stylesAddVer } from "./data/env";
 import SiteConfigList from "./data/config.list";
 import { renderToString } from "react-dom/server";
 import { Context, Next } from "hono";
-import { getPostsData } from "./components/blog/postDataFunction";
+import { getPostsData } from "@/blog/be-functions";
 
 export function SetMetaServerSide(args: SetMetaProps) {
   return <SetMeta {...args} />;
