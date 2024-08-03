@@ -13,7 +13,8 @@
     "start": "wrangler pages dev --port 4173",
     "test": "wrangler pages deploy dist --commit-dirty true --branch hono",
     "deploy": "npm run build && npm run deploy-only",
-    "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master"
+    "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master",
+    "init-db-schema": "wrangler d1 execute cottonwind-db --file schema.sql"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
