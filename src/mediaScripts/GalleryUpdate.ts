@@ -65,8 +65,9 @@ export async function uploadAttached({ c, attached, attached_mtime = [], tags = 
     attached = [attached];
     attached_mtime = [attached_mtime];
   }
-  attached = attached.filter(file => Boolean(file.name));
-  if (attached.length > 0) {
+  const renamedAttached = attached.filter(file => Boolean(file.name))
+    .map((file) => ({ name: file.name.replaceAll(" ", "_"), file }));
+  if (renamedAttached.length > 0) {
     retVal = true;
     const now = new Date();
     const publicDir = "public";
@@ -75,11 +76,10 @@ export async function uploadAttached({ c, attached, attached_mtime = [], tags = 
     const uploadPublicImagesFullDir = pathResolve(`${cwd}/${publicDir}/${uploadImageDir}`);
     try { mkdirSync(uploadImagesFullDir, { recursive: true }); } catch { }
     try { mkdirSync(uploadPublicImagesFullDir, { recursive: true }); } catch { }
-    attached.forEach(async (file, i) => {
+    renamedAttached.forEach(async ({ file, name }, i) => {
       await file.arrayBuffer().then((abuf) => {
         const mTime = new Date(Number(attached_mtime[i]));
-        const filename = file.name.replaceAll(" ", "_");
-        const filePath = pathResolve(`${uploadImagesFullDir}/${filename}`);
+        const filePath = pathResolve(`${uploadImagesFullDir}/${name}`);
         writeFileSync(filePath, Buffer.from(abuf));
         utimesSync(filePath, now, new Date(mTime));
       })
@@ -92,8 +92,8 @@ export async function uploadAttached({ c, attached, attached_mtime = [], tags = 
           if (tagsFlag) {
             const yamls = await GetYamlImageList({ ...fromto, filter: { group: uploadDir, endsWith: true } });
             yamls.forEach(album => {
-              attached.forEach(file => {
-                const imageItem = album.list.find(item => item.src === file.name)
+              renamedAttached.forEach(({ name }) => {
+                const imageItem = album.list.find(item => item.src === name)
                 if (imageItem) imageItem.tags = Array.from(new Set((imageItem.tags || []).concat(tags)));
               })
             })
