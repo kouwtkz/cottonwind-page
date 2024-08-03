@@ -42,7 +42,7 @@ app.get("/json/gitlog.json", (c) => {
 app.get("/json/*", serveStatic({ root: "./public/" }));
 
 app.post("/gallery/send", async (c, next) => {
-  const formData = await c.req.parseBody();
+  const formData = await c.req.parseBody() as any;
   await uploadAttached({
     c,
     attached: formData["attached[]"] as File[],
