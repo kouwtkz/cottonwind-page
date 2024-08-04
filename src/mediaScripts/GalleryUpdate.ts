@@ -70,9 +70,8 @@ export async function uploadAttached({ c, attached, attached_mtime = [], tags = 
     retVal = true;
     const now = new Date();
     const publicDir = "public";
-    const uploadImageDir = `${fromto.from}/${uploadDir}`;
-    const uploadImagesFullDir = pathResolve(`${cwd}/${uploadImageDir}`);
-    const uploadPublicImagesFullDir = pathResolve(`${cwd}/${publicDir}/${uploadImageDir}`);
+    const uploadImagesFullDir = pathResolve(`${cwd}/${fromto.from}/${uploadDir}`);
+    const uploadPublicImagesFullDir = pathResolve(`${cwd}/${publicDir}/${fromto.to}/${uploadDir}`);
     try { mkdirSync(uploadImagesFullDir, { recursive: true }); } catch { }
     try { mkdirSync(uploadPublicImagesFullDir, { recursive: true }); } catch { }
     renamedAttached.forEach(async ({ file, name }, i) => {
