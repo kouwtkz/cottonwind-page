@@ -4,7 +4,7 @@ import { mkdirSync, renameSync, unlinkSync, writeFileSync, utimesSync } from "fs
 import { resolve as pathResolve } from "path";
 import { UpdateImageYaml } from "./UpdateImage";
 import { MediaUpdate } from "./dataUpdate/updateProcess";
-import { CommonContext } from "@/types/HonoCustomType";
+import { CommonContext, CommonContextProps } from "@/types/HonoCustomType";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 export async function GalleryPatch(c: CommonContext) {
@@ -52,8 +52,7 @@ export async function GalleryPatch(c: CommonContext) {
   await MediaUpdate({ c, targets: "image" });
 }
 
-type Props = {
-  c: CommonContext;
+interface Props extends CommonContextProps {
   attached: File[];
   attached_mtime?: any[];
   tags?: any[];

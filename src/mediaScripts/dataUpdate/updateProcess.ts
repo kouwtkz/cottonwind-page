@@ -1,10 +1,9 @@
 const ROOT = process.env.ROOT || "";
-import { CommonContext } from "@/types/HonoCustomType";
+import { CommonContextProps } from "@/types/HonoCustomType";
 import childProcess from "child_process";
 type targetType = "" | "site" | "image" | "character" | "embed" | "sound";
 
-interface MediaUpdateProps {
-  c: CommonContext;
+interface MediaUpdateProps extends CommonContextProps {
   path?: string;
   targets?: targetType | targetType[];
 }
