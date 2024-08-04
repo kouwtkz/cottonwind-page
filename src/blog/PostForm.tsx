@@ -817,7 +817,7 @@ export function setOperation({
       uploadFileSelector.accept = "application/json"
       uploadFileSelector.onchange = (() => {
         if (uploadFileSelector.files && confirm("記事データを一括で上書きしますか？")) {
-          axios.post("/blog/send/all", uploadFileSelector.files[0]).then(() => {
+          axios.post("/api/blog/send/all", uploadFileSelector.files[0]).then(() => {
             alert("記事データを上書きしました。");
             location.href = "/blog";
           })
