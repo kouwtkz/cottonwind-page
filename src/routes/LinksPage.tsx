@@ -16,7 +16,9 @@ export default function LinksPage() {
           {SiteConfigList.links.map((item, i) => {
             return (
               <li key={i}>
-                <a href={item.url} target="_blank">{item.title ?? item.name}</a>
+                <a href={item.url} target="_blank">
+                  {item.title ?? item.name}
+                </a>
               </li>
             );
           })}
@@ -24,26 +26,7 @@ export default function LinksPage() {
       </div>
       <div>
         <h3 className="leaf">サイトのバナー</h3>
-        <div className="bannerArea">
-          <div>
-            <div>200×40 px</div>
-            <img
-              src="/static/images/banner/banner_cottonwind_200_40.png"
-              alt="200×40バナー"
-              width={200}
-              height={40}
-            />
-          </div>
-          <div>
-            <div>234×60 px</div>
-            <img
-              src="/static/images/banner/banner_cottonwind_234_60.png"
-              alt="234×60バナー"
-              width={234}
-              height={60}
-            />
-          </div>
-        </div>
+        <MyBanners />
       </div>
       <div>
         <h3 className="leaf">その他</h3>
@@ -111,5 +94,30 @@ function InviteDiscordLink({
     >
       {children}
     </a>
+  );
+}
+
+export function MyBanners() {
+  return (
+    <div className="bannerArea">
+      <div>
+        <div>200×40 px</div>
+        <img
+          src="/static/images/banner/banner_cottonwind_200_40.png"
+          alt="200×40バナー"
+          width={200}
+          height={40}
+        />
+      </div>
+      <div>
+        <div>234×60 px</div>
+        <img
+          src="/static/images/banner/banner_cottonwind_234_60.png"
+          alt="234×60バナー"
+          width={234}
+          height={60}
+        />
+      </div>
+    </div>
   );
 }
