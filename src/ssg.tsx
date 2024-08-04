@@ -19,6 +19,10 @@ app.get("/500", async (c) => {
   return c.html(renderToString(<ServerError />), { status: 500 });
 });
 
+app.get("/data/favorite_links.json", async (c) => {
+  return c.json(c.env.FAVORITE_LINKS ?? []);
+});
+
 app.get("/suggest", async (c) => {
   return c.html(
     renderToString(

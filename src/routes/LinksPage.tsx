@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useDataState } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import SiteConfigList from "@/data/config.list";
+import { LinksStateClass } from "@/state/LinksState";
 
 export default function LinksPage() {
   return (
@@ -25,17 +26,21 @@ export default function LinksPage() {
         </ul>
       </div>
       <div>
-        <h3 className="leaf">サイトのバナー</h3>
-        <MyBanners />
-      </div>
-      <div>
-        <h3 className="leaf">その他</h3>
+        <h3 className="leaf">いろいろ</h3>
         <p>
           <InviteDiscordLink />
         </p>
         <p>
           <a href="/suggest">Suggest page (links for miss typo)</a>
         </p>
+      </div>
+      <div>
+        <h3 className="leaf">サイトのバナー</h3>
+        <MyBanners />
+      </div>
+      <div>
+        <h3 className="leaf">お気に入りのサイト</h3>
+        <FavoriteLinks />
       </div>
     </div>
   );
@@ -119,5 +124,34 @@ export function MyBanners() {
         />
       </div>
     </div>
+  );
+}
+
+export const FavoriteLinksState = new LinksStateClass(
+  "/data/favorite_links.json"
+);
+
+export function FavoriteLinks() {
+  const { list } = FavoriteLinksState.use();
+  return (
+    <>
+      {FavoriteLinksState.State()}
+      <div className="bannerArea">
+        {list?.map((v, i) => {
+          const titleWithDsc =
+            v.title + (v.description ? " - " + v.description : "");
+          return (
+            <a href={v.url} title={titleWithDsc} target="_blank" key={i}>
+              <img
+                src={v.image ?? ""}
+                width={200}
+                height={40}
+                alt={titleWithDsc}
+              />
+            </a>
+          );
+        })}
+      </div>
+    </>
   );
 }
