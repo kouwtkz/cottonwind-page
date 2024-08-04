@@ -47,11 +47,8 @@ export default function LinksPage() {
       </div>
       <div>
         <h3 className="leaf">その他</h3>
-        <div>
-          <InviteDiscordLink />
-        </div>
         <p>
-          <Link to="/blog">サイト内ブログ</Link>
+          <InviteDiscordLink />
         </p>
         <p>
           <a href="/suggest">Suggest page (links for miss typo)</a>

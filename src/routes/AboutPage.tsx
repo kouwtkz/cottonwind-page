@@ -1,4 +1,5 @@
 import { ChangeLog } from "@/state/GitState";
+import { Link } from "react-router-dom";
 
 export default function AboutPage() {
   return (
@@ -21,6 +22,9 @@ export default function AboutPage() {
         <p>わたかぜコウです！</p>
         <p>もふもふなイラストを描くのが好きです！</p>
       </div>
+      <h5>
+        <Link to="/blog">サイト内ブログ</Link>
+      </h5>
       <ChangeLog />
     </div>
   );
