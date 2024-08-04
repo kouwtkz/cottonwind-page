@@ -8,6 +8,7 @@ import {
 import { RoutingList } from "@/routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
 import { GitLogObject } from "@/data/functions/GitlogObject";
+import links from "../favorite_links.toml";
 
 const app = new Hono<MeeBindings>({ strict: true });
 
@@ -20,7 +21,7 @@ app.get("/500", async (c) => {
 });
 
 app.get("/data/favorite_links.json", async (c) => {
-  return c.json(c.env.FAVORITE_LINKS ?? []);
+  return c.json(links.FAVORITE_LINKS ?? []);
 });
 
 app.get("/suggest", async (c) => {

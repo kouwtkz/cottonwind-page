@@ -15,7 +15,6 @@ interface MeeEnv {
   LIFE_CHECKER_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
-  FAVORITE_LINKS?: SiteLink[];
   [k: string]: any;
 }
 

@@ -9,6 +9,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
 import { dataUpdateServerPlugins } from './src/mediaScripts/dataUpdate/updateServer'
+import { ViteToml } from 'vite-plugin-toml'
 
 function DateUTCString(date: Date = new Date()) {
   return date.toLocaleString("sv-SE", { timeZone: "UTC" }).replace(" ", "T") + "Z";
@@ -78,6 +79,7 @@ export default defineConfig(({ mode }) => {
     config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
     config.plugins!.push([
       pages(),
+      ViteToml(),
       dataUpdateServerPlugins(),
       devServer({
         entry: 'src/index.dev.tsx',

@@ -15,24 +15,6 @@ FEED_FROM = "https://note.com/kouwtkz/rss"
 # X_CLIENT_ID = ""
 # X_CLIENT_SECRET = ""
 
-[[vars.FAVORITE_LINKS]]
-url = "https://harukuriki.website/"
-title = "Castanella"
-description = "栗城はるさんの個人サイト"
-image = "/static/images/banner/others/banner_castanella_200_40.png"
-
-[[vars.FAVORITE_LINKS]]
-url = "https://akarisu.com/"
-title = "ベリリスグリドン"
-description = "赤リスさんの創作サイト"
-image = "/static/images/banner/others/banner_akarisu_200_40.png"
-
-[[vars.FAVORITE_LINKS]]
-url = "https://dekoco.net/"
-title = "シロデココ"
-description = "デココさんの創作サイト"
-image = "/static/images/banner/others/20230417-shirodekoco-banner.png"
-
 [[kv_namespaces]]
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
