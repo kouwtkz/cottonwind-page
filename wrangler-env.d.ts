@@ -9,7 +9,6 @@ interface MeeEnv {
   DISCORD_INVITE_URL?: string;
   FEED_FROM?: string;
   FEED_DEV_FROM?: string;
-  ZENN_UPDATE_FROM?: string;
   X_CLIENT_ID?: string;
   X_CLIENT_SECRET?: string;
   LOGIN_TOKEN?: string;
