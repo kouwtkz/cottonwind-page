@@ -70,11 +70,11 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                   if (Array.isArray(cval)) return cval.some((x) => x === v);
                   else if (typeof v === "object" && "test" in v)
                     return v.test(cval);
-                  else return String(cval).match(v);
+                  else return String(cval).toLocaleLowerCase().match(v);
                 case "startsWith":
-                  return String(cval).startsWith(v);
+                  return String(cval).toLocaleLowerCase().startsWith(v);
                 case "endsWith":
-                  return String(cval).endsWith(v);
+                  return String(cval).toLocaleLowerCase().endsWith(v);
                 case "gt":
                   return cval > v;
                 case "gte":
@@ -132,7 +132,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
   const orderBy: OrderByItem[] = [];
   let OR = false,
     OR_skip = false;
-  const searchArray = q.replace(/^\s+|\s+$/, "").split(/\s+/);
+  const searchArray = q.replace(/^\s+|\s+$/, "").toLocaleLowerCase().split(/\s+/);
   searchArray.forEach((item) => {
     if (item === "OR") {
       OR = true;
@@ -153,11 +153,10 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         };
       } else {
         const colonIndex = /^\w+:\/\//.test(item) ? -1 : item.indexOf(":");
-        const _filterKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
-        const switchKey = _filterKey.toLocaleLowerCase();
-        const UNDER = _filterKey.startsWith("_");
-        const filterKey = UNDER ? _filterKey.slice(1) : _filterKey;
-        const filterValue = item.slice(_filterKey.length + 1);
+        const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
+        const UNDER = switchKey.startsWith("_");
+        const filterKey = UNDER ? switchKey.slice(1) : switchKey;
+        const filterValue = item.slice(switchKey.length + 1);
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
           case "object":
