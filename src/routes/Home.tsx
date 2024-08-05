@@ -93,6 +93,7 @@ export function TopPageBannerLink() {
             className="overlay"
           >
             <img
+              className="banner"
               src="/static/images/webp/cottonwind_booth_300_100.webp"
               alt="BOOTH"
             />

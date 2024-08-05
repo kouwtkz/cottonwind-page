@@ -863,8 +863,14 @@ footer {
       display: inline;
       img {
         width: 10rem;
+        &.banner {
+          width: 14rem;
+        }
         @media (min-width: $mobileWidth) {
           width: 14rem;
+          &.banner {
+            width: 24rem;
+          }
         }
       }
     }

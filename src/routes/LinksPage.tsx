@@ -141,7 +141,13 @@ export function FavoriteLinks() {
           const titleWithDsc =
             v.title + (v.description ? " - " + v.description : "");
           return (
-            <a href={v.url} title={titleWithDsc} target="_blank" key={i}>
+            <a
+              href={v.url}
+              title={titleWithDsc}
+              target="_blank"
+              className="overlay"
+              key={i}
+            >
               <img
                 src={v.image ?? ""}
                 width={200}
