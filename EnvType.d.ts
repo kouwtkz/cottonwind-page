@@ -9,7 +9,7 @@ declare module 'process' {
   }
 }
 
-declare module '*/favorite_links.toml' {
+declare module '*/env.toml' {
   const value: {
     FAVORITE_LINKS?: SiteLink[];
   }
