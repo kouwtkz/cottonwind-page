@@ -39,6 +39,7 @@ import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";
+import { findMany, setWhere } from "@/functions/findMany";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   return (
@@ -164,13 +165,6 @@ export function GalleryObjectConvert({
   return <GalleryObject items={albums} />;
 }
 
-interface searchesType {
-  key: string;
-  value: string;
-  reg?: RegExp;
-  option?: string;
-}
-
 interface sortObjectType {
   key: string;
   order: "asc" | "desc";
@@ -277,31 +271,19 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     return list;
   }, [sortParam]);
   const tags = useMemo(() => tagParam?.split(","), [tagParam]);
-  const searches = useMemo(
+  const { where } = useMemo(
     () =>
-      qParam?.split(" ", 3).map((q) => {
-        const qs = q.split(":");
-        if (qs.length === 1 && qs[0].startsWith("#"))
-          return {
-            key: "hashtag",
-            value: qs[0].slice(1),
-            reg: new RegExp(`${qs[0]}(\\s|$)`, "i"),
-          } as searchesType;
-        else {
-          const key = qs.length > 1 ? qs[0] : "keyword";
-          const value = qs.length > 1 ? qs[1] : qs[0];
-          const option = qs.length > 2 ? qs[2] : undefined;
-          return { key, value, option } as searchesType;
-        }
+      setWhere(qParam, {
+        text: { key: ["name", "description", "URL", "copyright", "embed"] },
+        hashtag: { key: "tags" },
       }),
     [qParam]
   );
-
   const { fList, yfList } = useMemo(() => {
     const fList = items
       .map((item) =>
         item.hideWhenFilter &&
-        (topicParams.length > 0 || typeParam || tags || searches || monthParam)
+        (topicParams.length > 0 || typeParam || tags || monthParam)
           ? []
           : item.list ?? []
       )
@@ -329,48 +311,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             images,
             tags,
           });
-
-        if (searches)
-          images = images.filter((image) => {
-            const ImageDataStr = [
-              image.name,
-              image.description,
-              image.src,
-              image.copyright,
-            ]
-              .concat(image.tags)
-              .join(" ");
-            return searches.every(({ key, value, option, reg }) => {
-              switch (key) {
-                case "tag":
-                case "hashtag":
-                  let result = false;
-                  if (key === "hashtag" && image.description)
-                    result = Boolean(reg?.test(image.description));
-                  return (
-                    result ||
-                    image.tags?.some((tag) => {
-                      switch (option) {
-                        case "match":
-                          return tag.match(value);
-                        default:
-                          return tag === value;
-                      }
-                    })
-                  );
-                case "name":
-                case "description":
-                case "URL":
-                case "copyright":
-                case "embed":
-                  const imageValue = image[key];
-                  if (imageValue) return imageValue.match(value);
-                  else return false;
-                default:
-                  return ImageDataStr.match(value);
-              }
-            });
-          });
+        images = findMany({ list: images, where });
         return images;
       });
     const yfList = fList.map((images) => {
@@ -407,7 +348,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     monthParam,
     filterMonthly,
     tags,
-    searches,
+    where,
     sortList,
     year,
   ]);
