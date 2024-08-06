@@ -106,6 +106,7 @@ function MultiParser({
                         e.preventDefault();
                       }) as any;
                     }
+                    currentTag = "";
                   }
                   break;
                 case "details":
