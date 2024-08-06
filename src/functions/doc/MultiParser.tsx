@@ -9,8 +9,12 @@ import {
   Text as NodeText,
 } from "domhandler";
 import { parse } from "marked";
-import { useNavigate } from "react-router-dom";
-import { GetUrlFlag, MakeRelativeURL, MakeURL, ToHref, ToURL } from "./MakeURL";
+import {
+  createSearchParams,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import { GetUrlFlag, MakeURL, ToURL } from "./MakeURL";
 import { GetImageItemFromSrc } from "@/layout/ImageMee";
 import { useImageState } from "@/state/ImageState";
 
@@ -50,6 +54,7 @@ function MultiParser({
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
+  const setSearch = useSearchParams()[1];
   const { imageItemList, isSet: imagesIsSet } = useImageState();
   if (only) {
     markdown = only.markdown ?? false;
@@ -82,7 +87,7 @@ function MultiParser({
                         v.attribs.class =
                           (v.attribs.class ? `${v.attribs.class} ` : "") +
                           "external";
-                    } else {
+                    } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
                       v.attribs.onClick = ((e: any) => {
                         const queryFlag = url.startsWith("?");
                         let query = queryFlag
@@ -97,11 +102,10 @@ function MultiParser({
                             ),
                             ...query,
                           };
-                          nav(MakeRelativeURL({ query }), {
-                            preventScrollReset: !scroll,
-                          });
+                          if (query.p) delete query.p;
+                          setSearch(query, { preventScrollReset: !scroll });
                         } else {
-                          nav(MakeRelativeURL(url));
+                          nav(url);
                         }
                         e.preventDefault();
                       }) as any;
@@ -136,12 +140,8 @@ function MultiParser({
                         const replaced = n.data.replace(
                           /(^|\s?)(#[^\s#]+)/g,
                           (m, m1, m2) => {
-                            const Url = MakeURL({
-                              query: { q: m2 },
-                            });
-                            return `${m1}<a href="${
-                              Url.pathname + Url.search
-                            }" class="hashtag">${m2}</a>`;
+                            const searchParams = createSearchParams({ q: m2 });
+                            return `${m1}<a href="?${searchParams.toString()}" class="hashtag">${m2}</a>`;
                           }
                         );
                         if (n.data !== replaced) {
