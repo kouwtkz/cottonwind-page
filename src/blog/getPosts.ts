@@ -24,8 +24,8 @@ export default function getPosts({
     from: { key: "userId" },
     hashtag: { enableText: true, key: "category" },
   };
-  const { where } = setWhere(q, options);
-  if (common) where.push({ draft: false, date: { lte: new Date() } });
+  const wheres = [setWhere(q, options).where];
+  if (common) wheres.push({ draft: false, date: { lte: new Date() } });
   const orderBy: any[] = [];
   if (pinned) orderBy.push({ pin: "desc" });
   orderBy.push({ date: "desc" });
@@ -34,7 +34,7 @@ export default function getPosts({
     let postsResult: Post[] = findMany({
       list: posts,
       where: {
-        AND: where,
+        AND: wheres,
       },
       orderBy,
     });

@@ -142,7 +142,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
   const hashtagKey = options.hashtag?.key ?? "hashtag";
   const enableHashtagKey = options.hashtag?.enableKey ?? true;
   const enableHashtagText = options.hashtag?.enableText ?? false;
-  const where: findWhereType<any>[] = [];
+  const whereList: findWhereType<any>[] = [];
   let id: number | undefined;
   let take: number | undefined;
   const orderBy: OrderByItem[] = [];
@@ -156,7 +156,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
       item = item.toLocaleLowerCase();
       let NOT = item.startsWith("-");
       if (NOT) item = item.slice(1);
-      if (item.startsWith("#")) {
+      if (item.length > 1 && item.startsWith("#")) {
         const filterValue = item.slice(1).toLocaleLowerCase();
         const whereHashtags: findWhereWithConditionsType<any>[] = [];
         if (enableHashtagKey) {
@@ -185,7 +185,6 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         if (whereHashtags.length > 0) {
           whereItem = { OR: whereHashtags };
         }
-        console.log(whereItem);
       } else {
         const colonIndex = /^\w+:\/\//.test(item) ? -1 : item.indexOf(":");
         const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
@@ -340,16 +339,16 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
       }
       if (whereItem) {
         if (NOT) whereItem = { NOT: [whereItem] }
-        where.push(whereItem);
+        whereList.push(whereItem);
       }
       if (OR) {
-        const current = where.pop();
-        const before = where.pop();
+        const current = whereList.pop();
+        const before = whereList.pop();
         if (before?.OR) {
           before.OR.push(current);
-          where.push(before);
+          whereList.push(before);
         } else {
-          where.push({
+          whereList.push({
             OR: [before, current],
           });
         }
@@ -357,5 +356,6 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
       }
     }
   });
+  const where = whereList.length > 1 ? { AND: whereList } : (whereList[0] ?? {});
   return { where, id, take, orderBy };
 }
