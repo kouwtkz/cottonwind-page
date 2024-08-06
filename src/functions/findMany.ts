@@ -63,14 +63,15 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
             return conditions.every(([k, v]) => {
               switch (k) {
                 case "equals":
-                  return cval == v;
+                  if (typeof cval === "string") return String(cval).toLocaleLowerCase() === v;
+                  else return cval == v;
                 case "not":
                   return cval != v;
                 case "contains":
                   if (Array.isArray(cval)) return cval.some((x) => x === v);
                   else if (typeof v === "object" && "test" in v)
                     return v.test(cval);
-                  else return String(cval).toLocaleLowerCase().match(v);
+                  else return String(cval).toLocaleLowerCase().includes(v);
                 case "startsWith":
                   return String(cval).toLocaleLowerCase().startsWith(v);
                 case "endsWith":
@@ -115,42 +116,76 @@ function createFilterEntry(
   }
 }
 
-function getKeyFromOptions<T>(key: string, options: WhereOptionsKvType<T>) {
+function getKeyFromOptions<T>(key: string, options: WhereOptionsKvType<T>): (string | string[]) {
   const _options = options as any;
   return typeof _options[key] === "object" && ("key" in _options[key])
     ? _options[key].key
     : key;
 }
 
+function whereFromKey(key: string | string[], value: findWhereWithConditionsType<any>): findWhereType<any> {
+  if (Array.isArray(key)) {
+    return {
+      OR: key.map(k => {
+        return { [k]: value }
+      })
+    };
+  } else {
+    return { [key]: value };
+  }
+}
+
 export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
   const dateKey = getKeyFromOptions("date", options);
+  const hashtagKey = options.hashtag?.key ?? "hashtag";
+  const enableHashtagKey = options.hashtag?.enableKey ?? true;
+  const enableHashtagText = options.hashtag?.enableText ?? false;
   const where: findWhereType<any>[] = [];
   let id: number | undefined;
   let take: number | undefined;
   const orderBy: OrderByItem[] = [];
-  let OR = false,
-    OR_skip = false;
-  const searchArray = q.replace(/^\s+|\s+$/, "").toLocaleLowerCase().split(/\s+/);
+  let OR = false;
+  const searchArray = (q ?? "").replace(/^\s+|\s+$/, "").split(/\s+/);
   searchArray.forEach((item) => {
     if (item === "OR") {
       OR = true;
-      OR_skip = true;
     } else {
       let whereItem: findWhereType<any> | undefined;
+      item = item.toLocaleLowerCase();
       let NOT = item.startsWith("-");
       if (NOT) item = item.slice(1);
       if (item.startsWith("#")) {
-        const filterValue = item.slice(1);
-        whereItem = {
-          [textKey]: {
-            contains: new RegExp(
-              `#${filterValue.replace(/(\+)/g, "\\$1")}(\\s|$)`,
-              "i"
-            ),
-          },
-        };
+        const filterValue = item.slice(1).toLocaleLowerCase();
+        const whereHashtags: findWhereWithConditionsType<any>[] = [];
+        if (enableHashtagKey) {
+          (Array.isArray(hashtagKey) ? hashtagKey : [hashtagKey])
+            .forEach(k => {
+              whereHashtags.push({
+                [k]: {
+                  contains: filterValue
+                }
+              })
+            })
+        }
+        if (enableHashtagText) {
+          (Array.isArray(textKey) ? textKey : [textKey])
+            .forEach(k => {
+              whereHashtags.push({
+                [k]: {
+                  contains: new RegExp(
+                    `#${filterValue.replace(/(\+)/g, "\\$1")}(\\s|$)`,
+                    "i"
+                  )
+                }
+              })
+            })
+        }
+        if (whereHashtags.length > 0) {
+          whereItem = { OR: whereHashtags };
+        }
+        console.log(whereItem);
       } else {
         const colonIndex = /^\w+:\/\//.test(item) ? -1 : item.indexOf(":");
         const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
@@ -176,9 +211,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = {
-                [textKey]: createFilterEntry(item),
-              };
+              whereItem = whereFromKey(textKey, createFilterEntry(item));
             }
             break;
           case "id":
@@ -192,7 +225,9 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
             switch (orderValue) {
               case "asc":
               case "desc":
-                orderBy.push({ [dateKey]: orderValue });
+                Array.isArray(dateKey) ? dateKey : [dateKey].forEach((k) => {
+                  orderBy.push({ [k]: orderValue });
+                })
                 break;
             }
             break;
@@ -211,51 +246,35 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
                 break;
             }
             break;
-          case "tag":
-          case "hashtag":
-            whereItem = {
-              [textKey]: {
-                contains: `#${filterValue}`,
-              },
-            };
-            break;
           case "from":
-            whereItem = {
-              [fromKey]: {
-                equals: filterValue,
-              },
-            };
+            whereItem = whereFromKey(fromKey, {
+              equals: filterValue,
+            });
             break;
           case "since":
-            whereItem = {
-              [dateKey]: {
-                gte: AutoAllotDate({
-                  value: String(filterValue),
-                  dayFirst: true,
-                }),
-              },
-            };
+            whereItem = whereFromKey(dateKey, {
+              gte: AutoAllotDate({
+                value: String(filterValue),
+                dayFirst: true,
+              }),
+            });
             break;
           case "until":
-            whereItem = {
-              [dateKey]: {
-                lte: AutoAllotDate({
-                  value: String(filterValue),
-                  dayLast: true,
-                }),
-              },
-            };
+            whereItem = whereFromKey(dateKey, {
+              lte: AutoAllotDate({
+                value: String(filterValue),
+                dayLast: true,
+              }),
+            });
             break;
           case "filter":
           case "has":
             switch (filterValue.toLowerCase()) {
               case "media":
               case "images":
-                whereItem = {
-                  [textKey]: {
-                    contains: "![%](%)",
-                  },
-                };
+                whereItem = whereFromKey(textKey, {
+                  contains: "![%](%)",
+                });
                 break;
               case "publish":
                 whereItem = {
@@ -311,7 +330,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
                   filterEntry = createFilterEntry(filterValue);
                   break;
               }
-              whereItem = { [key]: filterEntry };
+              whereItem = whereFromKey(key, filterEntry);
             }
             break;
         }
@@ -323,9 +342,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         if (NOT) whereItem = { NOT: [whereItem] }
         where.push(whereItem);
       }
-      if (OR_skip) {
-        OR_skip = false;
-      } else if (OR) {
+      if (OR) {
         const current = where.pop();
         const before = where.pop();
         if (before?.OR) {

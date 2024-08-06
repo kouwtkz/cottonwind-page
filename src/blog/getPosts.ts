@@ -1,25 +1,34 @@
 import { findMany, setWhere } from "@/functions/findMany";
 
 interface getPostsProps {
-  posts: Post[]
-  update?: boolean
-  take?: number
-  page?: number
-  q?: string
-  common?: boolean
-  pinned?: boolean
+  posts: Post[];
+  update?: boolean;
+  take?: number;
+  page?: number;
+  q?: string;
+  common?: boolean;
+  pinned?: boolean;
 }
-export default function getPosts({ posts, take, page, common, q = "", pinned = false }: getPostsProps) {
+export default function getPosts({
+  posts,
+  take,
+  page,
+  common,
+  q = "",
+  pinned = false,
+}: getPostsProps) {
   if (page) page--;
-  const skip = (take && page) ? take * page : 0;
-  const options: WhereOptionsKvType<Post> = { text: { key: "body" }, from: { key: "userId" } };
+  const skip = take && page ? take * page : 0;
+  const options: WhereOptionsKvType<Post> = {
+    text: { key: "body" },
+    from: { key: "userId" },
+    hashtag: { enableText: true, key: "category" },
+  };
   const { where } = setWhere(q, options);
-  if (common) where.push(
-    { draft: false, date: { lte: new Date() } }
-  )
-  const orderBy: any[] = []
-  if (pinned) orderBy.push({ pin: "desc" })
-  orderBy.push({ date: "desc" })
+  if (common) where.push({ draft: false, date: { lte: new Date() } });
+  const orderBy: any[] = [];
+  if (pinned) orderBy.push({ pin: "desc" });
+  orderBy.push({ date: "desc" });
 
   try {
     let postsResult: Post[] = findMany({
@@ -31,13 +40,13 @@ export default function getPosts({ posts, take, page, common, q = "", pinned = f
     });
     const count = postsResult.length;
     postsResult = postsResult.filter((post, i) => {
-      if (take !== undefined && i >= (take + skip)) return false;
+      if (take !== undefined && i >= take + skip) return false;
       return ++i > skip;
-    })
+    });
     const max = Math.ceil(count / (take || count));
     return { posts: postsResult, count, max };
   } catch (e) {
     console.log(e);
-    return { posts: [], count: 0, max: 0 }
+    return { posts: [], count: 0, max: 0 };
   }
 }

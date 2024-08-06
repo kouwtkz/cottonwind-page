@@ -1,4 +1,9 @@
-import { Link, useLocation, useParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
 import SiteConfigList from "@/data/config.list";
 import { useDataState } from "@/state/StateSet";
@@ -28,7 +33,7 @@ import {
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { LinkMee, MakeRelativeURL, SearchSet } from "@/functions/doc/MakeURL";
+import { LinkMee, MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
@@ -205,25 +210,25 @@ interface GalleryObjectProps extends GalleryBodyOptions {
 }
 
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
-  const search = useLocation().search;
-  const { query } = useMemo(() => SearchSet(search), [search]);
+  const [searchParams] = useSearchParams();
   const {
     sort: sortParam,
     filter: filterParam,
     type: typeParam,
+    year: yearParam,
     month: monthParam,
     q: qParam,
     tag: tagParam,
-  } = query;
+  } = Object.fromEntries(searchParams) as KeyValueType<string>;
   const filterParams = useMemo(
-    () => (filterParam || "").split(","),
+    () => (filterParam ?? "").split(","),
     [filterParam]
   );
   const topicParams = useMemo(
     () => filterParams.filter((p) => p === "topImage" || p === "pickup"),
     [filterParams]
   );
-  const year = Number(query.year);
+  const year = Number(yearParam);
   const monthlyEventMode = useMemo(
     () => !filterParams.some((p) => p === "monthTag"),
     [filterParams]
@@ -598,8 +603,9 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   ) {
     const { isComplete } = useDataState();
     const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
-    const { search, state } = useLocation();
-    const { query } = useMemo(() => SearchSet(search), [search]);
+    const { state } = useLocation();
+    const [searchParams] = useSearchParams();
+    const query = Object.fromEntries(searchParams) as KeyValueType<string>;
     const isOrigin = useMemo(
       () => state?.showOrigin === "on",
       [state?.showOrigin]
@@ -654,8 +660,11 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                       ? { to: image.direct }
                       : {
                           to: ({ search }) => {
-                            const query = SearchSet(search).query;
-                            query.image = image.originName;
+                            const query = Object.fromEntries(
+                              new URLSearchParams(search)
+                            ) as KeyValueType<string>;
+                            if (image.originName)
+                              query.image = image.originName;
                             if (image.album?.name)
                               query.album = image.album.name;
                             if (image.album?.name !== name) query.group = name;
