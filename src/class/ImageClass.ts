@@ -31,11 +31,7 @@ export class ImageClass {
       this.setImageAlbum(d as any);
     });
   }
-  MultiParserReplaceImages({
-    linkPush,
-    a,
-    n,
-  }: MultiParserReplaceProps) {
+  MultiParserReplaceImages({ linkPush, n }: MultiParserReplaceProps) {
     if (this && linkPush && n.type === "tag" && n.name === "img") {
       let src = n.attribs.src;
       let Url = new URL(src, location.href);
@@ -59,21 +55,18 @@ export class ImageClass {
             params.image = toSearch.image;
           }
         }
-        a.push(
-          new NodeElement(
-            "a",
-            {
-              href: MakeURL({
-                query: {
-                  ...Object.fromEntries(new URLSearchParams(location.search)),
-                  ...params,
-                },
-              }).search,
-            },
-            [n]
-          )
-        );
-        return a;
+        return new NodeElement(
+          "a",
+          {
+            href: MakeURL({
+              query: {
+                ...Object.fromEntries(new URLSearchParams(location.search)),
+                ...params,
+              },
+            }).search,
+          },
+          [n]
+        )
       }
     }
     return n;

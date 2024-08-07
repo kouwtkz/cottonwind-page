@@ -14,28 +14,33 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { GetUrlFlag, MakeURL, ToURL } from "./MakeURL";
-import { GetImageItemFromSrc } from "@/layout/ImageMee";
-import { useImageState } from "@/state/ImageState";
 
-type MultiParserOptions = {
+export interface MultiParserOptions {
   markdown?: boolean;
   toDom?: boolean;
   detailsClosable?: boolean;
   linkPush?: boolean;
   hashtag?: boolean;
-};
-type MultiParserProps = MultiParserOptions &
-  HTMLReactParserOptions & {
-    only?: MultiParserOptions;
-    className?: string;
-    detailsOpen?: boolean;
-    tag?: string;
-    children?: React.ReactNode;
-    parsedClassName?: string;
-  };
+}
+export interface MultiParserProps
+  extends MultiParserOptions,
+    HTMLReactParserOptions {
+  only?: MultiParserOptions;
+  className?: string;
+  detailsOpen?: boolean;
+  tag?: string;
+  children?: React.ReactNode;
+  parsedClassName?: string;
+  replaceFunctions?: (args: MultiParserReplaceProps) => ChildNode | undefined;
+}
 
-function MultiParser({
+export interface MultiParserReplaceProps {
+  linkPush: boolean;
+  a: ChildNode[];
+  n: ChildNode;
+}
+
+export function MultiParser({
   markdown = true,
   toDom = true,
   linkPush = true,
@@ -51,11 +56,11 @@ function MultiParser({
   htmlparser2,
   library,
   transform,
+  replaceFunctions,
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
   const setSearch = useSearchParams()[1];
-  const { imageItemList, isSet: imagesIsSet } = useImageState();
   if (only) {
     markdown = only.markdown ?? false;
     toDom = only.toDom ?? false;
@@ -135,6 +140,7 @@ function MultiParser({
                   if (typeof location === "undefined" || !(hashtag || linkPush))
                     return;
                   const newChildren = v.children.reduce((a, n) => {
+                    let _n: ChildNode | undefined = n;
                     if (hashtag && n.type === "text") {
                       if (!/^a$/.test(currentTag) && !/^\s*$/.test(n.data)) {
                         const replaced = n.data.replace(
@@ -149,53 +155,10 @@ function MultiParser({
                           return a;
                         }
                       }
-                    } else if (
-                      linkPush &&
-                      n.type === "tag" &&
-                      n.name === "img"
-                    ) {
-                      let src = n.attribs.src;
-                      let Url = ToURL(src);
-                      let params: { [k: string]: any } = {};
-                      let { pathname: pagenameFlag } = GetUrlFlag(Url);
-                      if (pagenameFlag && !/^\w+:\/\//.test(src)) {
-                        if (!imagesIsSet) n.attribs.src = "";
-                        else {
-                          const toSearch = Object.fromEntries(Url.searchParams);
-                          const imageItem = imagesIsSet
-                            ? GetImageItemFromSrc({
-                                src: { query: toSearch },
-                                list: imageItemList,
-                              })
-                            : null;
-                          if (imageItem) {
-                            n.attribs.src = imageItem.URL || "";
-                            n.attribs.title = n.attribs.alt || imageItem.name;
-                            n.attribs.alt = n.attribs.title;
-                            if ("pic" in toSearch) params.pic = "";
-                            params.image = toSearch.image;
-                          }
-                        }
-                        a.push(
-                          new NodeElement(
-                            "a",
-                            {
-                              href: MakeURL({
-                                query: {
-                                  ...Object.fromEntries(
-                                    new URLSearchParams(location.search)
-                                  ),
-                                  ...params,
-                                },
-                              }).search,
-                            },
-                            [n]
-                          )
-                        );
-                        return a;
-                      }
+                    } else if (replaceFunctions) {
+                      _n = replaceFunctions({ linkPush, a, n });
                     }
-                    a.push(n);
+                    if (_n) a.push(_n);
                     return a;
                   }, [] as ChildNode[]);
                   v.children = newChildren;
@@ -210,5 +173,3 @@ function MultiParser({
   className = (className ? `${className} ` : "") + parsedClassName;
   return React.createElement(tag, { className }, children);
 }
-
-export default MultiParser;
