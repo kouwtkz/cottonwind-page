@@ -8,7 +8,7 @@ import {
 } from "react";
 import { GalleryViewerPaging, useImageViewer } from "@/state/ImageViewer";
 import { ImageMee } from "@/layout/ImageMee";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useImageState } from "@/state/ImageState";
 import {
@@ -128,14 +128,16 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         setType,
         ..._image
       } = image;
-      const res = await axios.patch("/gallery/send", {
-        ..._image,
-        albumDir: album?.dir,
-        type: setType,
-        move,
-        rename,
-        deleteMode,
-      });
+      const res = await axios
+        .patch("/gallery/send", {
+          ..._image,
+          albumDir: album?.dir,
+          type: setType,
+          move,
+          rename,
+          deleteMode,
+        })
+        .catch((r) => (r as AxiosError<any>).response!);
       if (res.status === 200) {
         toast(deleteMode ? "削除しました" : "更新しました！", {
           duration: 2000,
@@ -162,6 +164,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         }
         return true;
       } else {
+        toast.error(res.data, {
+          duration: 2000,
+        });
         return false;
       }
     },

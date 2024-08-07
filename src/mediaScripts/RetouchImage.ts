@@ -45,9 +45,9 @@ export async function retouchImageFromYamls({ yamls, deleteImage = false, public
             fs.mkdirSync(dirname(imageFullPath), { recursive: true });
           } catch { } finally {
             if (baseImageFullPath) {
-              const toWebp = !/\.(svg|gif)$/i.test(image.src);
-              if (toWebp) await sharp(baseImageFullPath).webp().toFile(imageFullPath);
-              else {
+              if (!/\.(svg|gif|webp)$/i.test(image.src)) {
+                await sharp(baseImageFullPath).webp().toFile(imageFullPath);
+              } else {
                 try { fs.copyFileSync(baseImageFullPath, imageFullPath) } catch { }
               }
             }

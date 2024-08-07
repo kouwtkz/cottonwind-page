@@ -8,6 +8,7 @@ import { CommonContext, CommonContextProps } from "@/types/HonoCustomType";
 const cwd = `${process.cwd()}/${process.env.ROOT || ""}`;
 
 export async function GalleryPatch(c: CommonContext) {
+
   const { albumDir, src, origin, dir, time, deleteMode, move, rename, ...image } = await c.req.json();
   const group = [albumDir];
   if (move) group.push(move);
@@ -16,9 +17,14 @@ export async function GalleryPatch(c: CommonContext) {
   const editYaml = yamls.find(album => album.dir === albumDir);
   if (editYaml) {
     if (deleteMode) {
-      const uploadImagesFullDir = pathResolve(`${cwd}/${origin}`);
-      console.log(uploadImagesFullDir);
-      try { unlinkSync(uploadImagesFullDir) } catch { }
+      const uploadImagesFullPath = pathResolve(`${cwd}/${origin}`);
+      try {
+        unlinkSync(uploadImagesFullPath);
+        console.log("deleted: " + uploadImagesFullPath);
+      } catch (e) {
+        console.log(e);
+        throw (new Error("削除に失敗しました"));
+      }
       editYaml.list = editYaml.list.filter(item => item.origin !== origin);
       editYaml.data.list = editYaml.data.list?.filter(item => item.origin !== origin);
     } else {

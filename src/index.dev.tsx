@@ -42,7 +42,7 @@ app.get("/json/gitlog.json", (c) => {
 app.get("/json/*", serveStatic({ root: "./public/" }));
 
 app.post("/gallery/send", async (c, next) => {
-  const formData = await c.req.parseBody() as any;
+  const formData = (await c.req.parseBody()) as any;
   await uploadAttached({
     c,
     attached: formData["attached[]"] as File[],
@@ -53,7 +53,11 @@ app.post("/gallery/send", async (c, next) => {
   return c.newResponse(null);
 });
 app.patch("/gallery/send", async (c) => {
-  await GalleryPatch(c);
+  try {
+    await GalleryPatch(c);
+  } catch (e: any) {
+    return c.text((e as Error).message, 500);
+  }
   return c.newResponse(null);
 });
 app.post("/character/send", async (c) => {
