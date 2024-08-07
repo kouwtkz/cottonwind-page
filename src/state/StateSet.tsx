@@ -40,6 +40,7 @@ export function StateSet() {
 function DataStateSet() {
   return (
     <>
+      {/* <ImageState /> */}
       <ImageState />
       <FeedState />
     </>
@@ -65,7 +66,7 @@ export const useDataState = create<DataStateType>((set) => ({
 }));
 
 function DataState() {
-  const stateList = [useImageState(), useFeedState()];
+  const stateList = [useFeedState(), useImageState().imageObject];
   const { isComplete, setComplete } = useDataState(
     ({ isComplete, setComplete }) => ({ isComplete, setComplete })
   );

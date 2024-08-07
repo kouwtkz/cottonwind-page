@@ -39,7 +39,7 @@ export function ComicsViewer() {
 }
 
 function EBookGallery() {
-  const { imageItemList } = useImageState();
+  const { imageItemList } = useImageState().imageObject;
   return (
     <GalleryObject
       items={[
@@ -54,7 +54,7 @@ function EBookGallery() {
 }
 
 export function AlbumComicsViewer({ name }: { name: string }) {
-  const { imageAlbumList } = useImageState();
+  const { imageAlbumList } = useImageState().imageObject;
   const album: MediaImageAlbumType | undefined = useMemo(
     () => imageAlbumList.find((album) => album.name.endsWith(name)),
     [name, imageAlbumList]

@@ -7,7 +7,7 @@ import {
 } from "react";
 import { create } from "zustand";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { ImageMee } from "@/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
@@ -32,7 +32,7 @@ import {
   RiStore3Fill,
 } from "react-icons/ri";
 import { CharaState, useCharaState } from "@/state/CharaState";
-import { useImageState } from "./ImageState";
+import { useImageState } from "@/state/ImageState";
 import { useDataState } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
@@ -74,7 +74,7 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
 }));
 
 export function ImageViewer() {
-  const { imageItemList } = useImageState();
+  const { imageItemList } = useImageState().imageObject;
   const { charaObject } = useCharaState();
   const nav = useNavigate();
   const { isOpen, onOpen, onClose } = useImageViewer();
@@ -233,7 +233,9 @@ export function ImageViewer() {
                       <div className="title" />
                     )}
                     <div className="description">
-                      <MultiParser>{image.description}</MultiParser>
+                      <MultiParserWithMedia>
+                        {image.description}
+                      </MultiParserWithMedia>
                     </div>
                     <div className="tagList">
                       {image.tags

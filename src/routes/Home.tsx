@@ -105,7 +105,7 @@ export function TopPageBannerLink() {
 }
 
 export function HomeImage() {
-  const { imageAlbumList } = useImageState();
+  const { imageAlbumList } = useImageState().imageObject;
   const images = useMemo(
     () => imageAlbumList.find(({ name }) => name === "art")?.list ?? [],
     [imageAlbumList]

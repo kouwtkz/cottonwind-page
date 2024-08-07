@@ -1,5 +1,5 @@
 import { SetRegisterReturn } from "../hook/SetRegister";
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 
@@ -69,7 +69,7 @@ export function PostTextarea({
           bodyClass + "preview-area " + (previewMode ? "block" : "hidden")
         }
       >
-        <MultiParser>{previewBody}</MultiParser>
+        <MultiParserWithMedia>{previewBody}</MultiParserWithMedia>
       </div>
     </>
   );

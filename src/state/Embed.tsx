@@ -1,7 +1,7 @@
 import { HTMLAttributes, memo, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import axios from "axios";
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 
 type EmbedStateType = {
   list: string[];
@@ -68,7 +68,9 @@ export const EmbedNode = memo(function EmbedNode({
   }, [embed]);
   return element ? (
     <div {...args}>
-      <MultiParser only={{ toDom: true }}>{element}</MultiParser>
+      <MultiParserWithMedia only={{ toDom: true }}>
+        {element}
+      </MultiParserWithMedia>
     </div>
   ) : (
     <></>

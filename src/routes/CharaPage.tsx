@@ -1,14 +1,10 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import {
-  ImageMee,
-  ImageMeeIcon,
-  ImageMeeThumbnail,
-} from "@/layout/ImageMee";
+import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
 import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
 import { useImageState } from "@/state/ImageState";
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import CharaEditForm, {
   CharaEditButton,
   SortableObject,
@@ -139,7 +135,7 @@ const CharaDetail = memo(function CharaDetail({
   charaName: string;
 }) {
   const { charaObject, isSet: isCharaState } = useCharaState();
-  const { imageAlbumList } = useImageState();
+  const { imageAlbumList } = useImageState().imageObject;
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
     () => (charaObject ?? {})[charaName],
@@ -206,7 +202,7 @@ const CharaDetail = memo(function CharaDetail({
                 />
               </div>
             ) : null}
-            <MultiParser>{chara.description}</MultiParser>
+            <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
             <GalleryObject
               items={galleryList
                 .map((item) => {

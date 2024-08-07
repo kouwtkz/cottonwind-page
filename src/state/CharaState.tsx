@@ -38,7 +38,7 @@ export const useCharaState = create<CharaStateType>((set) => ({
 
 export function CharaState({ url = defaultUrl }: { url?: string }) {
   const { setCharaObject, isReload, charaList } = useCharaState();
-  const imageItemList = useImageState((state) => state.imageItemList);
+  const { imageItemList } = useImageState().imageObject;
   const { SoundItemList, defaultPlaylist } = useSoundState();
   useLayoutEffect(() => {
     if (isReload && imageItemList.length > 0) {

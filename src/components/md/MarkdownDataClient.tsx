@@ -1,4 +1,4 @@
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import { useMarkdownDataState } from "./MarkdownDataState";
 
 export function MdClientNode({
@@ -11,7 +11,7 @@ export function MdClientNode({
 }) {
   const { data } = useMarkdownDataState();
   if (data && data[name]) {
-    return <MultiParser {...args}>{data[name]}</MultiParser>;
+    return <MultiParserWithMedia {...args}>{data[name]}</MultiParserWithMedia>;
   } else {
     return null;
   }

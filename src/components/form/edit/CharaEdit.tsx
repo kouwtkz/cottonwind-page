@@ -48,7 +48,7 @@ export default function CharaEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
   const { charaObject, setIsSet } = useCharaState();
-  const imageState = useImageState();
+  const { setImageFromUrl } = useImageState();
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
   const getDefaultValues = useCallback(
@@ -134,7 +134,7 @@ export default function CharaEditForm() {
     toast(res.data.message, { duration: 2000 });
     if (res.status === 200) {
       if (res.data.update.chara) setIsSet(false);
-      if (res.data.update.image) imageState.setImageFromUrl();
+      if (res.data.update.image) setImageFromUrl();
       setTimeout(() => {
         nav(`/character/${formValues.id}`);
       }, 200);
@@ -315,10 +315,7 @@ export function CharaEditButton() {
           <TbArrowsMove />
         </button>
       )}
-      <LinkMee
-        to={{ query: { edit: "on" } }}
-        className="button round large"
-      >
+      <LinkMee to={{ query: { edit: "on" } }} className="button round large">
         {charaName ? <MdEditNote /> : <MdAdd />}
       </LinkMee>
     </div>
@@ -359,13 +356,7 @@ export function SortableObject({
         set({ reset: false });
       }
     }
-  }, [
-    charaList,
-    items,
-    resetFlag,
-    saveFlag,
-    sortable,
-  ]);
+  }, [charaList, items, resetFlag, saveFlag, sortable]);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {

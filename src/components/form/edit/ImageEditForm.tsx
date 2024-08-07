@@ -6,10 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  GalleryViewerPaging,
-  useImageViewer,
-} from "@/state/ImageViewer";
+import { GalleryViewerPaging, useImageViewer } from "@/state/ImageViewer";
 import { ImageMee } from "@/layout/ImageMee";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -43,7 +40,8 @@ interface Props extends HTMLAttributes<HTMLFormElement> {
 }
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
-  const { imageAlbumList, copyrightList, setImageFromUrl } = useImageState();
+  const { imageObject, setImageFromUrl } = useImageState();
+  const { imageAlbumList, copyrightList } = imageObject;
   const { charaList } = useCharaState();
   const { list: embedList } = useEmbedState();
   const nav = useNavigate();

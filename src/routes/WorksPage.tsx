@@ -3,7 +3,7 @@ import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
 
 export default function WorksPage() {
-  const { imageAlbumList } = useImageState();
+  const { imageAlbumList } = useImageState().imageObject;
   const work = imageAlbumList.find((album) => album.name === "works");
   return (
     <div className="worksPage">

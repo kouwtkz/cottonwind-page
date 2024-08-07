@@ -110,7 +110,7 @@ export function GalleryObjectConvert({
   items,
   ...args
 }: GalleryObjectConvertProps) {
-  const { imageItemList, imageAlbumList } = useImageState();
+  const { imageItemList, imageAlbumList } = useImageState().imageObject;
   const convertItemArrayType = useCallback(
     (items?: GalleryItemsType) =>
       items ? (Array.isArray(items) ? items : [items]) : [],
@@ -368,7 +368,7 @@ function UploadChain({
   item: GalleryItemObjectType;
   children?: ReactNode;
 }) {
-  const { imageItemList, imageAlbumList, setImageFromUrl } = useImageState();
+  const { imageItemList, imageAlbumList, setImageFromUrl } = useImageState().imageObject;
   const tags = useMemo(
     () => (typeof item.tags === "string" ? [item.tags] : item.tags),
     [item.tags]

@@ -12,7 +12,7 @@ import { usePostState } from "@/blog/PostState";
 function SetTitle() {
   const { pathname, search } = useLocation();
   const { charaObject: characters } = useCharaState();
-  const { imageItemList: images } = useImageState();
+  const { imageItemList: images } = useImageState().imageObject;
   const { isComplete } = useDataState();
   const [notFirst, setNotFirst] = useState(false);
   const { posts } = usePostState();

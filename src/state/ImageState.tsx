@@ -7,6 +7,7 @@ import {
   getTagList,
   parseImageItems,
 } from "../data/functions/images";
+import { ImageClass } from "@/class/ImageClass";
 const defaultUrl = "/json/images.json" + buildAddVer;
 
 interface ValueCountType {
@@ -14,38 +15,21 @@ interface ValueCountType {
   count: number;
 }
 
-type ImageDataType = {
-  imageItemList: Array<MediaImageItemType>;
-  imageAlbumList: Array<MediaImageAlbumType>;
-  tagList: ValueCountType[];
-  copyrightList: ValueCountType[];
-  isSet: boolean;
-  setImageAlbum: (albumList: Array<MediaImageAlbumType>) => void;
+type ImageStateType = {
+  imageObject: ImageClass;
+  setImageObject: (imageObject: ImageClass) => void;
   setImageFromUrl: (url?: string) => void;
 };
 
-export const useImageState = create<ImageDataType>((set) => ({
-  imageItemList: [],
-  imageAlbumList: [],
-  tagList: [],
-  copyrightList: [],
-  isSet: false,
-  setImageAlbum: (data) => {
-    const imageItemList = parseImageItems(data);
-    const tagList = getTagList(imageItemList);
-    const copyrightList = getCopyRightList(imageItemList);
-    set(() => ({
-      imageAlbumList: data,
-      imageItemList,
-      tagList,
-      copyrightList,
-      isSet: true,
-    }));
+export const useImageState = create<ImageStateType>((set) => ({
+  imageObject: new ImageClass(),
+  setImageObject: (imageObject) => {
+    set(() => ({ imageObject }));
   },
   setImageFromUrl: (url = defaultUrl) => {
     set((state) => {
-      axios(url).then((r) => {
-        state.setImageAlbum(r.data);
+      state.imageObject.setImageFromUrl(url).then(() => {
+        state.setImageObject(state.imageObject);
       });
       return state;
     });
@@ -53,7 +37,7 @@ export const useImageState = create<ImageDataType>((set) => ({
 }));
 
 export function ImageState({ url }: { url?: string }) {
-  const setImageFromUrl = useImageState((state) => state.setImageFromUrl);
+  const { setImageFromUrl } = useImageState();
   useLayoutEffect(() => {
     setImageFromUrl(url);
   }, [url]);

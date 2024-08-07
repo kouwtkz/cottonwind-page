@@ -4,7 +4,13 @@ import { findMany } from "@/functions/findMany";
 import getPosts from "./getPosts";
 import PostsPageFixed, { PostDetailFixed } from "@/blog/fixed";
 import { getLocalDraft, useLocalDraftPost } from "./PostForm";
-import { HTMLAttributes, useCallback, useEffect, useLayoutEffect, useMemo } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
@@ -12,7 +18,7 @@ import { useBackButton, queryCheck } from "@/layout/BackButton";
 import { useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
-import MultiParser from "@/functions/doc/MultiParser";
+import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 
 export function BlogPage({
   blogEnable,
@@ -198,7 +204,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       ) : null}
       <div className="header">
         {post.title ? (
-          <MultiParser className="title">
+          <MultiParserWithMedia className="title">
             {detail ? (
               <h1>{post.title}</h1>
             ) : (
@@ -217,7 +223,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
                 )}
               </h3>
             )}
-          </MultiParser>
+          </MultiParserWithMedia>
         ) : (
           <></>
         )}
@@ -243,9 +249,13 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
           <></>
         )}
       </div>
-      <MultiParser className="blog" hashtag={true}  detailsOpen={detail}>
+      <MultiParserWithMedia
+        className="blog"
+        hashtag={true}
+        detailsOpen={detail}
+      >
         {post.body}
-      </MultiParser>
+      </MultiParserWithMedia>
       <div className="footer">
         {typeof post.date !== "undefined" ? (
           post.draft ? (
