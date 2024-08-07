@@ -368,7 +368,8 @@ function UploadChain({
   item: GalleryItemObjectType;
   children?: ReactNode;
 }) {
-  const { imageItemList, imageAlbumList, setImageFromUrl } = useImageState().imageObject;
+  const { imageObject, setImageFromUrl } = useImageState();
+  const { imageItemList, imageAlbumList } = imageObject;
   const tags = useMemo(
     () => (typeof item.tags === "string" ? [item.tags] : item.tags),
     [item.tags]
