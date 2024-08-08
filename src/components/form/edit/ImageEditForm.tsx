@@ -33,11 +33,24 @@ import { PostTextarea, usePreviewMode } from "../input/PostTextarea";
 import { useCharaState } from "@/state/CharaState";
 import { AutoImageItemType } from "../../../data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
+import { create } from "zustand";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: MediaImageItemType | null;
 }
+
+interface ImageEditStateType {
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+}
+
+export const useImageEditState = create<ImageEditStateType>((set) => ({
+  busy: false,
+  setBusy(busy) {
+    set({ busy });
+  },
+}));
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { imageObject, setImageFromUrl } = useImageState();
@@ -47,6 +60,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
   const refForm = useRef<HTMLFormElement>(null);
+  const { busy, setBusy } = useImageEditState();
 
   const getCharaLabelValues = useCallback(() => {
     return charaList.map(({ name, id }) => ({
@@ -115,6 +129,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       deleteMode?: boolean;
       otherSubmit?: boolean;
     }) => {
+      setBusy(true);
       const {
         album,
         resized,
@@ -137,7 +152,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           rename,
           deleteMode,
         })
-        .catch((r) => (r as AxiosError<any>).response!);
+        .catch((r) => (r as AxiosError<any>).response!)
+        .finally(() => {
+          setBusy(false);
+        });
       if (res.status === 200) {
         toast(deleteMode ? "削除しました" : "更新しました！", {
           duration: 2000,
@@ -315,6 +333,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             if (isEdit) SubmitImage(image);
             toggleEditParam();
           }}
+          disabled={busy}
         >
           {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
         </button>
@@ -335,6 +354,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 }
               }
             }}
+            disabled={busy}
           >
             <MdDeleteForever />
           </button>
@@ -374,6 +394,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 title="タイトル"
                 type="text"
                 {...register("name")}
+                disabled={busy}
               />
             </div>
           </label>
@@ -393,6 +414,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 title="説明文"
                 className="description"
                 registed={register("description")}
+                disabled={busy}
               />
             </div>
           </div>
@@ -419,6 +441,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     formatOptionLabel={(option) => (
                       <CharaTagsLabel option={option} />
                     )}
+                    isDisabled={busy}
                   ></ReactSelect>
                 )}
               />
@@ -466,6 +489,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       field.onChange(newValues.map((v) => v?.value));
                     }}
                     onBlur={field.onBlur}
+                    isDisabled={busy}
                   />
                 )}
               />
@@ -473,7 +497,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </div>
           <label>
             <span className="label-l">画像の種類</span>
-            <select title="種類の選択" {...register("type")}>
+            <select title="種類の選択" {...register("type")} disabled={busy}>
               <option value="">
                 自動(
                 {TypeTagsOption.find((item) => item.value === autoImageItemType)
@@ -492,7 +516,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <div className="wide flex around">
               <label>
                 <span className="label-sl">トップ画像</span>
-                <select title="トップ画像" {...register("topImage")}>
+                <select
+                  title="トップ画像"
+                  {...register("topImage")}
+                  disabled={busy}
+                >
                   <option value="undefined">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>
@@ -500,7 +528,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               </label>
               <label>
                 <span className="label-sl">ピックアップ</span>
-                <select title="ピックアップ画像" {...register("pickup")}>
+                <select
+                  title="ピックアップ画像"
+                  {...register("pickup")}
+                  disabled={busy}
+                >
                   <option value="undefined">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>
@@ -511,7 +543,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           <label>
             <div className="label">リンク</div>
             <div className="wide">
-              <input title="リンク" type="text" {...register("link")} />
+              <input
+                title="リンク"
+                type="text"
+                {...register("link")}
+                disabled={busy}
+              />
             </div>
           </label>
           <label>
@@ -522,6 +559,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 type="text"
                 list="galleryEditEmbedList"
                 {...register("embed")}
+                disabled={busy}
               />
               <datalist id="galleryEditEmbedList">
                 {embedList.map((embed, i) => {
@@ -541,6 +579,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               type="datetime-local"
               step={1}
               {...register("time")}
+              disabled={busy}
             />
           </label>
           <label>
@@ -550,6 +589,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               type="text"
               list="galleryEditCopyrightList"
               {...register("copyright")}
+              disabled={busy}
             />
             <datalist id="galleryEditCopyrightList">
               {copyrightList.map(({ value }, i) => (
@@ -559,7 +599,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </label>
           <label>
             <div className="label-l">アルバム移動</div>
-            <select title="移動" {...register("move")}>
+            <select title="移動" {...register("move")} disabled={busy}>
               {imageAlbumList
                 .filter((album) => album.listup && !album.name.startsWith("/"))
                 .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
@@ -576,6 +616,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               title="ファイル名変更"
               className="flex-1"
               {...register("rename")}
+              disabled={busy}
             />
           </label>
         </form>
