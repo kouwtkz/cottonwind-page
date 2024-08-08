@@ -1537,6 +1537,7 @@ select.YearFilter {
 }
 
 #image_viewer {
+  $thisMobileWidth: #{$tabletWidth};
   position: fixed;
   z-index: 40;
   .viewer {
@@ -1553,7 +1554,7 @@ select.YearFilter {
       > * {
         pointer-events: all;
       }
-      @media (min-width: $mobileWidth) {
+      @media (min-width: $thisMobileWidth) {
         height: 100%;
       }
     }
@@ -1570,7 +1571,7 @@ select.YearFilter {
     path {
       opacity: 0.7;
     }
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $thisMobileWidth) {
       width: 3.5rem;
       height: 3.5rem;
       margin: 0.5rem;
@@ -1586,7 +1587,7 @@ select.YearFilter {
     flex-direction: column;
     align-content: stretch;
     overflow-y: auto;
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $thisMobileWidth) {
       position: absolute;
       top: 0;
       bottom: 0;
@@ -1639,7 +1640,7 @@ select.YearFilter {
     iframe {
       max-height: 64vh;
     }
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $thisMobileWidth) {
       max-height: 100%;
       img,
       iframe {
@@ -1656,12 +1657,12 @@ select.YearFilter {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $thisMobileWidth) {
       min-width: 30em;
       width: 40vw;
     }
     .info {
-      padding: $size_2;
+      padding: 0.5rem 1rem;
       display: flex;
       flex-direction: column;
       text-align: center;
@@ -1685,10 +1686,10 @@ select.YearFilter {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: $size_8;
+        margin-bottom: 1rem;
         font-size: $text_xl;
         a {
-          margin: $size_1 $size_2;
+          margin: 0.25rem 0.5rem;
           display: inline-flex;
           align-items: center;
           text-decoration-line: none;
@@ -1711,16 +1712,16 @@ select.YearFilter {
       .grayRight {
         color: var(--main-color-grayish);
         text-align: right;
+        margin-top: 1rem;
         & > * {
-          margin-top: $size_4;
-          margin-bottom: $size_2;
-          margin-right: $size_4;
+          margin-right: 1rem;
+          margin-bottom: 0.5rem;
         }
         .time {
-          margin-right: $size_8;
+          margin-right: 1rem;
         }
       }
-      @media (min-width: $mobileWidth) {
+      @media (min-width: $thisMobileWidth) {
         text-align: left;
         display: flex;
         overflow-y: auto;
@@ -1818,7 +1819,7 @@ select.YearFilter {
       .description {
         min-height: 8rem;
       }
-      @media (min-width: $mobileWidth) {
+      @media (min-width: $thisMobileWidth) {
         text-align: left;
         overflow-y: auto;
         .title {
