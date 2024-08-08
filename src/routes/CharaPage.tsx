@@ -129,11 +129,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
   );
 });
 
-const CharaDetail = memo(function CharaDetail({
-  charaName,
-}: {
-  charaName: string;
-}) {
+function CharaDetail({ charaName }: { charaName: string }) {
   const { charaObject, isSet: isCharaState } = useCharaState();
   const { imageAlbumList } = useImageState().imageObject;
   const { RegistPlaylist } = useSoundPlayer();
@@ -228,4 +224,4 @@ const CharaDetail = memo(function CharaDetail({
       ) : null}
     </>
   );
-});
+}

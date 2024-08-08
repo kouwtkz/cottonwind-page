@@ -47,7 +47,7 @@ import { ToFormJST } from "@/functions/DateFormat";
 export default function CharaEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
-  const { charaObject, setIsSet } = useCharaState();
+  const { charaObject, Reload } = useCharaState();
   const { setImageFromUrl } = useImageState();
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
@@ -133,7 +133,7 @@ export default function CharaEditForm() {
     const res = await axios.post("/character/send", formData);
     toast(res.data.message, { duration: 2000 });
     if (res.status === 200) {
-      if (res.data.update.chara) setIsSet(false);
+      if (res.data.update.chara) Reload();
       if (res.data.update.image) setImageFromUrl();
       setTimeout(() => {
         nav(`/character/${formValues.id}`);
@@ -329,7 +329,7 @@ export function SortableObject({
   items: CharaType[];
   setItems: Dispatch<SetStateAction<CharaType[]>>;
 }) {
-  const { charaList, setIsSet } = useCharaState();
+  const { charaList, Reload } = useCharaState();
   const {
     sortable,
     save: saveFlag,
@@ -346,7 +346,7 @@ export function SortableObject({
           axios.post("/character/send", formData).then((res) => {
             toast(res.data.message, { duration: 2000 });
             if (res.status === 200) {
-              if (res.data.update.chara) setIsSet(false);
+              if (res.data.update.chara) Reload();
             }
           });
         }

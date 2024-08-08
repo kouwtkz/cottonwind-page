@@ -380,46 +380,50 @@ function UploadChain({
     },
     [imageAlbumList]
   );
-  const upload = useCallback((files: File[]) => {
-    const album = item.name ? getAlbum(item.name) : null;
-    if (!album) return false;
-    const checkTime = new Date().getTime();
-    const targetFiles = files.filter((file) => {
-      const findFunc = ({ src, originName }: MediaImageItemType) =>
-        [src, originName].some((n) => n === file.name);
-      const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
-      if (fromBrowser) {
-        return !imageItemList.some(findFunc);
-      } else {
-        const existTime = album.list.find(findFunc)?.time?.getTime();
-        if (!existTime) return true;
-        return (
-          Math.floor(existTime / 1000) !== Math.floor(file.lastModified / 1000)
-        );
-      }
-    });
-    if (targetFiles.length === 0) return false;
-    const formData = new FormData();
-    formData.append("dir", album.dir || "");
-    tags?.forEach((tag) => {
-      formData.append("tags[]", tag);
-    });
-    targetFiles.forEach((file) => {
-      formData.append("attached[]", file);
-      if (file.lastModified)
-        formData.append("attached_mtime[]", String(file.lastModified));
-    });
-    axios.post("/gallery/send", formData).then((res) => {
-      if (res.status === 200) {
-        toast("アップロードしました！", {
-          duration: 2000,
-        });
-        setTimeout(() => {
-          setImageFromUrl();
-        }, 200 + 200 * targetFiles.length);
-      }
-    });
-  }, []);
+  const upload = useCallback(
+    (files: File[]) => {
+      const album = item.name ? getAlbum(item.name) : null;
+      if (!album) return false;
+      const checkTime = new Date().getTime();
+      const targetFiles = files.filter((file) => {
+        const findFunc = ({ src, originName }: MediaImageItemType) =>
+          [src, originName].some((n) => n === file.name);
+        const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
+        if (fromBrowser) {
+          return !imageItemList.some(findFunc);
+        } else {
+          const existTime = album.list.find(findFunc)?.time?.getTime();
+          if (!existTime) return true;
+          return (
+            Math.floor(existTime / 1000) !==
+            Math.floor(file.lastModified / 1000)
+          );
+        }
+      });
+      if (targetFiles.length === 0) return false;
+      const formData = new FormData();
+      formData.append("dir", album.dir || "");
+      tags?.forEach((tag) => {
+        formData.append("tags[]", tag);
+      });
+      targetFiles.forEach((file) => {
+        formData.append("attached[]", file);
+        if (file.lastModified)
+          formData.append("attached_mtime[]", String(file.lastModified));
+      });
+      axios.post("/gallery/send", formData).then((res) => {
+        if (res.status === 200) {
+          toast("アップロードしました！", {
+            duration: 2000,
+          });
+          setTimeout(() => {
+            setImageFromUrl();
+          }, 200 + 200 * targetFiles.length);
+        }
+      });
+    },
+    [tags]
+  );
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const now = new Date();
