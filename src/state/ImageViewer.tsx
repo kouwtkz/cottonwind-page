@@ -217,113 +217,136 @@ export function ImageViewer() {
   );
 
   const InfoCmp = useCallback(
-    ({ children }: { children?: ReactNode }) => (
-      <>
-        {!("pic" in query) && image?.album?.visible?.info ? (
-          <div className="infoArea">
-            <CharaState />
-            {isComplete ? (
-              <>
-                {isEdit ? null : (
-                  <div className="info window">
-                    {image.album.visible.title &&
-                    (image.album.visible.filename || !titleEqFilename) ? (
-                      <h2 className="title">{image.name}</h2>
-                    ) : (
-                      <div className="title" />
-                    )}
-                    <div className="description">
-                      <MultiParserWithMedia>
-                        {image.description}
-                      </MultiParserWithMedia>
-                    </div>
-                    <div className="tagList">
-                      {image.tags
-                        ?.map((tag) => charaObject[tag] as CharaType)
-                        .filter((v) => v)
-                        .map((chara, i) => {
-                          return (
-                            <Link
-                              to={"/character/" + chara.id}
-                              onClick={() => {
-                                onClose();
-                                return true;
-                              }}
-                              className="character"
-                              key={i}
-                            >
-                              {chara?.media?.icon ? (
-                                <ImageMee
-                                  imageItem={chara.media.icon}
-                                  mode="icon"
-                                  width={40}
-                                  height={40}
-                                  className="charaIcon"
-                                />
-                              ) : (
-                                <></>
-                              )}
-                              <span className="align-middle">{chara.name}</span>
-                            </Link>
-                          );
-                        })}
-                      {image.tags
-                        ?.filter((tag) =>
-                          tagsOptions.some(({ value }) => value === tag)
-                        )
-                        .map((tag, i) => {
-                          const item = tagsOptions.find(
-                            ({ value }) => value === tag
-                          );
-                          if (!item) return item;
-                          return (
-                            <Link
-                              to={MakeRelativeURL({
-                                ...(pathname.startsWith("/gallery")
-                                  ? {}
-                                  : { pathname: "/gallery" }),
-                                query: item.query || { tag: item.value },
-                              })}
-                              className="other"
-                              preventScrollReset={false}
-                              key={i}
-                            >
-                              <span>{item.label}</span>
-                            </Link>
-                          );
-                        })}
-                    </div>
-                    {image.link ? (
-                      <div className="link">
-                        <Link target="_blank" to={image.link}>
-                          {image.link}
+    ({ children }: { children?: ReactNode }) => {
+      if ("pic" in query || !image?.album?.visible?.info) return <></>;
+      const tags = image.tags ?? [];
+      const charaTags = tags
+        .map((tag) => charaObject[tag] as CharaType)
+        .filter((v) => v);
+      const registeredTags = tags.filter((tag) =>
+        tagsOptions.some(({ value }) => value === tag)
+      );
+      const othertags = tags.filter(
+        (tag) =>
+          charaTags.every((ct) => ct.id !== tag) &&
+          registeredTags.every((rt) => rt !== tag)
+      );
+      const tagsBaseURL = location.origin + "/gallery";
+      return (
+        <div className="infoArea">
+          <CharaState />
+          {isComplete ? (
+            <>
+              {isEdit ? null : (
+                <div className="info window">
+                  {image.album.visible.title &&
+                  (image.album.visible.filename || !titleEqFilename) ? (
+                    <h2 className="title">{image.name}</h2>
+                  ) : (
+                    <div className="title" />
+                  )}
+                  <div className="description">
+                    <MultiParserWithMedia>
+                      {image.description}
+                    </MultiParserWithMedia>
+                  </div>
+                  <div className="tagList">
+                    {charaTags.map((chara, i) => {
+                      return (
+                        <Link
+                          to={"/character/" + chara.id}
+                          onClick={() => {
+                            onClose();
+                            return true;
+                          }}
+                          className="character"
+                          key={i}
+                        >
+                          {chara?.media?.icon ? (
+                            <ImageMee
+                              imageItem={chara.media.icon}
+                              mode="icon"
+                              width={40}
+                              height={40}
+                              className="charaIcon"
+                            />
+                          ) : (
+                            <></>
+                          )}
+                          <span className="align-middle">{chara.name}</span>
                         </Link>
+                      );
+                    })}
+                    {registeredTags.map((tag, i) => {
+                      const item = tagsOptions.find(
+                        ({ value }) => value === tag
+                      );
+                      if (!item) return item;
+                      return (
+                        <Link
+                          to={new URL("?tag=" + item.value, tagsBaseURL).href}
+                          className="other"
+                          preventScrollReset={false}
+                          key={i}
+                        >
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                    {othertags.map((tag, i) => (
+                      <Link
+                        className="unregistered"
+                        to={new URL("?q=tags:" + tag, tagsBaseURL).href}
+                        key={i}
+                      >
+                        {tag}
+                      </Link>
+                    ))}
+                  </div>
+                  {image.link ? (
+                    <div className="link">
+                      <Link target="_blank" to={image.link}>
+                        {image.link}
+                      </Link>
+                    </div>
+                  ) : null}
+                  <div className="grayRight">
+                    {image.time ? (
+                      <div className="time">
+                        {image.time.toLocaleString("ja", opt)}
                       </div>
                     ) : null}
-                    <div className="grayRight">
-                      {image.time ? (
-                        <div className="time">
-                          {image.time.toLocaleString("ja", opt)}
-                        </div>
-                      ) : null}
-                      {image.embed && image.type === "ebook" ? (
-                        <div>本のマークから読むことができる作品です！</div>
-                      ) : null}
-                    </div>
-                    {children}
+                    {image.embed && image.type === "ebook" ? (
+                      <div>本のマークから読むことができる作品です！</div>
+                    ) : null}
                   </div>
-                )}
-                {isDev ? (
-                  <ImageEditForm image={image} />
-                ) : (
-                  <GalleryViewerPaging image={image} />
-                )}
-              </>
-            ) : null}
-          </div>
-        ) : null}
-      </>
-    ),
+                  {children}
+                  {image.copyright ? (
+                    <div className="copyright grayRight">
+                      <div className="time">
+                        版権元：
+                        <Link
+                          to={
+                            new URL("?q=" + image.copyright, tagsBaseURL).href
+                          }
+                        >
+                          {image.copyright}
+                        </Link>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              {isDev ? (
+                <ImageEditForm image={image} />
+              ) : (
+                <GalleryViewerPaging image={image} />
+              )}
+            </>
+          ) : null}
+        </div>
+      );
+    },
     [
       charaObject,
       image,

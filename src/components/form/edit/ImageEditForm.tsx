@@ -69,24 +69,42 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     }));
   }, [charaList]);
 
-  const [charaTags, setCharaTags] = useState(getCharaLabelValues());
-  const [otherTags, setOtherTags] = useState(
-    autoFixTagsOptions(getTagsOptions(defaultTags))
-  );
-
   const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
 
+  const [charaTags] = useState(getCharaLabelValues());
   const getImageTagsObject = useCallback(
     (image?: MediaImageItemType | null) => {
-      const imageCharaTags = (image?.tags || []).filter((tag) =>
+      const tags = image?.tags || [];
+      const imageCharaTags = tags.filter((tag) =>
         charaTags.some((chara) => tag === chara.value)
       );
-      const imageOtherTags = (image?.tags || []).filter((tag) =>
+      const imageOtherTags = tags.filter((tag) =>
         imageCharaTags.every((_tag) => tag !== _tag)
       );
       return { charaTags: imageCharaTags, otherTags: imageOtherTags };
     },
     [charaTags]
+  );
+  const imageTags = useMemo(() => getImageTagsObject(image), [image]);
+  const simpleDefaultTags = useMemo(
+    () => autoFixTagsOptions(getTagsOptions(defaultTags)),
+    [defaultTags]
+  );
+  const unregisteredTags = useMemo(
+    () =>
+      imageTags.otherTags.filter((tag) =>
+        simpleDefaultTags.every(({ value }) => value !== tag)
+      ),
+    [imageTags.otherTags, defaultTags]
+  );
+  const [otherTags, setOtherTags] = useState(
+    autoFixTagsOptions(
+      getTagsOptions(
+        defaultTags.concat(
+          unregisteredTags.map((value) => ({ label: value, value }))
+        )
+      )
+    )
   );
 
   const getDefaultValues = useCallback(
@@ -95,7 +113,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       description: image?.description || "",
       topImage: String(image?.topImage),
       pickup: String(image?.pickup),
-      ...getImageTagsObject(image),
+      ...imageTags,
       type: image?.originType || "",
       time: ToFormJST(image?.time),
       copyright: image?.copyright || "",
@@ -322,6 +340,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     [image?.embed, image?.album?.type]
   );
 
+  const addOtherTags = useCallback((value: string) => {
+    const newCategory = { label: value, value };
+    setOtherTags((c) => c.concat(newCategory));
+    setValue("otherTags", getValues("otherTags").concat(value), {
+      shouldDirty: true,
+    });
+  }, []);
+
   return (
     <>
       <div className="rbButtonArea">
@@ -455,18 +481,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 type="button"
                 onClick={() => {
                   const answer = prompt("追加するタグの名前を入力してください");
-                  if (answer !== null) {
-                    const newCategory = { label: answer, value: answer };
-                    setOtherTags((c) => c.concat(newCategory));
-                    setValue(
-                      "otherTags",
-                      getValues("otherTags").concat(answer),
-                      {
-                        shouldDirty: true,
-                      }
-                    );
-                  }
+                  if (answer !== null) addOtherTags(answer);
                 }}
+                disabled={busy}
               >
                 ＋新規タグの追加
               </button>
@@ -487,6 +504,19 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     placeholder="その他のタグ選択"
                     onChange={(newValues) => {
                       field.onChange(newValues.map((v) => v?.value));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.ctrlKey) {
+                        setTimeout(() => {
+                          const input = e.target as HTMLInputElement;
+                          const value = input.value;
+                          if (value) {
+                            addOtherTags(value);
+                            input.blur();
+                            input.focus();
+                          }
+                        }, 50);
+                      }
                     }}
                     onBlur={field.onBlur}
                     isDisabled={busy}
