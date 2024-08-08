@@ -68,9 +68,8 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                 case "not":
                   return cval != v;
                 case "contains":
-                  if (Array.isArray(cval)) return cval.some((x) => x === v);
-                  else if (typeof v === "object" && "test" in v)
-                    return v.test(cval);
+                  if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
+                  else if (typeof v === "object" && "test" in v) return v.test(cval);
                   else return String(cval).toLocaleLowerCase().includes(v);
                 case "startsWith":
                   return String(cval).toLocaleLowerCase().startsWith(v);
