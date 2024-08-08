@@ -17,7 +17,7 @@ import {
   defaultTags,
   getTagsOptions,
   autoFixTagsOptions,
-} from "../components/tag/GalleryTags";
+} from "@/data/GalleryTags";
 import {
   LinkMee,
   LocationStateType,

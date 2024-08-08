@@ -1,4 +1,4 @@
-import { filterMonthList } from "../../components/tag/GalleryTags";
+import { filterMonthList } from "@/data/GalleryTags";
 export const publicParam = { list: <Array<MediaImageItemType>>[] };
 const currentTime = new Date();
 const currentMonth = currentTime.getMonth() + 1;

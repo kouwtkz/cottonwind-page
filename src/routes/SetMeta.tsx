@@ -5,7 +5,7 @@ import {
   autoFixTagsOptions,
   defaultTags,
   getTagsOptions,
-} from "@/components/tag/GalleryTags";
+} from "@/data/GalleryTags";
 import SiteConfigList from "@/data/config.list";
 import { RoutingUnion } from "@/routes/RoutingList";
 import { parse } from "marked";

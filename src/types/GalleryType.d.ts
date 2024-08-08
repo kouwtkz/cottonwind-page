@@ -2,7 +2,7 @@ interface SearchAreaOptionsProps {
   submitPreventScrollReset?: boolean;
 }
 
-interface GalleryListPropsBase extends SearchAreaOptionsProps {
+interface GalleryListPropsBase {
   size?: number;
   h2?: string;
   h4?: string;
@@ -30,3 +30,34 @@ interface GalleryItemObjectType extends GalleryListPropsBase {
 type GalleryItemType = string | GalleryItemObjectType;
 
 type GalleryItemsType = GalleryItemType | GalleryItemType[];
+
+interface sortObjectType {
+  key: string;
+  order: "asc" | "desc";
+}
+
+interface GalleryObjectType {
+  items: GalleryItemObjectType[];
+  fList: MediaImageItemType[][];
+  yfList: MediaImageItemType[][];
+  setItems: (items: GalleryItemObjectType[]) => void;
+  setYFList: (
+    fList: MediaImageItemType[][],
+    yfList: MediaImageItemType[][]
+  ) => void;
+}
+
+interface GalleryBodyOptions extends SearchAreaOptionsProps {
+  showInPageMenu?: boolean;
+  showGalleryHeader?: boolean;
+  showGalleryLabel?: boolean;
+  showCount?: boolean;
+}
+
+interface GalleryObjectProps extends GalleryBodyOptions {
+  items: GalleryItemObjectType[];
+}
+
+interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOptionsProps {
+  items?: GalleryItemsType;
+}

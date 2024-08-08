@@ -16,7 +16,7 @@ import {
   getTagsOptions,
   autoFixTagsOptions,
   GalleryTagsOption,
-} from "../../tag/GalleryTags";
+} from "@/data/GalleryTags";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEmbedState } from "@/state/Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";

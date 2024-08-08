@@ -1,13 +1,15 @@
 import {
   Link,
   useLocation,
+  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
 import SiteConfigList from "@/data/config.list";
 import { useDataState } from "@/state/StateSet";
-import {
+import React, {
+  HTMLAttributes,
   ReactNode,
   createRef,
   forwardRef,
@@ -16,30 +18,33 @@ import {
   useMemo,
   useState,
 } from "react";
-import { filterMonthList } from "../components/tag/GalleryTags";
+import {
+  defaultFilterTags,
+  defaultSortTags,
+  defaultTags,
+  filterMonthList,
+  getTagsOptions,
+} from "@/data/GalleryTags";
 import {
   filterImagesTags,
   filterPickFixed,
 } from "../data/functions/FilterImages";
 import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
-import {
-  GalleryYearFilter,
-  GallerySearchArea,
-  GalleryTagsSelect,
-  GalleryPageEditSwitch,
-  GalleryPageOriginImageSwitch,
-} from "../components/tag/GalleryFormSet";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { LinkMee, MakeRelativeURL } from "@/functions/doc/MakeURL";
+import { LinkMee, MakeRelativeURL, SearchSet } from "@/functions/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";
 import { findMany, setWhere } from "@/functions/findMany";
+import { useHotkeys } from "react-hotkeys-hook";
+import ReactSelect from "react-select";
+import { callReactSelectTheme } from "@/theme/main";
+import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -95,10 +100,6 @@ export function GalleryGroupPage({}: SearchAreaOptionsProps) {
       />
     </>
   );
-}
-
-interface GalleryObjectConvertProps extends GalleryListPropsBase {
-  items?: GalleryItemsType;
 }
 
 export function GalleryObjectConvert({
@@ -166,22 +167,6 @@ export function GalleryObjectConvert({
   );
 }
 
-interface sortObjectType {
-  key: string;
-  order: "asc" | "desc";
-}
-
-interface GalleryObjectType {
-  items: GalleryItemObjectType[];
-  fList: MediaImageItemType[][];
-  yfList: MediaImageItemType[][];
-  setItems: (items: GalleryItemObjectType[]) => void;
-  setYFList: (
-    fList: MediaImageItemType[][],
-    yfList: MediaImageItemType[][]
-  ) => void;
-}
-
 export const useGalleryObject = create<GalleryObjectType>((set) => ({
   items: [],
   fList: [],
@@ -193,16 +178,6 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
     set({ fList, yfList });
   },
 }));
-
-interface GalleryBodyOptions extends SearchAreaOptionsProps {
-  showInPageMenu?: boolean;
-  showGalleryHeader?: boolean;
-  showGalleryLabel?: boolean;
-  showCount?: boolean;
-}
-interface GalleryObjectProps extends GalleryBodyOptions {
-  items: GalleryItemObjectType[];
-}
 
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const [searchParams] = useSearchParams();
@@ -675,3 +650,314 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     );
   }
 );
+
+export function GalleryYearFilter({
+  submitPreventScrollReset = true,
+}: SearchAreaOptionsProps) {
+  const nav = useNavigate();
+  const { fList } = useGalleryObject(({ fList }) => ({ fList }));
+  const search = useLocation().search;
+  const { query } = useMemo(() => SearchSet(search), [search]);
+  const year = Number(query.year);
+  const isOlder = query.sort === "leastRecently";
+  const yearSelectRef = React.useRef<HTMLSelectElement>(null);
+
+  const yearListBase = useMemo(
+    () =>
+      getYearObjects(
+        fList.reduce((a, c) => {
+          c.forEach(({ time }) => {
+            if (time) a.push(time);
+          });
+          return a;
+        }, [] as Date[])
+      ),
+    [fList]
+  );
+
+  const yearListBase2 = useMemo(() => {
+    const addedList =
+      isNaN(year) || !yearListBase.every((y) => y.year !== year)
+        ? yearListBase
+        : yearListBase.concat({ year, count: 0 });
+    addedList.forEach((y) => {
+      y.label = `${y.year} (${y.count})`;
+      y.value = String(y.year);
+    });
+    return addedList;
+  }, [yearListBase, year]);
+
+  const yearList = useMemo(() => {
+    const sortedList = isOlder
+      ? yearListBase2.sort((a, b) => a.year - b.year)
+      : yearListBase2.sort((a, b) => b.year - a.year);
+    const count = sortedList.reduce((a, c) => a + c.count, 0);
+    sortedList.unshift({
+      year: 0,
+      count,
+      label: `all (${count})`,
+      value: "",
+    });
+    return sortedList;
+  }, [yearListBase2, isOlder]);
+
+  return (
+    <select
+      title="年フィルタ"
+      className="yearFilter"
+      ref={yearSelectRef}
+      value={year || ""}
+      onChange={() => {
+        if (yearSelectRef.current) {
+          const yearSelect = yearSelectRef.current;
+          const params = { ...query };
+          if (yearSelect.value) params.year = yearSelect.value;
+          else delete params.year;
+          nav(MakeRelativeURL({ query: params }), {
+            preventScrollReset: submitPreventScrollReset,
+          });
+        }
+      }}
+    >
+      {yearList.map(({ value, label }, i) => (
+        <option key={i} value={value}>
+          {label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+interface SearchAreaProps
+  extends React.HTMLAttributes<HTMLFormElement>,
+    SearchAreaOptionsProps {}
+
+export function GallerySearchArea({
+  className,
+  submitPreventScrollReset = true,
+  ...args
+}: SearchAreaProps) {
+  className = className ? ` ${className}` : "";
+  const nav = useNavigate();
+  const searchRef = React.useRef<HTMLInputElement>(null);
+  useHotkeys("slash", (e) => {
+    searchRef.current?.focus();
+    e.preventDefault();
+  });
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (document.activeElement === searchRef.current) {
+        searchRef.current?.blur();
+        e.preventDefault();
+      }
+    },
+    { enableOnFormTags: ["INPUT"] }
+  );
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q") || "";
+  const qRef = React.useRef(q);
+  React.useEffect(() => {
+    if (qRef.current !== q) {
+      if (searchRef.current) {
+        const strq = String(q);
+        if (searchRef.current.value !== strq) searchRef.current.value = strq;
+      }
+      if (qRef.current !== q) qRef.current = q;
+    }
+  });
+
+  return (
+    <form
+      className={className}
+      {...args}
+      onSubmit={(e) => {
+        if (searchRef.current) {
+          const q = searchRef.current.value;
+          const query = Object.fromEntries(searchParams);
+          if (q) query.q = q;
+          else delete query.q;
+          delete query.p;
+          delete query.postId;
+          nav(MakeRelativeURL({ query }), {
+            preventScrollReset: submitPreventScrollReset,
+          });
+          (document.activeElement as HTMLElement).blur();
+          e.preventDefault();
+        }
+      }}
+    >
+      <input
+        name="q"
+        type="search"
+        placeholder="ギャラリー検索"
+        defaultValue={q}
+        ref={searchRef}
+        className="search"
+      />
+    </form>
+  );
+}
+
+function getYearObjects(dates: (Date | null | undefined)[]) {
+  return dates
+    .map((date) => getJSTYear(date))
+    .reduce((a, c) => {
+      const g = a.find(({ year }) => c === year);
+      if (g) g.count++;
+      else if (c) a.push({ year: c, count: 1 });
+      return a;
+    }, [] as YearListType[])
+    .sort((a, b) => b.year - a.year);
+}
+
+interface SelectAreaProps
+  extends HTMLAttributes<HTMLDivElement>,
+    SearchAreaOptionsProps {}
+
+export function GalleryTagsSelect({
+  className,
+  submitPreventScrollReset = true,
+}: SelectAreaProps) {
+  const nav = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchTags = searchParams.get("tag")?.split(",") || [];
+  const searchType =
+    searchParams
+      .get("type")
+      ?.split(",")
+      .map((v) => `type:${v}`) || [];
+  const searchMonth =
+    searchParams
+      .get("month")
+      ?.split(",")
+      .map((v) => `month:${v}`) || [];
+  const searchFilters =
+    searchParams
+      .get("filter")
+      ?.split(",")
+      .map((v) => `filter:${v}`) || [];
+  const searchSort =
+    searchParams
+      .get("sort")
+      ?.split(",")
+      .map((v) => `sort:${v}`) || [];
+  const searchQuery = searchTags.concat(
+    searchType,
+    searchMonth,
+    searchFilters,
+    searchSort
+  );
+  const tags = defaultSortTags.concat(
+    import.meta.env.DEV ? defaultFilterTags : [],
+    defaultTags
+  );
+  const currentTags = getTagsOptions(tags).filter((tag) =>
+    searchQuery.some((stag) => tag.value === stag)
+  );
+  return (
+    <div className={className}>
+      <ReactSelect
+        options={tags}
+        value={currentTags}
+        isMulti
+        isSearchable={false}
+        classNamePrefix="select"
+        placeholder="ソート / フィルタ"
+        instanceId="galleryTagSelect"
+        className="tagSelect"
+        theme={callReactSelectTheme}
+        styles={{
+          menuList: (style) => ({ ...style, minHeight: "22rem" }),
+          menu: (style) => ({ ...style, zIndex: 9999 }),
+        }}
+        onChange={(list) => {
+          const listObj: { [k: string]: string[] } = {
+            sort: [],
+            type: [],
+            filter: [],
+            tag: [],
+            month: [],
+          };
+          list.forEach(({ value, group }) => {
+            const values = (value?.split(":", 2) || [""]).concat("");
+            switch (values[0]) {
+              case "sort":
+                listObj.sort = [values[1]];
+                break;
+              case "type":
+                listObj.type = [values[1]];
+                break;
+              case "filter":
+                listObj.filter.push(values[1]);
+                break;
+              case "month":
+                listObj.month = [values[1]];
+                break;
+              default:
+                if (value) listObj.tag.push(value);
+                break;
+            }
+          });
+          const query = Object.fromEntries(searchParams);
+          Object.entries(listObj).forEach(([key, list]) => {
+            if (list.length > 0) query[key] = list.join(",");
+            else delete query[key];
+          });
+          nav(MakeRelativeURL({ query }), {
+            preventScrollReset: submitPreventScrollReset,
+          });
+        }}
+      />
+    </div>
+  );
+}
+
+export function GalleryPageEditSwitch() {
+  const { state } = useLocation();
+  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
+  return (
+    <LinkMee
+      title={isEdit ? "元に戻す" : "常に編集モードにする"}
+      state={({ state }) => {
+        if (!state) state = {};
+        const isEdit = state.edit === "on";
+        if (isEdit) delete state.edit;
+        else state.edit = "on";
+        return state;
+      }}
+      style={{ opacity: isEdit ? 1 : 0.4 }}
+      to={location.search}
+      replace={true}
+      preventScrollReset={true}
+    >
+      <AiFillEdit />
+    </LinkMee>
+  );
+}
+
+export function GalleryPageOriginImageSwitch() {
+  const { state } = useLocation();
+  const isOrigin = useMemo(
+    () => state?.showOrigin === "on",
+    [state?.showOrigin]
+  );
+  return (
+    <LinkMee
+      title={isOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
+      state={({ state }) => {
+        if (!state) state = {};
+        const isOrigin = state.showOrigin === "on";
+        if (isOrigin) delete state.showOrigin;
+        else state.showOrigin = "on";
+        return state;
+      }}
+      style={{ opacity: isOrigin ? 1 : 0.4 }}
+      to={location.search}
+      replace={true}
+      preventScrollReset={true}
+    >
+      <AiOutlineFileImage />
+    </LinkMee>
+  );
+}
