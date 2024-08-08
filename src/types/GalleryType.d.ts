@@ -1,4 +1,8 @@
-interface GalleryListPropsBase {
+interface SearchAreaOptionsProps {
+  submitPreventScrollReset?: boolean;
+}
+
+interface GalleryListPropsBase extends SearchAreaOptionsProps {
   size?: number;
   h2?: string;
   h4?: string;

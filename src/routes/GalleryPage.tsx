@@ -42,22 +42,17 @@ import { MdFileUpload } from "react-icons/md";
 import { findMany, setWhere } from "@/functions/findMany";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
+  const galleryList = SiteConfigList.gallery.list;
+  const { isComplete } = useDataState();
   return (
     <div className="galleryPage">
-      <GalleryPageMain />
       {children}
+      {isComplete ? <GalleryObjectConvert items={galleryList} /> : null}
     </div>
   );
 }
 
-function GalleryPageMain() {
-  const galleryList = SiteConfigList.gallery.list;
-  const { isComplete } = useDataState();
-  if (!isComplete) return <></>;
-  return <GalleryObjectConvert items={galleryList} />;
-}
-
-export function GalleryGroupPage() {
+export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
   const UploadElm = useCallback(
     () =>
@@ -108,6 +103,7 @@ interface GalleryObjectConvertProps extends GalleryListPropsBase {
 
 export function GalleryObjectConvert({
   items,
+  submitPreventScrollReset,
   ...args
 }: GalleryObjectConvertProps) {
   const { imageItemList, imageAlbumList } = useImageState().imageObject;
@@ -162,7 +158,12 @@ export function GalleryObjectConvert({
     [items, imageItemList, imageAlbumList]
   );
 
-  return <GalleryObject items={albums} />;
+  return (
+    <GalleryObject
+      items={albums}
+      submitPreventScrollReset={submitPreventScrollReset}
+    />
+  );
 }
 
 interface sortObjectType {
@@ -193,7 +194,7 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
   },
 }));
 
-interface GalleryBodyOptions {
+interface GalleryBodyOptions extends SearchAreaOptionsProps {
   showInPageMenu?: boolean;
   showGalleryHeader?: boolean;
   showGalleryLabel?: boolean;
@@ -461,6 +462,7 @@ function GalleryBody({
   showGalleryHeader = true,
   showGalleryLabel = true,
   showCount = true,
+  submitPreventScrollReset,
 }: GalleryBodyProps) {
   const args = {
     showInPageMenu,
@@ -479,6 +481,7 @@ function GalleryBody({
         })),
     [yfList, items]
   );
+  const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div className="galleryObject">
       {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
@@ -491,9 +494,9 @@ function GalleryBody({
                 <GalleryPageEditSwitch />
               </>
             ) : null}
-            <GalleryYearFilter />
-            <GallerySearchArea />
-            <GalleryTagsSelect />
+            <GalleryYearFilter {...SearchAreaOptions} />
+            <GallerySearchArea {...SearchAreaOptions} />
+            <GalleryTagsSelect {...SearchAreaOptions} />
           </div>
         ) : null}
         {items

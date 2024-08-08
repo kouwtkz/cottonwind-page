@@ -20,7 +20,9 @@ import { callReactSelectTheme } from "@/theme/main";
 import { getJSTYear } from "../../data/functions/TimeFunctions";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 
-export function GalleryYearFilter() {
+export function GalleryYearFilter({
+  submitPreventScrollReset = true,
+}: SearchAreaOptionsProps) {
   const nav = useNavigate();
   const { fList } = useGalleryObject(({ fList }) => ({ fList }));
   const search = useLocation().search;
@@ -81,7 +83,7 @@ export function GalleryYearFilter() {
           if (yearSelect.value) params.year = yearSelect.value;
           else delete params.year;
           nav(MakeRelativeURL({ query: params }), {
-            preventScrollReset: true,
+            preventScrollReset: submitPreventScrollReset,
           });
         }
       }}
@@ -95,9 +97,15 @@ export function GalleryYearFilter() {
   );
 }
 
-interface SearchAreaProps extends React.HTMLAttributes<HTMLFormElement> {}
+interface SearchAreaProps
+  extends React.HTMLAttributes<HTMLFormElement>,
+    SearchAreaOptionsProps {}
 
-export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
+export function GallerySearchArea({
+  className,
+  submitPreventScrollReset = true,
+  ...args
+}: SearchAreaProps) {
   className = className ? ` ${className}` : "";
   const nav = useNavigate();
   const searchRef = React.useRef<HTMLInputElement>(null);
@@ -140,7 +148,9 @@ export function GallerySearchArea({ className, ...args }: SearchAreaProps) {
           else delete query.q;
           delete query.p;
           delete query.postId;
-          nav(MakeRelativeURL({ query }), { preventScrollReset: false });
+          nav(MakeRelativeURL({ query }), {
+            preventScrollReset: submitPreventScrollReset,
+          });
           (document.activeElement as HTMLElement).blur();
           e.preventDefault();
         }
@@ -170,9 +180,14 @@ function getYearObjects(dates: (Date | null | undefined)[]) {
     .sort((a, b) => b.year - a.year);
 }
 
-interface SelectAreaProps extends HTMLAttributes<HTMLDivElement> {}
+interface SelectAreaProps
+  extends HTMLAttributes<HTMLDivElement>,
+    SearchAreaOptionsProps {}
 
-export function GalleryTagsSelect({ className }: SelectAreaProps) {
+export function GalleryTagsSelect({
+  className,
+  submitPreventScrollReset = true,
+}: SelectAreaProps) {
   const nav = useNavigate();
   const [searchParams] = useSearchParams();
   const searchTags = searchParams.get("tag")?.split(",") || [];
@@ -258,7 +273,9 @@ export function GalleryTagsSelect({ className }: SelectAreaProps) {
             if (list.length > 0) query[key] = list.join(",");
             else delete query[key];
           });
-          nav(MakeRelativeURL({ query }), { preventScrollReset: true });
+          nav(MakeRelativeURL({ query }), {
+            preventScrollReset: submitPreventScrollReset,
+          });
         }}
       />
     </div>

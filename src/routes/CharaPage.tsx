@@ -216,6 +216,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
                   } as GalleryItemObjectType;
                 })
                 .filter((item) => item.list && item.list.length > 0)}
+              submitPreventScrollReset={true}
             />
           </div>
         ) : (
