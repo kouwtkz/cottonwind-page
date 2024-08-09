@@ -10,10 +10,13 @@ interface GalleryListPropsBase {
   showLabel?: boolean;
   linkLabel?: boolean | string;
   max?: number;
+  maxWhenSearch?: number;
   step?: number;
   autoDisable?: boolean;
   tags?: string | string[];
   list?: MediaImageItemType[];
+  hide?: boolean;
+  hideWhenDefault?: boolean;
   hideWhenFilter?: boolean;
   hideWhenEmpty?: boolean;
 }

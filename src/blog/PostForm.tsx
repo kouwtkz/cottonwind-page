@@ -72,8 +72,8 @@ const schema = z.object({
 });
 
 export default function PostForm({ blogEnable }: { blogEnable?: boolean }) {
-  const [search] = useSearchParams();
-  const params = Object.fromEntries(search);
+  const [searchParams] = useSearchParams();
+  const params = Object.fromEntries(searchParams);
   const Content = useCallback(() => <Main params={{ ...params }} />, [params]);
   const { setBackUrl } = useBackButton();
   const { queryJoin } = queryCheck({

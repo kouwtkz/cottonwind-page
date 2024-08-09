@@ -1,7 +1,7 @@
 import {
   Link,
+  To,
   useLocation,
-  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
@@ -14,6 +14,7 @@ import React, {
   createRef,
   forwardRef,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -23,6 +24,7 @@ import {
   defaultSortTags,
   defaultTags,
   filterMonthList,
+  GalleryTagsOption,
   getTagsOptions,
 } from "@/data/GalleryTags";
 import {
@@ -34,7 +36,6 @@ import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { LinkMee, MakeRelativeURL, SearchSet } from "@/functions/doc/MakeURL";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
@@ -42,7 +43,7 @@ import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";
 import { findMany, setWhere } from "@/functions/findMany";
 import { useHotkeys } from "react-hotkeys-hook";
-import ReactSelect from "react-select";
+import ReactSelect, { MultiValue } from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 
@@ -198,6 +199,10 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     () => filterParams.filter((p) => p === "topImage" || p === "pickup"),
     [filterParams]
   );
+  const searchMode = useMemo(
+    () => Boolean(qParam || tagParam),
+    [qParam, tagParam]
+  );
   const year = Number(yearParam);
   const monthlyEventMode = useMemo(
     () => !filterParams.some((p) => p === "monthTag"),
@@ -216,6 +221,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       return _items.map((item) => ({
         ...item,
         hideWhenEmpty: false,
+        hide: false,
       }));
     else return _items;
   }, [_items, notHideParam]);
@@ -258,8 +264,10 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const { fList, yfList } = useMemo(() => {
     const fList = items
       .map((item) =>
-        item.hideWhenFilter &&
-        (topicParams.length > 0 || typeParam || tags || monthParam)
+        item.hide ||
+        (!searchMode && item.hideWhenDefault) ||
+        (item.hideWhenFilter &&
+          (topicParams.length > 0 || typeParam || tags || monthParam))
           ? []
           : item.list ?? []
       )
@@ -320,6 +328,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   }, [
     items,
     topicParams,
+    searchMode,
     typeParam,
     monthParam,
     filterMonthly,
@@ -505,13 +514,70 @@ function GalleryBody({
   );
 }
 
+function GalleryImageItem({
+  galleryName,
+  image,
+}: {
+  galleryName?: string;
+  image: MediaImageItemType;
+}) {
+  const { pathname, state } = useLocation();
+  const { showOrigin } = useMemo(() => state ?? {}, [state]);
+  const isOrigin = useMemo(() => showOrigin === "on", [showOrigin]);
+  const [searchParams] = useSearchParams();
+  const toStatehandler = useCallback((): {
+    to: To;
+    state?: any;
+    preventScrollReset?: boolean;
+  } => {
+    if (image.direct) return { to: image.direct };
+    if (image.originName) searchParams.set("image", image.originName);
+    if (image.album?.name) searchParams.set("album", image.album.name);
+    if (galleryName && image.album?.name !== galleryName)
+      searchParams.set("group", galleryName);
+    return {
+      to: new URL("?" + searchParams.toString(), location.href).href,
+      state: { ...state, from: pathname },
+      preventScrollReset: true,
+    };
+  }, [searchParams, image, state]);
+  return (
+    <Link className="item" {...toStatehandler()}>
+      <div>
+        {image.type === "ebook" || image.type === "goods" ? (
+          image.embed ? (
+            <div className="translucent-special-button">
+              <RiBook2Fill />
+            </div>
+          ) : image.link ? (
+            <div className="translucent-special-button">
+              <RiStore3Fill />
+            </div>
+          ) : null
+        ) : null}
+        {image.embed ? (
+          image.type === "pdf" ? (
+            <div className="translucent-special-button">
+              <RiFilePdf2Fill />
+            </div>
+          ) : null
+        ) : null}
+        <ImageMeeThumbnail
+          imageItem={image}
+          loadingScreen={true}
+          originWhenDev={isOrigin}
+        />
+      </div>
+    </Link>
+  );
+}
+
 interface GalleryContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     GalleryBodyOptions {
   item: GalleryItemObjectType;
   list: MediaImageItemType[];
 }
-
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent(
     {
@@ -526,30 +592,36 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     ref
   ) {
     const { isComplete } = useDataState();
-    const { name, linkLabel, h2, h4, label, max = 20, step = 20 } = item;
-    const { state } = useLocation();
-    const [searchParams] = useSearchParams();
-    const query = Object.fromEntries(searchParams) as KeyValueType<string>;
-    const isOrigin = useMemo(
-      () => state?.showOrigin === "on",
-      [state?.showOrigin]
-    );
+    let {
+      name,
+      linkLabel,
+      h2,
+      h4,
+      label,
+      max = 20,
+      step = 20,
+      maxWhenSearch = 40,
+    } = item;
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { q, tag } = Object.fromEntries(searchParams) as KeyValueType<string>;
+    const searchMode = useMemo(() => Boolean(q || tag), [q, tag]);
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
           <Link
-            to={MakeRelativeURL({
-              pathname:
+            to={
+              new URL(
                 typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
-              query,
-            })}
+                location.href
+              ).href
+            }
           >
             {label}
           </Link>
         ) : (
           <>{label}</>
         ),
-      [linkLabel, name, query]
+      [linkLabel, name]
     );
     const [curMax, setCurMax] = useState(max);
     const showMoreButton = curMax < (list.length || 0);
@@ -577,57 +649,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
               {list
                 .filter((_, i) => i < visibleMax)
                 .map((image, i) => (
-                  <LinkMee
-                    key={i}
-                    className="item"
-                    {...(image.direct
-                      ? { to: image.direct }
-                      : {
-                          to: ({ search }) => {
-                            const query = Object.fromEntries(
-                              new URLSearchParams(search)
-                            ) as KeyValueType<string>;
-                            if (image.originName)
-                              query.image = image.originName;
-                            if (image.album?.name)
-                              query.album = image.album.name;
-                            if (image.album?.name !== name) query.group = name;
-                            return { query };
-                          },
-                          state: ({ state, pathname }) => {
-                            if (!state) state = {};
-                            state.from = pathname;
-                            return state;
-                          },
-                          preventScrollReset: true,
-                        })}
-                  >
-                    <div>
-                      {image.type === "ebook" || image.type === "goods" ? (
-                        image.embed ? (
-                          <div className="translucent-special-button">
-                            <RiBook2Fill />
-                          </div>
-                        ) : image.link ? (
-                          <div className="translucent-special-button">
-                            <RiStore3Fill />
-                          </div>
-                        ) : null
-                      ) : null}
-                      {image.embed ? (
-                        image.type === "pdf" ? (
-                          <div className="translucent-special-button">
-                            <RiFilePdf2Fill />
-                          </div>
-                        ) : null
-                      ) : null}
-                      <ImageMeeThumbnail
-                        imageItem={image}
-                        loadingScreen={true}
-                        originWhenDev={isOrigin}
-                      />
-                    </div>
-                  </LinkMee>
+                  <GalleryImageItem image={image} key={i} />
                 ))}
               {showMoreButton ? (
                 <div className="item">
@@ -654,14 +676,11 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
 export function GalleryYearFilter({
   submitPreventScrollReset = true,
 }: SearchAreaOptionsProps) {
-  const nav = useNavigate();
   const { fList } = useGalleryObject(({ fList }) => ({ fList }));
-  const search = useLocation().search;
-  const { query } = useMemo(() => SearchSet(search), [search]);
-  const year = Number(query.year);
-  const isOlder = query.sort === "leastRecently";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const year = Number(searchParams.get("year") ?? NaN);
+  const isOlder = searchParams.get("sort") === "leastRecently";
   const yearSelectRef = React.useRef<HTMLSelectElement>(null);
-
   const yearListBase = useMemo(
     () =>
       getYearObjects(
@@ -674,7 +693,6 @@ export function GalleryYearFilter({
       ),
     [fList]
   );
-
   const yearListBase2 = useMemo(() => {
     const addedList =
       isNaN(year) || !yearListBase.every((y) => y.year !== year)
@@ -686,7 +704,6 @@ export function GalleryYearFilter({
     });
     return addedList;
   }, [yearListBase, year]);
-
   const yearList = useMemo(() => {
     const sortedList = isOlder
       ? yearListBase2.sort((a, b) => a.year - b.year)
@@ -700,24 +717,23 @@ export function GalleryYearFilter({
     });
     return sortedList;
   }, [yearListBase2, isOlder]);
-
+  const changeHandler = useCallback(() => {
+    if (yearSelectRef.current) {
+      const yearSelect = yearSelectRef.current;
+      if (yearSelect.value) searchParams.set("year", yearSelect.value);
+      else searchParams.delete("year");
+      setSearchParams(searchParams, {
+        preventScrollReset: submitPreventScrollReset,
+      });
+    }
+  }, [yearSelectRef, searchParams]);
   return (
     <select
       title="年フィルタ"
       className="yearFilter"
       ref={yearSelectRef}
       value={year || ""}
-      onChange={() => {
-        if (yearSelectRef.current) {
-          const yearSelect = yearSelectRef.current;
-          const params = { ...query };
-          if (yearSelect.value) params.year = yearSelect.value;
-          else delete params.year;
-          nav(MakeRelativeURL({ query: params }), {
-            preventScrollReset: submitPreventScrollReset,
-          });
-        }
-      }}
+      onChange={changeHandler}
     >
       {yearList.map(({ value, label }, i) => (
         <option key={i} value={value}>
@@ -738,7 +754,6 @@ export function GallerySearchArea({
   ...args
 }: SearchAreaProps) {
   className = className ? ` ${className}` : "";
-  const nav = useNavigate();
   const searchRef = React.useRef<HTMLInputElement>(null);
   useHotkeys("slash", (e) => {
     searchRef.current?.focus();
@@ -754,44 +769,34 @@ export function GallerySearchArea({
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const [searchParams] = useSearchParams();
-  const q = searchParams.get("q") || "";
-  const qRef = React.useRef(q);
-  React.useEffect(() => {
-    if (qRef.current !== q) {
-      if (searchRef.current) {
-        const strq = String(q);
-        if (searchRef.current.value !== strq) searchRef.current.value = strq;
-      }
-      if (qRef.current !== q) qRef.current = q;
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchRef.current) {
+      const q = searchParams.get("q") ?? "";
+      searchRef.current.value = q;
     }
-  });
-
+  }, [searchParams]);
+  const submitHandler = useCallback(
+    (e?: React.FormEvent<HTMLFormElement>) => {
+      if (searchRef.current) {
+        const q = searchRef.current.value;
+        if (q) searchParams.set("q", q);
+        else searchParams.delete("q");
+        setSearchParams(searchParams, {
+          preventScrollReset: submitPreventScrollReset,
+        });
+        (document.activeElement as HTMLElement).blur();
+        e?.preventDefault();
+      }
+    },
+    [searchParams]
+  );
   return (
-    <form
-      className={className}
-      {...args}
-      onSubmit={(e) => {
-        if (searchRef.current) {
-          const q = searchRef.current.value;
-          const query = Object.fromEntries(searchParams);
-          if (q) query.q = q;
-          else delete query.q;
-          delete query.p;
-          delete query.postId;
-          nav(MakeRelativeURL({ query }), {
-            preventScrollReset: submitPreventScrollReset,
-          });
-          (document.activeElement as HTMLElement).blur();
-          e.preventDefault();
-        }
-      }}
-    >
+    <form className={className} {...args} onSubmit={submitHandler}>
       <input
         name="q"
         type="search"
         placeholder="ギャラリー検索"
-        defaultValue={q}
         ref={searchRef}
         className="search"
       />
@@ -819,8 +824,7 @@ export function GalleryTagsSelect({
   className,
   submitPreventScrollReset = true,
 }: SelectAreaProps) {
-  const nav = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchTags = searchParams.get("tag")?.split(",") || [];
   const searchType =
     searchParams
@@ -855,6 +859,45 @@ export function GalleryTagsSelect({
   const currentTags = getTagsOptions(tags).filter((tag) =>
     searchQuery.some((stag) => tag.value === stag)
   );
+  const changeHandler = useCallback(
+    (list: MultiValue<GalleryTagsOption>) => {
+      const listObj: { [k: string]: string[] } = {
+        sort: [],
+        type: [],
+        filter: [],
+        tag: [],
+        month: [],
+      };
+      list.forEach(({ value }) => {
+        const values = (value?.split(":", 2) || [""]).concat("");
+        switch (values[0]) {
+          case "sort":
+            listObj.sort = [values[1]];
+            break;
+          case "type":
+            listObj.type = [values[1]];
+            break;
+          case "filter":
+            listObj.filter.push(values[1]);
+            break;
+          case "month":
+            listObj.month = [values[1]];
+            break;
+          default:
+            if (value) listObj.tag.push(value);
+            break;
+        }
+      });
+      Object.entries(listObj).forEach(([key, list]) => {
+        if (list.length > 0) searchParams.set(key, list.join(","));
+        else searchParams.delete(key);
+      });
+      setSearchParams(searchParams, {
+        preventScrollReset: submitPreventScrollReset,
+      });
+    },
+    [searchParams]
+  );
   return (
     <div className={className}>
       <ReactSelect
@@ -871,93 +914,56 @@ export function GalleryTagsSelect({
           menuList: (style) => ({ ...style, minHeight: "22rem" }),
           menu: (style) => ({ ...style, zIndex: 9999 }),
         }}
-        onChange={(list) => {
-          const listObj: { [k: string]: string[] } = {
-            sort: [],
-            type: [],
-            filter: [],
-            tag: [],
-            month: [],
-          };
-          list.forEach(({ value, group }) => {
-            const values = (value?.split(":", 2) || [""]).concat("");
-            switch (values[0]) {
-              case "sort":
-                listObj.sort = [values[1]];
-                break;
-              case "type":
-                listObj.type = [values[1]];
-                break;
-              case "filter":
-                listObj.filter.push(values[1]);
-                break;
-              case "month":
-                listObj.month = [values[1]];
-                break;
-              default:
-                if (value) listObj.tag.push(value);
-                break;
-            }
-          });
-          const query = Object.fromEntries(searchParams);
-          Object.entries(listObj).forEach(([key, list]) => {
-            if (list.length > 0) query[key] = list.join(",");
-            else delete query[key];
-          });
-          nav(MakeRelativeURL({ query }), {
-            preventScrollReset: submitPreventScrollReset,
-          });
-        }}
+        onChange={changeHandler}
       />
     </div>
   );
 }
 
 export function GalleryPageEditSwitch() {
-  const { state } = useLocation();
-  const isEdit = useMemo(() => state?.edit === "on", [state?.edit]);
+  const state = useLocation().state ?? {};
+  const { edit } = state;
+  const isEdit = useMemo(() => edit === "on", [edit]);
+  const stateHandler = useCallback(() => {
+    const _state = { ...state };
+    if (isEdit) delete _state.edit;
+    else _state.edit = "on";
+    return _state;
+  }, [state]);
   return (
-    <LinkMee
+    <Link
       title={isEdit ? "元に戻す" : "常に編集モードにする"}
-      state={({ state }) => {
-        if (!state) state = {};
-        const isEdit = state.edit === "on";
-        if (isEdit) delete state.edit;
-        else state.edit = "on";
-        return state;
-      }}
+      state={stateHandler()}
       style={{ opacity: isEdit ? 1 : 0.4 }}
       to={location.search}
       replace={true}
       preventScrollReset={true}
     >
       <AiFillEdit />
-    </LinkMee>
+    </Link>
   );
 }
 
 export function GalleryPageOriginImageSwitch() {
-  const { state } = useLocation();
-  const isOrigin = useMemo(
-    () => state?.showOrigin === "on",
-    [state?.showOrigin]
-  );
+  const state = useLocation().state ?? {};
+  const { showOrigin } = state;
+  const isOrigin = useMemo(() => showOrigin === "on", [showOrigin]);
+  const stateHandler = useCallback(() => {
+    const _state = { ...state };
+    if (isOrigin) delete _state.showOrigin;
+    else _state.showOrigin = "on";
+    return _state;
+  }, [state]);
   return (
-    <LinkMee
+    <Link
       title={isOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
-      state={({ state }) => {
-        if (!state) state = {};
-        const isOrigin = state.showOrigin === "on";
-        if (isOrigin) delete state.showOrigin;
-        else state.showOrigin = "on";
-        return state;
-      }}
+      state={stateHandler()}
       style={{ opacity: isOrigin ? 1 : 0.4 }}
       to={location.search}
       replace={true}
       preventScrollReset={true}
     >
       <AiOutlineFileImage />
-    </LinkMee>
+    </Link>
   );
 }

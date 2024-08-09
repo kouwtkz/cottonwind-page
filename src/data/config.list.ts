@@ -111,6 +111,11 @@ const SiteConfigList: SiteConfigListType = {
         "name": "uploads",
         "label": "other",
         "max": 4
+      },
+      {
+        "name": "given",
+        "hideWhenDefault": true,
+        "max": 4,
       }
     ],
     "generate": [

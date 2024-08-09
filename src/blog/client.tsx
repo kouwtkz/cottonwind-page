@@ -26,10 +26,10 @@ export function BlogPage({
   title?: string;
   blogEnable?: boolean;
 }) {
-  const [search] = useSearchParams();
-  const p = search.get("p") || undefined;
-  const q = search.get("q") || undefined;
-  const postId = search.get("postId") || undefined;
+  const [searchParams] = useSearchParams();
+  const p = searchParams.get("p") || undefined;
+  const q = searchParams.get("q") || undefined;
+  const postId = searchParams.get("postId") || undefined;
   const postpageQuery = { p, q, postId };
   const { queryEnable, queryJoin } = queryCheck({
     query: postpageQuery,

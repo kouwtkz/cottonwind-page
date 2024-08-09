@@ -15,8 +15,8 @@ import { useSoundPlayer } from "@/state/SoundPlayer";
 
 export function CharaPage() {
   const { charaName } = useParams();
-  const [search] = useSearchParams();
-  const isEdit = search.get("edit") === "on";
+  const [searchParams] = useSearchParams();
+  const isEdit = searchParams.get("edit") === "on";
   const isDev = import.meta.env.DEV;
   return (
     <div className="charaPage">

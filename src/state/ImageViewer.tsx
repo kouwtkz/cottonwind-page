@@ -6,7 +6,13 @@ import {
   useMemo,
 } from "react";
 import { create } from "zustand";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  createSearchParams,
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { ImageMee } from "@/layout/ImageMee";
@@ -18,12 +24,6 @@ import {
   getTagsOptions,
   autoFixTagsOptions,
 } from "@/data/GalleryTags";
-import {
-  LinkMee,
-  LocationStateType,
-  MakeRelativeURL,
-  SearchSet,
-} from "@/functions/doc/MakeURL";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,
@@ -76,15 +76,14 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
 export function ImageViewer() {
   const { imageItemList } = useImageState().imageObject;
   const { charaObject } = useCharaState();
-  const nav = useNavigate();
   const { isOpen, onOpen, onClose } = useImageViewer();
-  const search = useLocation().search;
-  const { query } = useMemo(() => SearchSet(search), [search]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const nav = useNavigate();
   const l = useLocation();
   const pathname = l.pathname;
-  const state = l.state as LocationStateType;
-  const imageParam = query.image;
-  const albumParam = query.album;
+  const state = l.state;
+  const imageParam = searchParams.get("image");
+  const albumParam = searchParams.get("album") ?? undefined;
   const isProd = import.meta.env.PROD;
   const isDev = import.meta.env.DEV;
   const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
@@ -93,13 +92,13 @@ export function ImageViewer() {
   const backAction = useCallback(() => {
     if (state?.from) nav(-1);
     else {
-      delete query.image;
-      delete query.pic;
-      delete query.group;
-      delete query.album;
-      nav(MakeRelativeURL({ query }), { preventScrollReset: true });
+      searchParams.delete("image");
+      searchParams.delete("pic");
+      searchParams.delete("group");
+      searchParams.delete("album");
+      setSearchParams(searchParams, { preventScrollReset: true, state });
     }
-  }, [query, nav, state]);
+  }, [searchParams, state]);
 
   const imageFinder = useCallback(
     (imageParam: string, albumParam?: string) =>
@@ -181,10 +180,12 @@ export function ImageViewer() {
                   image.type === "ebook" ? (
                     <Link
                       title="よむ"
-                      to={MakeRelativeURL({
-                        pathname: "/gallery/ebook",
-                        query: { name: image.embed },
-                      })}
+                      to={
+                        new URL(
+                          "/gallery/ebook?name=" + image.embed,
+                          location.href
+                        ).href
+                      }
                       className="translucent-button open"
                     >
                       <RiBook2Fill />
@@ -218,7 +219,7 @@ export function ImageViewer() {
 
   const InfoCmp = useCallback(
     ({ children }: { children?: ReactNode }) => {
-      if ("pic" in query || !image?.album?.visible?.info) return <></>;
+      if (searchParams.has("pic") || !image?.album?.visible?.info) return <></>;
       const tags = image.tags ?? [];
       const charaTags = tags
         .map((tag) => charaObject[tag] as CharaType)
@@ -282,9 +283,14 @@ export function ImageViewer() {
                         ({ value }) => value === tag
                       );
                       if (!item) return item;
+                      const search = createSearchParams(
+                        item.query ?? { tag: item.value ?? "" }
+                      );
                       return (
                         <Link
-                          to={new URL("?tag=" + item.value, tagsBaseURL).href}
+                          to={
+                            new URL("?" + search.toString(), tagsBaseURL).href
+                          }
                           className="other"
                           preventScrollReset={false}
                           key={i}
@@ -355,7 +361,7 @@ export function ImageViewer() {
       pathname,
       tagsOptions,
       titleEqFilename,
-      query,
+      searchParams,
       isComplete,
       state,
     ]
@@ -403,10 +409,10 @@ export function GalleryViewerPaging({
   className,
   ...args
 }: GalleryViewerPagingProps) {
-  const { search, state } = useLocation();
-  const { query } = useMemo(() => SearchSet(search), [search]);
-  const albumParam = query.album;
-  const groupParam = query.group ?? albumParam;
+  const [searchParams] = useSearchParams();
+  const state = useLocation().state;
+  const albumParam = searchParams.get("album");
+  const groupParam = searchParams.get("group") ?? albumParam;
   const { items, yfList } = useGalleryObject(({ items, yfList }) => ({
     items,
     yfList,
@@ -432,49 +438,40 @@ export function GalleryViewerPaging({
     }),
     [groupImageList, imageIndex]
   );
+  const prevNextToHandler = useCallback(
+    (image: MediaImageItemType) => {
+      if (image.originName) searchParams.set("image", image.originName);
+      return new URL("?" + searchParams.toString(), location.href).href;
+    },
+    [searchParams]
+  );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
       {prevNextImage?.before ? (
-        <LinkMee
+        <Link
           className="prev"
-          to={{
-            query: {
-              ...query,
-              image: prevNextImage.before.originName,
-              ...(prevNextImage.before.album?.name
-                ? { album: prevNextImage.before.album.name }
-                : {}),
-            },
-          }}
+          to={prevNextToHandler(prevNextImage.before)}
           state={state}
           preventScrollReset={true}
           replace={true}
         >
           <div className="cursor">≪</div>
           <div>{prevNextImage.before.name}</div>
-        </LinkMee>
+        </Link>
       ) : (
         <div className="flex-1" />
       )}
       {prevNextImage?.after ? (
-        <LinkMee
+        <Link
           className="next"
-          to={{
-            query: {
-              ...query,
-              image: prevNextImage.after.originName,
-              ...(prevNextImage.after.album?.name
-                ? { album: prevNextImage.after.album.name }
-                : {}),
-            },
-          }}
+          to={prevNextToHandler(prevNextImage.after)}
           state={state}
           preventScrollReset={true}
           replace={true}
         >
           <div>{prevNextImage.after.name}</div>
           <div className="cursor">≫</div>
-        </LinkMee>
+        </Link>
       ) : (
         <div className="flex-1" />
       )}

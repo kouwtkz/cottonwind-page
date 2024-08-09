@@ -51,9 +51,9 @@ function InviteDiscordLink({
 }: {
   children?: React.ReactNode;
 }) {
-  const [search, setSearch] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const anchorRef = useRef<HTMLAnchorElement>(null);
-  const invite = search.get("invite");
+  const invite = searchParams.get("invite");
   const { isComplete } = useDataState();
   const question = useMemo(async () => {
     return axios.get("/fetch/discord/invite").then((r) => r.data);
@@ -61,8 +61,11 @@ function InviteDiscordLink({
   useEffect(() => {
     if (isComplete && invite === "discord") {
       anchorRef.current!.click();
-      search.delete("invite");
-      setSearch(search, { replace: true, preventScrollReset: true });
+      searchParams.delete("invite");
+      setSearchParams(searchParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
     }
   }, [isComplete, invite]);
   return (

@@ -60,7 +60,7 @@ export function MultiParser({
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
-  const setSearch = useSearchParams()[1];
+  const setSearchParams = useSearchParams()[1];
   if (only) {
     markdown = only.markdown ?? false;
     toDom = only.toDom ?? false;
@@ -108,7 +108,7 @@ export function MultiParser({
                             ...query,
                           };
                           if (query.p) delete query.p;
-                          setSearch(query, { preventScrollReset: !scroll });
+                          setSearchParams(query, { preventScrollReset: !scroll });
                         } else {
                           nav(url);
                         }

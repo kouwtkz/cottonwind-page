@@ -134,7 +134,7 @@ export function PagingArea({
   const _min = 1;
   const _max = max || 1;
   const pagingInputRef = useRef<HTMLInputElement>(null);
-  const [search, setSearch] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const FormRef = useRef<HTMLFormElement>(null);
   useHotkeys(
     "escape",
@@ -146,7 +146,7 @@ export function PagingArea({
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const p = Number(search.get("p")) || 1;
+  const p = Number(searchParams.get("p")) || 1;
   const pRef = useRef(p);
   useEffect(() => {
     if (pRef.current !== p) {
@@ -162,10 +162,10 @@ export function PagingArea({
     if (pagingInputRef.current) {
       const p = pagingInputRef.current;
       const newP = Number(p.value);
-      const query = Object.fromEntries(search);
+      const query = Object.fromEntries(searchParams);
       if (newP > 1) query.p = String(newP);
       else delete query.p;
-      setSearch(query);
+      setSearchParams(query);
       (document.activeElement as HTMLElement).blur();
       e?.preventDefault();
     }
@@ -268,8 +268,8 @@ export function SearchArea({ className, ...args }: SearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] }
   );
-  const [search, setSearch] = useSearchParams();
-  const q = search.get("q") || "";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get("q") || "";
   const qRef = useRef(q);
   useEffect(() => {
     if (qRef.current !== q) {
@@ -287,12 +287,12 @@ export function SearchArea({ className, ...args }: SearchAreaProps) {
       onSubmit={(e) => {
         if (searchRef.current) {
           const q = searchRef.current.value;
-          const query = Object.fromEntries(search);
+          const query = Object.fromEntries(searchParams);
           if (q) query.q = q;
           else delete query.q;
           delete query.p;
           delete query.postId;
-          setSearch(query);
+          setSearchParams(query);
           (document.activeElement as HTMLElement).blur();
           e.preventDefault();
         }
