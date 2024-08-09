@@ -598,13 +598,23 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       h2,
       h4,
       label,
-      max = 20,
+      max: maxFromArgs = 20,
       step = 20,
       maxWhenSearch = 40,
     } = item;
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const { q, tag } = Object.fromEntries(searchParams) as KeyValueType<string>;
     const searchMode = useMemo(() => Boolean(q || tag), [q, tag]);
+    const max = useMemo(
+      () => (searchMode ? maxWhenSearch : maxFromArgs),
+      [maxFromArgs, maxWhenSearch, searchMode]
+    );
+    const [curMax, setCurMax] = useState(max);
+    const showMoreButton = curMax < (list.length || 0);
+    const visibleMax = showMoreButton ? curMax - 1 : curMax;
+    useEffect(() => {
+      setCurMax(max);
+    }, [max]);
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -623,10 +633,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ),
       [linkLabel, name]
     );
-    const [curMax, setCurMax] = useState(max);
-    const showMoreButton = curMax < (list.length || 0);
-    const visibleMax = showMoreButton ? curMax - 1 : curMax;
-
     return (
       <div {...args} ref={ref}>
         {h2 || h4 ? (
