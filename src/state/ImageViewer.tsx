@@ -20,10 +20,10 @@ import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
 import ImageEditForm from "../components/form/edit/ImageEditForm";
 import {
-  defaultTags,
+  defaultGalleryTags,
   getTagsOptions,
-  autoFixTagsOptions,
-} from "@/data/GalleryTags";
+  autoFixGalleryTagsOptions,
+} from "@/components/select/SortFilterTags";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,
@@ -86,7 +86,7 @@ export function ImageViewer() {
   const albumParam = searchParams.get("album") ?? undefined;
   const isProd = import.meta.env.PROD;
   const isDev = import.meta.env.DEV;
-  const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
+  const tagsOptions = autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags));
   const { isComplete } = useDataState();
 
   const backAction = useCallback(() => {

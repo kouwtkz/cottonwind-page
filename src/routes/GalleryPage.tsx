@@ -18,16 +18,13 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
 } from "react";
 import {
-  defaultFilterTags,
-  defaultSortTags,
-  defaultTags,
-  filterMonthList,
-  GalleryTagsOption,
-  getTagsOptions,
-} from "@/data/GalleryTags";
+  defaultGalleryFilterTags,
+  defineSortTags,
+  defaultGalleryTags,
+  filterGalleryMonthList,
+} from "@/components/select/SortFilterTags";
 import {
   filterImagesTags,
   filterPickFixed,
@@ -44,15 +41,15 @@ import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";
 import { findMany, setWhere } from "@/functions/findMany";
 import { useHotkeys } from "react-hotkeys-hook";
-import ReactSelect, { MultiValue } from "react-select";
-import { callReactSelectTheme } from "@/theme/main";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
+import { ContentsTagsSelect } from "@/components/select/SortFilterReactSelect";
+import useWindowSize from "@/components/hook/useWindowSize";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
   const { isComplete } = useDataState();
   return (
-    <div className="galleryPage">
+    <div id="galleryPage">
       {children}
       {isComplete ? <GalleryObjectConvert items={galleryList} /> : null}
     </div>
@@ -210,7 +207,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     [filterParams]
   );
   const filterMonthly = useMemo(
-    () => filterMonthList.find(({ month }) => String(month) === monthParam),
+    () =>
+      filterGalleryMonthList.find(({ month }) => String(month) === monthParam),
     [monthParam]
   );
   const notHideParam = useMemo(
@@ -474,7 +472,7 @@ function GalleryBody({
       {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
       <div>
         {showGalleryHeader ? (
-          <div className="galleryHeader">
+          <div className="header">
             {import.meta.env.DEV ? (
               <>
                 <GalleryPageOriginImageSwitch />
@@ -610,14 +608,17 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const searchMode = useMemo(() => Boolean(q || tag), [q, tag]);
     const nav = useNavigate();
     const { state } = useLocation();
+    const [w] = useWindowSize();
     const max = useMemo(
       () => (searchMode ? maxWhenSearch : maxFromArgs),
       [maxFromArgs, maxWhenSearch, searchMode]
     );
-    const curMax = useMemo(
-      () => state?.galleryMax?.[name] ?? max,
-      [name, max, state]
-    );
+    const curMax = useMemo(() => {
+      let curMax = state?.galleryMax?.[name] ?? max;
+      if (w >= 1120) curMax = Math.ceil(curMax / 5) * 5;
+      else curMax = Math.ceil(curMax / 4) * 4;
+      return curMax;
+    }, [name, max, state, w]);
     function setCurMax(name: string, max: number) {
       const newState = state ? { ...state } : {};
       if (!("galleryMax" in newState)) newState.galleryMax = {};
@@ -648,6 +649,43 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ),
       [linkLabel, name]
     );
+    const GalleryLabel = useMemo(
+      () =>
+        showGalleryLabel ? (
+          <div className="galleryLabel">
+            <h2>
+              <HeadingElm label={label} />
+            </h2>
+            {showCount ? <div className="count">({list.length})</div> : null}
+          </div>
+        ) : null,
+      [showGalleryLabel, label, list.length, showCount]
+    );
+    const GalleryContent = useMemo(
+      () =>
+        isComplete ? (
+          <div className="list">
+            {list
+              .filter((_, i) => i < visibleMax)
+              .map((image, i) => (
+                <GalleryImageItem image={image} key={i} />
+              ))}
+            {showMoreButton ? (
+              <div className="item">
+                <MoreButton
+                  className="gallery-button-more"
+                  onClick={() => {
+                    setCurMax(name, curMax + step);
+                  }}
+                />
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
+        ),
+      [isComplete, list, visibleMax, curMax, step, showMoreButton]
+    );
     return (
       <div {...args} ref={ref}>
         {h2 || h4 ? (
@@ -657,37 +695,8 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
           </div>
         ) : null}
         <div className="galleryContainer">
-          {showGalleryLabel ? (
-            <div className="galleryLabel">
-              <h2>
-                <HeadingElm label={label} />
-              </h2>
-              {showCount ? <div className="count">({list.length})</div> : null}
-            </div>
-          ) : null}
-          {isComplete ? (
-            <div className="list">
-              {list
-                .filter((_, i) => i < visibleMax)
-                .map((image, i) => (
-                  <GalleryImageItem image={image} key={i} />
-                ))}
-              {showMoreButton ? (
-                <div className="item">
-                  <MoreButton
-                    className="gallery-button-more"
-                    onClick={() => {
-                      setCurMax(name, curMax + step);
-                    }}
-                  />
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <div className="loadingNow text-main-soft my-4">
-              よみこみちゅう…
-            </div>
-          )}
+          {GalleryLabel}
+          {GalleryContent}
         </div>
       </div>
     );
@@ -841,104 +850,15 @@ interface SelectAreaProps
   extends HTMLAttributes<HTMLDivElement>,
     SearchAreaOptionsProps {}
 
-export function GalleryTagsSelect({
-  className,
-  submitPreventScrollReset = true,
-}: SelectAreaProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchTags = searchParams.get("tag")?.split(",") || [];
-  const searchType =
-    searchParams
-      .get("type")
-      ?.split(",")
-      .map((v) => `type:${v}`) || [];
-  const searchMonth =
-    searchParams
-      .get("month")
-      ?.split(",")
-      .map((v) => `month:${v}`) || [];
-  const searchFilters =
-    searchParams
-      .get("filter")
-      ?.split(",")
-      .map((v) => `filter:${v}`) || [];
-  const searchSort =
-    searchParams
-      .get("sort")
-      ?.split(",")
-      .map((v) => `sort:${v}`) || [];
-  const searchQuery = searchTags.concat(
-    searchType,
-    searchMonth,
-    searchFilters,
-    searchSort
+const gallerySortTags = [
+  defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
+];
+export function GalleryTagsSelect(args: SelectAreaProps) {
+  const tags = gallerySortTags.concat(
+    import.meta.env.DEV ? defaultGalleryFilterTags : [],
+    defaultGalleryTags
   );
-  const tags = defaultSortTags.concat(
-    import.meta.env.DEV ? defaultFilterTags : [],
-    defaultTags
-  );
-  const currentTags = getTagsOptions(tags).filter((tag) =>
-    searchQuery.some((stag) => tag.value === stag)
-  );
-  const changeHandler = useCallback(
-    (list: MultiValue<GalleryTagsOption>) => {
-      const listObj: { [k: string]: string[] } = {
-        sort: [],
-        type: [],
-        filter: [],
-        tag: [],
-        month: [],
-      };
-      list.forEach(({ value }) => {
-        const values = (value?.split(":", 2) || [""]).concat("");
-        switch (values[0]) {
-          case "sort":
-            listObj.sort = [values[1]];
-            break;
-          case "type":
-            listObj.type = [values[1]];
-            break;
-          case "filter":
-            listObj.filter.push(values[1]);
-            break;
-          case "month":
-            listObj.month = [values[1]];
-            break;
-          default:
-            if (value) listObj.tag.push(value);
-            break;
-        }
-      });
-      Object.entries(listObj).forEach(([key, list]) => {
-        if (list.length > 0) searchParams.set(key, list.join(","));
-        else searchParams.delete(key);
-      });
-      setSearchParams(searchParams, {
-        preventScrollReset: submitPreventScrollReset,
-      });
-    },
-    [searchParams]
-  );
-  return (
-    <div className={className}>
-      <ReactSelect
-        options={tags}
-        value={currentTags}
-        isMulti
-        isSearchable={false}
-        classNamePrefix="select"
-        placeholder="ソート / フィルタ"
-        instanceId="galleryTagSelect"
-        className="tagSelect"
-        theme={callReactSelectTheme}
-        styles={{
-          menuList: (style) => ({ ...style, minHeight: "22rem" }),
-          menu: (style) => ({ ...style, zIndex: 9999 }),
-        }}
-        onChange={changeHandler}
-      />
-    </div>
-  );
+  return <ContentsTagsSelect {...args} tags={tags} />;
 }
 
 export function GalleryPageEditSwitch() {

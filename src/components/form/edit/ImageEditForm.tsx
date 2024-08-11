@@ -12,11 +12,11 @@ import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useImageState } from "@/state/ImageState";
 import {
-  defaultTags,
+  defaultGalleryTags,
   getTagsOptions,
-  autoFixTagsOptions,
-  GalleryTagsOption,
-} from "@/data/GalleryTags";
+  autoFixGalleryTagsOptions,
+  ContentsTagsOption,
+} from "@/components/select/SortFilterTags";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEmbedState } from "@/state/Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";
@@ -44,7 +44,7 @@ interface ImageEditStateType {
   setBusy: (busy: boolean) => void;
 }
 type GalleryTagsOptionSet = React.Dispatch<
-  React.SetStateAction<GalleryTagsOption[]>
+  React.SetStateAction<ContentsTagsOption[]>
 >;
 
 export const useImageEditState = create<ImageEditStateType>((set) => ({
@@ -89,15 +89,15 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
   const imageTags = useMemo(() => getImageTagsObject(image), [image]);
   const simpleDefaultTags = useMemo(
-    () => autoFixTagsOptions(getTagsOptions(defaultTags)),
-    [defaultTags]
+    () => autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
+    [defaultGalleryTags]
   );
   const unregisteredTags = useMemo(
     () =>
       imageTags.otherTags.filter((tag) =>
         simpleDefaultTags.every(({ value }) => value !== tag)
       ),
-    [imageTags.otherTags, defaultTags]
+    [imageTags.otherTags, defaultGalleryTags]
   );
   const getDefaultValues = useCallback(
     (image?: MediaImageItemType | null) => ({
@@ -318,14 +318,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const { togglePreviewMode, previewMode } = usePreviewMode();
   const TypeTagsOption = useMemo(
     () =>
-      (defaultTags.find(({ name }) => name === "type")?.options ?? []).map(
+      (defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []).map(
         (o) => {
           const v = o.value ?? "";
           const value = v.slice(v.indexOf(":") + 1);
           return { ...o, value };
         }
       ),
-    [defaultTags]
+    [defaultGalleryTags]
   );
   const autoImageItemType = useMemo(
     () => AutoImageItemType(image?.embed, image?.album?.type),
@@ -333,9 +333,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 
   const [otherTags, setOtherTags] = useState(
-    autoFixTagsOptions(
+    autoFixGalleryTagsOptions(
       getTagsOptions(
-        defaultTags.concat(
+        defaultGalleryTags.concat(
           unregisteredTags.map((value) => ({ label: value, value }))
         )
       )
@@ -343,7 +343,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
   const [copyrightTags, setCopyrightTags] = useState(
     copyrightList.map(
-      ({ value }) => ({ label: value, value } as GalleryTagsOption)
+      ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
   function addTags(field: string, value: string, set: GalleryTagsOptionSet) {

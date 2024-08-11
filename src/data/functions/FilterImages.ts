@@ -1,4 +1,4 @@
-import { filterMonthList } from "@/data/GalleryTags";
+import { filterGalleryMonthList } from "@/components/select/SortFilterTags";
 export const publicParam = { list: <Array<MediaImageItemType>>[] };
 const currentTime = new Date();
 const currentMonth = currentTime.getMonth() + 1;
@@ -29,7 +29,7 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
   )
 }
 
-const monthlyFilter = filterMonthList.find((item) => item.month === currentMonth);
+const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
 
 interface filterPickFixedProps {
   images: MediaImageItemType[];

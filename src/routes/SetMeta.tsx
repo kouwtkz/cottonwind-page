@@ -2,10 +2,10 @@ import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
 import { toUpperFirstCase } from "@/functions/doc/StrFunctions.mjs";
 import {
-  autoFixTagsOptions,
-  defaultTags,
+  autoFixGalleryTagsOptions,
+  defaultGalleryTags,
   getTagsOptions,
-} from "@/data/GalleryTags";
+} from "@/components/select/SortFilterTags";
 import SiteConfigList from "@/data/config.list";
 import { RoutingUnion } from "@/routes/RoutingList";
 import { parse } from "marked";
@@ -154,7 +154,7 @@ export function MetaValues({
       const charaList = charaListFound
         .slice(0, 2)
         .map((chara) => chara.name + (chara.honorific ?? ""));
-      const tagsOptions = autoFixTagsOptions(getTagsOptions(defaultTags));
+      const tagsOptions = autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags));
       const content = (foundImage.tags ?? []).find((tag) =>
         tagsOptions.some(({ value }) => value === tag)
       );
