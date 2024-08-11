@@ -37,7 +37,7 @@ export function GitLogObject({ gitlogJsonPath = "./_data/gitlog", ...args }: Git
       default: return true;
     }
   });
-  list.sort((a, b) => a.date < b.date ? 1 : -1)
+  list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   const gitLogReduced = getGitLogReduced(list);
   const gitObject: GitObjectJsonType = { list: gitLogReduced, remote_url };
   return gitObject;

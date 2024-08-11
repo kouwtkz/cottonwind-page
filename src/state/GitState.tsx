@@ -13,7 +13,9 @@ type GitStateType = {
 export const useGitState = create<GitStateType>((set) => ({
   isSet: false,
   setLog: (value) => {
-    value.list.sort((a, b) => (a.date < b.date ? 1 : -1));
+    value.list.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
     const lastUpdate = value.list[0].date;
     const list = value.list.map((item) => {
       const [year, month, day] = item.date.split("/").map((v) => Number(v));
