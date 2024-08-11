@@ -229,7 +229,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       const formDefaultValues = getCompareValues(defaultValues);
       const updateEntries = Object.entries(formValuesList).filter(([k, v]) => {
         if (Array.isArray(v)) {
-          console.log(v);
           return formDefaultValues[k].join(",") !== v.join(",");
         } else {
           switch (k) {
