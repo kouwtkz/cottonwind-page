@@ -2,6 +2,7 @@ import {
   Link,
   To,
   useLocation,
+  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
@@ -256,7 +257,9 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const { where } = useMemo(
     () =>
       setWhere(qParam, {
-        text: { key: ["tags", "copyright", "name", "description", "URL", "embed"] },
+        text: {
+          key: ["tags", "copyright", "name", "description", "URL", "embed"],
+        },
         hashtag: { key: "tags" },
       }),
     [qParam]
@@ -605,16 +608,28 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     const [searchParams] = useSearchParams();
     const { q, tag } = Object.fromEntries(searchParams) as KeyValueType<string>;
     const searchMode = useMemo(() => Boolean(q || tag), [q, tag]);
+    const nav = useNavigate();
+    const { state } = useLocation();
     const max = useMemo(
       () => (searchMode ? maxWhenSearch : maxFromArgs),
       [maxFromArgs, maxWhenSearch, searchMode]
     );
-    const [curMax, setCurMax] = useState(max);
+    const curMax = useMemo(
+      () => state?.galleryMax?.[name] ?? max,
+      [name, max, state]
+    );
+    function setCurMax(name: string, max: number) {
+      const newState = state ? { ...state } : {};
+      if (!("galleryMax" in newState)) newState.galleryMax = {};
+      newState.galleryMax[name] = max;
+      nav(location, {
+        state: newState,
+        preventScrollReset: true,
+        replace: true,
+      });
+    }
     const showMoreButton = curMax < (list.length || 0);
     const visibleMax = showMoreButton ? curMax - 1 : curMax;
-    useEffect(() => {
-      setCurMax(max);
-    }, [max]);
     const HeadingElm = useCallback(
       ({ label }: { label?: string }) =>
         label && linkLabel ? (
@@ -662,7 +677,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                   <MoreButton
                     className="gallery-button-more"
                     onClick={() => {
-                      setCurMax((c) => c + step);
+                      setCurMax(name, curMax + step);
                     }}
                   />
                 </div>
