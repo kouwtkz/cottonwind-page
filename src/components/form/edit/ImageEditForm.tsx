@@ -39,11 +39,13 @@ type labelValue = { label: string; value: string };
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: MediaImageItemType | null;
 }
-
 interface ImageEditStateType {
   busy: boolean;
   setBusy: (busy: boolean) => void;
 }
+type GalleryTagsOptionSet = React.Dispatch<
+  React.SetStateAction<GalleryTagsOption[]>
+>;
 
 export const useImageEditState = create<ImageEditStateType>((set) => ({
   busy: false,
@@ -97,16 +99,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ),
     [imageTags.otherTags, defaultTags]
   );
-  const [otherTags, setOtherTags] = useState(
-    autoFixTagsOptions(
-      getTagsOptions(
-        defaultTags.concat(
-          unregisteredTags.map((value) => ({ label: value, value }))
-        )
-      )
-    )
-  );
-
   const getDefaultValues = useCallback(
     (image?: MediaImageItemType | null) => ({
       name: image?.name || "",
@@ -116,7 +108,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ...imageTags,
       type: image?.originType || "",
       time: ToFormJST(image?.time),
-      copyright: image?.copyright || "",
+      copyright: image?.copyright || [],
       link: image?.link || "",
       embed: image?.embed || "",
       move: image?.album?.dir || "",
@@ -237,6 +229,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       const formDefaultValues = getCompareValues(defaultValues);
       const updateEntries = Object.entries(formValuesList).filter(([k, v]) => {
         if (Array.isArray(v)) {
+          console.log(v);
           return formDefaultValues[k].join(",") !== v.join(",");
         } else {
           switch (k) {
@@ -340,13 +333,48 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     [image?.embed, image?.album?.type]
   );
 
-  const addOtherTags = useCallback((value: string) => {
-    const newCategory = { label: value, value };
-    setOtherTags((c) => c.concat(newCategory));
-    setValue("otherTags", getValues("otherTags").concat(value), {
+  const [otherTags, setOtherTags] = useState(
+    autoFixTagsOptions(
+      getTagsOptions(
+        defaultTags.concat(
+          unregisteredTags.map((value) => ({ label: value, value }))
+        )
+      )
+    )
+  );
+  const [copyrightTags, setCopyrightTags] = useState(
+    copyrightList.map(
+      ({ value }) => ({ label: value, value } as GalleryTagsOption)
+    )
+  );
+  function addTags(field: string, value: string, set: GalleryTagsOptionSet) {
+    const newValues = { label: value, value };
+    set((c) => c.concat(newValues));
+    setValue(field, getValues(field).concat(value), {
       shouldDirty: true,
     });
-  }, []);
+  }
+  function addTagsPrompt(field: string, set: GalleryTagsOptionSet) {
+    const answer = prompt("追加するタグの名前を入力してください");
+    if (answer !== null) addTags(field, answer, set);
+  }
+  function addKeydownEnter(
+    e: React.KeyboardEvent<HTMLDivElement>,
+    field: string,
+    set: GalleryTagsOptionSet
+  ) {
+    if (e.key === "Enter" && !e.ctrlKey) {
+      setTimeout(() => {
+        const input = e.target as HTMLInputElement;
+        const value = input.value;
+        if (value) {
+          addTags(field, value, set);
+          input.blur();
+          input.focus();
+        }
+      }, 50);
+    }
+  }
 
   return (
     <>
@@ -479,10 +507,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <button
                 title="新規タグ"
                 type="button"
-                onClick={() => {
-                  const answer = prompt("追加するタグの名前を入力してください");
-                  if (answer !== null) addOtherTags(answer);
-                }}
+                onClick={() => addTagsPrompt("otherTags", setOtherTags)}
                 disabled={busy}
               >
                 ＋新規タグの追加
@@ -506,17 +531,46 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       field.onChange(newValues.map((v) => v?.value));
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.ctrlKey) {
-                        setTimeout(() => {
-                          const input = e.target as HTMLInputElement;
-                          const value = input.value;
-                          if (value) {
-                            addOtherTags(value);
-                            input.blur();
-                            input.focus();
-                          }
-                        }, 50);
-                      }
+                      addKeydownEnter(e, "otherTags", setOtherTags);
+                    }}
+                    onBlur={field.onBlur}
+                    isDisabled={busy}
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="label">
+              <span>版権タグ（コピーライト）</span>
+              <button
+                title="新規タグ"
+                type="button"
+                onClick={() => addTagsPrompt("copyright", setCopyrightTags)}
+                disabled={busy}
+              >
+                ＋新規タグの追加
+              </button>
+            </div>
+            <div className="wide">
+              <Controller
+                control={control}
+                name="copyright"
+                render={({ field }) => (
+                  <ReactSelect
+                    instanceId="CopyrightSelect"
+                    theme={callReactSelectTheme}
+                    isMulti
+                    options={copyrightTags}
+                    value={(field.value as string[]).map((fv) =>
+                      copyrightTags.find((ci) => ci.value === fv)
+                    )}
+                    placeholder="版権タグ選択"
+                    onChange={(newValues) => {
+                      field.onChange(newValues.map((v) => v?.value));
+                    }}
+                    onKeyDown={(e) => {
+                      addKeydownEnter(e, "copyright", setCopyrightTags);
                     }}
                     onBlur={field.onBlur}
                     isDisabled={busy}
@@ -611,21 +665,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               {...register("time")}
               disabled={busy}
             />
-          </label>
-          <label>
-            <div className="label-l">コピーライト</div>
-            <input
-              title="コピーライト"
-              type="text"
-              list="galleryEditCopyrightList"
-              {...register("copyright")}
-              disabled={busy}
-            />
-            <datalist id="galleryEditCopyrightList">
-              {copyrightList.map(({ value }, i) => (
-                <option value={value} key={i} />
-              ))}
-            </datalist>
           </label>
           <label>
             <div className="label-l">アルバム移動</div>

@@ -31,12 +31,14 @@ export function getTagList(imageItemList: MediaImageItemType[]) {
 
 export function getCopyRightList(imageItemList: MediaImageItemType[]) {
   return imageItemList
-    .reduce((list, { copyright: value }) => {
-      if (value) {
-        const item = list.find((item) => item.value === value);
-        if (item) item.count++;
-        else list.push({ value, count: 0 });
-      }
+    .reduce((list, { copyright: values }) => {
+      values?.forEach((value) => {
+        if (value) {
+          const item = list.find((item) => item.value === value);
+          if (item) item.count++;
+          else list.push({ value, count: 0 });
+        }
+      })
       return list;
     }, [] as ValueCountType[])
     .sort((a, b) => (a.value > b.value ? 1 : -1));

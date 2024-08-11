@@ -28,7 +28,7 @@ interface MediaImageItemType {
   tags?: string[];
   description?: string;
   embed?: string;
-  copyright?: string;
+  copyright?: string[];
   timeOptions?: Intl.DateTimeFormatOptions;
   topImage?: boolean | null;
   pickup?: boolean | null;

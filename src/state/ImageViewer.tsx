@@ -302,10 +302,10 @@ export function ImageViewer() {
                     {othertags.map((tag, i) => (
                       <Link
                         className="unregistered"
-                        to={new URL("?q=tags:" + tag, tagsBaseURL).href}
+                        to={new URL("?q=%23" + tag, tagsBaseURL).href}
                         key={i}
                       >
-                        {tag}
+                        #{tag}
                       </Link>
                     ))}
                   </div>
@@ -328,16 +328,25 @@ export function ImageViewer() {
                   </div>
                   {children}
                   {image.copyright ? (
-                    <div className="copyright grayRight">
-                      <div className="time">
-                        版権元：
-                        <Link
-                          to={
-                            new URL("?q=" + image.copyright, tagsBaseURL).href
-                          }
-                        >
-                          {image.copyright}
-                        </Link>
+                    <div className="grayRight">
+                      <div className="copyright">
+                        <span>版権元:</span>
+                        {image.copyright.map((value, i) => (
+                          <Link
+                            to={
+                              new URL(
+                                "?" +
+                                  createSearchParams({
+                                    q: `"${value}"`,
+                                  }),
+                                tagsBaseURL
+                              ).href
+                            }
+                            key={i}
+                          >
+                            {value}
+                          </Link>
+                        ))}
                       </div>
                     </div>
                   ) : null}

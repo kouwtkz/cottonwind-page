@@ -26,7 +26,7 @@ interface YamlDataType {
   description?: string;
   visible?: AlbumVisibleType;
   auto?: null | "year"
-  copyright?: string;
+  copyright?: string[];
   format?: GroupFormat;
   type?: string;
   direction?: "ltr" | "rtl";

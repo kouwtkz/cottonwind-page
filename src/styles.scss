@@ -1720,6 +1720,9 @@ select.YearFilter {
         .time {
           margin-right: 1rem;
         }
+        .copyright > *:not(:last-child) {
+          margin-right: 0.5rem;
+        }
       }
       @media (min-width: $thisMobileWidth) {
         text-align: left;

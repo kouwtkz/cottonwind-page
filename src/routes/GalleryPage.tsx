@@ -256,7 +256,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const { where } = useMemo(
     () =>
       setWhere(qParam, {
-        text: { key: ["name", "description", "URL", "copyright", "embed"] },
+        text: { key: ["tags", "copyright", "name", "description", "URL", "embed"] },
         hashtag: { key: "tags" },
       }),
     [qParam]

@@ -134,7 +134,7 @@ function whereFromKey(key: string | string[], value: findWhereWithConditionsType
   }
 }
 
-export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
+export function setWhere<T>(q: string = "", options: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
   const dateKey = getKeyFromOptions("date", options);
@@ -146,7 +146,14 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
   let take: number | undefined;
   const orderBy: OrderByItem[] = [];
   let OR = false;
-  const searchArray = (q ?? "").replace(/^\s+|\s+$/, "").split(/\s+/);
+  const doubleQuoteDic: KeyValueType<string> = {};
+  let i = 0;
+  q = q.replace(/"([^"]+)"/g, (m, m1) => {
+    const key = (i++).toString(16);
+    doubleQuoteDic[key] = m1.toLocaleLowerCase();
+    return `"${key}"`;
+  })
+  const searchArray = q.replace(/^\s+|\s+$/, "").split(/\s+/);
   searchArray.forEach((item) => {
     if (item === "OR") {
       OR = true;
@@ -188,8 +195,10 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         const colonIndex = /^\w+:\/\//.test(item) ? -1 : item.indexOf(":");
         const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
         const UNDER = switchKey.startsWith("_");
-        const filterKey = UNDER ? switchKey.slice(1) : switchKey;
-        const filterValue = item.slice(switchKey.length + 1);
+        let filterKey = UNDER ? switchKey.slice(1) : switchKey;
+        let filterValue = switchKey.length > 0 ? item.slice(switchKey.length + 1) : item;
+        filterKey = filterKey.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
+        filterValue = filterValue.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
           case "object":
@@ -209,7 +218,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = whereFromKey(textKey, createFilterEntry(item));
+              whereItem = whereFromKey(textKey, { contains: filterValue });
             }
             break;
           case "id":
@@ -325,7 +334,7 @@ export function setWhere<T>(q: string, options: WhereOptionsKvType<T> = {}) {
                   filterEntry = { bool };
                   break;
                 default:
-                  filterEntry = createFilterEntry(filterValue);
+                  filterEntry = { contains: filterValue };
                   break;
               }
               whereItem = whereFromKey(key, filterEntry);
