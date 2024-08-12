@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
-import { SiteMenu, SiteMenuButton } from "@/state/SiteMenu";
+import { SiteMenu } from "@/state/SiteMenu";
 import { ImageMee } from "./ImageMee";
 
 export const SiteTitle = React.memo(function SiteTitle({
@@ -35,7 +35,6 @@ export function Header() {
       <div>
         <BackButton className="backButton" />
         <SiteTitle title={import.meta.env.VITE_TITLE} />
-        <SiteMenuButton />
         <SiteMenu />
       </div>
       <div className="headerBackground" />

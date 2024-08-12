@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PostTextarea,
   usePreviewMode,
@@ -31,6 +24,13 @@ import { useImageState } from "@/state/ImageState";
 import { callReactSelectTheme } from "@/theme/main";
 import { useBackButton, queryCheck } from "@/layout/BackButton";
 import { create } from "zustand";
+import {
+  MenuItem,
+  PostEditSelectDecoration,
+  PostEditSelectInsert,
+  PostEditSelectMedia,
+} from "@/components/dropdown/PostEditSelect";
+import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -146,11 +146,6 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
 
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const decorationRef = useRef<HTMLSelectElement>(null);
-  const colorChangerRef = useRef<HTMLInputElement>(null);
-  const colorChangeValueRef = useRef("");
-  const InsertTextRef = useRef<HTMLSelectElement>(null);
-  const selectMediaRef = useRef<HTMLSelectElement>(null);
   const AttachedRef = useRef<HTMLInputElement | null>(null);
   const postIdRef = useRef<HTMLInputElement | null>(null);
   const operationRef = useRef<HTMLSelectElement>(null);
@@ -468,12 +463,16 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
             step={1}
             className="date"
           />
-          <select
-            title="操作"
-            ref={operationRef}
-            onChange={() =>
+        </div>
+        <div className="modifier">
+          <PostEditSelectMedia textarea={textareaRef.current} />
+          <PostEditSelectDecoration textarea={textareaRef.current} />
+          <PostEditSelectInsert textarea={textareaRef.current} />
+          <DropdownObject
+            MenuButton="操作"
+            onClick={(e) =>
               setOperation({
-                selectOperation: operationRef.current,
+                value: e.dataset.value ?? "",
                 onChangePostId,
                 onDuplication,
                 onDelete,
@@ -481,89 +480,12 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
               })
             }
           >
-            <option value="">操作</option>
-            <option value="postid">ID名</option>
-            <option value="duplication">複製</option>
-            <option value="delete">削除</option>
-            <option value="download">全取得</option>
-            <option value="upload">全上書</option>
-          </select>
-        </div>
-        <div className="modifier">
-          <select
-            title="メディア"
-            ref={selectMediaRef}
-            onChange={() =>
-              setMedia({
-                selectMedia: selectMediaRef.current,
-                inputAttached: AttachedRef.current,
-                textarea: textareaRef.current,
-              })
-            }
-          >
-            <option value="">メディア</option>
-            {/* <option value="attached">添付</option> */}
-            <option value="upload">アップロード</option>
-            <option value="gallery">ギャラリー</option>
-            <option value="link">リンク</option>
-          </select>
-          <input
-            id="colorChanger"
-            type="color"
-            placeholder="色"
-            title="色"
-            ref={colorChangerRef}
-            onChange={() => {
-              colorChangeValueRef.current =
-                colorChangerRef.current?.value || "";
-            }}
-          />
-          <select
-            title="装飾"
-            ref={decorationRef}
-            onChange={() =>
-              setDecoration({
-                selectDecoration: decorationRef.current,
-                textarea: textareaRef.current,
-                colorChanger: colorChangerRef.current,
-              })
-            }
-            onBlur={() => {
-              if (colorChangeValueRef.current !== "") {
-                setColorChange({
-                  colorChanger: colorChangerRef.current,
-                  textarea: textareaRef.current,
-                });
-              }
-              colorChangeValueRef.current = "";
-            }}
-          >
-            <option value="">装飾</option>
-            <option value="color">色変え</option>
-            <option value="bold">強調</option>
-            <option value="strikethrough">打消し線</option>
-            <option value="italic">イタリック体</option>
-          </select>
-          <select
-            title="追加"
-            ref={InsertTextRef}
-            onChange={() =>
-              setPostInsert({
-                selectInsert: InsertTextRef.current,
-                textarea: textareaRef.current,
-              })
-            }
-          >
-            <option value="">追加</option>
-            <option value="br">改行</option>
-            <option value="more">もっと読む</option>
-            <option value="h2">見出し2</option>
-            <option value="h3">見出し3</option>
-            <option value="h4">見出し4</option>
-            <option value="li">リスト</option>
-            <option value="ol">数字リスト</option>
-            <option value="code">コード</option>
-          </select>
+            <MenuItem value="postid">ID名</MenuItem>
+            <MenuItem value="duplication">複製</MenuItem>
+            <MenuItem value="delete">削除</MenuItem>
+            <MenuItem value="download">全取得</MenuItem>
+            <MenuItem value="upload">全上書</MenuItem>
+          </DropdownObject>
         </div>
         <PostTextarea
           registed={SetRegister({ name: "body", ref: textareaRef, register })}
@@ -636,114 +558,11 @@ export function setCategory({
   }
   selectCategory.dataset.before = selectCategory.value;
 }
-type textareaType = {
-  textarea: HTMLTextAreaElement | null;
-};
-export function replacePostTextarea({
-  textarea,
-  before = "",
-  after,
-}: textareaType & { before: string; after?: string }) {
-  if (!textarea) return;
-  if (after === undefined) after = before;
-  const { selectionStart, selectionEnd } = textarea;
-  const selection = textarea.value.slice(selectionStart, selectionEnd);
-  textarea.setRangeText(
-    `${before}${selection}${after}`,
-    selectionStart,
-    selectionEnd
-  );
-  if (selectionStart === selectionEnd) {
-    const selectionStartReset = selectionStart + before.length;
-    textarea.setSelectionRange(selectionStartReset, selectionStartReset);
-  }
-  textarea.focus();
-}
 
-export function setDecoration({
-  selectDecoration,
-  textarea,
-  colorChanger,
-}: textareaType & {
-  selectDecoration: HTMLSelectElement | null;
-  colorChanger: HTMLInputElement | null;
-}) {
-  if (!selectDecoration || !textarea) return;
-  switch (selectDecoration.value) {
-    case "color":
-      if (colorChanger) colorChanger.click();
-      break;
-    case "italic":
-      replacePostTextarea({ textarea, before: "*" });
-      break;
-    case "bold":
-      replacePostTextarea({ textarea, before: "**" });
-      break;
-    case "strikethrough":
-      replacePostTextarea({ textarea, before: "~~" });
-      break;
-  }
-  selectDecoration.value = "";
-}
-
-export function setColorChange({
-  textarea,
-  colorChanger,
-}: textareaType & {
-  colorChanger: HTMLInputElement | null;
-}) {
-  if (colorChanger && textarea)
-    replacePostTextarea({
-      textarea,
-      before: `<span style="color:${colorChanger.value}">`,
-      after: "</span>",
-    });
-}
-
-export function setPostInsert({
-  selectInsert,
-  textarea,
-}: textareaType & {
-  selectInsert: HTMLSelectElement | null;
-}) {
-  if (!selectInsert || !textarea) return;
-  switch (selectInsert.value) {
-    case "br":
-      replacePostTextarea({ textarea, before: "\n<br/>\n\n", after: "" });
-      break;
-    case "more":
-      replacePostTextarea({
-        textarea,
-        before: "\n<details>\n<summary>もっと読む</summary>\n\n",
-        after: "\n</details>",
-      });
-      break;
-    case "h2":
-      replacePostTextarea({ textarea, before: "## ", after: "" });
-      break;
-    case "h3":
-      replacePostTextarea({ textarea, before: "### ", after: "" });
-      break;
-    case "h4":
-      replacePostTextarea({ textarea, before: "#### ", after: "" });
-      break;
-    case "li":
-      replacePostTextarea({ textarea, before: "- ", after: "" });
-      break;
-    case "ol":
-      replacePostTextarea({ textarea, before: "+ ", after: "" });
-      break;
-    case "code":
-      replacePostTextarea({ textarea, before: "```\n", after: "\n```" });
-      break;
-  }
-  selectInsert.value = "";
-}
-
-export function setAttached({
+function setAttached({
   inputAttached,
   textarea,
-}: textareaType & {
+}: {
   inputAttached: HTMLInputElement | null;
   textarea: HTMLTextAreaElement | null;
 }) {
@@ -761,53 +580,20 @@ export function setAttached({
   inputAttached.style.display = files.length === 0 ? "none" : "";
 }
 
-export function setMedia({
-  selectMedia,
-  inputAttached,
-  textarea,
-}: textareaType & {
-  selectMedia: HTMLSelectElement | null;
-  inputAttached: HTMLInputElement | null;
-}) {
-  if (!selectMedia || !textarea) return;
-  switch (selectMedia.value) {
-    case "attached":
-      if (inputAttached) {
-        if (inputAttached.style.display === "none") inputAttached.value = "";
-        inputAttached.click();
-      }
-      break;
-    case "upload":
-      if (import.meta.env.VITE_UPLOAD_BRACKET === "true")
-        replacePostTextarea({ textarea, before: "![](", after: ")" });
-      else textarea.focus();
-      window.open(import.meta.env.VITE_UPLOAD_SERVICE, "upload");
-      break;
-    case "gallery":
-      window.open("/gallery/", "gallery", "width=620px,height=720px");
-      break;
-    case "link":
-      replacePostTextarea({ textarea, before: "[", after: "]()" });
-      break;
-  }
-  selectMedia.value = "";
-}
-
 export function setOperation({
-  selectOperation,
+  value,
   onChangePostId,
   onDuplication,
   onDelete,
   jsonUrl,
 }: {
-  selectOperation: HTMLSelectElement | null;
+  value: string;
   onChangePostId: () => void;
   onDuplication: () => void;
   onDelete: () => void;
   jsonUrl?: string;
 }) {
-  if (!selectOperation) return;
-  switch (selectOperation.value) {
+  switch (value) {
     case "postid":
       onChangePostId();
       break;
@@ -844,5 +630,4 @@ export function setOperation({
       uploadFileSelector.click();
       break;
   }
-  selectOperation.value = "";
 }

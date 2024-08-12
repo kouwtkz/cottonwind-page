@@ -346,6 +346,10 @@ button,
       color: white;
       background-color: var(--main-color-soft);
     }
+    &:focus {
+      color: white;
+      background-color: var(--main-color-strong);
+    }
     &:disabled {
       background-color: var(--main-color-soft);
     }
@@ -502,6 +506,32 @@ h2.lulo,
 .wh-all-fill * {
   width: 100%;
   height: 100%;
+}
+
+.dropdown {
+  position: relative;
+  > button,
+  > .button {
+    padding: 0.25em 0.5em;
+  }
+  .list {
+    position: absolute;
+    background-color: var(--form-background-color);
+    left: 0;
+    text-align: left;
+    width: max-content;
+    :focus {
+      outline: none;
+      background-color: var(--main-color);
+    }
+    & > *:nth-child(n) {
+      padding: 0.25em 0.5em;
+      cursor: pointer;
+      &:hover {
+        background-color: var(--main-color);
+      }
+    }
+  }
 }
 
 details {
@@ -743,56 +773,67 @@ header {
       }
     }
   }
-  .siteMenuButton {
-    cursor: pointer;
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: $size_14;
-    margin: $size_1;
-    opacity: 0.8;
-    fill: var(--main-color);
-    @extend %userSelectNone;
-  }
   .siteMenu {
-    position: absolute;
-    right: 0;
-    margin: auto $size_2;
-    background-color: rgba(255, 255, 255, 0.9);
-    font-family: var(--font-LuloClean);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex-direction: column;
-    text-align: left;
-    @extend %userSelectNone;
-    .item {
-      min-width: 9em;
-      padding: $size_2 $size_4;
-      color: var(--main-color-strong);
+    .menuButton {
       cursor: pointer;
+      display: block;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: $size_14;
+      margin: $size_1;
+      opacity: 0.9;
+      fill: var(--main-color);
+      @extend %userSelectNone;
       &:hover {
-        color: white;
-        background-color: var(--main-color-soft);
+        fill: var(--main-color-soft);
+      }
+      &:focus {
+        fill: var(--main-color-strong);
+        outline: none;
       }
     }
-    .theme {
+    .list {
+      position: absolute;
+      right: 0;
+      margin: auto $size_2;
+      background-color: rgba(255, 255, 255, 0.9);
+      font-family: var(--font-LuloClean);
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      flex-direction: column;
+      text-align: left;
+      @extend %userSelectNone;
       .item {
-        height: 2.25rem;
-        padding: 0;
-        min-width: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        svg {
-          width: auto;
-          height: 1.5rem;
+        min-width: 9em;
+        padding: $size_2 $size_4;
+        color: var(--main-color-strong);
+        cursor: pointer;
+        &:hover,
+        &:focus {
+          color: white;
+          background-color: var(--main-color-soft);
+          outline: none;
         }
       }
+      .theme {
+        display: flex;
+        .item {
+          height: 2.25rem;
+          padding: 0;
+          min-width: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          svg {
+            width: auto;
+            height: 1.5rem;
+          }
+        }
+      }
+      @extend %a-line-none;
     }
-    @extend %a-line-none;
   }
 }
 
@@ -1047,8 +1088,19 @@ form select {
   justify-content: flex-end;
   align-items: center;
   margin: 0.25rem;
-  & > * {
+  & > *,
+  .icons > * {
     margin: 0.25rem;
+  }
+  .icons {
+    button {
+      padding: 0;
+      background-color: transparent;
+      color: var(--main-color);
+    }
+    svg {
+      font-size: 1.25rem;
+    }
   }
   .search {
     font-size: $text_base;
@@ -1356,10 +1408,10 @@ select.YearFilter {
     .item:first-child {
       &:nth-last-child(2) {
         & {
-          grid-column: span 2 / 6;
+          grid-column: span 2 / 5;
         }
         ~ *:nth-of-type(2) {
-          grid-column: span 2 / 8;
+          grid-column: span 2 / 7;
         }
       }
       &:nth-last-child(3) {
@@ -2236,7 +2288,7 @@ body.workers {
 
 form.blogEdit {
   padding-top: 0.5rem;
-  max-width: 40rem;
+  max-width: 48rem!important;
   margin: auto;
   input,
   textarea,
@@ -2294,7 +2346,8 @@ form.blogEdit {
   }
   #colorChanger {
     pointer-events: none;
-    visibility: hidden;
+    opacity: 0;
+    // visibility: hidden;
     position: absolute;
   }
   .body {

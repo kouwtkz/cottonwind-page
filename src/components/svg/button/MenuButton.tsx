@@ -4,7 +4,7 @@ type MenuButtonProps = {
   isOpen?: boolean;
 } & SVGAttributes<SVGElement>;
 
-export default function MenuButton({
+export function SiteMenuButton({
   className,
   isOpen,
   ...attributes
