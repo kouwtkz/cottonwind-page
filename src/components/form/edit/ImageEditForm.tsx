@@ -16,7 +16,7 @@ import {
   getTagsOptions,
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
-} from "@/components/select/SortFilterTags";
+} from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEmbedState } from "@/state/Embed";
 import { Controller, FieldValues, useForm } from "react-hook-form";

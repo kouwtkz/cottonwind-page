@@ -23,7 +23,7 @@ import {
   defaultGalleryTags,
   getTagsOptions,
   autoFixGalleryTagsOptions,
-} from "@/components/select/SortFilterTags";
+} from "@/components/dropdown/SortFilterTags";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,

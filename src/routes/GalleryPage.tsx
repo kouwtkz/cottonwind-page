@@ -24,7 +24,7 @@ import {
   defineSortTags,
   defaultGalleryTags,
   filterGalleryMonthList,
-} from "@/components/select/SortFilterTags";
+} from "@/components/dropdown/SortFilterTags";
 import {
   filterImagesTags,
   filterPickFixed,
@@ -42,8 +42,9 @@ import { MdFileUpload } from "react-icons/md";
 import { findMany, setWhere } from "@/functions/findMany";
 import { useHotkeys } from "react-hotkeys-hook";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
-import { ContentsTagsSelect } from "@/components/select/SortFilterReactSelect";
+import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
+import { CgGhostCharacter } from "react-icons/cg";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -228,31 +229,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
 
-  const sortList = useMemo(() => {
-    const list: sortObjectType[] = [];
-    const searchSort = sortParam ?? "";
-    switch (searchSort) {
-      case "recently":
-        list.push({ key: "time", order: "desc" });
-        break;
-      case "leastRecently":
-        list.push({ key: "time", order: "asc" });
-        break;
-      case "nameOrder":
-        list.push({ key: "name", order: "asc" });
-        break;
-      case "leastNameOrder":
-        list.push({ key: "name", order: "desc" });
-        break;
-    }
-    if (list.every(({ key }) => key !== "time"))
-      list.unshift({ key: "time", order: "desc" });
-    if (list.every(({ key }) => key !== "name"))
-      list.unshift({ key: "name", order: "asc" });
-    return list;
-  }, [sortParam]);
   const tags = useMemo(() => tagParam?.split(","), [tagParam]);
-  const { where } = useMemo(
+  const { where, orderBy } = useMemo(
     () =>
       setWhere(qParam, {
         text: {
@@ -262,6 +240,33 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       }),
     [qParam]
   );
+
+  const orderBySort = useMemo(() => {
+    const list: OrderByItem<MediaImageItemType>[] = [...orderBy];
+    const searchSort = sortParam ?? "";
+    switch (searchSort) {
+      case "recently":
+        list.push({ time: "desc" });
+        break;
+      case "leastRecently":
+        list.push({ time: "asc" });
+        break;
+      case "nameOrder":
+        list.push({ name: "asc" });
+        break;
+      case "leastNameOrder":
+        list.push({ name: "desc" });
+        break;
+    }
+    const keys = list.reduce((a, c) => {
+      Object.keys(c).forEach((v) => a.push(v));
+      return a;
+    }, [] as string[]);
+    if (keys.every((key) => key !== "time")) list.unshift({ time: "desc" });
+    if (keys.every((key) => key !== "name")) list.unshift({ name: "asc" });
+    return list;
+  }, [sortParam, orderBy]);
+
   const { fList, yfList } = useMemo(() => {
     const fList = items
       .map((item) =>
@@ -296,33 +301,12 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             images,
             tags,
           });
-        images = findMany({ list: images, where });
+        images = findMany({ list: [...images], where, orderBy: orderBySort });
         return images;
       });
     const yfList = fList.map((images) => {
       if (year)
         images = images.filter((item) => getJSTYear(item.time) === year);
-      sortList.forEach(({ key, order }) => {
-        switch (key) {
-          case "time":
-            images.sort((a, b) => {
-              const atime = a.time?.getTime() || 0;
-              const btime = b.time?.getTime() || 0;
-              if (atime === btime) return 0;
-              else {
-                const result = atime > btime;
-                return (order === "asc" ? result : !result) ? 1 : -1;
-              }
-            });
-            break;
-          default:
-            images.sort((a, b) => {
-              if (a[key] === b[key]) return 0;
-              const result = a[key] > b[key];
-              return (order === "asc" ? result : !result) ? 1 : -1;
-            });
-        }
-      });
       return images;
     });
     return { fList, yfList };
@@ -335,7 +319,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     filterMonthly,
     tags,
     where,
-    sortList,
+    orderBySort,
     year,
   ]);
   useLayoutEffect(() => {
@@ -468,17 +452,20 @@ function GalleryBody({
   );
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
-    <div className="galleryObject">
+    <div id="galleryPage">
       {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
       <div>
         {showGalleryHeader ? (
           <div className="header">
-            {import.meta.env.DEV ? (
-              <>
-                <GalleryPageOriginImageSwitch />
-                <GalleryPageEditSwitch />
-              </>
-            ) : null}
+            <div className="icons">
+              {import.meta.env.DEV ? (
+                <>
+                  <GalleryPageDevOtherSwitch />
+                  <GalleryPageOriginImageSwitch />
+                  <GalleryPageEditSwitch />
+                </>
+              ) : null}
+            </div>
             <GalleryYearFilter {...SearchAreaOptions} />
             <GallerySearchArea {...SearchAreaOptions} />
             <GalleryTagsSelect {...SearchAreaOptions} />
@@ -859,6 +846,28 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
     defaultGalleryTags
   );
   return <ContentsTagsSelect {...args} tags={tags} />;
+}
+
+export function GalleryPageDevOtherSwitch() {
+  const [searchParams] = useSearchParams();
+  const nav = useNavigate();
+  const q = searchParams.get("q");
+  const targetCharacterId = useMemo(() => q?.match(/^#(\w+)$/)?.[1], [q]);
+  return (
+    <>
+      {targetCharacterId ? (
+        <button
+          type="button"
+          title={targetCharacterId + "で新しくキャラを作る"}
+          onClick={() => {
+            nav("/character/" + targetCharacterId + "?edit=on");
+          }}
+        >
+          <CgGhostCharacter />
+        </button>
+      ) : null}
+    </>
+  );
 }
 
 export function GalleryPageEditSwitch() {

@@ -1,7 +1,7 @@
 import {
   ContentsTagsOption,
   getTagsOptions,
-} from "@/components/select/SortFilterTags";
+} from "@/components/dropdown/SortFilterTags";
 import { callReactSelectTheme } from "@/theme/main";
 import { HTMLAttributes, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
