@@ -5,23 +5,41 @@ interface PostEditSelectBaseProps {
   textarea: HTMLTextAreaElement | null;
 }
 
+interface replacePostTextareaProps extends PostEditSelectBaseProps {
+  before?: string;
+  after?: string;
+  replaceSelectionRegExp?: RegExp;
+  replaceSelectionValue?: string;
+  insertWhenBlank?: boolean;
+}
 export function replacePostTextarea({
   textarea,
   before = "",
   after,
-}: PostEditSelectBaseProps & { before: string; after?: string }) {
+  replaceSelectionRegExp: reg,
+  replaceSelectionValue = "$1",
+  insertWhenBlank = true,
+}: replacePostTextareaProps) {
   if (!textarea) return;
   if (after === undefined) after = before;
   const { selectionStart, selectionEnd } = textarea;
-  const selection = textarea.value.slice(selectionStart, selectionEnd);
+  let selection = textarea.value.slice(selectionStart, selectionEnd);
+  if (reg) selection = selection.replace(reg, replaceSelectionValue);
   textarea.setRangeText(
     `${before}${selection}${after}`,
     selectionStart,
     selectionEnd
   );
   if (selectionStart === selectionEnd) {
-    const selectionStartReset = selectionStart + before.length;
-    textarea.setSelectionRange(selectionStartReset, selectionStartReset);
+    if (insertWhenBlank) {
+      const selectionStartReset = selectionStart + before.length;
+      textarea.setSelectionRange(selectionStartReset, selectionStartReset);
+    } else {
+      textarea.setSelectionRange(
+        selectionStart,
+        selectionStart + before.length + after.length
+      );
+    }
   }
   textarea.focus();
 }
@@ -106,10 +124,10 @@ export function PostEditSelectDecoration({ textarea }: PostEditSelectProps) {
   return (
     <>
       <input
-        id="colorChanger"
         type="color"
         placeholder="色"
         title="色"
+        className="colorChanger withDropdown"
         tabIndex={-1}
         ref={colorChangerRef}
         onChange={() => {
@@ -176,6 +194,8 @@ export function setColorChange({
       textarea,
       before: `<span style="color:${colorChanger.value}">`,
       after: "</span>",
+      replaceSelectionRegExp: /^<span style="color:[^>]+>(.*)<\/span>$/,
+      insertWhenBlank: false,
     });
 }
 
@@ -202,10 +222,10 @@ export function PostEditSelectMedia({
         });
       }}
     >
+      <MenuItem value="link">リンク</MenuItem>
+      <MenuItem value="gallery">ギャラリー</MenuItem>
       {enableAttatch ? <MenuItem value="attached">添付</MenuItem> : null}
       <MenuItem value="upload">アップロード</MenuItem>
-      <MenuItem value="gallery">ギャラリー</MenuItem>
-      <MenuItem value="link">リンク</MenuItem>
     </DropdownObject>
   );
 }

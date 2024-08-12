@@ -387,7 +387,7 @@ export function ImageViewer() {
         >
           <div>
             <CloseButton
-              className="close"
+              className="modalClose"
               width={60}
               height={60}
               onClick={(e) => {

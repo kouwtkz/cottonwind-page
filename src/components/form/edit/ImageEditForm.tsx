@@ -34,6 +34,12 @@ import { useCharaState } from "@/state/CharaState";
 import { AutoImageItemType } from "../../../data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { create } from "zustand";
+import SetRegister from "../hook/SetRegister";
+import {
+  PostEditSelectDecoration,
+  PostEditSelectInsert,
+  PostEditSelectMedia,
+} from "@/components/dropdown/PostEditSelect";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -61,8 +67,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const { list: embedList } = useEmbedState();
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
-  const refForm = useRef<HTMLFormElement>(null);
   const { busy, setBusy } = useImageEditState();
+  const refForm = useRef<HTMLFormElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const getCharaLabelValues = useCallback(() => {
     return charaList.map(({ name, id }) => ({
@@ -318,13 +325,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const { togglePreviewMode, previewMode } = usePreviewMode();
   const TypeTagsOption = useMemo(
     () =>
-      (defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []).map(
-        (o) => {
-          const v = o.value ?? "";
-          const value = v.slice(v.indexOf(":") + 1);
-          return { ...o, value };
-        }
-      ),
+      (
+        defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []
+      ).map((o) => {
+        const v = o.value ?? "";
+        const value = v.slice(v.indexOf(":") + 1);
+        return { ...o, value };
+      }),
     [defaultGalleryTags]
   );
   const autoImageItemType = useMemo(
@@ -454,6 +461,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           <div>
             <div className="label">
               <span>説明文</span>
+              <PostEditSelectMedia textarea={textareaRef.current} />
+              <PostEditSelectDecoration textarea={textareaRef.current} />
+              <PostEditSelectInsert textarea={textareaRef.current} />
               <button
                 title="プレビューモードの切り替え"
                 type="button"
@@ -466,7 +476,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <PostTextarea
                 title="説明文"
                 className="description"
-                registed={register("description")}
+                registed={SetRegister({
+                  name: "description",
+                  ref: textareaRef,
+                  register,
+                })}
                 disabled={busy}
               />
             </div>

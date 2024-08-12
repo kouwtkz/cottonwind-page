@@ -438,7 +438,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
           </button>
         </div>
         <div className="modifier">
-          <label>
+          <label className="tight">
             <input
               {...register("pin")}
               title="ピン留め"
@@ -451,7 +451,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
             />
             <span>ピン</span>
           </label>
-          <label>
+          <label className="tight">
             <input {...register("draft")} type="checkbox" />
             <span>下書き</span>
           </label>
@@ -461,7 +461,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
             placeholder="日付"
             title="日付"
             step={1}
-            className="date"
+            className="date tight"
           />
         </div>
         <div className="modifier">
