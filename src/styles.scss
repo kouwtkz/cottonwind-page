@@ -1646,6 +1646,9 @@ select.YearFilter {
 }
 .label-sl {
   margin-right: $size_1;
+  > * {
+    font-size: 1.25em;
+  }
 }
 .label,
 .label span,
