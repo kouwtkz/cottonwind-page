@@ -108,7 +108,9 @@ export function MultiParser({
                             ...query,
                           };
                           if (query.p) delete query.p;
-                          setSearchParams(query, { preventScrollReset: !scroll });
+                          setSearchParams(query, {
+                            preventScrollReset: !scroll,
+                          });
                         } else {
                           nav(url);
                         }
@@ -131,6 +133,7 @@ export function MultiParser({
                             e.target.parentElement.removeAttribute("open");
                           }) as any,
                           title: "折りたたむ",
+                          type: "button",
                         },
                         [new NodeText("たたむ")]
                       )
