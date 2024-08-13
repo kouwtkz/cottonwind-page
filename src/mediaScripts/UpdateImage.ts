@@ -137,11 +137,11 @@ export async function UpdateImageYaml({ yamls: _yamls, retouchImageHandle, readS
           // オートフォルダリング
           if (y.data.auto) {
             let dir = img.dir || '';
-            if (!dir) {
+            if (!dir || !isNaN(dir.slice(1) as any)) {
               if (img.time) {
                 // 年ごとにフォルダリング
                 if (y.data.auto === "year") {
-                  dir = "/" + new Date(img.time).toLocaleString("ja", { timeZone: "JST" }).split("/", 1)[0]
+                  dir = "/" + new Date(img.time).getFullYear();
                 }
               }
               if (dir !== (img.dir || '')) {
