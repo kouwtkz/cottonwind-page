@@ -1151,10 +1151,13 @@ form select {
         background-color: var(--main-color-pale-fluo);
         color: var(--main-color-deep);
       }
-      .image {
+      img {
         display: block;
         margin: 0.5rem auto;
         max-width: 90%;
+        &.noimage {
+          background-color: var(--main-color-light-grayish);
+        }
       }
       .name {
         text-align: center;
@@ -1653,7 +1656,11 @@ select.YearFilter {
 .label,
 .label span,
 .label-l {
-  &, input, select, button, textarea {
+  &,
+  input,
+  select,
+  button,
+  textarea {
     font-size: 1em;
   }
 }
