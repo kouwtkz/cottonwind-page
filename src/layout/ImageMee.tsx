@@ -1,10 +1,16 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { ImgHTMLAttributes, useMemo, useRef, useState } from "react";
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
-const blankImage =
-  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
-interface ImageMeeProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+const blankSrc =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+interface BlankImageProps
+  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {}
+export function BlankImage(args: BlankImageProps) {
+  return <img {...args} src={blankSrc} />;
+}
+
+interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
   imageItem?: MediaImageItemType;
   hoverImageItem?: MediaImageItemType;
   mode?: ResizeMode;
@@ -72,7 +78,7 @@ export function ImageMee({
   const imageShowList = useMemo(() => {
     const list: string[] = [];
     if (mode === "simple" && thumbnail) list.push(thumbnail);
-    else list.push(blankImage);
+    else list.push(blankSrc);
     list.push(imageSrc);
     return list;
   }, [imageSrc, mode, thumbnail]);
@@ -180,8 +186,16 @@ export function ImgSwitch({
   className = className ? className + " " : "";
   return (
     <div className="switch-img">
-      {src ? <img src={src + queryStr} className={className + "normal"} {...args} /> : null}
-      {hoverSrc ? <img src={hoverSrc + queryStr} className={className + "hover"} {...args} /> : null}
+      {src ? (
+        <img src={src + queryStr} className={className + "normal"} {...args} />
+      ) : null}
+      {hoverSrc ? (
+        <img
+          src={hoverSrc + queryStr}
+          className={className + "hover"}
+          {...args}
+        />
+      ) : null}
     </div>
   );
 }
