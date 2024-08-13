@@ -6,8 +6,8 @@ export interface getGitLogDataProps { branch?: string, dir?: string };
 export function getGitLogData(args: getGitLogDataProps = {}): GitLogDataType {
   let remote_url: string | undefined;
   try {
-    const remote = execSync('git remote').toString().replace(/^\s+|\s+$/g, '');
-    remote_url = execSync('git remote get-url ' + remote).toString().replace(/^\s+|\s+$/g, '');
+    const remote = execSync('git remote').toString().trim();
+    remote_url = execSync('git remote get-url ' + remote).toString().trim();
   } catch { }
   return { remote_url, list: getGitLogItemList(args) };
 }

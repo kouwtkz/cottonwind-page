@@ -7,8 +7,8 @@ function getGitLogData(args) {
     if (args === void 0) { args = {}; }
     var remote_url;
     try {
-        var remote = (0, child_process_1.execSync)('git remote').toString().replace(/^\s+|\s+$/g, '');
-        remote_url = (0, child_process_1.execSync)('git remote get-url ' + remote).toString().replace(/^\s+|\s+$/g, '');
+        var remote = (0, child_process_1.execSync)('git remote').toString().trim();
+        remote_url = (0, child_process_1.execSync)('git remote get-url ' + remote).toString().trim();
     }
     catch (_a) { }
     return { remote_url: remote_url, list: getGitLogItemList(args) };
