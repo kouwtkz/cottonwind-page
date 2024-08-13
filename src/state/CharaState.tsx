@@ -8,11 +8,12 @@ import { buildAddVer } from "../data/env";
 const defaultUrl = "/json/characters.json" + buildAddVer;
 
 type CharaStateType = {
-  charaList: Array<CharaType>;
+  charaList: CharaType[];
   charaObject: CharaObjectType;
   isSet: boolean;
   setIsSet: (flag: boolean) => void;
-  setCharaObject: (list: CharaObjectType) => void;
+  setCharaList: (list: CharaType[]) => void;
+  setCharaObject: (data: CharaObjectType) => void;
   isReload: boolean;
   Reload: () => void;
 };
@@ -22,13 +23,18 @@ export const useCharaState = create<CharaStateType>((set) => ({
   charaList: [],
   isSet: false,
   setIsSet: (flag) => set(() => ({ isSet: flag })),
+  setCharaList(list) {
+    set({
+      charaList: list,
+    });
+  },
   setCharaObject: (data) => {
-    set(() => ({
+    set({
       charaList: Object.values(data) as CharaType[],
       charaObject: data,
       isSet: true,
       isReload: false,
-    }));
+    });
   },
   isReload: true,
   Reload() {

@@ -1,8 +1,21 @@
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import {
+  createSearchParams,
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
 import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
-import { HTMLAttributes, memo, useEffect, useMemo, useState } from "react";
+import {
+  HTMLAttributes,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import CharaEditForm, {
@@ -12,6 +25,10 @@ import CharaEditForm, {
 } from "../components/form/edit/CharaEdit";
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
+import { useHotkeys } from "react-hotkeys-hook";
+import { findMany, setWhere } from "@/functions/findMany";
+import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
+import { defineSortTags } from "@/components/dropdown/SortFilterTags";
 
 export function CharaPage() {
   const { charaName } = useParams();
@@ -19,14 +36,18 @@ export function CharaPage() {
   const isEdit = searchParams.get("edit") === "on";
   const isDev = import.meta.env.DEV;
   return (
-    <div className="charaPage">
+    <div id="characterPage">
       <CharaState />
       {isDev && isEdit ? (
         <CharaEditForm />
       ) : (
         <>
           {isDev ? <CharaEditButton /> : null}
-          {charaName ? <CharaDetail charaName={charaName} /> : <CharaList />}
+          {charaName ? (
+            <CharaDetail charaName={charaName} />
+          ) : (
+            <CharaListPage />
+          )}
         </>
       )}
     </div>
@@ -55,32 +76,73 @@ export const CharaListItem = memo(function CharaListItem({
           className="image"
           loadingScreen={true}
         />
-      ) : null}
+      ) : (
+        <img src="/static/images/svg/question.svg" alt={chara.name} />
+      )}
       <div className="name">{chara.name}</div>
     </div>
   );
 });
-function CharaList() {
-  const { charaList } = useCharaState();
-  const [items, setItems] = useState(charaList);
+
+function CharaListPage() {
+  const { charaList, isSet } = useCharaState();
+  const [searchParams] = useSearchParams();
+  const { state } = useLocation();
+  const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+  const { where, orderBy } = useMemo(
+    () =>
+      setWhere(text, {
+        text: {
+          key: ["name", "id", "overview", "description", "honorific"],
+        },
+        hashtag: { key: "tags" },
+      }),
+    [text]
+  );
+  const sortParam = searchParams.get("sort");
+  const orderBySort = useMemo(() => {
+    const list: OrderByItem<CharaType>[] = [...orderBy];
+    const searchSort = sortParam ?? "";
+    switch (searchSort) {
+      case "recently":
+        list.push({ time: "desc" });
+        break;
+      case "leastRecently":
+        list.push({ time: "asc" });
+        break;
+      case "nameOrder":
+        list.push({ name: "asc" });
+        break;
+      case "leastNameOrder":
+        list.push({ name: "desc" });
+        break;
+    }
+    return list;
+  }, [sortParam, orderBy]);
+  const items = useMemo(
+    () =>
+      isSet
+        ? findMany({ list: [...charaList], where, orderBy: orderBySort })
+        : [],
+    [where, charaList, orderBySort, isSet]
+  );
   const { sortable } = useEditSwitchState();
-  useEffect(() => {
-    setItems(charaList);
-  }, [charaList]);
   return (
     <>
-      {import.meta.env.DEV ? (
-        <SortableObject items={items} setItems={setItems} />
-      ) : null}
-      {sortable ? null : (
-        <div className="charaList">
-          {items.map((chara, i) => (
-            <Link to={`/character/${chara.id}`} className="item" key={i}>
-              <CharaListItem chara={chara} />
-            </Link>
-          ))}
-        </div>
-      )}
+      <CharaSearchArea />
+      {import.meta.env.DEV ? <SortableObject /> : null}
+      <div className="charaList" hidden={sortable}>
+        {items.map((chara, i) => (
+          <Link
+            to={`/character/${chara.id}`}
+            state={{ ...(state ?? {}), characterSort: orderBySort }}
+            className="item"
+            key={i}
+          >
+            <CharaListItem chara={chara} />
+          </Link>
+        ))}
+      </div>
     </>
   );
 }
@@ -90,37 +152,45 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
   chara: CharaType;
 }) {
   const { charaList } = useCharaState();
-  const charaIndex = charaList.findIndex(({ id }) => id === chara.id);
-  const beforeChara = charaList[charaIndex - 1];
-  const afterChara = charaList[charaIndex + 1];
+  const { state } = useLocation();
+  const items = useMemo(
+    () =>
+      state?.characterSort
+        ? findMany({ list: [...charaList], orderBy: state.characterSort })
+        : charaList,
+    [charaList, state]
+  );
+  const charaIndex = items.findIndex(({ id }) => id === chara.id);
+  const beforeChara = items[charaIndex - 1];
+  const afterChara = items[charaIndex + 1];
   return (
     <div className="beforeAfter">
       <div className="before">
         {beforeChara ? (
-          <Link to={"/character/" + beforeChara.id} className="flex">
+          <Link to={"/character/" + beforeChara.id} state={state}>
             <span className="cursor">＜</span>
             {beforeChara.media?.icon ? (
               <ImageMeeIcon
                 imageItem={beforeChara.media.icon}
                 size={40}
-                className="charaIcon text-2xl mr-2"
+                className="charaIcon"
               />
             ) : null}
-            <span className="text-xl">{beforeChara.name}</span>
+            <span>{beforeChara.name}</span>
           </Link>
         ) : null}
       </div>
       <div className="after">
         {afterChara ? (
-          <Link to={"/character/" + afterChara.id} className="flex">
+          <Link to={"/character/" + afterChara.id} state={state}>
             {afterChara.media?.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.media.icon}
                 size={40}
-                className="charaIcon text-2xl mr-2"
+                className="charaIcon"
               />
             ) : null}
-            <span className="text-xl">{afterChara.name}</span>
+            <span>{afterChara.name}</span>
             <span className="cursor">＞</span>
           </Link>
         ) : null}
@@ -224,5 +294,95 @@ function CharaDetail({ charaName }: { charaName: string }) {
         )
       ) : null}
     </>
+  );
+}
+
+interface CharaSearchAreaProps {}
+const characterSortTags = [
+  defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
+];
+export function CharaSearchArea({}: CharaSearchAreaProps) {
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { state } = useLocation();
+  const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
+  function setConfirmUrl() {
+    nav(location, {
+      replace: true,
+      preventScrollReset: true,
+      state: { ...(state || {}), confirmUrl: location.href },
+    });
+  }
+  useEffect(() => {
+    if (!confirmUrl || searchParams.size === 0) setConfirmUrl();
+  }, [confirmUrl, searchParams.size]);
+  const nav = useNavigate();
+  const isImeOn = useRef(false);
+  useHotkeys("slash", (e) => {
+    searchRef.current?.focus();
+    e.preventDefault();
+  });
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (document.activeElement === searchRef.current) {
+        searchRef.current?.blur();
+        e.preventDefault();
+      }
+    },
+    { enableOnFormTags: ["INPUT"] }
+  );
+  function setText(value: string) {
+    const newSearchParams = createSearchParams(searchParams);
+    if (value) newSearchParams.set("q", value);
+    else newSearchParams.delete("q");
+    const addReplace: { replace: boolean; state?: any } = {
+      replace: location.href !== confirmUrl,
+    };
+    if (!addReplace.replace) {
+      const _state = state ? { ...state } : {};
+      addReplace.state = _state;
+      _state.beforeSearchParams = searchParams.toString();
+    }
+    if (state?.beforeSearchParams === newSearchParams.toString()) {
+      nav(-1);
+    } else {
+      setSearchParams(newSearchParams, {
+        preventScrollReset: true,
+        state,
+        ...addReplace,
+      });
+    }
+  }
+  return (
+    <div className="header">
+      <input
+        name="q"
+        type="search"
+        className="search"
+        placeholder="キャラクター検索"
+        ref={searchRef}
+        onChange={() => {
+          if (searchRef.current && !isImeOn.current) {
+            setText(searchRef.current.value);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter")
+            (document.activeElement as HTMLElement)?.blur();
+        }}
+        onBlur={() => {
+          setConfirmUrl();
+        }}
+        onCompositionStart={() => {
+          isImeOn.current = true;
+        }}
+        onCompositionEnd={() => {
+          isImeOn.current = false;
+          if (searchRef.current) setText(searchRef.current.value);
+        }}
+      />
+      <ContentsTagsSelect tags={characterSortTags} />
+    </div>
   );
 }

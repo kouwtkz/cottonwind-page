@@ -1,10 +1,9 @@
 import {
   CSSProperties,
-  Dispatch,
-  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
@@ -53,7 +52,7 @@ export default function CharaEditForm() {
   const chara = charaObject && charaName ? charaObject[charaName] : null;
   const getDefaultValues = useCallback(
     (chara?: CharaType | null) => ({
-      id: chara?.id || "",
+      id: chara?.id || charaName || "",
       name: chara?.name || "",
       honorific: chara?.honorific || "",
       overview: chara?.overview || "",
@@ -70,7 +69,7 @@ export default function CharaEditForm() {
   );
   const playlistOptions = useMemo(
     () =>
-      [{ label: "デフォルト", value: "default" }].concat(
+      [{ label: "デフォルト音楽", value: "default" }].concat(
         soundState.SoundItemList.map((s) => ({
           label: s.title,
           value: s.src.slice(s.src.lastIndexOf("/") + 1),
@@ -111,7 +110,6 @@ export default function CharaEditForm() {
     const formValues = getValues();
     if (!charaObject) return;
     const formData = new FormData();
-    if (chara?.id) formData.append("target", chara.id);
     Object.entries(formValues).forEach(([key, value]) => {
       if (key in dirtyFields)
         switch (key) {
@@ -130,6 +128,8 @@ export default function CharaEditForm() {
             break;
         }
     });
+    if (chara?.id) formData.append("target", chara.id);
+    else if (!formData.has("id")) formData.append("id", formValues["id"]);
     const res = await axios.post("/character/send", formData);
     toast(res.data.message, { duration: 2000 });
     if (res.status === 200) {
@@ -322,14 +322,12 @@ export function CharaEditButton() {
   );
 }
 
-export function SortableObject({
-  items,
-  setItems,
-}: {
-  items: CharaType[];
-  setItems: Dispatch<SetStateAction<CharaType[]>>;
-}) {
-  const { charaList, Reload } = useCharaState();
+export function SortableObject() {
+  const { charaList, Reload, setCharaList } = useCharaState();
+  const [items, setItems] = useState(charaList);
+  useEffect(() => {
+    setItems(charaList);
+  }, [charaList]);
   const {
     sortable,
     save: saveFlag,
@@ -341,6 +339,7 @@ export function SortableObject({
       if (saveFlag) {
         const isDirty = !items.every(({ id }, i) => charaList[i].id === id);
         if (isDirty) {
+          setCharaList(items);
           const formData = new FormData();
           items.forEach(({ id }) => formData.append("sorts[]", id));
           axios.post("/character/send", formData).then((res) => {
@@ -375,24 +374,24 @@ export function SortableObject({
         setItems(arrayMove(items, oldIndex, newIndex));
       }
     },
-    [items, setItems]
+    [items]
   );
-  if (!sortable) return null;
-
   return (
-    <div className="charaList">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={items} strategy={rectSortingStrategy}>
-          {items.map((chara) => {
-            return <SortableItem chara={chara} key={chara.id} />;
-          })}
-        </SortableContext>
-      </DndContext>
-    </div>
+    <>
+      <div className="charaList" hidden={!sortable}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={items} strategy={rectSortingStrategy}>
+            {items.map((chara) => {
+              return <SortableItem chara={chara} key={chara.id} />;
+            })}
+          </SortableContext>
+        </DndContext>
+      </div>
+    </>
   );
 }
 
