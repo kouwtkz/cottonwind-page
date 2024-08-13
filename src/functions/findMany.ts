@@ -17,20 +17,43 @@ export function findMany<T>({
       });
       return a;
     }, [] as { [k: string]: OrderByType }[])
-    .reverse()
     .forEach((args) => {
       Object.entries(args).forEach(([k, v]) => {
+        let sign = 0;
         switch (v) {
           case "asc":
-            list.sort((a: any, b: any) =>
-              a[k] < b[k] ? -1 : a[k] > b[k] ? 1 : 0
-            );
+            sign = 1;
             break;
           case "desc":
-            list.sort((a: any, b: any) =>
-              a[k] < b[k] ? 1 : a[k] > b[k] ? -1 : 0
-            );
+            sign = -1;
             break;
+        }
+        if (sign !== 0) {
+          list.sort((a: any, b: any) => {
+            let result = 0;
+            const judgeValue = a[k] ?? b[k];
+            const typeofValue = typeof judgeValue;
+            switch (typeofValue) {
+              case "string":
+                result = a[k].localeCompare(b[k], 'ja');
+                break;
+              case "number":
+                result = a[k] - b[k];
+                break;
+              case "object":
+                if ("getTime" in judgeValue) {
+                  const atime = a[k]?.getTime() || 0;
+                  const btime = b[k]?.getTime() || 0;
+                  if (atime !== btime) result = atime - btime;
+                }
+                break;
+              default:
+                result = a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0;
+                break;
+            }
+            result = result * sign;
+            return result;
+          });
         }
       });
     });
@@ -101,7 +124,7 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
   return where ? recursion(where) : true;
 }
 
-function createFilterEntry(
+export function createFilterEntry(
   filterValue: string
 ): filterConditionsAllKeyValue<any> {
   if (filterValue.startsWith('"') && filterValue.endsWith('"')) {
@@ -139,21 +162,24 @@ export function setWhere<T>(q: string = "", options: WhereOptionsKvType<T> = {})
   const fromKey = getKeyFromOptions("from", options);
   const dateKey = getKeyFromOptions("date", options);
   const hashtagKey = options.hashtag?.key ?? "hashtag";
+  const kanaReplace = options.kanaReplace ?? false;
   const enableHashtagKey = options.hashtag?.enableKey ?? true;
   const enableHashtagText = options.hashtag?.enableText ?? false;
   const whereList: findWhereType<any>[] = [];
   let id: number | undefined;
   let take: number | undefined;
-  const orderBy: OrderByItem[] = [];
+  const orderBy: OrderByKeyStr[] = [];
   let OR = false;
   const doubleQuoteDic: KeyValueType<string> = {};
   let i = 0;
   q = q.replace(/"([^"]+)"/g, (m, m1) => {
     const key = (i++).toString(16);
-    doubleQuoteDic[key] = m1.toLocaleLowerCase();
+    m1 = m1.toLocaleLowerCase();
+    if (kanaReplace) m1 = kanaToHira(m1);
+    doubleQuoteDic[key] = m1;
     return `"${key}"`;
   })
-  const searchArray = q.replace(/^\s+|\s+$/, "").split(/\s+/);
+  const searchArray = q.trim().split(/\s+/);
   searchArray.forEach((item) => {
     if (item === "OR") {
       OR = true;
@@ -199,6 +225,7 @@ export function setWhere<T>(q: string = "", options: WhereOptionsKvType<T> = {})
         let filterValue = switchKey.length > 0 ? item.slice(switchKey.length + 1) : item;
         filterKey = filterKey.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
         filterValue = filterValue.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
+        if (kanaReplace) filterValue = kanaToHira(filterValue);
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
           case "object":
@@ -366,4 +393,11 @@ export function setWhere<T>(q: string = "", options: WhereOptionsKvType<T> = {})
   });
   const where = whereList.length > 1 ? { AND: whereList } : (whereList[0] ?? {});
   return { where, id, take, orderBy };
+}
+
+function kanaToHira(str: string) {
+  return str.replace(/[\u30a1-\u30f6]/g, (m) => {
+    var chr = m.charCodeAt(0) - 0x60;
+    return String.fromCharCode(chr);
+  });
 }

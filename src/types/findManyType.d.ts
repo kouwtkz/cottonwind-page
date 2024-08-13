@@ -9,17 +9,18 @@ type objectSubmitDataType<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyV
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
 type findWhereWithConditionsType<T> = findWhereType<T> | filterConditionsAllType;
 
-// includeは無理…それ以外を再現した
+type OrderByType = "asc" | "desc";
+type OrderByKeyStr = { [k: string]: OrderByType };
+type OrderByItem<T> = { [K in keyof T]?: OrderByType };
+
 type findManyProps<T> = {
   list?: T[],
   where?: findWhereType<T>;
   take?: number,
   skip?: number,
-  orderBy?: { [K in keyof T]?: OrderByType }[],
+  orderBy?: OrderByItem<T>[],
   include?: any
 }
-type OrderByType = "asc" | "desc";
-type OrderByItem = { [k: string]: OrderByType };
 
 type findWhereFunction<T> = (v: string) => findWhereType<T>;
 
@@ -40,6 +41,7 @@ interface WhereOptionsHashtagType {
 
 interface WhereOptionsKvType<T> {
   hashtag?: WhereOptionsHashtagType;
+  kanaReplace?: boolean;
   [k: string]: string
   | findWhereFunction<T>
   | WhereOptionsType<T>;
