@@ -45,6 +45,9 @@ import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
+import { useImageViewer } from "@/state/ImageViewer";
+import { imageEditIsEditHold } from "@/components/form/edit/ImageEditForm";
+import { useAtom } from "jotai";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -520,9 +523,9 @@ function GalleryImageItem({
   } => {
     if (image.direct) return { to: image.direct };
     if (image.originName) searchParams.set("image", image.originName);
-    if (image.album?.name) searchParams.set("album", image.album.name);
     if (galleryName && image.album?.name !== galleryName)
       searchParams.set("group", galleryName);
+    else if (image.album?.name) searchParams.set("album", image.album.name);
     return {
       to: new URL("?" + searchParams.toString(), location.href).href,
       state: { ...state, from: pathname },
@@ -655,7 +658,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
             {list
               .filter((_, i) => i < visibleMax)
               .map((image, i) => (
-                <GalleryImageItem image={image} key={i} />
+                <GalleryImageItem image={image} galleryName={name} key={i} />
               ))}
             {showMoreButton ? (
               <div className="item">
@@ -771,10 +774,13 @@ export function GallerySearchArea({
   ...args
 }: SearchAreaProps) {
   className = className ? ` ${className}` : "";
+  const { isOpen } = useImageViewer();
   const searchRef = React.useRef<HTMLInputElement>(null);
   useHotkeys("slash", (e) => {
-    searchRef.current?.focus();
-    e.preventDefault();
+    if (!isOpen) {
+      searchRef.current?.focus();
+      e.preventDefault();
+    }
   });
   useHotkeys(
     "escape",
@@ -871,26 +877,18 @@ export function GalleryPageDevOtherSwitch() {
 }
 
 export function GalleryPageEditSwitch() {
-  const state = useLocation().state ?? {};
-  const { edit } = state;
-  const isEdit = useMemo(() => edit === "on", [edit]);
-  const stateHandler = useCallback(() => {
-    const _state = { ...state };
-    if (isEdit) delete _state.edit;
-    else _state.edit = "on";
-    return _state;
-  }, [state]);
+  const [isEditHold, setIsEditHold] = useAtom(imageEditIsEditHold);
   return (
-    <Link
-      title={isEdit ? "元に戻す" : "常に編集モードにする"}
-      state={stateHandler()}
-      style={{ opacity: isEdit ? 1 : 0.4 }}
-      to={location.search}
-      replace={true}
-      preventScrollReset={true}
+    <button
+      title={isEditHold ? "元に戻す" : "常に編集モードにする"}
+      type="button"
+      onClick={() => {
+        setIsEditHold(!isEditHold);
+      }}
+      style={{ opacity: isEditHold ? 1 : 0.4 }}
     >
       <AiFillEdit />
-    </Link>
+    </button>
   );
 }
 
