@@ -21,7 +21,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useCharaState } from "@/state/CharaState";
 import { useImageState } from "@/state/ImageState";
-import { useSoundState } from "@/state/SoundState";
+import { SoundState, useSoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
 import {
@@ -144,6 +144,7 @@ export default function CharaEditForm() {
 
   return (
     <form className="edit" onSubmit={handleSubmit(onSubmit)}>
+      <SoundState />
       <div>
         {chara?.media?.icon ? (
           <ImageMeeIcon
@@ -232,6 +233,10 @@ export default function CharaEditForm() {
               theme={callReactSelectTheme}
               isMulti
               options={playlistOptions}
+              styles={{
+                menuList: (style) => ({ ...style, textAlign: "left" }),
+                option: (style) => ({ ...style, paddingLeft: "1em" }),
+              }}
               value={(field.value as string[]).map((fv) =>
                 playlistOptions.find(({ value }) => value === fv)
               )}
@@ -240,7 +245,7 @@ export default function CharaEditForm() {
                 field.onChange(newValues.map((v) => v?.value));
               }}
               onBlur={field.onBlur}
-            ></ReactSelect>
+            />
           )}
         />
       </div>
