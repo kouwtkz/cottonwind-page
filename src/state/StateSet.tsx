@@ -3,7 +3,7 @@ import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { create } from "zustand";
 import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
@@ -54,44 +54,53 @@ const reloadFunction =
     ? `setTimeout(() => {if (document.getElementById("${loadingCheckID}")) location.reload()}, 5000)`
     : "";
 
+export const siteIsFirstAtom = atom(true);
 export const dataIsCompleteAtom = atom(false);
+export const pageIsCompleteAtom = atom(true);
 
 function DataState() {
-  const stateList = [useFeedState(), useImageState().imageObject];
-  const [isComplete, setComplete] = useAtom(dataIsCompleteAtom);
-  const first = useRef(true);
-  const loading = useRef(true);
-  const isFirsIncomplete = useRef(true);
-  const [fScrollY] = useState(window.scrollY);
-  const doSetComplete = useCallback(() => {
-    if (isFirsIncomplete.current && !isComplete) {
-      const comp = stateList.every((v) => v.isSet);
-      if (comp) {
-        setComplete(true);
-        isFirsIncomplete.current = false;
+  const fScrollY = useRef(window.scrollY);
+  const [isFirst, setIsFirst] = useAtom(siteIsFirstAtom);
+  const [dataIsComplete, setIsComplete] = useAtom(dataIsCompleteAtom);
+  const [pageIsComplete, setPageIsComplete] = useAtom(pageIsCompleteAtom);
+  const isComplete = useMemo(
+    () => dataIsComplete && pageIsComplete,
+    [dataIsComplete, pageIsComplete]
+  );
+  const isCompleteRef = useRef(false);
+  const isSetList = [useFeedState().isSet, useImageState().imageObject.isSet];
+  const comp = useMemo(() => isSetList.every((v) => v), [isSetList]);
+  useEffect(() => {
+    if (comp !== dataIsComplete) setIsComplete(comp);
+  }, [comp, dataIsComplete]);
+  useEffect(() => {
+    isCompleteRef.current = isComplete;
+  }, [isComplete]);
+  useEffect(() => {
+    document.body.classList.remove("dummy");
+    setTimeout(() => {
+      if (!isCompleteRef.current) {
+        setIsComplete(true);
+        setPageIsComplete(true);
       }
-    }
-  }, [isComplete, fScrollY, stateList]);
+    }, 5000);
+  }, []);
   useEffect(() => {
-    doSetComplete();
-    if (first.current) {
-      document.body.classList.remove("dummy");
-      setTimeout(() => {
-        if (isFirsIncomplete.current && !isComplete) setComplete(true);
-      }, 5000);
-      first.current = false;
-    }
-  });
-  useEffect(() => {
-    if (loading.current && isComplete) {
-      scrollTo({ top: fScrollY });
+    if (isComplete) {
       document.body.classList.remove("loading");
-      loading.current = false;
+    } else {
+      document.body.classList.add("loading");
     }
-  }, [fScrollY, isComplete]);
+  }, [isComplete]);
+  useEffect(() => {
+    if (isFirst && isComplete) {
+      scrollTo({ top: fScrollY.current });
+      setIsFirst(false);
+    }
+  }, [isComplete, isFirst]);
   return (
     <>
-      {isComplete ? null : first.current && reloadFunction ? (
+      {isComplete ? null : isFirst && reloadFunction ? (
         <>
           <script dangerouslySetInnerHTML={{ __html: reloadFunction }} />
           <div id={loadingCheckID} />

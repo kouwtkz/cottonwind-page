@@ -5,6 +5,8 @@ import { useImageState } from "./ImageState";
 import { useSoundState } from "./SoundState";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { buildAddVer } from "../data/env";
+import { useAtom } from "jotai";
+import { pageIsCompleteAtom, siteIsFirstAtom } from "./StateSet";
 const defaultUrl = "/json/characters.json" + buildAddVer;
 
 type CharaStateType = {
@@ -43,7 +45,15 @@ export const useCharaState = create<CharaStateType>((set) => ({
 }));
 
 export function CharaState({ url = defaultUrl }: { url?: string }) {
-  const { setCharaObject, isReload, charaList } = useCharaState();
+  const { setCharaObject, isReload, charaList, isSet } = useCharaState();
+  const setIsComplete = useAtom(pageIsCompleteAtom)[1];
+  const [isFirst] = useAtom(siteIsFirstAtom);
+  useEffect(() => {
+    if (isFirst) setIsComplete(false);
+  }, [isFirst]);
+  useEffect(() => {
+    if (isFirst && isSet) setIsComplete(true);
+  }, [isSet, isFirst]);
   const { imageItemList } = useImageState().imageObject;
   const { SoundItemList, defaultPlaylist } = useSoundState();
   useLayoutEffect(() => {

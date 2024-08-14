@@ -9,13 +9,7 @@ import {
 import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
 import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
-import {
-  HTMLAttributes,
-  memo,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import CharaEditForm, {
@@ -77,7 +71,12 @@ export const CharaListItem = memo(function CharaListItem({
           loadingScreen={true}
         />
       ) : (
-        <img src="/static/images/svg/question.svg" alt={chara.name} />
+        <img
+          src="/static/images/svg/question.svg"
+          alt={chara.name}
+          width={500}
+          height={500}
+        />
       )}
       <div className="name">{chara.name}</div>
     </div>
