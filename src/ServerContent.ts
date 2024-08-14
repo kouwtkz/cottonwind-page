@@ -97,24 +97,17 @@ export async function ZenScrapGet(
 
 export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
-  const keyName = "regular";
-  const tableName = "Feed";
-  const dbData = await c.env.DB.prepare(`SELECT * FROM ${tableName} where name = ?`).bind(keyName).first() as (FeedDBType | null);
-  const feedStr = dbData?.data;
+  const keyName = "Feed";
+  const feedData = await c.env.KV.get(keyName).then(v => v ? JSON.parse(v) : null) as (FeedDBType | null);
+  const feedStr = feedData?.data;
   let feedObj = (feedStr ? JSON.parse(feedStr) : {}) as FeedContentsType;
-  const doProcess = dbData?.date ? new Date().getTime() - new Date(dbData.date).getTime() > 6e4 * minute : true;
+  const doProcess = feedData?.date ? new Date().getTime() - new Date(feedData.date).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
     if (url) note = await RssFeedGet(url);
-    const updateFeedObj = { note };
-    const updateFeedObjStr = JSON.stringify(updateFeedObj);
     const date = new Date().toISOString();
-    if (dbData) {
-      if (updateFeedObjStr !== feedStr) {
-        feedObj = updateFeedObj;
-        await c.env.DB.prepare(`UPDATE ${tableName} SET date = ?, data = ? WHERE name = ?`).bind(date, updateFeedObjStr, keyName).run();
-      } else await c.env.DB.prepare(`UPDATE ${tableName} SET date = ? WHERE name = ?`).bind(date, keyName).run();
-    } else await c.env.DB.prepare(`INSERT INTO ${tableName}(name, date, data) VALUES(?, ?, ?)`).bind(keyName, date, updateFeedObjStr).run();
+    const newKvData: FeedDBType = { data: JSON.stringify({ note }), date }
+    c.env.KV.put(keyName, JSON.stringify(newKvData));
   }
   return feedObj;
 }

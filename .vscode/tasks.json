@@ -56,11 +56,6 @@
     },
     {
       "type": "shell",
-      "command": "wrangler d1 execute cottonwind-db ${input:dbLastmodSelect}",
-      "label": "db:lastmod"
-    },
-    {
-      "type": "shell",
       "command": "npm run init-db-schema",
       "label": "db:schema.sql"
     }

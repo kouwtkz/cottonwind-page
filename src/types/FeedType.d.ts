@@ -28,7 +28,6 @@ type FeedContentsType = {
 }
 
 type FeedDBType = {
-  name: string,
   date: string,
   data: string
 }
