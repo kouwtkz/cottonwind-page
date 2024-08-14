@@ -16,7 +16,7 @@ import CharaEditForm, {
   CharaEditButton,
   SortableObject,
   useEditSwitchState,
-} from "../components/form/edit/CharaEdit";
+} from "./edit/CharaEdit";
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";

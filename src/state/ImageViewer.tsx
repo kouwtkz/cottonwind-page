@@ -22,7 +22,7 @@ import ImageEditForm, {
   imageEditIsDirty,
   imageEditIsEdit,
   imageEditIsEditHold,
-} from "../components/form/edit/ImageEditForm";
+} from "../routes/edit/ImageEditForm";
 import {
   defaultGalleryTags,
   getTagsOptions,

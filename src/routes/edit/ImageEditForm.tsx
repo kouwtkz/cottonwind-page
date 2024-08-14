@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { GalleryViewerPaging, useImageViewer } from "@/state/ImageViewer";
+import { GalleryViewerPaging } from "@/state/ImageViewer";
 import { ImageMee } from "@/layout/ImageMee";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
@@ -30,12 +30,15 @@ import {
 } from "react-icons/md";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
-import { PostTextarea, usePreviewMode } from "../input/PostTextarea";
+import {
+  PostTextarea,
+  usePreviewMode,
+} from "@/components/form/input/PostTextarea";
 import { useCharaState } from "@/state/CharaState";
-import { AutoImageItemType } from "../../../data/functions/images";
+import { AutoImageItemType } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
-import SetRegister from "../hook/SetRegister";
+import SetRegister from "@/components/form/hook/SetRegister";
 import {
   PostEditSelectDecoration,
   PostEditSelectInsert,

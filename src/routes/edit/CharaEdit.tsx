@@ -41,7 +41,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
-import { CharaListItem } from "../../../routes/CharaPage";
+import { CharaListItem } from "../CharaPage";
 import { ToFormJST } from "@/functions/DateFormat";
 
 export default function CharaEditForm() {

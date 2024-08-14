@@ -47,7 +47,7 @@ import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect"
 import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
-import { imageEditIsEditHold } from "@/components/form/edit/ImageEditForm";
+import { imageEditIsEditHold } from "./edit/ImageEditForm";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
