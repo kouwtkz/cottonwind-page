@@ -10,6 +10,10 @@ export interface ContentsTagsOption {
   options?: ContentsTagsOption[];
 }
 
+export type ContentsTagsOptionDispatch = React.Dispatch<
+  React.SetStateAction<ContentsTagsOption[]>
+>
+
 export const defaultGalleryTags: ContentsTagsOption[] = [
   {
     label: "タイプ",

@@ -16,6 +16,7 @@ import {
   getTagsOptions,
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
+  ContentsTagsOptionDispatch,
 } from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEmbedState } from "@/state/Embed";
@@ -50,9 +51,6 @@ type labelValue = { label: string; value: string };
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: MediaImageItemType | null;
 }
-type GalleryTagsOptionSet = React.Dispatch<
-  React.SetStateAction<ContentsTagsOption[]>
->;
 
 export const imageEditIsEdit = atom(false);
 export const imageEditIsEditHold = atom(false);
@@ -358,21 +356,25 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
-  function addTags(field: string, value: string, set: GalleryTagsOptionSet) {
+  function addTags(
+    field: string,
+    value: string,
+    set: ContentsTagsOptionDispatch
+  ) {
     const newValues = { label: value, value };
     set((c) => c.concat(newValues));
     setValue(field, getValues(field).concat(value), {
       shouldDirty: true,
     });
   }
-  function addTagsPrompt(field: string, set: GalleryTagsOptionSet) {
+  function addTagsPrompt(field: string, set: ContentsTagsOptionDispatch) {
     const answer = prompt("追加するタグの名前を入力してください");
     if (answer !== null) addTags(field, answer, set);
   }
   function addKeydownEnter(
     e: React.KeyboardEvent<HTMLDivElement>,
     field: string,
-    set: GalleryTagsOptionSet
+    set: ContentsTagsOptionDispatch
   ) {
     if (e.key === "Enter" && !e.ctrlKey) {
       setTimeout(() => {
