@@ -43,11 +43,12 @@ import {
 import { CSS as dndCSS } from "@dnd-kit/utilities";
 import { CharaListItem } from "../CharaPage";
 import { ToFormJST } from "@/functions/DateFormat";
+import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
-  const { charaObject, Reload } = useCharaState();
+  const { charaObject, Reload, charaList } = useCharaState();
   const { setImageFromUrl } = useImageState();
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
@@ -64,6 +65,7 @@ export default function CharaEditForm() {
       headerImage: chara?.headerImage || "",
       time: ToFormJST(chara?.time),
       birthday: ToFormJST(chara?.birthday),
+      tags: chara?.tags || [],
       playlist: chara?.playlist || [],
     }),
     []
@@ -75,9 +77,20 @@ export default function CharaEditForm() {
           label: s.title,
           value: s.src.slice(s.src.lastIndexOf("/") + 1),
         }))
-      ),
+      ) as ContentsTagsOption[],
     [soundState.SoundItemList]
   );
+  const tagsOptions = useMemo(
+    () =>
+      charaList.reduce((a, c) => {
+        c.tags?.forEach((tag) => {
+          a.push({ label: tag, value: tag });
+        });
+        return a;
+      }, [] as ContentsTagsOption[]),
+    [charaList]
+  );
+  console.log(tagsOptions);
   const schema = z.object({
     id: z
       .string()
@@ -226,10 +239,36 @@ export default function CharaEditForm() {
       <div>
         <Controller
           control={control}
-          name="playlist"
+          name="tags"
           render={({ field }) => (
             <ReactSelect
               instanceId="CharaTagSelect"
+              theme={callReactSelectTheme}
+              isMulti
+              options={tagsOptions}
+              styles={{
+                menuList: (style) => ({ ...style, textAlign: "left" }),
+                option: (style) => ({ ...style, paddingLeft: "1em" }),
+              }}
+              value={(field.value as string[]).map((fv) =>
+                tagsOptions.find(({ value }) => value === fv)
+              )}
+              placeholder="タグ"
+              onChange={(newValues) => {
+                field.onChange(newValues.map((v) => v?.value));
+              }}
+              onBlur={field.onBlur}
+            />
+          )}
+        />
+      </div>
+      <div>
+        <Controller
+          control={control}
+          name="playlist"
+          render={({ field }) => (
+            <ReactSelect
+              instanceId="CharaPlaylistSelect"
               theme={callReactSelectTheme}
               isMulti
               options={playlistOptions}
