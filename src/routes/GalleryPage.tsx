@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
 import SiteConfigList from "@/data/config.list";
-import { useDataState } from "@/state/StateSet";
+import { useAtom } from "jotai";
+import { dataIsCompleteAtom } from "@/state/StateSet";
 import React, {
   HTMLAttributes,
   ReactNode,
@@ -47,11 +48,10 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "@/components/form/edit/ImageEditForm";
-import { useAtom } from "jotai";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
-  const { isComplete } = useDataState();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
   return (
     <div id="galleryPage">
       {children}
@@ -582,7 +582,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     },
     ref
   ) {
-    const { isComplete } = useDataState();
+    const [isComplete] = useAtom(dataIsCompleteAtom);
     let {
       name,
       linkLabel,

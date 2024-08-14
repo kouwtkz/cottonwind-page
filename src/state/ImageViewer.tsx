@@ -37,7 +37,7 @@ import {
 } from "react-icons/ri";
 import { CharaState, useCharaState } from "@/state/CharaState";
 import { useImageState } from "@/state/ImageState";
-import { useDataState } from "./StateSet";
+import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -101,7 +101,7 @@ export function ImageViewer() {
   const tagsOptions = autoFixGalleryTagsOptions(
     getTagsOptions(defaultGalleryTags)
   );
-  const { isComplete } = useDataState();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
 
   function backAction() {
     if (

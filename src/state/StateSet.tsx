@@ -8,6 +8,7 @@ import { create } from "zustand";
 import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, useFeedState } from "@/state/FeedState";
 import { useCookies } from "react-cookie";
+import { atom, useAtom } from "jotai";
 
 export const ThemeState = new ThemeStateClass("theme", [
   "theme-orange",
@@ -53,23 +54,11 @@ const reloadFunction =
     ? `setTimeout(() => {if (document.getElementById("${loadingCheckID}")) location.reload()}, 5000)`
     : "";
 
-type DataStateType = {
-  isComplete: boolean;
-  setComplete: (value: boolean) => void;
-};
-
-export const useDataState = create<DataStateType>((set) => ({
-  isComplete: false,
-  setComplete: (value) => {
-    set(() => ({ isComplete: value }));
-  },
-}));
+export const dataIsCompleteAtom = atom(false);
 
 function DataState() {
   const stateList = [useFeedState(), useImageState().imageObject];
-  const { isComplete, setComplete } = useDataState(
-    ({ isComplete, setComplete }) => ({ isComplete, setComplete })
-  );
+  const [isComplete, setComplete] = useAtom(dataIsCompleteAtom);
   const first = useRef(true);
   const loading = useRef(true);
   const isFirsIncomplete = useRef(true);

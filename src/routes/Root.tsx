@@ -2,7 +2,8 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
-import { StateSet, useDataState } from "@/state/StateSet";
+import { useAtom } from "jotai";
+import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
@@ -13,7 +14,7 @@ function SetTitle() {
   const { pathname, search } = useLocation();
   const { charaObject: characters } = useCharaState();
   const { imageItemList: images } = useImageState().imageObject;
-  const { isComplete } = useDataState();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const { posts } = usePostState();
   if (notFirst) {

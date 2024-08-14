@@ -2,7 +2,8 @@ import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
-import { useDataState } from "@/state/StateSet";
+import { useAtom } from "jotai";
+import { dataIsCompleteAtom } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import SiteConfigList from "@/data/config.list";
 import { LinksStateClass } from "@/state/LinksState";
@@ -54,7 +55,7 @@ function InviteDiscordLink({
   const [searchParams, setSearchParams] = useSearchParams();
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const invite = searchParams.get("invite");
-  const { isComplete } = useDataState();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
   const question = useMemo(async () => {
     return axios.get("/fetch/discord/invite").then((r) => r.data);
   }, []);

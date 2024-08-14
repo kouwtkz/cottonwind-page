@@ -11,7 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
-import { useDataState } from "@/state/StateSet";
+import { useAtom } from "jotai";
+import { dataIsCompleteAtom } from "@/state/StateSet";
 import { MdAdd, MdClose, MdDoneOutline, MdEditNote } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
@@ -274,7 +275,7 @@ export const useEditSwitchState = create<{
 }));
 
 export function CharaEditButton() {
-  const { isComplete } = useDataState();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   if (!isComplete) return <></>;
