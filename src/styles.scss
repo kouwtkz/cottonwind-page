@@ -104,12 +104,14 @@
   }
 }
 :root,
-.headerBackground {
+.headerBackground,
+.InPageMenu .background {
   transition: background-color 1s;
 }
 :root.audio_play {
   &,
-  .headerBackground {
+  .headerBackground,
+  .InPageMenu .background {
     background-color: var(--play-background-color);
   }
 }
