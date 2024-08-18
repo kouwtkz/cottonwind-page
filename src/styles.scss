@@ -1198,17 +1198,12 @@ form select {
     @include commonHeader();
   }
   .charaList {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: space-around;
+    @include GridList(2, $tabletWidth, $desktopWidth);
     margin: 0 auto;
+    width: 95%;
     .item {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      width: 50%;
       font-size: $text_xl;
       text-decoration-line: none;
       color: var(--main-color);
@@ -1221,8 +1216,9 @@ form select {
       }
       img {
         display: block;
-        margin: 0.5rem auto;
-        max-width: 90%;
+        margin: auto;
+        max-width: 95%;
+        width: 100%;
         &.noimage {
           background-color: var(--main-color-light-grayish);
         }
@@ -1233,14 +1229,14 @@ form select {
         margin: 0.5rem auto;
         max-width: 90%;
       }
-      @media (min-width: $tabletWidth) {
-        width: 33%;
+    }
+    @media (min-width: $tabletWidth) {
+      .item {
         font-size: $text_2xl;
       }
-      // @media (min-width: $gallerySwitchWidth) {
-      //   width: 25%;
-      //   font-size: $text_2xl;
-      // }
+    }
+    @media (min-width: $desktopWidth) {
+      width: 100%;
     }
   }
   .beforeAfter {
