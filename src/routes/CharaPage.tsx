@@ -138,13 +138,13 @@ function CharaListPage() {
     }
     return list;
   }, [sortParam, orderBy]);
-  const items = useMemo(
-    () =>
-      isSet
-        ? findMany({ list: [...charaList], where, orderBy: orderBySort })
-        : [],
-    [where, charaList, orderBySort, isSet]
-  );
+  const items = useMemo(() => {
+    let list = isSet
+      ? findMany({ list: [...charaList], where, orderBy: orderBySort })
+      : [];
+    if (import.meta.env.PROD) list = list.filter((chara) => chara.media?.image);
+    return list;
+  }, [where, charaList, orderBySort, isSet]);
   const { sortable } = useEditSwitchState();
   return (
     <>
