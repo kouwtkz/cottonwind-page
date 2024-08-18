@@ -5,6 +5,7 @@ export interface ContentsTagsOption {
   value?: string;
   index?: number;
   group?: string;
+  count?: number;
   editable?: boolean;
   query?: { [k: string]: string };
   options?: ContentsTagsOption[];
