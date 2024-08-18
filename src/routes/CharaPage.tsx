@@ -95,7 +95,14 @@ function CharaListPage() {
     () => searchParams.get("tag")?.split(","),
     [searchParams]
   );
-
+  const filters = useMemo(
+    () => searchParams.get("filter")?.split(","),
+    [searchParams]
+  );
+  const notHide = useMemo(
+    () => import.meta.env.DEV || filters?.some((v) => v === "notHide"),
+    [filters]
+  );
   const whereOptions = useMemo(
     () =>
       setWhere<CharaType>(text, {
@@ -108,15 +115,18 @@ function CharaListPage() {
   );
   const { orderBy } = whereOptions;
   const wheres = [whereOptions.where];
-  if (tags) {
-    wheres.push({
-      AND: tags.map((tag) => ({
-        tags: {
-          contains: tag,
-        },
-      })),
-    });
-  }
+  const tagsWhere = useMemo(() => {
+    if (tags)
+      return {
+        AND: tags.map((tag) => ({
+          tags: {
+            contains: tag,
+          },
+        })),
+      };
+    else return null;
+  }, [tags]);
+  if (tagsWhere) wheres.push(tagsWhere);
   const where: findWhereType<CharaType> = { AND: wheres };
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
@@ -142,9 +152,9 @@ function CharaListPage() {
     let list = isSet
       ? findMany({ list: [...charaList], where, orderBy: orderBySort })
       : [];
-    if (import.meta.env.PROD) list = list.filter((chara) => chara.media?.image);
+    if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [where, charaList, orderBySort, isSet]);
+  }, [where, charaList, orderBySort, isSet, notHide]);
   const { sortable } = useEditSwitchState();
   return (
     <>
@@ -154,7 +164,12 @@ function CharaListPage() {
         {items.map((chara, i) => (
           <Link
             to={`/character/${chara.id}`}
-            state={{ ...(state ?? {}), characterSort: orderBySort }}
+            state={{
+              ...(state ?? {}),
+              characterSort: orderBySort,
+              charaTagsWhere: tagsWhere,
+              charaFilters: filters,
+            }}
             className="item"
             key={i}
           >
@@ -172,16 +187,38 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
 }) {
   const { charaList } = useCharaState();
   const { state } = useLocation();
-  const items = useMemo(
-    () =>
-      state?.characterSort
-        ? findMany({ list: [...charaList], orderBy: state.characterSort })
-        : charaList,
-    [charaList, state]
+  const filters: string[] | undefined = useMemo(
+    () => state?.charaFilters,
+    [state]
   );
+  const notHide = useMemo(
+    () => import.meta.env.DEV || filters?.some((v) => v === "notHide"),
+    [filters]
+  );
+  const items = useMemo(() => {
+    let list = charaList;
+    const characterSort = state?.characterSort;
+    const charaTagsWhere = state?.charaTagsWhere;
+    if (characterSort || charaTagsWhere) {
+      list = [...list];
+      const where: findWhereType<CharaType> = {};
+      if (charaTagsWhere) where.AND = [charaTagsWhere];
+      list = findMany({ list, orderBy: state.characterSort, where });
+    }
+    if (!notHide) list = list.filter((chara) => chara.media?.image);
+    return list;
+  }, [charaList, state, notHide]);
   const charaIndex = items.findIndex(({ id }) => id === chara.id);
-  const beforeChara = items[charaIndex - 1];
-  const afterChara = items[charaIndex + 1];
+  const { beforeChara, afterChara } = useMemo(() => {
+    if (charaIndex >= 0) {
+      return {
+        beforeChara: items[charaIndex - 1],
+        afterChara: items[charaIndex + 1],
+      };
+    } else {
+      return { beforeChara: null, afterChara: null };
+    }
+  }, [items, charaIndex]);
   return (
     <div className="beforeAfter">
       <div className="before">
@@ -375,12 +412,17 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     }
   }
   const tags = useMemo(() => {
-    const tagsOptions: ContentsTagsOption = {
+    const charaFilterOptions: ContentsTagsOption = {
+      label: "フィルタ",
+      name: "filter",
+      options: [{ label: "🔬全て表示", value: "filter:notHide" }],
+    };
+    const charaTagsOptions: ContentsTagsOption = {
       label: "タグ",
       name: "tags",
       options: charaTags,
     };
-    return characterSortTags.concat(tagsOptions);
+    return characterSortTags.concat(charaFilterOptions, charaTagsOptions);
   }, [charaTags]);
 
   return (
