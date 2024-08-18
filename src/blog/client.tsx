@@ -14,7 +14,6 @@ import {
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
-import { useBackButton, queryCheck } from "@/layout/BackButton";
 import { useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
@@ -31,18 +30,7 @@ export function BlogPage({
   const q = searchParams.get("q") || undefined;
   const postId = searchParams.get("postId") || undefined;
   const postpageQuery = { p, q, postId };
-  const { queryEnable, queryJoin } = queryCheck({
-    query: postpageQuery,
-  });
-  const arc = "archive";
-  const arcEnable1 = !blogEnable && queryEnable;
-  // useEffect(() => {
-  //   if (arcEnable1 && queryJoin) setBackUrl({ query: { show: arc } });
-  // }, [arcEnable1, queryJoin, setBackUrl]);
   const blogTopLink: UrlObject = { pathname: "/blog" };
-  if (arcEnable1 && queryJoin) {
-    blogTopLink.query = { show: arc };
-  }
   return (
     <>
       <PostState />

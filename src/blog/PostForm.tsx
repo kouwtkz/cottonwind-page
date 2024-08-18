@@ -22,7 +22,6 @@ import { findMany } from "@/functions/findMany";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
 import { callReactSelectTheme } from "@/theme/main";
-import { useBackButton, queryCheck } from "@/layout/BackButton";
 import { create } from "zustand";
 import {
   MenuItem,
@@ -75,18 +74,6 @@ export default function PostForm({ blogEnable }: { blogEnable?: boolean }) {
   const [searchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams);
   const Content = useCallback(() => <Main params={{ ...params }} />, [params]);
-  const { setBackUrl } = useBackButton();
-  const { queryJoin } = queryCheck({
-    query: params,
-  });
-  const arc = "archive";
-  useEffect(() => {
-    if (queryJoin || !blogEnable) {
-      const addQuery = blogEnable ? {} : { query: { show: arc } };
-      // setBackUrl({ pathname: "/blog", ...addQuery });
-    }
-  }, [blogEnable, queryJoin, setBackUrl]);
-
   return <Content />;
 }
 
