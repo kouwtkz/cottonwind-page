@@ -46,6 +46,7 @@ import {
   PostEditSelectMedia,
 } from "@/components/dropdown/PostEditSelect";
 import { useHotkeys } from "react-hotkeys-hook";
+import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -356,38 +357,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
-  function addTags(
-    field: string,
-    value: string,
-    set: ContentsTagsOptionDispatch
-  ) {
-    const newValues = { label: value, value };
-    set((c) => c.concat(newValues));
-    setValue(field, getValues(field).concat(value), {
-      shouldDirty: true,
-    });
-  }
-  function addTagsPrompt(field: string, set: ContentsTagsOptionDispatch) {
-    const answer = prompt("追加するタグの名前を入力してください");
-    if (answer !== null) addTags(field, answer, set);
-  }
-  function addKeydownEnter(
-    e: React.KeyboardEvent<HTMLDivElement>,
-    field: string,
-    set: ContentsTagsOptionDispatch
-  ) {
-    if (e.key === "Enter" && !e.ctrlKey) {
-      setTimeout(() => {
-        const input = e.target as HTMLInputElement;
-        const value = input.value;
-        if (value) {
-          addTags(field, value, set);
-          input.blur();
-          input.focus();
-        }
-      }, 50);
-    }
-  }
 
   return (
     <>
@@ -509,111 +478,49 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             </div>
           </div>
           <div>
-            <div className="label">キャラクタータグ</div>
-            <div className="wide">
-              <Controller
-                control={control}
-                name="charaTags"
-                render={({ field }) => (
-                  <ReactSelect
-                    instanceId="CharaTagSelect"
-                    theme={callReactSelectTheme}
-                    isMulti
-                    options={charaTags}
-                    value={(field.value as string[]).map((fv) =>
-                      charaTags.find((ci) => ci.value === fv)
-                    )}
-                    placeholder="キャラの選択"
-                    onChange={(newValues) => {
-                      field.onChange(newValues.map((v) => v?.value));
-                    }}
-                    onBlur={field.onBlur}
-                    formatOptionLabel={(option) => (
-                      <CharaTagsLabel option={option} />
-                    )}
-                    isDisabled={isBusy}
-                  />
-                )}
-              />
-            </div>
+            <EditTagsReactSelect
+              name="charaTags"
+              labelVisible
+              label="キャラクタータグ"
+              tags={charaTags}
+              control={control}
+              setValue={setValue}
+              getValues={getValues}
+              isBusy={isBusy}
+              placeholder="キャラの選択"
+            />
           </div>
           <div>
-            <div className="label">
-              <span>その他のタグ</span>
-              <button
-                title="新規タグ"
-                type="button"
-                onClick={() => addTagsPrompt("otherTags", setOtherTags)}
-                disabled={isBusy}
-              >
-                ＋新規タグの追加
-              </button>
-            </div>
-            <div className="wide">
-              <Controller
-                control={control}
-                name="otherTags"
-                render={({ field }) => (
-                  <ReactSelect
-                    instanceId="OtherTagsSelect"
-                    theme={callReactSelectTheme}
-                    isMulti
-                    options={otherTags}
-                    value={(field.value as string[]).map((fv) =>
-                      otherTags.find((ci) => ci.value === fv)
-                    )}
-                    placeholder="その他のタグ選択"
-                    onChange={(newValues) => {
-                      field.onChange(newValues.map((v) => v?.value));
-                    }}
-                    onKeyDown={(e) => {
-                      addKeydownEnter(e, "otherTags", setOtherTags);
-                    }}
-                    onBlur={field.onBlur}
-                    isDisabled={isBusy}
-                  />
-                )}
-              />
-            </div>
+            <EditTagsReactSelect
+              name="otherTags"
+              labelVisible
+              label="その他のタグ"
+              tags={otherTags}
+              set={setOtherTags}
+              control={control}
+              setValue={setValue}
+              getValues={getValues}
+              placeholder="その他のタグ選択"
+              isBusy={isBusy}
+              addButtonVisible
+              enableEnterAdd
+            />
           </div>
           <div>
-            <div className="label">
-              <span>版権タグ（コピーライト）</span>
-              <button
-                title="新規タグ"
-                type="button"
-                onClick={() => addTagsPrompt("copyright", setCopyrightTags)}
-                disabled={isBusy}
-              >
-                ＋新規タグの追加
-              </button>
-            </div>
-            <div className="wide">
-              <Controller
-                control={control}
-                name="copyright"
-                render={({ field }) => (
-                  <ReactSelect
-                    instanceId="CopyrightSelect"
-                    theme={callReactSelectTheme}
-                    isMulti
-                    options={copyrightTags}
-                    value={(field.value as string[]).map((fv) =>
-                      copyrightTags.find((ci) => ci.value === fv)
-                    )}
-                    placeholder="版権タグ選択"
-                    onChange={(newValues) => {
-                      field.onChange(newValues.map((v) => v?.value));
-                    }}
-                    onKeyDown={(e) => {
-                      addKeydownEnter(e, "copyright", setCopyrightTags);
-                    }}
-                    onBlur={field.onBlur}
-                    isDisabled={isBusy}
-                  />
-                )}
-              />
-            </div>
+            <EditTagsReactSelect
+              name="copyright"
+              labelVisible
+              label="版権タグ（コピーライト）"
+              tags={copyrightTags}
+              set={setCopyrightTags}
+              control={control}
+              setValue={setValue}
+              getValues={getValues}
+              isBusy={isBusy}
+              placeholder="版権タグ選択"
+              addButtonVisible
+              enableEnterAdd
+            />
           </div>
           <label>
             <span className="label-l">画像の種類</span>
