@@ -135,10 +135,9 @@
   --font-LuloClean: "LuloCleanW01-OneBold";
 }
 
-$mobileWidth: 520px;
 $tabletWidth: 768px;
-$desktopWidth: 1024px;
-$gallerySwitchWidth: 1120px;
+$desktopWidth: 1280px;
+$gallerySwitchWidth: #{$tabletWidth};
 
 $text_xs: 0.75rem;
 $text_sm: 0.875rem;
@@ -381,7 +380,7 @@ button,
       }
     }
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     &.round {
       margin: 0.25rem;
       width: 3rem;
@@ -482,7 +481,7 @@ h2.lulo,
   font-size: $text_3xl;
   color: var(--main-color);
   margin-bottom: $size_4;
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     font-size: $text_4xl;
   }
 }
@@ -639,7 +638,7 @@ code {
         margin-right: 0.5rem;
       }
     }
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $tabletWidth) {
       min-width: 11rem;
       font-size: $text_xl;
       .cursor {
@@ -737,7 +736,7 @@ header {
       height: 2rem;
       width: 2rem;
     }
-    @media (min-width: $mobileWidth) {
+    @media (min-width: $tabletWidth) {
       a {
         width: 2.5rem;
         height: 2.5rem;
@@ -778,7 +777,7 @@ header {
       font-family: var(--font-MochiyPopOne);
       color: var(--main-color);
       cursor: pointer;
-      @media (min-width: $mobileWidth) {
+      @media (min-width: $tabletWidth) {
         font-size: $text_3xl;
       }
     }
@@ -918,7 +917,7 @@ footer {
         &.banner {
           width: 14rem;
         }
-        @media (min-width: $mobileWidth) {
+        @media (min-width: $tabletWidth) {
           width: 14rem;
           &.banner {
             width: 24rem;
@@ -1167,7 +1166,7 @@ form select {
         margin: 0.5rem auto;
         max-width: 90%;
       }
-      @media (min-width: $mobileWidth) {
+      @media (min-width: $tabletWidth) {
         width: 33%;
         font-size: $text_2xl;
       }
@@ -1385,7 +1384,7 @@ select.YearFilter {
     top: 0;
     right: 0;
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     h2 {
       font-size: $text_3xl;
     }
@@ -1508,7 +1507,7 @@ select.YearFilter {
           right: 0;
           bottom: 0;
           pointer-events: none;
-          @media (min-width: $mobileWidth) {
+          @media (min-width: $tabletWidth) {
             margin: 0.75rem;
           }
         }
@@ -1619,7 +1618,7 @@ select.YearFilter {
       }
     }
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     .playlist .list .item {
       width: 50%;
     }
@@ -2093,7 +2092,7 @@ ul {
     margin-left: 0.5rem;
     text-decoration: underline var(--main-color-grayish);
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     ul li {
       margin: 0 1rem;
     }
@@ -2124,7 +2123,7 @@ ul {
     font-size: $text_xl;
     font-weight: bold;
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     h1 {
       font-size: $text_4xl;
     }
@@ -2292,7 +2291,7 @@ body.workers {
       }
     }
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     .title h2 {
       font-size: $text_4xl;
     }
@@ -2382,7 +2381,7 @@ form.blogEdit {
       margin: 1rem;
     }
   }
-  @media (min-width: $mobileWidth) {
+  @media (min-width: $tabletWidth) {
     h1 {
       font-size: $text_4xl;
     }

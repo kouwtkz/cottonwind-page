@@ -605,7 +605,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     );
     const curMax = useMemo(() => {
       let curMax = state?.galleryMax?.[name] ?? max;
-      if (w >= 1120) curMax = Math.ceil(curMax / 5) * 5;
+      if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
       else curMax = Math.ceil(curMax / 4) * 4;
       return curMax;
     }, [name, max, state, w]);
