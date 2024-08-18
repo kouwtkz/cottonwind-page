@@ -44,11 +44,12 @@ import { CSS as dndCSS } from "@dnd-kit/utilities";
 import { CharaListItem } from "../CharaPage";
 import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
+import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
-  const { charaObject, Reload, charaList } = useCharaState();
+  const { charaObject, Reload, charaTags } = useCharaState();
   const { setImageFromUrl } = useImageState();
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
@@ -70,6 +71,7 @@ export default function CharaEditForm() {
     }),
     []
   );
+
   const playlistOptions = useMemo(
     () =>
       [{ label: "デフォルト音楽", value: "default" }].concat(
@@ -80,17 +82,12 @@ export default function CharaEditForm() {
       ) as ContentsTagsOption[],
     [soundState.SoundItemList]
   );
-  const tagsOptions = useMemo(
-    () =>
-      charaList.reduce((a, c) => {
-        c.tags?.forEach((tag) => {
-          a.push({ label: tag, value: tag });
-        });
-        return a;
-      }, [] as ContentsTagsOption[]),
-    [charaList]
-  );
-  console.log(tagsOptions);
+
+  const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
+  useEffect(() => {
+    setTagsOptions(charaTags);
+  }, [charaTags]);
+
   const schema = z.object({
     id: z
       .string()
@@ -127,18 +124,18 @@ export default function CharaEditForm() {
     Object.entries(formValues).forEach(([key, value]) => {
       if (key in dirtyFields)
         switch (key) {
-          case "playlist":
-            const arr = value as string[];
-            if (arr.length > 0) {
-              arr.forEach((v) => {
-                formData.append(`${key}[]`, v);
-              });
-            } else {
-              formData.append(`${key}`, "");
-            }
-            break;
           default:
-            formData.append(key, value);
+            if (Array.isArray(value)) {
+              if (value.length > 0) {
+                value.forEach((v) => {
+                  formData.append(`${key}[]`, v);
+                });
+              } else {
+                formData.append(`${key}`, "");
+              }
+            } else {
+              formData.append(key, value);
+            }
             break;
         }
     });
@@ -156,7 +153,7 @@ export default function CharaEditForm() {
   }
 
   return (
-    <form className="edit" onSubmit={handleSubmit(onSubmit)}>
+    <form className="edit">
       <SoundState />
       <div>
         {chara?.media?.icon ? (
@@ -237,29 +234,19 @@ export default function CharaEditForm() {
         </label>
       </div>
       <div>
-        <Controller
-          control={control}
+        <EditTagsReactSelect
           name="tags"
-          render={({ field }) => (
-            <ReactSelect
-              instanceId="CharaTagSelect"
-              theme={callReactSelectTheme}
-              isMulti
-              options={tagsOptions}
-              styles={{
-                menuList: (style) => ({ ...style, textAlign: "left" }),
-                option: (style) => ({ ...style, paddingLeft: "1em" }),
-              }}
-              value={(field.value as string[]).map((fv) =>
-                tagsOptions.find(({ value }) => value === fv)
-              )}
-              placeholder="タグ"
-              onChange={(newValues) => {
-                field.onChange(newValues.map((v) => v?.value));
-              }}
-              onBlur={field.onBlur}
-            />
-          )}
+          tags={tagsOptions}
+          set={setTagsOptions}
+          control={control}
+          setValue={setValue}
+          getValues={getValues}
+          placeholder="タグ"
+          enableEnterAdd
+          styles={{
+            menuList: (style) => ({ ...style, textAlign: "left" }),
+            option: (style) => ({ ...style, paddingLeft: "1em" }),
+          }}
         />
       </div>
       <div>
@@ -296,7 +283,11 @@ export default function CharaEditForm() {
         />
       </div>
       <div>
-        <button disabled={!isDirty} type="submit">
+        <button
+          disabled={!isDirty}
+          type="button"
+          onClick={handleSubmit(onSubmit)}
+        >
           送信
         </button>
       </div>

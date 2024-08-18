@@ -7,11 +7,13 @@ import { convertCharaData } from "../data/functions/convertCharaData";
 import { buildAddVer } from "../data/env";
 import { useAtom } from "jotai";
 import { pageIsCompleteAtom, siteIsFirstAtom } from "./StateSet";
+import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 const defaultUrl = "/json/characters.json" + buildAddVer;
 
 type CharaStateType = {
   charaList: CharaType[];
   charaObject: CharaObjectType;
+  charaTags: ContentsTagsOption[];
   isSet: boolean;
   setIsSet: (flag: boolean) => void;
   setCharaList: (list: CharaType[]) => void;
@@ -23,6 +25,7 @@ type CharaStateType = {
 export const useCharaState = create<CharaStateType>((set) => ({
   charaObject: {},
   charaList: [],
+  charaTags: [],
   isSet: false,
   setIsSet: (flag) => set(() => ({ isSet: flag })),
   setCharaList(list) {
@@ -31,9 +34,24 @@ export const useCharaState = create<CharaStateType>((set) => ({
     });
   },
   setCharaObject: (data) => {
+    const charaList = Object.values(data) as CharaType[];
+    charaList.forEach((v) => {
+      if (v.tags && !Array.isArray(v.tags)) v.tags = [v.tags];
+    });
+    const tagOptionsMap = charaList.reduce((a, c) => {
+      c.tags?.forEach((tag) => {
+        if (a.has(tag)) {
+          const option = a.get(tag)!;
+          option.count!++;
+        } else a.set(tag, { label: tag, value: tag, count: 1 });
+      });
+      return a;
+    }, new Map<string, ContentsTagsOption>());
+    const charaTags = Object.values(Object.fromEntries(tagOptionsMap));
     set({
-      charaList: Object.values(data) as CharaType[],
+      charaList,
       charaObject: data,
+      charaTags,
       isSet: true,
       isReload: false,
     });

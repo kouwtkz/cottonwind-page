@@ -22,7 +22,10 @@ import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { findMany, setWhere } from "@/functions/findMany";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
-import { defineSortTags } from "@/components/dropdown/SortFilterTags";
+import {
+  ContentsTagsOption,
+  defineSortTags,
+} from "@/components/dropdown/SortFilterTags";
 
 export function CharaPage() {
   const { charaName } = useParams();
@@ -88,9 +91,14 @@ function CharaListPage() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
-  const { where, orderBy } = useMemo(
+  const tags = useMemo(
+    () => searchParams.get("tag")?.split(","),
+    [searchParams]
+  );
+
+  const whereOptions = useMemo(
     () =>
-      setWhere(text, {
+      setWhere<CharaType>(text, {
         text: {
           key: ["name", "id", "overview", "description", "honorific"],
         },
@@ -98,6 +106,18 @@ function CharaListPage() {
       }),
     [text]
   );
+  const { orderBy } = whereOptions;
+  const wheres = [whereOptions.where];
+  if (tags) {
+    wheres.push({
+      AND: tags.map((tag) => ({
+        tags: {
+          contains: tag,
+        },
+      })),
+    });
+  }
+  const where: findWhereType<CharaType> = { AND: wheres };
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
     const list: OrderByItem<CharaType>[] = [...orderBy];
@@ -301,6 +321,7 @@ const characterSortTags = [
   defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
+  const { charaTags } = useCharaState();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useLocation();
@@ -353,6 +374,15 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
       });
     }
   }
+  const tags = useMemo(() => {
+    const tagsOptions: ContentsTagsOption = {
+      label: "タグ",
+      name: "tags",
+      options: charaTags,
+    };
+    return characterSortTags.concat(tagsOptions);
+  }, [charaTags]);
+
   return (
     <div className="header">
       <input
@@ -381,7 +411,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
           if (searchRef.current) setText(searchRef.current.value);
         }}
       />
-      <ContentsTagsSelect tags={characterSortTags} />
+      <ContentsTagsSelect tags={tags} />
     </div>
   );
 }
