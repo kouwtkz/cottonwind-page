@@ -169,6 +169,7 @@ function CharaListPage() {
               characterSort: orderBySort,
               charaTagsWhere: tagsWhere,
               charaFilters: filters,
+              backUrl: location.href,
             }}
             className="item"
             key={i}
