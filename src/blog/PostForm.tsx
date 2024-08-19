@@ -4,7 +4,7 @@ import {
   usePreviewMode,
 } from "@/components/form/input/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { HotkeyRunEvent } from "@/components/form/event/EventSet";
 import * as z from "zod";
@@ -70,13 +70,6 @@ const schema = z.object({
   attached: z.custom<FileList>().nullish(),
 });
 
-export default function PostForm({ blogEnable }: { blogEnable?: boolean }) {
-  const [searchParams] = useSearchParams();
-  const params = Object.fromEntries(searchParams);
-  const Content = useCallback(() => <Main params={{ ...params }} />, [params]);
-  return <Content />;
-}
-
 function dateJISOfromLocaltime(item?: string) {
   return item ? new Date(`${item}+09:00`).toISOString() : "";
 }
@@ -86,11 +79,14 @@ function dateJISOfromDate(date?: Date | null) {
   );
 }
 
-function Main({ params }: { params: { [k: string]: string | undefined } }) {
+export function PostForm() {
+  const [searchParams] = useSearchParams();
+  const Location = useLocation();
   const { posts, Reload, url } = usePostState();
   const nav = useNavigate();
-  const duplicationMode = Boolean(params.base);
-  const targetPostId = params.target || params.base;
+  const base = searchParams.get("base");
+  const duplicationMode = Boolean(base);
+  const targetPostId = searchParams.get("target") || base;
   const postsUpdate = useRef(false);
   postsUpdate.current = posts.length > 0;
   const postTarget = targetPostId
@@ -165,7 +161,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
   });
 
   useEffect(() => {
-    if ("draft" in params) {
+    if (Location.state?.draft) {
       const draft = getLocalDraft() || {};
       reset({ ...defaultValues, ...draft, date: dateJISOfromDate(draft.date) });
       setCategoryList((c) => {
@@ -182,18 +178,18 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
     } else {
       reset(defaultValues);
     }
-  }, [reset, defaultValues, params]);
+  }, [reset, defaultValues, Location.state]);
 
-  const saveLocalDraft = useCallback(() => {
+  function saveLocalDraft() {
     const values = getValues();
     values.date = dateJISOfromLocaltime(values.date);
     localStorage.setItem(backupStorageKey, JSON.stringify(values));
-  }, [getValues]);
+  }
 
   const refIsSubmitted = useRef(false);
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (isDirty) saveLocalDraft();
+      if (isDirty) event.preventDefault();
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
@@ -202,7 +198,7 @@ function Main({ params }: { params: { [k: string]: string | undefined } }) {
         saveLocalDraft();
       }
     };
-  }, [isDirty, isSubmitted, saveLocalDraft]);
+  }, [isDirty, isSubmitted]);
 
   const onChangePostId = () => {
     const answer = prompt("記事のID名の変更", getValues("postId"));

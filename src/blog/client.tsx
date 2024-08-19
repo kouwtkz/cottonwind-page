@@ -159,13 +159,15 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
   const EditLink = useCallback(
     ({ children = "編集", className }: HTMLAttributes<HTMLElement>) => {
       if (!isLogin) return <></>;
-      const query: { [k: string]: string } = {};
-      if (post?.postId) query.target = post.postId;
-      if (post?.localDraft) query.draft = "";
+      const state: { [k: string]: any } = {};
+      const url = new URL("/blog/post", location.href);
+      if (post?.postId) url.searchParams.set("target", post.postId);
+      if (post?.localDraft) state.draft = true;
       return (
         <Link
           className={className ? String(className) : undefined}
-          to={ToHref({ pathname: "/blog/post", query })}
+          to={url.href}
+          state={state}
         >
           <>{children}</>
         </Link>

@@ -1,3 +1,4 @@
+import { codeToHighlight } from "@/functions/doc/CodeCheck";
 import { SetRegisterReturn } from "../hook/SetRegister";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
 import { useEffect, useRef } from "react";
@@ -43,16 +44,15 @@ export function PostTextarea({
   placeholder,
   className = "",
 }: PostTextareaProps) {
-  const { previewMode, previewBody, togglePreviewMode, setPreviewMode } =
-    usePreviewMode();
-  const firstCheckMode = useRef(true);
+  const { previewMode, previewBody, setPreviewMode } = usePreviewMode();
 
   useEffect(() => {
-    if (firstCheckMode.current) {
-      setPreviewMode({ previewMode: false, previewBody: "" });
-      firstCheckMode.current = false;
-    }
-  });
+    setPreviewMode({ previewMode: false, previewBody: "" });
+  }, []);
+  useEffect(() => {
+    if (previewMode) codeToHighlight();
+  }, [previewMode]);
+
   const bodyClass = (className ? `${className} ` : "") + "";
   return (
     <>
