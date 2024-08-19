@@ -1137,13 +1137,13 @@ form select {
   .item:first-child {
     @for $i from 2 to $grid {
       &:nth-last-child(#{$i}) {
-        $base: 1 - $i;
+        $base: $grid + 1 - $i;
         & {
-          grid-column: #{$grid + $base} / span 2;
+          grid-column: $base / span 2;
         }
         @for $j from 2 through $i {
           ~ *:nth-of-type(#{$j}) {
-            grid-column: #{$grid + $base + ($j - 1) * 2} / span 2;
+            grid-column: #{$base + ($j - 1) * 2} / span 2;
           }
         }
       }
