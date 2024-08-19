@@ -1151,17 +1151,14 @@ form select {
   }
 }
 
-@mixin GridList($baseGrid, $breakSm: null, $breakLg: null) {
+@mixin GridList($baseGrid, $media_width...) {
   display: grid;
   @include GridListOneSize($baseGrid);
-  @if $breakSm {
-    @media (min-width: $breakSm) {
-      @include GridListOneSize($baseGrid + 1);
-    }
-  }
-  @if $breakLg {
-    @media (min-width: $breakLg) {
-      @include GridListOneSize($baseGrid + 2);
+  $i: 0;
+  @each $item in $media_width {
+    $i: $i + 1;
+    @media (min-width: #{$item}) {
+      @include GridListOneSize($baseGrid + $i);
     }
   }
 }
