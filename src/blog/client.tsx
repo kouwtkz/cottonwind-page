@@ -14,10 +14,11 @@ import {
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
-import { useManageState } from "@/state/StateSet";
+import { pageIsCompleteAtom, siteIsFirstAtom, useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { useAtom } from "jotai";
 
 export function BlogPage({
   blogEnable,
@@ -68,6 +69,14 @@ export function PostsPage({
   postId?: string;
 }) {
   const { isSet: postsIsSet } = usePostState();
+  const setIsComplete = useAtom(pageIsCompleteAtom)[1];
+  const [isFirst] = useAtom(siteIsFirstAtom);
+  useEffect(() => {
+    if (isFirst) setIsComplete(false);
+  }, [isFirst]);
+  useEffect(() => {
+    if (isFirst && postsIsSet) setIsComplete(true);
+  }, [postsIsSet, isFirst]);
   const page = Number(p);
   const { posts } = usePostState();
   const take = postId ? undefined : 10;

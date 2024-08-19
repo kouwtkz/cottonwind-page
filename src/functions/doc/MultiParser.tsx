@@ -82,6 +82,8 @@ export function MultiParser({
           switch (v.type) {
             case "tag":
               switch (v.name) {
+                case "code":
+                  break;
                 case "a":
                   if (linkPush) {
                     currentTag = v.name;

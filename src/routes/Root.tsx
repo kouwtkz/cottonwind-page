@@ -1,7 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
-import { ReactNode, useLayoutEffect, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { MetaValues } from "./SetMeta";
@@ -9,6 +9,7 @@ import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
+import hljs from "highlight.js";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -56,6 +57,21 @@ export default function Root() {
       <Base>
         <Outlet />
       </Base>
+      <CodeCheck />
     </>
   );
+}
+
+function CodeCheck() {
+  const location = useLocation();
+  const [isComplete] = useAtom(dataIsCompleteAtom);
+  useEffect(() => {
+    (document.querySelectorAll("code") as NodeListOf<HTMLElement>).forEach(
+      (el) => {
+        console.log(el);
+        hljs.highlightElement(el);
+      }
+    );
+  }, [location, isComplete]);
+  return <></>;
 }

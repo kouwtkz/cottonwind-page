@@ -579,9 +579,10 @@ details {
   }
 }
 
+// @import url("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/default.min.css");
 code {
   display: inline-block;
-  background-color: var(--main-color-grayish);
+  background-color: var(--main-color-dark-grayish);
   color: white;
   border-radius: 16px;
   padding: 1em 1em;
@@ -591,6 +592,31 @@ code {
   box-sizing: border-box;
   width: 99%;
   min-width: unset;
+  &.hljs {
+    .hljs-string {
+      color: var(--main-color-strong)
+    }
+    .hljs-comment {
+      color: var(--main-color-grayish)
+    }
+    .hljs-title, .hljs-keyword {
+      color: var(--main-color);
+    }
+    .hljs-selector-class {
+      color: var(--sub-color-soft);
+    }
+    .hljs-variable, .hljs-number {
+      color: var(--main-color-highlight);
+    }
+    .hljs-selector-pseudo {
+      color: var(--main-color-soft);
+    }
+    &.language-css, &.language-scss {
+      .hljs-attribute {
+        color: var(--sub-color-soft);
+      }
+    }
+  }
 }
 
 .InPageMenu {
