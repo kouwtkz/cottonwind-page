@@ -20,9 +20,10 @@
   --main-color-dark: #8c9f20;
   --main-color-text: #31332b;
   --main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
-  --main-color-dark-grayish: #6d6e5e;
-  --main-color-grayish: #a9a99f;
-  --main-color-light-grayish: #bbbcaf;
+  --main-color-dark-grayish: #525348;;
+  --main-color-grayish: #6d6e5e;
+  --main-color-light-grayish: #a9a99f;
+  --main-color-pale-grayish: #bbbcaf;
   --sub-color: #b99f72;
   --sub-color-soft: #d8bb8a;
   --sub-color-strong: #96815c;
@@ -84,7 +85,7 @@
   --current-text-color: var(--dark-text-color);
   --main-color-pale: var(--main-color-dark);
   --main-color-soft: var(--main-color-deep);
-  --main-color-light-grayish: var(--main-color-dark-grayish);
+  --main-color-pale-grayish: var(--main-color-dark-grayish);
   --background: var(--dark-background-color);
   --lightbox-background-text: var(--dark-background-color);
   --play-background-color: var(--dark-play-background-color);
@@ -322,7 +323,7 @@ body {
     scrollbar-color: var(--main-color-soft) transparent;
   }
   &.scrollLock {
-    scrollbar-color: var(--main-color-light-grayish) transparent;
+    scrollbar-color: var(--main-color-pale-grayish) transparent;
   }
   .window {
     overflow-y: auto;
@@ -571,7 +572,7 @@ details {
     margin: 0.5em auto 0.5em 0.5em;
     background-color: var(--main-color-grayish);
     &:hover {
-      background-color: var(--main-color-light-grayish);
+      background-color: var(--main-color-pale-grayish);
     }
   }
   details {
@@ -597,7 +598,7 @@ code {
       color: var(--main-color-strong)
     }
     .hljs-comment {
-      color: var(--main-color-grayish)
+      color: var(--main-color-light-grayish)
     }
     .hljs-title, .hljs-keyword {
       color: var(--main-color);
@@ -1222,7 +1223,7 @@ form select {
         max-width: 95%;
         width: 100%;
         &.noimage {
-          background-color: var(--main-color-light-grayish);
+          background-color: var(--main-color-pale-grayish);
         }
       }
       .name {
@@ -1836,7 +1837,7 @@ select.YearFilter {
       }
 
       .grayRight {
-        color: var(--main-color-grayish);
+        color: var(--main-color-light-grayish);
         text-align: right;
         margin-top: 1rem;
         & > * {
@@ -2086,7 +2087,7 @@ ul {
     color: var(--main-color-dark-grayish);
     cursor: pointer;
     margin-left: 0.5rem;
-    text-decoration: underline var(--main-color-grayish);
+    text-decoration: underline var(--main-color-light-grayish);
   }
   @media (min-width: $tabletWidth) {
     ul li {
@@ -2282,7 +2283,7 @@ body.workers {
       }
       a.status {
         &:hover {
-          color: var(--main-color-grayish);
+          color: var(--main-color-light-grayish);
         }
       }
     }

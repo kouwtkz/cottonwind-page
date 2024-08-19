@@ -1,9 +1,19 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
-import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useAtom } from "jotai";
-import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
+import {
+  StateSet,
+  dataIsCompleteAtom,
+  pageIsCompleteAtom,
+} from "@/state/StateSet";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
@@ -64,13 +74,20 @@ export default function Root() {
 
 function CodeCheck() {
   const location = useLocation();
-  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const [dataIsComplete] = useAtom(dataIsCompleteAtom);
+  const [pageIsComplete] = useAtom(pageIsCompleteAtom);
+  const isComplete = useMemo(
+    () => dataIsComplete && pageIsComplete,
+    [dataIsComplete, pageIsComplete]
+  );
   useEffect(() => {
-    (document.querySelectorAll("code") as NodeListOf<HTMLElement>).forEach(
-      (el) => {
-        hljs.highlightElement(el);
-      }
-    );
+    if (isComplete) {
+      (document.querySelectorAll("code") as NodeListOf<HTMLElement>).forEach(
+        (el) => {
+          hljs.highlightElement(el);
+        }
+      );
+    }
   }, [location, isComplete]);
   return <></>;
 }

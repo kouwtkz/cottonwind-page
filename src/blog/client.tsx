@@ -4,17 +4,11 @@ import { findMany } from "@/functions/findMany";
 import getPosts from "./getPosts";
 import PostsPageFixed, { PostDetailFixed } from "@/blog/fixed";
 import { getLocalDraft, useLocalDraftPost } from "./PostForm";
-import {
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import { HTMLAttributes, useCallback, useEffect, useMemo } from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
-import { pageIsCompleteAtom, siteIsFirstAtom, useManageState } from "@/state/StateSet";
+import { pageIsCompleteAtom, useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
@@ -70,13 +64,10 @@ export function PostsPage({
 }) {
   const { isSet: postsIsSet } = usePostState();
   const setIsComplete = useAtom(pageIsCompleteAtom)[1];
-  const [isFirst] = useAtom(siteIsFirstAtom);
   useEffect(() => {
-    if (isFirst) setIsComplete(false);
-  }, [isFirst]);
-  useEffect(() => {
-    if (isFirst && postsIsSet) setIsComplete(true);
-  }, [postsIsSet, isFirst]);
+    if (postsIsSet) setIsComplete(true);
+    else setIsComplete(false);
+  }, [postsIsSet]);
   const page = Number(p);
   const { posts } = usePostState();
   const take = postId ? undefined : 10;
