@@ -1135,42 +1135,16 @@ form select {
     }
   }
   .item:first-child {
-    @if $grid > 2 {
-      &:nth-last-child(2) {
+    @for $i from 2 to $grid {
+      &:nth-last-child(#{$i}) {
+        $base: 1 - $i;
         & {
-          grid-column: #{$grid - 1} / span 2;
+          grid-column: #{$grid + $base} / span 2;
         }
-        ~ *:nth-of-type(2) {
-          grid-column: #{$grid + 1} / span 2;
-        }
-      }
-    }
-    @if $grid > 3 {
-      &:nth-last-child(3) {
-        & {
-          grid-column: #{$grid - 2} / span 2;
-        }
-        ~ *:nth-of-type(2) {
-          grid-column: #{$grid} / span 2;
-        }
-        ~ *:nth-of-type(3) {
-          grid-column: #{$grid + 2} / span 2;
-        }
-      }
-    }
-    @if $grid > 4 {
-      &:nth-last-child(4) {
-        & {
-          grid-column: #{$grid - 3} / span 2;
-        }
-        ~ *:nth-of-type(2) {
-          grid-column: #{$grid - 1} / span 2;
-        }
-        ~ *:nth-of-type(3) {
-          grid-column: #{$grid + 1} / span 2;
-        }
-        ~ *:nth-of-type(4) {
-          grid-column: #{$grid + 3} / span 2;
+        @for $j from 2 through $i {
+          ~ *:nth-of-type(#{$j}) {
+            grid-column: #{$grid + $base + ($j - 1) * 2} / span 2;
+          }
         }
       }
     }
