@@ -68,7 +68,6 @@ function CodeCheck() {
   useEffect(() => {
     (document.querySelectorAll("code") as NodeListOf<HTMLElement>).forEach(
       (el) => {
-        console.log(el);
         hljs.highlightElement(el);
       }
     );
