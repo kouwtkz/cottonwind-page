@@ -1,25 +1,15 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
-import {
-  ReactNode,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
-import {
-  StateSet,
-  dataIsCompleteAtom,
-  pageIsCompleteAtom,
-} from "@/state/StateSet";
+import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
-import hljs from "highlight.js";
+import { CodeCheck } from "@/functions/doc/CodeCheck";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -70,24 +60,4 @@ export default function Root() {
       <CodeCheck />
     </>
   );
-}
-
-function CodeCheck() {
-  const location = useLocation();
-  const [dataIsComplete] = useAtom(dataIsCompleteAtom);
-  const [pageIsComplete] = useAtom(pageIsCompleteAtom);
-  const isComplete = useMemo(
-    () => dataIsComplete && pageIsComplete,
-    [dataIsComplete, pageIsComplete]
-  );
-  useEffect(() => {
-    if (isComplete) {
-      (document.querySelectorAll("code") as NodeListOf<HTMLElement>).forEach(
-        (el) => {
-          hljs.highlightElement(el);
-        }
-      );
-    }
-  }, [location, isComplete]);
-  return <></>;
 }
