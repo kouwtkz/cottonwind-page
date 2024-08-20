@@ -10,18 +10,28 @@ export interface InsertElementProps extends HTMLAttributes<Element> {
   isOpen: boolean;
 }
 
-interface DropdownObjectProps {
+export type MenuButtonType =
+  | ((args: InsertElementProps) => JSX.Element)
+  | ReactNode;
+
+export interface DropdownObjectBaseProps {
   className?: string;
-  MenuButton?: ((args: InsertElementProps) => JSX.Element) | ReactNode;
+  MenuButton?: MenuButtonType;
+  MenuButtonTitle?: string;
   MenuButtonClassName?: string;
+  autoClose?: boolean;
+}
+
+interface DropdownObjectProps extends DropdownObjectBaseProps {
   children?: ReactNode;
   onClick?: (e: HTMLElement) => void;
   onClickFadeOutTime?: number;
-  autoClose?: boolean;
 }
+
 export function DropdownObject({
   className,
   MenuButton,
+  MenuButtonTitle,
   MenuButtonClassName,
   children,
   onClick,
@@ -68,6 +78,7 @@ export function DropdownObject({
         <button
           className={MenuButtonClassName}
           type="button"
+          title={MenuButtonTitle}
           onClick={toggleIsOpen}
         >
           {MenuButton}

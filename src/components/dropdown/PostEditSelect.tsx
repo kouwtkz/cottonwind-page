@@ -1,7 +1,7 @@
 import { HTMLAttributes, useRef } from "react";
-import { DropdownObject } from "./DropdownMenu";
+import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
 
-interface PostEditSelectBaseProps {
+interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
 }
 
@@ -46,8 +46,6 @@ export function replacePostTextarea({
 
 interface PostEditSelectProps extends PostEditSelectBaseProps {
   hidden?: boolean;
-  icon?: boolean;
-  iconOnly?: boolean;
 }
 
 export interface MenuItemProps extends HTMLAttributes<HTMLDivElement> {
@@ -56,11 +54,21 @@ export interface MenuItemProps extends HTMLAttributes<HTMLDivElement> {
 export function MenuItem({ value, ...args }: MenuItemProps) {
   return <div tabIndex={0} data-value={value} {...args} />;
 }
-export function PostEditSelectInsert({ textarea }: PostEditSelectProps) {
+export function PostEditSelectInsert({
+  textarea,
+  className,
+  MenuButton = "追加",
+  MenuButtonTitle = "追加",
+  MenuButtonClassName,
+  autoClose,
+}: PostEditSelectProps) {
   return (
     <DropdownObject
-      MenuButton={"追加"}
-      MenuButtonClassName=""
+      className={className}
+      MenuButton={MenuButton}
+      MenuButtonTitle={MenuButtonTitle}
+      MenuButtonClassName={MenuButtonClassName}
+      autoClose={autoClose}
       onClick={(e) => {
         setPostInsert({
           value: e.dataset.value ?? "",
@@ -119,7 +127,14 @@ export function setPostInsert({
   }
 }
 
-export function PostEditSelectDecoration({ textarea }: PostEditSelectProps) {
+export function PostEditSelectDecoration({
+  textarea,
+  className,
+  MenuButton = "装飾",
+  MenuButtonTitle = "装飾",
+  MenuButtonClassName,
+  autoClose,
+}: PostEditSelectProps) {
   const colorChangerRef = useRef<HTMLInputElement>(null);
   return (
     <>
@@ -135,8 +150,11 @@ export function PostEditSelectDecoration({ textarea }: PostEditSelectProps) {
         }}
       />
       <DropdownObject
-        MenuButton={"装飾"}
-        MenuButtonClassName=""
+        className={className}
+        MenuButton={MenuButton}
+        MenuButtonTitle={MenuButtonTitle}
+        MenuButtonClassName={MenuButtonClassName}
+        autoClose={autoClose}
         onClick={(e) => {
           setDecoration({
             value: e.dataset.value ?? "",
@@ -206,14 +224,21 @@ interface PostEditSelectMediaProps extends PostEditSelectProps {
 
 export function PostEditSelectMedia({
   textarea,
+  className,
+  MenuButton = "メディア",
+  MenuButtonTitle = "メディア",
+  MenuButtonClassName,
   enableAttatch = false,
   inputAttached,
-  hidden,
+  autoClose,
 }: PostEditSelectMediaProps) {
   return (
     <DropdownObject
-      MenuButton={"メディア"}
-      MenuButtonClassName=""
+      className={className}
+      MenuButton={MenuButton}
+      MenuButtonTitle={MenuButtonTitle}
+      MenuButtonClassName={MenuButtonClassName}
+      autoClose={autoClose}
       onClick={(e) => {
         setMedia({
           value: e.dataset.value ?? "",
