@@ -11,7 +11,7 @@ import { ToHref } from "@/functions/doc/MakeURL";
 import { pageIsCompleteAtom, useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { useAtom } from "jotai";
 
 export function BlogPage({

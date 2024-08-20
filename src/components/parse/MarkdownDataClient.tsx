@@ -1,4 +1,4 @@
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia } from "./MultiParserWithMedia";
 import { useMarkdownDataState } from "./MarkdownDataState";
 
 export function MdClientNode({

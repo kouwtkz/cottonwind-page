@@ -34,12 +34,12 @@ import { callReactSelectTheme } from "@/theme/main";
 import {
   PostTextarea,
   usePreviewMode,
-} from "@/components/form/input/PostTextarea";
+} from "@/components/parse/PostTextarea";
 import { useCharaState } from "@/state/CharaState";
 import { AutoImageItemType } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
-import SetRegister from "@/components/form/hook/SetRegister";
+import SetRegister from "@/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
   PostEditSelectInsert,

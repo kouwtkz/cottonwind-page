@@ -11,7 +11,7 @@ import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { useImageState } from "@/state/ImageState";
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import CharaEditForm, {
   CharaEditButton,
   SortableObject,

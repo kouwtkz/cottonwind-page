@@ -13,7 +13,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { ImageMee } from "@/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";

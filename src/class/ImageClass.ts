@@ -7,7 +7,7 @@ import {
 import { Element as NodeElement } from "domhandler";
 import { GetUrlFlag, MakeURL } from "@/functions/doc/MakeURL";
 import { GetImageItemFromSrc } from "@/layout/ImageMee";
-import { MultiParserReplaceProps } from "@/functions/doc/MultiParser";
+import { MultiParserReplaceProps } from "@/components/parse/MultiParser";
 const defaultUrl = "/json/images.json" + buildAddVer;
 
 export class ImageClass {

@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PostTextarea,
   usePreviewMode,
-} from "@/components/form/input/PostTextarea";
+} from "@/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { HotkeyRunEvent } from "@/components/form/event/EventSet";
+import { HotkeyRunEvent } from "@/components/hook/EventSet";
 import * as z from "zod";
 import {
   Controller,
@@ -15,7 +15,7 @@ import {
   useForm,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import SetRegister from "@/components/form/hook/SetRegister";
+import SetRegister from "@/components/hook/SetRegister";
 import axios from "axios";
 import PostState, { usePostState } from "@/blog/PostState";
 import { findMany } from "@/functions/findMany";

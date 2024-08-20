@@ -1,6 +1,7 @@
-import { codeToHighlight } from "@/functions/doc/CodeCheck";
+import React from "react";
+import { codeToHighlight } from "./CodeCheck";
 import { SetRegisterReturn } from "../hook/SetRegister";
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia as MultiParser } from "./MultiParserWithMedia";
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 
@@ -69,7 +70,7 @@ export function PostTextarea({
           bodyClass + "preview-area " + (previewMode ? "block" : "hidden")
         }
       >
-        <MultiParserWithMedia>{previewBody}</MultiParserWithMedia>
+        <MultiParser>{previewBody}</MultiParser>
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 import { HTMLAttributes, memo, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import axios from "axios";
-import { MultiParserWithMedia } from "@/functions/doc/MultiParserWithMedia";
+import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 
 type EmbedStateType = {
   list: string[];

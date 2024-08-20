@@ -38,16 +38,6 @@ export function StateSet() {
   );
 }
 
-function DataStateSet() {
-  return (
-    <>
-      {/* <ImageState /> */}
-      <ImageState />
-      <FeedState />
-    </>
-  );
-}
-
 const loadingCheckID = "Element_DateState_Loading_NotEnd";
 const reloadFunction =
   process.env.NODE_ENV === "development"
@@ -106,7 +96,9 @@ function DataState() {
           <div id={loadingCheckID} />
         </>
       ) : null}
-      <DataStateSet />
+      {/* <ImageState /> */}
+      <ImageState />
+      <FeedState />
     </>
   );
 }

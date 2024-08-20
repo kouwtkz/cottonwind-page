@@ -9,7 +9,7 @@ import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
-import { CodeCheck } from "@/functions/doc/CodeCheck";
+import { CodeCheck } from "@/components/parse/CodeCheck";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
