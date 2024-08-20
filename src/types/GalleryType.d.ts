@@ -1,7 +1,3 @@
-interface SearchAreaOptionsProps {
-  submitPreventScrollReset?: boolean;
-}
-
 interface GalleryListPropsBase {
   size?: number;
   h2?: string;

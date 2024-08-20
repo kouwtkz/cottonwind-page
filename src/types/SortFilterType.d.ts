@@ -1,0 +1,3 @@
+interface SearchAreaOptionsProps {
+  submitPreventScrollReset?: boolean;
+}
