@@ -6,7 +6,7 @@ import { useSoundState } from "./SoundState";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { buildAddVer } from "../data/env";
 import { useAtom } from "jotai";
-import { pageIsCompleteAtom, siteIsFirstAtom } from "./StateSet";
+import { pageIsCompleteAtom, siteIsFirstAtom } from "./DataState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 const defaultUrl = "/json/characters.json" + buildAddVer;
 

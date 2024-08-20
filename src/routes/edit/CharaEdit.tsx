@@ -12,7 +12,7 @@ import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/StateSet";
+import { dataIsCompleteAtom } from "@/state/DataState";
 import { MdAdd, MdClose, MdDoneOutline, MdEditNote } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";

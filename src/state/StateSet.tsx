@@ -1,14 +1,14 @@
+import { DataState } from "./DataState";
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 import { create } from "zustand";
 import { ThemeStateClass } from "./ThemeSetter";
-import { FeedState, useFeedState } from "@/state/FeedState";
+import { FeedState, useFeedState } from "./FeedState";
 import { useCookies } from "react-cookie";
-import { atom, useAtom } from "jotai";
 
 export const ThemeState = new ThemeStateClass("theme", [
   "theme-orange",
@@ -20,12 +20,16 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
+  const isSetList = [useFeedState().isSet, useImageState().imageObject.isSet];
   return (
     <>
       <SoundPlayer />
       <ImageViewer />
       <Toaster />
-      <DataState />
+      <DataState isSetList={isSetList}>
+        <ImageState />
+        <FeedState />
+      </DataState>
       <ManageState />
       {ThemeState.State()}
       {DarkThemeState.State()}
@@ -34,71 +38,6 @@ export function StateSet() {
           <EmbedState />
         </>
       ) : null}
-    </>
-  );
-}
-
-const loadingCheckID = "Element_DateState_Loading_NotEnd";
-const reloadFunction =
-  process.env.NODE_ENV === "development"
-    ? `setTimeout(() => {if (document.getElementById("${loadingCheckID}")) location.reload()}, 5000)`
-    : "";
-
-export const siteIsFirstAtom = atom(true);
-export const dataIsCompleteAtom = atom(false);
-export const pageIsCompleteAtom = atom(true);
-
-function DataState() {
-  const fScrollY = useRef(window.scrollY);
-  const [isFirst, setIsFirst] = useAtom(siteIsFirstAtom);
-  const [dataIsComplete, setIsComplete] = useAtom(dataIsCompleteAtom);
-  const [pageIsComplete, setPageIsComplete] = useAtom(pageIsCompleteAtom);
-  const isComplete = useMemo(
-    () => dataIsComplete && pageIsComplete,
-    [dataIsComplete, pageIsComplete]
-  );
-  const isCompleteRef = useRef(false);
-  const isSetList = [useFeedState().isSet, useImageState().imageObject.isSet];
-  const comp = useMemo(() => isSetList.every((v) => v), [isSetList]);
-  useEffect(() => {
-    if (comp !== dataIsComplete) setIsComplete(comp);
-  }, [comp, dataIsComplete]);
-  useEffect(() => {
-    isCompleteRef.current = isComplete;
-  }, [isComplete]);
-  useEffect(() => {
-    document.body.classList.remove("dummy");
-    setTimeout(() => {
-      if (!isCompleteRef.current) {
-        setIsComplete(true);
-        setPageIsComplete(true);
-      }
-    }, 5000);
-  }, []);
-  useEffect(() => {
-    if (isComplete) {
-      document.body.classList.remove("loading");
-    } else {
-      document.body.classList.add("loading");
-    }
-  }, [isComplete]);
-  useEffect(() => {
-    if (isFirst && isComplete) {
-      scrollTo({ top: fScrollY.current });
-      setIsFirst(false);
-    }
-  }, [isComplete, isFirst]);
-  return (
-    <>
-      {isComplete ? null : isFirst && reloadFunction ? (
-        <>
-          <script dangerouslySetInnerHTML={{ __html: reloadFunction }} />
-          <div id={loadingCheckID} />
-        </>
-      ) : null}
-      {/* <ImageState /> */}
-      <ImageState />
-      <FeedState />
     </>
   );
 }

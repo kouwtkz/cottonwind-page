@@ -101,22 +101,14 @@ interface PostButtonProps extends HTMLAttributes<HTMLButtonElement> {
   postId?: string;
 }
 
-export function PostButton({
-  postId,
-  className,
-  ...args
-}: PostButtonProps) {
+export function PostButton({ postId, className, ...args }: PostButtonProps) {
   className = className ? ` ${className}` : "";
   const nav = useNavigate();
   const link = `/blog/post${postId ? `?target=${postId}` : ""}`;
   useHotkeys("n", () => nav(link));
   return (
     <button {...args} className={"round" + className} onClick={() => nav(link)}>
-      {postId ? (
-        <TfiWrite className="svg" />
-      ) : (
-        <AiFillEdit className="svg" />
-      )}
+      {postId ? <TfiWrite className="svg" /> : <AiFillEdit className="svg" />}
     </button>
   );
 }
@@ -125,11 +117,7 @@ interface PagingAreaProps extends HTMLAttributes<HTMLFormElement> {
   max?: number;
 }
 
-export function PagingArea({
-  max,
-  className,
-  ...args
-}: PagingAreaProps) {
+export function PagingArea({ max, className, ...args }: PagingAreaProps) {
   className = className ? ` ${className}` : "";
   const _min = 1;
   const _max = max || 1;

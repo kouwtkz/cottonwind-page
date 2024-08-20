@@ -9,7 +9,7 @@ import {
 import { useImageState } from "@/state/ImageState";
 import SiteConfigList from "@/data/config.list";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/StateSet";
+import { dataIsCompleteAtom } from "@/state/DataState";
 import React, {
   HTMLAttributes,
   ReactNode,

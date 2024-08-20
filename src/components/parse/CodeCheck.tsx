@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 import { useLocation } from "react-router-dom";
-import { dataIsCompleteAtom, pageIsCompleteAtom } from "@/state/StateSet";
+import { dataIsCompleteAtom, pageIsCompleteAtom } from "@/state/DataState";
 import hljs from "highlight.js";
 
 export function codeToHighlight(selector = "code") {

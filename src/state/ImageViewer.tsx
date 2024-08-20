@@ -35,9 +35,9 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { CharaState, useCharaState } from "@/state/CharaState";
-import { useImageState } from "@/state/ImageState";
-import { dataIsCompleteAtom } from "./StateSet";
+import { CharaState, useCharaState } from "./CharaState";
+import { useImageState } from "./ImageState";
+import { dataIsCompleteAtom } from "./DataState";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";

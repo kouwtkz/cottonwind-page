@@ -3,12 +3,13 @@ import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
+import { dataIsCompleteAtom } from "@/state/DataState";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
+import { StateSet } from "@/state/StateSet";
 import { CodeCheck } from "@/components/parse/CodeCheck";
 
 function SetTitle() {
@@ -39,7 +40,6 @@ export function Base({ children }: { children?: ReactNode }) {
         <Footer />
       </div>
       <div id="audio_background" />
-      <StateSet />
     </>
   );
 }
@@ -57,6 +57,7 @@ export default function Root() {
       <Base>
         <Outlet />
       </Base>
+      <StateSet />
       <CodeCheck />
     </>
   );

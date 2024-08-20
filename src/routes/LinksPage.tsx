@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/StateSet";
+import { dataIsCompleteAtom } from "@/state/DataState";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import SiteConfigList from "@/data/config.list";
 import { LinksStateClass } from "@/state/LinksState";
