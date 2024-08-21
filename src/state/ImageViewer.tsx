@@ -42,15 +42,7 @@ import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
-
-const html = typeof window === "object" ? document.querySelector("html") : null;
-const scrollLock = (m: boolean) => {
-  if (m) {
-    html?.classList.add("scrollLock");
-  } else {
-    html?.classList.remove("scrollLock");
-  }
-};
+import { scrollLock } from "@/components/hook/ScrollLock";
 
 type ImageViewerType = {
   image: MediaImageItemType | null;
