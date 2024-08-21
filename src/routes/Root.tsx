@@ -32,8 +32,16 @@ function SetTitle() {
 }
 
 export function Base({ children }: { children?: ReactNode }) {
+  useLayoutEffect(() => {
+    if (isMobile) {
+      document.body.classList.add("mobile");
+    }
+  }, []);
   return (
     <>
+      <ScrollRestoration />
+      <StateSet />
+      <CodeCheck />
       <Header />
       <div className="content-base">
         <div className="content-parent">{children}</div>
@@ -45,20 +53,12 @@ export function Base({ children }: { children?: ReactNode }) {
 }
 
 export default function Root() {
-  useLayoutEffect(() => {
-    if (isMobile) {
-      document.body.classList.add("mobile");
-    }
-  });
   return (
     <>
-      <ScrollRestoration />
       <SetTitle />
       <Base>
         <Outlet />
       </Base>
-      <StateSet />
-      <CodeCheck />
     </>
   );
 }
