@@ -50,9 +50,6 @@ export function PostTextarea({
   useEffect(() => {
     setPreviewMode({ previewMode: false, previewBody: "" });
   }, []);
-  useEffect(() => {
-    if (previewMode) codeToHighlight();
-  }, [previewMode]);
   return (
     <>
       <textarea
