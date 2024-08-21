@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import HTMLReactParser, {
   HTMLReactParserOptions,
   htmlToDOM,
@@ -9,11 +9,8 @@ import {
   Text as NodeText,
 } from "domhandler";
 import { parse } from "marked";
-import {
-  createSearchParams,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
+import hljs from "highlight.js";
 
 export interface MultiParserOptions {
   markdown?: boolean;
@@ -60,7 +57,8 @@ export function MultiParser({
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
-  const setSearchParams = useSearchParams()[1];
+  const ref = useRef<HTMLElement>(null);
+  const existCode = useRef(false);
   if (only) {
     markdown = only.markdown ?? false;
     toDom = only.toDom ?? false;
@@ -68,21 +66,39 @@ export function MultiParser({
     hashtag = only.hashtag ?? false;
     detailsClosable = only.detailsClosable ?? false;
   }
-  if (typeof children === "string") {
-    let childString = children;
-    if (markdown) childString = parse(childString, { async: false }) as string;
-    if (toDom) {
+  useEffect(() => {
+    if (existCode.current) {
+      (
+        ref.current?.querySelectorAll(
+          `code[parsed]:not([data-highlighted])`
+        ) as NodeListOf<HTMLElement>
+      ).forEach((el) => {
+        hljs.highlightElement(el);
+      });
+      existCode.current = false;
+    }
+  }, [children]);
+  const childString = useMemo(() => {
+    let childString = typeof children === "string" ? children : "";
+    childString =
+      childString && markdown
+        ? (parse(childString, { async: false }) as string)
+        : "";
+    return childString;
+  }, [children, markdown]);
+  const ReactParserArgs = { trim, htmlparser2, library, transform };
+  const parsedChildren = useMemo((): React.ReactNode => {
+    if (childString && toDom) {
       let currentTag = "";
-      children = HTMLReactParser(childString, {
-        trim,
-        htmlparser2,
-        library,
-        transform,
+      return HTMLReactParser(childString, {
+        ...ReactParserArgs,
         replace: (v) => {
           switch (v.type) {
             case "tag":
               switch (v.name) {
                 case "code":
+                  v.attribs["parsed"] = "";
+                  existCode.current = true;
                   break;
                 case "a":
                   if (linkPush) {
@@ -96,21 +112,17 @@ export function MultiParser({
                           "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
                       v.attribs.onClick = ((e: any) => {
-                        const queryFlag = url.startsWith("?");
-                        let query = queryFlag
+                        const Url = new URL(url, location.href);
+                        let query = Url.search
                           ? Object.fromEntries(new URLSearchParams(url))
                           : {};
-                        if (queryFlag) {
-                          const scroll = query.scroll === "true";
-                          if (query.scroll) delete query.scroll;
-                          query = {
-                            ...Object.fromEntries(
-                              new URLSearchParams(location.search)
-                            ),
-                            ...query,
-                          };
+                        if (Url.search) {
+                          const scroll =
+                            Url.searchParams.get("scroll") === "true";
+                          Url.searchParams.delete("scroll");
+                          Url.searchParams.delete("p");
                           if (query.p) delete query.p;
-                          setSearchParams(query, {
+                          nav(Url.href, {
                             preventScrollReset: !scroll,
                           });
                         } else {
@@ -151,7 +163,9 @@ export function MultiParser({
                         const replaced = n.data.replace(
                           /(^|\s?)(#[^\s#]+)/g,
                           (m, m1, m2) => {
-                            const searchParams = createSearchParams({ q: m2 });
+                            const searchParams = createSearchParams({
+                              q: m2,
+                            });
                             return `${m1}<a href="?${searchParams.toString()}" class="hashtag">${m2}</a>`;
                           }
                         );
@@ -173,8 +187,17 @@ export function MultiParser({
           if (replace) replace(v, 0);
         },
       });
-    } else children = childString;
-  }
+    } else return children;
+  }, [
+    children,
+    childString,
+    toDom,
+    ReactParserArgs,
+    linkPush,
+    hashtag,
+    detailsOpen,
+    detailsClosable,
+  ]);
   className = (className ? `${className} ` : "") + parsedClassName;
-  return React.createElement(tag, { className }, children);
+  return <>{React.createElement(tag, { className, ref }, parsedChildren)}</>;
 }

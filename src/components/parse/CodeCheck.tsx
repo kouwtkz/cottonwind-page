@@ -9,7 +9,7 @@ interface codeToHighlightProps {
   force?: boolean;
 }
 export function codeToHighlight({
-  selector = "code",
+  selector = "code:not([parsed])",
   force,
 }: codeToHighlightProps = {}) {
   (document.querySelectorAll(selector) as NodeListOf<HTMLElement>).forEach(
