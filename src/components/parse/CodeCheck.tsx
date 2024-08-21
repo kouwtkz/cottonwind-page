@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useAtom } from "jotai";
 import { useLocation } from "react-router-dom";
 import { dataIsCompleteAtom, pageIsCompleteAtom } from "@/state/DataState";
@@ -22,7 +22,17 @@ export function codeToHighlight({
   );
 }
 
-export function CodeCheck() {
+export function Code(
+  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    hljs.highlightElement(ref.current!);
+  }, [props]);
+  return <code {...props} ref={ref} />;
+}
+
+export function WhenRootCodeToHighlight() {
   const location = useLocation();
   const [dataIsComplete] = useAtom(dataIsCompleteAtom);
   const [pageIsComplete] = useAtom(pageIsCompleteAtom);

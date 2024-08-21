@@ -10,7 +10,6 @@ import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
 import { StateSet } from "@/state/StateSet";
-import { CodeCheck } from "@/components/parse/CodeCheck";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -41,7 +40,6 @@ export function Base({ children }: { children?: ReactNode }) {
     <>
       <ScrollRestoration />
       <StateSet />
-      <CodeCheck />
       <Header />
       <div className="content-base">
         <div className="content-parent">{children}</div>
