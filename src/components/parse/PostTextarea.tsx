@@ -1,5 +1,4 @@
 import React from "react";
-import { codeToHighlight } from "./CodeCheck";
 import { SetRegisterReturn } from "../hook/SetRegister";
 import { MultiParserWithMedia as MultiParser } from "./MultiParserWithMedia";
 import { useEffect, useRef } from "react";
