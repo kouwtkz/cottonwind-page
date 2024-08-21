@@ -20,7 +20,7 @@
   --main-color-dark: #8c9f20;
   --main-color-text: #31332b;
   --main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
-  --main-color-dark-grayish: #525348;;
+  --main-color-dark-grayish: #525348;
   --main-color-grayish: #6d6e5e;
   --main-color-light-grayish: #a9a99f;
   --main-color-pale-grayish: #bbbcaf;
@@ -580,7 +580,6 @@ details {
   }
 }
 
-// @import url("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/default.min.css");
 code {
   display: inline-block;
   background-color: var(--main-color-dark-grayish);
@@ -595,10 +594,10 @@ code {
   min-width: unset;
   &.hljs {
     .hljs-string {
-      color: var(--main-color-strong)
+      color: var(--main-color-strong);
     }
     .hljs-comment {
-      color: var(--main-color-light-grayish)
+      color: var(--main-color-light-grayish);
     }
     .hljs-title, .hljs-keyword {
       color: var(--main-color);

@@ -7,7 +7,7 @@ import hljs from "highlight.js";
 export function codeToHighlight(selector = "code") {
   (document.querySelectorAll(selector) as NodeListOf<HTMLElement>).forEach(
     (el) => {
-      hljs.highlightElement(el);
+      if (!el.dataset.highlighted) hljs.highlightElement(el);
     }
   );
 }

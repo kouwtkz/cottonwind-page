@@ -46,15 +46,13 @@ export function PostTextarea({
   className = "",
 }: PostTextareaProps) {
   const { previewMode, previewBody, setPreviewMode } = usePreviewMode();
-
+  const previewRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setPreviewMode({ previewMode: false, previewBody: "" });
   }, []);
   useEffect(() => {
     if (previewMode) codeToHighlight();
   }, [previewMode]);
-
-  const bodyClass = (className ? `${className} ` : "") + "";
   return (
     <>
       <textarea
@@ -63,14 +61,15 @@ export function PostTextarea({
         id={id}
         title={title}
         placeholder={placeholder}
-        className={bodyClass + (previewMode ? "hidden" : "block")}
+        hidden={previewMode}
+        className={className}
       />
       <div
-        className={
-          bodyClass + "preview-area " + (previewMode ? "block" : "hidden")
-        }
+        ref={previewRef}
+        hidden={!previewMode}
+        className={className + (className ? " preview-area" : "")}
       >
-        <MultiParser>{previewBody}</MultiParser>
+        {previewMode ? <MultiParser>{previewBody}</MultiParser> : null}
       </div>
     </>
   );
