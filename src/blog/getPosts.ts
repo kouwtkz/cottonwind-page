@@ -1,4 +1,4 @@
-import { findMany, setWhere } from "@/functions/findMany";
+import { findMee, setWhere } from "@/functions/findMee";
 
 interface getPostsProps {
   posts: Post[];
@@ -31,7 +31,7 @@ export default function getPosts({
   orderBy.push({ date: "desc" });
 
   try {
-    let postsResult: Post[] = findMany({
+    let postsResult: Post[] = findMee({
       list: posts,
       where: {
         AND: wheres,

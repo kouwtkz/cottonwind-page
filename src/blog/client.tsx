@@ -1,6 +1,6 @@
 import PostState, { usePostState } from "@/blog/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { findMany } from "@/functions/findMany";
+import { findMee } from "@/functions/findMee";
 import getPosts from "./getPosts";
 import PostsPageFixed, { PostDetailFixed } from "@/blog/fixed";
 import { getLocalDraft, useLocalDraftPost } from "./PostForm";
@@ -101,7 +101,7 @@ export function PostsPage({
       <div className="article detail">
         <PostDetailFixed postId={postId} posts={postsResult} />
         <OnePost
-          post={findMany({ list: posts, where: { postId }, take: 1 })[0]}
+          post={findMee({ list: posts, where: { postId }, take: 1 })[0]}
           detail={true}
         />
       </div>

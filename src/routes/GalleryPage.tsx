@@ -40,7 +40,7 @@ import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileUpload } from "react-icons/md";
-import { findMany, setWhere } from "@/functions/findMany";
+import { findMee, setWhere } from "@/functions/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
@@ -304,7 +304,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             images,
             tags,
           });
-        images = findMany({ list: [...images], where, orderBy: orderBySort });
+        images = findMee({ list: [...images], where, orderBy: orderBySort });
         return images;
       });
     const yfList = fList.map((images) => {

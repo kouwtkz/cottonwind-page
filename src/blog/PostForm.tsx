@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/hook/SetRegister";
 import axios from "axios";
 import PostState, { usePostState } from "@/blog/PostState";
-import { findMany } from "@/functions/findMany";
+import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
 import { useImageState } from "@/state/ImageState";
 import { callReactSelectTheme } from "@/theme/main";
@@ -90,7 +90,7 @@ export function PostForm() {
   const postsUpdate = useRef(false);
   postsUpdate.current = posts.length > 0;
   const postTarget = targetPostId
-    ? findMany({ list: posts, where: { postId: targetPostId }, take: 1 })[0]
+    ? findMee({ list: posts, where: { postId: targetPostId }, take: 1 })[0]
     : null;
   const updateMode = postTarget && !duplicationMode;
 

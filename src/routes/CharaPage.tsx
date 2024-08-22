@@ -20,7 +20,7 @@ import CharaEditForm, {
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
-import { findMany, setWhere } from "@/functions/findMany";
+import { findMee, setWhere } from "@/functions/findMee";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import {
   ContentsTagsOption,
@@ -150,7 +150,7 @@ function CharaListPage() {
   }, [sortParam, orderBy]);
   const items = useMemo(() => {
     let list = isSet
-      ? findMany({ list: [...charaList], where, orderBy: orderBySort })
+      ? findMee({ list: [...charaList], where, orderBy: orderBySort })
       : [];
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
@@ -204,7 +204,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
       list = [...list];
       const where: findWhereType<CharaType> = {};
       if (charaTagsWhere) where.AND = [charaTagsWhere];
-      list = findMany({ list, orderBy: state.characterSort, where });
+      list = findMee({ list, orderBy: state.characterSort, where });
     }
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;

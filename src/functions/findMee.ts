@@ -1,12 +1,12 @@
 import { AutoAllotDate } from "./DateFunctions";
 
-export function findMany<T>({
+export function findMee<T>({
   list,
   where,
   take,
   orderBy,
   skip = 0,
-}: findManyProps<T>): T[] {
+}: findMeeProps<T>): T[] {
   if (!list) return [];
   orderBy
     ?.reduce((a, c) => {

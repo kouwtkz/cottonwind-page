@@ -13,7 +13,7 @@ type OrderByType = "asc" | "desc";
 type OrderByKeyStr = { [k: string]: OrderByType };
 type OrderByItem<T> = { [K in keyof T]?: OrderByType };
 
-type findManyProps<T> = {
+type findMeeProps<T> = {
   list?: T[],
   where?: findWhereType<T>;
   take?: number,
