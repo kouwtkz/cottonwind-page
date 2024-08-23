@@ -15,6 +15,7 @@ import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/GitlogObject";
 
 import { ServerCommon } from "./server";
+import { app_test } from "./test.dev";
 
 const compactStyles = CompactCode(importStyles);
 
@@ -68,10 +69,7 @@ app.get("/embed/get", async (c) => {
   return c.json(GetEmbed());
 });
 
-app.get("/test", async (c) => {
-  console.log(c.req.header("cf-connecting-ip"));
-  return c.json((c.req.raw as any).cf);
-});
+app.route("/test", app_test);
 
 app.get("/check/:bool", async (c) => {
   const bool = c.req.param().bool;
