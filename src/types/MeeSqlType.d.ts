@@ -30,8 +30,9 @@ interface MeeSqlDeleteProps<T = any> {
 };
 
 type sqliteValueType = "TEXT" | "NUMERIC" | "INTEGER" | "REAL" | "";
+type entryValueType = string | number | boolean | null;
 interface MeeSqlCreateTableEntryItemType {
-  default?: any;
+  default?: entryValueType;
   type?: sqliteValueType;
   primary?: boolean;
   unique?: boolean;
@@ -39,7 +40,7 @@ interface MeeSqlCreateTableEntryItemType {
   createAt?: boolean;
 }
 type MeeSqlCreateTableEntryType<T = any> = {
-  [k in keyof T]: MeeSqlCreateTableEntryItemType
+  [k in keyof T]: MeeSqlCreateTableEntryItemType | entryValueType;
 }
 interface MeeSqlCreateProps<T = any> {
   table: string;

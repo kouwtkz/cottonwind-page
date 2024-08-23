@@ -43,9 +43,9 @@ export class MeeSqlClass<T> {
   async insert<K extends Object>({ table, entry, rawEntry = {} as K }: MeeSqlInsertProps<K>) {
     const entries = Object.entries(entry ?? {});
     const rawEntries = Object.entries(rawEntry);
-    let sql = "INSERT INTO `" + table + "`(" + entries.map((v) => "`" + v[0] + "`")
-      .concat(rawEntries.map((v) => "`" + v[0] + "`")).join(", ") + ")"
-      + ` VALUES(${entries.map(() => "?").concat(rawEntries.map((v) => v[1])).join(", ")})`;
+    const keys = entries.map((v) => "`" + v[0] + "`").concat(rawEntries.map((v) => "`" + v[0] + "`"));
+    const values = entries.map(() => "?").concat(rawEntries.map((v) => v[1]));
+    let sql = "INSERT INTO `" + table + "` " + (keys.length > 0 ? `(${keys.join(", ")}) VALUES (${values.join(", ")})` : "DEFAULT VALUES");
     const stmt = this.db.prepare(sql);
     return stmt.bind(...entries.map((v) => v[1])).run();
   }
@@ -72,7 +72,7 @@ export class MeeSqlClass<T> {
     if (notExists) sql = sql + " IF NOT EXISTS";
     sql = sql + " `" + table + "`("
       + Object.entries(entry).map(([k, _v]) => {
-        const v = _v as MeeSqlCreateTableEntryItemType;
+        const v: MeeSqlCreateTableEntryItemType = (_v && typeof _v === "object") ? _v : { default: _v };
         let sql = "`" + k + "`";
         const defaultTypeof = typeof v.default;
         let fieldType: sqliteValueType | undefined = v.type;

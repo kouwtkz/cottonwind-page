@@ -19,7 +19,7 @@ pathes.forEach((n) => {
     const table = c.req.param("name") ?? defaultTable;
     const db = new MeeSqlD1(c.env.DB);
     await db
-      .createTable({ table, entry: { text: { type: "TEXT" } } })
+      .createTable({ table, entry: { text: "めぇ" } })
       .catch(() => {});
     await db.insert({ table, entry: { text: "mee3" } });
     return c.text("追加しました");
