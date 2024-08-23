@@ -49,7 +49,7 @@ interface PostEditSelectProps extends PostEditSelectBaseProps {
 }
 
 export interface MenuItemProps extends HTMLAttributes<HTMLDivElement> {
-  value: string;
+  value?: string;
 }
 export function MenuItem({ value, ...args }: MenuItemProps) {
   return <div tabIndex={0} data-value={value} {...args} />;
