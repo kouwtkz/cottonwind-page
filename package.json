@@ -13,7 +13,8 @@
     "start": "wrangler pages dev --port 4173",
     "test": "wrangler pages deploy dist --commit-dirty true --branch hono",
     "deploy": "npm run build && npm run deploy-only",
-    "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master"
+    "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master",
+    "dev-start": "run-p dev start"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -64,6 +65,7 @@
     "@types/xmldom": "^0.1.34",
     "buffer": "^6.0.3",
     "clui": "^0.3.6",
+    "npm-run-all": "^4.1.5",
     "sass": "^1.75.0",
     "tsx": "^4.16.2",
     "vite": "^5.2.11",
