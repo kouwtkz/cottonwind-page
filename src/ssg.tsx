@@ -5,16 +5,42 @@ import {
   ServerNotFound,
   ServerSimpleLayout,
 } from "./serverLayout";
-import { RoutingList } from "@/routes/RoutingList";
+import { RoutingList } from "./routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
-import { GitLogObject } from "@/data/functions/GitlogObject";
-import ENV from "../env.toml";
+import { GitLogObject } from "./data/functions/GitlogObject";
+import ENV from "../env.json";
 const { FAVORITE_LINKS } = ENV;
 
 const app = new Hono<MeeBindings>({ strict: true });
 
+app.get("/env.json", async (c) => {
+  return c.json({
+    ORIGIN: c.env.ORIGIN,
+    TITLE: c.env.TITLE,
+    DESCRIPTION: c.env.DESCRIPTION,
+    OVERVIEW: c.env.OVERVIEW,
+    ALTERNATE: c.env.ALTERNATE,
+    AUTHOR_ACCOUNT: c.env.AUTHOR_ACCOUNT,
+    AUTHOR_NAME: c.env.AUTHOR_NAME,
+    AUTHOR_EN_NAME_ON_PROP: c.env.AUTHOR_EN_NAME_ON_PROP,
+    AUTHOR_EN_PROP: c.env.AUTHOR_EN_PROP,
+    AUTHOR_IMAGE: c.env.AUTHOR_IMAGE,
+    SINCE: c.env.SINCE,
+    SITE_IMAGE: c.env.SITE_IMAGE,
+    BUILD_TIME: new Date().toISOString(),
+  } as SiteConfigEnv);
+});
+
 app.get("/404", async (c) => {
-  return c.html(renderToString(<ServerNotFound />), { status: 404 });
+  let rd = "";
+  let err = "";
+  try {
+    rd = renderToString(<ServerNotFound />);
+  } catch (e) {
+    err = String(e);
+    console.log(e);
+  }
+  return c.html(err || rd, { status: 404 });
 });
 
 app.get("/500", async (c) => {
@@ -28,11 +54,8 @@ app.get("/data/favorite_links.json", async (c) => {
 app.get("/suggest", async (c) => {
   return c.html(
     renderToString(
-      <ServerSimpleLayout
-        noindex={true}
-        title={"ていあん | " + import.meta.env.VITE_TITLE}
-      >
-        <SuggestPage />
+      <ServerSimpleLayout noindex={true} title={"ていあん | " + c.env.TITLE}>
+        <SuggestPage env={c.env} />
       </ServerSimpleLayout>
     )
   );
@@ -96,4 +119,5 @@ app.get("_routes.json", (c) => {
   return c.json(json);
 });
 
-export default app;
+const app_ssg = app;
+export default app_ssg;

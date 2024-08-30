@@ -1,4 +1,4 @@
-export default function SuggestPage() {
+export default function SuggestPage({ env }: { env: MeePagesEnv }) {
   return (
     <main className="h1h4Page">
       <h1>SUGGEST</h1>
@@ -18,8 +18,8 @@ export default function SuggestPage() {
           <h2>こっとんうぃんど (cottonwind.com)</h2>
           <h4>
             Portfolio site of artist "
-            {import.meta.env.VITE_AUTHOR_EN_NAME_ON_PROP ||
-              import.meta.env.VITE_AUTHOR_EN_NAME}
+            {env.AUTHOR_EN_NAME_ON_PROP ||
+              env.AUTHOR_EN_NAME}
             ". (This site)
           </h4>
           <div>わたかぜコウのサイトはこちらです！</div>

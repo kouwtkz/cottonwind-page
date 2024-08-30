@@ -1,13 +1,13 @@
 import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
-import { toUpperFirstCase } from "@/functions/doc/StrFunctions.mjs";
+import { toUpperFirstCase } from "../functions/doc/StrFunctions.mjs";
 import {
   autoFixGalleryTagsOptions,
   defaultGalleryTags,
   getTagsOptions,
-} from "@/components/dropdown/SortFilterTags";
-import SiteConfigList from "@/data/config.list";
-import { RoutingUnion } from "@/routes/RoutingList";
+} from "../components/dropdown/SortFilterTags";
+import SiteConfigList from "../data/config.list";
+import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
 
 export interface SetMetaProps {
@@ -18,6 +18,7 @@ export interface SetMetaProps {
   images?: MediaImageItemType[];
   posts?: Post[];
   noindex?: boolean;
+  env?: SiteConfigEnv;
 }
 
 type MetaValuesReturnType = {
@@ -34,8 +35,9 @@ export function MetaValues({
   images,
   posts,
   noindex,
+  env,
 }: SetMetaProps): MetaValuesReturnType {
-  const siteTitle = import.meta.env.VITE_TITLE;
+  const siteTitle = env?.TITLE;
   let title: string | undefined;
   let description: string | undefined;
   let image: string | undefined | null;
@@ -154,7 +156,9 @@ export function MetaValues({
       const charaList = charaListFound
         .slice(0, 2)
         .map((chara) => chara.name + (chara.honorific ?? ""));
-      const tagsOptions = autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags));
+      const tagsOptions = autoFixGalleryTagsOptions(
+        getTagsOptions(defaultGalleryTags)
+      );
       const content = (foundImage.tags ?? []).find((tag) =>
         tagsOptions.some(({ value }) => value === tag)
       );
@@ -197,13 +201,13 @@ export function MetaValues({
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
-  if (!title) title = siteTitle + " - " + import.meta.env.VITE_OVERVIEW;
-  if (!description) description = import.meta.env.VITE_DESCRIPTION;
-  if (!image) image = import.meta.env.VITE_SITE_IMAGE;
+  if (!title) title = siteTitle + " - " + env?.OVERVIEW;
+  if (!description) description = env?.DESCRIPTION ?? "";
+  if (!image) image = env?.SITE_IMAGE;
   return {
     title,
     description,
-    image: import.meta.env.VITE_URL + image,
+    image: (env?.ORIGIN ?? "") + image,
     imageSize,
     noindex,
   };
@@ -225,6 +229,7 @@ export function MetaTags({
   card = "summary_large_image",
   path,
   noindex,
+  env,
 }: MetaTagsProps) {
   let jsonLd: WithContext<WebSite> | undefined;
   switch (path) {
@@ -232,9 +237,9 @@ export function MetaTags({
       jsonLd = {
         "@type": "WebSite",
         "@context": "https://schema.org",
-        url: url || import.meta.env.VITE_URL,
-        name: import.meta.env.VITE_TITLE,
-        alternateName: import.meta.env.VITE_ALTERNATE.split(","),
+        url: url || env?.ORIGIN,
+        name: env?.TITLE,
+        alternateName: env?.ALTERNATE?.split(","),
       };
       break;
   }
@@ -245,9 +250,9 @@ export function MetaTags({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
-      <meta property="og:site_name" content={import.meta.env.VITE_TITLE} />
+      <meta property="og:site_name" content={env?.TITLE} />
       <meta property="og:type" content="website" />
-      <meta property="og:keywords" content={import.meta.env.VITE_ALTERNATE} />
+      <meta property="og:keywords" content={env?.ALTERNATE} />
       <meta property="og:image" content={image} />
       <meta property="og:image:width" content={String(imageSize.w)} />
       <meta property="og:image:height" content={String(imageSize.h)} />

@@ -1,22 +1,30 @@
+import { EnvAtom } from "@/state/EnvState";
 import { ChangeLog } from "@/state/GitState";
+import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 
 export default function AboutPage() {
+  const [env] = useAtom(EnvAtom);
+  console.log(env);
   return (
     <div className="aboutPage">
       <h2 className="lulo">About</h2>
       <h3>プロフィール</h3>
-      <h4>{import.meta.env.VITE_AUTHOR_NAME}</h4>
-      <h5>
-        {import.meta.env.VITE_AUTHOR_EN_NAME_ON_PROP ||
-          import.meta.env.VITE_AUTHOR_EN_NAME}
-      </h5>
-      {import.meta.env.VITE_AUTHOR_IMAGE ? (
-        <img
-          className="authorImage"
-          src={import.meta.env.VITE_AUTHOR_IMAGE}
-          alt="プロフィール画像"
-        />
+      {env ? (
+        <>
+          <h4>{env.AUTHOR_NAME}</h4>
+          <h5>
+            {env.AUTHOR_EN_NAME_ON_PROP ||
+              env.AUTHOR_EN_NAME}
+          </h5>
+          {env.AUTHOR_IMAGE ? (
+            <img
+              className="authorImage"
+              src={env.AUTHOR_IMAGE}
+              alt="プロフィール画像"
+            />
+          ) : null}
+        </>
       ) : null}
       <div>
         <p>わたかぜコウです！</p>

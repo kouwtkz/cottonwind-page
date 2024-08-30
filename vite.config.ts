@@ -1,7 +1,6 @@
 import pages from '@hono/vite-cloudflare-pages'
 import devServer from '@hono/vite-dev-server'
 import adapter from '@hono/vite-dev-server/cloudflare'
-import ssg from '@hono/vite-ssg'
 import { configDotenv } from 'dotenv'
 import { UserConfig, defineConfig } from 'vite'
 import { writeFileSync, statSync } from "fs"
@@ -46,63 +45,63 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: { include: [] },
     plugins: [tsconfigPaths()]
   };
-  if (mode === 'client') {
-    config.build = {
-      rollupOptions: {
-        input: [
-          './src/client.tsx',
-          './src/styles.scss',
-          'src/workers/twix/twixClient.tsx'
-        ],
-        output: {
-          entryFileNames: `static/js/[name].js`,
-          chunkFileNames: `static/js/[name].js`,
-          assetFileNames: (assetInfo) => {
-            const name = assetInfo?.name ?? "";
-            if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
-              return 'static/images/[name].[ext]';
+  switch (mode) {
+    case "client":
+      config.build = {
+        rollupOptions: {
+          input: [
+            './src/client.tsx',
+            './src/styles.scss',
+            'src/workers/twix/twixClient.tsx'
+          ],
+          output: {
+            entryFileNames: `static/js/[name].js`,
+            chunkFileNames: `static/js/[name].js`,
+            assetFileNames: (assetInfo) => {
+              const name = assetInfo?.name ?? "";
+              if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
+                return 'static/images/[name].[ext]';
+              }
+              if (/\.css$/.test(name)) {
+                return 'css/[name].[ext]';
+              }
+              return 'static/[name].[ext]';
             }
-            if (/\.css$/.test(name)) {
-              return 'css/[name].[ext]';
-            }
-            return 'static/[name].[ext]';
           }
-        }
-      },
-      // manifest: true,
-      chunkSizeWarningLimit: 3000
-    }
-  } else {
-    configDotenv();
-    // if (mode === "development") console.log(process)
-    // if (mode === "development") dataUpdateServer();
-    config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
-    config.plugins!.push([
-      pages(),
-      ViteToml(),
-      dataUpdateServerPlugins(),
-      devServer({
-        entry: 'src/index.dev.tsx',
-        adapter,
-        exclude: [
-          // /.*\.css$/,
-          /.*\.ts$/,
-          /.*\.tsx$/,
-          /^\/@.+$/,
-          /\?t\=\d+$/,
-          /^\/favicon\.ico$/,
-          /^\/static\/.+/,
-          /^\/node_modules\/.*/,
-        ],
-      }),
-      ssg({ entry: "./src/ssg.tsx" }),
-      Sitemap({
-        hostname: process.env.VITE_URL,
-        generateRobotsTxt: true,
-        dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
-        exclude: ["/404", "/500", "/suggest"]
-      }),
-    ])
+        },
+        // manifest: true,
+        chunkSizeWarningLimit: 3000
+      }
+      break;
+    default:
+      configDotenv();
+      config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
+      config.plugins!.push([
+        pages(),
+        ViteToml(),
+        dataUpdateServerPlugins(),
+        devServer({
+          entry: 'src/index.dev.tsx',
+          adapter,
+          exclude: [
+            // /.*\.css$/,
+            /.*\.ts$/,
+            /.*\.tsx$/,
+            /^\/@.+$/,
+            /\?t\=\d+$/,
+            /^\/favicon\.ico$/,
+            /^\/static\/.+/,
+            /^\/node_modules\/.*/,
+          ],
+        }),
+        Sitemap({
+          hostname: process.env.VITE_URL,
+          generateRobotsTxt: true,
+          dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
+          exclude: ["/404", "/500", "/suggest"]
+        }),
+      ])
+      break;
   }
   return config;
 })

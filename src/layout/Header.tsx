@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
 import { SiteMenu } from "@/state/SiteMenu";
 import { ImageMee } from "./ImageMee";
+import { useAtom } from "jotai";
+import { EnvAtom } from "@/state/EnvState";
 
 export const SiteTitle = React.memo(function SiteTitle({
   title,
@@ -22,7 +24,10 @@ export const SiteTitle = React.memo(function SiteTitle({
         }}
       >
         <h2>
-          <ImageMee src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2" alt={title} />
+          <ImageMee
+            src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
+            alt={title}
+          />
         </h2>
       </Link>
     </div>
@@ -30,11 +35,12 @@ export const SiteTitle = React.memo(function SiteTitle({
 });
 
 export function Header() {
+  const [env] = useAtom(EnvAtom);
   return (
     <header id="header">
       <div>
         <BackButton className="backButton" />
-        <SiteTitle title={import.meta.env.VITE_TITLE} />
+        <SiteTitle title={env?.TITLE ?? document.title} />
         <SiteMenu />
       </div>
       <div className="headerBackground" />

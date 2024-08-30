@@ -1,14 +1,33 @@
-interface MeeCommonEnv {
+interface SiteConfigEnv {
+  ORIGIN?: string;
+  TITLE?: string;
+  DESCRIPTION?: string;
+  OVERVIEW?: string;
+  ALTERNATE?: string;
+  SITE_IMAGE?: string;
+  SINCE?: number;
+  AUTHOR_ACCOUNT?: string;
+  AUTHOR_NAME?: string;
+  AUTHOR_EN_NAME?: string;
+  AUTHOR_EN_NAME_ON_PROP?: string;
+  AUTHOR_EN_PROP?: string;
+  AUTHOR_IMAGE?: string;
+  BUILD_TIME?: string;
+}
+interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
-  ORIGIN?: string;
   CORS_ORIGIN?: string[];
-  AUTHOR_ACCOUNT?: string;
+  ORIGIN_HOST?: string;
+  PAGES_DEV_ORIGIN?: string;
+  API_ORIGIN?: string;
+  API_WORKERS_ORIGIN?: string;
+  API_LOCAL_ORIGIN?: string;
+  LOCAL_ORIGIN?: string;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {
-  PAGES_DEV_URL?: string;
   AUTHOR_EMAIL?: string;
   DISCORD_INVITE_QUESTION?: string;
   DISCORD_INVITE_ANSWER?: string;

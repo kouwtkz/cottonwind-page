@@ -3,6 +3,7 @@ export default function ContactPage() {
 }
 
 export function GoogleForm() {
+  console.log(import.meta.env.DEV ? "開発めぇめぇ" : "プロダクトめぇめぇ");
   return (
     <>
       {import.meta.env.VITE_CONTACT_FORM_GOOGLE ? (

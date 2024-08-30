@@ -4,10 +4,35 @@ name = "cottonwind-page"
 pages_build_output_dir = "./dist"
 
 [vars]
+ORIGIN = "https://cottonwind.com"
+TITLE = "こっとんうぃんど"
+
+DESCRIPTION = "わたかぜコウ(@kouwtkz)の個人サイト。気まぐれに様々なイラストや作品を載せてます。"
+OVERVIEW = "わたかぜコウの個人サイト"
+
+ALTERNATE = "わたかぜコウ,kouwtkz,わたかぜっこ,わたかぜくん,わたかぜコウの個人サイト,わたかぜコウのポートフォリオサイト"
+
 AUTHOR_ACCOUNT = "kouwtkz"
+AUTHOR_NAME = "わたかぜコウ"
+
+AUTHOR_EN_NAME = "WATAKAZE Kou"
+AUTHOR_EN_NAME_ON_PROP = "WATAKAZE Kou/koʊ/"
+AUTHOR_EN_PROP = "/watakaze koʊ/"
+AUTHOR_IMAGE = "/static/_media/images/art/2024/わたかぜくんの特徴はおおきなおみみ2024.webp"
+
+SINCE = 2017
+SITE_IMAGE = "/static/_media/icons/icon.webp"
+
+ORIGIN_HOST = "cottonwind.com"
+PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
+
+API_ORIGIN = "https://api.cottonwind.com"
+API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
+
+API_LOCAL_ORIGIN = "http://localhost:51731"
+LOCAL_ORIGIN = "http://localhost:51730"
+
 DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名前は？"
-ORIGIN = "cottonwind.com"
-PAGES_DEV_URL = "https://cottonwind.pages.dev/"
 # DISCORD_INVITE_ANSWER = ""
 # DISCORD_INVITE_URL = ""
 

@@ -1,14 +1,19 @@
-import { buildTime } from "@/data/env";
-import { getJSTYear } from "@/data/functions/TimeFunctions";
-import SiteConfigList from "@/data/config.list";
+// import { buildTime } from "../data/env";
+import { getJSTYear } from "../data/functions/TimeFunctions";
+import SiteConfigList from "../data/config.list";
+import { useAtom } from "jotai";
+import { EnvAtom } from "../state/EnvState";
 
 export function Footer() {
+  const [env] = useAtom(EnvAtom);
   return (
     <footer>
-      <div className="copyright">
-        © {import.meta.env.VITE_SINCE}-{getJSTYear(buildTime ?? new Date())}{" "}
-        {import.meta.env.VITE_AUTHOR_ACCOUNT}
-      </div>
+      {env ? (
+        <div className="copyright">
+          © {env.SINCE}-{getJSTYear(new Date())}{" "}
+          {env.AUTHOR_ACCOUNT}
+        </div>
+      ) : null}
       <LinksList myLinks={SiteConfigList.links || []} />
     </footer>
   );

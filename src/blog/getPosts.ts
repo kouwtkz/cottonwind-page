@@ -1,4 +1,4 @@
-import { findMee, setWhere } from "@/functions/findMee";
+import { findMee, setWhere } from "../functions/findMee";
 
 interface getPostsProps {
   posts: Post[];

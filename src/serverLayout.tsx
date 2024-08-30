@@ -1,13 +1,13 @@
-import { Footer, LinksList } from "@/layout/Footer";
-import { Loading } from "@/layout/Loading";
+import { Footer, LinksList } from "./layout/Footer";
+import { Loading } from "./layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import { stylesAddVer } from "./data/env";
+// import { stylesAddVer } from "./data/env";
 import SiteConfigList from "./data/config.list";
 import { renderToString } from "react-dom/server";
 import { Context, Next } from "hono";
-import { getPostsData } from "@/blog/be-functions";
+import { getPostsData } from "./blog/be-functions";
 
 export function SetMetaServerSide(args: SetMetaProps) {
   return <SetMeta {...args} />;
@@ -22,7 +22,13 @@ export function DefaultMeta() {
   );
 }
 
-export function DefaultBody({ after }: { after?: React.ReactNode }) {
+export function DefaultBody({
+  after,
+  env,
+}: {
+  after?: React.ReactNode;
+  env?: SiteConfigEnv;
+}) {
   return (
     <body className="loading dummy">
       <Loading />
@@ -33,7 +39,7 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
               <h2>
                 <img
                   src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
-                  alt={import.meta.env.VITE_TITLE}
+                  alt={env?.TITLE}
                 />
               </h2>
             </a>
@@ -50,7 +56,8 @@ export function DefaultBody({ after }: { after?: React.ReactNode }) {
 
 function judgeJson(r: Response) {
   return (
-    r.status === 200 && r.headers.get("content-type")?.includes("application/json") 
+    r.status === 200 &&
+    r.headers.get("content-type")?.includes("application/json")
   );
 }
 
@@ -113,6 +120,7 @@ export async function ServerLayout({
           images={images}
           posts={posts}
           noindex={noindex}
+          env={c.env}
         />
         {import.meta.env.VITE_RECAPTCHA_SITEKEY ? (
           <script
@@ -132,6 +140,7 @@ export async function ServerLayout({
             {script}
           </>
         }
+        env={c.env}
       />
     </html>
   );
@@ -170,21 +179,23 @@ export async function ReactResponse({
 }
 
 export function ServerSimpleLayout({
-  title = import.meta.env.VITE_TITLE,
+  title,
   noindex,
   children,
+  env,
 }: {
   title?: string;
   noindex?: boolean;
   children?: React.ReactNode;
+  env?: SiteConfigEnv;
 }) {
   return (
     <html lang="ja">
       <head>
         <DefaultMeta />
-        <title>{title}</title>
+        <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
-        <Style href={"/css/styles.css" + stylesAddVer} />
+        <Style href={"/css/styles.css"} />
       </head>
       <body>
         <header id="header">
@@ -193,7 +204,7 @@ export function ServerSimpleLayout({
               <h2>
                 <img
                   src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
-                  alt={import.meta.env.VITE_TITLE}
+                  alt={env?.TITLE}
                 />
               </h2>
             </a>
@@ -208,12 +219,9 @@ export function ServerSimpleLayout({
   );
 }
 
-export function ServerNotFound() {
+export function ServerNotFound({ env }: { env?: SiteConfigEnv }) {
   return (
-    <ServerSimpleLayout
-      title={"404 | " + import.meta.env.VITE_TITLE}
-      noindex={true}
-    >
+    <ServerSimpleLayout title={"404 | " + env?.TITLE} noindex={true}>
       <main className="h1h4Page middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
@@ -223,12 +231,9 @@ export function ServerNotFound() {
   );
 }
 
-export function ServerError() {
+export function ServerError({ env }: { env?: SiteConfigEnv }) {
   return (
-    <ServerSimpleLayout
-      title={"500 | " + import.meta.env.VITE_TITLE}
-      noindex={true}
-    >
+    <ServerSimpleLayout title={"500 | " + env?.TITLE} noindex={true}>
       <main className="h1h4Page middle">
         <h1>500 Internal Server Error</h1>
         <h4>サーバー側でエラーが発生しました</h4>

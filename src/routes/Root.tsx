@@ -10,6 +10,7 @@ import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
 import { StateSet } from "@/state/StateSet";
+import { EnvAtom } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -18,6 +19,7 @@ function SetTitle() {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const { posts } = usePostState();
+  const [env] = useAtom(EnvAtom);
   if (notFirst) {
     document.title = MetaValues({
       path: pathname,
@@ -25,6 +27,7 @@ function SetTitle() {
       characters,
       images,
       posts,
+      env: env ?? { TITLE: document.title },
     })!.title;
   } else if (isComplete) setNotFirst(true);
   return <></>;

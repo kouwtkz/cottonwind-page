@@ -4,14 +4,23 @@ compatibility_date = "2024-08-29"
 main = "src/api/index.ts"
 
 [vars]
+ORIGIN = "https://cottonwind.com"
+
+TITLE = "こっとんうぃんど"
+AUTHOR_ACCOUNT = "kouwtkz"
+
 CORS_ORIGIN = [
   "http://localhost:51730",
   "https://cottonwind.com",
 ]
-ORIGIN = "cottonwind.com"
+ORIGIN_HOST = "cottonwind.com"
+PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 
-AUTHOR_ACCOUNT = "kouwtkz"
-# MY_VAR = "my-variable"
+API_ORIGIN = "https://api.cottonwind.com"
+API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
+
+API_LOCAL_ORIGIN = "http://localhost:51731"
+LOCAL_ORIGIN = "http://localhost:51730"
 
 [[kv_namespaces]]
 binding = "KV"

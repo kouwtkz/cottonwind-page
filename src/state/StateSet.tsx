@@ -9,6 +9,8 @@ import { create } from "zustand";
 import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, useFeedState } from "./FeedState";
 import { useCookies } from "react-cookie";
+import { EnvAtom, EnvState } from "./EnvState";
+import { useAtom } from "jotai";
 
 export const ThemeState = new ThemeStateClass("theme", [
   "theme-orange",
@@ -20,9 +22,14 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
-  const isSetList = [useFeedState().isSet, useImageState().imageObject.isSet];
+  const isSetList = [
+    useFeedState().isSet,
+    useImageState().imageObject.isSet,
+    Boolean(useAtom(EnvAtom)[0]),
+  ];
   return (
     <>
+      <EnvState />
       <SoundPlayer />
       <ImageViewer />
       <Toaster />

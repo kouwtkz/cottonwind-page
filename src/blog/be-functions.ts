@@ -1,7 +1,7 @@
-import { CommonContext } from "@/types/HonoCustomType";
-import GenerateRss from "@/functions/doc/GenerateRss";
+import { CommonContext } from "../types/HonoCustomType";
+import GenerateRss from "../functions/doc/GenerateRss";
 import { parse } from "marked";
-import getPosts from "@/blog/getPosts";
+import getPosts from "../blog/getPosts";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");
@@ -28,7 +28,7 @@ const SITE_URL = "https://cottonwind.com";
 export async function MakeRss(c: CommonContext) {
   return GenerateRss(
     {
-      title: import.meta.env.VITE_TITLE,
+      title: c.env.TITLE ?? "",
       description: import.meta.env.VITE_DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
