@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "dev-api": "wrangler dev --local -c wrangler-api.toml",
+    "dev": "vite --host --port 51730",
+    "dev-api": "wrangler dev --local -c wrangler-api.toml --port 51731",
     "private": "vite",
     "build": "vite build --mode client && vite build",
     "build-worker": "vite build",
@@ -11,11 +11,11 @@
     "update-character": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts character",
     "update-embed": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts embed",
     "update-sound": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts sound",
-    "start": "wrangler pages dev --port 4173",
+    "start": "wrangler pages dev --port 51740",
     "test": "wrangler pages deploy dist --commit-dirty true --branch hono",
     "deploy": "npm run build && npm run deploy-only",
     "deploy-only": "wrangler pages deploy dist --commit-dirty true --branch master --minify",
-    "dev-start": "run-p dev start"
+    "dev-with-api": "run-p dev dev-api"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
