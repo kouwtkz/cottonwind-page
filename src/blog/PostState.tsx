@@ -39,7 +39,7 @@ export default function PostState({ url = defaultUrl }: { url?: string }) {
   const { setPosts, isReload } = usePostState();
   useEffect(() => {
     if (isReload) {
-      axios(url).then((r) => {
+      axios(url, { withCredentials: true }).then((r) => {
         setPosts(r.data, url);
       });
     }

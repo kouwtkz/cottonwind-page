@@ -16,6 +16,7 @@ AUTHOR_ACCOUNT = "kouwtkz"
 [[kv_namespaces]]
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
+preview_id = "baf0b24ce5014aa4b8fcd5a6774bc026"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"

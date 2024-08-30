@@ -215,6 +215,7 @@ export function PostForm() {
       axios
         .delete(import.meta.env.VITE_API_HOST + "/blog/send", {
           data: JSON.stringify({ postId: getValues("postId") }),
+          withCredentials: true,
         })
         .then((r) => {
           toast("削除しました", { duration: 2000 });
@@ -343,7 +344,8 @@ export function PostForm() {
       if (sendEnable) {
         const res = await axios.post(
           import.meta.env.VITE_API_HOST + "/blog/send",
-          formData
+          formData,
+          { withCredentials: true }
         );
         if (res.status === 200) {
           toast(updateMode ? "更新しました" : "投稿しました", {
@@ -605,7 +607,8 @@ export function setOperation({
           axios
             .post(
               import.meta.env.VITE_API_HOST + "/blog/send/all",
-              uploadFileSelector.files[0]
+              uploadFileSelector.files[0],
+              { withCredentials: true }
             )
             .then(() => {
               alert("記事データを上書きしました。");

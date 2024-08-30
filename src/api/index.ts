@@ -5,7 +5,7 @@ import { cors } from 'hono/cors';
 
 app.use("*", (c, next) => {
   const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51730"];
-  return cors({ origin })(c, next)
+  return cors({ origin, credentials: true })(c, next)
 })
 
 app.route("/blog", app_blog_api);

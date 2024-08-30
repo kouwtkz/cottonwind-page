@@ -4,7 +4,8 @@ import { parse } from "marked";
 import getPosts from "@/blog/getPosts";
 
 export async function getPostsData(c: CommonContext) {
-  const rawPosts: Post[] = JSON.parse(await c.env.KV.get("posts") || '[]');
+  const kvPosts = await c.env.KV.get("posts");
+  const rawPosts: Post[] = JSON.parse(kvPosts || '[]');
   const posts = rawPosts.filter(post => post);
   posts.forEach(post => {
     post.date = post.date ? new Date(post.date) : null;
