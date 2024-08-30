@@ -2,7 +2,7 @@ import { Next } from "hono";
 import { CommonContext } from "./types/HonoCustomType";
 import { DOMParser } from "xmldom";
 import xpath from "xpath";
-import { getCookie } from "hono/cookie";
+import { getCookie, setCookie } from "hono/cookie";
 
 export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },

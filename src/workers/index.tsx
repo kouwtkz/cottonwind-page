@@ -26,7 +26,7 @@ app.get("/", async (c) => {
   if (Url.searchParams.has(switchCookieKey)) {
     const cookieMode = Url.searchParams.get(switchCookieKey);
     if (cookieMode === "on") {
-      setCookie(c, cookieKey, "on", { maxAge: 34e6 });
+      setCookie(c, cookieKey, "on", { maxAge: 34e6, domain: c.env.ORIGIN });
     } else if (cookieMode === "off") {
       deleteCookie(c, cookieKey);
     }
@@ -34,7 +34,7 @@ app.get("/", async (c) => {
   }
   const loginToken = getCookie(c, "LoginToken");
   if (loginToken !== c.env?.LOGIN_TOKEN)
-    setCookie(c, "LoginToken", String(c.env?.LOGIN_TOKEN), { maxAge: 32e6 });
+    setCookie(c, "LoginToken", String(c.env?.LOGIN_TOKEN), { maxAge: 32e6, domain: c.env.ORIGIN });
   const cookieValue = getCookie(c, cookieKey);
   return c.html(
     renderToString(

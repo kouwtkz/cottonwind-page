@@ -7,6 +7,7 @@ binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
 
 [vars]
+ORIGIN = "cottonwind.com"
 AUTHOR_ACCOUNT = "kouwtkz"
 # MY_VAR = "my-variable"
 
