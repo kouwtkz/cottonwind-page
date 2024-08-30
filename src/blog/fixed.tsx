@@ -7,6 +7,8 @@ import { AiFillEdit } from "react-icons/ai";
 import { TfiWrite } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
 import { PiHandsClapping } from "react-icons/pi";
+import { useAtom } from "jotai";
+import { EnvAtom } from "@/state/EnvState";
 
 type FixedProps = { max?: number };
 export default function Fixed({ max }: FixedProps) {
@@ -221,11 +223,11 @@ export function HandsClapButton({
   ...args
 }: HandsClapButtonProps) {
   className = className ? ` ${className}` : "";
-  const wavebox = import.meta.env.VITE_WAVEBOX;
-  return wavebox ? (
+  const [env] = useAtom(EnvAtom);
+  return env?.WAVEBOX ? (
     <Link
       {...args}
-      to={wavebox}
+      to={env.WAVEBOX}
       title="拍手ボタン"
       className={"button round" + className}
       target="_blank"

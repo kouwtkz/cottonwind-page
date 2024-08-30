@@ -5,20 +5,23 @@ interface SiteConfigEnv {
   DESCRIPTION?: string;
   OVERVIEW?: string;
   ALTERNATE?: string;
-  SITE_IMAGE?: string;
-  SINCE?: number;
   AUTHOR_ACCOUNT?: string;
   AUTHOR_NAME?: string;
   AUTHOR_EN_NAME?: string;
   AUTHOR_EN_NAME_ON_PROP?: string;
   AUTHOR_EN_PROP?: string;
   AUTHOR_IMAGE?: string;
+  SITE_IMAGE?: string;
+  SINCE?: number;
+  WAVEBOX?: string;
   PAGES_DEV_ORIGIN?: string;
   API_ORIGIN?: string;
   API_WORKERS_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
+  UPLOAD_BRACKET?: boolean;
+  UPLOAD_SERVICE?: string;
 }
 interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;
@@ -42,6 +45,8 @@ interface MeePagesEnv extends MeeCommonEnv {
   LIFE_CHECKER_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
+  RECAPTCHA_SITEKEY?: string;
+  RECAPTCHA_SITEKEY_DEV?: string;
 }
 interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
   Bindings: T

@@ -61,7 +61,7 @@ function judgeJson(r: Response) {
 }
 
 export interface ServerLayoutProps {
-  c: CommonContext;
+  c: CommonContext<MeePagesEnv>;
   path: string;
   characters?: CharaObjectType;
   meta?: React.ReactNode;
@@ -121,11 +121,11 @@ export async function ServerLayout({
           noindex={noindex}
           env={c.env}
         />
-        {import.meta.env.VITE_RECAPTCHA_SITEKEY ? (
+        {c.env.RECAPTCHA_SITEKEY ? (
           <script
             src={
               "https://www.google.com/recaptcha/api.js?render=" +
-              import.meta.env.VITE_RECAPTCHA_SITEKEY
+              c.env.RECAPTCHA_SITEKEY
             }
           />
         ) : null}

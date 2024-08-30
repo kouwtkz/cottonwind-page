@@ -29,11 +29,11 @@ export async function MakeRss(c: CommonContext) {
   return GenerateRss(
     {
       title: c.env.TITLE ?? "",
-      description: import.meta.env.VITE_DESCRIPTION,
+      description: c.env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
       language: "ja",
-      image_url: `${SITE_URL}${import.meta.env.VITE_SITE_IMAGE}`,
+      image_url: `${SITE_URL}${c.env.SITE_IMAGE}`,
       items:
         GetPostsRssOption(await getPostsData(c)).map((post) => {
           let Url = new URL(`${SITE_URL}/blog?postId=${post.postId}`);

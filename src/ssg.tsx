@@ -68,14 +68,13 @@ app.get("/json/gitlog.json", (c) => {
 });
 
 // app.get("robots.txt", (c) => {
-//   const env = c.env;
 //   const AccessList = [
 //     {
 //       "User-agent": "*",
 //       Allow: "/",
 //     },
 //   ] as { [k: string]: string }[];
-//   const sitemap = import.meta.env.VITE_URL + "/sitemap.xml";
+//   const sitemap = (c.env.ORIGIN ?? new URL(c.req.url).origin) + "/sitemap.xml";
 //   return c.text(
 //     AccessList.concat({ sitemap })
 //       .map((v) =>

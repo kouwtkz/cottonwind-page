@@ -27,6 +27,8 @@ import {
   PostEditSelectMedia,
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { useAtom } from "jotai";
+import { ApiOriginAtom } from "@/state/EnvState";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -80,6 +82,7 @@ export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
   const { posts, Reload, url } = usePostState();
+  const [apiOrigin] = useAtom(ApiOriginAtom);
   const nav = useNavigate();
   const base = searchParams.get("base");
   const duplicationMode = Boolean(base);
@@ -213,7 +216,7 @@ export function PostForm() {
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
       axios
-        .delete(import.meta.env.VITE_API_HOST + "/blog/send", {
+        .delete(apiOrigin + "/blog/send", {
           data: JSON.stringify({ postId: getValues("postId") }),
           withCredentials: true,
         })
@@ -342,11 +345,9 @@ export function PostForm() {
         }
       });
       if (sendEnable) {
-        const res = await axios.post(
-          import.meta.env.VITE_API_HOST + "/blog/send",
-          formData,
-          { withCredentials: true }
-        );
+        const res = await axios.post(apiOrigin + "/blog/send", formData, {
+          withCredentials: true,
+        });
         if (res.status === 200) {
           toast(updateMode ? "更新しました" : "投稿しました", {
             duration: 2000,
@@ -383,7 +384,7 @@ export function PostForm() {
       <PostState />
       <form
         method={"POST"}
-        action={import.meta.env.VITE_API_HOST + "/blog/send"}
+        action={apiOrigin + "/blog/send"}
         id="postForm"
         ref={formRef}
         encType="multipart/form-data"
@@ -462,6 +463,7 @@ export function PostForm() {
                 onDuplication,
                 onDelete,
                 jsonUrl: url,
+                apiOrigin,
               })
             }
           >
@@ -571,12 +573,14 @@ export function setOperation({
   onDuplication,
   onDelete,
   jsonUrl,
+  apiOrigin,
 }: {
   value: string;
   onChangePostId: () => void;
   onDuplication: () => void;
   onDelete: () => void;
   jsonUrl?: string;
+  apiOrigin?: string;
 }) {
   switch (value) {
     case "postid":
@@ -605,11 +609,9 @@ export function setOperation({
           confirm("記事データを一括で上書きしますか？")
         ) {
           axios
-            .post(
-              import.meta.env.VITE_API_HOST + "/blog/send/all",
-              uploadFileSelector.files[0],
-              { withCredentials: true }
-            )
+            .post(apiOrigin + "/blog/send/all", uploadFileSelector.files[0], {
+              withCredentials: true,
+            })
             .then(() => {
               alert("記事データを上書きしました。");
               location.href = "/blog";

@@ -24,6 +24,8 @@ AUTHOR_IMAGE = "/static/_media/images/art/2024/わたかぜくんの特徴はお
 SINCE = 2017
 SITE_IMAGE = "/static/_media/icons/icon.webp"
 
+WAVEBOX = "https://wavebox.me/wave/2l8tqqpnqjdccg85/"
+
 ORIGIN_HOST = "cottonwind.com"
 PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 
@@ -35,6 +37,9 @@ LOCAL_ORIGIN = "http://localhost:51730"
 
 CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
+
+UPLOAD_SERVICE = "https://f.hatena.ne.jp/kour/BlogPic/"
+UPLOAD_BRACKET = false
 
 # RECAPTCHA_SITEKEY = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"
 # RECAPTCHA_SITEKEY_DEV = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"

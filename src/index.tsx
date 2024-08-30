@@ -32,11 +32,13 @@ RoutingList.forEach((path) => {
       (await c.env.NOTICE_FEED_KV.get("life-check")) !== "false"
     ) {
       const Url = new URL(c.req.url);
-      const redirectUrl = new URL(import.meta.env.VITE_URL);
-      redirectUrl.pathname = Url.pathname;
-      redirectUrl.search = Url.search;
-      redirectUrl.hash = Url.hash;
-      return c.redirect(redirectUrl.href);
+      if (c.env.ORIGIN) {
+        const redirectUrl = new URL(c.env.ORIGIN);
+        redirectUrl.pathname = Url.pathname;
+        redirectUrl.search = Url.search;
+        redirectUrl.hash = Url.hash;
+        return c.redirect(redirectUrl.href);
+      }
     }
     return next();
   });

@@ -1,5 +1,7 @@
 import { HTMLAttributes, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
+import { useAtom } from "jotai";
+import { EnvAtom } from "@/state/EnvState";
 
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
@@ -232,6 +234,7 @@ export function PostEditSelectMedia({
   inputAttached,
   autoClose,
 }: PostEditSelectMediaProps) {
+  const [env] = useAtom(EnvAtom);
   return (
     <DropdownObject
       className={className}
@@ -244,6 +247,7 @@ export function PostEditSelectMedia({
           value: e.dataset.value ?? "",
           inputAttached,
           textarea,
+          env,
         });
       }}
     >
@@ -258,8 +262,14 @@ export function PostEditSelectMedia({
 interface setMediaProps extends PostEditSelectBaseProps {
   value: string;
   inputAttached?: HTMLInputElement | null;
+  env?: SiteConfigEnv;
 }
-export function setMedia({ value, inputAttached, textarea }: setMediaProps) {
+export function setMedia({
+  value,
+  inputAttached,
+  textarea,
+  env,
+}: setMediaProps) {
   if (!value || !textarea) return;
   switch (value) {
     case "attached":
@@ -269,10 +279,10 @@ export function setMedia({ value, inputAttached, textarea }: setMediaProps) {
       }
       break;
     case "upload":
-      if (import.meta.env.VITE_UPLOAD_BRACKET === "true")
+      if (env?.UPLOAD_BRACKET)
         replacePostTextarea({ textarea, before: "![](", after: ")" });
       else textarea.focus();
-      window.open(import.meta.env.VITE_UPLOAD_SERVICE, "upload");
+      window.open(env?.UPLOAD_SERVICE, "upload");
       break;
     case "gallery":
       window.open("/gallery/", "gallery", "width=620px,height=720px");

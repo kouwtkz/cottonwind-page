@@ -7,6 +7,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
 import { dataUpdateServerPlugins } from './src/mediaScripts/dataUpdate/updateServer'
+import { getPlatformProxy } from 'wrangler'
+const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
+dispose();
 
 export default defineConfig(({ mode }) => {
   let config: UserConfig = {
@@ -62,7 +65,7 @@ export default defineConfig(({ mode }) => {
           ],
         }),
         Sitemap({
-          hostname: process.env.VITE_URL,
+          hostname: env.ORIGIN,
           generateRobotsTxt: true,
           dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
           exclude: ["/404", "/500", "/suggest"]
