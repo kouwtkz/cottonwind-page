@@ -2,8 +2,7 @@ import { create } from "zustand";
 import { useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import { useSoundPlayer } from "./SoundPlayer";
-import { buildAddVer } from "../data/env";
-const defaultUrl = "/json/sound.json" + buildAddVer;
+const defaultUrl = "/json/sound.json";
 
 function parseSoundItems(soundAlbum: SoundAlbumType) {
   const soundList: SoundItemType[] = [];

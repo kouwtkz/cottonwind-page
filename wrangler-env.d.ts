@@ -1,4 +1,5 @@
 interface SiteConfigEnv {
+  VERSION?: string;
   ORIGIN?: string;
   TITLE?: string;
   DESCRIPTION?: string;
@@ -12,7 +13,6 @@ interface SiteConfigEnv {
   AUTHOR_EN_NAME_ON_PROP?: string;
   AUTHOR_EN_PROP?: string;
   AUTHOR_IMAGE?: string;
-  BUILD_TIME?: string;
 }
 interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;

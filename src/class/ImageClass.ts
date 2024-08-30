@@ -1,4 +1,3 @@
-import { buildAddVer } from "../data/env";
 import {
   getCopyRightList,
   getTagList,
@@ -8,7 +7,7 @@ import { Element as NodeElement } from "domhandler";
 import { GetUrlFlag, MakeURL } from "@/functions/doc/MakeURL";
 import { GetImageItemFromSrc } from "@/layout/ImageMee";
 import { MultiParserReplaceProps } from "@/components/parse/MultiParser";
-const defaultUrl = "/json/images.json" + buildAddVer;
+const defaultUrl = "/json/images.json";
 
 export class ImageClass {
   imageItemList: Array<MediaImageItemType> = [];

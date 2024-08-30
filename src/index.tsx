@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
-import { buildAddVer, stylesAddVer } from "./data/env";
 import { FeedSet, IsLogin } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
@@ -18,6 +17,7 @@ app.use("*", (c, next) => {
 // app.get("/assets/*", serveStatic());
 
 app.get("/get/feed", async (c, next) => {
+  console.log(c.env);
   if (c.env.FEED_FROM) {
     return c.json(await FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
   } else return next();
@@ -40,19 +40,18 @@ RoutingList.forEach((path) => {
     }
     return next();
   });
-  app.get(path, (c, next) =>
-    ReactResponse({
+  app.get(path, (c, next) => {
+    const version = c.env?.VERSION ? "?v=" + c.env.VERSION : "";
+    return ReactResponse({
       c,
       next,
       path,
       characters,
-      styles: <Style href={"/css/styles.css" + stylesAddVer} />,
-      script: (
-        <script type="module" src={"/static/js/client.js" + buildAddVer} />
-      ),
+      styles: <Style href={"/css/styles.css" + version} />,
+      script: <script type="module" src={"/static/js/client.js" + version} />,
       isLogin: IsLogin(c, import.meta.env.DEV),
-    })
-  );
+    });
+  });
 });
 
 app.all("*", async (c, next) => {

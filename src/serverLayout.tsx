@@ -3,7 +3,6 @@ import { Loading } from "./layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-// import { stylesAddVer } from "./data/env";
 import SiteConfigList from "./data/config.list";
 import { renderToString } from "react-dom/server";
 import { Context, Next } from "hono";
@@ -195,7 +194,9 @@ export function ServerSimpleLayout({
         <DefaultMeta />
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
-        <Style href={"/css/styles.css"} />
+        <Style
+          href={"/css/styles.css" + (env?.VERSION ? "?v=" + env.VERSION : "")}
+        />
       </head>
       <body>
         <header id="header">

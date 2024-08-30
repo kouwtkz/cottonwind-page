@@ -15,6 +15,7 @@ const app = new Hono<MeeBindings>({ strict: true });
 
 app.get("/env.json", async (c) => {
   return c.json({
+    VERSION: c.env.VERSION,
     ORIGIN: c.env.ORIGIN,
     TITLE: c.env.TITLE,
     DESCRIPTION: c.env.DESCRIPTION,
@@ -22,12 +23,12 @@ app.get("/env.json", async (c) => {
     ALTERNATE: c.env.ALTERNATE,
     AUTHOR_ACCOUNT: c.env.AUTHOR_ACCOUNT,
     AUTHOR_NAME: c.env.AUTHOR_NAME,
+    AUTHOR_EN_NAME: c.env.AUTHOR_EN_NAME,
     AUTHOR_EN_NAME_ON_PROP: c.env.AUTHOR_EN_NAME_ON_PROP,
     AUTHOR_EN_PROP: c.env.AUTHOR_EN_PROP,
     AUTHOR_IMAGE: c.env.AUTHOR_IMAGE,
     SINCE: c.env.SINCE,
     SITE_IMAGE: c.env.SITE_IMAGE,
-    BUILD_TIME: new Date().toISOString(),
   } as SiteConfigEnv);
 });
 

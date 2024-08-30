@@ -1,14 +1,7 @@
 import { useLayoutEffect } from "react";
 import { create } from "zustand";
-import axios from "axios";
-import { buildAddVer } from "../data/env";
-import {
-  getCopyRightList,
-  getTagList,
-  parseImageItems,
-} from "../data/functions/images";
 import { ImageClass } from "@/class/ImageClass";
-const defaultUrl = "/json/images.json" + buildAddVer;
+const defaultUrl = "/json/images.json";
 
 interface ValueCountType {
   value: string;

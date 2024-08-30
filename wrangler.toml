@@ -1,11 +1,12 @@
 #:schema node_modules/wrangler/config-schema.json
-compatibility_date = "2024-08-02"
+compatibility_date = "2024-08-29"
 name = "cottonwind-page"
 pages_build_output_dir = "./dist"
 
 [vars]
 ORIGIN = "https://cottonwind.com"
 TITLE = "こっとんうぃんど"
+VERSION = "3.0.0"
 
 DESCRIPTION = "わたかぜコウ(@kouwtkz)の個人サイト。気まぐれに様々なイラストや作品を載せてます。"
 OVERVIEW = "わたかぜコウの個人サイト"
