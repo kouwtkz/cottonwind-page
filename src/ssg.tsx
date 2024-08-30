@@ -28,9 +28,13 @@ app.get("/env.json", async (c) => {
     LIFE_CHECK_CHALLENGE,
     LIFE_CHECK_VERIFIER,
     LIFE_CHECKER_URL,
-    ...env
+    CONTACT_FORM_GOOGLE_DEV,
+    ..._env
   } = c.env;
-  return c.json(env as SiteConfigEnv);
+  const env = _env as SiteConfigEnv;
+  if (new URL(c.req.url).hostname === "localhost")
+    env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;
+  return c.json(env);
 });
 
 app.get("/404", async (c) => {

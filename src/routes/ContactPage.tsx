@@ -8,10 +8,7 @@ export default function ContactPage() {
 
 export function GoogleForm() {
   const [env] = useAtom(EnvAtom);
-  const CONTACT_FORM_GOOGLE = useMemo(() => {
-    if (import.meta.env.DEV) return env?.CONTACT_FORM_GOOGLE_DEV;
-    else return env?.CONTACT_FORM_GOOGLE;
-  }, [env]);
+  const CONTACT_FORM_GOOGLE = env?.CONTACT_FORM_GOOGLE;
   return (
     <>
       {CONTACT_FORM_GOOGLE ? (

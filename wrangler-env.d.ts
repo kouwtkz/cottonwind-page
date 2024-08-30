@@ -19,7 +19,6 @@ interface SiteConfigEnv {
   API_WORKERS_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
-  CONTACT_FORM_GOOGLE_DEV?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
 }
@@ -30,6 +29,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
   LOCAL_ORIGIN?: string;
+  CONTACT_FORM_GOOGLE_DEV?: string;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {
