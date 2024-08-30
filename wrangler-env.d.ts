@@ -17,6 +17,8 @@ interface SiteConfigEnv {
   API_ORIGIN?: string;
   API_WORKERS_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
+  CONTACT_FORM_GOOGLE?: string;
+  CONTACT_FORM_GOOGLE_DEV?: string;
 }
 interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;

@@ -1,24 +1,29 @@
+import { EnvAtom } from "@/state/EnvState";
+import { useAtom } from "jotai";
+import { useMemo } from "react";
+
 export default function ContactPage() {
   return <GoogleForm />;
 }
 
 export function GoogleForm() {
-  console.log(import.meta.env.DEV ? "開発めぇめぇ" : "プロダクトめぇめぇ");
+  const [env] = useAtom(EnvAtom);
+  const CONTACT_FORM_GOOGLE = useMemo(() => {
+    if (import.meta.env.DEV) return env?.CONTACT_FORM_GOOGLE_DEV;
+    else return env?.CONTACT_FORM_GOOGLE;
+  }, [env]);
   return (
     <>
-      {import.meta.env.VITE_CONTACT_FORM_GOOGLE ? (
+      {CONTACT_FORM_GOOGLE ? (
         <>
           <h3>
-            <a href={import.meta.env.VITE_CONTACT_FORM_GOOGLE + "/viewform"}>
+            <a href={CONTACT_FORM_GOOGLE + "/viewform"}>
               お問い合わせ（Googleフォーム）
             </a>
           </h3>
           <iframe
             title="おといあわせ"
-            src={
-              import.meta.env.VITE_CONTACT_FORM_GOOGLE +
-              "/viewform?embedded=true"
-            }
+            src={CONTACT_FORM_GOOGLE + "/viewform?embedded=true"}
             width="640"
             height="1150"
             style={{ margin: 0, border: "none" }}

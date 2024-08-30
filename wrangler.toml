@@ -33,6 +33,12 @@ API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
 API_LOCAL_ORIGIN = "http://localhost:51731"
 LOCAL_ORIGIN = "http://localhost:51730"
 
+CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
+CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
+
+# RECAPTCHA_SITEKEY = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"
+# RECAPTCHA_SITEKEY_DEV = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"
+
 DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名前は？"
 # DISCORD_INVITE_ANSWER = ""
 # DISCORD_INVITE_URL = ""
