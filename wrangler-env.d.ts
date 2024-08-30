@@ -13,6 +13,10 @@ interface SiteConfigEnv {
   AUTHOR_EN_NAME_ON_PROP?: string;
   AUTHOR_EN_PROP?: string;
   AUTHOR_IMAGE?: string;
+  PAGES_DEV_ORIGIN?: string;
+  API_ORIGIN?: string;
+  API_WORKERS_ORIGIN?: string;
+  API_LOCAL_ORIGIN?: string;
 }
 interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;
@@ -20,10 +24,6 @@ interface MeeCommonEnv extends SiteConfigEnv {
   DB: D1Database;
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
-  PAGES_DEV_ORIGIN?: string;
-  API_ORIGIN?: string;
-  API_WORKERS_ORIGIN?: string;
-  API_LOCAL_ORIGIN?: string;
   LOCAL_ORIGIN?: string;
   [k: string]: any;
 }

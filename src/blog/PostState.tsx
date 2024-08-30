@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { create } from "zustand";
 import axios from "axios";
-const defaultUrl = import.meta.env.VITE_API_HOST + "/blog/posts";
+import { useAtom } from "jotai";
+import { ApiOriginAtom } from "@/state/EnvState";
 
 function parsePosts(posts: Post[]) {
   posts.forEach((post) => {
@@ -35,14 +36,21 @@ export const usePostState = create<PostStateType>((set) => ({
   },
 }));
 
-export default function PostState({ url = defaultUrl }: { url?: string }) {
+export default function PostState({ url = "/blog/posts" }: { url?: string }) {
   const { setPosts, isReload } = usePostState();
+  const [apiOrigin] = useAtom(ApiOriginAtom);
+  const fetchUrl = useMemo(() => {
+    if (url.startsWith("/")) {
+      if (apiOrigin) return apiOrigin + url;
+      else return;
+    } else return url;
+  }, [apiOrigin, url]);
   useEffect(() => {
-    if (isReload) {
-      axios(url, { withCredentials: true }).then((r) => {
+    if (fetchUrl && isReload) {
+      axios(fetchUrl, { withCredentials: true }).then((r) => {
         setPosts(r.data, url);
       });
     }
-  }, [isReload]);
+  }, [fetchUrl, isReload]);
   return <></>;
 }

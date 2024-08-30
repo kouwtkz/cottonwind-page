@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 
 export default function AboutPage() {
   const [env] = useAtom(EnvAtom);
-  console.log(env);
   return (
     <div className="aboutPage">
       <h2 className="lulo">About</h2>
