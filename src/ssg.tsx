@@ -11,25 +11,26 @@ import { GitLogObject } from "./data/functions/GitlogObject";
 import ENV from "../env.json";
 const { FAVORITE_LINKS } = ENV;
 
-const app = new Hono<MeeBindings>({ strict: true });
+const app = new Hono<MeePagesBindings>({ strict: true });
 
 app.get("/env.json", async (c) => {
-  return c.json({
-    VERSION: c.env.VERSION,
-    ORIGIN: c.env.ORIGIN,
-    TITLE: c.env.TITLE,
-    DESCRIPTION: c.env.DESCRIPTION,
-    OVERVIEW: c.env.OVERVIEW,
-    ALTERNATE: c.env.ALTERNATE,
-    AUTHOR_ACCOUNT: c.env.AUTHOR_ACCOUNT,
-    AUTHOR_NAME: c.env.AUTHOR_NAME,
-    AUTHOR_EN_NAME: c.env.AUTHOR_EN_NAME,
-    AUTHOR_EN_NAME_ON_PROP: c.env.AUTHOR_EN_NAME_ON_PROP,
-    AUTHOR_EN_PROP: c.env.AUTHOR_EN_PROP,
-    AUTHOR_IMAGE: c.env.AUTHOR_IMAGE,
-    SINCE: c.env.SINCE,
-    SITE_IMAGE: c.env.SITE_IMAGE,
-  } as SiteConfigEnv);
+  const {
+    DB,
+    KV,
+    NOTICE_FEED_KV,
+    AUTHOR_EMAIL,
+    DISCORD_INVITE_ANSWER,
+    DISCORD_INVITE_URL,
+    FEED_DEV_FROM,
+    X_CLIENT_ID,
+    X_CLIENT_SECRET,
+    LOGIN_TOKEN,
+    LIFE_CHECK_CHALLENGE,
+    LIFE_CHECK_VERIFIER,
+    LIFE_CHECKER_URL,
+    ...env
+  } = c.env;
+  return c.json(env as SiteConfigEnv);
 });
 
 app.get("/404", async (c) => {
