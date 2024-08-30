@@ -8,7 +8,7 @@ import { FeedSet } from "@/ServerContent";
 
 const defaultStyle = <Style href="/css/styles.css" />;
 
-export const app = new Hono<MeeBindings>();
+export const app = new Hono<MeePagesBindings>();
 
 app.route("/notice-feed", app_noticeFeed);
 app.route("/twix", app_twix);

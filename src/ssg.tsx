@@ -11,7 +11,7 @@ import { GitLogObject } from "@/data/functions/GitlogObject";
 import ENV from "../env.toml";
 const { FAVORITE_LINKS } = ENV;
 
-const app = new Hono<MeeBindings>({ strict: true });
+const app = new Hono<MeePagesBindings>({ strict: true });
 
 app.get("/404", async (c) => {
   return c.html(renderToString(<ServerNotFound />), { status: 404 });

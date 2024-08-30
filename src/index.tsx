@@ -8,7 +8,7 @@ import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";
 
-const app = new Hono<MeeBindings>({ strict: true });
+const app = new Hono<MeePagesBindings>({ strict: true });
 
 // app.get("/assets/*", serveStatic());
 

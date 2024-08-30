@@ -3,10 +3,14 @@ import { discordInviteMatch } from "./ServerContent";
 import { app_blog } from "@/blog";
 import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
-import { app_api } from "./api";
 
 export function ServerCommon(app: CommonHono) {
-  app.route("/api", app_api);
+  app.post("/api/life", async (c) => {
+    const body = await c.req.text();
+    const result = c.env.LIFE_CHECK_CHALLENGE === body;
+    if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");
+    else return c.text("401 Unauthorized", 401);
+  });
   app.route("/workers", app_workers);
   app.route("/blog", app_blog);
   app.get("/fetch/discord/invite", async (c) => {

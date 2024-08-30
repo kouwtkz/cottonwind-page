@@ -19,7 +19,7 @@ import { app_test } from "./test.dev";
 
 const compactStyles = CompactCode(importStyles);
 
-const app = new Hono<MeeBindings>({ strict: true });
+const app = new Hono<MeePagesBindings>({ strict: true });
 
 const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { getPostsData, setPostsData } from "@/blog/be-functions";
 import { IsLogin } from "@/ServerContent";
 
-export const app = new Hono<MeeBindings>();
+export const app = new Hono<MeePagesBindings>();
 
 app.post("/send", async (c) => {
   if (!IsLogin(c)) return c.text("ログインしていません", 403);

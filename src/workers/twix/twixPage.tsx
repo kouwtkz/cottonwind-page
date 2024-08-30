@@ -14,7 +14,7 @@ import {
   getUserMe,
 } from "./twix";
 
-const app = new Hono<MeeBindings>();
+const app = new Hono<MeePagesBindings>();
 
 app.post("/", async (c) => {
   const token = await SyncToken(c.env);

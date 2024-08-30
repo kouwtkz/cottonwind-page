@@ -129,7 +129,7 @@ export function DeleteKvToken({ name = "token", kv }: { name?: string, kv: KVNam
 
 export async function SetAccessToken(
   { env, code, code_verifier, client_id, redirect_uri, basicAuthorization }
-    : { env: MeeEnv, code: string, client_id: string, redirect_uri: string, code_verifier: string, basicAuthorization: string }) {
+    : { env: MeePagesEnv, code: string, client_id: string, redirect_uri: string, code_verifier: string, basicAuthorization: string }) {
   const responseToken = await getAccessToken({
     code,
     client_id,
@@ -144,7 +144,7 @@ export async function SetAccessToken(
 
 export async function RefreshAccessToken(
   { env, refresh_token, user, client_id, basicAuthorization }
-    : { env: MeeEnv, refresh_token: string, user?: TwitterUserType, client_id: string, basicAuthorization: string }) {
+    : { env: MeePagesEnv, refresh_token: string, user?: TwitterUserType, client_id: string, basicAuthorization: string }) {
   const oauth2_access_options =
   {
     refresh_token,
@@ -168,7 +168,7 @@ export async function RefreshAccessToken(
   }
 }
 
-export async function SyncToken(env: MeeEnv) {
+export async function SyncToken(env: MeePagesEnv) {
   const kv: KVNamespace = env.NOTICE_FEED_KV;
   const token = await GetKvToken({ kv })
   if (token?.limit) {
@@ -186,7 +186,7 @@ export async function SyncToken(env: MeeEnv) {
   return token;
 }
 
-export async function RevokeToken({ env, token, token_type_hint = "access_token", basicAuthorization }: { env: MeeEnv, token: string, token_type_hint?: "access_token" | "refresh_token", basicAuthorization: string }) {
+export async function RevokeToken({ env, token, token_type_hint = "access_token", basicAuthorization }: { env: MeePagesEnv, token: string, token_type_hint?: "access_token" | "refresh_token", basicAuthorization: string }) {
   const oauth2_access_options = { token, token_type_hint };
   await DeleteKvToken({ kv: env.NOTICE_FEED_KV });
   return await fetch(OAUTH2_REVOKETOKEN + "?" + Object.entries(oauth2_access_options).map(([k, v]) => `${k}=${encodeRFC3986(v)}`).join("&"), {

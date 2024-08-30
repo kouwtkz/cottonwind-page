@@ -1,4 +1,4 @@
-interface MeeEnv {
+interface MeePagesEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
@@ -18,6 +18,6 @@ interface MeeEnv {
   [k: string]: any;
 }
 
-interface MeeBindings {
-  Bindings: MeeEnv
+interface MeePagesBindings {
+  Bindings: MeePagesEnv
 }

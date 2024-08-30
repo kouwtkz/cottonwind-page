@@ -22,7 +22,7 @@ export function GetPostsRssOption(rawPosts: Post[]) {
   return posts;
 }
 
-const SITE_URL = import.meta.env.VITE_URL;
+const SITE_URL = "https://cottonwind.com";
 
 export async function MakeRss(c: CommonContext) {
   return GenerateRss(
