@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import axios from "axios";
-const defaultUrl = "/blog/posts.json";
+const defaultUrl = import.meta.env.VITE_API_HOST + "/blog/posts";
 
 function parsePosts(posts: Post[]) {
   posts.forEach((post) => {

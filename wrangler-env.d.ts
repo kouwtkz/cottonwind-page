@@ -2,6 +2,7 @@ interface MeeCommonEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
+  AUTHOR_ACCOUNT?: string;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {

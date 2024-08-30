@@ -1,6 +1,7 @@
 interface ImportMetaEnv {
   readonly VITE_BUILD_TIME?: string;
   readonly VITE_STYLES_TIME?: string;
+  readonly VITE_API_HOST: string;
   readonly VITE_URL: string;
   readonly VITE_TITLE: string;
   readonly VITE_SINCE: string;

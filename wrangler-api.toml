@@ -2,7 +2,12 @@ name = "cottonwind-api"
 compatibility_date = "2024-08-29"
 main = "src/api/index.ts"
 
-# [vars]
+[[kv_namespaces]]
+binding = "KV"
+id = "c4d890a161dc4d8abc299dd09d8b3165"
+
+[vars]
+AUTHOR_ACCOUNT = "kouwtkz"
 # MY_VAR = "my-variable"
 
 # [[kv_namespaces]]

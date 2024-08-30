@@ -1,6 +1,10 @@
 import { Hono } from "hono";
 import { app_blog_api } from "../blog/api";
 export const app = new Hono<MeeAPIBindings>();
+import { cors } from 'hono/cors';
+
+
+app.use("*", cors({ origin: ["http://localhost:51730", "https://cottonwind.com"] }))
 
 app.route("/blog", app_blog_api);
 

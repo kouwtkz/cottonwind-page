@@ -4,12 +4,28 @@ import { IsLogin } from "@/ServerContent";
 
 export const app = new Hono<MeeBindings>();
 
+app.get("/posts", async (c) => {
+  try {
+    const posts = await getPostsData(c);
+    if ('dl' in c.req.query() && IsLogin(c))
+      return c.newResponse(JSON.stringify(posts), {
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+      });
+    return c.json(posts);
+  } catch (e) {
+    console.error(e);
+    return c.json([]);
+  }
+});
+
 app.post("/send", async (c) => {
   if (!IsLogin(c)) return c.text("ログインしていません", 403);
   const formData = await c.req.formData();
   let success = false;
 
-  const userId = import.meta.env.VITE_AUTHOR_ACCOUNT;
+  const userId = c.env.AUTHOR_ACCOUNT;
 
   const data = {} as PostFormType & Post;
 

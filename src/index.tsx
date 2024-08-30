@@ -45,7 +45,7 @@ RoutingList.forEach((path) => {
       script: (
         <script type="module" src={"/static/js/client.js" + buildAddVer} />
       ),
-      isLogin: IsLogin(c),
+      isLogin: IsLogin(c, import.meta.env.DEV),
     })
   );
 });

@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  PostTextarea,
-  usePreviewMode,
-} from "@/components/parse/PostTextarea";
+import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -216,7 +213,7 @@ export function PostForm() {
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
       axios
-        .delete("/api/blog/send", {
+        .delete(import.meta.env.VITE_API_HOST + "/blog/send", {
           data: JSON.stringify({ postId: getValues("postId") }),
         })
         .then((r) => {
@@ -344,7 +341,10 @@ export function PostForm() {
         }
       });
       if (sendEnable) {
-        const res = await axios.post("/api/blog/send", formData);
+        const res = await axios.post(
+          import.meta.env.VITE_API_HOST + "/blog/send",
+          formData
+        );
         if (res.status === 200) {
           toast(updateMode ? "更新しました" : "投稿しました", {
             duration: 2000,
@@ -381,7 +381,7 @@ export function PostForm() {
       <PostState />
       <form
         method={"POST"}
-        action="/api/blog/send"
+        action={import.meta.env.VITE_API_HOST + "/blog/send"}
         id="postForm"
         ref={formRef}
         encType="multipart/form-data"
@@ -603,7 +603,10 @@ export function setOperation({
           confirm("記事データを一括で上書きしますか？")
         ) {
           axios
-            .post("/api/blog/send/all", uploadFileSelector.files[0])
+            .post(
+              import.meta.env.VITE_API_HOST + "/blog/send/all",
+              uploadFileSelector.files[0]
+            )
             .then(() => {
               alert("記事データを上書きしました。");
               location.href = "/blog";

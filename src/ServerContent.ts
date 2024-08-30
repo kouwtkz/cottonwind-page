@@ -9,8 +9,8 @@ export const XmlHeader = {
 }
 const isLocalhostReg = /^http\:\/\/(localhost|127\.0\.0\.1)[/:\/]/;
 
-export function IsLogin(c: CommonContext) {
-  return import.meta.env.DEV
+export function IsLogin(c: CommonContext, isDev?: boolean) {
+  return isDev
     || (Boolean(getCookie(c, "CF_Authorization")) && c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"))
     || isLocalhostReg.test(c.req.url)
 }

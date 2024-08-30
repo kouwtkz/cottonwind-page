@@ -5,6 +5,7 @@ compatibility_date = "2024-08-02"
 
 [vars]
 PAGES_DEV_URL = "https://cottonwind.pages.dev/"
+AUTHOR_ACCOUNT = "kouwtkz"
 DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名前は？"
 # DISCORD_INVITE_ANSWER = ""
 # DISCORD_INVITE_URL = ""
