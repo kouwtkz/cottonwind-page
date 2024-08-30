@@ -7,9 +7,14 @@ import { FeedSet, IsLogin } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";
+import { cors } from "hono/cors";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
+app.use("*", (c, next) => {
+  const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51731"];
+  return cors({ origin })(c, next);
+});
 // app.get("/assets/*", serveStatic());
 
 app.get("/get/feed", async (c, next) => {

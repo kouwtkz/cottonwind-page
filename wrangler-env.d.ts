@@ -3,6 +3,7 @@ interface MeeCommonEnv {
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
   ORIGIN?: string;
+  CORS_ORIGIN?: string[];
   AUTHOR_ACCOUNT?: string;
   [k: string]: any;
 }

@@ -1,15 +1,21 @@
 name = "cottonwind-api"
+
 compatibility_date = "2024-08-29"
 main = "src/api/index.ts"
+
+[vars]
+CORS_ORIGIN = [
+  "http://localhost:51730",
+  "https://cottonwind.com",
+]
+ORIGIN = "cottonwind.com"
+
+AUTHOR_ACCOUNT = "kouwtkz"
+# MY_VAR = "my-variable"
 
 [[kv_namespaces]]
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
-
-[vars]
-ORIGIN = "cottonwind.com"
-AUTHOR_ACCOUNT = "kouwtkz"
-# MY_VAR = "my-variable"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"

@@ -16,10 +16,16 @@ import { GitLogObject } from "@/data/functions/GitlogObject";
 
 import { ServerCommon } from "./server";
 import { app_test } from "./test.dev";
+import { cors } from "hono/cors";
 
 const compactStyles = CompactCode(importStyles);
 
 const app = new Hono<MeePagesBindings>({ strict: true });
+
+app.use("*", (c, next) => {
+  const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51731"];
+  return cors({ origin })(c, next);
+});
 
 const stylePath = "/css/styles.css";
 app.get(stylePath, (c) => c.body(compactStyles));
