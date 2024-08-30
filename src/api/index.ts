@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { app_blog_api } from "../blog/api";
-export const app = new Hono<MeePagesBindings>();
+export const app = new Hono<MeeAPIBindings>();
 
 app.route("/blog", app_blog_api);
 

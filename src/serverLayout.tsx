@@ -151,14 +151,14 @@ export async function ReactResponse({
       break;
     case "character/:charaName":
       if (characters) {
-        const req = (c as Context<MeePagesBindings, typeof path, any>).req;
+        const req = (c as Context<MeeBindings, typeof path, any>).req;
         const name = req.param("charaName");
         const chara = characters[name];
         if (!chara) return next();
       }
       break;
     case "gallery/:group":
-      const req = (c as Context<MeePagesBindings, typeof path, any>).req;
+      const req = (c as Context<MeeBindings, typeof path, any>).req;
       const group = req.param("group");
       const f = SiteConfigList.gallery.generate.some((v) => v.name === group);
       if (!f) return next();

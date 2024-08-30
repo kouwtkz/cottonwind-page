@@ -33,7 +33,7 @@ export async function FetchText(src?: string) {
   }
 }
 
-export async function discordInviteMatch(c: CommonContext) {
+export async function discordInviteMatch(c: CommonContext<MeePagesEnv>) {
   const Url = new URL(c.req.url);
   const invite_password = Url.searchParams.get("invite_password");
   if (invite_password) {
@@ -95,7 +95,7 @@ export async function ZenScrapGet(
   return scrapObject;
 }
 
-export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext, minute?: number }) {
+export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext<MeePagesEnv>, minute?: number }) {
   if (!url) url = c.env.FEED_FROM;
   const keyName = "Feed";
   const feedData = await c.env.KV.get(keyName).then(v => v ? JSON.parse(v) : null) as (FeedDBType | null);

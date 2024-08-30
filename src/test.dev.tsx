@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { MeeSqlD1 } from "./functions/MeeSqlD1";
 
-export const app = new Hono<MeePagesBindings>({ strict: false });
+export const app = new Hono<MeeBindings>({ strict: false });
 
 app.get("/", async (c) => {
   return c.json(c.req);

@@ -26,7 +26,6 @@ app.post("/", async (c) => {
 });
 
 app.get("/", async (c) => {
-  const env = c.env as any;
   const Url = new URL(c.req.url);
   const query = c.req.query() as { [k in string]: string };
   if ("authorize" in query) {
@@ -38,7 +37,7 @@ app.get("/", async (c) => {
     setCookie(c, "twitter_code_state", state);
     return c.redirect(
       getOauth2AuthorizeUrl({
-        client_id: env.X_CLIENT_ID,
+        client_id: c.env.X_CLIENT_ID ?? "",
         redirect_uri,
         state,
         code_challenge,
@@ -50,10 +49,10 @@ app.get("/", async (c) => {
     const state = getCookie(c, "twitter_code_state");
     const redirect_uri = Url.origin + Url.pathname;
     if (code_verifier && state === query.state) {
-      const client_id = env.X_CLIENT_ID as string;
+      const client_id = c.env.X_CLIENT_ID ?? "";
       const basicAuthorization = getBasicAuthorization({
         client_id,
-        client_secret: env.X_CLIENT_SECRET,
+        client_secret: c.env.X_CLIENT_SECRET ?? "",
       });
       await SetAccessToken({
         env: c.env,
@@ -70,16 +69,16 @@ app.get("/", async (c) => {
   }
   const token = await SyncToken(c.env);
   if (token?.access_token && "refresh" in query) {
-    const client_id = env.X_CLIENT_ID as string;
+    const client_id = c.env.X_CLIENT_ID ?? "";
     if (token?.refresh_token) {
       await RefreshAccessToken({
-        env,
+        env: c.env,
         refresh_token: token.refresh_token,
         user: token.user,
         client_id,
         basicAuthorization: getBasicAuthorization({
           client_id,
-          client_secret: env.X_CLIENT_SECRET,
+          client_secret: c.env.X_CLIENT_SECRET ?? "",
         }),
       });
     }
@@ -87,11 +86,11 @@ app.get("/", async (c) => {
   }
   if (token?.access_token && "revoke" in query) {
     await RevokeToken({
-      env,
+      env: c.env,
       token: token?.access_token,
       basicAuthorization: getBasicAuthorization({
-        client_id: env.X_CLIENT_ID,
-        client_secret: env.X_CLIENT_SECRET,
+        client_id: c.env.X_CLIENT_ID ?? "",
+        client_secret: c.env.X_CLIENT_SECRET ?? "",
       }),
     });
     return c.redirect(c.req.header("referer") ?? "/");

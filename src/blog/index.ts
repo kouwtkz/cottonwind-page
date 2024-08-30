@@ -3,7 +3,7 @@ import { getPostsData, setPostsData } from "@/blog/be-functions";
 import { MakeRss } from "@/blog/be-functions";
 import { IsLogin } from "@/ServerContent";
 
-export const app = new Hono<MeePagesBindings>();
+export const app = new Hono<MeeBindings>();
 
 app.get("/posts.json", async (c) => {
   try {

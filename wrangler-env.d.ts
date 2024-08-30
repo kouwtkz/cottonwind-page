@@ -1,7 +1,10 @@
-interface MeePagesEnv {
+interface MeeCommonEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
+  [k: string]: any;
+}
+interface MeePagesEnv extends MeeCommonEnv {
   PAGES_DEV_URL?: string;
   AUTHOR_EMAIL?: string;
   DISCORD_INVITE_QUESTION?: string;
@@ -15,9 +18,11 @@ interface MeePagesEnv {
   LIFE_CHECKER_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
-  [k: string]: any;
 }
+interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
+  Bindings: T
+}
+type MeePagesBindings = MeeBindings<MeePagesEnv>
 
-interface MeePagesBindings {
-  Bindings: MeePagesEnv
-}
+interface MeeAPIEnv extends MeeCommonEnv { }
+type MeeAPIBindings = MeeBindings<MeeAPIEnv>;
