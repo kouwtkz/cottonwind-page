@@ -201,7 +201,7 @@ export function ServerSimpleLayout({
       <body>
         <header id="header">
           <div className="title-container">
-            <a id="siteTitle" href="/">
+            <a id="siteTitle" href="/" title={env?.TITLE}>
               <h2>
                 <img
                   src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
@@ -222,7 +222,7 @@ export function ServerSimpleLayout({
 
 export function ServerNotFound({ env }: { env?: SiteConfigEnv }) {
   return (
-    <ServerSimpleLayout title={"404 | " + env?.TITLE} noindex={true}>
+    <ServerSimpleLayout title={"404 | " + env?.TITLE} noindex={true} env={env}>
       <main className="h1h4Page middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
@@ -234,7 +234,7 @@ export function ServerNotFound({ env }: { env?: SiteConfigEnv }) {
 
 export function ServerError({ env }: { env?: SiteConfigEnv }) {
   return (
-    <ServerSimpleLayout title={"500 | " + env?.TITLE} noindex={true}>
+    <ServerSimpleLayout title={"500 | " + env?.TITLE} noindex={true} env={env}>
       <main className="h1h4Page middle">
         <h1>500 Internal Server Error</h1>
         <h4>サーバー側でエラーが発生しました</h4>

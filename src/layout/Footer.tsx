@@ -38,7 +38,7 @@ export function LinksList({
                   title={link.title || link.name}
                   href={link.url}
                   target={/^\w+:\/\//.test(link.url) ? "_blank" : ""}
-                  rel={link.rel}
+                  rel={link.rel ?? "noopener"}
                 >
                   {maskImage ? (
                     <div

@@ -41,7 +41,7 @@ app.get("/404", async (c) => {
   let rd = "";
   let err = "";
   try {
-    rd = renderToString(<ServerNotFound />);
+    rd = renderToString(<ServerNotFound env={c.env} />);
   } catch (e) {
     err = String(e);
     console.log(e);
@@ -50,7 +50,7 @@ app.get("/404", async (c) => {
 });
 
 app.get("/500", async (c) => {
-  return c.html(renderToString(<ServerError />), { status: 500 });
+  return c.html(renderToString(<ServerError env={c.env} />), { status: 500 });
 });
 
 app.get("/data/favorite_links.json", async (c) => {
@@ -60,7 +60,11 @@ app.get("/data/favorite_links.json", async (c) => {
 app.get("/suggest", async (c) => {
   return c.html(
     renderToString(
-      <ServerSimpleLayout noindex={true} title={"ていあん | " + c.env.TITLE}>
+      <ServerSimpleLayout
+        noindex={true}
+        title={"ていあん | " + c.env.TITLE}
+        env={c.env}
+      >
         <SuggestPage env={c.env} />
       </ServerSimpleLayout>
     )
