@@ -49,57 +49,56 @@ import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { useManageState } from "@/state/StateSet";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
   const [isComplete] = useAtom(dataIsCompleteAtom);
   return (
     <div id="galleryPage">
+      <GalleryManageMenuButton />
       {children}
       {isComplete ? <GalleryObjectConvert items={galleryList} /> : null}
     </div>
   );
 }
 
+export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
+  const { isLogin } = useManageState();
+  return (
+    <div className="rbButtonArea z30">
+      <DropdownObject
+        listClassName="on row right transparent"
+        MenuButtonClassName="round large"
+        MenuButtonTitle="メニュー"
+        MenuButton={<MdOutlineMenu />}
+      >
+        <button
+          type="button"
+          className="round large"
+          title="ダウンロードする"
+          onClick={() => {}}
+        >
+          <MdFileDownload />
+        </button>
+        <button
+          type="button"
+          className="round large"
+          title="アップロードする"
+          onClick={() => {
+            const uploadElm = document.querySelector(`input#upload_${group}`);
+            if (uploadElm) (uploadElm as HTMLInputElement).click();
+          }}
+        >
+          <MdFileUpload />
+        </button>
+      </DropdownObject>
+    </div>
+  );
+}
+
 export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
-  const UploadElm = useCallback(
-    () =>
-      import.meta.env?.DEV && group ? (
-        <div className="rbButtonArea z30">
-          <DropdownObject
-            listClassName="on row right transparent"
-            MenuButtonClassName="round large"
-            MenuButtonTitle="メニュー"
-            MenuButton={<MdOutlineMenu />}
-          >
-            <button
-              type="button"
-              className="round large"
-              title="ダウンロードする"
-              onClick={() => {}}
-            >
-              <MdFileDownload />
-            </button>
-            <button
-              type="button"
-              className="round large"
-              title="アップロードする"
-              onClick={() => {
-                const uploadElm =
-                  document.querySelector(`input[name="upload"]`);
-                if (uploadElm) (uploadElm as HTMLInputElement).click();
-              }}
-            >
-              <MdFileUpload />
-            </button>
-          </DropdownObject>
-        </div>
-      ) : (
-        <></>
-      ),
-    [group]
-  );
   const items = useMemo(
     () =>
       SiteConfigList.gallery.generate.find(
@@ -110,7 +109,7 @@ export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   );
   return (
     <>
-      {import.meta.env?.DEV && group ? <UploadElm /> : null}
+      <GalleryManageMenuButton group={group} />
       <GalleryObjectConvert
         items={items}
         max={40}
@@ -372,7 +371,8 @@ function UploadChain({
   );
   const upload = useCallback(
     (files: File[]) => {
-      const album = item.name ? getAlbum(item.name) : null;
+      const album = getAlbum(item.name ?? "art");
+      console.log(item.name, album);
       if (!album) return false;
       const checkTime = new Date().getTime();
       const targetFiles = files.filter((file) => {
@@ -412,7 +412,7 @@ function UploadChain({
         }
       });
     },
-    [tags]
+    [tags, item]
   );
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -433,7 +433,11 @@ function UploadChain({
   return (
     <>
       <div {...getRootProps()}>
-        <input name="upload" {...getInputProps()} />
+        <input
+          name="upload"
+          id={"upload_" + item.name}
+          {...getInputProps({ accept: "image/*" })}
+        />
         {children}
       </div>
     </>
@@ -459,6 +463,7 @@ function GalleryBody({
     showGalleryLabel,
     showCount,
   };
+  const { isLogin } = useManageState();
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const inPageList = useMemo(
     () =>
@@ -470,6 +475,7 @@ function GalleryBody({
         })),
     [yfList, items]
   );
+  console.log(items);
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div id="galleryPage">
@@ -498,7 +504,7 @@ function GalleryBody({
           )
           .map(({ i, ...item }) => (
             <div key={i}>
-              {import.meta.env?.DEV ? (
+              {isLogin ? (
                 <UploadChain item={item}>
                   <GalleryContent
                     ref={refList[i]}

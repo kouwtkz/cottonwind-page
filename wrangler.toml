@@ -6,7 +6,7 @@ pages_build_output_dir = "./dist"
 [vars]
 ORIGIN = "https://cottonwind.com"
 TITLE = "こっとんうぃんど"
-VERSION = "3.0.0"
+VERSION = "3.1.0"
 
 DESCRIPTION = "わたかぜコウ(@kouwtkz)の個人サイト。気まぐれに様々なイラストや作品を載せてます。"
 OVERVIEW = "わたかぜコウの個人サイト"
