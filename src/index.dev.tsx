@@ -96,7 +96,7 @@ RoutingList.forEach((path) => {
       path,
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
-      isLogin: IsLogin(c, import.meta.env.DEV),
+      isLogin: IsLogin(c, import.meta.env?.DEV),
     })
   );
 });

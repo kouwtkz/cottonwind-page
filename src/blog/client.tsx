@@ -73,7 +73,7 @@ export function PostsPage({
   const { posts } = usePostState();
   const take = postId ? undefined : 10;
   const { localDraft, setLocalDraft } = useLocalDraftPost();
-  const isLogin = import.meta.env.DEV || useManageState().isLogin;
+  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
   useEffect(() => {
     if (!isLogin) return;
     const item = getLocalDraft();
@@ -90,7 +90,7 @@ export function PostsPage({
       page,
       q,
       take,
-      common: import.meta.env.PROD,
+      common: !import.meta.env?.DEV,
     });
     result.posts.sort((a, b) => (b.pin || 0) - (a.pin || 0));
     return result;
@@ -150,7 +150,7 @@ export function PostsPage({
 
 type OnePostProps = { post?: Post; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
-  const isLogin = import.meta.env.DEV || useManageState().isLogin;
+  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
   const { removeLocalDraft } = useLocalDraftPost();
   const nav = useNavigate();
   useHotkeys("b", () => {

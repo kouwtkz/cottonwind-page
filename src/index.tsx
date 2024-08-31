@@ -50,7 +50,7 @@ RoutingList.forEach((path) => {
       characters,
       styles: <Style href={"/css/styles.css" + version} />,
       script: <script type="module" src={"/static/js/client.js" + version} />,
-      isLogin: IsLogin(c, import.meta.env.DEV),
+      isLogin: IsLogin(c, import.meta.env?.DEV),
     });
   });
 });

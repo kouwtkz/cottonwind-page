@@ -103,7 +103,7 @@ app.get("/", async (c) => {
           <script
             type="module"
             src={
-              import.meta.env.DEV
+              import.meta.env?.DEV
                 ? "/src/workers/twix/twixClient.tsx"
                 : "/static/js/twixClient.js"
             }

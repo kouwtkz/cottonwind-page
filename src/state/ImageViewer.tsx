@@ -88,8 +88,8 @@ export function ImageViewer() {
   const state = l.state;
   const imageParam = searchParams.get("image");
   const albumParam = searchParams.get("album") ?? undefined;
-  const isProd = import.meta.env.PROD;
-  const isDev = import.meta.env.DEV;
+  const isDev = Boolean(import.meta.env?.DEV);
+  const isProd = !isDev;
   const tagsOptions = autoFixGalleryTagsOptions(
     getTagsOptions(defaultGalleryTags)
   );

@@ -64,7 +64,7 @@ export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
   const UploadElm = useCallback(
     () =>
-      import.meta.env.DEV && group ? (
+      import.meta.env?.DEV && group ? (
         <div className="rbButtonArea z30">
           <button
             type="button"
@@ -93,7 +93,7 @@ export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   );
   return (
     <>
-      {import.meta.env.DEV && group ? <UploadElm /> : null}
+      {import.meta.env?.DEV && group ? <UploadElm /> : null}
       <GalleryObjectConvert
         items={items}
         max={40}
@@ -461,7 +461,7 @@ function GalleryBody({
         {showGalleryHeader ? (
           <div className="header">
             <div className="icons">
-              {import.meta.env.DEV ? (
+              {import.meta.env?.DEV ? (
                 <>
                   <GalleryPageDevOtherSwitch />
                   <GalleryPageOriginImageSwitch />
@@ -481,7 +481,7 @@ function GalleryBody({
           )
           .map(({ i, ...item }) => (
             <div key={i}>
-              {import.meta.env.DEV ? (
+              {import.meta.env?.DEV ? (
                 <UploadChain item={item}>
                   <GalleryContent
                     ref={refList[i]}
@@ -848,7 +848,7 @@ const gallerySortTags = [
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
   const tags = gallerySortTags.concat(
-    import.meta.env.DEV ? defaultGalleryFilterTags : [],
+    import.meta.env?.DEV ? defaultGalleryFilterTags : [],
     defaultGalleryTags
   );
   return <ContentsTagsSelect {...args} tags={tags} />;

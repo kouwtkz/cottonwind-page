@@ -40,7 +40,7 @@ export function StateSet() {
       <ManageState />
       {ThemeState.State()}
       {DarkThemeState.State()}
-      {import.meta.env.DEV ? (
+      {import.meta.env?.DEV ? (
         <>
           <EmbedState />
         </>

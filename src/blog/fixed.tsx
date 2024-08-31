@@ -12,7 +12,7 @@ import { EnvAtom } from "@/state/EnvState";
 
 type FixedProps = { max?: number };
 export default function Fixed({ max }: FixedProps) {
-  const isLogin = import.meta.env.DEV || useManageState().isLogin;
+  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
   return (
     <Suspense>
       <div className="fixed rightBottom">
@@ -30,7 +30,7 @@ export default function Fixed({ max }: FixedProps) {
 
 type PostDetailFixedProps = { postId: string; posts: Post[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
-  const isLogin = import.meta.env.DEV || useManageState().isLogin;
+  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
   return (
     <Suspense>
       <div className="fixed rightBottom">

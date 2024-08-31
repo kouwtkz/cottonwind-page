@@ -15,3 +15,7 @@ declare module '*/env.toml' {
   }
   export default value
 }
+
+interface ImportMeta {
+  readonly env?: ImportMetaEnv;
+}

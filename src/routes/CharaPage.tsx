@@ -31,7 +31,7 @@ export function CharaPage() {
   const { charaName } = useParams();
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
-  const isDev = import.meta.env.DEV;
+  const isDev = import.meta.env?.DEV;
   return (
     <div id="characterPage">
       <CharaState />
@@ -100,7 +100,7 @@ function CharaListPage() {
     [searchParams]
   );
   const notHide = useMemo(
-    () => import.meta.env.DEV || filters?.some((v) => v === "notHide"),
+    () => import.meta.env?.DEV || filters?.some((v) => v === "notHide"),
     [filters]
   );
   const whereOptions = useMemo(
@@ -159,7 +159,7 @@ function CharaListPage() {
   return (
     <>
       <CharaSearchArea />
-      {import.meta.env.DEV ? <SortableObject /> : null}
+      {import.meta.env?.DEV ? <SortableObject /> : null}
       <div className="charaList" hidden={sortable}>
         {items.map((chara, i) => (
           <Link
@@ -193,7 +193,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
     [state]
   );
   const notHide = useMemo(
-    () => import.meta.env.DEV || filters?.some((v) => v === "notHide"),
+    () => import.meta.env?.DEV || filters?.some((v) => v === "notHide"),
     [filters]
   );
   const items = useMemo(() => {

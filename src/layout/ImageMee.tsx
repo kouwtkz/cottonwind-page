@@ -41,7 +41,7 @@ export function ImageMee({
   const refImg = useRef<HTMLImageElement | null>(null);
   const refImgSrc = useRef("");
   const refShowList = useRef<string[]>([]);
-  const isSetOrigin = originWhenDev && import.meta.env.DEV;
+  const isSetOrigin = originWhenDev && import.meta.env?.DEV;
 
   const src = _src || (isSetOrigin ? imageItem?.origin : imageItem?.URL) || "";
   const alt = _alt || imageItem?.name || imageItem?.src || "";
