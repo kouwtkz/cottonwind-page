@@ -25,7 +25,7 @@ export const SiteTitle = React.memo(function SiteTitle({
       >
         <h2>
           <ImageMee
-            src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
+            src="/static/images/webp/cottonwind_logo_min.webp"
             alt={title}
           />
         </h2>

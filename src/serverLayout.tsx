@@ -37,7 +37,7 @@ export function DefaultBody({
             <a href="/">
               <h2>
                 <img
-                  src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
+                  src="/static/images/webp/cottonwind_logo_min.webp"
                   alt={env?.TITLE}
                 />
               </h2>
@@ -204,7 +204,7 @@ export function ServerSimpleLayout({
             <a id="siteTitle" href="/" title={env?.TITLE}>
               <h2>
                 <img
-                  src="/static/images/webp/こっとんうぃんどロゴ.webp?v=2"
+                  src="/static/images/webp/cottonwind_logo_min.webp"
                   alt={env?.TITLE}
                 />
               </h2>
