@@ -5,7 +5,7 @@
       "name": "dev",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm run dev-with-api",
       "serverReadyAction": {
         "pattern": "//localhost.+m([0-9]+)",
         "uriFormat": "http://localhost:%s",
@@ -16,7 +16,7 @@
       "name": "start",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm start",
+      "command": "npm start-with-api",
       "serverReadyAction": {
         "pattern": "//127.0.0.1.([0-9]+)",
         "uriFormat": "http://localhost:%s",
