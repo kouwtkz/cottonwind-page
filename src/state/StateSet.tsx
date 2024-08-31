@@ -4,11 +4,8 @@ import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
-import { useEffect } from "react";
-import { create } from "zustand";
 import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, useFeedState } from "./FeedState";
-import { useCookies } from "react-cookie";
 import { EnvAtom, EnvState } from "./EnvState";
 import { useAtom } from "jotai";
 
@@ -37,7 +34,6 @@ export function StateSet() {
         <ImageState />
         <FeedState />
       </DataState>
-      <ManageState />
       {ThemeState.State()}
       {DarkThemeState.State()}
       {import.meta.env?.DEV ? (
@@ -47,34 +43,4 @@ export function StateSet() {
       ) : null}
     </>
   );
-}
-
-type ManageStateType = {
-  isLogin: boolean;
-  setIsLogin: (value: boolean) => void;
-  visibleWorkers: boolean;
-  setVisibleWorkers: (value: boolean) => void;
-};
-export const useManageState = create<ManageStateType>((set) => ({
-  isLogin: false,
-  setIsLogin: (value) => {
-    set(() => ({ isLogin: value }));
-  },
-  visibleWorkers: false,
-  setVisibleWorkers: (value) => {
-    set(() => ({ visibleWorkers: value }));
-  },
-}));
-
-function ManageState() {
-  const { isLogin, setIsLogin, setVisibleWorkers } = useManageState();
-  const [cookies] = useCookies();
-  useEffect(() => {
-    const serverData = document.getElementById("server-data");
-    setIsLogin(serverData?.dataset.isLogin === "true");
-  }, [setIsLogin]);
-  useEffect(() => {
-    if (isLogin) setVisibleWorkers("VisibleWorkers" in cookies);
-  }, [isLogin, cookies]);
-  return <></>;
 }

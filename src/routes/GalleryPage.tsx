@@ -49,7 +49,7 @@ import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useManageState } from "@/state/StateSet";
+import { isLoginAtom } from "@/state/EnvState";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -64,36 +64,42 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 }
 
 export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
-  const { isLogin } = useManageState();
+  const isLogin = useAtom(isLoginAtom)[0];
   return (
-    <div className="rbButtonArea z30">
-      <DropdownObject
-        listClassName="on row right transparent"
-        MenuButtonClassName="round large"
-        MenuButtonTitle="メニュー"
-        MenuButton={<MdOutlineMenu />}
-      >
-        <button
-          type="button"
-          className="round large"
-          title="ダウンロードする"
-          onClick={() => {}}
-        >
-          <MdFileDownload />
-        </button>
-        <button
-          type="button"
-          className="round large"
-          title="アップロードする"
-          onClick={() => {
-            const uploadElm = document.querySelector(`input#upload_${group}`);
-            if (uploadElm) (uploadElm as HTMLInputElement).click();
-          }}
-        >
-          <MdFileUpload />
-        </button>
-      </DropdownObject>
-    </div>
+    <>
+      {isLogin ? (
+        <div className="rbButtonArea z30">
+          <DropdownObject
+            listClassName="on row right transparent"
+            MenuButtonClassName="round large"
+            MenuButtonTitle="メニュー"
+            MenuButton={<MdOutlineMenu />}
+          >
+            <button
+              type="button"
+              className="round large"
+              title="ダウンロードする"
+              onClick={() => {}}
+            >
+              <MdFileDownload />
+            </button>
+            <button
+              type="button"
+              className="round large"
+              title="アップロードする"
+              onClick={() => {
+                const uploadElm = document.querySelector(
+                  `input#upload_${group}`
+                );
+                if (uploadElm) (uploadElm as HTMLInputElement).click();
+              }}
+            >
+              <MdFileUpload />
+            </button>
+          </DropdownObject>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -463,7 +469,7 @@ function GalleryBody({
     showGalleryLabel,
     showCount,
   };
-  const { isLogin } = useManageState();
+  const isLogin = useAtom(isLoginAtom)[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const inPageList = useMemo(
     () =>

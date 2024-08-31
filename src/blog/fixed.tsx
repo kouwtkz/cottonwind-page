@@ -2,17 +2,16 @@ import React, { Suspense, HTMLAttributes, useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { AiFillCaretLeft, AiFillCaretRight } from "react-icons/ai";
 import { Link, useSearchParams } from "react-router-dom";
-import { useManageState } from "@/state/StateSet";
 import { AiFillEdit } from "react-icons/ai";
 import { TfiWrite } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
 import { PiHandsClapping } from "react-icons/pi";
 import { useAtom } from "jotai";
-import { EnvAtom } from "@/state/EnvState";
+import { EnvAtom, isLoginAtom } from "@/state/EnvState";
 
 type FixedProps = { max?: number };
 export default function Fixed({ max }: FixedProps) {
-  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
+  const isLogin = useAtom(isLoginAtom)[0];
   return (
     <Suspense>
       <div className="fixed rightBottom">
@@ -30,7 +29,7 @@ export default function Fixed({ max }: FixedProps) {
 
 type PostDetailFixedProps = { postId: string; posts: Post[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
-  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
+  const isLogin = useAtom(isLoginAtom)[0];
   return (
     <Suspense>
       <div className="fixed rightBottom">

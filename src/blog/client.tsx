@@ -9,11 +9,11 @@ import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
 import { pageIsCompleteAtom } from "@/state/DataState";
-import { useManageState } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { useAtom } from "jotai";
+import { isLoginAtom } from "@/state/EnvState";
 
 export function BlogPage({
   blogEnable,
@@ -73,7 +73,7 @@ export function PostsPage({
   const { posts } = usePostState();
   const take = postId ? undefined : 10;
   const { localDraft, setLocalDraft } = useLocalDraftPost();
-  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
+  const isLogin = useAtom(isLoginAtom)[0];
   useEffect(() => {
     if (!isLogin) return;
     const item = getLocalDraft();
@@ -150,7 +150,7 @@ export function PostsPage({
 
 type OnePostProps = { post?: Post; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
-  const isLogin = import.meta.env?.DEV || useManageState().isLogin;
+  const isLogin = useAtom(isLoginAtom)[0];
   const { removeLocalDraft } = useLocalDraftPost();
   const nav = useNavigate();
   useHotkeys("b", () => {
