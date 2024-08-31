@@ -2,8 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite --host --port 51730",
-    "dev-api": "npx wrangler dev --local -c wrangler-api.toml --port 51731",
-    "remote-api": "npx wrangler dev --remote -c wrangler-api.toml --port 51731",
+    "dev-api": "npx wrangler dev --local -c wrangler-api.toml --port 51731 --test-scheduled",
+    "remote-api": "npx wrangler dev --remote -c wrangler-api.toml --port 51731 --test-scheduled",
     "dev-with-api": "npx run-p dev dev-api",
     "dev-remote-api": "npx run-p dev remote-api",
     "build": "npx vite build --mode client && npm run build-worker && npm run build-ssg",

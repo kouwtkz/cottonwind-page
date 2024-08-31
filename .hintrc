@@ -18,7 +18,13 @@
     "no-inline-styles": "off",
     "create-element-svg": "off",
     "typescript-config/is-valid": "off",
-    "disown-opener": "off"
+    "disown-opener": "off",
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id": "off"
+      }
+    ]
   },
   "browserslist": [
     "defaults",

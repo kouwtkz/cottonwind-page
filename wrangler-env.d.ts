@@ -30,6 +30,9 @@ interface MeeCommonEnv extends SiteConfigEnv {
   ORIGIN_HOST?: string;
   LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
+  LIFE_CHECK_URL?: string;
+  LIFE_CHECK_CHALLENGE?: string;
+  LIFE_CHECK_VERIFIER?: string;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {

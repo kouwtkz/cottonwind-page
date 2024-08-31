@@ -5,7 +5,7 @@ import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
 
 export function ServerCommon(app: CommonHono) {
-  app.post("/api/life", async (c) => {
+  app.post("/life/check", async (c) => {
     const body = await c.req.text();
     const result = c.env.LIFE_CHECK_CHALLENGE === body;
     if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");

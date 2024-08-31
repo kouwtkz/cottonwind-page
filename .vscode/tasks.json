@@ -39,13 +39,13 @@
     },
     {
       "type": "shell",
-      "command": "curl http://localhost:5173",
+      "command": "curl http://localhost:51730",
       "label": "curl: home",
       "group": "test"
     },
     {
       "type": "shell",
-      "command": "curl -X POST http://localhost:5173/test --data-urlencode 'text=${input:text}'",
+      "command": "curl -X POST http://localhost:51730/test --data-urlencode 'text=${input:text}'",
       "label": "curl: test post",
       "group": "test"
     },
@@ -58,6 +58,12 @@
       "type": "shell",
       "command": "npm run init-db-schema",
       "label": "db:schema.sql"
+    },
+    {
+      "type": "shell",
+      "command": "curl http://localhost:51731/__scheduled?cron=${input:cron}",
+      "label": "test: scheduled",
+      "group": "test"
     }
   ],
   "inputs": [
@@ -83,6 +89,16 @@
         "--command='SELECT * FROM Lastmod' --local",
         "--file=./schema.sql --remote",
         "--command='SELECT * FROM Lastmod' --remote"
+      ],
+      "default": ""
+    },
+    {
+      "type": "pickString",
+      "id": "cron",
+      "description": "select cron.",
+      "options": [
+        { "label": "朝の4時", "value": "0+19+*+*+*" },
+        { "label": "毎時0分と30分", "value": "0,30+*+*+*+*" }
       ],
       "default": ""
     }

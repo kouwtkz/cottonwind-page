@@ -4,7 +4,7 @@
     ".dev.vars": "toml",
     ".env.*": "properties"
   },
-  "vs-browser.url": "http://localhost:5173/",
+  "vs-browser.url": "http://localhost:51730/",
   "VsCodeTaskButtons.tasks": [
     { "task": "npm" },
     { "label": "update", "task": "npm: update" },
