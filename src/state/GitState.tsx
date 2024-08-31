@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { create } from "zustand";
 import axios from "axios";
 import { GoTriangleDown, GoTriangleRight } from "react-icons/go";
@@ -148,10 +154,14 @@ function MonthItem({
   const handleToggle = () => {
     setReadMore(!readMore);
   };
+  const monthDateCount = useMemo(
+    () => value.reduce((a, c) => a + c.messages.length, 1),
+    [value]
+  );
   return (
     <div className={"monthItem" + (readMore ? " open" : "")}>
       <ReadMoreTextButton
-        text={`${month}月`}
+        text={`${month}月 (${monthDateCount}件)`}
         readMore={readMore}
         onClick={handleToggle}
       />
