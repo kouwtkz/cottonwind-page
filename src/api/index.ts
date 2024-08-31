@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { app_blog_api } from "../blog/api";
 export const app = new Hono<MeeAPIBindings>();
 import { cors } from 'hono/cors';
+import { app_test_api } from "./test";
 
 app.use("*", (c, next) => {
   const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51730"];
@@ -9,6 +10,7 @@ app.use("*", (c, next) => {
 })
 
 app.route("/blog", app_blog_api);
+app.route("/test", app_test_api);
 
 app.get("/", (c) => {
   return c.text("めぇ")
