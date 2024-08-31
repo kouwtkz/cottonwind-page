@@ -3,20 +3,28 @@ export class MeeSqlClass<T> {
   constructor(db: T) {
     this.db = db as MeeSqlDBProps & T;
   }
-  sqlWhere<K>(where?: findWhereType<K>) {
+  static sqlWhere<K>(where?: findWhereType<K>) {
     const sqlObject = where ? whereToSql<K>(where) : null;
     let sql = "";
     if (sqlObject?.where) sql = sql + sqlObject.where;
     return { sql, bind: sqlObject?.bind }
   }
-  async select<K>({ params = "*", table, orderBy, where, take, skip }: MeeSqlSelectProps<K>) {
+  static selectBindSQL<K, L = string>({ params = "*", table, orderBy, where, take, skip, viewSql }: MeeSqlSelectProps<K>) {
     const param = (Array.isArray(params) ? params : [params])
-      .map(f => {
-        const field = String(f);
-        return field === "*" || /[\("']/.test(field) ? field : ("`" + field + "`")
-      }).join(", ");
-    let { sql, bind = [] } = this.sqlWhere(where);
-    sql = "SELECT " + param + " FROM `" + table + "`" + sql;
+      .reduce((a, f) => {
+        (typeof f === "object" ? Object.entries(f) : [[f, null]])
+          .forEach(([k, v]) => {
+            const field = k as string;
+            let sql = field === "*" || /[\("']/.test(field) ? field : ("`" + field + "`");
+            const As = v as L;
+            if (As) sql = sql + ` AS \`${As}\``;
+            a.push(sql);
+          })
+        return a;
+      }, [] as string[])
+      .join(", ");
+    let { sql, bind = [] } = MeeSqlClass.sqlWhere(where);
+    sql = `SELECT ${param} FROM \`${table}\`` + sql;
     if (orderBy) {
       const orderByList =
         (Array.isArray(orderBy) ? orderBy : [orderBy])
@@ -32,104 +40,237 @@ export class MeeSqlClass<T> {
         sql = sql + " ORDER BY "
           + orderByList.map(e => {
             const [k, v] = Object.entries(e)[0];
-            return "`" + k + "` " + v.toUpperCase();
+            return `\`${k}\` ` + v.toUpperCase();
           }).join(", ");
       }
     }
     if (take) sql = sql + " LIMIT " + take + (skip ? (" OFFSET " + skip) : "");
+    if (viewSql) {
+      console.log("SQL: ", sql);
+      console.log("Bind: ", ...bind);
+    }
+    return { bind, sql };
+  }
+  async select<K>(args: MeeSqlSelectProps<K>) {
+    const { bind, sql } = MeeSqlClass.selectBindSQL(args)
     const stmt = this.db.prepare(sql);
     return stmt.bind(...bind).all();
   }
-  async insert<K extends Object>({ table, entry, rawEntry = {} as K }: MeeSqlInsertProps<K>) {
+  async insert<K extends Object>({ table, entry, rawEntry = {} as K, viewSql }: MeeSqlInsertProps<K>) {
     const entries = Object.entries(entry ?? {});
     const rawEntries = Object.entries(rawEntry);
-    const keys = entries.map((v) => "`" + v[0] + "`").concat(rawEntries.map((v) => "`" + v[0] + "`"));
+    const keys = entries.map((v) => `\`${v[0]}\``).concat(rawEntries.map((v) => `\`${v[0]}\``));
     const values = entries.map(() => "?").concat(rawEntries.map((v) => v[1]));
-    let sql = "INSERT INTO `" + table + "` " + (keys.length > 0 ? `(${keys.join(", ")}) VALUES (${values.join(", ")})` : "DEFAULT VALUES");
+    let sql = `INSERT INTO \`${table}\` ` + (keys.length > 0 ? `(${keys.join(", ")}) VALUES (${values.join(", ")})` : "DEFAULT VALUES");
+    const bind = entries.map((v) => v[1]);
+    if (viewSql) {
+      console.log("SQL: ", sql);
+      console.log("Bind: ", ...bind);
+    }
     const stmt = this.db.prepare(sql);
-    return stmt.bind(...entries.map((v) => v[1])).run();
+    return stmt.bind(...bind).run();
   }
-  async update<K extends Object>({ table, entry, rawEntry = {} as K, where, take, skip }: MeeSqlUpdateProps<K>) {
+  async insertSelect<K extends Object, L = string>({ params = "*", table, from, viewSql, ...args }: MeeSqlInsertSelectProps<K>) {
+    let sql = `INSERT INTO \`${table}\` `;
+    const { sql: selectSql, bind } = MeeSqlClass.selectBindSQL<K>({ params, table: from, ...args });
+    if (params !== "*") {
+      const asList = (Array.isArray(params) ? params : [params])
+        .reduce((a, f) => {
+          (typeof f === "object" ? Object.entries(f) : [[f, null]])
+            .forEach(([k, v]) => { a.push(v ?? k) })
+          return a;
+        }, [] as L[]);
+      if (asList.length > 0) sql = sql + `(${asList.map(v => `\`${v}\``).join(", ")}) `;
+    }
+    sql = sql + selectSql;
+    if (viewSql) {
+      console.log("SQL: ", sql);
+      console.log("Bind: ", ...bind);
+    }
+    const stmt = this.db.prepare(sql);
+    return stmt.bind(...bind).run();
+  }
+  async update<K extends Object>({ table, entry, rawEntry = {} as K, where, take, skip, viewSql }: MeeSqlUpdateProps<K>) {
     const entries = Object.entries(entry ?? {});
-    const rawEntries = Object.entries(rawEntry).map((v) => "`" + v[0] + "` = " + v[1]);
-    let sql = "UPDATE `" + table + "` SET " + entries.map((v) => "`" + v[0] + "` = ?").concat(rawEntries).join(", ");
-    const { sql: whereSql, bind } = this.sqlWhere(where);
+    const rawEntries = Object.entries(rawEntry).map((v) => `\`${v[0]}\` = ${v[1]}`);
+    let sql = `UPDATE \`${table}\` SET ` + entries.map((v) => `\`${v[0]}\` = ?`).concat(rawEntries).join(", ");
+    const { sql: whereSql, bind: whereBind } = MeeSqlClass.sqlWhere(where);
     if (whereSql) sql = sql + whereSql;
     if (take) sql = sql + " LIMIT " + take + (skip ? (" OFFSET " + skip) : "");
+    const bind = entries.map((v) => v[1]).concat(whereBind);
+    if (viewSql) {
+      console.log("SQL: ", sql);
+      console.log("Bind: ", ...bind);
+    }
     const stmt = this.db.prepare(sql);
-    return stmt.bind(...(entries.map((v) => v[1]).concat(bind))).run();
+    return stmt.bind(...bind).run();
   }
-  async delete<K>({ table, where, take, skip }: MeeSqlDeleteProps<K>) {
-    let { sql, bind = [] } = this.sqlWhere(where);
+  async delete<K>({ table, where, take, skip, viewSql }: MeeSqlDeleteProps<K>) {
+    let { sql, bind = [] } = MeeSqlClass.sqlWhere(where);
     sql = "DELETE FROM `" + table + "`" + sql;
     if (take) sql = sql + " LIMIT " + take + (skip ? (" OFFSET " + skip) : "");
+    if (viewSql) {
+      console.log("SQL: ", sql);
+      console.log("Bind: ", ...bind);
+    }
     const stmt = this.db.prepare(sql);
     return stmt.bind(...bind).run();
   }
   static isoFormat(time = "'now'") { return `strftime('%Y-%m-%dT%H:%M:%fZ', ${time})` };
-  async createTable<K = any>({ table, notExists, entry }: MeeSqlCreateProps<K>) {
+  async createTable<K = any>({ table, notExists, entry, withoutRowid, indexName, viewSql }: MeeSqlCreateTableProps<K>) {
     let sql = "CREATE TABLE";
     if (notExists) sql = sql + " IF NOT EXISTS";
-    sql = sql + " `" + table + "`("
-      + Object.entries(entry).map(([k, _v]) => {
-        const v: MeeSqlCreateTableEntryItemType = (_v && typeof _v === "object") ? _v : { default: _v };
-        let sql = "`" + k + "`";
-        const defaultTypeof = typeof v.default;
-        let fieldType: sqliteValueType | undefined = v.type;
-        if (typeof fieldType === "undefined") {
-          switch (defaultTypeof) {
-            case "string":
-              fieldType = "TEXT";
-              break;
-            case "number":
-              fieldType = "NUMERIC";
-              break;
-            case "boolean":
-            case "bigint":
-              fieldType = "INTEGER";
-              break;
-            default:
-              if (v.createAt) fieldType = "TEXT";
-              else fieldType = "";
-          }
+    const primaries: { key: string, autoIncrement?: boolean }[] = [];
+    type indexFieldsMapType = { value: keyof K; orderBy?: OrderByType };
+    const indexFieldsMap: Map<string, (indexFieldsMapType)[]> = new Map();
+    let indexUnique: boolean | undefined = undefined;
+    const items = Object.entries(entry).map(([k, _v]) => {
+      const v: MeeSqlCreateTableEntryItemType<K> = (_v && typeof _v === "object") ? _v : { default: _v };
+      let sql = "`" + k + "`";
+      const defaultTypeof = typeof v.default;
+      let fieldType: sqliteValueType | undefined = v.type;
+      if (typeof fieldType === "undefined") {
+        switch (defaultTypeof) {
+          case "string":
+            fieldType = "TEXT";
+            break;
+          case "number":
+            fieldType = "NUMERIC";
+            break;
+          case "boolean":
+          case "bigint":
+            fieldType = "INTEGER";
+            break;
+          default:
+            if (v.createAt) fieldType = "TEXT";
+            else if (v.primary) fieldType = "INTEGER";
+            else fieldType = "";
         }
-        if (fieldType) sql = sql + " " + fieldType;
-        if (v.primary) sql = sql + " PRIMARY KEY";
-        if (v.createAt) {
-          sql = sql + " NOT NULL DEFAULT (" + MeeSqlClass.isoFormat() + ")";
-        } else {
-          if (v.notNull) sql = sql + " NOT NULL";
-          if (v.unique) sql = sql + " UNIQUE";
-          if (defaultTypeof !== "undefined") {
-            sql = sql + " DEFAULT " + (fieldType === "TEXT" ? `'${v.default}'` : v.default);
-          }
+      }
+      if (v.autoIncrement) fieldType = "INTEGER";
+      if (fieldType) sql = sql + " " + fieldType;
+      if (v.primary || v.autoIncrement) primaries.push({ key: k, autoIncrement: v.autoIncrement });
+      if (typeof v.index) {
+        const indexFields: { value: keyof K; orderBy?: OrderByType } = { value: k as keyof K };
+        let indexKey: string = "";
+        switch (typeof v.index) {
+          case "object":
+            Object.entries(v.index).slice(0, 1).forEach(([key, v]) => {
+              if (v) indexKey = key;
+              if (typeof v === "object") {
+                indexUnique = v.unique;
+                indexFields.orderBy = v.orderBy;
+              }
+            });
+            break;
+          case "string":
+            indexKey = v.index;
+            break;
+          default:
+            if (v.index && indexName) indexKey = indexName;
+            break;
         }
+        if (indexKey && indexFields.value) {
+          if (indexFieldsMap.has(indexKey)) indexFieldsMap.get(indexKey)!.push(indexFields);
+          else indexFieldsMap.set(indexKey, [indexFields]);
+        }
+      }
+      if (v.createAt) {
+        sql = sql + " NOT NULL DEFAULT (" + MeeSqlClass.isoFormat() + ")";
+      } else {
+        if (v.notNull) sql = sql + " NOT NULL";
+        if (v.unique) sql = sql + " UNIQUE";
+        if (defaultTypeof !== "undefined") {
+          sql = sql + " DEFAULT " + (fieldType === "TEXT" ? `'${v.default}'` : v.default);
+        }
+      }
+      return sql;
+    });
+    if (primaries.length > 0) {
+      items.push("PRIMARY KEY (" + primaries.map(v => {
+        let sql = "`" + v.key + "`";
+        if (v.autoIncrement) sql = sql + " AUTOINCREMENT";
         return sql;
-      }).join(", ")
-      + ")";
+      }).join(", ") + ")");
+    }
+    sql = sql + " `" + table + "`(" + items.join(", ") + ")";
+    if (withoutRowid) sql = sql + " WITHOUT ROWID";
+    if (viewSql) console.log("SQL: ", sql);
+    const createTableExec = (async () => this.db.exec(sql))();
+    return createTableExec.then(async (v) => {
+      if (indexFieldsMap.size > 0) {
+        const indexPromiseList: Promise<unknown>[] = [];
+        indexFieldsMap.forEach(async (list, indexName) => {
+          indexPromiseList.push(this.createIndex({
+            table, indexName, unique: indexUnique, fields: list.map((v) => {
+              if (v.orderBy) return { [v.value]: v.orderBy };
+              else return v.value;
+            }) as CreateIndexFieldsType<K>[], viewSql
+          }));
+        })
+        await Promise.all(indexPromiseList);
+      }
+      return v;
+    });
+  }
+  static createIndexSQL<K = any>({ table, indexName, unique, fields, viewSql }: MeeSqlCreateIndexProps<K>) {
+    if (!Array.isArray(fields)) fields = [fields];
+    let sql = "CREATE";
+    if (unique) sql = sql + " UNIQUE";
+    sql = sql + ` INDEX \`${indexName}\` ON \`${table}\``;
+    sql = sql + `(${fields.reduce((a, c) => {
+      switch (typeof c) {
+        case "object":
+          Object.keys(c).forEach(k => {
+            const orderBy: OrderByType | undefined = c[k as keyof K];
+            if (orderBy) a.push(`\`${k}\` ${orderBy.toUpperCase()}`)
+          });
+          break;
+        case "string":
+          a.push(`\`${c}\``);
+          break;
+      }
+      return a;
+    }, [] as string[]).join(", ")})`;
+    if (viewSql) console.log("SQL: ", sql);
+    return sql
+  }
+  async createIndex<K = any>(args: MeeSqlCreateIndexProps<K>) {
+    return this.db.exec(MeeSqlClass.createIndexSQL<K>(args));
+  }
+  async dropTable({ table, viewSql }: MeeSqlBaseProps) {
+    const sql = `DROP TABLE \`${table}\``;
+    if (viewSql) console.log("SQL: ", sql);
     return this.db.exec(sql);
   }
-  async dropTable(table: string) {
-    this.db.exec("DROP TABLE `" + table + "`");
+  async dropIndex({ indexName, viewSql }: MeeSqlDropIndexProps) {
+    const sql = `DROP INDEX \`${indexName}\``;
+    if (viewSql) console.log("SQL: ", sql);
+    return this.db.exec(sql);
+  }
+  async renameTable({ table, from, viewSql }: MeeSqlRenameTableProps) {
+    const sql = `ALTER TABLE \`${from}\` RENAME TO \`${table}\``;
+    if (viewSql) console.log("SQL: ", sql);
+    return this.db.exec(sql);
   }
 }
 
 function whereToSql<T = any>(where: findWhereType<T>) {
   const bind: any[] = [];
-  function recursion(__where: findWhereType<T>): string {
-    return Object.entries(__where).map(([fkey, fval]) => {
+  function recursion(__where: findWhereType<T>, not = false): string {
+    let list1 = Object.entries(__where).map(([fkey, fval]) => {
       const field = "`" + fkey + "`";
-      const fvalWheres: findWhereType<T>[] = fval;
       switch (fkey) {
         case "AND":
         case "OR":
+          return (fval as findWhereType<T>[]).map((_val) => recursion(_val, not)).filter(v => v).join(` ${fkey} `);
         case "NOT":
-          return fvalWheres.map((_val) => recursion(_val)).filter(v => v).join(` ${fkey} `);
+          return recursion(fval, true);
         default:
           if (typeof fval === "object") {
             const _conditions: [any, any][] = Object.entries(fval);
             const conditions: [filterConditionsAllType, any][] = _conditions;
-            return conditions.map(([k, v]) => {
+            let list2 = conditions.map(([k, v]) => {
               if (typeof v === "object" && "test" in v) {
                 bind.push((v as RegExp).source);
                 return `${field} regexp ?`;
@@ -144,10 +285,10 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                   bind.push(`%${v}%`);
                   return `${field} LIKE ?`;
                 case "startsWith":
-                  bind.push(`%${v}`);
+                  bind.push(`${v}%`);
                   return `${field} LIKE ?`;
                 case "endsWith":
-                  bind.push(`${v}%`);
+                  bind.push(`%${v}`);
                   return `${field} LIKE ?`;
                 case "gt":
                   bind.push(v);
@@ -161,18 +302,28 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                 case "lte":
                   bind.push(v);
                   return `${field} <= ?`;
+                case "between":
+                  const args = (v as unknown[]).slice(0, 2);
+                  if (args.length === 2) {
+                    bind.push(...args);
+                    return `${field} BETWEEN ? AND ?`;
+                  } else return;
                 case "equals":
                 default:
                   bind.push(v);
                   return `${field} = ?`;
               }
             });
+            if (not) list2 = list2.map(v => "NOT " + v);
+            return list2;
           } else {
             bind.push(fval);
-            return `${field} = ?`;
+            if (not) return `${field} != ?`;
+            else return `${field} = ?`;
           }
       }
-    }).join(" ");
+    }).filter(v => v);
+    return list1.join(" ");
   }
   const whereString = recursion(where);
   return { where: whereString ? " WHERE " + whereString : "", bind };

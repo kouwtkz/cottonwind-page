@@ -1,11 +1,14 @@
-type logicalConditionsType = "AND" | "OR" | "NOT";
+type logicalConditionsType = "AND" | "OR";
+type logicalNotConditionsType = "NOT";
 type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not" | "in";
 type filterConditionsStringType = "contains" | "startsWith" | "endsWith";
 type filterConditionsBoolType = "bool";
-type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsBoolType;
-type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } | { [C in filterConditionsBoolType]?: boolean };
-type filterConditionsAllKeyValue<T> = { [C in filterConditionsType]?: T[K] } | filterConditionsBoolStringKeyValue;
-type objectSubmitDataType<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T> };
+type filterConditionsVariadicType = "between";
+type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType;
+type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean };
+type filterConditionsAllKeyValue<T, K> = { [C in filterConditionsType]?: T[K] } & { [C in filterConditionsVariadicType]?: T[K][] } & filterConditionsBoolStringKeyValue;
+type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T, K> };
+type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> } | filterConditionsGenericsAllKeyValue<T>;
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
 type findWhereWithConditionsType<T> = findWhereType<T> | filterConditionsAllType;
 

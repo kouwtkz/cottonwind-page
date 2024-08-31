@@ -18,9 +18,7 @@ pathes.forEach((n) => {
   app.get(`/d1${n}/insert`, async (c) => {
     const table = c.req.param("name") ?? defaultTable;
     const db = new MeeSqlD1(c.env.DB);
-    await db
-      .createTable({ table, entry: { text: "めぇ" } })
-      .catch(() => {});
+    await db.createTable({ table, entry: { text: "めぇ" } }).catch(() => {});
     await db.insert({ table, entry: { text: "mee3" } });
     return c.text("追加しました");
   });
@@ -33,7 +31,7 @@ pathes.forEach((n) => {
   app.get(`/d1${n}/delete`, async (c) => {
     const table = c.req.param("name") ?? defaultTable;
     const db = new MeeSqlD1(c.env.DB);
-    db.dropTable(table);
+    db.dropTable({ table });
     return c.text(table + "を削除しました");
   });
 });
