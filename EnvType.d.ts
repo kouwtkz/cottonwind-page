@@ -15,8 +15,3 @@ declare module '*/env.toml' {
   }
   export default value
 }
-
-declare module '*.toml' {
-  const value: unknown
-  export default value
-}
