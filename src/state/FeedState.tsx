@@ -1,43 +1,32 @@
-import { useLayoutEffect } from "react";
-import { create } from "zustand";
+import { atom, useAtom } from "jotai";
+import { useEffect } from "react";
+import { ApiOriginAtom } from "./EnvState";
 
-interface FeedStateType extends FeedContentsType {
-  isSet: boolean;
-  isBlank: boolean;
-  set: (limit?: number) => void;
-}
-
-export const useFeedState = create<FeedStateType>((set) => ({
-  isSet: false,
-  isBlank: true,
-  set: (limit = 3) => {
-    fetch("/get/feed")
-      .then((res) => {
-        return res.headers.get("Content-Type")?.startsWith("application/json")
-          ? res.json()
-          : null;
-      })
-      .then((json) => {
-        if (json) {
-          const { note } = json as FeedContentsType;
-          set({ note, isSet: true, isBlank: false });
-        } else set({ isSet: true });
-      });
-  },
-}));
+export const outFeedAtom = atom<FeedContentType>();
 
 export function FeedState() {
-  const { isSet, set } = useFeedState();
-  useLayoutEffect(() => {
-    if (!isSet) set();
-  }, [isSet]);
+  const setOutFeed = useAtom(outFeedAtom)[1];
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  useEffect(() => {
+    if (apiOrigin) {
+      fetch(apiOrigin + "/feed/get")
+        .then((res) => {
+          return res.headers.get("Content-Type")?.startsWith("application/json")
+            ? (res.json() as { note?: FeedContentType })
+            : null;
+        })
+        .then((json) => {
+          if (json && "note" in json) setOutFeed(json.note);
+        });
+    }
+  }, [apiOrigin]);
   return <></>;
 }
 
 export function NoteView() {
-  const { isBlank, note } = useFeedState();
-  const { title, link, list } = note ?? {};
-  if (isBlank) return <></>;
+  const outFeed = useAtom(outFeedAtom)[0];
+  const { title, link, list } = outFeed ?? {};
+  if (!outFeed) return <></>;
   return (
     <div className="blog">
       <h3>

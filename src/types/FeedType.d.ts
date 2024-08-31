@@ -23,10 +23,6 @@ type ZennScrapType = {
   list?: ZennScrapCommentType[];
 }
 
-type FeedContentsType = {
-  note?: FeedContentType;
-}
-
 type FeedDBType = {
   date: string,
   data: string

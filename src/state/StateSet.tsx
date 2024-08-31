@@ -5,7 +5,7 @@ import { ImageViewer } from "./ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
-import { FeedState, useFeedState } from "./FeedState";
+import { FeedState, outFeedAtom } from "./FeedState";
 import { EnvAtom, EnvState } from "./EnvState";
 import { useAtom } from "jotai";
 
@@ -20,9 +20,9 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 
 export function StateSet() {
   const isSetList = [
-    useFeedState().isSet,
     useImageState().imageObject.isSet,
     Boolean(useAtom(EnvAtom)[0]),
+    Boolean(useAtom(outFeedAtom)[0]),
   ];
   return (
     <>

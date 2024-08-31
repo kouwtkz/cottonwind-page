@@ -40,7 +40,6 @@ interface MeePagesEnv extends MeeCommonEnv {
   DISCORD_INVITE_QUESTION?: string;
   DISCORD_INVITE_ANSWER?: string;
   DISCORD_INVITE_URL?: string;
-  FEED_FROM?: string;
   FEED_DEV_FROM?: string;
   X_CLIENT_ID?: string;
   X_CLIENT_SECRET?: string;
@@ -56,5 +55,7 @@ interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
 }
 type MeePagesBindings = MeeBindings<MeePagesEnv>
 
-interface MeeAPIEnv extends MeeCommonEnv { }
+interface MeeAPIEnv extends MeeCommonEnv {
+  FEED_FROM?: string;
+}
 type MeeAPIBindings = MeeBindings<MeeAPIEnv>;

@@ -31,6 +31,8 @@ LOCAL_ORIGIN = "http://localhost:51730"
 LIFE_CHECK_URL = "https://cottonwind.com/life/check"
 # LIFE_CHECK_URL = "http://localhost:51730/life/check"
 
+FEED_FROM = "https://note.com/kouwtkz/rss"
+
 [[kv_namespaces]]
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"

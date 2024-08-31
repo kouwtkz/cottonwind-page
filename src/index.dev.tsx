@@ -33,13 +33,6 @@ app.get(stylePath, (c) => c.body(compactStyles));
 honoTest(app);
 ServerCommon(app);
 
-app.get("/get/test/rss", serveStatic({ path: "./_data/test/rss.xml" }));
-app.get("/get/feed", async (c, next) => {
-  const Url = new URL(c.req.url);
-  const url = c.env.FEED_DEV_FROM ?? Url.origin + "/get/test/rss";
-  return c.json(await FeedSet({ url, c, minute: 0.01 }));
-});
-
 app.get("/src/*", serveStatic({ root: "./" }));
 app.get("/_data/*", serveStatic({ root: "./" }));
 

@@ -16,12 +16,6 @@ app.use("*", (c, next) => {
 });
 // app.get("/assets/*", serveStatic());
 
-app.get("/get/feed", async (c, next) => {
-  if (c.env.FEED_FROM) {
-    return c.json(await FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
-  } else return next();
-});
-
 ServerCommon(app);
 
 RoutingList.forEach((path) => {

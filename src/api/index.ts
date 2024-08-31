@@ -3,6 +3,7 @@ import { app_blog_api } from "../blog/api";
 import { cors } from 'hono/cors';
 import { app_test_api } from "./test";
 import { scheduleTask } from "./schedule";
+import { FeedSet } from "@/ServerContent";
 
 export const app = new Hono<MeeAPIBindings>();
 
@@ -13,6 +14,12 @@ app.use("*", (c, next) => {
 
 app.route("/blog", app_blog_api);
 app.route("/test", app_test_api);
+
+app.get("/feed/get", async (c, next) => {
+  if (c.env.FEED_FROM) {
+    return c.json(await FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
+  } else return next();
+});
 
 app.get("/", (c) => {
   return c.text("めぇ")
