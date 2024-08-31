@@ -517,21 +517,34 @@ h2.lulo,
   }
   .list {
     position: absolute;
-    background-color: var(--form-background-color);
     left: 0;
     z-index: 100;
     text-align: left;
     width: max-content;
+    background-color: var(--form-background-color);
+    &.transparent {
+      background-color: transparent;
+    }
     :focus {
       outline: none;
       background-color: var(--main-color);
     }
-    & > *:nth-child(n) {
+    & > * {
       padding: 0.25em 0.5em;
       cursor: pointer;
-      &:hover {
+      &:not(.round):hover {
         background-color: var(--main-color);
       }
+    }
+    &.on {
+      margin-bottom: 100%;
+      bottom: 0;
+    }
+    &.row {
+      display: flex;
+    }
+    &.right {
+      margin-left: -100%;
     }
   }
 }
@@ -599,19 +612,22 @@ code {
     .hljs-comment {
       color: var(--main-color-light-grayish);
     }
-    .hljs-title, .hljs-keyword {
+    .hljs-title,
+    .hljs-keyword {
       color: var(--main-color);
     }
     .hljs-selector-class {
       color: var(--sub-color-soft);
     }
-    .hljs-variable, .hljs-number {
+    .hljs-variable,
+    .hljs-number {
       color: var(--main-color-highlight);
     }
     .hljs-selector-pseudo {
       color: var(--main-color-soft);
     }
-    &.language-css, &.language-scss {
+    &.language-css,
+    &.language-scss {
       .hljs-attribute {
         color: var(--sub-color-soft);
       }

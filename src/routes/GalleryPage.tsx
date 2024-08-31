@@ -39,7 +39,7 @@ import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
-import { MdFileUpload } from "react-icons/md";
+import { MdFileDownload, MdFileUpload, MdOutlineMenu } from "react-icons/md";
 import { findMee, setWhere } from "@/functions/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
@@ -48,6 +48,7 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
+import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -66,17 +67,33 @@ export function GalleryGroupPage({}: SearchAreaOptionsProps) {
     () =>
       import.meta.env?.DEV && group ? (
         <div className="rbButtonArea z30">
-          <button
-            type="button"
-            className="round large"
-            title="アップロードする"
-            onClick={() => {
-              const uploadElm = document.querySelector(`input[name="upload"]`);
-              if (uploadElm) (uploadElm as HTMLInputElement).click();
-            }}
+          <DropdownObject
+            listClassName="on row right transparent"
+            MenuButtonClassName="round large"
+            MenuButtonTitle="メニュー"
+            MenuButton={<MdOutlineMenu />}
           >
-            <MdFileUpload />
-          </button>
+            <button
+              type="button"
+              className="round large"
+              title="ダウンロードする"
+              onClick={() => {}}
+            >
+              <MdFileDownload />
+            </button>
+            <button
+              type="button"
+              className="round large"
+              title="アップロードする"
+              onClick={() => {
+                const uploadElm =
+                  document.querySelector(`input[name="upload"]`);
+                if (uploadElm) (uploadElm as HTMLInputElement).click();
+              }}
+            >
+              <MdFileUpload />
+            </button>
+          </DropdownObject>
         </div>
       ) : (
         <></>

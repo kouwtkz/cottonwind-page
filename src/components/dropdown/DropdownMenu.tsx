@@ -1,8 +1,10 @@
 import {
+  CSSProperties,
   HTMLAttributes,
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -16,10 +18,12 @@ export type MenuButtonType =
 
 export interface DropdownObjectBaseProps {
   className?: string;
+  style?: CSSProperties;
   MenuButton?: MenuButtonType;
   MenuButtonTitle?: string;
   MenuButtonClassName?: string;
   autoClose?: boolean;
+  listClassName?: string;
 }
 
 interface DropdownObjectProps extends DropdownObjectBaseProps {
@@ -30,9 +34,11 @@ interface DropdownObjectProps extends DropdownObjectBaseProps {
 
 export function DropdownObject({
   className,
+  style,
   MenuButton,
   MenuButtonTitle,
   MenuButtonClassName,
+  listClassName,
   children,
   onClick,
   onClickFadeOutTime,
@@ -53,9 +59,15 @@ export function DropdownObject({
   useEffect(() => {
     if (!_menuFocus) setIsOpen(false);
   }, [_menuFocus]);
+  const _listClassName = useMemo(() => {
+    const list = ["list"];
+    if (listClassName) list.push(listClassName);
+    return list.join(" ");
+  }, [listClassName]);
   return (
     <div
       className={className ?? "dropdown"}
+      style={style}
       tabIndex={-1}
       onFocus={() => {
         setMenuFocus(true);
@@ -85,7 +97,7 @@ export function DropdownObject({
         </button>
       )}
       <div
-        className="list"
+        className={_listClassName}
         hidden={!isOpen}
         onClick={(e) => {
           if (onClick) onClick(e.target as HTMLElement);
