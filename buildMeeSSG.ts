@@ -66,7 +66,7 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
       } else throw ("Honoがデフォルトのエクスポートじゃないです");
     });
   console.log({ src, dir, config: configPath ?? "wrangler.toml" });
-  
+
   const params = (await generateStaticParams() ?? []).concat(staticParams);
   const proxy = await getPlatformProxy<MeeCommonEnv>({ configPath });
   app.routes.forEach(async (route) => {
@@ -97,8 +97,12 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
       })
     ).then(async (list) => {
       list.forEach(async ({ routePath, result: r }) => {
-        if ((r.ok || !isNaN(Number(base))) && route.method === "GET") {
-          if (base.indexOf(".") < 0) routePath = routePath + ".html";
+        const isErrorPage = base && !isNaN(Number(base));
+        if ((r.ok || isErrorPage) && route.method === "GET") {
+          if (base.indexOf(".") < 0) {
+            if (isErrorPage) routePath = routePath + ".html";
+            else routePath = routePath + (base ? "/" : "") + "index.html";
+          }
           const filepath = dir + routePath;
           await fs.mkdir(dirname(filepath), { recursive: true }).catch(() => { });
           await fs.writeFile(filepath, await r.text())
@@ -107,7 +111,6 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
       })
     });;
   })
-
   await proxy.dispose();
 }
 
