@@ -7,12 +7,6 @@ export const app = new Hono<MeeBindings>();
 app.get("/posts", async (c) => {
   try {
     const posts = await getPostsData(c);
-    if ('dl' in c.req.query() && IsLogin(c))
-      return c.newResponse(JSON.stringify(posts), {
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-      });
     return c.json(posts);
   } catch (e) {
     console.error(e);

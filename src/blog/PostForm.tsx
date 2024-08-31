@@ -29,6 +29,7 @@ import {
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
 import { ApiOriginAtom } from "@/state/EnvState";
+import { fileDownload } from "@/components/FileTool";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -81,7 +82,7 @@ function dateJISOfromDate(date?: Date | null) {
 export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
-  const { posts, Reload, url } = usePostState();
+  const { posts, Reload } = usePostState();
   const [apiOrigin] = useAtom(ApiOriginAtom);
   const nav = useNavigate();
   const base = searchParams.get("base");
@@ -456,16 +457,49 @@ export function PostForm() {
           <PostEditSelectInsert textarea={textareaRef.current} />
           <DropdownObject
             MenuButton="操作"
-            onClick={(e) =>
-              setOperation({
-                value: e.dataset.value ?? "",
-                onChangePostId,
-                onDuplication,
-                onDelete,
-                jsonUrl: url,
-                apiOrigin,
-              })
-            }
+            onClick={(e) => {
+              switch (e.dataset.value) {
+                case "postid":
+                  onChangePostId();
+                  break;
+                case "duplication":
+                  onDuplication();
+                  break;
+                case "delete":
+                  onDelete();
+                  break;
+                case "download":
+                  if (confirm("記事データを一括で取得しますか？")) {
+                    fileDownload("posts.json", JSON.stringify(posts));
+                  }
+                  break;
+                case "upload":
+                  const uploadFileSelector = document.createElement("input");
+                  uploadFileSelector.type = "file";
+                  uploadFileSelector.accept = "application/json";
+                  uploadFileSelector.onchange = () => {
+                    if (
+                      uploadFileSelector.files &&
+                      confirm("記事データを一括で上書きしますか？")
+                    ) {
+                      axios
+                        .post(
+                          apiOrigin + "/blog/send/all",
+                          uploadFileSelector.files[0],
+                          {
+                            withCredentials: true,
+                          }
+                        )
+                        .then(() => {
+                          alert("記事データを上書きしました。");
+                          location.href = "/blog";
+                        });
+                    }
+                  };
+                  uploadFileSelector.click();
+                  break;
+              }
+            }}
           >
             <MenuItem value="postid">ID名</MenuItem>
             <MenuItem value="duplication">複製</MenuItem>
@@ -565,60 +599,4 @@ function setAttached({
     }
   });
   inputAttached.style.display = files.length === 0 ? "none" : "";
-}
-
-export function setOperation({
-  value,
-  onChangePostId,
-  onDuplication,
-  onDelete,
-  jsonUrl,
-  apiOrigin,
-}: {
-  value: string;
-  onChangePostId: () => void;
-  onDuplication: () => void;
-  onDelete: () => void;
-  jsonUrl?: string;
-  apiOrigin?: string;
-}) {
-  switch (value) {
-    case "postid":
-      onChangePostId();
-      break;
-    case "duplication":
-      onDuplication();
-      break;
-    case "delete":
-      onDelete();
-      break;
-    case "download":
-      if (jsonUrl) {
-        if (confirm("記事データを一括で取得しますか？")) {
-          location.href = jsonUrl + "?dl";
-        }
-      }
-      break;
-    case "upload":
-      const uploadFileSelector = document.createElement("input");
-      uploadFileSelector.type = "file";
-      uploadFileSelector.accept = "application/json";
-      uploadFileSelector.onchange = () => {
-        if (
-          uploadFileSelector.files &&
-          confirm("記事データを一括で上書きしますか？")
-        ) {
-          axios
-            .post(apiOrigin + "/blog/send/all", uploadFileSelector.files[0], {
-              withCredentials: true,
-            })
-            .then(() => {
-              alert("記事データを上書きしました。");
-              location.href = "/blog";
-            });
-        }
-      };
-      uploadFileSelector.click();
-      break;
-  }
 }
