@@ -509,6 +509,23 @@ h2.lulo,
   height: 100%;
 }
 
+.rbButtonArea {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  &.z30 {
+    z-index: 30;
+  }
+  button.round,
+  .button.round {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
 .dropdown {
   position: relative;
   > button,
@@ -522,29 +539,48 @@ h2.lulo,
     text-align: left;
     width: max-content;
     background-color: var(--form-background-color);
-    &.transparent {
-      background-color: transparent;
-    }
     :focus {
       outline: none;
       background-color: var(--main-color);
     }
+    & > div {
+      padding: 0.25em 0.75em;
+    }
     & > * {
-      padding: 0.25em 0.5em;
       cursor: pointer;
       &:not(.round):hover {
         background-color: var(--main-color);
       }
     }
-    &.on {
-      margin-bottom: 100%;
-      bottom: 0;
+  }
+  .menu > * {
+    display: flex;
+  }
+  &.flex {
+    display: flex;
+    pointer-events: none;
+    :not(div) {
+      pointer-events: all;
     }
-    &.row {
-      display: flex;
+    .list {
+      position: inherit;
+    }
+    &.on {
+      flex-direction: column-reverse;
     }
     &.right {
-      margin-left: -100%;
+      align-items: flex-end;
+    }
+    &.row {
+      > * {
+        display: flex;
+      }
+      &.right .menu {
+        flex-direction: row-reverse;
+      }
+    }
+    &.transparent .list {
+      background-color: transparent;
     }
   }
 }
@@ -1639,22 +1675,6 @@ select.YearFilter {
   }
 }
 
-.rbButtonArea {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: row-reverse;
-  &.z30 {
-    z-index: 30;
-  }
-  button.round {
-    margin-right: $size_2;
-    margin-bottom: $size_2;
-  }
-}
-
 .label,
 .label-s {
   margin-bottom: $size_1;
@@ -2331,10 +2351,12 @@ form.blogEdit {
   select {
     cursor: pointer;
   }
-  button.text {
-    margin-left: 0.5rem;
-    padding: 0.25rem 1rem;
-    border-radius: 1rem;
+  button {
+    padding: 0.25em 1em;
+    &.text {
+      border-radius: 1rem;
+      margin-left: 0.5rem;
+    }
   }
   > * {
     padding: 0.5rem 0;

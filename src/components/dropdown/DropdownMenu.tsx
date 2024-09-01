@@ -18,10 +18,13 @@ export type MenuButtonType =
 
 export interface DropdownObjectBaseProps {
   className?: string;
+  addClassName?: string;
   style?: CSSProperties;
   MenuButton?: MenuButtonType;
+  MenuButtonWhenOpen?: ReactNode;
   MenuButtonTitle?: string;
   MenuButtonClassName?: string;
+  MenuButtonAfter?: ReactNode;
   autoClose?: boolean;
   listClassName?: string;
 }
@@ -34,8 +37,11 @@ interface DropdownObjectProps extends DropdownObjectBaseProps {
 
 export function DropdownObject({
   className,
+  addClassName,
   style,
   MenuButton,
+  MenuButtonWhenOpen,
+  MenuButtonAfter,
   MenuButtonTitle,
   MenuButtonClassName,
   listClassName,
@@ -59,6 +65,11 @@ export function DropdownObject({
   useEffect(() => {
     if (!_menuFocus) setIsOpen(false);
   }, [_menuFocus]);
+  const _className = useMemo(() => {
+    const list = [className ?? "dropdown"];
+    if (addClassName) list.push(addClassName);
+    return list.join(" ");
+  }, [className, addClassName]);
   const _listClassName = useMemo(() => {
     const list = ["list"];
     if (listClassName) list.push(listClassName);
@@ -66,7 +77,7 @@ export function DropdownObject({
   }, [listClassName]);
   return (
     <div
-      className={className ?? "dropdown"}
+      className={_className}
       style={style}
       tabIndex={-1}
       onFocus={() => {
@@ -76,26 +87,29 @@ export function DropdownObject({
         setMenuFocus(false);
       }}
     >
-      {typeof MenuButton === "function" ? (
-        <MenuButton
-          tabIndex={0}
-          isOpen={isOpen}
-          className={MenuButtonClassName}
-          onClick={toggleIsOpen}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") toggleIsOpen();
-          }}
-        />
-      ) : (
-        <button
-          className={MenuButtonClassName}
-          type="button"
-          title={MenuButtonTitle}
-          onClick={toggleIsOpen}
-        >
-          {MenuButton}
-        </button>
-      )}
+      <div className="menu">
+        {typeof MenuButton === "function" ? (
+          <MenuButton
+            tabIndex={0}
+            isOpen={isOpen}
+            className={MenuButtonClassName}
+            onClick={toggleIsOpen}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") toggleIsOpen();
+            }}
+          />
+        ) : (
+          <button
+            className={MenuButtonClassName}
+            type="button"
+            title={MenuButtonTitle}
+            onClick={toggleIsOpen}
+          >
+            {isOpen ? MenuButtonWhenOpen ?? MenuButton : MenuButton}
+          </button>
+        )}
+        {MenuButtonAfter ? <div>{MenuButtonAfter}</div> : null}
+      </div>
       <div
         className={_listClassName}
         hidden={!isOpen}

@@ -31,10 +31,7 @@ import {
 } from "react-icons/md";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
-import {
-  PostTextarea,
-  usePreviewMode,
-} from "@/components/parse/PostTextarea";
+import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useCharaState } from "@/state/CharaState";
 import { AutoImageItemType } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
@@ -47,6 +44,7 @@ import {
 } from "@/components/dropdown/PostEditSelect";
 import { useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
+import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -360,7 +358,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   return (
     <>
-      <div className="rbButtonArea">
+      <RbButtonArea>
         <button
           title={isEdit ? "保存" : "編集"}
           type="button"
@@ -427,7 +425,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <MdOutlineContentCopy />
           </button>
         )}
-      </div>
+      </RbButtonArea>
       {isEdit ? (
         <form
           {...args}

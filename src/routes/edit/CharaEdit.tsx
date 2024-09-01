@@ -45,6 +45,7 @@ import { CharaListItem } from "../CharaPage";
 import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
+import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
@@ -317,7 +318,7 @@ export function CharaEditButton() {
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
   return (
-    <div className="rbButtonArea z30">
+    <RbButtonArea>
       {charaName ? null : sortable ? (
         <>
           <button
@@ -342,7 +343,7 @@ export function CharaEditButton() {
       ) : (
         <button
           type="button"
-          className="round"
+          className="round large"
           title="ソートモードにする"
           onClick={() =>
             setEditSwitch({ sortable: true, save: false, reset: false })
@@ -351,10 +352,14 @@ export function CharaEditButton() {
           <TbArrowsMove />
         </button>
       )}
-      <LinkMee to={{ query: { edit: "on" } }} className="button round large">
+      <LinkMee
+        to={{ query: { edit: "on" } }}
+        className="button round large"
+        title={charaName ? "キャラクターの編集" : "キャラクターの追加"}
+      >
         {charaName ? <MdEditNote /> : <MdAdd />}
       </LinkMee>
-    </div>
+    </RbButtonArea>
   );
 }
 
