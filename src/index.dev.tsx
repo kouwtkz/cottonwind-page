@@ -9,7 +9,7 @@ import { FeedSet, IsLogin } from "./ServerContent";
 import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
-import { CompactCode } from "@/functions/doc/StrFunctions.mjs";
+import { CompactCode } from "@/functions/doc/StrFunctions";
 import importStyles from "@/styles.scss";
 import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/GitlogObject";
