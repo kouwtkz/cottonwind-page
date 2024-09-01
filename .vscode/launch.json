@@ -5,23 +5,46 @@
       "name": "dev",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev-with-api",
-      "serverReadyAction": {
-        "pattern": "//localhost.+m([0-9]+)",
-        "uriFormat": "http://localhost:%s",
-        "action": "debugWithChrome"
-      }
+      "command": "npm run dev"
+    },
+    {
+      "name": "dev api",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-api"
     },
     {
       "name": "start",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm start-with-api",
-      "serverReadyAction": {
-        "pattern": "//127.0.0.1.([0-9]+)",
-        "uriFormat": "http://localhost:%s",
-        "action": "debugWithChrome"
-      }
+      "command": "npm start"
+    },
+    {
+      "name": "Launch Firefox",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "url": "http://localhost:51730"
+    },
+    {
+      "name": "Launch Chrome",
+      "type": "chrome",
+      "url": "http://localhost:51730",
+      "request": "launch"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Firefox dev with api",
+      "configurations": ["Launch Firefox", "dev", "dev api"]
+    },
+    {
+      "name": "Firefox start with api",
+      "configurations": ["Launch Firefox", "start", "dev api"]
+    },
+    {
+      "name": "Chrome dev with api",
+      "configurations": ["Launch Chrome", "dev", "dev api"]
     }
   ]
 }
