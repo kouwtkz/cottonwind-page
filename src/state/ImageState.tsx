@@ -10,19 +10,21 @@ interface ValueCountType {
 
 type ImageStateType = {
   imageObject: ImageClass;
-  setImageObject: (imageObject: ImageClass) => void;
+  url: string;
+  setImageObject: (imageObject: ImageClass, url?: string) => void;
   setImageFromUrl: (url?: string) => void;
 };
 
 export const useImageState = create<ImageStateType>((set) => ({
   imageObject: new ImageClass(),
-  setImageObject: (imageObject) => {
-    set(() => ({ imageObject }));
+  url: "",
+  setImageObject: (imageObject, url) => {
+    set(() => ({ imageObject, url }));
   },
   setImageFromUrl: (url = defaultUrl) => {
     set((state) => {
       state.imageObject.setImageFromUrl(url).then(() => {
-        state.setImageObject(state.imageObject);
+        state.setImageObject(state.imageObject, url);
       });
       return state;
     });

@@ -13,7 +13,14 @@ import { create } from "zustand";
 import { UrlObject } from "url";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/DataState";
-import { MdAdd, MdClose, MdDoneOutline, MdEditNote } from "react-icons/md";
+import {
+  MdAdd,
+  MdClose,
+  MdDoneOutline,
+  MdEditNote,
+  MdFileDownload,
+  MdFileUpload,
+} from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
@@ -46,6 +53,8 @@ import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
+import { fileDownload } from "@/components/FileTool";
+import { getName } from "@/functions/doc/PathParse";
 
 export default function CharaEditForm() {
   const nav = useNavigate();
@@ -313,12 +322,39 @@ export const useEditSwitchState = create<{
 export function CharaEditButton() {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const { charaName } = useParams();
+  const { url } = useCharaState();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
   return (
-    <RbButtonArea>
+    <RbButtonArea
+      dropdown={
+        <>
+          <button
+            type="button"
+            className="round large"
+            title="キャラデータのダウンロード"
+            onClick={async () => {
+              fileDownload(
+                getName(url) + ".json",
+                await fetch(url).then((r) => r.text())
+              );
+            }}
+          >
+            <MdFileDownload />
+          </button>
+          <button
+            type="button"
+            className="round large"
+            title="キャラデータのアップロード"
+            onClick={() => {}}
+          >
+            <MdFileUpload />
+          </button>
+        </>
+      }
+    >
       {charaName ? null : sortable ? (
         <>
           <button

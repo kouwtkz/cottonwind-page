@@ -13,10 +13,11 @@ type CharaStateType = {
   charaList: CharaType[];
   charaObject: CharaObjectType;
   charaTags: ContentsTagsOption[];
+  url: string;
   isSet: boolean;
   setIsSet: (flag: boolean) => void;
   setCharaList: (list: CharaType[]) => void;
-  setCharaObject: (data: CharaObjectType) => void;
+  setCharaObject: (data: CharaObjectType, url?: string) => void;
   isReload: boolean;
   Reload: () => void;
 };
@@ -25,6 +26,7 @@ export const useCharaState = create<CharaStateType>((set) => ({
   charaObject: {},
   charaList: [],
   charaTags: [],
+  url: "",
   isSet: false,
   setIsSet: (flag) => set(() => ({ isSet: flag })),
   setCharaList(list) {
@@ -32,7 +34,7 @@ export const useCharaState = create<CharaStateType>((set) => ({
       charaList: list,
     });
   },
-  setCharaObject: (data) => {
+  setCharaObject: (data, url) => {
     const charaList = Object.values(data) as CharaType[];
     charaList.forEach((v) => {
       if (v.tags && !Array.isArray(v.tags)) v.tags = [v.tags];
@@ -53,6 +55,7 @@ export const useCharaState = create<CharaStateType>((set) => ({
       charaTags,
       isSet: true,
       isReload: false,
+      url,
     });
   },
   isReload: true,
@@ -102,7 +105,7 @@ export function CharaState({ url = defaultUrl }: { url?: string }) {
             });
           },
         });
-        setCharaObject(data);
+        setCharaObject(data, url);
       });
     }
   }, [isReload, imageItemList]);

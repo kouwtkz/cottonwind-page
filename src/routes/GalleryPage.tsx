@@ -55,6 +55,8 @@ import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
 import { isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
+import { fileDownload } from "@/components/FileTool";
+import { getName } from "@/functions/doc/PathParse";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const galleryList = SiteConfigList.gallery.list;
@@ -70,6 +72,7 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 
 export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
   const isLogin = useAtom(isLoginAtom)[0];
+  const { url } = useImageState();
   return (
     <>
       {isLogin ? (
@@ -80,7 +83,12 @@ export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
                 type="button"
                 className="round large"
                 title="ダウンロードする"
-                onClick={() => {}}
+                onClick={async () => {
+                  fileDownload(
+                    getName(url) + ".json",
+                    await fetch(url).then((r) => r.text())
+                  );
+                }}
               >
                 <MdFileDownload />
               </button>
