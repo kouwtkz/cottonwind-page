@@ -14,8 +14,15 @@ export function getPathname(path: string) {
 export function getBasename(path: string) {
   path = getPathnameWithHost(path);
   const slashPoint = path.lastIndexOf("/");
-  if (slashPoint) path = path.slice(slashPoint + 1);
+  if (slashPoint >= 0) path = path.slice(slashPoint + 1);
   return path;
+}
+
+export function getName(path: string) {
+  let basename = getBasename(path);
+  const slashPoint = basename.lastIndexOf(".");
+  if (slashPoint >= 0) basename = basename.slice(0, slashPoint);
+  return basename;
 }
 
 export function getExtension(path: string) {
