@@ -17,7 +17,7 @@ app.route("/test", app_test_api);
 
 app.get("/feed/get", async (c, next) => {
   if (c.env.FEED_FROM) {
-    return c.json(await FeedSet({ url: c.env.FEED_FROM, c, minute: 10 }));
+    return c.json(await FeedSet({ url: c.env.FEED_FROM, env: c.env, minute: 10 }));
   } else return next();
 });
 

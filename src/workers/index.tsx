@@ -16,7 +16,7 @@ app.get("/info", async (c) => {
   return c.json({ ...c, ...{ cookie: getCookie(c) } });
 });
 app.get("/feed-update", async (c) => {
-  await FeedSet({ c, minute: 1 });
+  await FeedSet({ env: c.env, minute: 1 });
   return c.redirect("/");
 });
 app.get("/", async (c) => {
@@ -26,7 +26,10 @@ app.get("/", async (c) => {
   if (Url.searchParams.has(switchCookieKey)) {
     const cookieMode = Url.searchParams.get(switchCookieKey);
     if (cookieMode === "on") {
-      setCookie(c, cookieKey, "on", { maxAge: 34e6, domain: c.env.ORIGIN_HOST });
+      setCookie(c, cookieKey, "on", {
+        maxAge: 34e6,
+        domain: c.env.ORIGIN_HOST,
+      });
     } else if (cookieMode === "off") {
       deleteCookie(c, cookieKey);
     }
@@ -34,7 +37,10 @@ app.get("/", async (c) => {
   }
   const loginToken = getCookie(c, "LoginToken");
   if (loginToken !== c.env?.LOGIN_TOKEN)
-    setCookie(c, "LoginToken", String(c.env?.LOGIN_TOKEN), { maxAge: 32e6, domain: c.env.ORIGIN_HOST });
+    setCookie(c, "LoginToken", String(c.env?.LOGIN_TOKEN), {
+      maxAge: 32e6,
+      domain: c.env.ORIGIN_HOST,
+    });
   const cookieValue = getCookie(c, cookieKey);
   return c.html(
     renderToString(

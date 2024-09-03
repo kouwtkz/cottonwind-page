@@ -93,19 +93,19 @@ export async function ZenScrapGet(
   return scrapObject;
 }
 
-export async function FeedSet({ url, c, minute = 5 }: { url?: string, c: CommonContext<MeePagesEnv>, minute?: number }) {
-  if (!url) url = c.env.FEED_FROM;
+export async function FeedSet({ url, env, minute = 5 }: { url?: string, env: MeeCommonEnv, minute?: number }) {
+  if (!url) url = env.FEED_FROM;
   const keyName = "Feed";
-  const feedData = await c.env.KV.get(keyName).then(v => v ? JSON.parse(v) : null) as (FeedDBType | null);
+  const feedData = await env.KV.get(keyName).then(v => v ? JSON.parse(v) : null) as (FeedDBType | null);
   const feedStr = feedData?.data;
-  let feedObj = (feedStr ? JSON.parse(feedStr) : {}) as FeedContentsType;
+  let feedObj = (feedStr ? JSON.parse(feedStr) : {}) as FeedContentType;
   const doProcess = feedData?.date ? new Date().getTime() - new Date(feedData.date).getTime() > 6e4 * minute : true;
   if (doProcess) {
     let note: FeedContentType | undefined;
     if (url) note = await RssFeedGet(url);
     const date = new Date().toISOString();
     const newKvData: FeedDBType = { data: JSON.stringify({ note }), date }
-    c.env.KV.put(keyName, JSON.stringify(newKvData));
+    env.KV.put(keyName, JSON.stringify(newKvData));
   }
   return feedObj;
 }

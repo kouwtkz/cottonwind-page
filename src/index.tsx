@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
-import { FeedSet, IsLogin } from "./ServerContent";
+import { IsLogin } from "./ServerContent";
 import { renderToString } from "react-dom/server";
 import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";

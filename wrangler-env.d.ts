@@ -30,6 +30,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   ORIGIN_HOST?: string;
   LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
+  FEED_FROM?: string;
   LIFE_CHECK_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
@@ -56,6 +57,6 @@ interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
 type MeePagesBindings = MeeBindings<MeePagesEnv>
 
 interface MeeAPIEnv extends MeeCommonEnv {
-  FEED_FROM?: string;
+  BUCKET: R2Bucket;
 }
 type MeeAPIBindings = MeeBindings<MeeAPIEnv>;
