@@ -7,7 +7,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import SiteConfigList from "@/data/config.list";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/DataState";
 import React, {
@@ -53,13 +52,14 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
-import { ApiOriginAtom, isLoginAtom } from "@/state/EnvState";
+import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
 import { getName } from "@/functions/doc/PathParse";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
-  const galleryList = SiteConfigList.gallery.list;
+  const [env] = useAtom(EnvAtom);
+  const galleryList = env?.GALLERY.LIST;
   const [isComplete] = useAtom(dataIsCompleteAtom);
   return (
     <div id="galleryPage">
@@ -114,13 +114,14 @@ export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
 
 export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
+  const [env] = useAtom(EnvAtom);
   const items = useMemo(
     () =>
-      SiteConfigList.gallery.generate.find(
+      env?.GALLERY.GENERATE.find(
         (_group) =>
           (typeof _group === "string" ? _group : _group.name) === group
       ) || group,
-    [group]
+    [group, env]
   );
   return (
     <>

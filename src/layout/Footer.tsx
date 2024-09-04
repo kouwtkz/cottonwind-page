@@ -1,6 +1,5 @@
 // import { buildTime } from "../data/env";
 import { getJSTYear } from "../data/functions/TimeFunctions";
-import SiteConfigList from "../data/config.list";
 import { useAtom } from "jotai";
 import { EnvAtom } from "../state/EnvState";
 
@@ -14,7 +13,7 @@ export function Footer() {
           {env.AUTHOR_ACCOUNT}
         </div>
       ) : null}
-      <LinksList myLinks={SiteConfigList.links || []} />
+      <LinksList myLinks={env?.LINKS || []} />
     </footer>
   );
 }

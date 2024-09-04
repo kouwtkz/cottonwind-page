@@ -38,8 +38,8 @@ LOCAL_ORIGIN = "http://localhost:51730"
 CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 
-UPLOAD_SERVICE = "https://f.hatena.ne.jp/kour/BlogPic/"
 UPLOAD_BRACKET = false
+UPLOAD_SERVICE = "https://f.hatena.ne.jp/kour/BlogPic/"
 
 # RECAPTCHA_SITEKEY = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"
 # RECAPTCHA_SITEKEY_DEV = "6LdVxvYpAAAAAJn93sTVrbrwLMU8GwJT2xZ3wPpn"
@@ -51,6 +51,171 @@ DISCORD_INVITE_QUESTION = "わたかぜコウの代理キャラクターの名�
 # Workers env
 # X_CLIENT_ID = ""
 # X_CLIENT_SECRET = ""
+
+[[vars.NAV]]
+name = "home"
+url = "/"
+
+[[vars.NAV]]
+name = "gallery"
+url = "/gallery"
+
+[[vars.NAV]]
+name = "character"
+short = "chara"
+url = "/character"
+
+[[vars.NAV]]
+name = "sound"
+url = "/sound"
+
+[[vars.NAV]]
+name = "links"
+url = "/links"
+
+[[vars.NAV]]
+name = "works"
+url = "/works"
+
+[[vars.NAV]]
+name = "about"
+url = "/about"
+
+[[vars.LINKS]]
+name = "𝕏 (Twitter)"
+url = "https://x.com/kouwtkz"
+mask = "/static/_media/mask/links/twitter.webp"
+
+[[vars.LINKS]]
+name = "youtube"
+url = "https://www.youtube.com/@kouwtkz"
+mask = "/static/_media/mask/links/youtube.webp"
+
+[[vars.LINKS]]
+name = "pixiv"
+url = "https://www.pixiv.net/users/5577703"
+mask = "/static/_media/mask/links/pixiv.webp"
+
+[[vars.LINKS]]
+name = "instagram"
+url = "https://www.instagram.com/kouwtkz/"
+mask = "/static/_media/mask/links/instagram.webp"
+
+[[vars.LINKS]]
+name = "MisskeyDesign"
+rel = "me"
+title = "Misskey design"
+url = "https://misskey.design/@kouwtkz"
+mask = "/static/_media/mask/links/misskey_design.webp"
+hidden = true
+row = 2
+
+[[vars.LINKS]]
+name = "Mascodon"
+rel = "me"
+title = "マスコどん！"
+url = "https://mascodon.jp/@kouwtkz"
+mask = "/static/_media/mask/links/wtkz_mascodon.webp"
+row = 2
+
+[[vars.LINKS]]
+name = "Bluesky"
+rel = "me"
+url = "https://bsky.app/profile/kouwtkz.cottonwind.com"
+mask = "/static/_media/mask/links/bluesky.webp"
+row = 2
+
+[[vars.LINKS]]
+name = "GitHub"
+url = "https://github.com/kouwtkz"
+mask = "/static/_media/mask/links/github.webp"
+
+[[vars.LINKS]]
+name = "BOOTH"
+rel = "me"
+url = "https://cottonwind.booth.pm/"
+mask = "/static/_media/mask/links/booth.webp"
+row = 2
+
+[[vars.GALLERY.LIST]]
+name = "pickup"
+linkLabel = false
+max = 4
+
+[[vars.GALLERY.LIST]]
+name = "art"
+
+[[vars.GALLERY.LIST]]
+name = "3D"
+
+[[vars.GALLERY.LIST]]
+name = "works"
+
+[[vars.GALLERY.LIST]]
+name = "goods"
+
+[[vars.GALLERY.LIST]]
+name = "parody"
+max = 12
+
+[[vars.GALLERY.LIST]]
+name = "picture"
+max = 8
+
+[[vars.GALLERY.LIST]]
+name = "uploads"
+label = "other"
+max = 4
+
+[[vars.GALLERY.LIST]]
+name = "given"
+hideWhenDefault = true
+max = 4
+
+[[vars.GALLERY.GENERATE]]
+name = "art"
+h2 = "メインイラスト！"
+h4 = "オリジナルキャラのイラストです！"
+description = "オリジナルキャラクターのイラストです！"
+
+[[vars.GALLERY.GENERATE]]
+name = "3D"
+h2 = "作った3Dモデル！"
+h4 = "これから増やしたい"
+description = "Blenderなどで作った3Dモデルです！"
+
+[[vars.GALLERY.GENERATE]]
+name = "works"
+h2 = "依頼で描いたイラスト！"
+h4 = "お仕事依頼受け付けてます"
+description = "案件などのイラストです！"
+
+[[vars.GALLERY.GENERATE]]
+name = "goods"
+h2 = "作ったグッズなど！"
+h4 = "今は販売してない場合があります"
+description = "グッズやスタンプなどを載せてます！"
+
+[[vars.GALLERY.GENERATE]]
+name = "parody"
+h2 = "パロディアート"
+h4 = "二次創作ファンアートやパロディを掲載してます！"
+
+[[vars.GALLERY.GENERATE]]
+name = "given"
+label = "given art"
+h2 = "描いてくれてありがとめぇ！"
+h4 = "#わたかぜメ絵"
+description = "描いてくれたファンアートイラストです！"
+
+[[vars.GALLERY.GENERATE]]
+name = "picture"
+h2 = "VRChatなどの写真"
+
+[[vars.GALLERY.GENERATE]]
+name = "uploads"
+label = "other"
+h2 = "その他アップロード"
 
 [[kv_namespaces]]
 binding = "KV"

@@ -26,7 +26,7 @@ interface GalleryItemObjectType extends GalleryListPropsBase {
   description?: string;
 }
 
-type GalleryItemType = string | GalleryItemObjectType;
+type GalleryItemType = GalleryItemObjectType;
 
 type GalleryItemsType = GalleryItemType | GalleryItemType[];
 

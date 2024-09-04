@@ -6,7 +6,6 @@ import {
   defaultGalleryTags,
   getTagsOptions,
 } from "../components/dropdown/SortFilterTags";
-import SiteConfigList from "../data/config.list";
 import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
 
@@ -54,9 +53,7 @@ export function MetaValues({
         title = "ギャラリー | " + siteTitle;
         const group = list[2];
         if (group) {
-          const gallery = SiteConfigList.gallery.generate.find(
-            (v) => v.name === group
-          );
+          const gallery = env?.GALLERY.GENERATE.find((v) => v.name === group);
           if (gallery) {
             title =
               (gallery.label ?? gallery.name).toUpperCase() + " - " + title;

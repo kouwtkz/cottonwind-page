@@ -3,12 +3,11 @@ import { Link } from "react-router-dom";
 import { SiteMenuButton } from "../components/svg/button/MenuButton";
 import { ThemeChangeButtonProps } from "./ThemeSetter";
 import { DarkThemeState, ThemeState } from "./StateSet";
-import SiteConfigList from "@/data/config.list";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
-import { visibleWorkersAtom } from "./EnvState";
+import { EnvAtom, visibleWorkersAtom } from "./EnvState";
 
 export function ThemeChangeButton({
   children = "いろかえ",
@@ -81,8 +80,10 @@ function ThemeSwitchButtons({
 }
 
 export function SiteMenu() {
-  const navList = SiteConfigList.nav;
-  const visibleWorkers = Boolean(import.meta.env?.DEV) || useAtom(visibleWorkersAtom)[0];
+  const [env] = useAtom(EnvAtom);
+  const navList = env?.NAV ?? [];
+  const visibleWorkers =
+    Boolean(import.meta.env?.DEV) || useAtom(visibleWorkersAtom)[0];
   const list = useMemo(() => {
     const list = navList.concat();
     if (visibleWorkers)

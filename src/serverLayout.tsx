@@ -3,7 +3,6 @@ import { Loading } from "./layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import SiteConfigList from "./data/config.list";
 import { renderToString } from "react-dom/server";
 import { Context, Next } from "hono";
 import { getPostsData } from "./blog/be-functions";
@@ -44,7 +43,7 @@ export function DefaultBody({
             </a>
           </header>
           <footer>
-            <LinksList myLinks={SiteConfigList.links || []} maskImage={false} />
+            <LinksList myLinks={env?.LINKS || []} maskImage={false} />
           </footer>
         </div>
       </main>
@@ -168,7 +167,7 @@ export async function ReactResponse({
     case "gallery/:group":
       const req = (c as Context<MeeBindings, typeof path, any>).req;
       const group = req.param("group");
-      const f = SiteConfigList.gallery.generate.some((v) => v.name === group);
+      const f = c.env.GALLERY.GENERATE.some((v) => v.name === group);
       if (!f) return next();
       break;
   }

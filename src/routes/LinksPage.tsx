@@ -5,17 +5,18 @@ import { useSearchParams } from "react-router-dom";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/DataState";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
-import SiteConfigList from "@/data/config.list";
 import { LinksStateClass } from "@/state/LinksState";
+import { EnvAtom } from "@/state/EnvState";
 
 export default function LinksPage() {
+  const [env] = useAtom(EnvAtom);
   return (
     <div className="linkPage">
       <h2 className="lulo">LINKS</h2>
       <div>
         <h3 className="leaf">各拠点</h3>
         <ul>
-          {SiteConfigList.links.map((item, i) => {
+          {env?.LINKS.map((item, i) => {
             return (
               <li key={i}>
                 <a href={item.url} target="_blank">
