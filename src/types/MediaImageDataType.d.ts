@@ -10,14 +10,14 @@ interface MediaImageAlbumType {
   description?: string;
   visible?: AlbumVisibleType;
   type?: string;
-  list: MediaImageItemType[];
+  list: OldMediaImageItemType[];
 }
 
 interface AlbumVisibleType { info?: boolean, title?: boolean, filename?: boolean }
 interface ResizedType { src: string, mode: ResizeMode }
 
 /** @comments ひとつの画像用の定義 */
-interface MediaImageItemType {
+interface OldMediaImageItemType {
   name: string;
   src: string;
   dir?: string;

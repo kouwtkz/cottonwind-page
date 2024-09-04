@@ -114,9 +114,9 @@ export function HomeImage() {
     images,
     name: "topImage",
   });
-  const [topImageState, setTopImage] = useState<MediaImageItemType>();
+  const [topImageState, setTopImage] = useState<OldMediaImageItemType>();
   const firstLoad = useRef(true);
-  const currentTopImage = useRef<MediaImageItemType | null>(null);
+  const currentTopImage = useRef<OldMediaImageItemType | null>(null);
   if (topImageState && currentTopImage) currentTopImage.current = topImageState;
   const topImage = currentTopImage.current;
   const setRndTopImage = () => {

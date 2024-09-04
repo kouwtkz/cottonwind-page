@@ -45,8 +45,8 @@ import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
 
 type ImageViewerType = {
-  image: MediaImageItemType | null;
-  setImage: (image: MediaImageItemType | null) => void;
+  image: OldMediaImageItemType | null;
+  setImage: (image: OldMediaImageItemType | null) => void;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -404,7 +404,7 @@ export function ImageViewer() {
 
 interface GalleryViewerPagingProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  image: MediaImageItemType | null;
+  image: OldMediaImageItemType | null;
 }
 
 export function GalleryViewerPaging({
@@ -442,7 +442,7 @@ export function GalleryViewerPaging({
     [groupImageList, imageIndex]
   );
   const prevNextToHandler = useCallback(
-    (image: MediaImageItemType) => {
+    (image: OldMediaImageItemType) => {
       if (image.originName) searchParams.set("image", image.originName);
       return new URL("?" + searchParams.toString(), location.href).href;
     },

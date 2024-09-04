@@ -11,8 +11,8 @@ export function BlankImage(args: BlankImageProps) {
 }
 
 interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
-  imageItem?: MediaImageItemType;
-  hoverImageItem?: MediaImageItemType;
+  imageItem?: OldMediaImageItemType;
+  hoverImageItem?: OldMediaImageItemType;
   mode?: ResizeMode;
   size?: number;
   loadingScreen?: boolean;
@@ -120,7 +120,7 @@ export function ImageMee({
 
 interface ImageMeeSimpleProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
-  imageItem: MediaImageItemType;
+  imageItem: OldMediaImageItemType;
   size?: number;
   loadingScreen?: boolean;
   originWhenDev?: boolean;
@@ -135,7 +135,7 @@ export function ImageMeeThumbnail({ size, ...args }: ImageMeeSimpleProps) {
 
 interface GetImageItemFromSrcProps {
   src: string | UrlObject | URL;
-  list: MediaImageItemType[];
+  list: OldMediaImageItemType[];
 }
 export function GetImageItemFromSrc({ src, list }: GetImageItemFromSrcProps) {
   const Url = ToURL(src);

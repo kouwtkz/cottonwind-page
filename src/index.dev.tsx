@@ -3,10 +3,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
-import { GalleryPatch, uploadAttached } from "./mediaScripts/GalleryUpdate";
-import { GetEmbed } from "./mediaScripts/GetEmbed";
 import { IsLogin } from "./ServerContent";
-import { SetCharaData } from "./data/functions/SetCharaData";
 import { honoTest } from "./functions";
 import { renderToString } from "react-dom/server";
 import { CompactCode } from "@/functions/doc/StrFunctions";
@@ -40,33 +37,6 @@ app.get("/json/gitlog.json", (c) => {
   return c.json(GitLogObject());
 });
 app.get("/json/*", serveStatic({ root: "./public/" }));
-
-app.post("/gallery/send", async (c, next) => {
-  const formData = (await c.req.parseBody()) as any;
-  await uploadAttached({
-    c,
-    attached: formData["attached[]"] as File[],
-    attached_mtime: (formData["attached_mtime[]"] ?? []) as string[],
-    tags: (formData["tags[]"] ?? []) as string[],
-    uploadDir: (formData["dir"] ?? "images/uploads") as string,
-  });
-  return c.newResponse(null);
-});
-app.patch("/gallery/send", async (c) => {
-  try {
-    await GalleryPatch(c);
-  } catch (e: any) {
-    return c.text((e as Error).message, 500);
-  }
-  return c.newResponse(null);
-});
-app.post("/character/send", async (c) => {
-  return c.json(await SetCharaData(c));
-});
-
-app.get("/embed/get", async (c) => {
-  return c.json(GetEmbed());
-});
 
 app.route("/test", app_test);
 

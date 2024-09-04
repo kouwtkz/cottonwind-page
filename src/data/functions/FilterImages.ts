@@ -1,5 +1,5 @@
 import { filterGalleryMonthList } from "@/components/dropdown/SortFilterTags";
-export const publicParam = { list: <Array<MediaImageItemType>>[] };
+export const publicParam = { list: <Array<OldMediaImageItemType>>[] };
 const currentTime = new Date();
 const currentMonth = currentTime.getMonth() + 1;
 
@@ -9,7 +9,7 @@ interface filterTagsBaseProps {
 }
 
 interface filterTagsProps extends filterTagsBaseProps {
-  image: MediaImageItemType;
+  image: OldMediaImageItemType;
 }
 
 export function filterTags({ image, every = true, tags }: filterTagsProps) {
@@ -19,7 +19,7 @@ export function filterTags({ image, every = true, tags }: filterTagsProps) {
 }
 
 interface filterImagesTagsProps extends filterTagsBaseProps {
-  images: MediaImageItemType[];
+  images: OldMediaImageItemType[];
 }
 
 export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
@@ -32,7 +32,7 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
 const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
 
 interface filterPickFixedProps {
-  images: MediaImageItemType[];
+  images: OldMediaImageItemType[];
   name: "topImage" | "pickup";
   monthly?: boolean;
 }

@@ -276,7 +276,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   );
 
   const orderBySort = useMemo(() => {
-    const list: OrderByItem<MediaImageItemType>[] = [...orderBy];
+    const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
     const searchSort = sortParam ?? "";
     switch (searchSort) {
       case "recently":
@@ -392,7 +392,7 @@ function UploadChain({
       if (!album) return false;
       const checkTime = new Date().getTime();
       const targetFiles = files.filter((file) => {
-        const findFunc = ({ src, originName }: MediaImageItemType) =>
+        const findFunc = ({ src, originName }: OldMediaImageItemType) =>
           [src, originName].some((n) => n === file.name);
         const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
         if (fromBrowser) {
@@ -462,7 +462,7 @@ function UploadChain({
 
 interface GalleryBodyProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
-  yfList: MediaImageItemType[][];
+  yfList: OldMediaImageItemType[][];
 }
 function GalleryBody({
   items,
@@ -549,7 +549,7 @@ function GalleryImageItem({
   image,
 }: {
   galleryName?: string;
-  image: MediaImageItemType;
+  image: OldMediaImageItemType;
 }) {
   const { pathname, state } = useLocation();
   const { showOrigin } = useMemo(() => state ?? {}, [state]);
@@ -606,7 +606,7 @@ interface GalleryContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     GalleryBodyOptions {
   item: GalleryItemObjectType;
-  list: MediaImageItemType[];
+  list: OldMediaImageItemType[];
 }
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent(

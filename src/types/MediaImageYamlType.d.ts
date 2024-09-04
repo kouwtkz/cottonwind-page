@@ -1,4 +1,4 @@
-interface MediaImageInYamlType extends MediaImageItemType {
+interface MediaImageInYamlType extends OldMediaImageItemType {
   fullPath?: string;
   resizeOptions?: ResizeOptionType[];
 }

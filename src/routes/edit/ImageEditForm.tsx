@@ -48,7 +48,7 @@ import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
-  image: MediaImageItemType | null;
+  image: OldMediaImageItemType | null;
 }
 
 export const imageEditIsEdit = atom(false);
@@ -60,7 +60,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const { imageObject, setImageFromUrl } = useImageState();
   const { imageAlbumList, copyrightList } = imageObject;
   const { charaList } = useCharaState();
-  const { list: embedList } = useEmbedState();
 
   const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
@@ -155,7 +154,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     deleteMode = false,
     otherSubmit = false,
   }: {
-    image: MediaImageItemType;
+    image: OldMediaImageItemType;
     deleteMode?: boolean;
     otherSubmit?: boolean;
   }) {
@@ -233,7 +232,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     return setValues;
   };
   async function SubmitImage(
-    image?: MediaImageItemType | null,
+    image?: OldMediaImageItemType | null,
     otherSubmit = false
   ) {
     if (!image || !isDirty || !defaultValues) return;
@@ -582,19 +581,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <input
                 title="埋め込み"
                 type="text"
-                list="galleryEditEmbedList"
                 {...register("embed")}
                 disabled={isBusy}
               />
-              <datalist id="galleryEditEmbedList">
-                {embedList.map((embed, i) => {
-                  return (
-                    <option key={i} value={embed}>
-                      {embed}
-                    </option>
-                  );
-                })}
-              </datalist>
             </div>
           </label>
           <label>

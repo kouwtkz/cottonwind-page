@@ -1,5 +1,5 @@
 export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
-  const imageList: MediaImageItemType[] = [];
+  const imageList: OldMediaImageItemType[] = [];
   imageAlbums.forEach((album) => {
     album.list.forEach((item) => {
       album.visible = {
@@ -16,7 +16,7 @@ export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
   return imageList;
 }
 
-export function getTagList(imageItemList: MediaImageItemType[]) {
+export function getTagList(imageItemList: OldMediaImageItemType[]) {
   return imageItemList
     .reduce((list, c) => {
       c.tags?.forEach((value) => {
@@ -29,7 +29,7 @@ export function getTagList(imageItemList: MediaImageItemType[]) {
     .sort((a, b) => (a.value > b.value ? 1 : -1));
 }
 
-export function getCopyRightList(imageItemList: MediaImageItemType[]) {
+export function getCopyRightList(imageItemList: OldMediaImageItemType[]) {
   return imageItemList
     .reduce((list, { copyright: values }) => {
       values?.forEach((value) => {
@@ -64,7 +64,7 @@ export function AutoImageItemType(embed?: string, albumType?: string) {
 
 export function imageFindFromName
   ({ imageItemList, imageParam, albumParam }:
-    { imageItemList?: MediaImageItemType[], imageParam: string, albumParam?: string }) {
+    { imageItemList?: OldMediaImageItemType[], imageParam: string, albumParam?: string }) {
   const albumItemList = albumParam
     ? imageItemList?.filter(({ album }) => album?.name === albumParam)
     : imageItemList;

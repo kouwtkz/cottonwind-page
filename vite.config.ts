@@ -6,7 +6,6 @@ import { UserConfig, defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
-import { dataUpdateServerPlugins } from './src/mediaScripts/dataUpdate/updateServer'
 import { getPlatformProxy } from 'wrangler'
 const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
 dispose();
@@ -49,7 +48,6 @@ export default defineConfig(({ mode }) => {
       config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
       config.plugins!.push([
         pages(),
-        dataUpdateServerPlugins(),
         devServer({
           entry: 'src/index.dev.tsx',
           adapter,

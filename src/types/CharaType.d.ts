@@ -16,9 +16,9 @@ interface CharaType {
   time?: Date,
   birthday?: Date,
   media?: {
-    icon?: MediaImageItemType | null,
-    image?: MediaImageItemType | null,
-    headerImage?: MediaImageItemType | null,
+    icon?: OldMediaImageItemType | null,
+    image?: OldMediaImageItemType | null,
+    headerImage?: OldMediaImageItemType | null,
     playlist?: SoundPlaylistType,
   },
   [k: string]: any

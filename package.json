@@ -14,12 +14,7 @@
     "start-remote-api": "npx run-p start remote-api",
     "deploy": "npm run build && npm run deploy-only",
     "deploy-only": "npx wrangler pages deploy dist --commit-dirty true --branch master",
-    "deploy-api": "npx wrangler deploy -c wrangler-api.toml",
-    "update": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts",
-    "update-image": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts image",
-    "update-character": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts character",
-    "update-embed": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts embed",
-    "update-sound": "npx tsx ./src/mediaScripts/dataUpdate/runUpdateScript.ts sound"
+    "deploy-api": "npx wrangler deploy -c wrangler-api.toml"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -54,7 +49,6 @@
     "react-select": "^5.8.0",
     "react-transition-group": "^4.4.5",
     "schema-dts": "^1.1.2",
-    "sharp": "^0.33.3",
     "wasm-image-optimization": "^1.0.4",
     "zustand": "^4.5.2"
   },
@@ -62,7 +56,6 @@
     "@cloudflare/workers-types": "^4.20240208.0",
     "@hono/vite-cloudflare-pages": "^0.2.4",
     "@hono/vite-dev-server": "^0.9.0",
-    "@types/image-size": "^0.8.0",
     "@types/js-yaml": "^4.0.9",
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",

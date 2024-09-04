@@ -15,7 +15,7 @@ export interface SetMetaProps {
   query?: QueryType;
   url?: string;
   characters?: CharaObjectType | null;
-  images?: MediaImageItemType[];
+  images?: OldMediaImageItemType[];
   posts?: Post[];
   noindex?: boolean;
   env?: SiteConfigEnv;

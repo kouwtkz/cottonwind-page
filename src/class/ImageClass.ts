@@ -10,7 +10,7 @@ import { MultiParserReplaceProps } from "@/components/parse/MultiParser";
 const defaultUrl = "/json/images.json";
 
 export class ImageClass {
-  imageItemList: Array<MediaImageItemType> = [];
+  imageItemList: Array<OldMediaImageItemType> = [];
   imageAlbumList: Array<MediaImageAlbumType> = [];
   tagList: ValueCountType[] = [];
   copyrightList: ValueCountType[] = [];

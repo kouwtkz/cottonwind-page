@@ -85,7 +85,7 @@ export async function ServerLayout({
     c.req.header("user-agent") ?? ""
   );
   const params = c.req.param() as KeyValueStringType;
-  let images: MediaImageItemType[] | undefined;
+  let images: OldMediaImageItemType[] | undefined;
   let posts: Post[] = [];
   if (isBot) {
     const dataPath = "/json";
