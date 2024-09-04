@@ -34,6 +34,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   LIFE_CHECK_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
+  DEV?: boolean;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {
@@ -58,5 +59,6 @@ type MeePagesBindings = MeeBindings<MeePagesEnv>
 
 interface MeeAPIEnv extends MeeCommonEnv {
   BUCKET: R2Bucket;
+  THUMBNAIL_SIZE?: number;
 }
 type MeeAPIBindings = MeeBindings<MeeAPIEnv>;

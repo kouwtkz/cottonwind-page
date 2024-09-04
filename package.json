@@ -33,6 +33,7 @@
     "hono": "^4.5.8",
     "html-react-parser": "^5.1.9",
     "iconv-lite": "^0.6.3",
+    "image-dimensions": "^2.3.0",
     "image-meta": "^0.2.0",
     "image-size": "^1.1.1",
     "jotai": "^2.9.2",
@@ -54,6 +55,7 @@
     "react-transition-group": "^4.4.5",
     "schema-dts": "^1.1.2",
     "sharp": "^0.33.3",
+    "wasm-image-optimization": "^1.0.4",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

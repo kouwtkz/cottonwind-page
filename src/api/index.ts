@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { app_test_api } from "./test";
 import { scheduleTask } from "./schedule";
 import { FeedSet } from "@/ServerContent";
+import { app_image_api } from "./image";
 
 export const app = new Hono<MeeAPIBindings>();
 
@@ -14,6 +15,7 @@ app.use("*", (c, next) => {
 
 app.route("/blog", app_blog_api);
 app.route("/test", app_test_api);
+app.route("/image", app_image_api);
 
 app.get("/feed/get", async (c, next) => {
   if (c.env.FEED_FROM) {

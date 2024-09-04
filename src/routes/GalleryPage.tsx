@@ -53,7 +53,7 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
 import { imageEditIsEditHold } from "./edit/ImageEditForm";
-import { isLoginAtom } from "@/state/EnvState";
+import { ApiOriginAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
 import { getName } from "@/functions/doc/PathParse";
@@ -372,6 +372,7 @@ function UploadChain({
   item: GalleryItemObjectType;
   children?: ReactNode;
 }) {
+  const [apiOrigin] = useAtom(ApiOriginAtom);
   const { imageObject, setImageFromUrl } = useImageState();
   const { imageItemList, imageAlbumList } = imageObject;
   const tags = useMemo(
@@ -407,7 +408,7 @@ function UploadChain({
       });
       if (targetFiles.length === 0) return false;
       const formData = new FormData();
-      formData.append("dir", album.dir || "");
+      formData.append("dir", album.name || "");
       tags?.forEach((tag) => {
         formData.append("tags[]", tag);
       });
@@ -416,7 +417,7 @@ function UploadChain({
         if (file.lastModified)
           formData.append("attached_mtime[]", String(file.lastModified));
       });
-      axios.post("/gallery/send", formData).then((res) => {
+      axios.post(apiOrigin + "/image/upload", formData).then((res) => {
         if (res.status === 200) {
           toast("アップロードしました！", {
             duration: 2000,

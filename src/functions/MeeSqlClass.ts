@@ -7,7 +7,7 @@ export class MeeSqlClass<T> {
     const sqlObject = where ? whereToSql<K>(where) : null;
     let sql = "";
     if (sqlObject?.where) sql = sql + sqlObject.where;
-    return { sql, bind: sqlObject?.bind }
+    return { sql, bind: sqlObject?.bind ?? [] }
   }
   static selectBindSQL<K, L = string>({ params = "*", table, orderBy, where, take, skip, viewSql }: MeeSqlSelectProps<K>) {
     const param = (Array.isArray(params) ? params : [params])
@@ -57,8 +57,8 @@ export class MeeSqlClass<T> {
     return stmt.bind(...bind).all();
   }
   async insert<K extends Object>({ table, entry, rawEntry = {} as K, viewSql }: MeeSqlInsertProps<K>) {
-    const entries = Object.entries(entry ?? {});
-    const rawEntries = Object.entries(rawEntry);
+    const entries = Object.entries(entry ?? {}).filter(v => v[1] !== undefined);
+    const rawEntries = Object.entries(rawEntry).filter(v => v[1] !== undefined);
     const keys = entries.map((v) => `\`${v[0]}\``).concat(rawEntries.map((v) => `\`${v[0]}\``));
     const values = entries.map(() => "?").concat(rawEntries.map((v) => v[1]));
     let sql = `INSERT INTO \`${table}\` ` + (keys.length > 0 ? `(${keys.join(", ")}) VALUES (${values.join(", ")})` : "DEFAULT VALUES");
@@ -91,8 +91,8 @@ export class MeeSqlClass<T> {
     return stmt.bind(...bind).run();
   }
   async update<K extends Object>({ table, entry, rawEntry = {} as K, where, take, skip, viewSql }: MeeSqlUpdateProps<K>) {
-    const entries = Object.entries(entry ?? {});
-    const rawEntries = Object.entries(rawEntry).map((v) => `\`${v[0]}\` = ${v[1]}`);
+    const entries = Object.entries(entry ?? {}).filter(v => v[1] !== undefined);
+    const rawEntries = Object.entries(rawEntry).filter(v => v[1] !== undefined).map((v) => `\`${v[0]}\` = ${v[1]}`);
     let sql = `UPDATE \`${table}\` SET ` + entries.map((v) => `\`${v[0]}\` = ?`).concat(rawEntries).join(", ");
     const { sql: whereSql, bind: whereBind } = MeeSqlClass.sqlWhere(where);
     if (whereSql) sql = sql + whereSql;

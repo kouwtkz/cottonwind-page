@@ -33,6 +33,8 @@ LIFE_CHECK_URL = "https://cottonwind.com/life/check"
 
 FEED_FROM = "https://note.com/kouwtkz/rss"
 
+THUMBNAIL_SIZE = 340
+
 [[kv_namespaces]]
 binding = "KV"
 id = "c4d890a161dc4d8abc299dd09d8b3165"
@@ -42,14 +44,14 @@ preview_id = "baf0b24ce5014aa4b8fcd5a6774bc026"
 # binding = "MY_KV_NAMESPACE"
 # id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "cottonwind-bucket"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
+[[d1_databases]]
+binding = "DB"
+database_id = "8d8bef89-42a4-436d-991a-ebdbd3b252a5"
+database_name = "cottonwind-db"
 
 # [ai]
 # binding = "AI"
