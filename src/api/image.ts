@@ -209,6 +209,7 @@ async function getRetryTime(e: Error, time: Date, db: MeeSqlD1) {
   return null;
 }
 
+type ModeType = "webp" | "thumbnail" | "icon";
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
@@ -216,46 +217,62 @@ app.post("/send", async (c, next) => {
   const mtime = (formData.mtime as string | undefined) || null;
   const album = (formData["album"] as string | undefined) || null;
   const tags = (formData["tags"] as string | undefined) || null;
+  const pathes: { [k in ModeType]?: string } = {};
+  const webp = typeof formData.webp === "string" ? null : formData.webp as File | undefined;
+  const thumbnail = typeof formData.thumbnail === "string" ? null : formData.thumbnail as File | undefined;
+  const icon = typeof formData.icon === "string" ? null : formData.icon as File | undefined;
+  const filename = attached?.name || webp?.name || thumbnail?.name || icon?.name;
+  const name = filename ? getName(filename) : "";
+  const id = typeof formData.id === "string" ? Number(formData.id) : null;
+  async function fileModeUpload(mode: ModeType, file?: File | null) {
+    if (file) {
+      const image = await file.arrayBuffer();
+      pathes[mode] = "image/" + mode + "/" + file.name;
+      if (pathes[mode]) await c.env.BUCKET.put(pathes[mode], image);
+    }
+  }
+  await fileModeUpload("webp", webp);
+  await fileModeUpload("thumbnail", thumbnail);
+  await fileModeUpload("icon", icon);
   if (attached) {
     const image = await attached.arrayBuffer();
     const imagePath = "image/" + attached.name;
     await c.env.BUCKET.put(imagePath, image);
     const arr = new Uint8Array(image);
     const blob = new Blob([arr]);
-    const name = getName(attached.name);
     const ext = getExtension(attached.name);
-    const pathes: {
-      webp?: string;
-      thumbnail?: string;
-      icon?: string;
-    } = {};
     const metaSize = await imageDimensionsFromStream(blob.stream());
     switch (ext) {
       case "svg":
         break;
       default:
         const webpName = name + ".webp";
-        const webpImage = await optimizeImage({
-          format: "webp",
-          image,
-        });
-        if (webpImage) pathes.webp = "image/webp/" + webpName;
-        if (pathes.webp) await c.env.BUCKET.put(pathes.webp, webpImage);
-        const thumbnailImage = await Resize({
-          image,
-          format: "webp",
-          metaSize,
-          quality: 80,
-          size: c.env.THUMBNAIL_SIZE ?? 320,
-        });
-        if (thumbnailImage)
-          pathes.thumbnail = "image/thumbnail/" + webpName;
-        if (pathes.thumbnail)
-          await c.env.BUCKET.put(pathes.thumbnail, thumbnailImage);
+        if (typeof webp === "undefined") {
+          const webpImage = await optimizeImage({
+            format: "webp",
+            image,
+          });
+          if (webpImage) pathes.webp = "image/webp/" + webpName;
+          if (pathes.webp) await c.env.BUCKET.put(pathes.webp, webpImage);
+        }
+        if (typeof thumbnail === "undefined") {
+          const thumbnailImage = await Resize({
+            image,
+            format: "webp",
+            metaSize,
+            quality: 80,
+            size: c.env.THUMBNAIL_SIZE ?? 320,
+          });
+          if (thumbnailImage)
+            pathes.thumbnail = "image/thumbnail/" + webpName;
+          if (pathes.thumbnail)
+            await c.env.BUCKET.put(pathes.thumbnail, thumbnailImage);
+        }
         break;
     }
     function Select() {
-      return db.select<ImageDataType>({ table, where: { src: imagePath } })
+      const where: MeeSqlFindWhereType<ImageDataType> = id === null ? { src: imagePath } : { id };
+      return db.select({ table, where })
     }
     const selectValue = await Select().catch(() => createImageDatabase(db).then(() => Select()));
     if (selectValue.length > 0) {

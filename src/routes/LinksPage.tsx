@@ -16,7 +16,7 @@ export default function LinksPage() {
       <div>
         <h3 className="leaf">各拠点</h3>
         <ul>
-          {env?.LINKS.map((item, i) => {
+          {env?.LINKS?.map((item, i) => {
             return (
               <li key={i}>
                 <a href={item.url} target="_blank">

@@ -58,8 +58,14 @@ import { imageEditIsEditHold } from "./edit/ImageEditForm";
 import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
-import { getName } from "@/functions/doc/PathParse";
+import { getExtension, getName } from "@/functions/doc/PathParse";
 import { sleep } from "@/functions/Time";
+import {
+  imageObject,
+  imageOverSizeCheck,
+  resizeImageCanvas,
+  resizeImageCanvasProps,
+} from "@/components/Canvas";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -417,19 +423,65 @@ function UploadChain({
       });
       if (targetFiles.length === 0) return false;
       const joinedTags = tags?.join(",");
-      const fetchList = targetFiles.map((file) => {
-        const formData = new FormData();
-        if (album.name) formData.append("album", album.name);
-        if (joinedTags) formData.append("tags", joinedTags);
-        formData.append("attached", file);
-        if (file.lastModified)
-          formData.append("mtime", String(file.lastModified));
-        return () =>
-          fetch(apiOrigin + "/image/send", {
-            method: "POST",
-            body: formData,
-          });
-      });
+      const fetchList = await Promise.all(
+        targetFiles.map(async (file) => {
+          const name = getName(file.name);
+          const ext = getExtension(file.name);
+          const webpName = name + ".webp";
+          const formData = new FormData();
+          if (album.name) formData.append("album", album.name);
+          if (joinedTags) formData.append("tags", joinedTags);
+          formData.append("attached", file);
+          switch (ext) {
+            case "svg":
+              break;
+            default:
+              const image = await imageObject(file);
+              if (ext !== "gif") {
+                formData.append(
+                  "webp",
+                  await resizeImageCanvas({
+                    image,
+                    type: "webp",
+                  }),
+                  webpName
+                );
+              } else formData.append("webp", "");
+              const thumbnailProps: resizeImageCanvasProps = {
+                image,
+                size: 340,
+                type: "webp",
+                expansion: false,
+              };
+              if (ext === "gif") {
+                formData.append(
+                  "thumbnail",
+                  await resizeImageCanvas({
+                    ...thumbnailProps,
+                    imageSmoothingEnabled: false,
+                  }),
+                  webpName
+                );
+              } else if (imageOverSizeCheck(image, thumbnailProps.size!)) {
+                formData.append(
+                  "thumbnail",
+                  await resizeImageCanvas({ ...thumbnailProps, quality: 0.8 }),
+                  webpName
+                );
+              } else {
+                formData.append("thumbnail", "");
+              }
+              break;
+          }
+          if (file.lastModified)
+            formData.append("mtime", String(file.lastModified));
+          return () =>
+            fetch(apiOrigin + "/image/send", {
+              method: "POST",
+              body: formData,
+            });
+        })
+      );
       const results: Response[] = [];
       for (let i = 0; i < fetchList.length; i++) {
         results.push(await fetchList[i]());
