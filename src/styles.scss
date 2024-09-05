@@ -184,7 +184,9 @@ $defaultLineHeight: 1.25em;
   cursor: pointer;
 }
 
-.pixel {
+.pixel,
+img[src*=".gif"],
+img[data-origin-ext="gif"] {
   image-rendering: pixelated;
 }
 

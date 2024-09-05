@@ -10,6 +10,7 @@ import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
 import { useAtom } from "jotai";
 import { MediaOriginAtom } from "@/state/EnvState";
 import { UrlMediaOrigin } from "@/state/ImageState";
+import { getExtension } from "@/functions/doc/PathParse";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -67,6 +68,7 @@ export function ImageMee({
     [mediaOrigin, versionString]
   );
 
+  const ext = getExtension(_src || imageItem?.src || "");
   const src =
     _src ||
     (imageItem
@@ -131,6 +133,7 @@ export function ImageMee({
       src={mainImgSrc}
       alt={alt}
       ref={refImg}
+      data-origin-ext={ext}
       {...{
         width,
         height,
