@@ -44,6 +44,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { isLoginAtom, MediaOriginAtom } from "./EnvState";
+import { getName } from "@/functions/doc/PathParse";
 
 type ImageViewerType = {
   image: OldMediaImageItemType | null;
@@ -455,7 +456,7 @@ export function GalleryViewerPaging({
 
   const prevNextToHandler = useCallback(
     (image: ImageType) => {
-      if (image.name) searchParams.set("image", image.name);
+      if (image.src) searchParams.set("image", getName(image.src));
       return new URL("?" + searchParams.toString(), location.href).href;
     },
     [searchParams]
