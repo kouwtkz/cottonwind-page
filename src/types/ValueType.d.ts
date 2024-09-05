@@ -14,3 +14,5 @@ interface KeyValueAnyType {
 interface KeyValueType<T> {
   [k: string]: T;
 }
+
+type OrNull<T> = T | null;

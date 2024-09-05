@@ -116,6 +116,17 @@ export class MeeSqlClass<T> {
     const stmt = this.db.prepare(sql);
     return stmt.bind(...bind).run();
   }
+  static getNullEntry<K>(entry: MeeSqlCreateTableEntryType<K>) {
+    type keyK = keyof K;
+    const nullEntry: { [k in keyK]?: any } = {};
+    Object.entries(entry).forEach(([k, _v]) => {
+      const v: MeeSqlCreateTableEntryItemType<K> = (_v && typeof _v === "object") ? _v : { default: _v };
+      if (!v.notNull && !v.createAt && !v.primary) {
+        nullEntry[k as keyK] = null;
+      }
+    })
+    return nullEntry;
+  }
   static isoFormat(time = "'now'") { return `strftime('%Y-%m-%dT%H:%M:%fZ', ${time})` };
   async createTable<K = any>({ table, notExists, entry, withoutRowid, indexName, viewSql }: MeeSqlCreateTableProps<K>) {
     let sql = "CREATE TABLE";

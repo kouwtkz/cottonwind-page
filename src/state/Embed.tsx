@@ -21,16 +21,16 @@ export function EmbedState() {
   const isSet = useRef(false);
   const { setList } = useEmbedState();
   useEffect(() => {
-    if (!isSet.current) {
-      axios("/embed/get")
-        .then((r) => {
-          setList(r.data);
-        })
-        .catch(() => {
-          setList({});
-        });
-      isSet.current = true;
-    }
+    // if (!isSet.current) {
+    //   axios("/embed/get")
+    //     .then((r) => {
+    //       setList(r.data);
+    //     })
+    //     .catch(() => {
+    //       setList({});
+    //     });
+    //   isSet.current = true;
+    // }
   });
   return <></>;
 }

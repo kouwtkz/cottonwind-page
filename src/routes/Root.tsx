@@ -7,7 +7,7 @@ import { dataIsCompleteAtom } from "@/state/DataState";
 import { MetaValues } from "./SetMeta";
 import { useCharaState } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
-import { useImageState } from "@/state/ImageState";
+import { imagesAtom } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
 import { StateSet } from "@/state/StateSet";
 import { EnvAtom } from "@/state/EnvState";
@@ -15,7 +15,7 @@ import { EnvAtom } from "@/state/EnvState";
 function SetTitle() {
   const { pathname, search } = useLocation();
   const { charaObject: characters } = useCharaState();
-  const { imageItemList: images } = useImageState().imageObject;
+  const images = useAtom(imagesAtom)[0];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const { posts } = usePostState();

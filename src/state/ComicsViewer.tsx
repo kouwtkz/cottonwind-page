@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useImageState } from "./ImageState";
+import { imagesAtom } from "./ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
 import { GalleryObject } from "../routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
 import { useLocation } from "react-router-dom";
+import { useAtom } from "jotai";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -34,12 +35,12 @@ export function ComicsViewer() {
   if (src)
     if (/\.epub$/i.test(src)) {
       return <EPubViewer url={src} />;
-    } else return <AlbumComicsViewer name={src} />;
+    } else return <></>;
   else return <EBookGallery />;
 }
 
 function EBookGallery() {
-  const { imageItemList } = useImageState().imageObject;
+  const imageItemList = useAtom(imagesAtom)[0];
   return (
     <GalleryObject
       items={[
@@ -53,20 +54,6 @@ function EBookGallery() {
   );
 }
 
-export function AlbumComicsViewer({ name }: { name: string }) {
-  const { imageAlbumList } = useImageState().imageObject;
-  const album: MediaImageAlbumType | undefined = useMemo(
-    () => imageAlbumList.find((album) => album.name.endsWith(name)),
-    [name, imageAlbumList]
-  );
-  const pages: Array<string | null> =
-    album?.list
-      .filter((image) => image.dir?.startsWith("/content"))
-      .map((image) => image.URL || "") || [];
-  const metadata: ePubMetadataType = {};
-  if (album?.direction) metadata.direction = album.direction;
-  return <Viewer pages={pages} metadata={metadata} type="album" />;
-}
 export function EPubViewer({ url }: { url: string }) {
   const [srcList, setSrcList] = useState<any[]>([]);
   const [metadata, setMetadata] = useState<ePubMetadataType | null>(null);

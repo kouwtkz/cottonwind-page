@@ -27,7 +27,7 @@ import ReactSelect from "react-select";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useCharaState } from "@/state/CharaState";
-import { useImageState } from "@/state/ImageState";
+import { imagesResetAtom } from "@/state/ImageState";
 import { SoundState, useSoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
@@ -60,7 +60,7 @@ export default function CharaEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
   const { charaObject, Reload, charaTags } = useCharaState();
-  const { setImageFromUrl } = useImageState();
+  const imagesResetreset = useAtom(imagesResetAtom)[1];
   const soundState = useSoundState();
   const chara = charaObject && charaName ? charaObject[charaName] : null;
   const getDefaultValues = useCallback(
@@ -155,7 +155,7 @@ export default function CharaEditForm() {
     toast(res.data.message, { duration: 2000 });
     if (res.status === 200) {
       if (res.data.update.chara) Reload();
-      if (res.data.update.image) setImageFromUrl();
+      if (res.data.update.image) imagesResetreset(true);
       setTimeout(() => {
         nav(`/character/${formValues.id}`);
       }, 200);

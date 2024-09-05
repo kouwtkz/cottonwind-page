@@ -9,7 +9,7 @@ interface filterTagsBaseProps {
 }
 
 interface filterTagsProps extends filterTagsBaseProps {
-  image: OldMediaImageItemType;
+  image: ImageType;
 }
 
 export function filterTags({ image, every = true, tags }: filterTagsProps) {
@@ -19,7 +19,7 @@ export function filterTags({ image, every = true, tags }: filterTagsProps) {
 }
 
 interface filterImagesTagsProps extends filterTagsBaseProps {
-  images: OldMediaImageItemType[];
+  images: ImageType[];
 }
 
 export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
@@ -32,7 +32,7 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
 const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
 
 interface filterPickFixedProps {
-  images: OldMediaImageItemType[];
+  images: ImageType[];
   name: "topImage" | "pickup";
   monthly?: boolean;
 }

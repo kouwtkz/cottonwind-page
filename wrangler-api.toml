@@ -25,6 +25,10 @@ PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 API_ORIGIN = "https://api.cottonwind.com"
 API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
 
+MEDIA_ORIGIN = "https://media.cottonwind.com"
+MEDIA_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev/r2"
+MEDIA_LOCAL_ORIGIN = "http://localhost:51731/r2"
+
 API_LOCAL_ORIGIN = "http://localhost:51731"
 LOCAL_ORIGIN = "http://localhost:51730"
 

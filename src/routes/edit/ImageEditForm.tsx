@@ -8,9 +8,12 @@ import {
 } from "react";
 import { GalleryViewerPaging } from "@/state/ImageViewer";
 import { ImageMee } from "@/layout/ImageMee";
-import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
-import { useImageState } from "@/state/ImageState";
+import {
+  imageAlbumsAtom,
+  imagesAtom,
+  imagesResetAtom,
+} from "@/state/ImageState";
 import {
   defaultGalleryTags,
   getTagsOptions,
@@ -18,9 +21,14 @@ import {
   ContentsTagsOption,
   ContentsTagsOptionDispatch,
 } from "@/components/dropdown/SortFilterTags";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useEmbedState } from "@/state/Embed";
-import { Controller, FieldValues, useForm } from "react-hook-form";
+import {
+  Controller,
+  DefaultValues,
+  FieldValues,
+  useForm,
+} from "react-hook-form";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { AiFillEdit } from "react-icons/ai";
 import {
@@ -33,7 +41,7 @@ import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useCharaState } from "@/state/CharaState";
-import { AutoImageItemType } from "@/data/functions/images";
+import { AutoImageItemType, getCopyRightList } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
 import SetRegister from "@/components/hook/SetRegister";
@@ -45,10 +53,13 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
+import { ApiOriginAtom } from "@/state/EnvState";
+import { getBasename, getName } from "@/functions/doc/PathParse";
+import { FormTags } from "react-hotkeys-hook/dist/types";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
-  image: OldMediaImageItemType | null;
+  image: ImageType | null;
 }
 
 export const imageEditIsEdit = atom(false);
@@ -57,9 +68,12 @@ export const imageEditIsDirty = atom(false);
 export const imageEditIsBusy = atom(false);
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
-  const { imageObject, setImageFromUrl } = useImageState();
-  const { imageAlbumList, copyrightList } = imageObject;
+  const images = useAtom(imagesAtom)[0];
+  const albums = useAtom(imageAlbumsAtom)[0];
+  const imagesReset = useAtom(imagesResetAtom)[1];
+  const copyrightList = useMemo(() => getCopyRightList(images), [images]);
   const { charaList } = useCharaState();
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
 
   const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
@@ -72,9 +86,18 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const enableOnFormTags: FormTags[] = ["INPUT", "TEXTAREA", "SELECT"];
 
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isEdit && isDirty) SubmitImage();
+    },
+    { enableOnFormTags }
+  );
   useHotkeys(
     "escape",
     (e) => {
@@ -83,7 +106,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         e.preventDefault();
       }
     },
-    { enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"] }
+    { enableOnFormTags }
   );
 
   const charaTags = useMemo(() => {
@@ -120,13 +143,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       topImage: String(image?.topImage),
       pickup: String(image?.pickup),
       ...imageTagsObject,
-      type: image?.originType || "",
+      type: image?.type || "",
       time: ToFormJST(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
       embed: image?.embed || "",
-      move: image?.album?.dir || "",
-      rename: image?.originName || "",
+      album: image?.album || "",
+      rename: image?.src ? getBasename(image.src) : "",
     }),
     [image, imageTagsObject]
   );
@@ -138,7 +161,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     getValues,
     setValue,
     control,
-    formState: { isDirty },
+    formState: { isDirty, dirtyFields },
   } = useForm<FieldValues>({
     defaultValues,
   });
@@ -149,148 +172,45 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     }
   }, [stateIsDirty, isDirty]);
 
-  async function sendUpdate({
-    image,
-    deleteMode = false,
-    otherSubmit = false,
-  }: {
-    image: OldMediaImageItemType;
-    deleteMode?: boolean;
-    otherSubmit?: boolean;
-  }) {
+  async function SubmitImage({
+    deleteMode,
+    turnOff = true,
+  }: { deleteMode?: boolean; turnOff?: boolean } = {}) {
     setIsBusy(true);
-    const {
-      album,
-      resized,
-      resizeOption,
-      URL,
-      move,
-      rename,
-      size,
-      type,
-      originType,
-      setType,
-      ..._image
-    } = image;
-    const res = await axios
-      .patch("/gallery/send", {
-        ..._image,
-        albumDir: album?.dir,
-        type: setType,
-        move,
-        rename,
-        deleteMode,
-      })
-      .catch((r) => (r as AxiosError<any>).response!)
-      .finally(() => {
-        setIsBusy(false);
+    const fields = getValues();
+    const formdata = new FormData();
+    let method = "PATCH";
+    formdata.append("id", String(image!.id));
+    formdata.append("src", String(image!.src));
+    if (deleteMode) method = "DELETE";
+    else {
+      Object.entries(fields).forEach(([key, value]) => {
+        if (dirtyFields[key as keyof typeof defaultValues])
+          formdata.append(key, Array.isArray(value) ? value.join(",") : value);
       });
+    }
+    const res = await fetch(apiOrigin + "/image/send", {
+      method,
+      body: formdata,
+    }).finally(() => {
+      setIsBusy(false);
+      if (turnOff && isEdit) setIsEdit(false);
+    });
     if (res.status === 200) {
       toast(deleteMode ? "削除しました" : "更新しました！", {
         duration: 2000,
       });
-      setImageFromUrl();
-      if (!otherSubmit && (move || rename)) {
-        const query = Object.fromEntries(new URLSearchParams(location.search));
-        const movedAlbum = move
-          ? imageAlbumList.find((a) => a.dir === move)
-          : null;
-        if (movedAlbum) query.album = movedAlbum.name;
-        if (rename) query.image = rename;
-        setTimeout(() => {
-          if (location.search === search && location.pathname === pathname) {
-            nav(MakeRelativeURL({ query }), {
-              replace: true,
-              preventScrollReset: false,
-              state,
-            });
-          }
-        }, 200);
+      if (dirtyFields.rename && fields.rename) {
+        searchParams.set("image", getName(fields.rename));
+        setSearchParams(searchParams, { replace: true });
       }
+      imagesReset(true);
       return true;
     } else {
-      toast.error(res.data, {
+      toast.error(res.statusText, {
         duration: 2000,
       });
       return false;
-    }
-  }
-
-  const getCompareValues = (values: FieldValues) => {
-    const setValues: FieldValues = {};
-    Object.entries(values).forEach(([k, v]) => {
-      switch (k) {
-        case "charaTags":
-        case "otherTags":
-          setValues.tags = (setValues.tags || []).concat(v || []);
-          break;
-        default:
-          setValues[k] = v;
-          break;
-      }
-    });
-    return setValues;
-  };
-  async function SubmitImage(
-    image?: OldMediaImageItemType | null,
-    otherSubmit = false
-  ) {
-    if (!image || !isDirty || !defaultValues) return;
-    const formValues = getValues();
-    if (formValues.embed.includes(".")) {
-      formValues.embed = formValues.embed
-        .replaceAll("\\", "/")
-        .replace(/^_data/i, "");
-    }
-    const formValuesList = getCompareValues(formValues);
-    const formDefaultValues = getCompareValues(defaultValues);
-    const updateEntries = Object.entries(formValuesList).filter(([k, v]) => {
-      if (Array.isArray(v)) {
-        return formDefaultValues[k].join(",") !== v.join(",");
-      } else {
-        switch (k) {
-          case "move":
-            return v !== image.album?.dir;
-          case "rename":
-            return v !== image.originName;
-          default:
-            return formDefaultValues[k] !== v;
-        }
-      }
-    });
-    if (updateEntries.length === 0) return;
-    reset(formValues);
-    updateEntries.forEach(([k, v]) => {
-      switch (k) {
-        case "time":
-          image.time = new Date(String(v));
-          break;
-        case "topImage":
-        case "pickup":
-          switch (v) {
-            case "true":
-            case "false":
-              image[k] = v === "true";
-              break;
-            default:
-              image[k] = null;
-              break;
-          }
-          break;
-        case "type":
-          if (v !== image.originType) image.setType = v;
-          break;
-        default:
-          image[k] = v;
-          break;
-      }
-    });
-    sendUpdate({ image, otherSubmit });
-    if ("setType" in image) {
-      image.type = image.setType ?? autoImageItemType;
-      if (image.setType) image.originType = image.setType;
-      else image.originType = image.setType;
-      delete image.setType;
     }
   }
 
@@ -336,8 +256,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     [defaultGalleryTags]
   );
   const autoImageItemType = useMemo(
-    () => AutoImageItemType(image?.embed, image?.album?.type),
-    [image?.embed, image?.album?.type]
+    () => AutoImageItemType(image?.embed, image?.albumObject?.type),
+    [image?.embed, image?.albumObject?.type]
   );
 
   const [otherTags, setOtherTags] = useState(
@@ -358,18 +278,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   return (
     <>
       <RbButtonArea>
-        <button
-          title={isEdit ? "保存" : "編集"}
-          type="button"
-          className="round saveEdit"
-          onClick={() => {
-            if (isEdit) SubmitImage(image);
-            setIsEdit(!isEdit);
-          }}
-          disabled={isBusy}
-        >
-          {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
-        </button>
         {isEdit ? (
           <>
             <button
@@ -389,10 +297,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               className="round red"
               onClick={async () => {
                 if (confirm("本当に削除しますか？")) {
-                  if (
-                    image &&
-                    (await sendUpdate({ image, deleteMode: true }))
-                  ) {
+                  if (image && (await SubmitImage({ deleteMode: true }))) {
                     if (state) nav(-1);
                     else {
                       nav(pathname, {
@@ -414,9 +319,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             className="round rb"
             onClick={() => {
               if (image) {
-                navigator.clipboard.writeText(
-                  `![](?image=${image.originName})`
-                );
+                navigator.clipboard.writeText(`![](?image=${image.name})`);
                 toast("コピーしました", { duration: 1500 });
               }
             }}
@@ -424,6 +327,18 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <MdOutlineContentCopy />
           </button>
         )}
+        <button
+          title={isEdit ? "保存" : "編集"}
+          type="button"
+          className="round saveEdit"
+          onClick={() => {
+            if (isEdit && isDirty) SubmitImage();
+            setIsEdit(!isEdit);
+          }}
+          disabled={isBusy}
+        >
+          {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
+        </button>
       </RbButtonArea>
       {isEdit ? (
         <form
@@ -598,15 +513,16 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </label>
           <label>
             <div className="label-l">アルバム移動</div>
-            <select title="移動" {...register("move")} disabled={isBusy}>
-              {imageAlbumList
-                .filter((album) => album.listup && !album.name.startsWith("/"))
-                .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
-                .map((album, i) => (
-                  <option key={i} value={album.dir}>
-                    {album.name}
-                  </option>
-                ))}
+            <select title="移動" {...register("album")} disabled={isBusy}>
+              {albums
+                ? Object.values(Object.fromEntries(albums))
+                    .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
+                    .map((album, i) => (
+                      <option key={i} value={album.name}>
+                        {album.name}
+                      </option>
+                    ))
+                : null}
             </select>
           </label>
           <label className="around">
@@ -623,7 +539,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       <GalleryViewerPaging
         image={image}
         onClick={() => {
-          if (isEdit) SubmitImage(image);
+          if (isEdit && isDirty) SubmitImage();
         }}
       />
     </>

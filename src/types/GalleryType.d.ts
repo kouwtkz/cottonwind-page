@@ -10,7 +10,7 @@ interface GalleryListPropsBase {
   step?: number;
   autoDisable?: boolean;
   tags?: string | string[];
-  list?: OldMediaImageItemType[];
+  list?: ImageType[];
   hide?: boolean;
   hideWhenDefault?: boolean;
   hideWhenFilter?: boolean;
@@ -37,12 +37,12 @@ interface sortObjectType {
 
 interface GalleryObjectType {
   items: GalleryItemObjectType[];
-  fList: OldMediaImageItemType[][];
-  yfList: OldMediaImageItemType[][];
+  fList: ImageType[][];
+  yfList: ImageType[][];
   setItems: (items: GalleryItemObjectType[]) => void;
   setYFList: (
-    fList: OldMediaImageItemType[][],
-    yfList: OldMediaImageItemType[][]
+    fList: ImageType[][],
+    yfList: ImageType[][]
   ) => void;
 }
 

@@ -6,7 +6,11 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useImageState } from "@/state/ImageState";
+import {
+  imageAlbumsAtom,
+  imagesAtom,
+  imagesResetAtom,
+} from "@/state/ImageState";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/DataState";
 import React, {
@@ -59,7 +63,11 @@ import { getName } from "@/functions/doc/PathParse";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
-  const galleryList = env?.GALLERY.LIST;
+  const galleryList =
+    env?.IMAGE_ALBUMS?.map((album) => ({
+      ...album.gallery?.pages,
+      ...album,
+    })).filter((v) => v) ?? [];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   return (
     <div id="galleryPage">
@@ -72,7 +80,8 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 
 export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
   const isLogin = useAtom(isLoginAtom)[0];
-  const { url } = useImageState();
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const url = useMemo(() => apiOrigin + "/image/data", [apiOrigin]);
   return (
     <>
       {isLogin ? (
@@ -115,14 +124,14 @@ export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
 export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
   const [env] = useAtom(EnvAtom);
-  const items = useMemo(
+  const album = useMemo(
     () =>
-      env?.GALLERY.GENERATE.find(
-        (_group) =>
-          (typeof _group === "string" ? _group : _group.name) === group
-      ) || group,
+      env?.IMAGE_ALBUMS?.find(
+        (album) => (typeof album === "string" ? album : album.name) === group
+      ),
     [group, env]
   );
+  const items = album ? { ...album?.gallery?.generate, ...album } : undefined;
   return (
     <>
       <GalleryManageMenuButton group={group} />
@@ -142,7 +151,8 @@ export function GalleryObjectConvert({
   submitPreventScrollReset,
   ...args
 }: GalleryObjectConvertProps) {
-  const { imageItemList, imageAlbumList } = useImageState().imageObject;
+  const images = useAtom(imagesAtom)[0];
+  const imageAlbums = useAtom(imageAlbumsAtom)[0];
   const convertItemArrayType = useCallback(
     (items?: GalleryItemsType) =>
       items ? (Array.isArray(items) ? items : [items]) : [],
@@ -165,7 +175,7 @@ export function GalleryObjectConvert({
               case "topImage":
                 return {
                   ...item,
-                  list: filterPickFixed({ images: imageItemList, name }),
+                  list: filterPickFixed({ images: images, name }),
                   label: item.label ?? item.name,
                   max: item.max ?? 20,
                   linkLabel: item.linkLabel ?? false,
@@ -173,9 +183,7 @@ export function GalleryObjectConvert({
                   hideWhenEmpty: true,
                 };
               default:
-                const album = imageAlbumList.find(
-                  (album) => album.name === name
-                );
+                const album = imageAlbums?.get(name);
                 if (album) {
                   return {
                     ...item,
@@ -191,7 +199,7 @@ export function GalleryObjectConvert({
           }
           return item;
         }),
-    [items, imageItemList, imageAlbumList]
+    [items, images, imageAlbums]
   );
 
   return (
@@ -374,17 +382,18 @@ function UploadChain({
   children?: ReactNode;
 }) {
   const [apiOrigin] = useAtom(ApiOriginAtom);
-  const { imageObject, setImageFromUrl } = useImageState();
-  const { imageItemList, imageAlbumList } = imageObject;
+  const resetImages = useAtom(imagesResetAtom)[1];
+  const images = useAtom(imagesAtom)[0];
+  const albums = useAtom(imageAlbumsAtom)[0];
   const tags = useMemo(
     () => (typeof item.tags === "string" ? [item.tags] : item.tags),
     [item.tags]
   );
   const getAlbum = useCallback(
     (name: string) => {
-      return imageAlbumList.find((album) => album.name === name);
+      return albums?.get(name);
     },
-    [imageAlbumList]
+    [albums]
   );
   const upload = useCallback(
     (files: File[]) => {
@@ -393,11 +402,11 @@ function UploadChain({
       if (!album) return false;
       const checkTime = new Date().getTime();
       const targetFiles = files.filter((file) => {
-        const findFunc = ({ src, originName }: OldMediaImageItemType) =>
-          [src, originName].some((n) => n === file.name);
+        const findFunc = ({ src, name }: ImageType) =>
+          [src, name].some((n) => n === file.name);
         const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
         if (fromBrowser) {
-          return !imageItemList.some(findFunc);
+          return !images.some(findFunc);
         } else {
           const existTime = album.list.find(findFunc)?.time?.getTime();
           if (!existTime) return true;
@@ -418,13 +427,13 @@ function UploadChain({
         if (file.lastModified)
           formData.append("attached_mtime[]", String(file.lastModified));
       });
-      axios.post(apiOrigin + "/image/upload", formData).then((res) => {
+      axios.post(apiOrigin + "/image/send", formData).then((res) => {
         if (res.status === 200) {
           toast("アップロードしました！", {
             duration: 2000,
           });
           setTimeout(() => {
-            setImageFromUrl();
+            resetImages(true);
           }, 200 + 200 * targetFiles.length);
         }
       });
@@ -463,7 +472,7 @@ function UploadChain({
 
 interface GalleryBodyProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
-  yfList: OldMediaImageItemType[][];
+  yfList: ImageType[][];
 }
 function GalleryBody({
   items,
@@ -492,7 +501,6 @@ function GalleryBody({
         })),
     [yfList, items]
   );
-  console.log(items);
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div id="galleryPage">
@@ -550,7 +558,7 @@ function GalleryImageItem({
   image,
 }: {
   galleryName?: string;
-  image: OldMediaImageItemType;
+  image: ImageType;
 }) {
   const { pathname, state } = useLocation();
   const { showOrigin } = useMemo(() => state ?? {}, [state]);
@@ -561,11 +569,12 @@ function GalleryImageItem({
     state?: any;
     preventScrollReset?: boolean;
   } => {
-    if (image.direct) return { to: image.direct };
-    if (image.originName) searchParams.set("image", image.originName);
-    if (galleryName && image.album?.name !== galleryName)
+    if (image.direct) return { to: image.src ?? "" };
+    if (image.src) searchParams.set("image", getName(image.src));
+    if (galleryName && image.albumObject?.name !== galleryName)
       searchParams.set("group", galleryName);
-    else if (image.album?.name) searchParams.set("album", image.album.name);
+    else if (image.albumObject?.name)
+      searchParams.set("album", image.albumObject.name);
     return {
       to: new URL("?" + searchParams.toString(), location.href).href,
       state: { ...state, from: pathname },
@@ -607,7 +616,7 @@ interface GalleryContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     GalleryBodyOptions {
   item: GalleryItemObjectType;
-  list: OldMediaImageItemType[];
+  list: ImageType[];
 }
 const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
   function GalleryContent(

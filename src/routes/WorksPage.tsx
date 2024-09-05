@@ -1,10 +1,11 @@
-import { useImageState } from "@/state/ImageState";
+import { useAtom } from "jotai";
+import { imageAlbumsAtom } from "@/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
 
 export default function WorksPage() {
-  const { imageAlbumList } = useImageState().imageObject;
-  const work = imageAlbumList.find((album) => album.name === "works");
+  const imageAlbumList = useAtom(imageAlbumsAtom)[0];
+  const work = imageAlbumList?.get("works");
   return (
     <div className="worksPage">
       <h2 className="lulo">WORKS</h2>

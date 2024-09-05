@@ -1,4 +1,4 @@
-import {
+import React, {
   ReactNode,
   useCallback,
   useEffect,
@@ -36,13 +36,14 @@ import {
   RiStore3Fill,
 } from "react-icons/ri";
 import { CharaState, useCharaState } from "./CharaState";
-import { useImageState } from "./ImageState";
+import { imagesAtom, UrlMediaOrigin } from "./ImageState";
 import { dataIsCompleteAtom } from "./DataState";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
+import { isLoginAtom, MediaOriginAtom } from "./EnvState";
 
 type ImageViewerType = {
   image: OldMediaImageItemType | null;
@@ -71,169 +72,31 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
   },
 }));
 
-export function ImageViewer() {
-  const { imageItemList } = useImageState().imageObject;
-  const { charaObject } = useCharaState();
-  const { isOpen, onOpen, onClose } = useImageViewer();
-  const [isDirty, setIsDirty] = useAtom(imageEditIsDirty);
-  const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
+interface InfoAreaProps {
+  image: ImageType;
+}
+function InfoArea({ image }: InfoAreaProps) {
+  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const { onClose } = useImageViewer();
+  const searchParams = useSearchParams()[0];
+  const stateIsEdit = useAtom(imageEditIsEdit)[0];
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
+  const { charaObject } = useCharaState();
+  const isLogin = useAtom(isLoginAtom);
+  const isDev = Boolean(import.meta.env?.DEV);
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
   );
-  const [searchParams, setSearchParams] = useSearchParams();
-  const nav = useNavigate();
-  const l = useLocation();
-  const state = l.state;
-  const imageParam = searchParams.get("image");
-  const albumParam = searchParams.get("album") ?? undefined;
-  const isDev = Boolean(import.meta.env?.DEV);
-  const isProd = !isDev;
+  const titleEqFilename = useMemo(
+    () =>
+      isDev ? false : image?.name ? image.src?.startsWith(image.name) : true,
+    [image]
+  );
   const tagsOptions = autoFixGalleryTagsOptions(
     getTagsOptions(defaultGalleryTags)
   );
-  const [isComplete] = useAtom(dataIsCompleteAtom);
-
-  function backAction() {
-    if (
-      !isDirty ||
-      confirm("フォームが保存されていません。\n本当に戻りますか？")
-    ) {
-      setIsEdit(false);
-      setIsDirty(false);
-      if (state?.from) nav(-1);
-      else {
-        searchParams.delete("image");
-        searchParams.delete("pic");
-        searchParams.delete("group");
-        searchParams.delete("album");
-        setSearchParams(searchParams, { preventScrollReset: true, state });
-      }
-    }
-  }
-
-  useHotkeys("escape", (e) => {
-    if (isOpen) {
-      backAction();
-      e.preventDefault();
-    }
-  });
-
-  const imageFinder = useCallback(
-    (imageParam: string, albumParam?: string) =>
-      imageFindFromName({ imageParam, albumParam, imageItemList }),
-    [imageItemList]
-  );
-
-  const image = useMemo(() => {
-    if (isComplete && imageParam) {
-      const foundImage = imageFinder(imageParam, albumParam);
-      return foundImage;
-    } else return null;
-  }, [imageParam, albumParam, isComplete, state?.image]);
-
-  useEffect(() => {
-    if (isOpen && !image) {
-      onClose();
-    } else if (image) {
-      if (!isOpen) onOpen();
-    }
-  }, [isOpen, image]);
-
-  const titleEqFilename = useMemo(
-    () =>
-      process.env.NODE_ENV === "development"
-        ? false
-        : image?.name
-        ? image.src.startsWith(image.name)
-        : true,
-    [image]
-  );
-
-  const isOrigin = useMemo(
-    () => state?.showOrigin === "on",
-    [state?.showOrigin]
-  );
-
-  const PreviewArea = (
-    <div className="preview">
-      {image ? (
-        <>
-          {image.embed && (image.type === "embed" || image.type === "3d") ? (
-            <>
-              <EmbedNode className="wh-all-fill" embed={image.embed} />
-            </>
-          ) : (
-            <div className="wh-fill">
-              <a
-                title="別タブで画像を開く"
-                href={(isProd ? image.URL : image.origin) || image.src}
-                target="_blank"
-                className="translucent-button hover-visible fullscreen"
-              >
-                <RiFullscreenFill />
-              </a>
-              {image.link ? (
-                image.type === "ebook" || image.type === "goods" ? (
-                  <a
-                    title="販売ページを見る"
-                    href={image.link}
-                    target="_blank"
-                    className="translucent-button hover-visible open"
-                  >
-                    <RiStore3Fill />
-                  </a>
-                ) : (
-                  <a
-                    title="リンクを開く"
-                    href={image.link}
-                    target="_blank"
-                    className="translucent-button hover-visible open"
-                  >
-                    <RiLinkM />
-                  </a>
-                )
-              ) : image.embed ? (
-                image.type === "ebook" ? (
-                  <Link
-                    title="よむ"
-                    to={
-                      new URL(
-                        "/gallery/ebook?name=" + image.embed,
-                        location.href
-                      ).href
-                    }
-                    className="translucent-button open"
-                  >
-                    <RiBook2Fill />
-                  </Link>
-                ) : image.type === "pdf" ? (
-                  <a
-                    title="ひらく"
-                    href={getEmbedURL(image.embed)}
-                    target="_blank"
-                    className="open"
-                  >
-                    <RiFilePdf2Fill />
-                  </a>
-                ) : null
-              ) : null}
-              <div className="wh-all-fill imageArea">
-                <ImageMee
-                  imageItem={image}
-                  title={image.name || image.src}
-                  originWhenDev={isOrigin}
-                />
-              </div>
-            </div>
-          )}
-        </>
-      ) : null}
-    </div>
-  );
-
-  if (searchParams.has("pic") || !image?.album?.visible?.info) return <></>;
+  if (searchParams.has("pic") || !image?.albumObject) return <></>;
   const tags = image.tags ?? [];
   const charaTags = tags
     .map((tag) => charaObject[tag] as CharaType)
@@ -248,15 +111,15 @@ export function ImageViewer() {
   );
   const tagsBaseURL = location.origin + "/gallery";
 
-  const InfoCmp = (
+  return (
     <div className="infoArea">
       <CharaState />
       {isComplete ? (
         <>
           {isEdit ? null : (
             <div className="info window">
-              {image.album.visible.title &&
-              (image.album.visible.filename || !titleEqFilename) ? (
+              {image.albumObject?.visible?.title &&
+              (image.albumObject.visible.filename || !titleEqFilename) ? (
                 <h2 className="title">{image.name}</h2>
               ) : (
                 <div className="title" />
@@ -360,7 +223,7 @@ export function ImageViewer() {
               ) : null}
             </div>
           )}
-          {isDev ? (
+          {isLogin ? (
             <ImageEditForm image={image} />
           ) : (
             <GalleryViewerPaging image={image} />
@@ -369,6 +232,152 @@ export function ImageViewer() {
       ) : null}
     </div>
   );
+}
+
+interface PreviewAreaProps {
+  image: ImageType;
+}
+function PreviewArea({ image }: PreviewAreaProps) {
+  const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const MediaOrigin = useCallback(
+    (src?: string) => UrlMediaOrigin(mediaOrigin, src),
+    [mediaOrigin]
+  );
+  const l = useLocation();
+  const state = l.state;
+  const isOrigin = useMemo(
+    () => state?.showOrigin === "on",
+    [state?.showOrigin]
+  );
+
+  return (
+    <div className="preview">
+      {image ? (
+        <>
+          {image.embed && (image.type === "embed" || image.type === "3d") ? (
+            <>
+              <EmbedNode className="wh-all-fill" embed={image.embed} />
+            </>
+          ) : (
+            <div className="wh-fill">
+              <a
+                title="別タブで画像を開く"
+                href={MediaOrigin(image.webp || image.src)}
+                target="_blank"
+                className="translucent-button hover-visible fullscreen"
+              >
+                <RiFullscreenFill />
+              </a>
+              {image.link ? (
+                image.type === "ebook" || image.type === "goods" ? (
+                  <a
+                    title="販売ページを見る"
+                    href={image.link}
+                    target="_blank"
+                    className="translucent-button hover-visible open"
+                  >
+                    <RiStore3Fill />
+                  </a>
+                ) : (
+                  <a
+                    title="リンクを開く"
+                    href={image.link}
+                    target="_blank"
+                    className="translucent-button hover-visible open"
+                  >
+                    <RiLinkM />
+                  </a>
+                )
+              ) : image.embed ? (
+                image.type === "ebook" ? (
+                  <Link
+                    title="よむ"
+                    to={
+                      new URL(
+                        "/gallery/ebook?name=" + image.embed,
+                        location.href
+                      ).href
+                    }
+                    className="translucent-button open"
+                  >
+                    <RiBook2Fill />
+                  </Link>
+                ) : image.type === "pdf" ? (
+                  <a
+                    title="ひらく"
+                    href={getEmbedURL(image.embed)}
+                    target="_blank"
+                    className="open"
+                  >
+                    <RiFilePdf2Fill />
+                  </a>
+                ) : null
+              ) : null}
+              <div className="wh-all-fill imageArea">
+                <ImageMee
+                  imageItem={image}
+                  title={image.name || image.src}
+                  originWhenDev={isOrigin}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+export function ImageViewer() {
+  const imageItemList = useAtom(imagesAtom)[0];
+  const { isOpen, onOpen, onClose } = useImageViewer();
+  const [isDirty, setIsDirty] = useAtom(imageEditIsDirty);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const nav = useNavigate();
+  const l = useLocation();
+  const state = l.state;
+  const imageParam = searchParams.get("image");
+  const setIsEdit = useAtom(imageEditIsEdit)[1];
+
+  function backAction() {
+    if (
+      !isDirty ||
+      confirm("フォームが保存されていません。\n本当に戻りますか？")
+    ) {
+      setIsEdit(false);
+      setIsDirty(false);
+      if (state?.from) nav(-1);
+      else {
+        searchParams.delete("image");
+        searchParams.delete("pic");
+        searchParams.delete("group");
+        searchParams.delete("album");
+        setSearchParams(searchParams, { preventScrollReset: true, state });
+      }
+    }
+  }
+
+  useHotkeys("escape", (e) => {
+    if (isOpen) {
+      backAction();
+      e.preventDefault();
+    }
+  });
+
+  const image = useMemo(() => {
+    if (imageParam) {
+      const searchParam = "/" + imageParam + ".";
+      return imageItemList.find((v) => v.src?.includes(searchParam));
+    } else return;
+  }, [imageItemList, imageParam]);
+
+  useEffect(() => {
+    if (isOpen && !image) {
+      onClose();
+    } else if (image) {
+      if (!isOpen) onOpen();
+    }
+  }, [isOpen, image]);
 
   return (
     <div id="image_viewer">
@@ -390,8 +399,8 @@ export function ImageViewer() {
               }}
             />
             <div className="window modal">
-              {PreviewArea}
-              {InfoCmp}
+              <PreviewArea image={image} />
+              <InfoArea image={image} />
             </div>
           </div>
         </div>
@@ -404,7 +413,7 @@ export function ImageViewer() {
 
 interface GalleryViewerPagingProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  image: OldMediaImageItemType | null;
+  image: ImageType | null;
 }
 
 export function GalleryViewerPaging({
@@ -429,10 +438,12 @@ export function GalleryViewerPaging({
     () => yfList[galleryItemIndex] ?? [],
     [yfList, galleryItemIndex]
   );
-  const imageIndex = useMemo(
-    () => groupImageList.findIndex(({ URL }) => image?.URL === URL),
-    [image?.URL, groupImageList]
-  );
+  const imageIndex = useMemo(() => {
+    const src = image?.src;
+    if (src) {
+      return groupImageList.findIndex((groupImage) => groupImage.src === src);
+    } else return -1;
+  }, [image?.src, groupImageList]);
 
   const prevNextImage = useMemo(
     () => ({
@@ -441,9 +452,10 @@ export function GalleryViewerPaging({
     }),
     [groupImageList, imageIndex]
   );
+
   const prevNextToHandler = useCallback(
-    (image: OldMediaImageItemType) => {
-      if (image.originName) searchParams.set("image", image.originName);
+    (image: ImageType) => {
+      if (image.name) searchParams.set("image", image.name);
       return new URL("?" + searchParams.toString(), location.href).href;
     },
     [searchParams]

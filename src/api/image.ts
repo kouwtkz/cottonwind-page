@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { optimizeImage } from "wasm-image-optimization";
 import { Response } from "@cloudflare/workers-types/experimental";
-import { getName } from "@/functions/doc/PathParse";
-import { getMimeType } from "hono/utils/mime";
+import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 
@@ -10,41 +9,159 @@ export const app = new Hono<{ Bindings: MeeAPIEnv; Response: Response }>({
   strict: false,
 });
 
-interface ImageDataType {
-  id?: number;
-  name?: string;
-  album?: string;
-  src?: string;
-  webp?: string;
-  thumbnail?: string;
-  width?: number;
-  height?: number;
-  tags?: string;
-  date?: string;
-  updated?: string;
-}
-
 const table = "images";
+
+const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
+  id: { primary: true },
+  name: { type: "TEXT" },
+  album: { type: "TEXT" },
+  description: { type: "TEXT" },
+  src: { type: "TEXT", unique: true, notNull: true },
+  webp: { type: "TEXT", unique: true },
+  thumbnail: { type: "TEXT" },
+  icon: { type: "TEXT" },
+  width: { type: "INTEGER" },
+  height: { type: "INTEGER" },
+  tags: { type: "TEXT" },
+  copyright: { type: "TEXT" },
+  link: { type: "TEXT" },
+  embed: { type: "TEXT" },
+  type: { type: "TEXT" },
+  topImage: { type: "INTEGER" },
+  pickup: { type: "INTEGER" },
+  time: { type: "TEXT", unique: true },
+  mtime: { createAt: true, unique: true },
+  version: { type: "INTEGER" },
+};
 
 async function createImageDatabase(d1: MeeSqlD1) {
   await d1
-    .createTable<ImageDataType>({
+    .createTable({
       table,
-      entry: {
-        id: { primary: true },
-        name: { type: "TEXT" },
-        album: { type: "TEXT" },
-        src: { type: "TEXT", unique: true },
-        webp: { type: "TEXT", unique: true },
-        thumbnail: { type: "TEXT" },
-        width: { type: "INTEGER" },
-        height: { type: "INTEGER" },
-        tags: { type: "TEXT" },
-        date: { type: "TEXT", unique: true },
-        updated: { createAt: true, unique: true },
-      },
+      entry: createEntry,
     })
     .catch(() => { });
+}
+
+app.get("/data", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const Url = new URL(c.req.url);
+  const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
+  const endpoint = Url.searchParams.get("endpoint");
+  if (endpoint) wheres.push({ mtime: { gt: endpoint } });
+  const id = Url.searchParams.get("id");
+  if (id) wheres.push({ id: Number(id) });
+  const src = Url.searchParams.get("src");
+  if (src) wheres.push({ src });
+  function Select() {
+    return db.select<ImageDataType>({ table, where: { AND: wheres } })
+  }
+  return c.json(
+    await Select().catch(() => createImageDatabase(db).then(() => Select()))
+  );
+});
+
+function FormBoolToInt(v?: string) {
+  switch (v) {
+    case "true":
+      return 1;
+    case "false":
+      return 0;
+    case "null":
+    case "undefined":
+      return null;
+    default:
+      return;
+  }
+}
+
+function BlankStringsToNull(...args: (string | undefined)[]) {
+  if (args.some(v => v !== undefined)) {
+    const union = args.filter(v => v).join(",");
+    return union || null;
+  } else return undefined;
+}
+
+app.patch("/send", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  let {
+    id: _id,
+    src,
+    rename,
+    name,
+    time,
+    charaTags,
+    otherTags,
+    topImage,
+    pickup,
+    ...values
+  } = (await c.req.parseBody()) as unknown as imageFormDataType;
+  type typeValues = typeof values;
+  const entry: ImageDataType = {
+    topImage: FormBoolToInt(topImage),
+    pickup: FormBoolToInt(pickup),
+    tags: BlankStringsToNull(charaTags, otherTags),
+    name,
+    time: time ? new Date(time).toISOString() : time,
+    mtime: new Date().toISOString(),
+    ...Object.entries(values).reduce<typeValues>((a, [k, v]) => {
+      a[(k as keyof typeValues)] = BlankStringsToNull(v as string | undefined);
+      return a;
+    }, {})
+  };
+  const id = Number(_id);
+  if (rename) {
+    const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
+    if (value) {
+      async function renamePut(key: "src" | "webp" | "thumbnail" | "icon", rename: string) {
+        if (value[key]) {
+          const object = await c.env.BUCKET.get(value[key])
+          if (object) {
+            entry[key] = rename;
+            await c.env.BUCKET.put(rename, await object.arrayBuffer())
+            await c.env.BUCKET.delete(value[key]);
+          }
+        }
+      }
+      const renameBase = getName(rename);
+      const renameWebp = renameBase + ".webp";
+      await renamePut("src", "image/" + rename);
+      await renamePut("webp", "image/webp/" + renameWebp);
+      await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
+      await renamePut("icon", "image/icon/" + renameWebp);
+    }
+  }
+  await db.update<ImageDataType>({ table, entry, where: { id } })
+  return c.text(src ?? id + "を更新しました");
+});
+
+app.delete("/send", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const formdata = await c.req.parseBody();
+  if (typeof formdata.id === "string") {
+    const id = Number(formdata.id);
+    const values = (await db.select<ImageDataType>({ table, params: "*", where: { id } }))[0];
+    if (values.src) c.env.BUCKET.delete(values.src);
+    if (values.webp) c.env.BUCKET.delete(values.webp);
+    if (values.thumbnail) c.env.BUCKET.delete(values.thumbnail);
+    if (values.icon) c.env.BUCKET.delete(values.icon);
+    const nullEntry = MeeSqlD1.getNullEntry(createEntry);
+    await db.update<ImageDataType>({
+      table,
+      entry: { ...nullEntry, mtime: new Date().toISOString() },
+      where: { id }
+    });
+    return c.text(values.src + "を削除しました");
+  }
+  return c.text("削除するデータがありません");
+});
+
+function arrayFromFormdata<T = unknown>(
+  formData: KeyValueType<unknown>,
+  key: string
+) {
+  const data = formData[key];
+  return data ? ((Array.isArray(data) ? data : [data]) as T[]) : undefined;
 }
 
 async function Resize({
@@ -55,58 +172,40 @@ async function Resize({
   metaSize,
 }: {
   image: BufferSource;
-  size?: number;
+  size: number;
   quality?: number;
   format?: "jpeg" | "png" | "webp";
   metaSize?: { width: number; height: number };
 }) {
-  const width = metaSize
-    ? metaSize.width > metaSize.height
-      ? undefined
-      : size
-    : size;
-  const height = metaSize
-    ? metaSize.height > metaSize.width
-      ? undefined
-      : size
-    : size;
-  if (width ?? height) {
-    return await optimizeImage({
-      format,
-      image,
-      width,
-      height,
-      quality,
-    });
-  } else return null;
+  const resizable = metaSize
+    ? metaSize.height * metaSize.width > size * size
+    : true;
+  if (resizable) {
+    const width = metaSize
+      ? metaSize.width > metaSize.height
+        ? undefined
+        : size
+      : size;
+    const height = metaSize
+      ? metaSize.height > metaSize.width
+        ? undefined
+        : size
+      : size;
+    if (width || height) {
+      return await optimizeImage({
+        format,
+        image,
+        width,
+        height,
+        quality,
+      });
+    }
+  }
+  return null;
 }
 
-function arrayFromFormdata<T = unknown>(
-  formData: KeyValueType<unknown>,
-  key: string
-) {
-  const data = formData[key];
-  return data ? ((Array.isArray(data) ? data : [data]) as T[]) : undefined;
-}
-
-app.get("/data", async (c, next) => {
+app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const Url = new URL(c.req.url);
-  const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
-  const endpoint = Url.searchParams.get("endpoint");
-  if (endpoint) wheres.push({ updated: { gt: endpoint } });
-  const id = Url.searchParams.get("id");
-  if (id) wheres.push({ id: Number(id) });
-  const src = Url.searchParams.get("src");
-  if (src) wheres.push({ src });
-  return c.json(
-    await db.select<ImageDataType>({ table, where: { AND: wheres } })
-  );
-});
-
-app.post("/upload", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  await createImageDatabase(db);
   const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
   const attachedList = arrayFromFormdata<File>(formData, "attached[]") ?? [];
   const mtimeList =
@@ -121,46 +220,59 @@ app.post("/upload", async (c, next) => {
       }))
       .map(async ({ attached, mtime }) => {
         const image = await attached.arrayBuffer();
-        const imagePath = "image/" + "src/" + attached.name;
+        const imagePath = "image/" + attached.name;
         await c.env.BUCKET.put(imagePath, image);
         const arr = new Uint8Array(image);
         const blob = new Blob([arr]);
         const name = getName(attached.name);
-        const webpName = name + ".webp";
-        const webpImage = await optimizeImage({
-          format: "webp",
-          image,
-        });
-        const webpImagePath = webpImage ? "image/" + webpName : undefined;
-        if (webpImagePath) await c.env.BUCKET.put(webpImagePath, webpImage);
+        const ext = getExtension(attached.name);
+        const pathes: {
+          webp?: string;
+          thumbnail?: string;
+          icon?: string;
+        } = {};
         const metaSize = await imageDimensionsFromStream(blob.stream());
-        const thumbnailImage = await Resize({
-          image,
-          format: "webp",
-          metaSize,
-          quality: 80,
-          size: c.env.THUMBNAIL_SIZE ?? 320,
-        });
-        const thumbnailImagePath = thumbnailImage
-          ? "image/" + "thumbnail/" + webpName
-          : undefined;
-        if (thumbnailImagePath)
-          await c.env.BUCKET.put(thumbnailImagePath, thumbnailImage);
-        if (
-          await db.exists<ImageDataType>({ table, where: { src: imagePath } })
-        ) {
+        switch (ext) {
+          case "svg":
+            break;
+          default:
+            const webpName = name + ".webp";
+            const webpImage = await optimizeImage({
+              format: "webp",
+              image,
+            });
+            if (webpImage) pathes.webp = "image/webp/" + webpName;
+            if (pathes.webp) await c.env.BUCKET.put(pathes.webp, webpImage);
+            const thumbnailImage = await Resize({
+              image,
+              format: "webp",
+              metaSize,
+              quality: 80,
+              size: c.env.THUMBNAIL_SIZE ?? 320,
+            });
+            if (thumbnailImage)
+              pathes.thumbnail = "image/thumbnail/" + webpName;
+            if (pathes.thumbnail)
+              await c.env.BUCKET.put(pathes.thumbnail, thumbnailImage);
+            break;
+        }
+        function Select() {
+          return db.select<ImageDataType>({ table, where: { src: imagePath } })
+        }
+        const selectValue = await Select().catch(() => createImageDatabase(db).then(() => Select()));
+        if (selectValue.length > 0) {
           await db.update<ImageDataType>({
             table,
             where: { src: imagePath },
             entry: {
               name,
               album,
-              date: mtime,
-              webp: webpImagePath,
-              thumbnail: thumbnailImagePath,
+              time: mtime,
+              ...pathes,
               tags,
+              version: (selectValue[0].version ?? 0) + 1
             },
-            rawEntry: { updated: MeeSqlD1.isoFormat() },
+            rawEntry: { mtime: MeeSqlD1.isoFormat() },
           });
         } else {
           await db.insert<ImageDataType>({
@@ -168,36 +280,18 @@ app.post("/upload", async (c, next) => {
             entry: {
               name,
               album,
-              date: mtime,
+              time: mtime,
               src: imagePath,
-              webp: webpImagePath,
-              thumbnail: thumbnailImagePath,
+              ...pathes,
               ...metaSize,
               tags,
+              version: 1,
             },
           });
         }
       })
   );
   return c.newResponse(null);
-});
-
-app.get("*", async (c, next) => {
-  if (c.env.DEV) {
-    const Url = new URL(c.req.url);
-    const pathname = decodeURI(Url.pathname);
-    const filename = pathname.slice(pathname.indexOf("/", 1) + 1);
-    if (filename) {
-      const mimeType = getMimeType(filename);
-      const item = await c.env.BUCKET.get("image/" + filename);
-      const b = await item?.blob();
-      if (b)
-        return c.body(await b.arrayBuffer(), {
-          headers: mimeType ? { "Content-Type": mimeType } : {},
-        });
-    }
-  }
-  return next();
 });
 
 app.delete("/", async (c, next) => {

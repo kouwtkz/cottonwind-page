@@ -1,6 +1,15 @@
-import React, { ImgHTMLAttributes, useMemo, useRef, useState } from "react";
+import React, {
+  ImgHTMLAttributes,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
+import { useAtom } from "jotai";
+import { MediaOriginAtom } from "@/state/EnvState";
+import { UrlMediaOrigin } from "@/state/ImageState";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -11,8 +20,8 @@ export function BlankImage(args: BlankImageProps) {
 }
 
 interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
-  imageItem?: OldMediaImageItemType;
-  hoverImageItem?: OldMediaImageItemType;
+  imageItem?: ImageType;
+  hoverImageItem?: ImageType;
   mode?: ResizeMode;
   size?: number;
   loadingScreen?: boolean;
@@ -41,38 +50,54 @@ export function ImageMee({
   const refImg = useRef<HTMLImageElement | null>(null);
   const refImgSrc = useRef("");
   const refShowList = useRef<string[]>([]);
-  const isSetOrigin = originWhenDev && import.meta.env?.DEV;
+  const isSetOrigin = originWhenDev;
 
-  const src = _src || (isSetOrigin ? imageItem?.origin : imageItem?.URL) || "";
+  const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const MediaOrigin = useCallback(
+    (src?: OrNull<string>, version?: number | null) =>
+      UrlMediaOrigin(mediaOrigin, src) + ((version ?? 1) > 1 ? "?v=" + version : ""),
+    [mediaOrigin]
+  );
+
+  const src =
+    _src ||
+    (imageItem
+      ? MediaOrigin(
+          isSetOrigin ? imageItem.src : imageItem.webp || imageItem.src,
+          imageItem.version
+        )
+      : null) ||
+    "";
   const alt = _alt || imageItem?.name || imageItem?.src || "";
 
   [width, height] = useMemo(() => {
     if (size) {
       return new Array<number>(2).fill(size);
-    } else if (imageItem?.size) {
+    } else if (imageItem?.width && imageItem?.height) {
       return [
         height
-          ? Math.ceil((imageItem.size.w * Number(height)) / imageItem.size.h)
-          : imageItem.size.w,
+          ? Math.ceil((imageItem.width * Number(height)) / imageItem.height)
+          : imageItem.width,
         width
-          ? Math.ceil((imageItem.size.h * Number(width)) / imageItem.size.w)
-          : imageItem.size.h,
+          ? Math.ceil((imageItem.height * Number(width)) / imageItem.width)
+          : imageItem.height,
       ];
     } else {
       return [width, height];
     }
   }, [imageItem, size, width, height]);
   const thumbnail = useMemo(
-    () => imageItem?.resized?.find((item) => item.mode === "thumbnail")?.src,
-    [imageItem]
+    () => MediaOrigin(imageItem?.thumbnail, imageItem?.version),
+    [imageItem, MediaOrigin]
   );
+
   const imageSrc = useMemo(
     () =>
       mode === "simple" || isSetOrigin
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
-        : imageItem?.resized?.find((item) => item.mode === mode)?.src || src,
+        : (imageItem as KeyValueType<string>)[mode] || src,
     [imageItem, mode, src, thumbnail, isSetOrigin]
   );
   const imageShowList = useMemo(() => {
@@ -120,7 +145,7 @@ export function ImageMee({
 
 interface ImageMeeSimpleProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
-  imageItem: OldMediaImageItemType;
+  imageItem: ImageType;
   size?: number;
   loadingScreen?: boolean;
   originWhenDev?: boolean;
@@ -135,7 +160,7 @@ export function ImageMeeThumbnail({ size, ...args }: ImageMeeSimpleProps) {
 
 interface GetImageItemFromSrcProps {
   src: string | UrlObject | URL;
-  list: OldMediaImageItemType[];
+  list: ImageType[];
 }
 export function GetImageItemFromSrc({ src, list }: GetImageItemFromSrcProps) {
   const Url = ToURL(src);
@@ -143,16 +168,13 @@ export function GetImageItemFromSrc({ src, list }: GetImageItemFromSrcProps) {
   if (pagenameFlag) {
     const toSearch = Object.fromEntries(Url.searchParams);
     if ("image" in toSearch) {
-      if (toSearch.dir) list = list.filter((item) => item.dir === toSearch.dir);
       if (toSearch.album)
-        list = list.filter((item) => item.album?.name === toSearch.album);
-      return list.find(({ originName }) =>
-        originName?.startsWith(toSearch.image)
-      );
+        list = list.filter((item) => item.albumObject?.name === toSearch.album);
+      return list.find(({ name }) => name?.startsWith(toSearch.image));
     } else return null;
   } else if (hostFlag) {
     const _pathname = decodeURI(Url.pathname);
-    return list.find((image) => image.URL?.match(_pathname));
+    return list.find((image) => image.src?.match(_pathname));
   } else return null;
 }
 
@@ -161,7 +183,7 @@ export function GetImageURLFromSrc({ src, list }: GetImageItemFromSrcProps) {
   const { pathname: pagenameFlag } = GetUrlFlag(Url);
   const url = Url.href;
   const imageItem = GetImageItemFromSrc({ src: url, list });
-  if (imageItem) return imageItem.URL;
+  if (imageItem) return imageItem.src;
   if (pagenameFlag) return "";
   else return url;
 }

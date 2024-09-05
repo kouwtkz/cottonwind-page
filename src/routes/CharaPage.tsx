@@ -10,7 +10,7 @@ import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
 import { CharaState, useCharaState } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
-import { useImageState } from "@/state/ImageState";
+import { imageAlbumsAtom } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import CharaEditForm, {
   CharaEditButton,
@@ -26,6 +26,7 @@ import {
   ContentsTagsOption,
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
+import { useAtom } from "jotai";
 
 export function CharaPage() {
   const { charaName } = useParams();
@@ -199,12 +200,17 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
   const items = useMemo(() => {
     let list = charaList;
     const characterSort = state?.characterSort;
-    const charaTagsWhere = state?.charaTagsWhere;
+    const charaTagsWhere: findWhereType<CharaType> | undefined =
+      state?.charaTagsWhere;
     if (characterSort || charaTagsWhere) {
       list = [...list];
-      const where: findWhereType<CharaType> = {};
-      if (charaTagsWhere) where.AND = [charaTagsWhere];
-      list = findMee({ list, orderBy: state.characterSort, where });
+      const wheres: findWhereType<CharaType>[] = [];
+      if (charaTagsWhere) wheres.push(charaTagsWhere);
+      list = findMee({
+        list,
+        orderBy: state.characterSort,
+        where: { AND: wheres },
+      });
     }
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
@@ -258,7 +264,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
 
 function CharaDetail({ charaName }: { charaName: string }) {
   const { charaObject, isSet: isCharaState } = useCharaState();
-  const { imageAlbumList } = useImageState().imageObject;
+  const albums = useAtom(imageAlbumsAtom)[0];
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
     () => (charaObject ?? {})[charaName],
@@ -329,15 +335,14 @@ function CharaDetail({ charaName }: { charaName: string }) {
             <GalleryObject
               items={galleryList
                 .map((item) => {
-                  const matchAlbum = imageAlbumList.find(
-                    (album) => album.name === item.name
-                  );
+                  const albumImages =
+                    albums?.get(item.name)?.list || [];
                   return {
                     name: item.name,
                     label: item.name,
                     tags: chara.id,
                     list:
-                      matchAlbum?.list.filter((image) =>
+                      albumImages.filter((image) =>
                         image.tags?.some((tag) => tag === chara.id)
                       ) ?? [],
                   } as GalleryItemObjectType;

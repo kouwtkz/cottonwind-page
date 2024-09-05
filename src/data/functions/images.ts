@@ -1,22 +1,20 @@
-export function parseImageItems(imageAlbums: MediaImageAlbumType[]) {
-  const imageList: OldMediaImageItemType[] = [];
+export function parseImageItems(imageAlbums: ImageAlbumType[]) {
+  const imageList: ImageType[] = [];
   imageAlbums.forEach((album) => {
     album.list.forEach((item) => {
       album.visible = {
         ...{ info: true, filename: true, title: true },
         ...album.visible,
       };
-      item.album = album;
+      item.albumObject = album;
       item.time = item.time ? new Date(item.time) : undefined;
       imageList.push(item);
-      item.originType = item.type;
-      if (!item.type) item.type = AutoImageItemType(item.embed, album.type);
     });
   });
   return imageList;
 }
 
-export function getTagList(imageItemList: OldMediaImageItemType[]) {
+export function getTagList(imageItemList: ImageType[]) {
   return imageItemList
     .reduce((list, c) => {
       c.tags?.forEach((value) => {
@@ -29,7 +27,7 @@ export function getTagList(imageItemList: OldMediaImageItemType[]) {
     .sort((a, b) => (a.value > b.value ? 1 : -1));
 }
 
-export function getCopyRightList(imageItemList: OldMediaImageItemType[]) {
+export function getCopyRightList(imageItemList: ImageType[]) {
   return imageItemList
     .reduce((list, { copyright: values }) => {
       values?.forEach((value) => {
@@ -44,7 +42,7 @@ export function getCopyRightList(imageItemList: OldMediaImageItemType[]) {
     .sort((a, b) => (a.value > b.value ? 1 : -1));
 }
 
-export function AutoImageItemType(embed?: string, albumType?: string) {
+export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<string>) {
   if (embed) {
     if (/\.(epub)$/i.test(embed)) {
       return "ebook";
@@ -64,13 +62,13 @@ export function AutoImageItemType(embed?: string, albumType?: string) {
 
 export function imageFindFromName
   ({ imageItemList, imageParam, albumParam }:
-    { imageItemList?: OldMediaImageItemType[], imageParam: string, albumParam?: string }) {
+    { imageItemList?: ImageType[], imageParam: string, albumParam?: string }) {
   const albumItemList = albumParam
-    ? imageItemList?.filter(({ album }) => album?.name === albumParam)
+    ? imageItemList?.filter(({ album }) => album === albumParam)
     : imageItemList;
   return (
     albumItemList?.find((image) =>
-      image.originName?.startsWith(imageParam)
+      image.src?.startsWith(imageParam)
     ) ?? null
   );
 }

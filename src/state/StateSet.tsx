@@ -2,7 +2,7 @@ import { DataState } from "./DataState";
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
-import { ImageState, useImageState } from "./ImageState";
+import { ImageState, imagesIsSet } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
 import { FeedState, outFeedAtom } from "./FeedState";
@@ -20,7 +20,7 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 
 export function StateSet() {
   const isSetList = [
-    useImageState().imageObject.isSet,
+    useAtom(imagesIsSet)[0],
     Boolean(useAtom(EnvAtom)[0]),
     Boolean(useAtom(outFeedAtom)[0]),
   ];

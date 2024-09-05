@@ -18,16 +18,18 @@ interface SiteConfigEnv {
   API_ORIGIN?: string;
   API_WORKERS_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
+  MEDIA_ORIGIN?: string;
+  MEDIA_WORKERS_ORIGIN?: string;
+  MEDIA_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
-  NAV: Array<SiteMenuItemType>;
-  LINKS: Array<SiteMyLinksItemType>;
-  GALLERY: {
-    LIST: Array<GalleryItemType>;
-    GENERATE: Array<GalleryItemObjectType>;
-  }
+  NAV?: Array<SiteMenuItemType>;
+  LINKS?: Array<SiteMyLinksItemType>;
+  IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
 }
+interface ImageAlbumEnvType extends Omit<ImageAlbumType, "list"> { }
+
 interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;

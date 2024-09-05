@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useImageState } from "@/state/ImageState";
+import { imageAlbumsAtom } from "@/state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
 import { NoteView } from "@/state/FeedState";
+import { useAtom } from "jotai";
 
 export default function Home() {
   return (
@@ -105,18 +106,18 @@ export function TopPageBannerLink() {
 }
 
 export function HomeImage() {
-  const { imageAlbumList } = useImageState().imageObject;
+  const imageAlbumList = useAtom(imageAlbumsAtom)[0];
   const images = useMemo(
-    () => imageAlbumList.find(({ name }) => name === "art")?.list ?? [],
+    () => imageAlbumList?.get("art")?.list ?? [],
     [imageAlbumList]
   );
   const topImages = filterPickFixed({
     images,
     name: "topImage",
   });
-  const [topImageState, setTopImage] = useState<OldMediaImageItemType>();
+  const [topImageState, setTopImage] = useState<ImageType>();
   const firstLoad = useRef(true);
-  const currentTopImage = useRef<OldMediaImageItemType | null>(null);
+  const currentTopImage = useRef<ImageType | null>(null);
   if (topImageState && currentTopImage) currentTopImage.current = topImageState;
   const topImage = currentTopImage.current;
   const setRndTopImage = () => {

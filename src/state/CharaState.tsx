@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect } from "react";
 import { create } from "zustand";
 import axios from "axios";
-import { useImageState } from "./ImageState";
+import { imagesAtom } from "./ImageState";
 import { useSoundState } from "./SoundState";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { useAtom } from "jotai";
@@ -74,7 +74,7 @@ export function CharaState({ url = defaultUrl }: { url?: string }) {
   useEffect(() => {
     if (isFirst && isSet) setIsComplete(true);
   }, [isSet, isFirst]);
-  const { imageItemList } = useImageState().imageObject;
+  const imageItemList = useAtom(imagesAtom)[0];
   const { SoundItemList, defaultPlaylist } = useSoundState();
   useLayoutEffect(() => {
     if (isReload && imageItemList.length > 0) {
@@ -99,7 +99,7 @@ export function CharaState({ url = defaultUrl }: { url?: string }) {
               } else if (kindItem.name) {
                 charaMedia[kindItem.kind] = imageItemList.find(
                   ({ album, name }) =>
-                    album?.name === kindItem.name && name === chara.id
+                    album === kindItem.name && name === chara.id
                 );
               }
             });

@@ -35,6 +35,11 @@ API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
 API_LOCAL_ORIGIN = "http://localhost:51731"
 LOCAL_ORIGIN = "http://localhost:51730"
 
+MEDIA_ORIGIN = "https://media.cottonwind.com"
+
+MEDIA_LOCAL_ORIGIN = "http://localhost:51731/r2"
+MEDIA_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev/r2"
+
 CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 
@@ -82,140 +87,139 @@ name = "about"
 url = "/about"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/twitter.webp"
 name = "𝕏 (Twitter)"
 url = "https://x.com/kouwtkz"
-mask = "/static/_media/mask/links/twitter.webp"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/youtube.webp"
 name = "youtube"
 url = "https://www.youtube.com/@kouwtkz"
-mask = "/static/_media/mask/links/youtube.webp"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/pixiv.webp"
 name = "pixiv"
 url = "https://www.pixiv.net/users/5577703"
-mask = "/static/_media/mask/links/pixiv.webp"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/instagram.webp"
 name = "instagram"
 url = "https://www.instagram.com/kouwtkz/"
-mask = "/static/_media/mask/links/instagram.webp"
 
 [[vars.LINKS]]
+hidden = true
+mask = "/static/_media/mask/links/misskey_design.webp"
 name = "MisskeyDesign"
 rel = "me"
+row = 2
 title = "Misskey design"
 url = "https://misskey.design/@kouwtkz"
-mask = "/static/_media/mask/links/misskey_design.webp"
-hidden = true
-row = 2
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/wtkz_mascodon.webp"
 name = "Mascodon"
 rel = "me"
+row = 2
 title = "マスコどん！"
 url = "https://mascodon.jp/@kouwtkz"
-mask = "/static/_media/mask/links/wtkz_mascodon.webp"
-row = 2
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/bluesky.webp"
 name = "Bluesky"
 rel = "me"
-url = "https://bsky.app/profile/kouwtkz.cottonwind.com"
-mask = "/static/_media/mask/links/bluesky.webp"
 row = 2
+url = "https://bsky.app/profile/kouwtkz.cottonwind.com"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/github.webp"
 name = "GitHub"
 url = "https://github.com/kouwtkz"
-mask = "/static/_media/mask/links/github.webp"
 
 [[vars.LINKS]]
+mask = "/static/_media/mask/links/booth.webp"
 name = "BOOTH"
 rel = "me"
-url = "https://cottonwind.booth.pm/"
-mask = "/static/_media/mask/links/booth.webp"
 row = 2
+url = "https://cottonwind.booth.pm/"
 
-[[vars.GALLERY.LIST]]
+[[vars.IMAGE_ALBUMS]]
 name = "pickup"
+[vars.IMAGE_ALBUMS.gallery.pages]
 linkLabel = false
 max = 4
 
-[[vars.GALLERY.LIST]]
+[[vars.IMAGE_ALBUMS]]
+description = "オリジナルキャラクターのイラストです！"
 name = "art"
-
-[[vars.GALLERY.LIST]]
-name = "3D"
-
-[[vars.GALLERY.LIST]]
-name = "works"
-
-[[vars.GALLERY.LIST]]
-name = "goods"
-
-[[vars.GALLERY.LIST]]
-name = "parody"
-max = 12
-
-[[vars.GALLERY.LIST]]
-name = "picture"
-max = 8
-
-[[vars.GALLERY.LIST]]
-name = "uploads"
-label = "other"
-max = 4
-
-[[vars.GALLERY.LIST]]
-name = "given"
-hideWhenDefault = true
-max = 4
-
-[[vars.GALLERY.GENERATE]]
-name = "art"
+title = "Art List"
+[vars.IMAGE_ALBUMS.gallery.pages]
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "メインイラスト！"
 h4 = "オリジナルキャラのイラストです！"
-description = "オリジナルキャラクターのイラストです！"
 
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
+description = "Blenderなどで作った3Dモデルです！"
 name = "3D"
+[vars.IMAGE_ALBUMS.gallery.pages]
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作った3Dモデル！"
 h4 = "これから増やしたい"
-description = "Blenderなどで作った3Dモデルです！"
 
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
+description = "案件などのイラストです！"
 name = "works"
+[vars.IMAGE_ALBUMS.gallery.pages]
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "依頼で描いたイラスト！"
 h4 = "お仕事依頼受け付けてます"
-description = "案件などのイラストです！"
 
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
+description = "わたかぜっこのオリジナルグッズやスタンプなどです！"
 name = "goods"
+timeFormat = "Y.m.d"
+timeReplace = "released: $1"
+[vars.IMAGE_ALBUMS.gallery.pages]
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作ったグッズなど！"
 h4 = "今は販売してない場合があります"
-description = "グッズやスタンプなどを載せてます！"
 
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
+description = "ファンアートとして描いたイラストです！"
 name = "parody"
+[vars.IMAGE_ALBUMS.gallery.pages]
+max = 12
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "パロディアート"
 h4 = "二次創作ファンアートやパロディを掲載してます！"
 
-[[vars.GALLERY.GENERATE]]
-name = "given"
-label = "given art"
-h2 = "描いてくれてありがとめぇ！"
-h4 = "#わたかぜメ絵"
-description = "描いてくれたファンアートイラストです！"
-
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
 name = "picture"
+visible = {title = true, filename = false, info = true}
+[vars.IMAGE_ALBUMS.gallery.pages]
+max = 8
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "VRChatなどの写真"
 
-[[vars.GALLERY.GENERATE]]
+[[vars.IMAGE_ALBUMS]]
 name = "uploads"
+[vars.IMAGE_ALBUMS.gallery.pages]
 label = "other"
+max = 4
+[vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "その他アップロード"
+label = "other"
+
+[[vars.IMAGE_ALBUMS]]
+description = "描いてくれたファンアートイラストです！"
+name = "given"
+title = "given fanart"
+[vars.IMAGE_ALBUMS.gallery.pages]
+hideWhenDefault = true
+max = 4
+[vars.IMAGE_ALBUMS.gallery.generate]
+h2 = "描いてくれてありがとめぇ！"
+h4 = "#わたかぜメ絵"
+label = "given art"
 
 [[kv_namespaces]]
 binding = "KV"

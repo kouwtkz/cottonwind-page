@@ -14,7 +14,7 @@ export interface SetMetaProps {
   query?: QueryType;
   url?: string;
   characters?: CharaObjectType | null;
-  images?: OldMediaImageItemType[];
+  images?: ImageType[];
   posts?: Post[];
   noindex?: boolean;
   env?: SiteConfigEnv;
@@ -53,11 +53,12 @@ export function MetaValues({
         title = "ギャラリー | " + siteTitle;
         const group = list[2];
         if (group) {
-          const gallery = env?.GALLERY.GENERATE.find((v) => v.name === group);
+          const gallery = env?.IMAGE_ALBUMS?.find((v) => v.name === group);
           if (gallery) {
+            const generate = gallery.gallery?.generate;
             title =
-              (gallery.label ?? gallery.name).toUpperCase() + " - " + title;
-            description = gallery.description ?? gallery.h4 ?? gallery.h2;
+              (generate?.label ?? gallery.name).toUpperCase() + " - " + title;
+            description = gallery.description ?? generate?.h4 ?? generate?.h2;
           }
         }
         description =
@@ -74,15 +75,15 @@ export function MetaValues({
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
         if (images && chara?.image) {
           const charaImage = chara.image;
-          const charaImageItem = images?.find(({ URL }) =>
-            URL?.match(charaImage)
+          const charaImageItem = images?.find(({ src }) =>
+            src?.match(charaImage)
           );
           if (charaImageItem) {
-            image = charaImageItem.URL;
-            if (charaImageItem.size) {
+            image = charaImageItem.src;
+            if (charaImageItem.width && charaImageItem.height) {
               imageSize = {
-                w: charaImageItem.size.w,
-                h: charaImageItem.size.h,
+                w: charaImageItem.width,
+                h: charaImageItem.height,
               };
             }
           }
@@ -138,11 +139,11 @@ export function MetaValues({
     });
     if (foundImage) {
       title = (foundImage.name || foundImage.src) + " | " + title;
-      image = foundImage.URL;
-      if (foundImage.size) {
+      image = foundImage.src;
+      if (foundImage.width && foundImage.height) {
         imageSize = {
-          w: foundImage.size.w,
-          h: foundImage.size.h,
+          w: foundImage.width,
+          h: foundImage.height,
         };
       }
       const charaListFound = characters

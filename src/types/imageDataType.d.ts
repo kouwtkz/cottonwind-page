@@ -1,0 +1,64 @@
+interface ImageDataType {
+  id?: number;
+  src?: string;
+  name?: string | null;
+  album?: string | null;
+  description?: string | null;
+  webp?: string | null;
+  thumbnail?: string | null;
+  icon?: string | null;
+  width?: number | null;
+  height?: number | null;
+  tags?: string | null;
+  copyright?: string | null;
+  link?: string | null;
+  embed?: string | null;
+  type?: string | null;
+  topImage?: number | null;
+  pickup?: number | null;
+  time?: string;
+  mtime?: string;
+  version?: number | null;
+}
+interface ImageType extends ImageDataType {
+  albumObject?: ImageAlbumType;
+  tags?: string[];
+  copyright?: string[];
+  direct?: boolean;
+  otherTags?: boolean;
+  topImage?: boolean;
+  pickup?: boolean;
+  time?: Date;
+  mtime?: Date;
+}
+/** @comments ひとつのアルバムの変数 */
+interface ImageAlbumType {
+  name: string;
+  title?: string;
+  description?: string;
+  link?: string;
+  visible?: AlbumVisibleType;
+  type?: string;
+  timeFormat?: string;
+  timeReplace?: string;
+  gallery?: {
+    pages?: GalleryListPropsBase;
+    generate?: GalleryListPropsBase;
+  };
+  list: ImageType[];
+}
+
+interface ImageAlbumDataType {
+  name?: string;
+  description?: string;
+  list?: ImageDataType;
+}
+
+interface imageFormDataType extends Omit<ImageDataType, "width" | "height" | "version" | "mtime"> {
+  id?: string;
+  rename?: string;
+  charaTags?: string;
+  otherTags?: string;
+  topImage?: string;
+  pickup?: string;
+}

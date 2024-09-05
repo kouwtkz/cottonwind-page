@@ -84,7 +84,7 @@ export async function ServerLayout({
     c.req.header("user-agent") ?? ""
   );
   const params = c.req.param() as KeyValueStringType;
-  let images: OldMediaImageItemType[] | undefined;
+  let images: ImageType[] | undefined;
   let posts: Post[] = [];
   if (isBot) {
     const dataPath = "/json";
@@ -167,7 +167,7 @@ export async function ReactResponse({
     case "gallery/:group":
       const req = (c as Context<MeeBindings, typeof path, any>).req;
       const group = req.param("group");
-      const f = c.env.GALLERY.GENERATE.some((v) => v.name === group);
+      const f = c.env.IMAGE_ALBUMS?.some((v) => v.name === group);
       if (!f) return next();
       break;
   }
