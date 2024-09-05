@@ -10,7 +10,7 @@ export const imagesMapAtom = atom<Map<string, ImageType>>();
 export const imageAlbumsAtom = atom<Map<string, ImageAlbumType>>();
 export const imagesResetAtom = atom(true);
 
-const StorageData = new StorageDataClass<ImageDataType[]>("images");
+const StorageData = new StorageDataClass<ImageDataType[]>("images", "1.1.29");
 
 export function ImageState() {
   const setImages = useAtom(imagesAtom)[1];
@@ -23,7 +23,7 @@ export function ImageState() {
   const callback = useCallback(async () => {
     if (env && apiOrigin) {
       const Url = new URL("/image/data", apiOrigin);
-      const { data: sData, endpoint: sEndpoint } = StorageData.getItem();
+      const { data: sData, endpoint: sEndpoint } = StorageData;
       if (sEndpoint) Url.searchParams.set("endpoint", sEndpoint);
       await fetch(Url.href)
         .then(async (r) => (await r.json()) as ImageDataType[])

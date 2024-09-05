@@ -53,18 +53,25 @@ export function ImageMee({
   const isSetOrigin = originWhenDev;
 
   const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const versionString = useMemo(() => {
+    if (imageItem)
+      return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";
+    else return "";
+  }, [imageItem?.version]);
   const MediaOrigin = useCallback(
-    (src?: OrNull<string>, version?: number | null) =>
-      UrlMediaOrigin(mediaOrigin, src) + ((version ?? 1) > 1 ? "?v=" + version : ""),
-    [mediaOrigin]
+    (src?: OrNull<string>) => {
+      let url = UrlMediaOrigin(mediaOrigin, src);
+      if (url) url = url + versionString;
+      return url;
+    },
+    [mediaOrigin, versionString]
   );
 
   const src =
     _src ||
     (imageItem
       ? MediaOrigin(
-          isSetOrigin ? imageItem.src : imageItem.webp || imageItem.src,
-          imageItem.version
+          isSetOrigin ? imageItem.src : imageItem.webp || imageItem.src
         )
       : null) ||
     "";
@@ -87,7 +94,7 @@ export function ImageMee({
     }
   }, [imageItem, size, width, height]);
   const thumbnail = useMemo(
-    () => MediaOrigin(imageItem?.thumbnail, imageItem?.version),
+    () => MediaOrigin(imageItem?.thumbnail),
     [imageItem, MediaOrigin]
   );
 

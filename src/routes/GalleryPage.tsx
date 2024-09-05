@@ -37,7 +37,6 @@ import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
-import axios from "axios";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
@@ -60,6 +59,7 @@ import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
 import { getName } from "@/functions/doc/PathParse";
+import { sleep } from "@/functions/Time";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -395,11 +395,10 @@ function UploadChain({
     },
     [albums]
   );
-  const upload = useCallback(
-    (files: File[]) => {
+  const uploadProcess = useCallback(
+    async (files: File[]) => {
       const album = getAlbum(item.name ?? "art");
-      console.log(item.name, album);
-      if (!album) return false;
+      if (!album) throw "アルバムがない画像です！";
       const checkTime = new Date().getTime();
       const targetFiles = files.filter((file) => {
         const findFunc = ({ src, name }: ImageType) =>
@@ -417,31 +416,56 @@ function UploadChain({
         }
       });
       if (targetFiles.length === 0) return false;
-      const formData = new FormData();
-      formData.append("dir", album.name || "");
-      tags?.forEach((tag) => {
-        formData.append("tags[]", tag);
-      });
-      targetFiles.forEach((file) => {
-        formData.append("attached[]", file);
+      const joinedTags = tags?.join(",");
+      const fetchList = targetFiles.map((file) => {
+        const formData = new FormData();
+        if (album.name) formData.append("album", album.name);
+        if (joinedTags) formData.append("tags", joinedTags);
+        formData.append("attached", file);
         if (file.lastModified)
-          formData.append("attached_mtime[]", String(file.lastModified));
-      });
-      axios.post(apiOrigin + "/image/send", formData).then((res) => {
-        if (res.status === 200) {
-          toast("アップロードしました！", {
-            duration: 2000,
+          formData.append("mtime", String(file.lastModified));
+        return () =>
+          fetch(apiOrigin + "/image/send", {
+            method: "POST",
+            body: formData,
           });
-          setTimeout(() => {
-            resetImages(true);
-          }, 200 + 200 * targetFiles.length);
-        }
       });
+      const results: Response[] = [];
+      for (let i = 0; i < fetchList.length; i++) {
+        results.push(await fetchList[i]());
+        await sleep(10);
+      }
+      const successCount = results.filter((r) => r.status === 200).length;
+      if (results.length === successCount) {
+        return successCount + "件のアップロードに成功しました！";
+      } else {
+        throw (
+          (successCount
+            ? successCount + "件のアップロードに成功しましたが、"
+            : "") +
+          (results.length - successCount) +
+          "件のアップロードに失敗しました"
+        );
+      }
     },
     [tags, item]
   );
+  const upload = useCallback(
+    (files: File[]) => {
+      toast
+        .promise(uploadProcess(files), {
+          loading: "アップロード中…",
+          success: (result) => result || "アップロードしました",
+          error: (error) => error || "アップロードに失敗しました",
+        })
+        .then(() => {
+          resetImages(true);
+        });
+    },
+    [uploadProcess]
+  );
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       const now = new Date();
       const nowTime = now.getTime();
       const list = acceptedFiles.filter(

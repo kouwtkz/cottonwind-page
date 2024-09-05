@@ -1,25 +1,39 @@
 type dataType<T> = {
+  version?: string;
   endpoint?: string;
   data?: T;
-}
+};
 
 export class StorageDataClass<T extends Object = {}> {
-  version?: number;
+  version?: string;
   endpoint?: string;
   data?: T;
   key: string;
-  constructor(key: string) {
+  /** @comment バージョンを変えると自動でデータを破棄して読み込み直すことができる */
+  constructor(key: string, version?: string | number) {
     this.key = key;
+    this.version = version ? String(version) : undefined;
+    const got = this.getItem();
+    if (this.version !== got.version) this.removeItem();
   }
-  getItem() {
+  private __getItem() {
     const storageValue = localStorage.getItem(this.key);
-    const data = storageValue ? JSON.parse(storageValue) as dataType<T> : null;
-    this.data = data?.data;
-    this.endpoint = data?.endpoint;
+    const data = storageValue
+      ? (JSON.parse(storageValue) as dataType<T>)
+      : null;
     return data ?? {};
   }
-  setItem(data: T, endpoint?: string, version?: number) {
-    return localStorage.setItem(this.key, JSON.stringify({ endpoint, version, data }));
+  getItem() {
+    const data = this.__getItem();
+    this.data = data?.data;
+    this.endpoint = data?.endpoint;
+    return data;
+  }
+  setItem(data: T, endpoint?: string) {
+    return localStorage.setItem(
+      this.key,
+      JSON.stringify({ endpoint, version: this.version, data })
+    );
   }
   removeItem() {
     delete this.data;

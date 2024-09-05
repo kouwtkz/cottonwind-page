@@ -156,14 +156,6 @@ app.delete("/send", async (c, next) => {
   return c.text("削除するデータがありません");
 });
 
-function arrayFromFormdata<T = unknown>(
-  formData: KeyValueType<unknown>,
-  key: string
-) {
-  const data = formData[key];
-  return data ? ((Array.isArray(data) ? data : [data]) as T[]) : undefined;
-}
-
 async function Resize({
   image,
   size,
@@ -204,93 +196,117 @@ async function Resize({
   return null;
 }
 
+async function getRetryTime(e: Error, time: Date, db: MeeSqlD1) {
+  if (/UNIQUE.+\.time/.test(e.message)) {
+    time.setSeconds(time.getSeconds() + 1);
+    const values = await db.select<any>({ table, where: { time: { lt: time.toISOString() } }, take: 1, orderBy: { time: "desc" } });
+    if (values.length > 0 && values[0].time) {
+      const retryTime = new Date(values[0].time);
+      retryTime.setMilliseconds(retryTime.getMilliseconds() + 1);
+      return retryTime;
+    }
+  }
+  return null;
+}
+
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
-  const attachedList = arrayFromFormdata<File>(formData, "attached[]") ?? [];
-  const mtimeList =
-    arrayFromFormdata<string>(formData, "attached_mtime[]") ?? [];
-  const album = String(formData["dir"] ?? "");
-  const tags = arrayFromFormdata<string>(formData, "tags[]")?.join(",") ?? "";
-  await Promise.all(
-    attachedList
-      .map((attached, i) => ({
-        attached,
-        mtime: new Date(Number(mtimeList[i])).toISOString(),
-      }))
-      .map(async ({ attached, mtime }) => {
-        const image = await attached.arrayBuffer();
-        const imagePath = "image/" + attached.name;
-        await c.env.BUCKET.put(imagePath, image);
-        const arr = new Uint8Array(image);
-        const blob = new Blob([arr]);
-        const name = getName(attached.name);
-        const ext = getExtension(attached.name);
-        const pathes: {
-          webp?: string;
-          thumbnail?: string;
-          icon?: string;
-        } = {};
-        const metaSize = await imageDimensionsFromStream(blob.stream());
-        switch (ext) {
-          case "svg":
-            break;
-          default:
-            const webpName = name + ".webp";
-            const webpImage = await optimizeImage({
-              format: "webp",
-              image,
-            });
-            if (webpImage) pathes.webp = "image/webp/" + webpName;
-            if (pathes.webp) await c.env.BUCKET.put(pathes.webp, webpImage);
-            const thumbnailImage = await Resize({
-              image,
-              format: "webp",
-              metaSize,
-              quality: 80,
-              size: c.env.THUMBNAIL_SIZE ?? 320,
-            });
-            if (thumbnailImage)
-              pathes.thumbnail = "image/thumbnail/" + webpName;
-            if (pathes.thumbnail)
-              await c.env.BUCKET.put(pathes.thumbnail, thumbnailImage);
-            break;
-        }
-        function Select() {
-          return db.select<ImageDataType>({ table, where: { src: imagePath } })
-        }
-        const selectValue = await Select().catch(() => createImageDatabase(db).then(() => Select()));
-        if (selectValue.length > 0) {
-          await db.update<ImageDataType>({
-            table,
-            where: { src: imagePath },
-            entry: {
-              name,
-              album,
-              time: mtime,
-              ...pathes,
-              tags,
-              version: (selectValue[0].version ?? 0) + 1
-            },
-            rawEntry: { mtime: MeeSqlD1.isoFormat() },
-          });
-        } else {
-          await db.insert<ImageDataType>({
-            table,
-            entry: {
-              name,
-              album,
-              time: mtime,
-              src: imagePath,
-              ...pathes,
-              ...metaSize,
-              tags,
-              version: 1,
-            },
-          });
-        }
-      })
-  );
+  const attached = (formData.attached as File | undefined) || null;
+  const mtime = (formData.mtime as string | undefined) || null;
+  const album = (formData["album"] as string | undefined) || null;
+  const tags = (formData["tags"] as string | undefined) || null;
+  if (attached) {
+    const image = await attached.arrayBuffer();
+    const imagePath = "image/" + attached.name;
+    await c.env.BUCKET.put(imagePath, image);
+    const arr = new Uint8Array(image);
+    const blob = new Blob([arr]);
+    const name = getName(attached.name);
+    const ext = getExtension(attached.name);
+    const pathes: {
+      webp?: string;
+      thumbnail?: string;
+      icon?: string;
+    } = {};
+    const metaSize = await imageDimensionsFromStream(blob.stream());
+    switch (ext) {
+      case "svg":
+        break;
+      default:
+        const webpName = name + ".webp";
+        const webpImage = await optimizeImage({
+          format: "webp",
+          image,
+        });
+        if (webpImage) pathes.webp = "image/webp/" + webpName;
+        if (pathes.webp) await c.env.BUCKET.put(pathes.webp, webpImage);
+        const thumbnailImage = await Resize({
+          image,
+          format: "webp",
+          metaSize,
+          quality: 80,
+          size: c.env.THUMBNAIL_SIZE ?? 320,
+        });
+        if (thumbnailImage)
+          pathes.thumbnail = "image/thumbnail/" + webpName;
+        if (pathes.thumbnail)
+          await c.env.BUCKET.put(pathes.thumbnail, thumbnailImage);
+        break;
+    }
+    function Select() {
+      return db.select<ImageDataType>({ table, where: { src: imagePath } })
+    }
+    const selectValue = await Select().catch(() => createImageDatabase(db).then(() => Select()));
+    if (selectValue.length > 0) {
+      const value = selectValue[0];
+      const Update = (time?: string) =>
+        db.update<ImageDataType>({
+          table,
+          where: { src: imagePath },
+          entry: {
+            name,
+            album,
+            ...pathes,
+            tags,
+            time,
+            version: (value.version ?? 0) + 1
+          },
+          rawEntry: { mtime: MeeSqlD1.isoFormat() },
+        });
+      if (value.time) {
+        await Update();
+      } else {
+        const timeNum = Number(mtime);
+        const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
+        await Update(time.toISOString()).catch(async (e) => {
+          const retryTime = await getRetryTime(e, time, db);
+          if (retryTime) await Update(retryTime.toISOString());
+        });
+      }
+    } else {
+      const timeNum = Number(mtime);
+      const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
+      const Insert = (time: string) =>
+        db.insert<ImageDataType>({
+          table,
+          entry: {
+            name,
+            album,
+            time,
+            src: imagePath,
+            ...pathes,
+            ...metaSize,
+            tags,
+            version: 1,
+          },
+        });
+      await Insert(time.toISOString()).catch(async (e) => {
+        const retryTime = await getRetryTime(e, time, db);
+        if (retryTime) await Insert(retryTime.toISOString());
+      });
+    }
+  }
   return c.newResponse(null);
 });
 
