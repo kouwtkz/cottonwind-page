@@ -42,6 +42,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   LIFE_CHECK_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
+  LOGIN_TOKEN?: string;
   DEV?: boolean;
   [k: string]: any;
 }
@@ -53,7 +54,6 @@ interface MeePagesEnv extends MeeCommonEnv {
   FEED_DEV_FROM?: string;
   X_CLIENT_ID?: string;
   X_CLIENT_SECRET?: string;
-  LOGIN_TOKEN?: string;
   LIFE_CHECKER_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
@@ -61,7 +61,8 @@ interface MeePagesEnv extends MeeCommonEnv {
   RECAPTCHA_SITEKEY_DEV?: string;
 }
 interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
-  Bindings: T
+  Bindings: T;
+  Response: any;
 }
 type MeePagesBindings = MeeBindings<MeePagesEnv>
 

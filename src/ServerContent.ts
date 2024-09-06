@@ -8,9 +8,8 @@ export const XmlHeader = {
   headers: { "Content-Type": "application/xml; charset=UTF-8" },
 }
 
-export function IsLogin(c: CommonContext<MeePagesEnv>, isDev?: boolean) {
-  console.log(isDev, c.env?.LOGIN_TOKEN, getCookie(c, "LoginToken"));
-  return isDev || (c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"))
+export function IsLogin<T extends MeeCommonEnv>(c: CommonContext<T>) {
+  return Boolean(c.env.DEV) || (c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken"))
 }
 
 export async function FetchBody(src?: string) {

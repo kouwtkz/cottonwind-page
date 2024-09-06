@@ -42,7 +42,7 @@ RoutingList.forEach((path) => {
       path,
       styles: <Style href="/css/styles.css" />,
       script: <script type="module" src="/static/js/client.js" />,
-      isLogin: IsLogin(c, import.meta.env?.DEV),
+      isLogin: IsLogin(c),
     });
   });
 });
