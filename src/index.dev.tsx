@@ -25,7 +25,9 @@ app.use("*", (c, next) => {
 });
 
 const stylePath = "/css/styles.css";
-app.get(stylePath, (c) => c.body(compactStyles));
+app.get(stylePath, (c) =>
+  c.body(compactStyles, { headers: { "Content-Type": "text/css" } })
+);
 
 honoTest(app);
 ServerCommon(app);
