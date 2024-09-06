@@ -17,7 +17,6 @@ import axios from "axios";
 import PostState, { usePostState } from "@/blog/PostState";
 import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
-import { imagesResetAtom } from "@/state/ImageState";
 import { callReactSelectTheme } from "@/theme/main";
 import { create } from "zustand";
 import {
@@ -30,6 +29,7 @@ import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
+import { imagesLoadAtom } from "@/state/DataState";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -84,7 +84,7 @@ export function PostForm() {
   const Location = useLocation();
   const { posts, Reload } = usePostState();
   const [apiOrigin] = useAtom(ApiOriginAtom);
-  
+
   const nav = useNavigate();
   const base = searchParams.get("base");
   const duplicationMode = Boolean(base);
@@ -239,7 +239,7 @@ export function PostForm() {
       );
     }
   });
-  const imagesReset = useAtom(imagesResetAtom)[1];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
 
   useHotkeys("b", () => nav(-1));
 
@@ -355,7 +355,7 @@ export function PostForm() {
             duration: 2000,
           });
           Reload();
-          if (attached) imagesReset(true);
+          if (attached) setImagesLoad(true);
           refIsSubmitted.current = true;
           setTimeout(() => {
             if (res.data.postId) {
@@ -372,13 +372,7 @@ export function PostForm() {
       toast.error("エラーが発生しました", { duration: 2000 });
       console.error(error);
     }
-  }, [
-    defaultValues,
-    getValues,
-    postCategories,
-    nav,
-    updateMode,
-  ]);
+  }, [defaultValues, getValues, postCategories, nav, updateMode]);
 
   return (
     <>

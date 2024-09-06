@@ -9,11 +9,7 @@ import {
 import { GalleryViewerPaging } from "@/state/ImageViewer";
 import { ImageMee } from "@/layout/ImageMee";
 import toast from "react-hot-toast";
-import {
-  imageAlbumsAtom,
-  imagesAtom,
-  imagesResetAtom,
-} from "@/state/ImageState";
+import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
 import {
   defaultGalleryTags,
   getTagsOptions,
@@ -56,6 +52,7 @@ import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { FormTags } from "react-hotkeys-hook/dist/types";
+import { imagesLoadAtom } from "@/state/DataState";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -70,9 +67,9 @@ export const imageEditIsBusy = atom(false);
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const images = useAtom(imagesAtom)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
-  const imagesReset = useAtom(imagesResetAtom)[1];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
   const copyrightList = useMemo(() => getCopyRightList(images), [images]);
-  const characters = useAtom(charactersAtom)[0];
+  const characters = useAtom(charactersAtom)[0] || [];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
 
   const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
@@ -204,7 +201,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         searchParams.set("image", getName(fields.rename));
         setSearchParams(searchParams, { replace: true });
       }
-      imagesReset(true);
+      setImagesLoad(true);
       return true;
     } else {
       toast.error(res.statusText, {

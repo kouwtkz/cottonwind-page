@@ -9,7 +9,6 @@ import {
 import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
 import {
   charactersAtom,
-  charactersIsSet,
   charactersMapAtom,
   characterTagsAtom,
   CharaState,
@@ -95,7 +94,6 @@ export const CharaListItem = memo(function CharaListItem({
 
 function CharaListPage() {
   const characters = useAtom(charactersAtom)[0];
-  const isSet = useAtom(charactersIsSet)[0];
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
@@ -157,12 +155,12 @@ function CharaListPage() {
     return list;
   }, [sortParam, orderBy]);
   const items = useMemo(() => {
-    let list = isSet
+    let list = characters
       ? findMee({ list: [...characters], where, orderBy: orderBySort })
       : [];
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [where, characters, orderBySort, isSet, notHide]);
+  }, [where, characters, orderBySort, notHide]);
   const { sortable } = useEditSwitchState();
   return (
     <>
@@ -189,11 +187,7 @@ function CharaListPage() {
     </>
   );
 }
-const CharaBeforeAfter = memo(function CharaBeforeAfter({
-  chara,
-}: {
-  chara: CharacterType;
-}) {
+function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
   const characters = useAtom(charactersAtom)[0];
   const { state } = useLocation();
   const filters: string[] | undefined = useMemo(
@@ -205,7 +199,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
     [filters]
   );
   const items = useMemo(() => {
-    let list = characters;
+    let list = characters!;
     const characterSort = state?.characterSort;
     const charaTagsWhere: findWhereType<CharacterType> | undefined =
       state?.charaTagsWhere;
@@ -267,11 +261,10 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
       </div>
     </div>
   );
-});
+}
 
 function CharaDetail({ charaName }: { charaName: string }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const isSet = useAtom(charactersIsSet)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
@@ -299,7 +292,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
   }, [chara?.media?.playlist?.title]);
   return (
     <>
-      {isSet ? (
+      {charactersMap ? (
         chara ? (
           <div className="charaDetail">
             <CharaBeforeAfter chara={chara} />

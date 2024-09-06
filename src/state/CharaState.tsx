@@ -10,17 +10,11 @@ import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { ApiOriginAtom, EnvAtom } from "./EnvState";
 import { StorageDataClass } from "@/functions/StorageDataClass";
 import { getBasename } from "@/functions/doc/PathParse";
+import { charactersDataAtom } from "./DataState";
 
-export const charactersIsSet = atom(false);
-export const charactersAtom = atom<CharacterType[]>([]);
+export const charactersAtom = atom<CharacterType[]>();
 export const charactersMapAtom = atom<Map<string, CharacterType>>();
 export const characterTagsAtom = atom<ContentsTagsOption[]>([]);
-export const charactersResetAtom = atom(true);
-
-const StorageData = new StorageDataClass<CharacterDataType[]>(
-  "characters",
-  "1.1.2"
-);
 
 {
   // const charaList = Object.values(data) as CharacterType[];
@@ -40,80 +34,32 @@ const StorageData = new StorageDataClass<CharacterDataType[]>(
 }
 
 export function CharaState() {
-  const [isSet, setIsSet] = useAtom(charactersIsSet);
+  const characterData = useAtom(charactersDataAtom)[0];
   const setCharacters = useAtom(charactersAtom)[1];
   const setCharactersMap = useAtom(charactersMapAtom)[1];
-  const setCharacterTags = useAtom(characterTagsAtom)[1];
-  const [reset, setReset] = useAtom(charactersResetAtom);
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
   const env = useAtom(EnvAtom)[0];
-  const setIsComplete = useAtom(pageIsCompleteAtom)[1];
-  const [isFirst] = useAtom(siteIsFirstAtom);
   useEffect(() => {
-    if (isFirst) setIsComplete(false);
-  }, [isFirst]);
-  useEffect(() => {
-    if (isFirst && isSet) setIsComplete(true);
-  }, [isSet, isFirst]);
-  const imageItemList = useAtom(imagesAtom)[0];
-  const { SoundItemList, defaultPlaylist } = useSoundState();
-  const callback = useCallback(async () => {
-    if (env && apiOrigin) {
-      const Url = new URL("/character/data", apiOrigin);
-      const { data: sData, endpoint: sEndpoint } = StorageData;
-      if (sEndpoint) Url.searchParams.set("endpoint", sEndpoint);
-      await fetch(Url.href)
-        .then(async (r) => (await r.json()) as CharacterDataType[])
-        .then((data) => {
-          if (sData) {
-            data.forEach((d) => {
-              const index = sData.findIndex(({ index }) => index === d.index);
-              if (index >= 0) {
-                sData[index] = d;
-              } else {
-                sData.push(d);
-              }
-            });
-            data = sData;
-          }
-          StorageData.setItem(
-            data,
-            data.reduce((a, { mtime = "" }) => (a > mtime ? a : mtime), "")
-          );
-          const charactersMap = new Map<string, CharacterType>();
-          data.forEach((v) => {
-            const item: CharacterType = {
-              ...v,
-              media: {},
-              tags: v.tags ? v.tags.split(",") : [],
-              playlist: [],
-              birthday: v.birthday ? new Date(v.birthday) : undefined,
-              time: v.time ? new Date(v.time) : undefined,
-              mtime: v.mtime ? new Date(v.mtime) : undefined,
-            };
-            const key = item.id;
-            if (!charactersMap.has(key)) {
-              charactersMap.set(key, item);
-            }
-          });
-          setCharactersMap(charactersMap);
-          setCharacters(Object.values(Object.fromEntries(charactersMap)));
-        });
-      return true;
-    } else {
-      return false;
-    }
-  }, [apiOrigin, setIsSet, env]);
-  useEffect(() => {
-    if (reset) {
-      callback().then((result) => {
-        if (result) {
-          setIsSet(true);
-          setReset(false);
+    if (characterData && env) {
+      const charactersMap = new Map<string, CharacterType>();
+      characterData.forEach((v) => {
+        const item: CharacterType = {
+          ...v,
+          media: {},
+          tags: v.tags ? v.tags.split(",") : [],
+          playlist: [],
+          birthday: v.birthday ? new Date(v.birthday) : undefined,
+          time: v.time ? new Date(v.time) : undefined,
+          mtime: v.mtime ? new Date(v.mtime) : undefined,
+        };
+        const key = item.id;
+        if (!charactersMap.has(key)) {
+          charactersMap.set(key, item);
         }
       });
+      setCharactersMap(charactersMap);
+      setCharacters(Object.values(Object.fromEntries(charactersMap)));
     }
-  }, [reset, setReset, callback]);
+  }, [characterData, env]);
   // useLayoutEffect(() => {
   //   if (reset && imageItemList.length > 0) {
   //     axios(url).then((r) => {

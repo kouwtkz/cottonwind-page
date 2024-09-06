@@ -29,10 +29,8 @@ import toast from "react-hot-toast";
 import {
   charactersAtom,
   charactersMapAtom,
-  charactersResetAtom,
   characterTagsAtom,
 } from "@/state/CharaState";
-import { imagesResetAtom } from "@/state/ImageState";
 import { SoundState, useSoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
@@ -60,15 +58,15 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
 import { ApiOriginAtom } from "@/state/EnvState";
+import { charactersLoadAtom } from "@/state/DataState";
 
 export default function CharaEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const nav = useNavigate();
   const { charaName } = useParams();
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const charactersReset = useAtom(charactersResetAtom)[1];
+  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
   const characterTags = useAtom(characterTagsAtom)[0];
-  const imagesResetreset = useAtom(imagesResetAtom)[1];
   const soundState = useSoundState();
   const chara =
     charactersMap && charaName ? charactersMap.get(charaName) : null;
@@ -182,7 +180,7 @@ export default function CharaEditForm() {
         }
       )
       .then(() => {
-        charactersReset(true);
+        setCharactersLoad(true);
         nav(`/character/${formValues.id}`);
       });
   }
@@ -428,10 +426,10 @@ export function CharaEditButton() {
 
 export function SortableObject() {
   const [characters, setCharacters] = useAtom(charactersAtom);
-  const charactersReset = useAtom(charactersResetAtom)[1];
-  const [items, setItems] = useState(characters);
+  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+  const [items, setItems] = useState(characters || []);
   useEffect(() => {
-    setItems(characters);
+    if (characters) setItems(characters);
   }, [characters]);
   const {
     sortable,
@@ -440,7 +438,7 @@ export function SortableObject() {
     set,
   } = useEditSwitchState();
   useEffect(() => {
-    if (!sortable) {
+    if (characters && !sortable) {
       if (saveFlag) {
         const isDirty = !items.every(({ id }, i) => characters[i].id === id);
         if (isDirty) {
@@ -450,7 +448,7 @@ export function SortableObject() {
           axios.post("/character/send", formData).then((res) => {
             toast(res.data.message, { duration: 2000 });
             if (res.status === 200) {
-              if (res.data.update.chara) charactersReset(true);
+              if (res.data.update.chara) setCharactersLoad(true);
             }
           });
         }

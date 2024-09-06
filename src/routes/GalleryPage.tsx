@@ -6,11 +6,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import {
-  imageAlbumsAtom,
-  imagesAtom,
-  imagesResetAtom,
-} from "@/state/ImageState";
+import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/StateSet";
 import React, {
@@ -66,6 +62,7 @@ import {
   resizeImageCanvas,
   resizeImageCanvasProps,
 } from "@/components/Canvas";
+import { imagesLoadAtom } from "@/state/DataState";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -388,7 +385,7 @@ function UploadChain({
   children?: ReactNode;
 }) {
   const [apiOrigin] = useAtom(ApiOriginAtom);
-  const resetImages = useAtom(imagesResetAtom)[1];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
   const images = useAtom(imagesAtom)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
   const tags = useMemo(
@@ -511,7 +508,7 @@ function UploadChain({
           error: (error) => error || "アップロードに失敗しました",
         })
         .then(() => {
-          resetImages(true);
+          setImagesLoad(true);
         });
     },
     [uploadProcess]
