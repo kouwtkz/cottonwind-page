@@ -172,7 +172,8 @@ export async function ReactResponse({
       break;
   }
   return c.html(
-    renderToString(await ServerLayout({ c, path, characters, ...args }))
+    "<!DOCTYPE html>" +
+      renderToString(await ServerLayout({ c, path, characters, ...args }))
   );
 }
 

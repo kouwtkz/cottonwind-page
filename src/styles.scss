@@ -791,6 +791,7 @@ body {
 }
 header {
   position: fixed;
+  display: flex;
   width: 100%;
   max-width: var(--ct-width);
   z-index: 30;
@@ -867,15 +868,11 @@ header {
     }
   }
   .siteMenu {
-    .menuButton {
+    .button {
       cursor: pointer;
       display: block;
-      position: absolute;
-      right: 0;
-      top: 0;
       height: $size_14;
-      margin: $size_1;
-      opacity: 0.9;
+      margin: 0.25rem 0.5rem 0.25rem 0;
       fill: var(--main-color);
       background-color: var(--main-color);
       @extend %userSelectNone;
