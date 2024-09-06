@@ -3,7 +3,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { IsLogin } from "./ServerContent";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "./functions/render";
 import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";
 import { cors } from "hono/cors";
@@ -51,7 +51,7 @@ RoutingList.forEach((path) => {
 
 app.all("*", async (c, next) => {
   if (!/.+\/+$/.test(c.req.path))
-    return c.html(renderToString(<ServerNotFound />), { status: 404 });
+    return c.html(renderHtml(<ServerNotFound />), { status: 404 });
   else return next();
 });
 

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "@/functions/render";
 import { WorkersLayout } from "..";
 import {
   SyncToken,
@@ -96,7 +96,7 @@ app.get("/", async (c) => {
     return c.redirect(c.req.header("referer") ?? "/");
   }
   return c.html(
-    renderToString(
+    renderHtml(
       <WorkersLayout
         title="めぇめぇTwitterれんけい"
         script={

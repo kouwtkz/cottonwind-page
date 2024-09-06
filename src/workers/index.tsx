@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { app_twix } from "./twix/twixPage";
 import { app_noticeFeed } from "./notice-feed";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "@/functions/render";
 import { Style } from "@/serverLayout";
 import { FeedSet } from "@/ServerContent";
 
@@ -43,7 +43,7 @@ app.get("/", async (c) => {
     });
   const cookieValue = getCookie(c, cookieKey);
   return c.html(
-    renderToString(
+    renderHtml(
       <WorkersLayout title="めぇめぇワーカー">
         <h1>めぇめぇワーカー</h1>
         <a href="/workers/feed-update">フィードの更新</a>

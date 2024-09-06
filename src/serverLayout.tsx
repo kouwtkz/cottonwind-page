@@ -3,7 +3,7 @@ import { Loading } from "./layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
 import { getPostsData } from "./blog/be-functions";
 
@@ -172,8 +172,7 @@ export async function ReactResponse({
       break;
   }
   return c.html(
-    "<!DOCTYPE html>" +
-      renderToString(await ServerLayout({ c, path, characters, ...args }))
+      renderHtml(await ServerLayout({ c, path, characters, ...args }))
   );
 }
 

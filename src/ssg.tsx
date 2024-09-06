@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "./functions/render";
 import {
   ServerError,
   ServerNotFound,
@@ -41,7 +41,7 @@ app.get("/404", async (c) => {
   let rd = "";
   let err = "";
   try {
-    rd = renderToString(<ServerNotFound env={c.env} />);
+    rd = renderHtml(<ServerNotFound env={c.env} />);
   } catch (e) {
     err = String(e);
     console.log(e);
@@ -50,7 +50,7 @@ app.get("/404", async (c) => {
 });
 
 app.get("/500", async (c) => {
-  return c.html(renderToString(<ServerError env={c.env} />), { status: 500 });
+  return c.html(renderHtml(<ServerError env={c.env} />), { status: 500 });
 });
 
 app.get("/data/favorite_links.json", async (c) => {
@@ -59,7 +59,7 @@ app.get("/data/favorite_links.json", async (c) => {
 
 app.get("/suggest", async (c) => {
   return c.html(
-    renderToString(
+    renderHtml(
       <ServerSimpleLayout
         noindex={true}
         title={"ていあん | " + c.env.TITLE}

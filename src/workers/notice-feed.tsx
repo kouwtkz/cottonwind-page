@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "@/functions/render";
 import { WorkersLayout } from ".";
 
 const app = new Hono();
 app.get("/", (c) => {
-	return c.html(renderToString(<TopPage />));
+	return c.html(renderHtml(<TopPage />));
 });
 
 const defaultTitle = "めぇめぇつうしん";

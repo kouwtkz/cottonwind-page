@@ -5,7 +5,7 @@ import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { IsLogin } from "./ServerContent";
 import { honoTest } from "./functions";
-import { renderToString } from "react-dom/server";
+import { renderHtml } from "./functions/render";
 import { CompactCode } from "@/functions/doc/StrFunctions";
 import importStyles from "@/styles.scss";
 import ssg from "./ssg";
@@ -68,7 +68,7 @@ RoutingList.forEach((path) => {
 
 app.all("*", async (c, next) => {
   if (!/.+\/+$/.test(c.req.path))
-    return c.html(renderToString(<ServerNotFound />), { status: 404 });
+    return c.html(renderHtml(<ServerNotFound />), { status: 404 });
   else return next();
 });
 
