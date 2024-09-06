@@ -201,7 +201,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         searchParams.set("image", getName(fields.rename));
         setSearchParams(searchParams, { replace: true });
       }
-      setImagesLoad(true);
+      setImagesLoad("no-cache");
       return true;
     } else {
       toast.error(res.statusText, {

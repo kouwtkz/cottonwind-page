@@ -355,7 +355,7 @@ export function PostForm() {
             duration: 2000,
           });
           Reload();
-          if (attached) setImagesLoad(true);
+          if (attached) setImagesLoad("no-cache");
           refIsSubmitted.current = true;
           setTimeout(() => {
             if (res.data.postId) {

@@ -1,8 +1,7 @@
 import { Hono } from "hono";
-import { Response } from "@cloudflare/workers-types/experimental";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 
-export const app = new Hono<{ Bindings: MeeAPIEnv; Response: Response }>({
+export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
 });
 
@@ -35,23 +34,19 @@ async function CreateTable(d1: MeeSqlD1) {
     .catch(() => { });
 }
 
-app.get("/data", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const Url = new URL(c.req.url);
+export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
-  const endpoint = Url.searchParams.get("endpoint");
+  const endpoint = searchParams.get("endpoint");
   if (endpoint) wheres.push({ mtime: { gt: endpoint } });
-  const id = Url.searchParams.get("id");
+  const id = searchParams.get("id");
   if (id) wheres.push({ id });
-  const index = Url.searchParams.get("index");
+  const index = searchParams.get("index");
   if (index) wheres.push({ index: Number(index) });
   function Select() {
     return db.select<ImageDataType>({ table, where: { AND: wheres } });
   }
-  return c.json(
-    await Select().catch(() => CreateTable(db).then(() => Select()))
-  );
-});
+  return Select().catch(() => CreateTable(db).then(() => Select()));
+}
 
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);

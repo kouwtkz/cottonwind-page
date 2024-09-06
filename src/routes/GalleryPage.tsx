@@ -508,7 +508,7 @@ function UploadChain({
           error: (error) => error || "アップロードに失敗しました",
         })
         .then(() => {
-          setImagesLoad(true);
+          setImagesLoad("no-cache");
         });
     },
     [uploadProcess]

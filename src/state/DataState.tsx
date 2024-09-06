@@ -3,27 +3,28 @@ import { ApiOriginAtom, EnvAtom } from "./EnvState";
 import { useCallback, useEffect } from "react";
 import { StorageDataClass } from "@/functions/StorageDataClass";
 
-const imagesDataSrc = "/image/data";
+const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
   "images",
   "1.1.30"
 );
 export const imagesDataAtom = atom<ImageDataType[]>();
-export const imagesLoadAtom = atom(true);
+export const imagesLoadAtom = atom<LoadAtomType>(true);
 
-const charactersDataSrc = "/character/data";
+const charactersDataSrc = "/data/characters";
 export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
   "characters",
   "1.1.2"
 );
 export const charactersDataAtom = atom<CharacterDataType[]>();
-export const charactersLoadAtom = atom(true);
+export const charactersLoadAtom = atom<LoadAtomType>(true);
 
 async function loadData<T>({
   src,
   apiOrigin,
   StorageData,
   setAtom,
+  loadAtomValue,
   id = "id",
   mtime = "mtime",
 }: {
@@ -31,6 +32,7 @@ async function loadData<T>({
   apiOrigin?: string;
   StorageData: StorageDataClass<T[]>;
   setAtom: (args_0: SetStateAction<T[] | undefined>) => void;
+  loadAtomValue?: LoadAtomType;
   id?: string;
   mtime?: string;
 }) {
@@ -38,7 +40,9 @@ async function loadData<T>({
     const Url = new URL(src, apiOrigin);
     const { data: sData, endpoint: sEndpoint } = StorageData;
     if (sEndpoint) Url.searchParams.set("endpoint", sEndpoint);
-    await fetch(Url.href)
+    const cache = typeof loadAtomValue === "string" ? loadAtomValue : undefined;
+    if (cache) Url.searchParams.set("cache", cache);
+    await fetch(Url.href, { cache })
       .then(async (r) => (await r.json()) as T[])
       .then((data) => {
         if (sData) {
@@ -79,6 +83,7 @@ export function DataState() {
         apiOrigin,
         StorageData: imageStorageData,
         setAtom: setImagesData,
+        loadAtomValue: imagesLoad,
       });
       setImagesLoad(false);
     }
@@ -93,6 +98,7 @@ export function DataState() {
         apiOrigin,
         StorageData: characterStorageData,
         setAtom: setCharactersData,
+        loadAtomValue: charactersLoad,
       });
       setCharactersLoad(false);
     }

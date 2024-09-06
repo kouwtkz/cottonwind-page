@@ -180,7 +180,7 @@ export default function CharaEditForm() {
         }
       )
       .then(() => {
-        setCharactersLoad(true);
+        setCharactersLoad("no-cache");
         nav(`/character/${formValues.id}`);
       });
   }
@@ -448,7 +448,7 @@ export function SortableObject() {
           axios.post("/character/send", formData).then((res) => {
             toast(res.data.message, { duration: 2000 });
             if (res.status === 200) {
-              if (res.data.update.chara) setCharactersLoad(true);
+              if (res.data.update.chara) setCharactersLoad("no-cache");
             }
           });
         }

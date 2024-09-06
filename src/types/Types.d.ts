@@ -1,0 +1,1 @@
+type LoadAtomType = boolean | RequestCache;
