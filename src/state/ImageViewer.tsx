@@ -37,7 +37,7 @@ import {
 } from "react-icons/ri";
 import { charactersMapAtom, CharaState } from "./CharaState";
 import { imagesAtom, UrlMediaOrigin } from "./ImageState";
-import { dataIsCompleteAtom } from "./DataState";
+import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";

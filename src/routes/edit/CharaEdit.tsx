@@ -12,7 +12,7 @@ import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/DataState";
+import { dataIsCompleteAtom } from "@/state/StateSet";
 import {
   MdAdd,
   MdClose,

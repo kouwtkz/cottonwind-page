@@ -12,7 +12,7 @@ import {
   imagesResetAtom,
 } from "@/state/ImageState";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/DataState";
+import { dataIsCompleteAtom } from "@/state/StateSet";
 import React, {
   HTMLAttributes,
   ReactNode,

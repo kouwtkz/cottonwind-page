@@ -5,7 +5,7 @@ import { imagesAtom } from "./ImageState";
 import { useSoundState } from "./SoundState";
 import { convertCharaData } from "../data/functions/convertCharaData";
 import { atom, useAtom } from "jotai";
-import { pageIsCompleteAtom, siteIsFirstAtom } from "./DataState";
+import { pageIsCompleteAtom, siteIsFirstAtom } from "./StateSet";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { ApiOriginAtom, EnvAtom } from "./EnvState";
 import { StorageDataClass } from "@/functions/StorageDataClass";

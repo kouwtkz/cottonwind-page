@@ -3,13 +3,12 @@ import { Header } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/DataState";
 import { MetaValues } from "./SetMeta";
 import { charactersMapAtom } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { imagesAtom } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
-import { StateSet } from "@/state/StateSet";
+import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { EnvAtom } from "@/state/EnvState";
 
 function SetTitle() {

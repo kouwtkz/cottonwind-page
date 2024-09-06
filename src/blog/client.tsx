@@ -8,7 +8,7 @@ import { HTMLAttributes, useCallback, useEffect, useMemo } from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
-import { pageIsCompleteAtom } from "@/state/DataState";
+import { pageIsCompleteAtom } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
