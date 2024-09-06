@@ -34,7 +34,7 @@ const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   version: { type: "INTEGER" },
 };
 
-async function createImageDatabase(d1: MeeSqlD1) {
+async function CreateTable(d1: MeeSqlD1) {
   await d1
     .createTable({
       table,
@@ -57,7 +57,7 @@ app.get("/data", async (c, next) => {
     return db.select<ImageDataType>({ table, where: { AND: wheres } })
   }
   return c.json(
-    await Select().catch(() => createImageDatabase(db).then(() => Select()))
+    await Select().catch(() => CreateTable(db).then(() => Select()))
   );
 });
 
@@ -274,7 +274,7 @@ app.post("/send", async (c, next) => {
       const where: MeeSqlFindWhereType<ImageDataType> = id === null ? { src: imagePath } : { id };
       return db.select({ table, where })
     }
-    const selectValue = await Select().catch(() => createImageDatabase(db).then(() => Select()));
+    const selectValue = await Select().catch(() => CreateTable(db).then(() => Select()));
     if (selectValue.length > 0) {
       const value = selectValue[0];
       const Update = (time?: string) =>
