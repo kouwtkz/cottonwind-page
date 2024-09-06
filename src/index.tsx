@@ -4,7 +4,6 @@ import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { IsLogin } from "./ServerContent";
 import { renderHtml } from "./functions/render";
-import { serverCharacters as characters } from "./data/server/characters";
 import { ServerCommon } from "./server";
 import { cors } from "hono/cors";
 
@@ -41,9 +40,8 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      characters,
-      styles: <Style href={"/css/styles.css" + version} />,
-      script: <script type="module" src={"/static/js/client.js" + version} />,
+      styles: <Style href="/css/styles.css" />,
+      script: <script type="module" src="/static/js/client.js" />,
       isLogin: IsLogin(c, import.meta.env?.DEV),
     });
   });
