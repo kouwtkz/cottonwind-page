@@ -5,7 +5,7 @@ import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/DataState";
 import { MetaValues } from "./SetMeta";
-import { useCharaState } from "@/state/CharaState";
+import { charactersMapAtom } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { imagesAtom } from "@/state/ImageState";
 import { usePostState } from "@/blog/PostState";
@@ -14,7 +14,7 @@ import { EnvAtom } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
-  const { charaObject: characters } = useCharaState();
+  const characters = useAtom(charactersMapAtom)[0];
   const images = useAtom(imagesAtom)[0];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);

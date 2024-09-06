@@ -8,7 +8,7 @@ import { CommonContext } from "@/types/HonoCustomType";
 export async function SetCharaData(c: CommonContext) {
   const formData = await c.req.formData();
   const res = { message: "", update: { chara: false, image: false } };
-  const charaList = Object.entries(readCharaObject(false)!) as [string, CharaType][];
+  const charaList = Object.entries(readCharaObject(false)!) as [string, CharacterType][];
   const target = formData.get("target")?.toString();
   if (target) formData.delete("target");
   const id = formData.get("id")?.toString();
@@ -46,7 +46,7 @@ export async function SetCharaData(c: CommonContext) {
   }
   if (target || id) {
     const charaIndex = target ? charaList.findIndex(([key]) => key === target) : -1;
-    const chara = charaIndex >= 0 ? charaList[charaIndex][1] : {} as CharaType;
+    const chara = charaIndex >= 0 ? charaList[charaIndex][1] : {} as CharacterType;
     formArray.forEach(({ key, value }) => {
       if (value !== "") {
         chara[key] = value;

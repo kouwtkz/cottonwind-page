@@ -7,7 +7,13 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
-import { CharaState, useCharaState } from "@/state/CharaState";
+import {
+  charactersAtom,
+  charactersIsSet,
+  charactersMapAtom,
+  characterTagsAtom,
+  CharaState,
+} from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { imageAlbumsAtom } from "@/state/ImageState";
@@ -54,7 +60,7 @@ export function CharaPage() {
 
 interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   name: string;
-  chara: CharaType;
+  chara: CharacterType;
   label?: string;
   max?: number;
 }
@@ -63,7 +69,7 @@ export const CharaListItem = memo(function CharaListItem({
   chara,
   ...args
 }: {
-  chara: CharaType;
+  chara: CharacterType;
   className?: string;
 }) {
   return (
@@ -88,7 +94,8 @@ export const CharaListItem = memo(function CharaListItem({
 });
 
 function CharaListPage() {
-  const { charaList, isSet } = useCharaState();
+  const characters = useAtom(charactersAtom)[0];
+  const isSet = useAtom(charactersIsSet)[0];
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
@@ -106,7 +113,7 @@ function CharaListPage() {
   );
   const whereOptions = useMemo(
     () =>
-      setWhere<CharaType>(text, {
+      setWhere<CharacterType>(text, {
         text: {
           key: ["name", "id", "overview", "description", "honorific"],
         },
@@ -128,10 +135,10 @@ function CharaListPage() {
     else return null;
   }, [tags]);
   if (tagsWhere) wheres.push(tagsWhere);
-  const where: findWhereType<CharaType> = { AND: wheres };
+  const where: findWhereType<CharacterType> = { AND: wheres };
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
-    const list: OrderByItem<CharaType>[] = [...orderBy];
+    const list: OrderByItem<CharacterType>[] = [...orderBy];
     const searchSort = sortParam ?? "";
     switch (searchSort) {
       case "recently":
@@ -151,11 +158,11 @@ function CharaListPage() {
   }, [sortParam, orderBy]);
   const items = useMemo(() => {
     let list = isSet
-      ? findMee({ list: [...charaList], where, orderBy: orderBySort })
+      ? findMee({ list: [...characters], where, orderBy: orderBySort })
       : [];
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [where, charaList, orderBySort, isSet, notHide]);
+  }, [where, characters, orderBySort, isSet, notHide]);
   const { sortable } = useEditSwitchState();
   return (
     <>
@@ -185,9 +192,9 @@ function CharaListPage() {
 const CharaBeforeAfter = memo(function CharaBeforeAfter({
   chara,
 }: {
-  chara: CharaType;
+  chara: CharacterType;
 }) {
-  const { charaList } = useCharaState();
+  const characters = useAtom(charactersAtom)[0];
   const { state } = useLocation();
   const filters: string[] | undefined = useMemo(
     () => state?.charaFilters,
@@ -198,13 +205,13 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
     [filters]
   );
   const items = useMemo(() => {
-    let list = charaList;
+    let list = characters;
     const characterSort = state?.characterSort;
-    const charaTagsWhere: findWhereType<CharaType> | undefined =
+    const charaTagsWhere: findWhereType<CharacterType> | undefined =
       state?.charaTagsWhere;
     if (characterSort || charaTagsWhere) {
       list = [...list];
-      const wheres: findWhereType<CharaType>[] = [];
+      const wheres: findWhereType<CharacterType>[] = [];
       if (charaTagsWhere) wheres.push(charaTagsWhere);
       list = findMee({
         list,
@@ -214,7 +221,7 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
     }
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [charaList, state, notHide]);
+  }, [characters, state, notHide]);
   const charaIndex = items.findIndex(({ id }) => id === chara.id);
   const { beforeChara, afterChara } = useMemo(() => {
     if (charaIndex >= 0) {
@@ -263,12 +270,13 @@ const CharaBeforeAfter = memo(function CharaBeforeAfter({
 });
 
 function CharaDetail({ charaName }: { charaName: string }) {
-  const { charaObject, isSet: isCharaState } = useCharaState();
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const isSet = useAtom(charactersIsSet)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
-    () => (charaObject ?? {})[charaName],
-    [charaObject, charaName]
+    () => charactersMap?.get(charaName),
+    [charactersMap, charaName]
   );
   const galleryList: CharaGalleryAlbumProps[] = useMemo(
     () =>
@@ -291,7 +299,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
   }, [chara?.media?.playlist?.title]);
   return (
     <>
-      {isCharaState ? (
+      {isSet ? (
         chara ? (
           <div className="charaDetail">
             <CharaBeforeAfter chara={chara} />
@@ -335,8 +343,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
             <GalleryObject
               items={galleryList
                 .map((item) => {
-                  const albumImages =
-                    albums?.get(item.name)?.list || [];
+                  const albumImages = albums?.get(item.name)?.list || [];
                   return {
                     name: item.name,
                     label: item.name,
@@ -364,7 +371,7 @@ const characterSortTags = [
   defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
-  const { charaTags } = useCharaState();
+  const characterTags = useAtom(characterTagsAtom)[0];
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useLocation();
@@ -426,10 +433,10 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     const charaTagsOptions: ContentsTagsOption = {
       label: "タグ",
       name: "tags",
-      options: charaTags,
+      options: characterTags,
     };
     return characterSortTags.concat(charaFilterOptions, charaTagsOptions);
-  }, [charaTags]);
+  }, [characterTags]);
 
   return (
     <div className="header">

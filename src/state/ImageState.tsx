@@ -10,7 +10,7 @@ export const imagesMapAtom = atom<Map<string, ImageType>>();
 export const imageAlbumsAtom = atom<Map<string, ImageAlbumType>>();
 export const imagesResetAtom = atom(true);
 
-const StorageData = new StorageDataClass<ImageDataType[]>("images", "1.1.29");
+const StorageData = new StorageDataClass<ImageDataType[]>("images", "1.1.30");
 
 export function ImageState() {
   const setImages = useAtom(imagesAtom)[1];

@@ -40,7 +40,7 @@ import {
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
-import { useCharaState } from "@/state/CharaState";
+import { charactersAtom } from "@/state/CharaState";
 import { AutoImageItemType, getCopyRightList } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
@@ -72,7 +72,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const albums = useAtom(imageAlbumsAtom)[0];
   const imagesReset = useAtom(imagesResetAtom)[1];
   const copyrightList = useMemo(() => getCopyRightList(images), [images]);
-  const { charaList } = useCharaState();
+  const characters = useAtom(charactersAtom)[0];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
 
   const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
@@ -110,11 +110,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 
   const charaTags = useMemo(() => {
-    return charaList.map(({ name, id }) => ({
+    return characters.map(({ name, id }) => ({
       label: name,
       value: id,
     }));
-  }, [charaList]);
+  }, [characters]);
   const imageTagsObject = useMemo(() => {
     const tags = image?.tags || [];
     const imageCharaTags = tags.filter((tag) =>
@@ -220,7 +220,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   const CharaTagsLabel = useCallback(
     ({ option }: { option?: labelValue }) => {
-      const chara = charaList.find((chara) => chara.id === option?.value);
+      const chara = characters.find((chara) => chara.id === option?.value);
       return (
         <div className="flex center">
           <span className="label-sl">
@@ -240,7 +240,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         </div>
       );
     },
-    [charaList]
+    [characters]
   );
 
   const { togglePreviewMode, previewMode } = usePreviewMode();

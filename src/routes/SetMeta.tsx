@@ -13,7 +13,7 @@ export interface SetMetaProps {
   path: string;
   query?: QueryType;
   url?: string;
-  characters?: CharaObjectType | null;
+  characters?: Map<string, CharacterType>;
   images?: ImageType[];
   posts?: Post[];
   noindex?: boolean;
@@ -67,7 +67,7 @@ export function MetaValues({
         break;
       case "character":
         const name = list[2] ?? queryParams.name;
-        const chara = characters && name ? characters[name] : null;
+        const chara = characters && name ? characters.get(name) : null;
         title = chara
           ? chara.name + " - キャラクター | " + siteTitle
           : "キャラクター | " + siteTitle;
@@ -148,8 +148,8 @@ export function MetaValues({
       }
       const charaListFound = characters
         ? ((foundImage.tags ?? [])
-            .map((tag) => characters[tag])
-            .filter((v) => v) as CharaType[])
+            .map((tag) => characters.get(tag))
+            .filter((v) => v) as CharacterType[])
         : [];
       const charaList = charaListFound
         .slice(0, 2)

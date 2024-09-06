@@ -26,7 +26,12 @@ import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useCharaState } from "@/state/CharaState";
+import {
+  charactersAtom,
+  charactersMapAtom,
+  charactersResetAtom,
+  characterTagsAtom,
+} from "@/state/CharaState";
 import { imagesResetAtom } from "@/state/ImageState";
 import { SoundState, useSoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
@@ -54,17 +59,21 @@ import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
-import { getName } from "@/functions/doc/PathParse";
+import { ApiOriginAtom } from "@/state/EnvState";
 
 export default function CharaEditForm() {
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
   const nav = useNavigate();
   const { charaName } = useParams();
-  const { charaObject, Reload, charaTags } = useCharaState();
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersReset = useAtom(charactersResetAtom)[1];
+  const characterTags = useAtom(characterTagsAtom)[0];
   const imagesResetreset = useAtom(imagesResetAtom)[1];
   const soundState = useSoundState();
-  const chara = charaObject && charaName ? charaObject[charaName] : null;
+  const chara =
+    charactersMap && charaName ? charactersMap.get(charaName) : null;
   const getDefaultValues = useCallback(
-    (chara?: CharaType | null) => ({
+    (chara?: CharacterType | null) => ({
       id: chara?.id || charaName || "",
       name: chara?.name || "",
       honorific: chara?.honorific || "",
@@ -95,8 +104,8 @@ export default function CharaEditForm() {
 
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
   useEffect(() => {
-    setTagsOptions(charaTags);
-  }, [charaTags]);
+    setTagsOptions(characterTags);
+  }, [characterTags]);
 
   const schema = z.object({
     id: z
@@ -104,7 +113,7 @@ export default function CharaEditForm() {
       .min(1, { message: "IDは1文字以上必要です！" })
       .refine(
         (id) => {
-          return !(charaObject && chara?.id !== id && id in charaObject);
+          return !(charactersMap && chara?.id !== id && id in charactersMap);
         },
         { message: "既に使用しているIDです！" }
       ),
@@ -129,7 +138,7 @@ export default function CharaEditForm() {
 
   async function onSubmit() {
     const formValues = getValues();
-    if (!charaObject) return;
+    if (!charactersMap) return;
     const formData = new FormData();
     Object.entries(formValues).forEach(([key, value]) => {
       if (key in dirtyFields)
@@ -151,15 +160,31 @@ export default function CharaEditForm() {
     });
     if (chara?.id) formData.append("target", chara.id);
     else if (!formData.has("id")) formData.append("id", formValues["id"]);
-    const res = await axios.post("/character/send", formData);
-    toast(res.data.message, { duration: 2000 });
-    if (res.status === 200) {
-      if (res.data.update.chara) Reload();
-      if (res.data.update.image) imagesResetreset(true);
-      setTimeout(() => {
+    toast
+      .promise(
+        fetch(apiOrigin + "/character/send", {
+          method: "POST",
+          body: formData,
+        }),
+        {
+          loading: "送信中",
+          success: (res) => {
+            switch (res.status) {
+              case 200:
+                return "キャラクターの更新しました";
+              case 201:
+                return "キャラクターを新たに作成しました";
+              default:
+                return "キャラクターデータが更新されました";
+            }
+          },
+          error: "送信に失敗しました",
+        }
+      )
+      .then(() => {
+        charactersReset(true);
         nav(`/character/${formValues.id}`);
-      }, 200);
-    }
+      });
   }
 
   return (
@@ -320,9 +345,9 @@ export const useEditSwitchState = create<{
 }));
 
 export function CharaEditButton() {
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const { charaName } = useParams();
-  const { url } = useCharaState();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
@@ -337,8 +362,10 @@ export function CharaEditButton() {
             title="キャラデータのダウンロード"
             onClick={async () => {
               fileDownload(
-                getName(url) + ".json",
-                await fetch(url).then((r) => r.text())
+                "characters.json",
+                await fetch(apiOrigin + "/characters/data").then((r) =>
+                  r.text()
+                )
               );
             }}
           >
@@ -400,11 +427,12 @@ export function CharaEditButton() {
 }
 
 export function SortableObject() {
-  const { charaList, Reload, setCharaList } = useCharaState();
-  const [items, setItems] = useState(charaList);
+  const [characters, setCharacters] = useAtom(charactersAtom);
+  const charactersReset = useAtom(charactersResetAtom)[1];
+  const [items, setItems] = useState(characters);
   useEffect(() => {
-    setItems(charaList);
-  }, [charaList]);
+    setItems(characters);
+  }, [characters]);
   const {
     sortable,
     save: saveFlag,
@@ -414,25 +442,25 @@ export function SortableObject() {
   useEffect(() => {
     if (!sortable) {
       if (saveFlag) {
-        const isDirty = !items.every(({ id }, i) => charaList[i].id === id);
+        const isDirty = !items.every(({ id }, i) => characters[i].id === id);
         if (isDirty) {
-          setCharaList(items);
+          setCharacters(items);
           const formData = new FormData();
           items.forEach(({ id }) => formData.append("sorts[]", id));
           axios.post("/character/send", formData).then((res) => {
             toast(res.data.message, { duration: 2000 });
             if (res.status === 200) {
-              if (res.data.update.chara) Reload();
+              if (res.data.update.chara) charactersReset(true);
             }
           });
         }
         set({ save: false });
       } else if (resetFlag) {
-        setItems(charaList);
+        setItems(characters);
         set({ reset: false });
       }
     }
-  }, [charaList, items, resetFlag, saveFlag, sortable]);
+  }, [characters, items, resetFlag, saveFlag, sortable]);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -472,7 +500,7 @@ export function SortableObject() {
   );
 }
 
-function SortableItem({ chara }: { chara: CharaType }) {
+function SortableItem({ chara }: { chara: CharacterType }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: chara.id });
   const style: CSSProperties = {

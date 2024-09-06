@@ -38,11 +38,9 @@ export function Header() {
   const [env] = useAtom(EnvAtom);
   return (
     <header id="header">
-      <div>
-        <BackButton className="backButton" />
-        <SiteTitle title={env?.TITLE ?? document.title} />
-        <SiteMenu />
-      </div>
+      <BackButton className="backButton" />
+      <SiteTitle title={env?.TITLE ?? document.title} />
+      <SiteMenu />
       <div className="headerBackground" />
     </header>
   );

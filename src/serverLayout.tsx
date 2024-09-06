@@ -21,10 +21,10 @@ export function DefaultMeta() {
 }
 
 export function DefaultBody({
-  after,
+  children,
   env,
 }: {
-  after?: React.ReactNode;
+  children?: React.ReactNode;
   env?: SiteConfigEnv;
 }) {
   return (
@@ -47,7 +47,7 @@ export function DefaultBody({
           </footer>
         </div>
       </main>
-      {after}
+      {children}
     </body>
   );
 }
@@ -62,7 +62,7 @@ function judgeJson(r: Response) {
 export interface ServerLayoutProps {
   c: CommonContext<MeePagesEnv>;
   path: string;
-  characters?: CharaObjectType;
+  characters?: Map<string, CharacterType>;
   meta?: React.ReactNode;
   styles?: React.ReactNode;
   script?: React.ReactNode;
@@ -131,15 +131,11 @@ export async function ServerLayout({
         {meta}
         {styles}
       </head>
-      <DefaultBody
-        after={
-          <>
-            <script id="server-data" data-is-login={isLogin} />
-            {script}
-          </>
-        }
-        env={c.env}
-      />
+      <DefaultBody env={c.env}>
+        {" "}
+        <script id="server-data" data-is-login={isLogin} />
+        {script}
+      </DefaultBody>
     </html>
   );
 }
@@ -160,7 +156,7 @@ export async function ReactResponse({
       if (characters) {
         const req = (c as Context<MeeBindings, typeof path, any>).req;
         const name = req.param("charaName");
-        const chara = characters[name];
+        const chara = characters.get(name);
         if (!chara) return next();
       }
       break;
@@ -172,7 +168,7 @@ export async function ReactResponse({
       break;
   }
   return c.html(
-      renderHtml(await ServerLayout({ c, path, characters, ...args }))
+    renderHtml(await ServerLayout({ c, path, characters, ...args }))
   );
 }
 

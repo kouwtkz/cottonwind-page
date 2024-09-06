@@ -35,7 +35,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { CharaState, useCharaState } from "./CharaState";
+import { charactersMapAtom, CharaState } from "./CharaState";
 import { imagesAtom, UrlMediaOrigin } from "./ImageState";
 import { dataIsCompleteAtom } from "./DataState";
 import { useGalleryObject } from "../routes/GalleryPage";
@@ -82,7 +82,7 @@ function InfoArea({ image }: InfoAreaProps) {
   const searchParams = useSearchParams()[0];
   const stateIsEdit = useAtom(imageEditIsEdit)[0];
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
-  const { charaObject } = useCharaState();
+  const charactersMap = useAtom(charactersMapAtom)[0];
   const isLogin = useAtom(isLoginAtom);
   const isDev = Boolean(import.meta.env?.DEV);
   const isEdit = useMemo(
@@ -99,9 +99,10 @@ function InfoArea({ image }: InfoAreaProps) {
   );
   if (searchParams.has("pic") || !image?.albumObject) return <></>;
   const tags = image.tags ?? [];
-  const charaTags = tags
-    .map((tag) => charaObject[tag] as CharaType)
-    .filter((v) => v);
+  const charaTags = useMemo(
+    () => tags.map((tag) => charactersMap?.get(tag)!).filter((v) => v),
+    [tags, charactersMap]
+  );
   const registeredTags = tags.filter((tag) =>
     tagsOptions.some(({ value }) => value === tag)
   );
