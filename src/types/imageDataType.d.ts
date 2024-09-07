@@ -10,6 +10,7 @@ interface ImageDataType {
   width?: number | null;
   height?: number | null;
   tags?: string | null;
+  characters?: string | null;
   copyright?: string | null;
   link?: string | null;
   embed?: string | null;
@@ -23,6 +24,7 @@ interface ImageDataType {
 interface ImageType extends ImageDataType {
   albumObject?: ImageAlbumType;
   tags?: string[];
+  characters?: string[];
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;

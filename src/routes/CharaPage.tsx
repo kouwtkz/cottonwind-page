@@ -343,7 +343,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
                     tags: chara.id,
                     list:
                       albumImages.filter((image) =>
-                        image.tags?.some((tag) => tag === chara.id)
+                        image.characters?.some((name) => name === chara.id)
                       ) ?? [],
                   } as GalleryItemObjectType;
                 })

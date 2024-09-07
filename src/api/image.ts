@@ -22,6 +22,7 @@ const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   width: { type: "INTEGER" },
   height: { type: "INTEGER" },
   tags: { type: "TEXT" },
+  characters: { type: "TEXT" },
   copyright: { type: "TEXT" },
   link: { type: "TEXT" },
   embed: { type: "TEXT" },
@@ -95,7 +96,6 @@ app.patch("/send", async (c, next) => {
   const entry: ImageDataType = {
     topImage: FormBoolToInt(topImage),
     pickup: FormBoolToInt(pickup),
-    tags: BlankStringsToNull(charaTags, otherTags),
     name,
     time: time ? new Date(time).toISOString() : time,
     mtime: new Date().toISOString(),

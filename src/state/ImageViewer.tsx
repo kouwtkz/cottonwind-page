@@ -100,16 +100,15 @@ function InfoArea({ image }: InfoAreaProps) {
   if (searchParams.has("pic") || !image?.albumObject) return <></>;
   const tags = image.tags ?? [];
   const charaTags = useMemo(
-    () => tags.map((tag) => charactersMap?.get(tag)!).filter((v) => v),
-    [tags, charactersMap]
+    () =>
+      image.characters?.map((tag) => charactersMap?.get(tag)!).filter((v) => v),
+    [image.characters, charactersMap]
   );
   const registeredTags = tags.filter((tag) =>
     tagsOptions.some(({ value }) => value === tag)
   );
-  const othertags = tags.filter(
-    (tag) =>
-      charaTags.every((ct) => ct.id !== tag) &&
-      registeredTags.every((rt) => rt !== tag)
+  const othertags = tags.filter((tag) =>
+    registeredTags.every((rt) => rt !== tag)
   );
   const tagsBaseURL = location.origin + "/gallery";
 
@@ -130,7 +129,7 @@ function InfoArea({ image }: InfoAreaProps) {
                 <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
               </div>
               <div className="tagList">
-                {charaTags.map((chara, i) => {
+                {charaTags?.map((chara, i) => {
                   return (
                     <Link
                       to={"/character/" + chara.id}

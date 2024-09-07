@@ -6,7 +6,7 @@ import { StorageDataClass } from "@/functions/StorageDataClass";
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
   "images",
-  "1.1.30"
+  "1.1.31"
 );
 export const imagesDataAtom = atom<ImageDataType[]>();
 export const imagesLoadAtom = atom<LoadAtomType>(true);

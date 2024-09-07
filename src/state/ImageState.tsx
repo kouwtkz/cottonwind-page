@@ -31,7 +31,8 @@ export function ImageState() {
         const albumObject = v.album ? albums.get(v.album) : undefined;
         const item: ImageType = {
           ...v,
-          tags: v.tags ? v.tags.split(",") : [],
+          tags: v.tags?.split(","),
+          characters: v.characters?.split(","),
           copyright: v.copyright?.split(","),
           topImage:
             typeof v.topImage === "number" ? Boolean(v.topImage) : undefined,

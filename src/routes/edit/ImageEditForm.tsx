@@ -106,32 +106,22 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     { enableOnFormTags }
   );
 
-  const charaTags = useMemo(() => {
+  const charaLabelTags = useMemo(() => {
     return characters.map(({ name, id }) => ({
       label: name,
       value: id,
     }));
   }, [characters]);
-  const imageTagsObject = useMemo(() => {
-    const tags = image?.tags || [];
-    const imageCharaTags = tags.filter((tag) =>
-      charaTags.some((chara) => tag === chara.value)
-    );
-    const imageOtherTags = tags.filter((tag) =>
-      imageCharaTags.every((_tag) => tag !== _tag)
-    );
-    return { charaTags: imageCharaTags, otherTags: imageOtherTags };
-  }, [image, charaTags]);
   const simpleDefaultTags = useMemo(
     () => autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
     [defaultGalleryTags]
   );
   const unregisteredTags = useMemo(
     () =>
-      imageTagsObject.otherTags.filter((tag) =>
+      (image?.tags ?? []).filter((tag) =>
         simpleDefaultTags.every(({ value }) => value !== tag)
       ),
-    [imageTagsObject.otherTags, defaultGalleryTags]
+    [image?.tags, defaultGalleryTags]
   );
   const defaultValues = useMemo(
     () => ({
@@ -139,7 +129,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       description: image?.description || "",
       topImage: String(image?.topImage),
       pickup: String(image?.pickup),
-      ...imageTagsObject,
+      tags: image?.tags || [],
+      characters: image?.characters || [],
       type: image?.type || "",
       time: ToFormJST(image?.time),
       copyright: image?.copyright || [],
@@ -148,7 +139,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       album: image?.album || "",
       rename: image?.src ? getBasename(image.src) : "",
     }),
-    [image, imageTagsObject]
+    [image]
   );
 
   const {
@@ -257,7 +248,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     [image?.embed, image?.albumObject?.type]
   );
 
-  const [otherTags, setOtherTags] = useState(
+  const [stateTags, setStateTags] = useState(
     autoFixGalleryTagsOptions(
       getTagsOptions(
         defaultGalleryTags.concat(
@@ -388,10 +379,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </div>
           <div>
             <EditTagsReactSelect
-              name="charaTags"
+              name="characters"
               labelVisible
               label="キャラクタータグ"
-              tags={charaTags}
+              tags={charaLabelTags}
               control={control}
               setValue={setValue}
               getValues={getValues}
@@ -401,11 +392,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </div>
           <div>
             <EditTagsReactSelect
-              name="otherTags"
+              name="tags"
               labelVisible
               label="その他のタグ"
-              tags={otherTags}
-              set={setOtherTags}
+              tags={stateTags}
+              set={setStateTags}
               control={control}
               setValue={setValue}
               getValues={getValues}
