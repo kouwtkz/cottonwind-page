@@ -540,11 +540,16 @@ h2.lulo,
   }
   .list {
     position: absolute;
-    left: 0;
     z-index: 100;
     text-align: left;
     width: max-content;
     background-color: var(--form-background-color);
+    &.right {
+      right: 0;
+    }
+    &:not(.right) {
+      left: 0;
+    }
     :focus {
       outline: none;
       background-color: var(--main-color);
@@ -774,8 +779,8 @@ body {
 }
 
 .content-base {
-  padding-top: $size_16;
-  padding-bottom: $size_8;
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
   text-align: center;
   .content-parent {
     margin-left: auto;
@@ -792,69 +797,44 @@ body {
 header {
   position: fixed;
   display: flex;
+  align-items: center;
   width: 100%;
+  height: 3.5rem;
   max-width: var(--ct-width);
   z-index: 30;
-  text-align: center;
-  .backButton {
-    position: absolute;
-    left: 0;
-    margin-left: 0.25rem;
-    height: 100%;
+  > *:not(.list) {
+    height: 3.5rem;
     display: flex;
     align-items: center;
-    a {
-      width: 2rem;
+    justify-content: center;
+  }
+  .backButton,
+  .siteMenu {
+    margin: auto;
+    width: 3.25rem;
+  }
+  .backButton {
+    svg {
       height: 2rem;
-      padding: 0.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 2rem;
+    }
+    a {
       @extend %userSelectNone;
       color: var(--main-color-soft);
       &:hover {
         color: var(--main-color-pale);
       }
     }
-    svg {
-      height: 2rem;
-      width: 2rem;
-    }
-    @media (min-width: $tabletWidth) {
-      a {
-        width: 2.5rem;
-        height: 2.5rem;
-        padding: 0.75rem;
-      }
-      svg {
-        height: 2.25rem;
-        width: 2.25rem;
-      }
-    }
   }
-  .headerBackground {
-    position: absolute;
-    top: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--background);
-    opacity: 0.9;
-    z-index: -10;
-  }
-  $containerHeight: 3rem;
   .title-container {
-    margin: 0.5rem auto;
-    display: inline-block;
-    padding: 0 0.5rem;
-    height: $containerHeight;
-    display: inline-block;
+    flex: 1;
     @extend %a-line-none;
     h2 {
       margin: 0;
+      display: flex;
     }
     img {
-      height: $containerHeight;
+      height: 2.5rem;
     }
     #siteTitle {
       font-size: $text_2xl;
@@ -869,10 +849,10 @@ header {
   }
   .siteMenu {
     .button {
+      width: 3.25rem;
+      height: 3.25rem;
       cursor: pointer;
       display: block;
-      height: $size_14;
-      margin: 0.25rem 0.5rem 0.25rem 0;
       fill: var(--main-color);
       background-color: var(--main-color);
       @extend %userSelectNone;
@@ -885,9 +865,7 @@ header {
       }
     }
     .list {
-      position: absolute;
-      right: 0;
-      margin: auto $size_2;
+      margin-top: 0.125rem;
       background-color: rgba(255, 255, 255, 0.9);
       font-family: var(--font-LuloClean);
       display: flex;
@@ -926,6 +904,16 @@ header {
       @extend %a-line-none;
     }
   }
+  .headerBackground {
+    position: absolute;
+    top: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background);
+    opacity: 0.9;
+    z-index: -10;
+  }
 }
 
 footer {
@@ -952,6 +940,34 @@ footer {
         }
       }
     }
+  }
+}
+
+@media (min-width: $tabletWidth) {
+  header {
+    height: 4rem;
+    .title-container {
+      img {
+        height: 2.75rem;
+      }
+    }
+    .backButton,
+    .siteMenu {
+      margin: auto 0.25rem;
+      width: 3.5rem;
+    }
+    .siteMenu {
+      .button {
+        width: 3.5rem;
+        height: 3.5rem;
+      }
+      .list {
+        margin-top: 0.25rem;
+      }
+    }
+  }
+  .content-base {
+    padding-top: 4rem;
   }
 }
 

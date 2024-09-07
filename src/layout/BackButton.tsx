@@ -2,7 +2,7 @@ import { HTMLAttributes, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { BiLeftArrow } from "react-icons/bi";
 
-export default function BackButton(args: HTMLAttributes<HTMLDivElement>) {
+export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
   const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();
   const backUrl: string = useMemo(() => {
@@ -16,14 +16,13 @@ export default function BackButton(args: HTMLAttributes<HTMLDivElement>) {
   }, [state, searchParams, pathname]);
 
   return (
-    <div {...args}>
-      {pathname !== "/" ? (
-        <>
-          <Link to={String(backUrl)} title="ひとつ前に戻る">
-            <BiLeftArrow />
-          </Link>
-        </>
-      ) : null}
-    </div>
+    <Link
+      {...args}
+      to={String(backUrl)}
+      title="ひとつ前に戻る"
+      style={{ visibility: pathname !== "/" ? "visible" : "hidden" }}
+    >
+      <BiLeftArrow />
+    </Link>
   );
 }

@@ -92,47 +92,49 @@ export function SiteMenu() {
     return list;
   }, [navList, visibleWorkers]);
   return (
-    <DropdownObject
-      className="siteMenu"
-      MenuButton={SiteMenuButton}
-      onClickFadeOutTime={300}
-    >
-      {list.map((item, i) => {
-        if (item.url) {
-          if (item.out) {
-            return (
-              <a key={i} href={item.url} className="item">
-                {item.short || item.name}
-              </a>
-            );
+    <div className="siteMenu">
+      <DropdownObject
+        listClassName="right"
+        MenuButton={SiteMenuButton}
+        onClickFadeOutTime={300}
+      >
+        {list.map((item, i) => {
+          if (item.url) {
+            if (item.out) {
+              return (
+                <a key={i} href={item.url} className="item">
+                  {item.short || item.name}
+                </a>
+              );
+            } else {
+              return (
+                <Link key={i} to={item.url} className="item">
+                  {item.short || item.name}
+                </Link>
+              );
+            }
           } else {
-            return (
-              <Link key={i} to={item.url} className="item">
-                {item.short || item.name}
-              </Link>
-            );
-          }
-        } else {
-          if (item.switch) {
-            switch (item.name) {
-              case "color":
-                return (
-                  <ThemeChangeButton key={i} className="item theme">
-                    {item.name}
-                  </ThemeChangeButton>
-                );
-              case "dark":
-                return (
-                  <DarkThemeChangeButton key={i} className="item theme">
-                    {item.name}
-                  </DarkThemeChangeButton>
-                );
-              default:
-                return <ThemeSwitchButtons key={i} />;
+            if (item.switch) {
+              switch (item.name) {
+                case "color":
+                  return (
+                    <ThemeChangeButton key={i} className="item theme">
+                      {item.name}
+                    </ThemeChangeButton>
+                  );
+                case "dark":
+                  return (
+                    <DarkThemeChangeButton key={i} className="item theme">
+                      {item.name}
+                    </DarkThemeChangeButton>
+                  );
+                default:
+                  return <ThemeSwitchButtons key={i} />;
+              }
             }
           }
-        }
-      })}
-    </DropdownObject>
+        })}
+      </DropdownObject>
+    </div>
   );
 }
