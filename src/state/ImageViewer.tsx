@@ -39,7 +39,6 @@ import { charactersMapAtom, CharaState } from "./CharaState";
 import { imagesAtom, UrlMediaOrigin } from "./ImageState";
 import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
-import { imageFindFromName } from "../data/functions/images";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
@@ -159,7 +158,7 @@ function InfoArea({ image }: InfoAreaProps) {
                   const item = tagsOptions.find(({ value }) => value === tag);
                   if (!item) return item;
                   const search = createSearchParams(
-                    item.query ?? { tag: item.value ?? "" }
+                    item.query ?? { tags: item.value ?? "" }
                   );
                   return (
                     <Link

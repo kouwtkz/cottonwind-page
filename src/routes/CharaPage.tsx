@@ -11,7 +11,6 @@ import {
   charactersAtom,
   charactersMapAtom,
   characterTagsAtom,
-  CharaState,
 } from "@/state/CharaState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
@@ -40,7 +39,6 @@ export function CharaPage() {
   const isDev = import.meta.env?.DEV;
   return (
     <div id="characterPage">
-      <CharaState />
       {isDev && isEdit ? (
         <CharaEditForm />
       ) : (

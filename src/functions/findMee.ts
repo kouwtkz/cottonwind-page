@@ -379,7 +379,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
       if (OR) {
         const current = whereList.pop();
         const before = whereList.pop();
-        if (before?.OR) {
+        if (before && "OR" in before) {
           before.OR.push(current);
           whereList.push(before);
         } else {

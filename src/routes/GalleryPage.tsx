@@ -63,6 +63,9 @@ import {
   resizeImageCanvasProps,
 } from "@/components/Canvas";
 import { imagesLoadAtom } from "@/state/DataState";
+import { charactersAtom } from "@/state/CharaState";
+import ReactSelect from "react-select";
+import { callReactSelectTheme } from "@/theme/main";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -227,15 +230,14 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
 
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const [searchParams] = useSearchParams();
-  const {
-    sort: sortParam,
-    filter: filterParam,
-    type: typeParam,
-    year: yearParam,
-    month: monthParam,
-    q: qParam,
-    tag: tagParam,
-  } = Object.fromEntries(searchParams) as KeyValueType<string>;
+  const sortParam = searchParams.get("sort");
+  const filterParam = searchParams.get("filter");
+  const typeParam = searchParams.get("type");
+  const yearParam = searchParams.get("year");
+  const monthParam = searchParams.get("month");
+  const qParam = searchParams.get("q") || "";
+  const tagsParam = searchParams.get("tags");
+  const charactersParam = searchParams.get("characters");
   const filterParams = useMemo(
     () => (filterParam ?? "").split(","),
     [filterParam]
@@ -245,8 +247,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     [filterParams]
   );
   const searchMode = useMemo(
-    () => Boolean(qParam || tagParam),
-    [qParam, tagParam]
+    () => Boolean(qParam || tagsParam || charactersParam),
+    [qParam, tagsParam || charactersParam]
   );
   const year = Number(yearParam);
   const monthlyEventMode = useMemo(
@@ -275,18 +277,49 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
 
-  const tags = useMemo(() => tagParam?.split(","), [tagParam]);
   const { where, orderBy } = useMemo(
     () =>
-      setWhere(qParam, {
+      setWhere<ImageType>(qParam, {
         text: {
-          key: ["tags", "copyright", "name", "description", "URL", "embed"],
+          key: [
+            "tags",
+            "characters",
+            "copyright",
+            "name",
+            "description",
+            "URL",
+            "embed",
+          ],
         },
-        hashtag: { key: "tags" },
+        hashtag: { key: ["tags", "characters"] },
       }),
     [qParam]
   );
-
+  const tagsWhere = useMemo(
+    () =>
+      tagsParam
+        ?.split(",")
+        ?.map(
+          (value) => ({ tags: { contains: value } } as findWhereType<ImageType>)
+        ),
+    [tagsParam]
+  );
+  const charactersWhere = useMemo(
+    () =>
+      charactersParam
+        ?.split(",")
+        ?.map(
+          (value) =>
+            ({ characters: { contains: value } } as findWhereType<ImageType>)
+        ),
+    [charactersParam]
+  );
+  let wheres = useMemo(() => {
+    const wheres = [where];
+    if (tagsWhere) wheres.push(...tagsWhere);
+    if (charactersWhere) wheres.push(...charactersWhere);
+    return wheres;
+  }, [where, tagsWhere, charactersWhere]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
     const searchSort = sortParam ?? "";
@@ -319,7 +352,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         item.hide ||
         (!searchMode && item.hideWhenDefault) ||
         (item.hideWhenFilter &&
-          (topicParams.length > 0 || typeParam || tags || monthParam))
+          (topicParams.length > 0 || typeParam || monthParam))
           ? []
           : item.list ?? []
       )
@@ -342,12 +375,11 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
           images = images.filter((image) => image[p]);
         });
         if (typeParam) images = images.filter(({ type }) => type === typeParam);
-        if (tags)
-          images = filterImagesTags({
-            images,
-            tags,
-          });
-        images = findMee({ list: [...images], where, orderBy: orderBySort });
+        images = findMee({
+          list: [...images],
+          where: { AND: wheres },
+          orderBy: orderBySort,
+        });
         return images;
       });
     const yfList = fList.map((images) => {
@@ -363,8 +395,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     typeParam,
     monthParam,
     filterMonthly,
-    tags,
-    where,
+    wheres,
     orderBySort,
     year,
   ]);
@@ -592,6 +623,7 @@ function GalleryBody({
             </div>
             <GalleryYearFilter {...SearchAreaOptions} />
             <GallerySearchArea {...SearchAreaOptions} />
+            <GalleryCharactersSelect {...SearchAreaOptions} />
             <GalleryTagsSelect {...SearchAreaOptions} />
           </div>
         ) : null}
@@ -716,8 +748,13 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       maxWhenSearch = 40,
     } = item;
     const [searchParams] = useSearchParams();
-    const { q, tag } = Object.fromEntries(searchParams) as KeyValueType<string>;
-    const searchMode = useMemo(() => Boolean(q || tag), [q, tag]);
+    const q = searchParams.get("q");
+    const tags = searchParams.get("tags");
+    const characters = searchParams.get("characters");
+    const searchMode = useMemo(
+      () => Boolean(q || tags || characters),
+      [q, tags, characters]
+    );
     const nav = useNavigate();
     const { state } = useLocation();
     const [w] = useWindowSize();
@@ -974,6 +1011,55 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
     defaultGalleryTags
   );
   return <ContentsTagsSelect {...args} tags={tags} />;
+}
+export function GalleryCharactersSelect({
+  submitPreventScrollReset,
+  ...args
+}: SelectAreaProps) {
+  const params = useParams();
+  const currentChara = params["charaName"];
+  const characters = useAtom(charactersAtom)[0];
+  const charaLabelOptions = useMemo(() => {
+    let list = characters ?? [];
+    if (currentChara) list = list.filter((v) => v.id !== currentChara);
+    return list.map(({ name, id }) => ({
+      label: name,
+      value: id,
+    }));
+  }, [characters, currentChara]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const value = useMemo(() => {
+    const list = searchParams.get("characters")?.split(",");
+    return charaLabelOptions.filter(({ value }) =>
+      list?.some((item) => item === value)
+    );
+  }, [searchParams, charaLabelOptions]);
+  return (
+    <div {...args}>
+      <ReactSelect
+        options={charaLabelOptions}
+        isMulti
+        isSearchable={false}
+        isLoading={!Boolean(characters)}
+        classNamePrefix="select"
+        placeholder={(currentChara ? "他の" : "") + "キャラクター"}
+        instanceId="galleryTagSelect"
+        className="tagSelect"
+        theme={callReactSelectTheme}
+        styles={{
+          menuList: (style) => ({ ...style, minHeight: "22rem" }),
+          menu: (style) => ({ ...style, zIndex: 9999 }),
+        }}
+        value={value}
+        onChange={(v) => {
+          const value = v.map(({ value }) => value).join(",");
+          if (value) searchParams.set("characters", value);
+          else searchParams.delete("characters");
+          setSearchParams(searchParams);
+        }}
+      />
+    </div>
+  );
 }
 
 export function GalleryPageDevOtherSwitch() {

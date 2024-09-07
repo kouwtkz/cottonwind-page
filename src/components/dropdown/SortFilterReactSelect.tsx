@@ -16,7 +16,7 @@ export function ContentsTagsSelect({
   submitPreventScrollReset = true,
 }: SelectAreaProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchTags = searchParams.get("tag")?.split(",") || [];
+  const searchTags = searchParams.get("tags")?.split(",") || [];
   const searchType =
     searchParams
       .get("type")
@@ -52,7 +52,7 @@ export function ContentsTagsSelect({
         sort: [],
         type: [],
         filter: [],
-        tag: [],
+        tags: [],
         month: [],
       };
       list.forEach(({ value }) => {
@@ -71,7 +71,7 @@ export function ContentsTagsSelect({
             listObj.month = [values[1]];
             break;
           default:
-            if (value) listObj.tag.push(value);
+            if (value) listObj.tags.push(value);
             break;
         }
       });

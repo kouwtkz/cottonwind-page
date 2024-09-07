@@ -9,6 +9,7 @@ import { EnvAtom, EnvState } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { charactersDataAtom, DataState, imagesDataAtom } from "./DataState";
+import { CharaState } from "./CharaState";
 
 export const siteIsFirstAtom = atom(true);
 export const dataIsCompleteAtom = atom(false);
@@ -39,6 +40,7 @@ export function StateSet() {
       <Toaster />
       <LoadingState isSetList={isSetList}>
         <ImageState />
+        <CharaState />
         <FeedState />
       </LoadingState>
       {ThemeState.State()}
