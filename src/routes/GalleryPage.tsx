@@ -623,8 +623,10 @@ function GalleryBody({
             </div>
             <GalleryYearFilter {...SearchAreaOptions} />
             <GallerySearchArea {...SearchAreaOptions} />
-            <GalleryCharactersSelect {...SearchAreaOptions} />
-            <GalleryTagsSelect {...SearchAreaOptions} />
+            <div className="flex">
+              <GalleryCharactersSelect {...SearchAreaOptions} />
+              <GalleryTagsSelect {...SearchAreaOptions} />
+            </div>
           </div>
         ) : null}
         {items
@@ -998,9 +1000,7 @@ function getYearObjects(dates: (Date | null | undefined)[]) {
     .sort((a, b) => b.year - a.year);
 }
 
-interface SelectAreaProps
-  extends HTMLAttributes<HTMLDivElement>,
-    SearchAreaOptionsProps {}
+interface SelectAreaProps extends SearchAreaOptionsProps {}
 
 const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
@@ -1014,7 +1014,6 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
 }
 export function GalleryCharactersSelect({
   submitPreventScrollReset,
-  ...args
 }: SelectAreaProps) {
   const params = useParams();
   const currentChara = params["charaName"];
@@ -1035,30 +1034,28 @@ export function GalleryCharactersSelect({
     );
   }, [searchParams, charaLabelOptions]);
   return (
-    <div {...args}>
-      <ReactSelect
-        options={charaLabelOptions}
-        isMulti
-        isSearchable={false}
-        isLoading={!Boolean(characters)}
-        classNamePrefix="select"
-        placeholder={(currentChara ? "他の" : "") + "キャラクター"}
-        instanceId="galleryTagSelect"
-        className="tagSelect"
-        theme={callReactSelectTheme}
-        styles={{
-          menuList: (style) => ({ ...style, minHeight: "22rem" }),
-          menu: (style) => ({ ...style, zIndex: 9999 }),
-        }}
-        value={value}
-        onChange={(v) => {
-          const value = v.map(({ value }) => value).join(",");
-          if (value) searchParams.set("characters", value);
-          else searchParams.delete("characters");
-          setSearchParams(searchParams);
-        }}
-      />
-    </div>
+    <ReactSelect
+      options={charaLabelOptions}
+      isMulti
+      isSearchable={false}
+      isLoading={!Boolean(characters)}
+      classNamePrefix="select"
+      placeholder={(currentChara ? "他の" : "") + "キャラクター"}
+      instanceId="galleryTagSelect"
+      className="characterSelect"
+      theme={callReactSelectTheme}
+      styles={{
+        menuList: (style) => ({ ...style, minHeight: "22rem" }),
+        menu: (style) => ({ ...style, zIndex: 9999 }),
+      }}
+      value={value}
+      onChange={(v) => {
+        const value = v.map(({ value }) => value).join(",");
+        if (value) searchParams.set("characters", value);
+        else searchParams.delete("characters");
+        setSearchParams(searchParams);
+      }}
+    />
   );
 }
 

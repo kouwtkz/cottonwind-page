@@ -86,23 +86,21 @@ export function ContentsTagsSelect({
     [searchParams]
   );
   return (
-    <div className={className}>
-      <ReactSelect
-        options={tags}
-        value={currentTags}
-        isMulti
-        isSearchable={false}
-        classNamePrefix="select"
-        placeholder="ソート / フィルタ"
-        instanceId="galleryTagSelect"
-        className="tagSelect"
-        theme={callReactSelectTheme}
-        styles={{
-          menuList: (style) => ({ ...style, minHeight: "22rem" }),
-          menu: (style) => ({ ...style, zIndex: 9999 }),
-        }}
-        onChange={changeHandler}
-      />
-    </div>
+    <ReactSelect
+      options={tags}
+      value={currentTags}
+      isMulti
+      isSearchable={false}
+      classNamePrefix="select"
+      placeholder="ソート / フィルタ"
+      instanceId="galleryTagSelect"
+      className={"tagSelect" + (className ? " " + className : "")}
+      theme={callReactSelectTheme}
+      styles={{
+        menuList: (style) => ({ ...style, minHeight: "22rem" }),
+        menu: (style) => ({ ...style, zIndex: 9999 }),
+      }}
+      onChange={changeHandler}
+    />
   );
 }

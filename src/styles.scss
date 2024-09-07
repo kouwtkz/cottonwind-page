@@ -1190,35 +1190,47 @@ form select {
 }
 
 @mixin commonHeader() {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 0.25rem;
-  & > *,
-  .icons > * {
-    margin: 0.25rem;
-  }
-  .icons {
-    button {
-      padding: 0;
-      background-color: transparent;
-      color: var(--main-color);
+  .header {
+    &,
+    .flex {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      margin: 0.25rem;
+      & > *,
+      .icons > * {
+        margin: 0.25rem;
+      }
     }
-    svg {
-      font-size: 1.25rem;
+    .icons {
+      button {
+        padding: 0;
+        background-color: transparent;
+        color: var(--main-color);
+      }
+      svg {
+        font-size: 1.25rem;
+      }
     }
-  }
-  .search {
-    font-size: $text_base;
-    width: 14rem;
-    padding: 0.375rem 0.5rem;
-  }
-  .tagSelect {
-    min-width: 18rem;
-    text-align: left;
-    > div:first-of-type {
-      cursor: pointer;
+    .search {
+      font-size: $text_base;
+      width: 16rem;
+      padding: 0.375rem 0.5rem;
+    }
+    .tagSelect {
+      min-width: 20rem;
+    }
+    .characterSelect {
+      min-width: 16rem;
+    }
+    .tagSelect,
+    .characterSelect {
+      flex: 1;
+      text-align: left;
+      > div:first-of-type {
+        cursor: pointer;
+      }
     }
   }
 }
@@ -1269,9 +1281,7 @@ form select {
 
 #characterPage {
   max-width: 1400px;
-  .header {
-    @include commonHeader();
-  }
+  @include commonHeader();
   .charaList {
     @include GridList(2, $tabletWidth, $desktopWidth);
     margin: 0 auto;
@@ -1462,9 +1472,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
 
 #galleryPage {
   max-width: 1400px;
-  .header {
-    @include commonHeader();
-  }
+  @include commonHeader();
 }
 
 select.yearFilter {
