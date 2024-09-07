@@ -334,6 +334,13 @@ body {
   }
 }
 
+svg.stock {
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -999;
+}
+
 button,
 .button {
   &:not(.plain) {

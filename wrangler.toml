@@ -87,28 +87,28 @@ name = "about"
 url = "/about"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/twitter.webp"
+mask = "#mask_twitter"
 name = "𝕏 (Twitter)"
 url = "https://x.com/kouwtkz"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/youtube.webp"
+mask = "#mask_youtube"
 name = "youtube"
 url = "https://www.youtube.com/@kouwtkz"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/pixiv.webp"
+mask = "#mask_pixiv"
 name = "pixiv"
 url = "https://www.pixiv.net/users/5577703"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/instagram.webp"
+mask = "#mask_instagram"
 name = "instagram"
 url = "https://www.instagram.com/kouwtkz/"
 
 [[vars.LINKS]]
 hidden = true
-mask = "/static/_media/mask/links/misskey_design.webp"
+mask = "#mask_misskey_design"
 name = "MisskeyDesign"
 rel = "me"
 row = 2
@@ -116,7 +116,7 @@ title = "Misskey design"
 url = "https://misskey.design/@kouwtkz"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/wtkz_mascodon.webp"
+mask = "#mask_mascodon"
 name = "Mascodon"
 rel = "me"
 row = 2
@@ -124,19 +124,19 @@ title = "マスコどん！"
 url = "https://mascodon.jp/@kouwtkz"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/bluesky.webp"
+mask = "#mask_bluesky"
 name = "Bluesky"
 rel = "me"
 row = 2
 url = "https://bsky.app/profile/kouwtkz.cottonwind.com"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/github.webp"
+mask = "#mask_github"
 name = "GitHub"
 url = "https://github.com/kouwtkz"
 
 [[vars.LINKS]]
-mask = "/static/_media/mask/links/booth.webp"
+mask = "#mask_booth"
 name = "BOOTH"
 rel = "me"
 row = 2

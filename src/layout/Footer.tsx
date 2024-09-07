@@ -9,8 +9,7 @@ export function Footer() {
     <footer>
       {env ? (
         <div className="copyright">
-          © {env.SINCE}-{getJSTYear(new Date())}{" "}
-          {env.AUTHOR_ACCOUNT}
+          © {env.SINCE}-{getJSTYear(new Date())} {env.AUTHOR_ACCOUNT}
         </div>
       ) : null}
       <LinksList myLinks={env?.LINKS || []} />
@@ -39,15 +38,19 @@ export function LinksList({
                   target={/^\w+:\/\//.test(link.url) ? "_blank" : ""}
                   rel={link.rel ?? "noopener"}
                 >
-                  {maskImage ? (
+                  {maskImage && link.mask ? (
                     <div
                       className="mask"
-                      style={{
-                        WebkitMaskImage: `url(${link.mask})`,
-                        maskImage: `url(${link.mask})`,
-                        maskSize: "cover",
-                        WebkitMaskSize: "cover",
-                      }}
+                      style={
+                        link.mask.startsWith("#")
+                          ? { clipPath: `url(${link.mask})` }
+                          : {
+                              WebkitMaskImage: `url(${link.mask})`,
+                              maskImage: `url(${link.mask})`,
+                              maskSize: "cover",
+                              WebkitMaskSize: "cover",
+                            }
+                      }
                     />
                   ) : (
                     link.title || link.name
