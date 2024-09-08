@@ -4,7 +4,7 @@ export function BooleanToNumber(value?: boolean | null) {
 
 export function KeyValueToString(value: KeyValueType<unknown> | KeyValueType<unknown>[]) {
   (Array.isArray(value) ? value : [value])
-    .forEach(entry => {
+    .forEach((entry) => {
       Object.keys(entry).forEach(k => {
         if (Array.isArray(entry[k]))
           entry[k] = entry[k].map(v => String(v)).join(",")
@@ -15,6 +15,14 @@ export function KeyValueToString(value: KeyValueType<unknown> | KeyValueType<unk
         }
       })
     })
+}
+
+export function lastModToUniqueNow(value: KeyValueType<unknown> | KeyValueType<unknown>[], lastmod = "lastmod") {
+  const now = new Date();
+  (Array.isArray(value) ? value : [value]).forEach((entry) => {
+    entry.lastmod = now.toISOString();
+    now.setMilliseconds(now.getMilliseconds() + 1);
+  })
 }
 
 export function unknownToString(value: unknown) {

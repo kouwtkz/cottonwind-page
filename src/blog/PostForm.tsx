@@ -337,7 +337,7 @@ export function PostForm() {
               append(`${key}[]`, _item);
               if (!attached) attached = true;
               if (_item.lastModified)
-                append(`${key}_mtime[]`, _item.lastModified);
+                append(`${key}_lastmod[]`, _item.lastModified);
             }
             break;
           default:

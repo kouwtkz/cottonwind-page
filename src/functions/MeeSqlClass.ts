@@ -201,11 +201,11 @@ export class MeeSqlClass<T> {
         sql = sql + " NOT NULL DEFAULT (" + MeeSqlClass.isoFormat() + ")";
       } else {
         if (v.notNull) sql = sql + " NOT NULL";
-        if (v.unique) sql = sql + " UNIQUE";
         if (defaultTypeof !== "undefined") {
           sql = sql + " DEFAULT " + (fieldType === "TEXT" ? `'${v.default}'` : v.default);
         }
       }
+      if (v.unique) sql = sql + " UNIQUE";
       return sql;
     });
     if (primaries.length > 0) {

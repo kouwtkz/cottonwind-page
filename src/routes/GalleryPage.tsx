@@ -17,6 +17,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
 } from "react";
 import {
   defaultGalleryFilterTags,
@@ -421,11 +422,15 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
 }
 
 function UploadChain({
+  className,
   item,
   children,
+  enableOnClick,
 }: {
-  item: GalleryItemObjectType;
+  className?: string;
+  item?: GalleryItemObjectType;
   children?: ReactNode;
+  enableOnClick?: boolean;
 }) {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
@@ -439,28 +444,36 @@ function UploadChain({
       ImagesUpload({
         files: list,
         apiOrigin,
-        options: {
-          album: item.name,
-          tags: item.tags,
-          character: item.character,
-        },
+        options: item
+          ? {
+              album: item.name,
+              tags: item.tags,
+              character: item.character,
+            }
+          : undefined,
       }).then(() => {
         setImagesLoad("no-cache");
       });
     },
     [item]
   );
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
-    noClick: true,
+    noClick: typeof enableOnClick === "boolean" ? !enableOnClick : true,
   });
-
+  const classNameMemo = useMemo(() => {
+    const list = ["dropzone"];
+    if (className) list.push(className);
+    if (isDragAccept) list.push("isDrag");
+    if (enableOnClick) list.push("pointer");
+    return list.join(" ");
+  }, [className, isDragAccept, enableOnClick]);
   return (
     <>
-      <div {...getRootProps()}>
+      <div {...getRootProps()} className={classNameMemo}>
         <input
           name="upload"
-          id={"upload_" + item.name}
+          id={item ? "upload_" + item.name : undefined}
           {...getInputProps({ accept: "image/*" })}
         />
         {children}
@@ -500,9 +513,35 @@ function GalleryBody({
         })),
     [yfList, items]
   );
+  const galleryItem = items
+    .map((item, i) => ({ ...item, i }))
+    .filter(({ hideWhenEmpty = true, i }) =>
+      hideWhenEmpty ? yfList[i].length : true
+    )
+    .map(({ i, ...item }) => (
+      <div key={i}>
+        {isLogin ? (
+          <UploadChain item={item}>
+            <GalleryContent
+              ref={refList[i]}
+              list={yfList[i]}
+              item={item}
+              {...args}
+            />
+          </UploadChain>
+        ) : (
+          <GalleryContent
+            ref={refList[i]}
+            list={yfList[i]}
+            item={item}
+            {...args}
+          />
+        )}
+      </div>
+    ));
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
-    <div id="galleryPage">
+    <div className="galleryContainer">
       {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
       <div>
         {showGalleryHeader ? (
@@ -527,32 +566,13 @@ function GalleryBody({
             </div>
           </div>
         ) : null}
-        {items
-          .map((item, i) => ({ ...item, i }))
-          .filter(({ hideWhenEmpty = true, i }) =>
-            hideWhenEmpty ? yfList[i].length : true
-          )
-          .map(({ i, ...item }) => (
-            <div key={i}>
-              {isLogin ? (
-                <UploadChain item={item}>
-                  <GalleryContent
-                    ref={refList[i]}
-                    list={yfList[i]}
-                    item={item}
-                    {...args}
-                  />
-                </UploadChain>
-              ) : (
-                <GalleryContent
-                  ref={refList[i]}
-                  list={yfList[i]}
-                  item={item}
-                  {...args}
-                />
-              )}
-            </div>
-          ))}
+        {galleryItem.length > 0 ? (
+          galleryItem
+        ) : isLogin ? (
+          <UploadChain className="blank" enableOnClick={true}>
+            ここにドロップするとファイルをアップロードできます！
+          </UploadChain>
+        ) : null}
       </div>
     </div>
   );

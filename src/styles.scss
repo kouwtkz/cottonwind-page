@@ -515,6 +515,15 @@ h2.lulo,
   }
 }
 
+.dropzone {
+  &.blank{
+    background-color: var(--main-color-grayish-fluo); 
+  }
+  &.isDrag {
+    background-color: var(--main-color-pale-fluo);
+  }
+}
+
 .wh-fill,
 .wh-all-fill,
 .wh-all-fill * {
@@ -1614,6 +1623,13 @@ select.yearFilter {
     &:hover {
       fill: var(--main-color-pale);
     }
+  }
+  .dropzone {
+    margin: 2rem;
+    min-height: 20rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 .soundFixed {

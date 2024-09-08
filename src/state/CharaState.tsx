@@ -49,7 +49,7 @@ export function CharaState() {
           playlist: [],
           birthday: v.birthday ? new Date(v.birthday) : undefined,
           time: v.time ? new Date(v.time) : undefined,
-          mtime: v.mtime ? new Date(v.mtime) : undefined,
+          lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
         };
         const key = item.id;
         if (!charactersMap.has(key)) {

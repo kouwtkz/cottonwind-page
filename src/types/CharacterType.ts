@@ -14,15 +14,15 @@ interface CharacterDataType {
   embed?: string;
   birthday?: string;
   time?: string;
-  mtime: string;
+  lastmod: string;
 }
 
-interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "mtime"> {
+interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod"> {
   tags?: string[],
   playlist?: string[],
   time?: Date,
   birthday?: Date,
-  mtime?: Date,
+  lastmod?: Date,
   media?: {
     icon?: ImageType | null,
     image?: ImageType | null,

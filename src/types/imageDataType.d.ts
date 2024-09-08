@@ -19,6 +19,7 @@ interface ImageDataType {
   pickup?: number | null;
   time?: string;
   mtime?: string;
+  lastmod?: string;
   version?: number | null;
 }
 interface ImageType extends ImageDataType {
@@ -32,6 +33,7 @@ interface ImageType extends ImageDataType {
   pickup?: boolean;
   time?: Date;
   mtime?: Date;
+  lastmod?: Date;
 }
 /** @comments ひとつのアルバムの変数 */
 interface ImageAlbumType {
@@ -56,7 +58,7 @@ interface ImageAlbumDataType {
   list?: ImageDataType;
 }
 
-interface imageFormDataType extends Omit<ImageDataType, "width" | "height" | "version" | "mtime"> {
+interface imageFormDataType extends Omit<ImageDataType, "width" | "height" | "version" | "lastmod"> {
   id?: string;
   rename?: string;
   charaTags?: string;

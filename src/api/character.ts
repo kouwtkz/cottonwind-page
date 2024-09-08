@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
-import { KeyValueToString } from "@/functions/doc/ToFunction";
+import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -30,7 +30,7 @@ const createEntry: MeeSqlCreateTableEntryType<CharacterDataType> = {
   embed: { type: "TEXT" },
   birthday: { type: "TEXT" },
   time: { type: "TEXT" },
-  mtime: { createAt: true, unique: true },
+  lastmod: { createAt: true, unique: true },
 };
 
 async function CreateTable(d1: MeeSqlD1) {
@@ -45,7 +45,7 @@ async function CreateTable(d1: MeeSqlD1) {
 export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
   const endpoint = searchParams.get("endpoint");
-  if (endpoint) wheres.push({ mtime: { gt: endpoint } });
+  if (endpoint) wheres.push({ lastmod: { gt: endpoint } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id });
   const index = searchParams.get("index");
@@ -98,7 +98,7 @@ app.post("/send", async (c, next) => {
       table,
       entry,
       where: { id: target_id! },
-      rawEntry: { mtime: MeeSqlD1.isoFormat() },
+      rawEntry: { lastmod: MeeSqlD1.isoFormat() },
     });
     return c.json({ ...target, ...entry, }, 200);
   } else {
@@ -117,7 +117,9 @@ app.post("/import", async (c, next) => {
       await CreateTable(db);
       const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
       if (Array.isArray(list)) {
+        lastModToUniqueNow(list);
         KeyValueToString(list);
+        console.log(list);
         const sqlList = list.map((item) => MeeSqlClass.insertSQL({ table, entry: InsertEntry(item) }));
         const sql = sqlList.join(";\n") + ";";
         await db.db.exec(sql);

@@ -30,7 +30,7 @@ async function loadData<T>({
   setAtom,
   loadAtomValue,
   id = "id",
-  mtime = "mtime",
+  lastmod = "lastmod",
 }: {
   src: string;
   apiOrigin?: string;
@@ -38,7 +38,7 @@ async function loadData<T>({
   setAtom: (args_0: SetStateAction<T[] | undefined>) => void;
   loadAtomValue?: LoadAtomType;
   id?: string;
-  mtime?: string;
+  lastmod?: string;
 }) {
   if (apiOrigin) {
     const Url = new URL(src, apiOrigin);
@@ -69,7 +69,7 @@ async function loadData<T>({
         StorageData.setItem(
           data,
           data.reduce((a, c) => {
-            const cm = ((c as any)[mtime] || "") as string;
+            const cm = ((c as any)[lastmod] || "") as string;
             return a > cm ? a : cm;
           }, "")
         );
