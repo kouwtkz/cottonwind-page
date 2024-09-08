@@ -4,7 +4,7 @@ import { WorkersLayout } from ".";
 
 const app = new Hono();
 app.get("/", (c) => {
-	return c.html(renderHtml(<TopPage />));
+  return c.html(renderHtml(<TopPage />));
 });
 
 const defaultTitle = "めぇめぇつうしん";
@@ -14,8 +14,10 @@ export function TopPage() {
   return (
     <WorkersLayout {...layoutAttr}>
       <h1>{defaultTitle}</h1>
-      <a href="/workers/twix">Twitterれんけい</a>
-      <a href="/workers">ワーカーページにもどる</a>
+      <div className="list column">
+        <a href="/workers/twix">Twitterれんけい</a>
+        <a href="/workers">ワーカーページにもどる</a>
+      </div>
     </WorkersLayout>
   );
 }

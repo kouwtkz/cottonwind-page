@@ -13,6 +13,7 @@ import WorksPage from "./WorksPage";
 import { BlogPage } from "@/blog/client";
 import { PostForm } from "@/blog/PostForm";
 import ContactPage from "./ContactPage";
+import { SettingPage } from "./Setting";
 
 export interface MeeRouteObject extends NonIndexRouteObject {
   path: RoutingUnion;
@@ -63,6 +64,7 @@ export const Routing: RouteObject[] = [
       { path: "contact", element: <ContactPage /> },
       { path: "blog", element: <BlogPage /> },
       { path: "blog/post", element: <PostForm />, isindex: false },
+      { path: "setting", element: <SettingPage />, isindex: false },
     ] as MeeRouteObject[],
   },
 ];

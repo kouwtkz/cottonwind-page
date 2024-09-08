@@ -7,7 +7,7 @@ import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
-import { EnvAtom, visibleWorkersAtom } from "./EnvState";
+import { EnvAtom } from "./EnvState";
 
 export function ThemeChangeButton({
   children = "いろかえ",
@@ -82,15 +82,11 @@ function ThemeSwitchButtons({
 export function SiteMenu() {
   const [env] = useAtom(EnvAtom);
   const navList = env?.NAV ?? [];
-  const visibleWorkers =
-    Boolean(import.meta.env?.DEV) || useAtom(visibleWorkersAtom)[0];
   const list = useMemo(() => {
     const list = navList.concat();
-    if (visibleWorkers)
-      list.push({ name: "workers", url: "/workers", out: true });
     list.push({ name: "theme", switch: "theme" });
     return list;
-  }, [navList, visibleWorkers]);
+  }, [navList]);
   return (
     <div className="siteMenu">
       <DropdownObject

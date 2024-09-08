@@ -33,14 +33,10 @@ export function EnvState() {
       }
     }
   }, [env]);
-  const [isLogin, setIsLogin] = useAtom(isLoginAtom);
-  const setVisibleWorkers = useAtom(visibleWorkersAtom)[1];
+  const setIsLogin = useAtom(isLoginAtom)[1];
   useEffect(() => {
     const serverData = document.getElementById("server-data");
     setIsLogin(serverData?.dataset.isLogin === "true");
   }, [setIsLogin]);
-  useEffect(() => {
-    if (isLogin) setVisibleWorkers("VisibleWorkers" in cookies);
-  }, [isLogin, cookies]);
   return <></>;
 }

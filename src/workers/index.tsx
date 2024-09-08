@@ -46,14 +46,13 @@ app.get("/", async (c) => {
     renderHtml(
       <WorkersLayout title="めぇめぇワーカー">
         <h1>めぇめぇワーカー</h1>
-        <a href="/workers/feed-update">フィードの更新</a>
-        <a href="/workers/notice-feed">めぇめぇつうしん</a>
-        <a href="/workers/twix">Twitterれんけい</a>
-        <a href="/workers/info">サーバーの情報</a>
-        <a href={`?${switchCookieKey}=${cookieValue ? "off" : "on"}`}>
-          メニュー{cookieValue ? "から外す" : "に入れる"}
-        </a>
-        <a href="/">ホームページへ戻る</a>
+        <div className="list column">
+          <a href="/workers/feed-update">フィードの更新</a>
+          <a href="/workers/notice-feed">めぇめぇつうしん</a>
+          <a href="/workers/twix">Twitterれんけい</a>
+          <a href="/workers/info">サーバーの情報</a>
+          <a href="/">ホームページへ戻る</a>
+        </div>
       </WorkersLayout>
     )
   );
@@ -82,7 +81,7 @@ export function WorkersLayout({
         {meta}
         {style}
       </head>
-      <body className="workers">
+      <body className="workers large">
         {children}
         {script}
       </body>

@@ -2221,8 +2221,21 @@ ul {
   color: var(--main-color-dark);
 }
 
-body.workers {
+.large {
   font-size: 1.5rem;
+  .list {
+    display: flex;
+    align-items: center;
+    &.column {
+      flex-direction: column;
+    }
+    > * {
+      margin: 0.25rem;
+    }  
+  }
+}
+
+body.workers {
   margin: 2rem;
   text-align: center;
   display: flex;
@@ -2247,9 +2260,6 @@ body.workers {
   .inline-block,
   button {
     display: inline-block;
-  }
-  > a {
-    margin: 0.25rem;
   }
 }
 

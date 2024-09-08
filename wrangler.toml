@@ -86,6 +86,10 @@ url = "/works"
 name = "about"
 url = "/about"
 
+[[vars.NAV]]
+name = "setting"
+url = "/setting"
+
 [[vars.LINKS]]
 mask = "#mask_twitter"
 name = "𝕏 (Twitter)"
