@@ -3,9 +3,15 @@ import { optimizeImage } from "wasm-image-optimization";
 import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
+import { IsLogin } from "@/ServerContent";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
+});
+
+app.use("*", async (c, next) => {
+  if (IsLogin(c)) return next();
+  else return c.text("403 Forbidden", 403)
 });
 
 const table = "images";

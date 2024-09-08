@@ -1,5 +1,7 @@
+import { BaseMime } from "hono/utils/mime"
+
 export function fileDialog(
-  accept: string = '*',
+  accept: BaseMime | {} & string = '*',
   multiple: boolean = false
 ): Promise<FileList> {
   return new Promise((resolve, reject) => {
@@ -18,6 +20,13 @@ export function fileDialog(
     }
     input.click()
   })
+}
+
+export async function jsonFileDialog<T = any>() {
+  return fileDialog("application/json")
+    .then((files) => files.item(0)?.arrayBuffer())
+    .then((buf) => new TextDecoder().decode(buf))
+    .then((result) => JSON.parse(result) as T);
 }
 
 export function fileDownload(name: string, content: BlobPart | BlobPart[]) {

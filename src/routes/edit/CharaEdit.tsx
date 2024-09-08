@@ -58,7 +58,7 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDownload } from "@/components/FileTool";
 import { ApiOriginAtom } from "@/state/EnvState";
-import { charactersLoadAtom } from "@/state/DataState";
+import { charactersLoadAtom, ImportCharacterJson } from "@/state/DataState";
 
 export default function CharaEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -347,6 +347,7 @@ export function CharaEditButton() {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
+  const [charactersLoad, setCharactersLoad] = useAtom(charactersLoadAtom);
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -373,7 +374,11 @@ export function CharaEditButton() {
             type="button"
             className="round large"
             title="キャラデータのアップロード"
-            onClick={() => {}}
+            onClick={() => {
+              ImportCharacterJson(apiOrigin + "/character/import").then(() => {
+                setCharactersLoad("no-cache-reload");
+              });
+            }}
           >
             <MdFileUpload />
           </button>

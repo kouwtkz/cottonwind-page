@@ -16,8 +16,14 @@ app.get(
     const hasCacheParam = Url.searchParams.has("cache");
     const hasEndpointParam = Url.searchParams.has("endpoint");
     if (hasCacheParam) {
-      const cacheParam = Url.searchParams.get("cache") as RequestCache;
-      if (IsLogin(c) && cacheParam === "no-cache") return next();
+      const cacheParam = Url.searchParams.get("cache") as CacheParamType;
+      if (IsLogin(c)) {
+        switch (cacheParam) {
+          case "no-cache":
+          case "no-cache-reload":
+            return next();
+        }
+      }
     }
     if (hasEndpointParam)
       return cache({

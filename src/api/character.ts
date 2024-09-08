@@ -1,8 +1,15 @@
 import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
+import { IsLogin } from "@/ServerContent";
+import { MeeSqlClass } from "@/functions/MeeSqlClass";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
+});
+
+app.use("*", async (c, next) => {
+  if (IsLogin(c)) return next();
+  else return c.text("403 Forbidden", 403)
 });
 
 const table = "characters";
@@ -48,9 +55,32 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }
 
+function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType> {
+  return {
+    id: data.id,
+    name: data.name,
+    honorific: data.honorific,
+    defEmoji: data.defEmoji,
+    overview: data.overview,
+    icon: data.icon,
+    headerImage: data.headerImage,
+    image: data.image,
+    time: data.time
+      ? new Date(String(data.time)).toISOString()
+      : undefined,
+    birthday: data.birthday
+      ? new Date(String(data.birthday)).toISOString()
+      : undefined,
+    tags: data.tags,
+    playlist: data.playlist,
+    description: data.description,
+  };
+}
+
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
+  const { id: _id, ...formData } = (await c.req.parseBody()) as KeyValueType<unknown>;
+  const entry = InsertEntry(formData);
   const target_id = formData.target ? String(formData.target) : undefined;
   const target = target_id
     ? (
@@ -61,24 +91,6 @@ app.post("/send", async (c, next) => {
       })
     )[0]
     : undefined;
-  const entry: MeeSqlEntryType<CharacterDataType> = {
-    name: formData.name,
-    honorific: formData.honorific,
-    defEmoji: formData.defEmoji,
-    overview: formData.overview,
-    icon: formData.icon,
-    headerImage: formData.headerImage,
-    image: formData.image,
-    time: formData.time
-      ? new Date(String(formData.time)).toISOString()
-      : undefined,
-    birthday: formData.birthday
-      ? new Date(String(formData.birthday)).toISOString()
-      : undefined,
-    tags: formData.tags,
-    playlist: formData.playlist,
-    description: formData.description,
-  };
   if (target) {
     entry.id = formData.id;
     await db.update<CharacterDataType>({
@@ -93,6 +105,44 @@ app.post("/send", async (c, next) => {
     await db.insert<CharacterDataType>({ table, entry });
     return c.json(entry, 201);
   }
+});
+
+app.post("/import", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const formData = await c.req.parseBody();
+  if (typeof formData.data === "string") {
+    if (formData.version === "0") {
+      await db.dropTable({ table });
+      await CreateTable(db);
+      const list = JSON.parse(formData.data) as KeyValueType<string>[];
+      if (Array.isArray(list)) {
+        list.forEach(entry => {
+          Object.keys(entry).forEach(k => {
+            if (Array.isArray(entry[k]))
+              entry[k] = entry[k].map(v => String(v)).join(",")
+            else {
+              const type = typeof entry[k];
+              if (type === "object")
+                entry[k] = JSON.stringify(entry[k])
+            }
+          })
+        })
+        const sqlList = list.map((item) => MeeSqlClass.insertSQL({ table, entry: InsertEntry(item) }));
+        const sql = sqlList.join(";\n") + ";";
+        await db.db.exec(sql);
+        return c.text("インポート完了しました！")
+      }
+    }
+  }
+  return c.text("インポートに失敗しました", 500);
+})
+app.delete("/all", async (c, next) => {
+  if (c.env.DEV) {
+    const db = new MeeSqlD1(c.env.DB);
+    await db.dropTable({ table });
+    return c.json({ message: "successed!" });
+  }
+  return next();
 });
 
 export const app_character_api = app;
