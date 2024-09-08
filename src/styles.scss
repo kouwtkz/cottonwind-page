@@ -516,8 +516,8 @@ h2.lulo,
 }
 
 .dropzone {
-  &.blank{
-    background-color: var(--main-color-grayish-fluo); 
+  &.blank {
+    background-color: var(--main-color-grayish-fluo);
   }
   &.isDrag {
     background-color: var(--main-color-pale-fluo);
@@ -570,7 +570,8 @@ h2.lulo,
       outline: none;
       background-color: var(--main-color);
     }
-    .item, [tabindex] {
+    .item,
+    [tabindex] {
       cursor: pointer;
       padding: 0.25em 0.75em;
       &:hover {
@@ -1483,11 +1484,6 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
   }
 }
 
-#galleryPage {
-  max-width: 1400px;
-  @include commonHeader();
-}
-
 select.yearFilter {
   font-size: $text_xl;
   margin: 0.5rem;
@@ -1555,7 +1551,9 @@ select.yearFilter {
 
 .galleryContainer {
   width: 100%;
-  margin-bottom: $size_4;
+  max-width: 1400px;
+  margin-bottom: 1rem;
+  @include commonHeader();
   @extend %a-line-none;
   .galleryLabel {
     h2 {
@@ -2247,7 +2245,7 @@ ul {
     }
     > * {
       margin: 0.25rem;
-    }  
+    }
   }
 }
 
