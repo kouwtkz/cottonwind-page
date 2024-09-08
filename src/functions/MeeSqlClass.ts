@@ -1,3 +1,5 @@
+import SqlString from "tsqlstring";
+
 export class MeeSqlClass<T> {
   db: MeeSqlDBProps & T;
   constructor(db: T) {
@@ -69,6 +71,15 @@ export class MeeSqlClass<T> {
     }
     const stmt = this.db.prepare(sql);
     return stmt.bind(...bind).run();
+  }
+  static insertSQL<K extends Object>({ table, entry }: Omit<MeeSqlInsertProps<K>, "rawEntry" | "viewSql">) {
+    const entries = Object.entries(entry ?? {}).filter(v => v[1] !== undefined);
+    const keys = entries.map((v) => `\`${v[0]}\``);
+    const values = entries.map(() => "?");
+    let sql = `INSERT INTO \`${table}\` ` + (keys.length > 0 ? `(${keys.join(", ")}) VALUES (${values.join(", ")})` : "DEFAULT VALUES");
+    const bind = entries.map((v) => v[1]);
+    return SqlString.format(sql, bind, false)
+      .replaceAll("\\r", "'||char(13)||'").replaceAll("\\n", "'||char(10)||'").replaceAll("||''||", "||");
   }
   async insertSelect<K extends Object, L = string>({ params = "*", table, from, viewSql, ...args }: MeeSqlInsertSelectProps<K>) {
     let sql = `INSERT INTO \`${table}\` `;

@@ -49,6 +49,7 @@
     "react-select": "^5.8.0",
     "react-transition-group": "^4.4.5",
     "schema-dts": "^1.1.2",
+    "tsqlstring": "^1.0.1",
     "wasm-image-optimization": "^1.0.4",
     "zustand": "^4.5.2"
   },
@@ -61,6 +62,7 @@
     "@types/react-dom": "^18.2.22",
     "@types/react-transition-group": "^4.4.10",
     "@types/rss": "^0.0.32",
+    "@types/tsqlstring": "^1.0.2",
     "@types/xmldom": "^0.1.34",
     "buffer": "^6.0.3",
     "clui": "^0.3.6",
