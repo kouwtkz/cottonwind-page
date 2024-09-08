@@ -561,12 +561,10 @@ h2.lulo,
       outline: none;
       background-color: var(--main-color);
     }
-    & > div {
-      padding: 0.25em 0.75em;
-    }
-    & > * {
+    .item, [tabindex] {
       cursor: pointer;
-      &:not(.round):hover {
+      padding: 0.25em 0.75em;
+      &:hover {
         background-color: var(--main-color);
       }
     }
