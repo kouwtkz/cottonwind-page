@@ -612,31 +612,29 @@ function GalleryImageItem({
   }, [searchParams, image, state]);
   return (
     <Link className="item" {...toStatehandler()}>
-      <div>
-        {image.type === "ebook" || image.type === "goods" ? (
-          image.embed ? (
-            <div className="translucent-special-button">
-              <RiBook2Fill />
-            </div>
-          ) : image.link ? (
-            <div className="translucent-special-button">
-              <RiStore3Fill />
-            </div>
-          ) : null
-        ) : null}
-        {image.embed ? (
-          image.type === "pdf" ? (
-            <div className="translucent-special-button">
-              <RiFilePdf2Fill />
-            </div>
-          ) : null
-        ) : null}
-        <ImageMeeThumbnail
-          imageItem={image}
-          loadingScreen={true}
-          originWhenDev={isOrigin}
-        />
-      </div>
+      {image.type === "ebook" || image.type === "goods" ? (
+        image.embed ? (
+          <div className="translucent-special-button">
+            <RiBook2Fill />
+          </div>
+        ) : image.link ? (
+          <div className="translucent-special-button">
+            <RiStore3Fill />
+          </div>
+        ) : null
+      ) : null}
+      {image.embed ? (
+        image.type === "pdf" ? (
+          <div className="translucent-special-button">
+            <RiFilePdf2Fill />
+          </div>
+        ) : null
+      ) : null}
+      <ImageMeeThumbnail
+        imageItem={image}
+        loadingScreen={true}
+        originWhenDev={isOrigin}
+      />
     </Link>
   );
 }
@@ -652,6 +650,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     {
       item,
       list,
+      className,
       showGalleryLabel,
       showCount,
       showGalleryHeader,
@@ -758,18 +757,21 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ),
       [isComplete, list, visibleMax, curMax, step, showMoreButton, state]
     );
+    const _className = useMemo(() => {
+      const list = ["galleryContainer"];
+      if (className) list.push(className);
+      return list.join(" ");
+    }, [className]);
     return (
-      <div {...args} ref={ref}>
+      <div {...args} ref={ref} className={_className}>
         {h2 || h4 ? (
           <div className="galleryLabel outLabel">
             {h2 ? <h2>{h2}</h2> : null}
             {h4 ? <h4>{h4}</h4> : null}
           </div>
         ) : null}
-        <div className="galleryContainer">
-          {GalleryLabel}
-          {GalleryContent}
-        </div>
+        {GalleryLabel}
+        {GalleryContent}
       </div>
     );
   }

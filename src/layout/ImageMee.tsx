@@ -16,8 +16,14 @@ const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 interface BlankImageProps
   extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {}
-export function BlankImage(args: BlankImageProps) {
-  return <img {...args} src={blankSrc} />;
+export function BlankImage({ className, ...args }: BlankImageProps) {
+  return (
+    <img
+      {...args}
+      className={"blank" + (className ? " " + className : "")}
+      src={blankSrc}
+    />
+  );
 }
 
 interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -45,12 +51,13 @@ export function ImageMee({
   originWhenDev = false,
   style,
   onLoad,
+  className,
   ...attributes
 }: ImageMeeProps) {
   const [showIndex, setShowIndex] = useState(0);
   const refImg = useRef<HTMLImageElement | null>(null);
   const refImgSrc = useRef("");
-  const refShowList = useRef<string[]>([]);
+  const refShowList = useRef<(string | null)[]>([]);
   const isSetOrigin = originWhenDev;
 
   const mediaOrigin = useAtom(MediaOriginAtom)[0];
@@ -110,13 +117,12 @@ export function ImageMee({
     [imageItem, mode, src, thumbnail, isSetOrigin]
   );
   const imageShowList = useMemo(() => {
-    const list: string[] = [];
+    const list: (string | null)[] = [];
     if (mode === "simple" && thumbnail) list.push(thumbnail);
-    else list.push(blankSrc);
+    else list.push(null);
     list.push(imageSrc);
     return list;
   }, [imageSrc, mode, thumbnail]);
-
   const max = useMemo(() => {
     return imageShowList.length - 1;
   }, [imageShowList.length]);
@@ -127,10 +133,15 @@ export function ImageMee({
     refShowList.current = imageShowList;
   }
   const mainImgSrc = imageShowList[showIndex];
-
+  const _className = useMemo(() => {
+    const list: string[] = [];
+    if (className) list.push(className);
+    if (!mainImgSrc) list.push("blank");
+    return list.length > 0 ? list.join(" ") : undefined;
+  }, [className, mainImgSrc]);
   return (
     <img
-      src={mainImgSrc}
+      src={mainImgSrc || blankSrc}
       alt={alt}
       ref={refImg}
       data-origin-ext={ext}
@@ -144,6 +155,7 @@ export function ImageMee({
             : {}),
         },
       }}
+      className={_className}
       onLoad={(e) => {
         if (showIndex < max) setShowIndex(showIndex + 1);
         else if (onLoad) onLoad(e);

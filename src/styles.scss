@@ -1576,55 +1576,49 @@ select.yearFilter {
       overflow: hidden;
       position: relative;
       cursor: pointer;
-      > div {
-        &,
-        & > img {
-          object-fit: cover;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          @extend %galleryTransition;
-        }
-        .translucent-special-button {
-          @extend .translucent-button;
-          background-color: rgb(100 110 88 / 74%);
-          max-width: 35%;
-          max-height: 35%;
-          margin: 0.25rem;
-          z-index: 10;
-          right: 0;
-          bottom: 0;
-          pointer-events: none;
-          @media (min-width: $tabletWidth) {
-            margin: 0.75rem;
-          }
-        }
-        &:hover {
-          .translucent-special-button {
-            background-color: rgba(86, 104, 63, 0.85);
-          }
-          img {
-            transform: scale(1.03);
-            filter: brightness(0.95);
-            transition-duration: 150ms;
-          }
-        }
+      &,
+      & > img,
+      svg {
+        object-fit: cover;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        @extend %galleryTransition;
       }
       .gallery-button-more {
         fill: var(--main-color-soft);
-        height: auto;
-        width: 100%;
-        cursor: pointer;
         @extend %galleryTransition;
       }
+      .translucent-special-button {
+        @extend .translucent-button;
+        background-color: rgb(100 110 88 / 74%);
+        max-width: 35%;
+        max-height: 35%;
+        margin: 0.25rem;
+        z-index: 10;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        @media (min-width: $tabletWidth) {
+          margin: 0.75rem;
+        }
+      }
       &:hover {
+        .translucent-special-button {
+          background-color: rgba(86, 104, 63, 0.85);
+        }
+        img {
+          transform: scale(1.03);
+          filter: brightness(0.95);
+          transition-duration: 150ms;
+        }
         .gallery-button-more {
           fill: var(--main-color-pale);
         }
       }
     }
   }
-  .dropzone {
+  .dropzone.blank {
     margin: 2rem;
     min-height: 20rem;
     display: flex;
