@@ -1610,16 +1610,18 @@ select.yearFilter {
           }
         }
       }
-    }
-  }
-  .gallery-button-more {
-    height: auto;
-    width: 100%;
-    cursor: pointer;
-    @extend %galleryTransition;
-    fill: var(--main-color-soft);
-    &:hover {
-      fill: var(--main-color-pale);
+      .gallery-button-more {
+        fill: var(--main-color-soft);
+        height: auto;
+        width: 100%;
+        cursor: pointer;
+        @extend %galleryTransition;
+      }
+      &:hover {
+        .gallery-button-more {
+          fill: var(--main-color-pale);
+        }
+      }
     }
   }
   .dropzone {

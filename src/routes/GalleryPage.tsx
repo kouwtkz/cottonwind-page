@@ -679,7 +679,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       () => Boolean(q || tags || characters),
       [q, tags, characters]
     );
-    const nav = useNavigate();
     const { state } = useLocation();
     const [w] = useWindowSize();
     const max = useMemo(
@@ -692,16 +691,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       else curMax = Math.ceil(curMax / 4) * 4;
       return curMax;
     }, [name, max, state, w]);
-    function setCurMax(name: string, max: number) {
-      const newState = state ? { ...state } : {};
-      if (!("galleryMax" in newState)) newState.galleryMax = {};
-      newState.galleryMax[name] = max;
-      nav(location, {
-        state: newState,
-        preventScrollReset: true,
-        replace: true,
-      });
-    }
     const showMoreButton = curMax < (list.length || 0);
     const visibleMax = showMoreButton ? curMax - 1 : curMax;
     const HeadingElm = useCallback(
@@ -744,20 +733,30 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                 <GalleryImageItem image={image} galleryName={name} key={i} />
               ))}
             {showMoreButton ? (
-              <div className="item">
-                <MoreButton
-                  className="gallery-button-more"
-                  onClick={() => {
-                    setCurMax(name, curMax + step);
-                  }}
-                />
-              </div>
+              <Link
+                to={location.href}
+                state={{
+                  ...state,
+                  ...{
+                    galleryMax: {
+                      ...state?.galleryMax,
+                      [name]: curMax + step,
+                    },
+                  },
+                }}
+                preventScrollReset={true}
+                replace={true}
+                title="もっと見る"
+                className="item"
+              >
+                <MoreButton className="gallery-button-more" />
+              </Link>
             ) : null}
           </div>
         ) : (
           <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
         ),
-      [isComplete, list, visibleMax, curMax, step, showMoreButton]
+      [isComplete, list, visibleMax, curMax, step, showMoreButton, state]
     );
     return (
       <div {...args} ref={ref}>
