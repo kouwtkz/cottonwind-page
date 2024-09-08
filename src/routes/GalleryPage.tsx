@@ -624,8 +624,11 @@ function GalleryBody({
             <GalleryYearFilter {...SearchAreaOptions} />
             <GallerySearchArea {...SearchAreaOptions} />
             <div className="flex">
-              <GalleryCharactersSelect {...SearchAreaOptions} />
-              <GalleryTagsSelect {...SearchAreaOptions} />
+              <GalleryCharactersSelect
+                {...SearchAreaOptions}
+                className="flex-1"
+              />
+              <GalleryTagsSelect {...SearchAreaOptions} className="flex-1" />
             </div>
           </div>
         ) : null}
@@ -1000,7 +1003,9 @@ function getYearObjects(dates: (Date | null | undefined)[]) {
     .sort((a, b) => b.year - a.year);
 }
 
-interface SelectAreaProps extends SearchAreaOptionsProps {}
+interface SelectAreaProps extends SearchAreaOptionsProps {
+  className?: string;
+}
 
 const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
@@ -1014,6 +1019,7 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
 }
 export function GalleryCharactersSelect({
   submitPreventScrollReset,
+  className,
 }: SelectAreaProps) {
   const params = useParams();
   const currentChara = params["charaName"];
@@ -1041,8 +1047,8 @@ export function GalleryCharactersSelect({
       isLoading={!Boolean(characters)}
       classNamePrefix="select"
       placeholder={(currentChara ? "他の" : "") + "キャラクター"}
-      instanceId="galleryTagSelect"
-      className="characterSelect"
+      instanceId="characterSelect"
+      className={"characterSelect" + (className ? " " + className : "")}
       theme={callReactSelectTheme}
       styles={{
         menuList: (style) => ({ ...style, minHeight: "22rem" }),

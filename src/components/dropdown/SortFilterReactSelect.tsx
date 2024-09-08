@@ -93,7 +93,7 @@ export function ContentsTagsSelect({
       isSearchable={false}
       classNamePrefix="select"
       placeholder="ソート / フィルタ"
-      instanceId="galleryTagSelect"
+      instanceId="contentsTagSelect"
       className={"tagSelect" + (className ? " " + className : "")}
       theme={callReactSelectTheme}
       styles={{
