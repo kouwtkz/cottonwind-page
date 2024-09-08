@@ -21,7 +21,7 @@ import {
   MdFileDownload,
   MdFileUpload,
 } from "react-icons/md";
-import { TbArrowsMove } from "react-icons/tb";
+import { TbArrowsMove, TbDatabaseImport } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import axios from "axios";
@@ -347,7 +347,7 @@ export function CharaEditButton() {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
-  const [charactersLoad, setCharactersLoad] = useAtom(charactersLoadAtom);
+  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -373,14 +373,14 @@ export function CharaEditButton() {
           <button
             type="button"
             className="round large"
-            title="キャラデータのアップロード"
+            title="キャラクターデータベースのインポート"
             onClick={() => {
-              ImportCharacterJson(apiOrigin + "/character/import").then(() => {
+              ImportCharacterJson({apiOrigin}).then(() => {
                 setCharactersLoad("no-cache-reload");
               });
             }}
           >
-            <MdFileUpload />
+            <TbDatabaseImport />
           </button>
         </>
       }

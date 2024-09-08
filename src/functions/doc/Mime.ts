@@ -1,6 +1,7 @@
 import { getExtension } from "./PathParse";
+import { BaseMime } from "hono/utils/mime"
 
-export const mimeList: KeyValueStringType = {
+export const mimeList: KeyValueType<BaseMime | string & {}> = {
   "html": "text/html",
   "htm": "text/html",
   "css": "text/css",

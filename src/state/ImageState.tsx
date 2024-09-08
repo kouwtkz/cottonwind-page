@@ -27,26 +27,29 @@ export function ImageState() {
         }
       });
       const imagesMap = new Map<string, ImageType>();
-      imagesData.forEach((v) => {
-        const albumObject = v.album ? albums.get(v.album) : undefined;
-        const item: ImageType = {
-          ...v,
-          tags: v.tags?.split(","),
-          characters: v.characters?.split(","),
-          copyright: v.copyright?.split(","),
-          topImage:
-            typeof v.topImage === "number" ? Boolean(v.topImage) : undefined,
-          pickup: typeof v.pickup === "number" ? Boolean(v.pickup) : undefined,
-          time: v.time ? new Date(v.time) : undefined,
-          mtime: v.mtime ? new Date(v.mtime) : undefined,
-          albumObject,
-        };
-        const key = getBasename(String(item.src || item.name));
-        if (!imagesMap.has(key)) {
-          albumObject?.list.push(item);
-          imagesMap.set(key, item);
-        }
-      });
+      imagesData
+        .filter((v) => v.version)
+        .forEach((v) => {
+          const albumObject = v.album ? albums.get(v.album) : undefined;
+          const item: ImageType = {
+            ...v,
+            tags: v.tags?.split(","),
+            characters: v.characters?.split(","),
+            copyright: v.copyright?.split(","),
+            topImage:
+              typeof v.topImage === "number" ? Boolean(v.topImage) : undefined,
+            pickup:
+              typeof v.pickup === "number" ? Boolean(v.pickup) : undefined,
+            time: v.time ? new Date(v.time) : undefined,
+            mtime: v.mtime ? new Date(v.mtime) : undefined,
+            albumObject,
+          };
+          const key = getBasename(String(item.src || item.name));
+          if (!imagesMap.has(key)) {
+            albumObject?.list.push(item);
+            imagesMap.set(key, item);
+          }
+        });
       setImagesMap(imagesMap);
       setImages(Object.values(Object.fromEntries(imagesMap)));
       setAlbums(albums);

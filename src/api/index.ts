@@ -31,10 +31,13 @@ app.get("/feed/get", async (c, next) => {
 
 app.get(
   "/r2/*",
-  cache({
-    cacheName: 'r2-cache',
-    cacheControl: 'max-age=86400',
-  })
+  async (c, next) => {
+    if (c.env.DEV) return next();
+    else return cache({
+      cacheName: 'r2-cache',
+      cacheControl: 'max-age=86400',
+    })(c, next);
+  }
 );
 app.get("/r2/*", async (c, next) => {
   if (!c.req.url.startsWith(c.env.API_ORIGIN!)) {
@@ -43,10 +46,9 @@ app.get("/r2/*", async (c, next) => {
     const filename = pathname.slice(pathname.indexOf("/", 1) + 1);
     if (filename) {
       const mimeType = getMimeType(filename);
-      const item = await c.env.BUCKET.get(filename);
-      const b = await item?.blob();
-      if (b)
-        return c.body(await b.arrayBuffer(), {
+      const data = await c.env.BUCKET.get(filename).then(r => r?.blob());
+      if (data)
+        return c.body(await data.arrayBuffer(), {
           headers: mimeType ? { "Content-Type": mimeType } : {},
         });
     }

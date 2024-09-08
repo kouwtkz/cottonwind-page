@@ -4,6 +4,8 @@ import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
+import { KeyValueToString } from "@/functions/doc/ToFunction";
+import { MeeSqlClass } from "@/functions/MeeSqlClass";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -35,7 +37,7 @@ const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   type: { type: "TEXT" },
   topImage: { type: "INTEGER" },
   pickup: { type: "INTEGER" },
-  time: { type: "TEXT", unique: true },
+  time: { type: "TEXT", index: true },
   mtime: { createAt: true, unique: true },
   version: { type: "INTEGER" },
 };
@@ -216,8 +218,9 @@ app.post("/send", async (c, next) => {
   const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
   const attached = (formData.attached as File | undefined) || null;
   const mtime = (formData.mtime as string | undefined) || null;
-  const album = (formData["album"] as string | undefined) || null;
+  const album = (formData["album"] as string | undefined);
   const tags = (formData["tags"] as string | undefined) || null;
+  const characters = (formData["characters"] as string | undefined) || null;
   const pathes: { [k in ModeType]?: string } = {};
   const webp = typeof formData.webp === "string" ? null : formData.webp as File | undefined;
   const thumbnail = typeof formData.thumbnail === "string" ? null : formData.thumbnail as File | undefined;
@@ -278,15 +281,18 @@ app.post("/send", async (c, next) => {
     const selectValue = await Select().catch(() => CreateTable(db).then(() => Select()));
     if (selectValue.length > 0) {
       const value = selectValue[0];
+      const updateTags = tags ? (value.tags ? value.tags + "," : "") + tags : undefined;
+      const updateCharacters = characters ? (value.characters ? value.characters + "," : "") + characters : undefined;
       const Update = (time?: string) =>
         db.update<ImageDataType>({
           table,
           where: { src: imagePath },
           entry: {
             name,
-            album,
+            album: album ? album : (value.album ? undefined : "uploads"),
             ...pathes,
-            tags,
+            tags: updateTags,
+            characters: updateCharacters,
             time,
             version: (value.version ?? 0) + 1
           },
@@ -297,10 +303,7 @@ app.post("/send", async (c, next) => {
       } else {
         const timeNum = Number(mtime);
         const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
-        await Update(time.toISOString()).catch(async (e) => {
-          const retryTime = await getRetryTime(e, time, db);
-          if (retryTime) await Update(retryTime.toISOString());
-        });
+        await Update(time.toISOString());
       }
     } else {
       const timeNum = Number(mtime);
@@ -316,17 +319,41 @@ app.post("/send", async (c, next) => {
             ...pathes,
             ...metaSize,
             tags,
+            characters,
             version: 1,
           },
         });
-      await Insert(time.toISOString()).catch(async (e) => {
-        const retryTime = await getRetryTime(e, time, db);
-        if (retryTime) await Insert(retryTime.toISOString());
-      });
+      await Insert(time.toISOString());
     }
   }
   return c.newResponse(null);
 });
+
+app.post("/import", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const formData = await c.req.parseBody();
+  if (typeof formData.data === "string") {
+    if (formData.version === "0") {
+      if (c.env.DEV) {
+        const deleteList = (await c.env.BUCKET.list()).objects.map(
+          (object) => object.key
+        );
+        await c.env.BUCKET.delete(deleteList);
+        await db.dropTable({ table });
+        await CreateTable(db);
+      }
+      const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
+      if (Array.isArray(list)) {
+        KeyValueToString(list);
+        const sqlList = list.map((item) => MeeSqlClass.insertSQL({ table, entry: item }));
+        const sql = sqlList.join(";\n") + ";";
+        await db.db.exec(sql);
+        return c.text("インポート完了しました！")
+      }
+    }
+  }
+  return c.text("インポートに失敗しました", 500);
+})
 
 app.delete("/", async (c, next) => {
   if (c.env.DEV) {

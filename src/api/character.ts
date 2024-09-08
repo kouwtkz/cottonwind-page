@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
+import { KeyValueToString } from "@/functions/doc/ToFunction";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -114,19 +115,9 @@ app.post("/import", async (c, next) => {
     if (formData.version === "0") {
       await db.dropTable({ table });
       await CreateTable(db);
-      const list = JSON.parse(formData.data) as KeyValueType<string>[];
+      const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
       if (Array.isArray(list)) {
-        list.forEach(entry => {
-          Object.keys(entry).forEach(k => {
-            if (Array.isArray(entry[k]))
-              entry[k] = entry[k].map(v => String(v)).join(",")
-            else {
-              const type = typeof entry[k];
-              if (type === "object")
-                entry[k] = JSON.stringify(entry[k])
-            }
-          })
-        })
+        KeyValueToString(list);
         const sqlList = list.map((item) => MeeSqlClass.insertSQL({ table, entry: InsertEntry(item) }));
         const sql = sqlList.join(";\n") + ";";
         await db.db.exec(sql);

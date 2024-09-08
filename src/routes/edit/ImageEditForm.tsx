@@ -15,17 +15,9 @@ import {
   getTagsOptions,
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
-  ContentsTagsOptionDispatch,
 } from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useEmbedState } from "@/state/Embed";
-import {
-  Controller,
-  DefaultValues,
-  FieldValues,
-  useForm,
-} from "react-hook-form";
-import { MakeRelativeURL } from "@/functions/doc/MakeURL";
+import { FieldValues, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdCleaningServices,
@@ -33,8 +25,6 @@ import {
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
-import ReactSelect from "react-select";
-import { callReactSelectTheme } from "@/theme/main";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { charactersAtom } from "@/state/CharaState";
 import { AutoImageItemType, getCopyRightList } from "@/data/functions/images";
@@ -50,9 +40,16 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { ApiOriginAtom } from "@/state/EnvState";
-import { getBasename, getName } from "@/functions/doc/PathParse";
+import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
 import { FormTags } from "react-hotkeys-hook/dist/types";
-import { imagesLoadAtom } from "@/state/DataState";
+import { imagesLoadAtom, UploadToast } from "@/state/DataState";
+import { sleep } from "@/functions/Time";
+import {
+  imageObject,
+  imageOverSizeCheck,
+  resizeImageCanvas,
+  resizeImageCanvasProps,
+} from "@/components/Canvas";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -532,4 +529,116 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       />
     </>
   );
+}
+
+interface ImagesUploadOptions {
+  album?: string;
+  tags?: string | string[];
+  character?: string;
+}
+interface ImagesUploadProps {
+  files: File[];
+  apiOrigin?: string;
+  options?: ImagesUploadOptions;
+}
+export async function ImagesUploadProcess({
+  files,
+  apiOrigin,
+  options = {},
+}: ImagesUploadProps) {
+  const url = (apiOrigin || "") + "/image/send";
+  const checkTime = new Date().getTime();
+  const targetFiles = files.filter((file) => {
+    const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
+    if (fromBrowser) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+  if (targetFiles.length === 0) return false;
+  const joinedTags = Array.isArray(options.tags)
+    ? options.tags.join(",")
+    : options.tags;
+  const fetchList = await Promise.all(
+    targetFiles.map(async (file) => {
+      const name = getName(file.name);
+      const ext = getExtension(file.name);
+      const webpName = name + ".webp";
+      const formData = new FormData();
+      if (options.album) formData.append("album", options.album);
+      if (joinedTags) formData.append("tags", joinedTags);
+      if (options.character) formData.append("characters", options.character);
+      formData.append("attached", file);
+      switch (ext) {
+        case "svg":
+          break;
+        default:
+          const image = await imageObject(file);
+          if (ext !== "gif") {
+            formData.append(
+              "webp",
+              await resizeImageCanvas({
+                image,
+                type: "webp",
+              }),
+              webpName
+            );
+          } else formData.append("webp", "");
+          const thumbnailProps: resizeImageCanvasProps = {
+            image,
+            size: 340,
+            type: "webp",
+            expansion: false,
+          };
+          if (ext === "gif") {
+            formData.append(
+              "thumbnail",
+              await resizeImageCanvas({
+                ...thumbnailProps,
+                imageSmoothingEnabled: false,
+              }),
+              webpName
+            );
+          } else if (imageOverSizeCheck(image, thumbnailProps.size!)) {
+            formData.append(
+              "thumbnail",
+              await resizeImageCanvas({ ...thumbnailProps, quality: 0.8 }),
+              webpName
+            );
+          } else {
+            formData.append("thumbnail", "");
+          }
+          break;
+      }
+      if (file.lastModified)
+        formData.append("mtime", String(file.lastModified));
+      return () =>
+        fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+    })
+  );
+  const results: Response[] = [];
+  for (let i = 0; i < fetchList.length; i++) {
+    results.push(await fetchList[i]());
+    await sleep(10);
+  }
+  const successCount = results.filter((r) => r.status === 200).length;
+  if (results.length === successCount) {
+    return successCount + "件のアップロードに成功しました！";
+  } else {
+    throw (
+      (successCount
+        ? successCount + "件のアップロードに成功しましたが、"
+        : "") +
+      (results.length - successCount) +
+      "件のアップロードに失敗しました"
+    );
+  }
+}
+
+export async function ImagesUpload(args: ImagesUploadProps) {
+  return UploadToast(ImagesUploadProcess(args));
 }

@@ -1,7 +1,9 @@
-import { BaseMime } from "hono/utils/mime"
+import { BaseMime } from 'hono/utils/mime'
+
+export type FileSelectMime = BaseMime | '*' | 'image/*' | 'text/*' | 'video/*' | 'audio/*' | 'model/*';
 
 export function fileDialog(
-  accept: BaseMime | {} & string = '*',
+  accept: FileSelectMime | {} & string = '*',
   multiple: boolean = false
 ): Promise<FileList> {
   return new Promise((resolve, reject) => {
@@ -23,7 +25,7 @@ export function fileDialog(
 }
 
 export async function jsonFileDialog<T = any>() {
-  return fileDialog("application/json")
+  return fileDialog('application/json')
     .then((files) => files.item(0)?.arrayBuffer())
     .then((buf) => new TextDecoder().decode(buf))
     .then((result) => JSON.parse(result) as T);

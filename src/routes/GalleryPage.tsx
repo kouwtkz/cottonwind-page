@@ -10,7 +10,6 @@ import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/StateSet";
 import React, {
-  HTMLAttributes,
   ReactNode,
   createRef,
   forwardRef,
@@ -32,17 +31,11 @@ import {
 import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
-import toast from "react-hot-toast";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
-import {
-  MdFileDownload,
-  MdFileDownloadDone,
-  MdFileUpload,
-  MdOutlineMenu,
-} from "react-icons/md";
+import { MdFileDownload, MdFileUpload } from "react-icons/md";
 import { findMee, setWhere } from "@/functions/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
@@ -50,22 +43,16 @@ import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect"
 import useWindowSize from "@/components/hook/useWindowSize";
 import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
-import { imageEditIsEditHold } from "./edit/ImageEditForm";
+import { imageEditIsEditHold, ImagesUpload } from "./edit/ImageEditForm";
 import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDownload } from "@/components/FileTool";
-import { getExtension, getName } from "@/functions/doc/PathParse";
-import { sleep } from "@/functions/Time";
-import {
-  imageObject,
-  imageOverSizeCheck,
-  resizeImageCanvas,
-  resizeImageCanvasProps,
-} from "@/components/Canvas";
-import { imagesLoadAtom } from "@/state/DataState";
-import { charactersAtom } from "@/state/CharaState";
+import { fileDialog, fileDownload } from "@/components/FileTool";
+import { getName } from "@/functions/doc/PathParse";
+import { imagesLoadAtom, ImportImagesJson } from "@/state/DataState";
+import { charactersAtom, charactersMapAtom } from "@/state/CharaState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
+import { TbDatabaseImport } from "react-icons/tb";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -84,9 +71,12 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
   );
 }
 
-export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
+export function GalleryManageMenuButton({ group }: { group?: string }) {
   const isLogin = useAtom(isLoginAtom)[0];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const params = useParams();
   const url = useMemo(() => apiOrigin + "/image/data", [apiOrigin]);
   return (
     <>
@@ -107,6 +97,18 @@ export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
               >
                 <MdFileDownload />
               </button>
+              <button
+                type="button"
+                className="round large"
+                title="ギャラリーデータベースのインポート"
+                onClick={() => {
+                  ImportImagesJson({ apiOrigin, charactersMap }).then(() => {
+                    setImagesLoad("no-cache-reload");
+                  });
+                }}
+              >
+                <TbDatabaseImport />
+              </button>
             </>
           }
         >
@@ -115,8 +117,18 @@ export function GalleryManageMenuButton({ group = "art" }: { group?: string }) {
             className="round large"
             title="アップロードする"
             onClick={() => {
-              const uploadElm = document.querySelector(`input#upload_${group}`);
-              if (uploadElm) (uploadElm as HTMLInputElement).click();
+              fileDialog("image/*", true)
+                .then((files) => Array.from(files))
+                .then((files) =>
+                  ImagesUpload({
+                    files,
+                    apiOrigin,
+                    options: { character: params.charaName, album: group },
+                  })
+                )
+                .then(() => {
+                  setImagesLoad("no-cache");
+                });
             }}
           >
             <MdFileUpload />
@@ -415,135 +427,8 @@ function UploadChain({
   item: GalleryItemObjectType;
   children?: ReactNode;
 }) {
-  const [apiOrigin] = useAtom(ApiOriginAtom);
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
-  const images = useAtom(imagesAtom)[0];
-  const albums = useAtom(imageAlbumsAtom)[0];
-  const tags = useMemo(
-    () => (typeof item.tags === "string" ? [item.tags] : item.tags),
-    [item.tags]
-  );
-  const getAlbum = useCallback(
-    (name: string) => {
-      return albums?.get(name);
-    },
-    [albums]
-  );
-  const uploadProcess = useCallback(
-    async (files: File[]) => {
-      const album = getAlbum(item.name ?? "art");
-      if (!album) throw "アルバムがない画像です！";
-      const checkTime = new Date().getTime();
-      const targetFiles = files.filter((file) => {
-        const findFunc = ({ src, name }: ImageType) =>
-          [src, name].some((n) => n === file.name);
-        const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
-        if (fromBrowser) {
-          return !images.some(findFunc);
-        } else {
-          const existTime = album.list.find(findFunc)?.time?.getTime();
-          if (!existTime) return true;
-          return (
-            Math.floor(existTime / 1000) !==
-            Math.floor(file.lastModified / 1000)
-          );
-        }
-      });
-      if (targetFiles.length === 0) return false;
-      const joinedTags = tags?.join(",");
-      const fetchList = await Promise.all(
-        targetFiles.map(async (file) => {
-          const name = getName(file.name);
-          const ext = getExtension(file.name);
-          const webpName = name + ".webp";
-          const formData = new FormData();
-          if (album.name) formData.append("album", album.name);
-          if (joinedTags) formData.append("tags", joinedTags);
-          formData.append("attached", file);
-          switch (ext) {
-            case "svg":
-              break;
-            default:
-              const image = await imageObject(file);
-              if (ext !== "gif") {
-                formData.append(
-                  "webp",
-                  await resizeImageCanvas({
-                    image,
-                    type: "webp",
-                  }),
-                  webpName
-                );
-              } else formData.append("webp", "");
-              const thumbnailProps: resizeImageCanvasProps = {
-                image,
-                size: 340,
-                type: "webp",
-                expansion: false,
-              };
-              if (ext === "gif") {
-                formData.append(
-                  "thumbnail",
-                  await resizeImageCanvas({
-                    ...thumbnailProps,
-                    imageSmoothingEnabled: false,
-                  }),
-                  webpName
-                );
-              } else if (imageOverSizeCheck(image, thumbnailProps.size!)) {
-                formData.append(
-                  "thumbnail",
-                  await resizeImageCanvas({ ...thumbnailProps, quality: 0.8 }),
-                  webpName
-                );
-              } else {
-                formData.append("thumbnail", "");
-              }
-              break;
-          }
-          if (file.lastModified)
-            formData.append("mtime", String(file.lastModified));
-          return () =>
-            fetch(apiOrigin + "/image/send", {
-              method: "POST",
-              body: formData,
-            });
-        })
-      );
-      const results: Response[] = [];
-      for (let i = 0; i < fetchList.length; i++) {
-        results.push(await fetchList[i]());
-        await sleep(10);
-      }
-      const successCount = results.filter((r) => r.status === 200).length;
-      if (results.length === successCount) {
-        return successCount + "件のアップロードに成功しました！";
-      } else {
-        throw (
-          (successCount
-            ? successCount + "件のアップロードに成功しましたが、"
-            : "") +
-          (results.length - successCount) +
-          "件のアップロードに失敗しました"
-        );
-      }
-    },
-    [tags, item]
-  );
-  const upload = useCallback(
-    (files: File[]) => {
-      toast
-        .promise(uploadProcess(files), {
-          loading: "アップロード中…",
-          success: (result) => result || "アップロードしました",
-          error: (error) => error || "アップロードに失敗しました",
-        })
-        .then(() => {
-          setImagesLoad("no-cache");
-        });
-    },
-    [uploadProcess]
-  );
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const now = new Date();
@@ -551,9 +436,19 @@ function UploadChain({
       const list = acceptedFiles.filter(
         (f) => Math.abs(nowTime - f.lastModified) > 10
       );
-      upload(list);
+      ImagesUpload({
+        files: list,
+        apiOrigin,
+        options: {
+          album: item.name,
+          tags: item.tags,
+          character: item.character,
+        },
+      }).then(() => {
+        setImagesLoad("no-cache");
+      });
     },
-    [upload]
+    [item]
   );
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,

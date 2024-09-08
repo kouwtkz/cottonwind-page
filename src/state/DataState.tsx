@@ -4,6 +4,8 @@ import { useCallback, useEffect } from "react";
 import { StorageDataClass } from "@/functions/StorageDataClass";
 import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
+import { getBasename } from "@/functions/doc/PathParse";
+import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
@@ -112,29 +114,108 @@ export function DataState() {
   return <></>;
 }
 
-function ImportToast(promise: Promise<unknown>) {
+export function UploadToast(promise: Promise<unknown>) {
   return toast.promise(promise, {
-    loading: "送信中",
-    success: "インポートに成功しました！",
-    error: "インポートに失敗しました",
+    loading: "アップロード中…",
+    success: (result) => unknownToString(result) || "アップロードしました",
+    error: (error) => unknownToString(error) || "アップロードに失敗しました",
   });
 }
 
-export async function ImportCharacterJson(send: string) {
+export function ImportToast(promise: Promise<unknown>) {
+  return toast.promise(promise, {
+    loading: "インポート中…",
+    success: (result) => unknownToString(result) || "インポートしました",
+    error: (error) => unknownToString(error) || "インポートに失敗しました",
+  });
+}
+
+interface DataUploadBaseProps {
+  apiOrigin?: string;
+}
+
+interface ImportImagesJsonProps extends DataUploadBaseProps {
+  charactersMap?: Map<string, CharacterType>;
+}
+export async function ImportImagesJson({
+  apiOrigin,
+  charactersMap,
+}: ImportImagesJsonProps = {}) {
+  const url = (apiOrigin || "") + "/image/import";
   return jsonFileDialog().then((json) => {
     const version = json.version;
+    const data = new FormData();
     if (typeof version === "undefined") {
-      const oldCharaData = json as OldCharaDataObjectType;
-      const characterMap = new Map(Object.entries(oldCharaData));
-      const data = new FormData();
+      const oldData = json as YamlDataType[];
+      const dataMap = new Map<string, ImageDataType>();
+      oldData.forEach((album) => {
+        album.list?.forEach((item) => {
+          const key = getBasename(String(item.src || item.name));
+          if (!dataMap.has(key)) {
+            const tagsArray = charactersMap
+              ? item.tags?.filter((tag) => !charactersMap.has(tag))
+              : item.tags;
+            const charactersArray = charactersMap
+              ? item.tags?.filter((tag) => charactersMap.has(tag))
+              : null;
+            const albumLastSlach = album.name?.lastIndexOf("/") ?? -1;
+            dataMap.set(key, {
+              src: "image/" + item.src,
+              album:
+                album.name && albumLastSlach >= 0
+                  ? album.name.slice(albumLastSlach + 1)
+                  : album.name,
+              name: item.name,
+              description: item.description,
+              link: item.link,
+              tags:
+                tagsArray && tagsArray.length > 0
+                  ? tagsArray.join(",")
+                  : undefined,
+              characters:
+                charactersArray && charactersArray.length > 0
+                  ? charactersArray.join(",")
+                  : undefined,
+              copyright: item.copyright?.join(),
+              embed: item.embed,
+              pickup: BooleanToNumber(item.pickup),
+              topImage: BooleanToNumber(item.topImage),
+              time: item.time ? new Date(item.time).toISOString() : undefined,
+            });
+          }
+        });
+      });
       data.append("version", "0");
       data.append(
         "data",
-        JSON.stringify(Object.values(Object.fromEntries(characterMap)))
+        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
       );
-      if (data) {
-        return ImportToast(fetch(send, { method: "POST", body: data }));
-      }
+    }
+    if (Object.values(Object.fromEntries(data)).length > 0) {
+      return ImportToast(fetch(url, { method: "POST", body: data }));
+    }
+  });
+}
+
+interface ImportCharactersJsonProps extends DataUploadBaseProps {}
+export async function ImportCharacterJson({
+  apiOrigin,
+}: ImportCharactersJsonProps = {}) {
+  const url = (apiOrigin || "") + "/character/import";
+  return jsonFileDialog().then((json) => {
+    const version = json.version;
+    const data = new FormData();
+    if (typeof version === "undefined") {
+      const oldData = json as OldCharaDataObjectType;
+      const dataMap = new Map(Object.entries(oldData));
+      data.append("version", "0");
+      data.append(
+        "data",
+        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
+      );
+    }
+    if (Object.values(Object.fromEntries(data)).length > 0) {
+      return ImportToast(fetch(url, { method: "POST", body: data }));
     }
   });
 }

@@ -10,6 +10,7 @@ interface GalleryListPropsBase {
   step?: number;
   autoDisable?: boolean;
   tags?: string | string[];
+  character?: string;
   list?: ImageType[];
   hide?: boolean;
   hideWhenDefault?: boolean;

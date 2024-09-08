@@ -338,7 +338,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
                   return {
                     name: item.name,
                     label: item.name,
-                    tags: chara.id,
+                    character: chara.id,
                     list:
                       albumImages.filter((image) =>
                         image.characters?.some((name) => name === chara.id)

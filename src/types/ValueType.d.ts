@@ -11,7 +11,7 @@ interface KeyValueAnyType {
   [k: string]: any;
 }
 
-interface KeyValueType<T> {
+interface KeyValueType<T = unknown> {
   [k: string]: T;
 }
 
