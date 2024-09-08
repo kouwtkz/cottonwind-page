@@ -434,6 +434,7 @@ function UploadChain({
 }) {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const character = useParams().charaName;
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const now = new Date();
@@ -444,18 +445,21 @@ function UploadChain({
       ImagesUpload({
         files: list,
         apiOrigin,
-        options: item
-          ? {
-              album: item.name,
-              tags: item.tags,
-              character: item.character,
-            }
-          : undefined,
+        options: {
+          character,
+          ...(item
+            ? {
+                album: item.name,
+                tags: item.tags,
+                character: item.character,
+              }
+            : undefined),
+        },
       }).then(() => {
         setImagesLoad("no-cache");
       });
     },
-    [item]
+    [item, character]
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
