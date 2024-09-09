@@ -158,27 +158,8 @@
 $tabletWidth: 768px;
 $desktopWidth: 1280px;
 
-$size_1: 0.25rem;
-$size_2: 0.5rem;
-$size_3: 0.75rem;
-$size_4: 1rem;
-$size_5: 1.25rem;
-$size_6: 1.5rem;
-$size_7: 1.75rem;
-$size_8: 2rem;
-$size_9: 2.25rem;
-$size_10: 2.5rem;
-$size_11: 2.75rem;
-$size_12: 3rem;
-$size_14: 3.5rem;
-$size_16: 4rem;
-$size_20: 5rem;
-$size_24: 6rem;
-
-$defaultLineHeight: 1.25em;
-
 * {
-  line-height: $defaultLineHeight;
+  line-height: 1.25em;
   -webkit-tap-highlight-color: var(--main-color-fluo);
   ::selection {
     background-color: var(--main-color-soft);
@@ -487,7 +468,7 @@ h4 {
 
 .common-h2 {
   color: var(--main-color);
-  margin-bottom: $size_4;
+  margin-bottom: 1rem;
   @media (min-width: $tabletWidth) {
     font-size: 2.25rem;
   }
@@ -981,7 +962,7 @@ footer {
 
 .topPage {
   font-size: 2em;
-  margin: $size_6 auto;
+  margin: 1.5rem auto;
   .topImageArea {
     height: 48rem;
     min-height: 30rem;
@@ -1001,7 +982,7 @@ footer {
   }
   h1 {
     font-size: 0.9em;
-    margin: $size_6 0;
+    margin: 1.5rem 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -1016,7 +997,7 @@ footer {
     margin: 0;
     padding: 0.5rem 0;
     li {
-      margin: $size_1;
+      margin: 0.25rem;
       display: inline;
       img {
         width: 10rem;
@@ -1048,7 +1029,7 @@ footer {
   }
   .blog {
     max-width: 90rem;
-    margin: $size_4 auto;
+    margin: 1rem auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -1058,7 +1039,7 @@ footer {
       margin: 0;
       font-size: 1.75rem;
       line-height: 2rem;
-      margin: $size_2;
+      margin: 0.5rem;
     }
     & > .list {
       flex: 1 1 0%;
@@ -1071,18 +1052,18 @@ footer {
       max-width: 32rem;
       height: 8rem;
       .article {
-        margin: $size_1 $size_2;
+        margin: 0.25rem 0.5rem;
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
         .date {
-          margin-right: $size_2;
+          margin-right: 0.5rem;
           min-width: 5em;
           text-align: right;
         }
         .title {
-          margin-right: $size_2;
+          margin-right: 0.5rem;
           text-align: left;
           flex: 1;
         }
@@ -1091,7 +1072,7 @@ footer {
     @media (min-width: 1024px) {
       flex-direction: row;
       & > .title {
-        margin: 0 $size_2;
+        margin: 0 0.5rem;
       }
       & > .list {
         margin: 0;
@@ -1193,7 +1174,7 @@ form select {
   width: 1.25em;
   height: 1.25em;
   font-size: 1.875rem;
-  margin-right: $size_1;
+  margin-right: 0.25rem;
 }
 
 @mixin commonHeader() {
@@ -1333,46 +1314,46 @@ form select {
   .beforeAfter {
     display: flex;
     justify-content: space-between;
-    margin: $size_1 $size_2;
+    margin: 0.25rem 0.5rem;
     a {
       display: flex;
       align-items: center;
       text-decoration-line: none;
-      height: $size_8;
+      height: 2rem;
       font-size: 1.25rem;
       img {
         font-size: 1.5rem;
-        margin-right: $size_2;
+        margin-right: 0.5rem;
       }
     }
     .before .cursor {
-      margin-right: $size_2;
+      margin-right: 0.5rem;
     }
     .after .cursor {
-      margin-left: $size_2;
+      margin-left: 0.5rem;
     }
   }
   .charaDetail {
     .head {
-      margin: $size_6 auto $size_8;
+      margin: 1.5rem auto 2rem;
       .title {
         color: var(--main-color-strong);
         font-weight: bold;
         font-size: 1.875rem;
-        margin: auto $size_2;
-        height: $size_10;
+        margin: auto 0.5rem;
+        height: 2.5rem;
         display: inline-flex;
         align-items: center;
         img {
           font-size: 2.25rem;
-          margin-right: $size_2;
+          margin-right: 0.5rem;
         }
       }
       .overview {
         color: var(--main-color);
         font-size: 1.25rem;
         line-height: 1.5rem;
-        margin: $size_2 auto;
+        margin: 0.5rem auto;
       }
     }
     .headerImage {
@@ -1381,7 +1362,7 @@ form select {
     }
     .mainImage {
       display: inline-block;
-      margin: $size_4;
+      margin: 1rem;
     }
   }
   .edit {
@@ -1391,7 +1372,7 @@ form select {
       font-size: 1.125rem;
     }
     > * {
-      margin: $size_3 0;
+      margin: 0.75rem 0;
     }
     input,
     textarea {
@@ -1509,7 +1490,7 @@ select.yearFilter {
   }
   h2 {
     display: inline-block;
-    padding: $size_4 0;
+    padding: 1rem 0;
     margin: auto;
     color: var(--main-color);
     font-size: 1.5rem;
@@ -1527,7 +1508,7 @@ select.yearFilter {
     display: flex;
     align-items: center;
     position: absolute;
-    margin-right: $size_4;
+    margin-right: 1rem;
     top: 0;
     right: 0;
   }
@@ -1536,7 +1517,7 @@ select.yearFilter {
       font-size: 1.875rem;
     }
     .count {
-      margin-right: $size_8;
+      margin-right: 2rem;
     }
   }
 }
@@ -1626,12 +1607,12 @@ select.yearFilter {
   @extend %userSelectNone;
   > div {
     display: flex;
-    margin: $size_2;
+    margin: 0.5rem;
     flex-direction: column;
     > * {
       display: flex;
       svg {
-        margin: $size_1;
+        margin: 0.25rem;
         cursor: pointer;
         fill: var(--main-color-soft);
         &:hover {
@@ -1640,7 +1621,7 @@ select.yearFilter {
       }
     }
     .text {
-      margin: $size_1;
+      margin: 0.25rem;
     }
   }
 }
@@ -1650,9 +1631,9 @@ select.yearFilter {
     cursor: pointer;
   }
   .playlist {
-    margin: $size_6 auto;
+    margin: 1.5rem auto;
     .label {
-      margin: $size_4 auto;
+      margin: 1rem auto;
       color: var(--main-color-dark);
       font-size: 1.875rem;
     }
@@ -1662,7 +1643,7 @@ select.yearFilter {
       max-width: 56rem;
       margin: auto;
       .item {
-        margin: $size_1 auto;
+        margin: 0.25rem auto;
         width: 100%;
         display: flex;
         align-items: center;
@@ -1684,18 +1665,18 @@ select.yearFilter {
         }
         .name {
           flex: 10;
-          padding-right: $size_1;
+          padding-right: 0.25rem;
           font-size: 1.25rem;
           color: var(--main-color-deep);
           text-align: left;
-          height: $size_16;
+          height: 4rem;
           vertical-align: middle;
           display: flex;
           align-items: center;
         }
         .play {
           flex: 2;
-          margin-right: $size_1;
+          margin-right: 0.25rem;
           fill: var(--main-color-soft);
         }
       }
@@ -1710,13 +1691,13 @@ select.yearFilter {
 
 .label,
 .label-s {
-  margin-bottom: $size_1;
+  margin-bottom: 0.25rem;
 }
 .label-l {
-  margin-right: $size_2;
+  margin-right: 0.5rem;
 }
 .label-sl {
-  margin-right: $size_1;
+  margin-right: 0.25rem;
   > * {
     font-size: 1.25em;
   }
@@ -1865,7 +1846,7 @@ select.yearFilter {
       text-align: center;
       flex: 1;
       .title {
-        margin: $size_8 $size_1 $size_4;
+        margin: 2rem 0.25rem 1rem;
         text-align: center;
         color: var(--main-color-deep);
         word-break: break-all;
@@ -1873,9 +1854,9 @@ select.yearFilter {
       }
       .description {
         font-size: 1.25rem;
-        margin: 0 $size_2;
+        margin: 0 0.5rem;
         p {
-          margin: $size_4 auto;
+          margin: 1rem auto;
           white-space: pre-line;
         }
       }
@@ -1930,7 +1911,7 @@ select.yearFilter {
         }
         .description {
           font-size: 1.125rem;
-          margin: 0 $size_4;
+          margin: 0 1rem;
         }
       }
     }
@@ -1958,10 +1939,10 @@ select.yearFilter {
       a {
         text-decoration-line: none;
         &.prev .cursor {
-          margin-right: $size_2;
+          margin-right: 0.5rem;
         }
         &.next .cursor {
-          margin-left: $size_2;
+          margin-left: 0.5rem;
         }
         &:hover {
           color: var(--main-color-deep);
@@ -1971,21 +1952,21 @@ select.yearFilter {
     }
     form.edit {
       text-align: left;
-      padding: $size_2;
+      padding: 0.5rem;
       margin: 0;
       > * {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        margin-top: $size_4;
-        margin-bottom: $size_4;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
       }
       .label {
         display: flex;
         button {
           display: inline-block;
-          margin-left: $size_2;
-          padding: 0 $size_2;
+          margin-left: 0.5rem;
+          padding: 0 0.5rem;
           color: var(--main-color-strong);
           background-color: transparent;
           border: none;
@@ -1996,7 +1977,7 @@ select.yearFilter {
         }
       }
       input[type="text"] {
-        padding: $size_1 $size_2;
+        padding: 0.25rem 0.5rem;
       }
       input,
       select,
@@ -2007,7 +1988,7 @@ select.yearFilter {
         padding: 0.125rem;
       }
       .wide {
-        padding: 0 $size_1;
+        padding: 0 0.25rem;
         width: 100%;
         > input,
         > textarea,
@@ -2051,7 +2032,7 @@ select.yearFilter {
 ul {
   .parsed &,
   .default {
-    padding-left: $size_5;
+    padding-left: 1.25rem;
     li {
       list-style: circle;
     }
@@ -2181,8 +2162,8 @@ ul {
   h1 {
     font-size: 1.875rem;
     color: var(--main-color);
-    margin-top: $size_8;
-    margin-bottom: $size_5;
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
   }
   h4 {
     color: var(--main-color-soft);
@@ -2205,7 +2186,7 @@ ul {
     width: fit-content;
     display: inline-block;
     text-decoration-line: none;
-    padding: $size_2;
+    padding: 0.5rem;
     > * {
       margin: 0.25em auto;
     }
@@ -2265,9 +2246,9 @@ body.workers {
 }
 
 .blogPage {
-  margin-top: $size_6;
-  padding-top: $size_8;
-  margin-bottom: $size_12;
+  margin-top: 1.5rem;
+  padding-top: 2rem;
+  margin-bottom: 3rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2283,14 +2264,14 @@ body.workers {
   a.feed {
     display: inline-flex;
     font-size: 1.25rem;
-    margin-left: $size_3;
+    margin-left: 0.75rem;
   }
   .notice {
     h2 {
-      margin: $size_4 auto;
+      margin: 1rem auto;
     }
     h4 {
-      margin: $size_8 auto;
+      margin: 2rem auto;
     }
   }
   .message {
@@ -2371,7 +2352,7 @@ body.workers {
       font-size: 2.25rem;
     }
     a.feed {
-      margin-left: $size_4;
+      margin-left: 1rem;
     }
     .article {
       width: 80%;
