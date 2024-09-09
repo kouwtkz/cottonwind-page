@@ -313,7 +313,7 @@ app.post("/send", async (c, next) => {
           ...metaSize,
           tags: updateTags,
           characters: updateCharacters,
-          time: value.time ? timeString : undefined,
+          time: value.time ? undefined : timeString,
           mtime: timeString,
           version: (value.version ?? 0) + 1
         },
