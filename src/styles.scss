@@ -122,31 +122,41 @@
 //   transition: background-color 1s;
 // }
 
-@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+1p&family=Mandali&family=Mochiy+Pop+One&display=swap");
-@font-face {
-  font-family: "LuloCleanW01-OneBold";
-  src: url("/static/styles/font/LuloCleanOneBold.woff2") format("woff2");
-  font-display: swap;
+@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Lexend+Peta:wght@100..900&family=Palanquin+Dark:wght@400;500;600;700&family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
+
+// 100-700
+@mixin Palanquin($weight: 400) {
+  font-family: "Palanquin", sans-serif;
+  font-weight: $weight;
+  font-style: normal;
 }
+
+// 400-700
+@mixin PalanquinDark($weight: 400) {
+  font-family: "Palanquin Dark", sans-serif;
+  font-weight: $weight;
+  font-style: normal;
+}
+
+// 100-900
+@mixin LexendPeta($weight: 400) {
+  font-family: "Lexend Peta", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: $weight;
+  font-style: normal;
+}
+
 :root {
-  --font-KosugiMaru: "Kosugi Maru";
-  --font-MochiyPopOne: "Mochiy Pop One";
-  --font-Mandali: "Mandali";
-  --font-MPlus1p: "M PLUS 1p";
-  --font-LuloClean: "LuloCleanW01-OneBold";
+  font-family: "Palanquin", "Kosugi Maru", sans-serif;
+}
+
+.en-title-font {
+  @include LexendPeta(700);
+  letter-spacing: normal;
 }
 
 $tabletWidth: 768px;
 $desktopWidth: 1280px;
-
-$text_xs: 0.75rem;
-$text_sm: 0.875rem;
-$text_base: 1rem;
-$text_lg: 1.125rem;
-$text_xl: 1.25rem;
-$text_2xl: 1.5rem;
-$text_3xl: 1.875rem;
-$text_4xl: 2.25rem;
 
 $size_1: 0.25rem;
 $size_2: 0.5rem;
@@ -176,6 +186,10 @@ $defaultLineHeight: 1.25em;
   }
 }
 
+.color {
+  color: var(--main-color);
+}
+
 .warm {
   color: var(--warm-color);
 }
@@ -188,14 +202,6 @@ $defaultLineHeight: 1.25em;
 img[src*=".gif"],
 img[data-origin-ext="gif"] {
   image-rendering: pixelated;
-}
-
-body,
-input,
-select,
-textarea,
-button {
-  font-family: var(--font-KosugiMaru);
 }
 
 style {
@@ -238,7 +244,6 @@ body {
   padding: 0;
   background-color: transparent;
   overflow-y: scroll;
-  font-family: var(--font-KosugiMaru);
   &.loading {
     overflow-y: hidden;
     &.dummy {
@@ -255,7 +260,7 @@ body {
     bottom: 0;
     pointer-events: none;
     input {
-      font-size: $text_base;
+      font-size: 1rem;
     }
     > * {
       &:not(.list) {
@@ -305,10 +310,6 @@ body {
       }
     }
   }
-}
-
-.lulo {
-  font-family: var(--font-LuloClean);
 }
 
 %a-line-none {
@@ -472,26 +473,23 @@ a.overlay {
 }
 
 h1 {
-  font-size: $text_4xl;
+  font-size: 2.25rem;
 }
 h2 {
-  font-size: $text_3xl;
+  font-size: 2.5em;
 }
 h3 {
-  font-size: $text_2xl;
+  font-size: 1.5rem;
 }
 h4 {
-  font-size: $text_xl;
+  font-size: 1.25rem;
 }
 
-h2.lulo,
 .common-h2 {
-  font-family: var(--font-LuloClean);
-  font-size: $text_3xl;
   color: var(--main-color);
   margin-bottom: $size_4;
   @media (min-width: $tabletWidth) {
-    font-size: $text_4xl;
+    font-size: 2.25rem;
   }
 }
 
@@ -704,7 +702,6 @@ code {
   bottom: 0;
   margin-bottom: 0.5rem;
   padding-right: 0.25rem;
-  font-family: var(--font-LuloClean);
   .item {
     cursor: pointer;
     display: flex;
@@ -712,7 +709,7 @@ code {
     align-items: baseline;
     padding: 0.25rem;
     min-width: 8rem;
-    font-size: $text_sm;
+    font-size: 1em;
     text-align: left;
     font-weight: 900;
     color: var(--main-color-soft);
@@ -743,7 +740,7 @@ code {
     }
     @media (min-width: $tabletWidth) {
       min-width: 11rem;
-      font-size: $text_xl;
+      font-size: 1.25rem;
       .cursor {
         height: 1rem;
       }
@@ -852,14 +849,10 @@ header {
       height: 2.5rem;
     }
     #siteTitle {
-      font-size: $text_2xl;
+      font-size: 1.5rem;
       line-height: 2.5rem;
-      font-family: var(--font-MochiyPopOne);
       color: var(--main-color);
       cursor: pointer;
-      @media (min-width: $tabletWidth) {
-        font-size: $text_3xl;
-      }
     }
   }
   .siteMenu {
@@ -882,7 +875,6 @@ header {
     .list {
       margin-top: 0.125rem;
       background-color: rgba(255, 255, 255, 0.9);
-      font-family: var(--font-LuloClean);
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -890,8 +882,9 @@ header {
       text-align: left;
       @extend %userSelectNone;
       .item {
-        min-width: 9em;
-        padding: $size_2 $size_4;
+        font-size: 1.25rem;
+        min-width: 12rem;
+        padding: 0.5rem 1rem;
         color: var(--main-color-strong);
         cursor: pointer;
         &:hover,
@@ -936,7 +929,7 @@ footer {
   padding-bottom: 3rem;
   text-align: center;
   .copyright {
-    font-family: var(--font-Mandali);
+    font-family: "Mandali";
   }
   ul.footerLink {
     padding: 1rem 0;
@@ -1043,7 +1036,6 @@ footer {
   h3 {
     a {
       color: var(--main-color);
-      font-family: var(--font-LuloClean);
       &:hover {
         color: var(--main-color-soft);
       }
@@ -1200,7 +1192,7 @@ form select {
   display: inline-block;
   width: 1.25em;
   height: 1.25em;
-  font-size: $text_3xl;
+  font-size: 1.875rem;
   margin-right: $size_1;
 }
 
@@ -1229,7 +1221,7 @@ form select {
       }
     }
     .search {
-      font-size: $text_base;
+      font-size: 1rem;
       width: 16rem;
       padding: 0.375rem 0.5rem;
     }
@@ -1303,7 +1295,7 @@ form select {
     .item {
       display: flex;
       flex-direction: column;
-      font-size: $text_xl;
+      font-size: 1.25rem;
       text-decoration-line: none;
       color: var(--main-color);
       .inner {
@@ -1331,7 +1323,7 @@ form select {
     }
     @media (min-width: $tabletWidth) {
       .item {
-        font-size: $text_2xl;
+        font-size: 1.5rem;
       }
     }
     @media (min-width: $desktopWidth) {
@@ -1347,9 +1339,9 @@ form select {
       align-items: center;
       text-decoration-line: none;
       height: $size_8;
-      font-size: $text_xl;
+      font-size: 1.25rem;
       img {
-        font-size: $text_2xl;
+        font-size: 1.5rem;
         margin-right: $size_2;
       }
     }
@@ -1366,20 +1358,20 @@ form select {
       .title {
         color: var(--main-color-strong);
         font-weight: bold;
-        font-size: $text_3xl;
+        font-size: 1.875rem;
         margin: auto $size_2;
         height: $size_10;
         display: inline-flex;
         align-items: center;
         img {
-          font-size: $text_4xl;
+          font-size: 2.25rem;
           margin-right: $size_2;
         }
       }
       .overview {
         color: var(--main-color);
-        font-size: $text_xl;
-        line-height: $text_2xl;
+        font-size: 1.25rem;
+        line-height: 1.5rem;
         margin: $size_2 auto;
       }
     }
@@ -1396,7 +1388,7 @@ form select {
     max-width: 40rem;
     margin: auto;
     * {
-      font-size: $text_lg;
+      font-size: 1.125rem;
     }
     > * {
       margin: $size_3 0;
@@ -1406,7 +1398,7 @@ form select {
       padding: 0.2rem 0.4rem;
     }
     .charaIcon {
-      font-size: $text_4xl;
+      font-size: 2.25rem;
     }
     .flex {
       flex-wrap: wrap;
@@ -1433,7 +1425,7 @@ form select {
     }
     button {
       padding: 0.4rem 1.2rem;
-      font-size: $text_xl;
+      font-size: 1.25rem;
     }
   }
 }
@@ -1485,7 +1477,7 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
 }
 
 select.yearFilter {
-  font-size: $text_xl;
+  font-size: 1.25rem;
   margin: 0.5rem;
   height: 1.5rem;
   min-width: 4rem;
@@ -1520,9 +1512,9 @@ select.yearFilter {
     padding: $size_4 0;
     margin: auto;
     color: var(--main-color);
-    font-size: $text_2xl;
+    font-size: 1.5rem;
     text-align: center;
-    line-height: $text_4xl;
+    line-height: 2.25rem;
   }
   h4 {
     display: inline-block;
@@ -1541,7 +1533,7 @@ select.yearFilter {
   }
   @media (min-width: $tabletWidth) {
     h2 {
-      font-size: $text_3xl;
+      font-size: 1.875rem;
     }
     .count {
       margin-right: $size_8;
@@ -1557,8 +1549,8 @@ select.yearFilter {
   @extend %a-line-none;
   .galleryLabel {
     h2 {
-      font-family: var(--font-LuloClean);
-      line-height: $text_4xl;
+      font-size: 2.5em;
+      // line-height: 2.25rem;
     }
   }
   .list {
@@ -1662,7 +1654,7 @@ select.yearFilter {
     .label {
       margin: $size_4 auto;
       color: var(--main-color-dark);
-      font-size: $text_3xl;
+      font-size: 1.875rem;
     }
     .list {
       display: flex;
@@ -1693,7 +1685,7 @@ select.yearFilter {
         .name {
           flex: 10;
           padding-right: $size_1;
-          font-size: $text_xl;
+          font-size: 1.25rem;
           color: var(--main-color-deep);
           text-align: left;
           height: $size_16;
@@ -1877,10 +1869,10 @@ select.yearFilter {
         text-align: center;
         color: var(--main-color-deep);
         word-break: break-all;
-        font-size: $text_2xl;
+        font-size: 1.5rem;
       }
       .description {
-        font-size: $text_xl;
+        font-size: 1.25rem;
         margin: 0 $size_2;
         p {
           margin: $size_4 auto;
@@ -1892,7 +1884,7 @@ select.yearFilter {
         flex-wrap: wrap;
         align-items: center;
         margin-bottom: 1rem;
-        font-size: $text_xl;
+        font-size: 1.25rem;
         a {
           margin: 0.25rem 0.5rem;
           display: inline-flex;
@@ -1907,7 +1899,7 @@ select.yearFilter {
         }
       }
       .link {
-        font-size: $text_xl;
+        font-size: 1.25rem;
         a {
           text-decoration-line: underline;
           font-family: sans-serif;
@@ -1934,10 +1926,10 @@ select.yearFilter {
         display: flex;
         overflow-y: auto;
         .title {
-          font-size: $text_3xl;
+          font-size: 1.875rem;
         }
         .description {
-          font-size: $text_lg;
+          font-size: 1.125rem;
           margin: 0 $size_4;
         }
       }
@@ -2031,10 +2023,10 @@ select.yearFilter {
         text-align: left;
         overflow-y: auto;
         .title {
-          font-size: $text_xl;
+          font-size: 1.25rem;
         }
         textarea.description {
-          font-size: $text_lg;
+          font-size: 1.125rem;
         }
       }
     }
@@ -2187,20 +2179,19 @@ ul {
     flex-direction: column;
   }
   h1 {
-    font-family: var(--font-LuloClean);
-    font-size: $text_3xl;
+    font-size: 1.875rem;
     color: var(--main-color);
     margin-top: $size_8;
     margin-bottom: $size_5;
   }
   h4 {
     color: var(--main-color-soft);
-    font-size: $text_xl;
+    font-size: 1.25rem;
     font-weight: bold;
   }
   @media (min-width: $tabletWidth) {
     h1 {
-      font-size: $text_4xl;
+      font-size: 2.25rem;
     }
   }
 }
@@ -2227,7 +2218,7 @@ ul {
 
 .medium-content {
   margin: 1rem 0;
-  font-size: $text_xl;
+  font-size: 1.25rem;
   color: var(--main-color-dark);
 }
 
@@ -2286,13 +2277,12 @@ body.workers {
     display: inline-flex;
     text-decoration-line: none;
     h2 {
-      font-family: var(--font-LuloClean);
-      font-size: $text_3xl;
+      font-size: 1.875rem;
     }
   }
   a.feed {
     display: inline-flex;
-    font-size: $text_xl;
+    font-size: 1.25rem;
     margin-left: $size_3;
   }
   .notice {
@@ -2309,7 +2299,7 @@ body.workers {
       display: inline-block;
       margin-top: 1rem;
       margin-bottom: 0.5rem;
-      font-size: $text_xl;
+      font-size: 1.25rem;
     }
   }
   .article {
@@ -2330,14 +2320,14 @@ body.workers {
     .title {
       display: inline-block;
       h1 {
-        font-size: $text_4xl;
+        font-size: 2.25rem;
         color: var(--main-color-deep);
         font-weight: bold;
         margin: 1rem 0.5rem;
         display: inline-block;
       }
       h3 {
-        font-size: $text_2xl;
+        font-size: 1.5rem;
         font-weight: bold;
         margin: auto 0.5rem;
         display: inline-block;
@@ -2378,7 +2368,7 @@ body.workers {
   }
   @media (min-width: $tabletWidth) {
     .title h2 {
-      font-size: $text_4xl;
+      font-size: 2.25rem;
     }
     a.feed {
       margin-left: $size_4;
@@ -2397,7 +2387,7 @@ form.blogEdit {
   textarea,
   select,
   button:not(.close) {
-    font-size: $text_lg;
+    font-size: 1.125rem;
   }
   select {
     cursor: pointer;
@@ -2413,15 +2403,14 @@ form.blogEdit {
     padding: 0.5rem 0;
   }
   h1 {
-    font-family: var(--font-LuloClean);
-    font-size: $text_3xl;
+    font-size: 1.875rem;
     color: var(--main-color);
     margin: 1.5rem auto;
   }
   input.title {
     display: block;
     margin: auto;
-    font-size: $text_lg;
+    font-size: 1.125rem;
     height: 2.25rem;
     padding: 0.5rem 0.75rem;
     width: 25rem;
@@ -2464,13 +2453,13 @@ form.blogEdit {
   }
   .action {
     button {
-      font-size: $text_xl;
+      font-size: 1.25rem;
       margin: 1rem;
     }
   }
   @media (min-width: $tabletWidth) {
     h1 {
-      font-size: $text_4xl;
+      font-size: 2.25rem;
     }
     .modifier > * {
       margin: 0 1rem;
@@ -2487,7 +2476,7 @@ form.blogEdit {
 
 .linkPage {
   max-width: 20rem;
-  font-size: $text_lg;
+  font-size: 1.125rem;
   h3 {
     color: var(--main-color-dark);
   }

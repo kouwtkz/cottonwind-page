@@ -220,7 +220,7 @@ export function ServerSimpleLayout({
 export function ServerNotFound({ env }: { env?: SiteConfigEnv }) {
   return (
     <ServerSimpleLayout title={"404 | " + env?.TITLE} noindex={true} env={env}>
-      <main className="h1h4Page middle">
+      <main className="en-title-font middle">
         <h1>404 not found</h1>
         <h4>ページが見つかりませんでした</h4>
         <a href="/">トップページへ戻る</a>
@@ -232,7 +232,7 @@ export function ServerNotFound({ env }: { env?: SiteConfigEnv }) {
 export function ServerError({ env }: { env?: SiteConfigEnv }) {
   return (
     <ServerSimpleLayout title={"500 | " + env?.TITLE} noindex={true} env={env}>
-      <main className="h1h4Page middle">
+      <main className="en-title-font middle">
         <h1>500 Internal Server Error</h1>
         <h4>サーバー側でエラーが発生しました</h4>
         <a href="/">トップページへ戻る</a>

@@ -81,7 +81,7 @@ export function WorkersLayout({
         {meta}
         {style}
       </head>
-      <body className="workers large">
+      <body className="workers">
         {children}
         {script}
       </body>

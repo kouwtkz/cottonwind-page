@@ -30,8 +30,8 @@ export function NoteView() {
   return (
     <div className="blog">
       <h3>
-        <a className="title" href={link} title={title} target="blog">
-          NOTE
+        <a className="title en-title-font" href={link} title={title} target="blog">
+          Note
         </a>
       </h3>
       <div className="list">

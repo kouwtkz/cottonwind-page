@@ -714,8 +714,8 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       () =>
         showGalleryLabel ? (
           <div className="galleryLabel">
-            <h2>
-              <HeadingElm label={label} />
+            <h2 className="en-title-font">
+              <HeadingElm label={label?.toLocaleLowerCase()} />
             </h2>
             {showCount ? <div className="count">({list.length})</div> : null}
           </div>

@@ -58,7 +58,7 @@ export const InPageMenu = memo(function InPageMenu({
     return list;
   }, [parsedList, jy, isLastScroll]);
   return (
-    <div className="InPageMenu">
+    <div className="InPageMenu en-title-font">
       {filterList.map(({ name, element, currentMode }, i) => {
         return (
           <div
@@ -73,7 +73,7 @@ export const InPageMenu = memo(function InPageMenu({
               {currentMode ? <TriangleCursor /> : null}
             </div>
             <div className="name">
-              <span>{name}</span>
+              <span>{name.toLocaleUpperCase()}</span>
             </div>
           </div>
         );

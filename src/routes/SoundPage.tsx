@@ -21,7 +21,7 @@ export function SoundPage() {
     <div className="soundPage">
       <SoundState />
       <h1
-        className="title"
+        className="title en-title-font"
         onClick={() => {
           if (special) {
             const playlist = SoundAlbum?.playlist?.find((item) =>
@@ -48,7 +48,7 @@ export function SoundPage() {
           }
         }}
       >
-        SOUND ROOM
+        Sound Room
       </h1>
       {SoundAlbum?.playlist?.map((playlist, i) => {
         return (

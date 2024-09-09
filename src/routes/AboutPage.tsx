@@ -7,7 +7,7 @@ export default function AboutPage() {
   const [env] = useAtom(EnvAtom);
   return (
     <div className="aboutPage">
-      <h2 className="lulo">About</h2>
+      <h2 className="color en-title-font">About</h2>
       <h3>プロフィール</h3>
       {env ? (
         <>

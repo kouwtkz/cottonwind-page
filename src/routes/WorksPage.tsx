@@ -8,7 +8,7 @@ export default function WorksPage() {
   const work = imageAlbumList?.get("works");
   return (
     <div className="worksPage">
-      <h2 className="lulo">WORKS</h2>
+      <h2 className="color en-title-font">Works</h2>
       {work ? (
         <GalleryObject
           items={[work]}

@@ -12,7 +12,7 @@ export default function LinksPage() {
   const [env] = useAtom(EnvAtom);
   return (
     <div className="linkPage">
-      <h2 className="lulo">LINKS</h2>
+      <h2 className="color en-title-font">LINKS</h2>
       <div>
         <h3 className="leaf">各拠点</h3>
         <ul>

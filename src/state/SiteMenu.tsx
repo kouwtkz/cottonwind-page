@@ -88,7 +88,7 @@ export function SiteMenu() {
     return list;
   }, [navList]);
   return (
-    <div className="siteMenu">
+    <div className="siteMenu en-title-font">
       <DropdownObject
         listClassName="right"
         MenuButton={SiteMenuButton}
@@ -99,13 +99,13 @@ export function SiteMenu() {
             if (item.out) {
               return (
                 <a key={i} href={item.url} className="item">
-                  {item.short || item.name}
+                  {(item.short || item.name).toUpperCase()}
                 </a>
               );
             } else {
               return (
                 <Link key={i} to={item.url} className="item">
-                  {item.short || item.name}
+                  {(item.short || item.name).toUpperCase()}
                 </Link>
               );
             }
