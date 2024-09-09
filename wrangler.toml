@@ -67,7 +67,6 @@ url = "/gallery"
 
 [[vars.NAV]]
 name = "character"
-short = "chara"
 url = "/character"
 
 [[vars.NAV]]

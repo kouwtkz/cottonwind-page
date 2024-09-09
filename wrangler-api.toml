@@ -10,7 +10,7 @@ ORIGIN = "https://cottonwind.com"
 VERSION = "1.1.0"
 
 AUTHOR_ACCOUNT = "kouwtkz"
-TITLE = "こっとんうぃんどアプリ"
+TITLE = "こっとんうぃんどのAPI"
 
 CORS_ORIGIN = [
   "https://cottonwind.com",
