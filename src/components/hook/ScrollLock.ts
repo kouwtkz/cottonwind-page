@@ -9,7 +9,7 @@ function scrollLockHandle(e: Event) {
     ) {
       pD = pD.parentElement;
     }
-    if (!pD || pD.parentElement?.classList.contains("scrollLock")) {
+    if (!pD || (pD.parentElement || pD).classList.contains("scrollLock")) {
       e.preventDefault();
       e.stopPropagation();
     }
