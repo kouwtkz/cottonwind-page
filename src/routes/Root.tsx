@@ -7,7 +7,7 @@ import { MetaValues } from "./SetMeta";
 import { charactersMapAtom } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { imagesAtom } from "@/state/ImageState";
-import { usePostState } from "@/blog/PostState";
+import { usePostState } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { EnvAtom } from "@/state/EnvState";
 

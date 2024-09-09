@@ -8,10 +8,10 @@ import { ComicsViewer } from "@/state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
-import LinksPage from "@/routes/LinksPage";
+import LinksPage from "./LinksPage";
 import WorksPage from "./WorksPage";
-import { BlogPage } from "@/blog/client";
-import { PostForm } from "@/blog/PostForm";
+import { BlogPage } from "./BlogPage";
+import { PostForm } from "./edit/PostForm";
 import ContactPage from "./ContactPage";
 import { SettingPage } from "./Setting";
 

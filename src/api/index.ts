@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cache } from 'hono/cache'
-import { app_blog_api } from "../blog/api";
+import { app_blog_api } from "./blog";
 import { cors } from 'hono/cors';
 import { app_test_api } from "./test";
 import { scheduleTask } from "./schedule";

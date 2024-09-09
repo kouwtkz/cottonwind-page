@@ -1,8 +1,7 @@
-import axios from "axios";
 import { discordInviteMatch } from "./ServerContent";
-import { app_blog } from "@/blog";
 import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
+import { MakeRss } from "./functions/blogFunction";
 
 export function ServerCommon(app: CommonHono) {
   app.post("/life/check", async (c) => {
@@ -12,7 +11,13 @@ export function ServerCommon(app: CommonHono) {
     else return c.text("401 Unauthorized", 401);
   });
   app.route("/workers", app_workers);
-  app.route("/blog", app_blog);
+  app.get("/blog/rss.xml", async (c) => {
+    return new Response(await MakeRss(c), {
+      headers: {
+        "Content-Type": "application/xml",
+      },
+    });
+  });
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });

@@ -5,7 +5,7 @@ import { CommonContext } from "./types/HonoCustomType";
 import { parseImageItems } from "./data/functions/images";
 import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
-import { getPostsData } from "./blog/be-functions";
+import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
 
 export function SetMetaServerSide(args: SetMetaProps) {

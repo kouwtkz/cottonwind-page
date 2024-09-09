@@ -86,6 +86,10 @@ name = "about"
 url = "/about"
 
 [[vars.NAV]]
+name = "blog"
+url = "/blog"
+
+[[vars.NAV]]
 name = "setting"
 url = "/setting"
 
