@@ -4,7 +4,7 @@ function scrollLockHandle(e: Event) {
     let pD = e.target! as HTMLElement | null;
     while (
       pD &&
-      (pD.classList.contains("scrollThrough") ||
+      (!(pD.classList.contains("window")) ||
         pD.clientHeight === pD.scrollHeight)
     ) {
       pD = pD.parentElement;
