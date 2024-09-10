@@ -41,6 +41,7 @@ export function ImageState() {
             pickup:
               typeof v.pickup === "number" ? Boolean(v.pickup) : undefined,
             time: v.time ? new Date(v.time) : undefined,
+            mtime: v.mtime ? new Date(v.mtime) : undefined,
             lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
             albumObject,
           };
