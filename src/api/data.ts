@@ -4,6 +4,7 @@ import { ServerImagesGetData } from "./image";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { ServerCharactersGetData } from "./character";
 import { IsLogin } from "@/ServerContent";
+import { ServerPostsGetData } from "./blog";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -14,7 +15,7 @@ app.get(
   async (c, next) => {
     const Url = new URL(c.req.url);
     const hasCacheParam = Url.searchParams.has("cache");
-    const hasEndpointParam = Url.searchParams.has("endpoint");
+    const hasEndpointParam = Url.searchParams.has("lastmod");
     if (hasCacheParam) {
       const cacheParam = Url.searchParams.get("cache") as CacheParamType;
       if (IsLogin(c)) {
@@ -44,6 +45,10 @@ app.get("/images", async (c) => {
 
 app.get("/characters", async (c, next) => {
   return c.json(await ServerCharactersGetData(new URL(c.req.url).searchParams, new MeeSqlD1(c.env.DB)));
+});
+
+app.get("/posts", async (c, next) => {
+  return c.json(await ServerPostsGetData(new URL(c.req.url).searchParams, new MeeSqlD1(c.env.DB)));
 });
 
 export const app_data_api = app;

@@ -10,7 +10,7 @@ import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
   "images",
-  "1.1.31"
+  "1.2.0"
 );
 export const imagesDataAtom = atom<ImageDataType[]>();
 export const imagesLoadAtom = atom<LoadAtomType>(true);
@@ -18,10 +18,18 @@ export const imagesLoadAtom = atom<LoadAtomType>(true);
 const charactersDataSrc = "/data/characters";
 export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
   "characters",
-  "1.1.9"
+  "1.2.0"
 );
 export const charactersDataAtom = atom<CharacterDataType[]>();
 export const charactersLoadAtom = atom<LoadAtomType>(true);
+
+const postsDataSrc = "/data/posts";
+export const postStorageData = new StorageDataClass<PostDataType[]>(
+  "posts",
+  "1.1.0"
+);
+export const postsDataAtom = atom<PostDataType[]>();
+export const postsLoadAtom = atom<LoadAtomType>(true);
 
 async function loadData<T>({
   src,
@@ -43,8 +51,8 @@ async function loadData<T>({
   if (apiOrigin) {
     const Url = new URL(src, apiOrigin);
     if (loadAtomValue === "no-cache-reload") StorageData.removeItem();
-    const { data: sData, endpoint: sEndpoint } = StorageData;
-    if (sEndpoint) Url.searchParams.set("endpoint", sEndpoint);
+    const { data: sData, lastmod: sEndpoint } = StorageData;
+    if (sEndpoint) Url.searchParams.set("lastmod", sEndpoint);
     const cache = typeof loadAtomValue === "string" ? loadAtomValue : undefined;
     if (cache) Url.searchParams.set("cache", cache);
     console.log(Url, StorageData);
@@ -111,6 +119,23 @@ export function DataState() {
       setCharactersLoad(false);
     }
   }, [apiOrigin, charactersLoad, setCharactersLoad, setCharactersData]);
+
+  const [postsLoad, setPostsLoad] = useAtom(postsLoadAtom);
+  const setPostsData = useAtom(postsDataAtom)[1];
+  useEffect(() => {
+    if (postsLoad && apiOrigin) {
+      loadData({
+        src: postsDataSrc,
+        apiOrigin,
+        StorageData: postStorageData,
+        setAtom: setPostsData,
+        loadAtomValue: postsLoad,
+      });
+      setPostsLoad(false);
+    }
+  }, [apiOrigin, postsLoad, setPostsLoad, setPostsData]);
+
+
   return <></>;
 }
 

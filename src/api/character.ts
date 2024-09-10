@@ -44,14 +44,14 @@ async function CreateTable(d1: MeeSqlD1) {
 
 export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
-  const endpoint = searchParams.get("endpoint");
-  if (endpoint) wheres.push({ lastmod: { gt: endpoint } });
+  const lastmod = searchParams.get("lastmod");
+  if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id });
   const index = searchParams.get("index");
   if (index) wheres.push({ index: Number(index) });
   function Select() {
-    return db.select<ImageDataType>({ table, where: { AND: wheres } });
+    return db.select<CharacterDataType>({ table, where: { AND: wheres } });
   }
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }

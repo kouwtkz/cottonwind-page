@@ -1,12 +1,12 @@
 type dataType<T> = {
   version?: string;
-  endpoint?: string;
+  lastmod?: string;
   data?: T;
 };
 
 export class StorageDataClass<T extends Object = {}> {
   version?: string;
-  endpoint?: string;
+  lastmod?: string;
   data?: T;
   key: string;
   /** @comment バージョンを変えると自動でデータを破棄して読み込み直すことができる */
@@ -26,18 +26,18 @@ export class StorageDataClass<T extends Object = {}> {
   getItem() {
     const data = this.__getItem();
     this.data = data?.data;
-    this.endpoint = data?.endpoint;
+    this.lastmod = data?.lastmod;
     return data;
   }
-  setItem(data: T, endpoint?: string) {
+  setItem(data: T, lastmod?: string) {
     return localStorage.setItem(
       this.key,
-      JSON.stringify({ endpoint, version: this.version, data })
+      JSON.stringify({ lastmod, version: this.version, data })
     );
   }
   removeItem() {
     delete this.data;
-    delete this.endpoint;
+    delete this.lastmod;
     localStorage.removeItem(this.key);
   }
 }

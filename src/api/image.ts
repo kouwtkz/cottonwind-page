@@ -54,8 +54,8 @@ async function CreateTable(d1: MeeSqlD1) {
 
 export async function ServerImagesGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
-  const endpoint = searchParams.get("endpoint");
-  if (endpoint) wheres.push({ lastmod: { gt: endpoint } });
+  const lastmod = searchParams.get("lastmod");
+  if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   const src = searchParams.get("src");
