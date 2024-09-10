@@ -69,10 +69,10 @@
     "npm-run-all": "^4.1.5",
     "sass": "^1.75.0",
     "tsx": "^4.16.2",
-    "vite": "^5.2.11",
+    "vite": "^5.4.3",
     "vite-plugin-sitemap": "^0.5.3",
     "vite-tsconfig-paths": "^4.3.2",
-    "wrangler": "^3.74.0",
+    "wrangler": "^3.75.0",
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
   }
