@@ -10,6 +10,7 @@ import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { charactersDataAtom, DataState, imagesDataAtom } from "./DataState";
 import { CharaState } from "./CharaState";
+import PostState from "./PostState";
 
 export const siteIsFirstAtom = atom(true);
 export const dataIsCompleteAtom = atom(false);
@@ -25,11 +26,13 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
+  console.log("test")
   const isSetList = [
-    Boolean(useAtom(imagesDataAtom)[0]),
-    Boolean(useAtom(charactersDataAtom)[0]),
-    Boolean(useAtom(EnvAtom)[0]),
-    Boolean(useAtom(outFeedAtom)[0]),
+    true
+    // Boolean(useAtom(imagesDataAtom)[0]),
+    // Boolean(useAtom(charactersDataAtom)[0]),
+    // Boolean(useAtom(EnvAtom)[0]),
+    // Boolean(useAtom(outFeedAtom)[0]),
   ];
   return (
     <>
@@ -38,6 +41,7 @@ export function StateSet() {
       <SoundPlayer />
       <ImageViewer />
       <Toaster />
+      <PostState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharaState />

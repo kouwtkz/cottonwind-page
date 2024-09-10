@@ -1,56 +1,37 @@
-import { useEffect, useMemo, useRef } from "react";
-import { create } from "zustand";
-import axios from "axios";
-import { useAtom } from "jotai";
-import { ApiOriginAtom } from "@/state/EnvState";
+import { useEffect } from "react";
+import { atom, useAtom } from "jotai";
+import { EnvAtom } from "@/state/EnvState";
+import { postsDataAtom } from "./DataState";
 
-function parsePosts(posts: Post[]) {
-  posts.forEach((post) => {
-    post.date = post.date ? new Date(post.date) : null;
-    post.updatedAt = post.updatedAt ? new Date(post.updatedAt) : null;
-  });
-  return posts;
-}
-interface PostStateType {
-  posts: Post[];
-  url?: string;
-  isSet: boolean;
-  setPosts: (value: any, url?: string) => void;
-  isReload: boolean;
-  Reload: () => void;
-}
-export const usePostState = create<PostStateType>((set) => ({
-  posts: [],
-  isSet: false,
-  setPosts(value, url) {
-    set(() => ({
-      posts: parsePosts(value),
-      url,
-      isSet: true,
-      isReload: false,
-    }));
-  },
-  isReload: true,
-  Reload() {
-    set(() => ({ isReload: true }));
-  },
-}));
+export const postsAtom = atom<PostType[]>();
+export const postsMapAtom = atom<Map<string, PostType>>();
 
-export default function PostState({ url = "/blog/posts" }: { url?: string }) {
-  const { setPosts, isReload } = usePostState();
-  const [apiOrigin] = useAtom(ApiOriginAtom);
-  const fetchUrl = useMemo(() => {
-    if (url.startsWith("/")) {
-      if (apiOrigin) return apiOrigin + url;
-      else return;
-    } else return url;
-  }, [apiOrigin, url]);
+export default function PostState() {
+  const postsData = useAtom(postsDataAtom)[0];
+  const setPosts = useAtom(postsAtom)[1];
+  const setPostsMap = useAtom(postsMapAtom)[1];
+  const env = useAtom(EnvAtom)[0];
   useEffect(() => {
-    if (fetchUrl && isReload) {
-      axios(fetchUrl, { withCredentials: true }).then((r) => {
-        setPosts(r.data, url);
+    if (postsData && env) {
+      const postsMap = new Map<string, PostType>();
+      postsData.forEach((v) => {
+        const item: PostType = {
+          ...v,
+          category: v.category ? v.category.split(",") : [],
+          draft: typeof v.draft === "number" ? Boolean(v.draft) : undefined,
+          noindex:
+            typeof v.noindex === "number" ? Boolean(v.noindex) : undefined,
+          time: v.time ? new Date(v.time) : undefined,
+          lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
+        };
+        const key = item.postId;
+        if (!postsMap.has(key)) {
+          postsMap.set(key, item);
+        }
       });
+      setPostsMap(postsMap);
+      setPosts(Object.values(Object.fromEntries(postsMap)));
     }
-  }, [fetchUrl, isReload]);
+  }, [postsData, env]);
   return <></>;
 }

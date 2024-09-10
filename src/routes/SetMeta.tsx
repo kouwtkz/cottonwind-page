@@ -15,7 +15,7 @@ export interface SetMetaProps {
   url?: string;
   characters?: Map<string, CharacterType>;
   images?: ImageType[];
-  posts?: Post[];
+  posts?: PostType[];
   noindex?: boolean;
   env?: SiteConfigEnv;
 }

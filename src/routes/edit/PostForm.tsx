@@ -14,7 +14,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/hook/SetRegister";
 import axios from "axios";
-import PostState, { usePostState } from "@/state/PostState";
+import { postsAtom } from "@/state/PostState";
 import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
@@ -29,13 +29,13 @@ import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
-import { imagesLoadAtom } from "@/state/DataState";
+import { imagesLoadAtom, postsLoadAtom } from "@/state/DataState";
 
 const backupStorageKey = "backupPostDraft";
 
 export const useLocalDraftPost = create<{
-  localDraft: Post | null;
-  setLocalDraft: (post: Post | null) => void;
+  localDraft: PostType | null;
+  setLocalDraft: (post: PostType | null) => void;
   removeLocalDraft: () => void;
 }>((set) => ({
   localDraft: null,
@@ -52,9 +52,9 @@ export function getLocalDraft() {
   const itemStr = localStorage.getItem(backupStorageKey);
   if (!itemStr) return;
   const item = JSON.parse(itemStr) as any;
-  item.date = item.date ? new Date(item.date) : undefined;
+  item.time = item.time ? new Date(item.time) : undefined;
   item.localDraft = true;
-  return item as Post;
+  return item as PostType;
 }
 
 type labelValues = { label: string; value: string }[];
@@ -64,7 +64,7 @@ const schema = z.object({
   postId: z.string(),
   title: z.string().nullish(),
   body: z.string().min(1, { message: "本文を入力してください" }),
-  date: z.string().nullish(),
+  time: z.string().nullish(),
   pin: z.coerce.number().nullish(),
   draft: z.boolean().nullish(),
   attached: z.custom<FileList>().nullish(),
@@ -73,24 +73,23 @@ const schema = z.object({
 function dateJISOfromLocaltime(item?: string) {
   return item ? new Date(`${item}+09:00`).toISOString() : "";
 }
-function dateJISOfromDate(date?: Date | null) {
+function dateJISOfromDate(time?: Date | null) {
   return (
-    date?.toLocaleString("sv-SE", { timeZone: "JST" }).replace(" ", "T") || ""
+    time?.toLocaleString("sv-SE", { timeZone: "JST" }).replace(" ", "T") || ""
   );
 }
 
 export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
-  const { posts, Reload } = usePostState();
+  const posts = useAtom(postsAtom)[0];
+  const Reload = useAtom(postsLoadAtom)[1];
   const [apiOrigin] = useAtom(ApiOriginAtom);
 
   const nav = useNavigate();
   const base = searchParams.get("base");
   const duplicationMode = Boolean(base);
   const targetPostId = searchParams.get("target") || base;
-  const postsUpdate = useRef(false);
-  postsUpdate.current = posts.length > 0;
   const postTarget = targetPostId
     ? findMee({ list: posts, where: { postId: targetPostId }, take: 1 })[0]
     : null;
@@ -98,13 +97,15 @@ export function PostForm() {
 
   const categoryCount = useMemo(
     () =>
-      posts.reduce((prev, cur) => {
-        const categories = cur.category;
-        categories?.forEach((category) => {
-          if (category) prev[category] = (prev[category] || 0) + 1;
-        });
-        return prev;
-      }, {} as { [K: string]: number }),
+      posts
+        ? posts.reduce((prev, cur) => {
+            const categories = cur.category;
+            categories?.forEach((category) => {
+              if (category) prev[category] = (prev[category] || 0) + 1;
+            });
+            return prev;
+          }, {} as { [K: string]: number })
+        : 0,
     [posts]
   );
   const getCategoryLabelValues = useCallback(() => {
@@ -133,7 +134,6 @@ export function PostForm() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const AttachedRef = useRef<HTMLInputElement | null>(null);
   const postIdRef = useRef<HTMLInputElement | null>(null);
-  const operationRef = useRef<HTMLSelectElement>(null);
 
   const defaultValues = useMemo(
     () => ({
@@ -142,7 +142,7 @@ export function PostForm() {
       title: postTarget?.title || "",
       body: postTarget?.body || "",
       category: postCategories,
-      date: dateJISOfromDate(postTarget?.date),
+      time: dateJISOfromDate(postTarget?.time),
       pin: Number(postTarget?.pin || 0),
       draft: Boolean(postTarget?.draft),
     }),
@@ -164,11 +164,11 @@ export function PostForm() {
 
   useEffect(() => {
     if (Location.state?.draft) {
-      const draft = getLocalDraft() || {};
-      reset({ ...defaultValues, ...draft, date: dateJISOfromDate(draft.date) });
+      const draft = getLocalDraft();
+      reset({ ...defaultValues, ...draft, time: dateJISOfromDate(draft?.time) });
       setCategoryList((c) => {
         const draftOnlyCategory =
-          draft.category?.filter((item) =>
+          draft?.category?.filter((item) =>
             c.every(({ value }) => value !== item)
           ) || [];
         if (draftOnlyCategory.length > 0)
@@ -184,7 +184,7 @@ export function PostForm() {
 
   function saveLocalDraft() {
     const values = getValues();
-    values.date = dateJISOfromLocaltime(values.date);
+    values.time = dateJISOfromLocaltime(values.time);
     localStorage.setItem(backupStorageKey, JSON.stringify(values));
   }
 
@@ -224,7 +224,7 @@ export function PostForm() {
         })
         .then((r) => {
           toast("削除しました", { duration: 2000 });
-          Reload();
+          Reload(true);
           nav("/blog", { replace: true });
         });
     }
@@ -325,7 +325,7 @@ export function PostForm() {
           case "update":
             append(key, item, false);
             break;
-          case "date":
+          case "time":
             if (item !== defaultItem) append(key, dateJISOfromLocaltime(item));
             break;
           case "category":
@@ -354,7 +354,7 @@ export function PostForm() {
           toast(updateMode ? "更新しました" : "投稿しました", {
             duration: 2000,
           });
-          Reload();
+          Reload(true);
           if (attached) setImagesLoad("no-cache");
           refIsSubmitted.current = true;
           setTimeout(() => {
@@ -376,7 +376,6 @@ export function PostForm() {
 
   return (
     <>
-      <PostState />
       <form
         method={"POST"}
         action={apiOrigin + "/blog/send"}
@@ -437,7 +436,7 @@ export function PostForm() {
             <span>下書き</span>
           </label>
           <input
-            {...register("date")}
+            {...register("time")}
             type="datetime-local"
             placeholder="日付"
             title="日付"

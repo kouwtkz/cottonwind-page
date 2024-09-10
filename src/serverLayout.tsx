@@ -87,7 +87,7 @@ export async function ServerLayout({
   );
   const params = c.req.param() as KeyValueStringType;
   let images: ImageType[] | undefined;
-  let posts: Post[] = [];
+  let posts: PostType[] = [];
   if (isBot) {
     const dataPath = "/json";
     const isCharaName = Boolean(params.charaName);

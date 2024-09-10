@@ -1,8 +1,15 @@
-import PostState, { usePostState } from "@/state/PostState";
+import { postsAtom } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { findMee } from "@/functions/findMee";
 import { getLocalDraft, useLocalDraftPost } from "@/routes/edit/PostForm";
-import { HTMLAttributes, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  HTMLAttributes,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
@@ -31,7 +38,6 @@ export function BlogPage({
   const blogTopLink: UrlObject = { pathname: "/blog" };
   return (
     <>
-      <PostState />
       <div className="blogPage">
         <div className="header">
           <Link
@@ -65,14 +71,8 @@ export function PostsPage({
   q?: string;
   postId?: string;
 }) {
-  const { isSet: postsIsSet } = usePostState();
-  const setIsComplete = useAtom(pageIsCompleteAtom)[1];
-  useEffect(() => {
-    if (postsIsSet) setIsComplete(true);
-    else setIsComplete(false);
-  }, [postsIsSet]);
   const page = Number(p);
-  const { posts } = usePostState();
+  const posts = useAtom(postsAtom)[0];
   const take = postId ? undefined : 10;
   const { localDraft, setLocalDraft } = useLocalDraftPost();
   const isLogin = useAtom(isLoginAtom)[0];
@@ -88,7 +88,7 @@ export function PostsPage({
     count,
   } = useMemo(() => {
     const result = getPosts({
-      posts,
+      posts: posts || [],
       page,
       q,
       take,
@@ -112,7 +112,6 @@ export function PostsPage({
     return (
       <>
         <PostsPageFixed max={max} />
-        {/* {page <= 1 ? <h2>このブログはアーカイブしました！</h2> : null} */}
         <div className="article">
           {localDraft ? (
             <OnePost post={{ ...localDraft, pin: 0xffff }} />
@@ -139,7 +138,7 @@ export function PostsPage({
                 </div>
               ) : null}
             </>
-          ) : postsIsSet ? (
+          ) : posts ? (
             <div className="message">投稿はありません</div>
           ) : (
             <div className="message">よみこみちゅう…</div>
@@ -150,7 +149,7 @@ export function PostsPage({
   }
 }
 
-type OnePostProps = { post?: Post; detail?: boolean };
+type OnePostProps = { post?: PostType; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
   const isLogin = useAtom(isLoginAtom)[0];
   const { removeLocalDraft } = useLocalDraftPost();
@@ -321,7 +320,7 @@ export function PostsPageFixed({ max }: FixedProps) {
   );
 }
 
-type PostDetailFixedProps = { postId: string; posts: Post[] };
+type PostDetailFixedProps = { postId: string; posts: PostType[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
   const isLogin = useAtom(isLoginAtom)[0];
   return (
@@ -345,7 +344,7 @@ export function PostDetailFixed(args: PostDetailFixedProps) {
 
 interface BackForwardPostProps extends HTMLAttributes<HTMLDivElement> {
   postId: string;
-  posts: Post[];
+  posts: PostType[];
 }
 
 export function BackForwardPost({

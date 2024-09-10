@@ -5,21 +5,21 @@ import { findMee, setWhere } from "./findMee";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");
-  const rawPosts: Post[] = JSON.parse(kvPosts || '[]');
+  const rawPosts: PostType[] = JSON.parse(kvPosts || '[]');
   const posts = rawPosts.filter(post => post);
   posts.forEach(post => {
-    post.date = post.date ? new Date(post.date) : null;
-    post.updatedAt = post.updatedAt ? new Date(post.updatedAt) : null;
+    post.time = post.time ? new Date(post.time) : undefined;
+    post.lastmod = post.lastmod ? new Date(post.lastmod) : undefined;
   })
   return posts;
 }
-export async function setPostsData(c: CommonContext, posts: Post[]) {
+export async function setPostsData(c: CommonContext, posts: PostType[]) {
   posts.forEach((post) => { post.body = post.body?.replace(/\r\n/g, "\n") });
   await c.env.KV.put("posts", JSON.stringify(posts));
 }
 
 interface getPostsProps {
-  posts: Post[];
+  posts: PostType[];
   update?: boolean;
   take?: number;
   page?: number;
@@ -37,19 +37,19 @@ export function getPosts({
 }: getPostsProps) {
   if (page) page--;
   const skip = take && page ? take * page : 0;
-  const options: WhereOptionsKvType<Post> = {
+  const options: WhereOptionsKvType<PostType> = {
     text: { key: "body" },
     from: { key: "userId" },
     hashtag: { enableText: true, key: "category" },
   };
   const wheres = [setWhere(q, options).where];
-  if (common) wheres.push({ draft: false, date: { lte: new Date() } });
+  if (common) wheres.push({ draft: false, time: { lte: new Date() } });
   const orderBy: any[] = [];
   if (pinned) orderBy.push({ pin: "desc" });
   orderBy.push({ date: "desc" });
 
   try {
-    let postsResult: Post[] = findMee({
+    let postsResult: PostType[] = findMee({
       list: posts,
       where: {
         AND: wheres,
@@ -69,7 +69,7 @@ export function getPosts({
   }
 }
 
-export function GetPostsRssOption(rawPosts: Post[]) {
+export function GetPostsRssOption(rawPosts: PostType[]) {
   const { posts } = getPosts({ posts: rawPosts, take: 30, common: true })
   return posts;
 }
@@ -106,7 +106,7 @@ export async function MakeRss(c: CommonContext) {
             description,
             url: Url.href,
             guid: `${SITE_URL}/blog?postId=${post.postId}`,
-            date: post.date || new Date(0),
+            date: post.time || new Date(0),
           })
         })
     }

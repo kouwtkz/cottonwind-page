@@ -7,7 +7,7 @@ import { MetaValues } from "./SetMeta";
 import { charactersMapAtom } from "@/state/CharaState";
 import { isMobile } from "react-device-detect";
 import { imagesAtom } from "@/state/ImageState";
-import { usePostState } from "@/state/PostState";
+import { postsAtom } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { EnvAtom } from "@/state/EnvState";
 
@@ -17,7 +17,7 @@ function SetTitle() {
   const images = useAtom(imagesAtom)[0];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
-  const { posts } = usePostState();
+  const posts = useAtom(postsAtom)[0];
   const [env] = useAtom(EnvAtom);
   if (notFirst) {
     document.title = MetaValues({
