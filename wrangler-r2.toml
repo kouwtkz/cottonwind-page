@@ -1,0 +1,13 @@
+compatibility_date = "2024-08-29"
+main = "src/api/r2.ts"
+name = "cottonwind-r2"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "cottonwind-bucket"
+
+CORS_ORIGIN = [
+  "https://cottonwind.com",
+  "https://cottonwind.pages.dev",
+  "http://localhost:51730",
+]

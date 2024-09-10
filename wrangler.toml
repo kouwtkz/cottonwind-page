@@ -37,8 +37,8 @@ LOCAL_ORIGIN = "http://localhost:51730"
 
 MEDIA_ORIGIN = "https://media.cottonwind.com"
 
-MEDIA_LOCAL_ORIGIN = "http://localhost:51731/r2"
-MEDIA_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev/r2"
+MEDIA_LOCAL_ORIGIN = "http://localhost:51732"
+MEDIA_WORKERS_ORIGIN = "https://cottonwind-r2.kouwtkz.workers.dev"
 
 CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"

@@ -72,6 +72,10 @@ interface MeeAPIEnv extends MeeCommonEnv {
 }
 type MeeAPIBindings = MeeBindings<MeeAPIEnv>;
 
+interface MeeR2Env extends MeeCommonEnv {
+  BUCKET: R2Bucket;
+}
+
 type ServerDataType = {
   discordInvite?: string;
   discordInvitePassword?: string;

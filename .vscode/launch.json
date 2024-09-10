@@ -14,6 +14,12 @@
       "command": "npm run dev-api"
     },
     {
+      "name": "dev r2",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-r2"
+    },
+    {
       "name": "start",
       "type": "node-terminal",
       "request": "launch",
@@ -35,16 +41,12 @@
   ],
   "compounds": [
     {
-      "name": "Firefox dev with api",
-      "configurations": ["Launch Firefox", "dev", "dev api"]
-    },
-    {
-      "name": "Firefox start with api",
-      "configurations": ["Launch Firefox", "start", "dev api"]
-    },
-    {
       "name": "Chrome dev with api",
-      "configurations": ["Launch Chrome", "dev", "dev api"]
+      "configurations": ["Launch Chrome", "dev", "dev api", "dev r2"]
+    },
+    {
+      "name": "Firefox dev with api",
+      "configurations": ["Launch Firefox", "dev", "dev api", "dev r2"]
     }
   ]
 }
