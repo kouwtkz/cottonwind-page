@@ -106,6 +106,12 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                   return cval < v;
                 case "lte":
                   return cval <= v;
+                case "in":
+                  const inVal = v as unknown[];
+                  return inVal.some(v => v == cval);
+                case "between":
+                  const betweenVal = v as any[];
+                  return betweenVal[0] <= cval && cval <= betweenVal[1];
                 case "bool":
                   let boolVal: boolean;
                   if (Array.isArray(cval)) boolVal = cval.length > 0;

@@ -279,26 +279,28 @@ export class MeeSqlClass<T> {
 
 function whereToSql<T = any>(where: findWhereType<T>) {
   const bind: any[] = [];
-  function recursion(__where: findWhereType<T>, not = false): string {
+  function recursion(__where: findWhereType<T>, not = false, isFirst = false): string {
     let list1 = Object.entries(__where).map(([fkey, fval]) => {
       const field = "`" + fkey + "`";
       switch (fkey) {
         case "AND":
         case "OR":
-          return (fval as findWhereType<T>[]).map((_val) => recursion(_val, not)).filter(v => v).join(` ${fkey} `);
+          const values = (fval as findWhereType<T>[]).map((_val) => recursion(_val, not)).filter(v => v);
+          const joined = values.join(` ${fkey} `);
+          return (!isFirst && values.length > 1) ? `(${joined})` : joined;
         case "NOT":
           return recursion(fval, true);
         default:
           if (typeof fval === "object") {
-            const _conditions: [any, any][] = Object.entries(fval);
+            if (fval === null) {
+              return `${field} IS ${not ? "NOT " : ""}NULL`;
+            } else if ("test" in fval) {
+              bind.push((fval as RegExp).source);
+              return `${field} ${not ? "NOT " : ""}REGEXP ?`;
+            }
+            const _conditions: [any, any][] = Object.entries(fval || { equal: fval });
             const conditions: [filterConditionsAllType, any][] = _conditions;
             let list2 = conditions.map(([k, v]) => {
-              if (typeof v === "object" && "test" in v) {
-                bind.push((v as RegExp).source);
-                return `${field} regexp ?`;
-              } else if (v === null) {
-                return `${k === "not" ? "NOT " : ""}ISNULL(${field})`;
-              }
               switch (k) {
                 case "not":
                   bind.push(v);
@@ -325,11 +327,15 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                   bind.push(v);
                   return `${field} <= ?`;
                 case "between":
-                  const args = (v as unknown[]).slice(0, 2);
-                  if (args.length === 2) {
-                    bind.push(...args);
+                  const betweenArgs = (v as unknown[]).slice(0, 2);
+                  if (betweenArgs.length === 2) {
+                    bind.push(...betweenArgs);
                     return `${field} BETWEEN ? AND ?`;
                   } else return;
+                case "in":
+                  const inList = v as unknown[];
+                  inList.forEach((v) => { bind.push(v) });
+                  return `${field} IN (${inList.map(() => "?").join(", ")})`;
                 case "equals":
                 default:
                   bind.push(v);
@@ -347,6 +353,6 @@ function whereToSql<T = any>(where: findWhereType<T>) {
     }).filter(v => v);
     return list1.join(" ");
   }
-  const whereString = recursion(where);
+  const whereString = recursion({ AND: Object.entries(where).map(([k, v]) => ({ [k]: v })) }, false, true);
   return { where: whereString ? " WHERE " + whereString : "", bind };
 }

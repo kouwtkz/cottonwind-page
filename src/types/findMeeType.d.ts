@@ -1,9 +1,9 @@
 type logicalConditionsType = "AND" | "OR";
 type logicalNotConditionsType = "NOT";
-type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not" | "in";
+type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not";
 type filterConditionsStringType = "contains" | "startsWith" | "endsWith";
 type filterConditionsBoolType = "bool";
-type filterConditionsVariadicType = "between";
+type filterConditionsVariadicType = "in" | "between";
 type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType;
 type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean };
 type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] } & { [C in filterConditionsVariadicType]?: T[K][] } & filterConditionsBoolStringKeyValue;

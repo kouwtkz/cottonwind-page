@@ -17,7 +17,7 @@ type MeeSqlOrderByType<T> = OrderByItem<T_SelectType<T>>;
 interface MeeSqlSelectProps<T = any> extends MeeSqlBaseProps {
   /** @comment {"key": "as name"} */
   params?: SelectParamsType<T> | SelectParamsType<T>[];
-  where?: MeeSqlFindWhereType<T>;
+  where?: MeeSqlFindWhereType<MeeSqlCreateTableEntryType<T>>;
   orderBy?: MeeSqlOrderByType<T> | MeeSqlOrderByType<T>[];
   take?: number,
   skip?: number,
