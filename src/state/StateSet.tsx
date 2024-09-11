@@ -26,13 +26,12 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
-  console.log("test")
+  console.log("test");
   const isSetList = [
-    true
-    // Boolean(useAtom(imagesDataAtom)[0]),
-    // Boolean(useAtom(charactersDataAtom)[0]),
-    // Boolean(useAtom(EnvAtom)[0]),
-    // Boolean(useAtom(outFeedAtom)[0]),
+    Boolean(useAtom(imagesDataAtom)[0]),
+    Boolean(useAtom(charactersDataAtom)[0]),
+    Boolean(useAtom(EnvAtom)[0]),
+    Boolean(useAtom(outFeedAtom)[0]),
   ];
   return (
     <>

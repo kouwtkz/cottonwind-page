@@ -35,11 +35,12 @@ export const characterTagsAtom = atom<ContentsTagsOption[]>([]);
 
 export function CharacterState() {
   const characterData = useAtom(charactersDataAtom)[0];
-  const setCharacters = useAtom(charactersAtom)[1];
+  const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersMap = useAtom(charactersMapAtom)[1];
+  const images = useAtom(imagesAtom)[0];
   const env = useAtom(EnvAtom)[0];
   useEffect(() => {
-    if (characterData && env) {
+    if (images && characterData && env) {
       const charactersMap = new Map<string, CharacterType>();
       characterData.forEach((v) => {
         const item: CharacterType = {
@@ -56,43 +57,32 @@ export function CharacterState() {
           charactersMap.set(key, item);
         }
       });
+      type mediaKindType = "icon" | "image" | "headerImage";
+      const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
+        { kind: "icon", name: "charaIcon" },
+        { kind: "image", name: "charaImages" },
+        { kind: "headerImage" },
+      ];
+      charactersMap.forEach((chara) => {
+        if (!chara.media) chara.media = {};
+        const charaMedia = chara.media;
+        mediaKindArray.forEach((kindItem) => {
+          const charaMediaItem = chara[kindItem.kind];
+          if (charaMediaItem) {
+            charaMedia[kindItem.kind] = images.find(({ src }) =>
+              src?.match(charaMediaItem)
+            );
+          } else if (kindItem.name) {
+            charaMedia[kindItem.kind] = images.find(
+              ({ album, name }) => album === kindItem.name && name === chara.id
+            );
+          }
+        });
+      });
       setCharactersMap(charactersMap);
       setCharacters(Object.values(Object.fromEntries(charactersMap)));
     }
-  }, [characterData, env]);
-  // useLayoutEffect(() => {
-  //   if (reset && imageItemList.length > 0) {
-  //     axios(url).then((r) => {
-  //       type mediaKindType = "icon" | "image" | "headerImage";
-  //       const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
-  //         { kind: "icon", name: "charaIcon" },
-  //         { kind: "image", name: "charaImages" },
-  //         { kind: "headerImage" },
-  //       ];
-  //       const data = convertCharaData({
-  //         data: r.data,
-  //         convert: (chara) => {
-  //           if (!chara.media) chara.media = {};
-  //           const charaMedia = chara.media;
-  //           mediaKindArray.forEach((kindItem) => {
-  //             const charaMediaItem = chara[kindItem.kind];
-  //             if (charaMediaItem) {
-  //               charaMedia[kindItem.kind] = imageItemList.find(({ src }) =>
-  //                 src?.match(charaMediaItem)
-  //               );
-  //             } else if (kindItem.name) {
-  //               charaMedia[kindItem.kind] = imageItemList.find(
-  //                 ({ album, name }) =>
-  //                   album === kindItem.name && name === chara.id
-  //               );
-  //             }
-  //           });
-  //         },
-  //       });
-  //       setCharaObject(data, url);
-  //     });
-  //   }
-  // }, [isReload, imageItemList]);
+  }, [characterData, images, env]);
   // useEffect(() => {
   //   if (charaList && SoundItemList.length > 0) {
   //     charaList.forEach((chara) => {
