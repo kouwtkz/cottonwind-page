@@ -1,7 +1,9 @@
 import { Hono } from "hono";
-import { getPostsData, setPostsData } from "@/functions/blogFunction";
+import { autoPostId, getPostsData, setPostsData } from "@/functions/blogFunction";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
+import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { MeeSqlClass } from "@/functions/MeeSqlClass";
 
 export const app = new Hono<MeeBindings>();
 
@@ -15,7 +17,7 @@ const createEntry: MeeSqlCreateTableEntryType<PostDataType> = {
   pin: { type: "INTEGER" },
   noindex: { type: "INTEGER" },
   draft: { type: "INTEGER" },
-  flags: { type: "INTEGER" },
+  schedule: { type: "INTEGER" },
   memo: { type: "INTEGER" },
   time: { createAt: true, index: true },
   lastmod: { createAt: true, unique: true },
@@ -30,6 +32,16 @@ async function CreateTable(d1: MeeSqlD1) {
     .catch(() => { });
 }
 
+interface SelectProps extends Omit<MeeSqlSelectProps<PostDataType>, "table"> {
+  db: MeeSqlD1;
+}
+async function Select({ db, ...args }: SelectProps) {
+  function _s() {
+    return db.select({ table, ...args });
+  }
+  return _s().catch(() => CreateTable(db).then(() => _s()))
+}
+
 export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
@@ -38,10 +50,23 @@ export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeS
   if (id) wheres.push({ id: Number(id) });
   const postId = searchParams.get("postId");
   if (postId) wheres.push({ postId });
-  function Select() {
-    return db.select({ table, where: { AND: wheres } });
-  }
-  return Select().catch(() => CreateTable(db).then(() => Select()));
+  return Select({ db, where: { AND: wheres } });
+}
+
+interface SelectProps extends Omit<MeeSqlSelectProps<PostDataType>, "table"> {
+  db: MeeSqlD1;
+}
+export async function ServerPostsGetRssData(env: MeeCommonEnv, take = 10) {
+  const db = new MeeSqlD1(env.DB);
+  return await Select({
+    db,
+    where: {
+      OR: [{ draft: null }, { draft: 0 }],
+      lastmod: { lte: new Date().toISOString() }
+    },
+    take,
+    orderBy: [{ time: "desc" }],
+  })
 }
 
 function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<PostDataType> {
@@ -52,17 +77,20 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<PostDataType> {
     category: data.category,
     pin: data.pin,
     draft: data.category,
-    flags: data.flags,
+    schedule: data.schedule,
     noindex: data.noindex,
     memo: data.memo,
     time: data.time
       ? new Date(String(data.time)).toISOString()
       : undefined,
+    lastmod: data.lastmod
+      ? new Date(String(data.lastmod)).toISOString()
+      : undefined,
   };
 }
 
-
 app.post("/send", async (c, next) => {
+  if (!IsLogin(c)) return c.text("ログインしていません", { status: 403 });
   const db = new MeeSqlD1(c.env.DB);
   const { id, postId, update, ...data } = (await c.req.parseBody()) as KeyValueType<unknown>;
   if (postId !== update) data.postId = postId;
@@ -92,138 +120,55 @@ app.post("/send", async (c, next) => {
   }
 });
 
-app.get("/posts", async (c) => {
-  try {
-    const posts = await getPostsData(c);
-    return c.json(posts);
-  } catch (e) {
-    console.error(e);
-    return c.json([]);
-  }
-});
-
-// app.post("/send/old", async (c) => {
-//   if (!IsLogin(c)) return c.text("ログインしていません", 403);
-//   const formData = await c.req.formData();
-//   let success = false;
-
-//   const userId = c.env.AUTHOR_ACCOUNT;
-
-//   const data = {} as OldPostFormType & OldPost;
-
-//   let postId = String(formData.get("postId"));
-//   const update = String(formData.get("update"));
-//   if (postId !== update) data.postId = postId;
-
-//   const title = formData.get("title");
-//   if (title !== null) data.title = String(title);
-
-//   const body = formData.get("body");
-//   if (body !== null || !update) data.body = String(body || "");
-
-//   const category = formData.get("category");
-//   if (category !== null) data.category = String(category).split(",");
-
-//   const pin = formData.get("pin");
-//   if (pin !== null) data.pin = Number(pin);
-
-//   const draft = formData.get("draft");
-//   if (draft !== null) data.draft = draft !== "false";
-
-//   const date = formData.get("date");
-//   if (date !== null) {
-//     if (date === "") {
-//       data.date = new Date();
-//     } else {
-//       const stringDate = String(date);
-//       if (stringDate.endsWith("Z") || /\+/.test(stringDate))
-//         data.date = new Date(stringDate);
-//       else data.date = new Date(`${stringDate}+09:00`);
-//     }
-//   }
-
-//   // あとで保存用の書き出しにする
-//   if (!success) success = Object.keys(data).length > 0;
-//   if (success) {
-//     const posts = await getPostsData(c);
-//     if (update) {
-//       const updateData = posts.find((post) => post.postId === update);
-//       if (updateData) {
-//         Object.entries(data).forEach(([k, v]) => {
-//           (updateData as any)[k] = v;
-//         });
-//         updateData.updatedAt = new Date();
-//       }
-//     } else {
-//       postId = postId || autoPostId();
-//       const maxId = Math.max(...posts.map((post) => post.id || 0));
-//       const now = new Date();
-//       posts.push({
-//         ...({
-//           id: maxId + 1,
-//           postId,
-//           userId,
-//           title: "",
-//           body: "",
-//           category: [],
-//           pin: 0,
-//           noindex: false,
-//           draft: false,
-//           date: now,
-//           updatedAt: now,
-//           flags: null,
-//           memo: null,
-//         } as OldPost),
-//         ...data,
-//       });
-//     }
-//     await setPostsData(c, posts);
-//     return c.json({ postId });
-//   } else {
-//     return c.json({ error: "更新するデータがありません" }, { status: 500 });
-//   }
-// });
-
 app.delete("/send", async (c) => {
-  if (!IsLogin(c)) return new Response("ログインしていません", { status: 403 });
+  if (!IsLogin(c)) return c.text("ログインしていません", { status: 403 });
   const data = await c.req.json();
   const postId = String(data.postId || "");
   if (postId) {
-    const posts = await getPostsData(c);
-    const deletedPosts = posts.filter((post) => post.postId !== postId);
-    if (posts.length !== deletedPosts.length) {
-      await setPostsData(c, deletedPosts);
-    } else {
-      return c.json(
-        { result: "error", error: "削除済みです" },
-        { status: 500 }
-      );
+    const db = new MeeSqlD1(c.env.DB);
+    const nullEntry = MeeSqlD1.getNullEntry(createEntry);
+    try {
+      await db.update<PostDataType>({
+        table,
+        entry: { ...nullEntry, lastmod: new Date().toISOString() },
+        where: { postId }
+      });
+      return c.text(postId);
+    } catch {
+      return c.text("データベースでの削除に失敗しました", { status: 500 });
     }
-    return c.json({ result: "success", postId });
   } else {
-    return c.json({ result: "error", error: "ID未指定です" }, { status: 500 });
+    return c.text("ID未指定です", { status: 500 });
   }
 });
 
-app.post("/send/all", async (c) => {
+app.post("/import", async (c) => {
   if (!IsLogin(c)) return new Response("ログインしていません", { status: 403 });
-  const data = await c.req.json();
-  if (Array.isArray(data)) {
-    await setPostsData(c, data);
+  const db = new MeeSqlD1(c.env.DB);
+  const formData = await c.req.parseBody();
+  if (typeof formData.data === "string") {
+    if (formData.version === "0") {
+      await db.dropTable({ table });
+      await CreateTable(db);
+      const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
+      if (Array.isArray(list)) {
+        lastModToUniqueNow(list);
+        KeyValueToString(list);
+        await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
+        return c.text("インポート完了しました！")
+      }
+    }
   }
-  return c.text("アップロードしました");
+  return c.text("インポートに失敗しました", 500);
 });
 
-function autoPostId() {
-  const now = new Date();
-  const days = Math.floor(
-    (now.getTime() - new Date("2000-1-1").getTime()) / 86400000
-  );
-  const todayBegin = new Date(Math.floor(now.getTime() / 86400000) * 86400000);
-  return (
-    days.toString(32) +
-    ("0000" + (now.getTime() - todayBegin.getTime()).toString(30)).slice(-4)
-  );
-}
+app.delete("/all", async (c, next) => {
+  if (c.env.DEV) {
+    const db = new MeeSqlD1(c.env.DB);
+    await db.dropTable({ table });
+    return c.json({ message: "successed!" });
+  }
+  return next();
+});
 
 export const app_blog_api = app;

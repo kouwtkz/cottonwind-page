@@ -46,7 +46,7 @@ export function getPosts({
   if (common) wheres.push({ draft: false, time: { lte: new Date() } });
   const orderBy: any[] = [];
   if (pinned) orderBy.push({ pin: "desc" });
-  orderBy.push({ date: "desc" });
+  orderBy.push({ time: "desc" });
 
   try {
     let postsResult: PostType[] = findMee({
@@ -74,19 +74,30 @@ export function GetPostsRssOption(rawPosts: PostType[]) {
   return posts;
 }
 
-const SITE_URL = "https://cottonwind.com";
+export function autoPostId() {
+  const now = new Date();
+  const days = Math.floor(
+    (now.getTime() - new Date("2000-1-1").getTime()) / 86400000
+  );
+  const todayBegin = new Date(Math.floor(now.getTime() / 86400000) * 86400000);
+  return (
+    days.toString(32) +
+    ("0000" + (now.getTime() - todayBegin.getTime()).toString(30)).slice(-4)
+  );
+}
 
-export async function MakeRss(c: CommonContext) {
+export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[]) {
+  const SITE_URL = env.ORIGIN;
   return GenerateRss(
     {
-      title: c.env.TITLE ?? "",
-      description: c.env.DESCRIPTION,
+      title: env.TITLE ?? "",
+      description: env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
       language: "ja",
-      image_url: `${SITE_URL}${c.env.SITE_IMAGE}`,
+      image_url: `${SITE_URL}${env.SITE_IMAGE}`,
       items:
-        GetPostsRssOption(await getPostsData(c)).map((post) => {
+        postsData.map((post) => {
           let Url = new URL(`${SITE_URL}/blog?postId=${post.postId}`);
           let description = String(parse(post.body || "", { async: false }));
           description = description.replace(/(href=")([^"]+)(")/g, (m, m1, m2, m3) => {
@@ -106,7 +117,7 @@ export async function MakeRss(c: CommonContext) {
             description,
             url: Url.href,
             guid: `${SITE_URL}/blog?postId=${post.postId}`,
-            date: post.time || new Date(0),
+            date: post.time ? new Date(post.time) : new Date(0),
           })
         })
     }

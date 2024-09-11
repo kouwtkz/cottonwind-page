@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => {
       break;
     default:
       configDotenv();
-      config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath'] };
+      config.ssr = { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] };
       config.plugins!.push([
         pages(),
         fixSourceMaps(),

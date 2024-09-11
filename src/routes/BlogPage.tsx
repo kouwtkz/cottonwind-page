@@ -178,7 +178,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
     [isLogin, post]
   );
   const formattedDate = useMemo(
-    () => (post?.date ? post.date.toLocaleString("ja", opt) : ""),
+    () => (post?.time ? post.time.toLocaleString("ja", opt) : ""),
     [post]
   );
   if (!post) return null;
@@ -249,10 +249,10 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         {post.body}
       </MultiParserWithMedia>
       <div className="footer">
-        {typeof post.date !== "undefined" ? (
+        {typeof post.time !== "undefined" ? (
           post.draft ? (
             <span className="status">(下書き)</span>
-          ) : post.date && post.date.getTime() > Date.now() ? (
+          ) : post.time && post.time.getTime() > Date.now() ? (
             <span className="status">(予約)</span>
           ) : null
         ) : null}

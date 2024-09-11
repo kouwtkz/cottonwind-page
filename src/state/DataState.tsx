@@ -26,7 +26,7 @@ export const charactersLoadAtom = atom<LoadAtomType>(true);
 const postsDataSrc = "/data/posts";
 export const postStorageData = new StorageDataClass<PostDataType[]>(
   "posts",
-  "1.1.0"
+  "1.1.1"
 );
 export const postsDataAtom = atom<PostDataType[]>();
 export const postsLoadAtom = atom<LoadAtomType>(true);
@@ -135,7 +135,6 @@ export function DataState() {
     }
   }, [apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
-
   return <></>;
 }
 
@@ -147,12 +146,18 @@ export function UploadToast(promise: Promise<unknown>) {
   });
 }
 
-export function ImportToast(promise: Promise<unknown>) {
-  return toast.promise(promise, {
-    loading: "インポート中…",
-    success: (result) => unknownToString(result) || "インポートしました",
-    error: (error) => unknownToString(error) || "インポートに失敗しました",
-  });
+export function ImportToast(promise: Promise<Response>) {
+  return toast.promise(
+    promise.then(async (r) => {
+      if (r.ok) return r;
+      else throw await r.text();
+    }),
+    {
+      loading: "インポート中…",
+      success: (result) => unknownToString(result) || "インポートしました",
+      error: (e) => "インポートに失敗しました" + (e ? `\n[${e}]` : ""),
+    }
+  );
 }
 
 interface DataUploadBaseProps {
@@ -233,6 +238,53 @@ export async function ImportCharacterJson({
     if (typeof version === "undefined") {
       const oldData = json as OldCharaDataObjectType;
       const dataMap = new Map(Object.entries(oldData));
+      data.append("version", "0");
+      data.append(
+        "data",
+        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
+      );
+    }
+    if (Object.values(Object.fromEntries(data)).length > 0) {
+      return ImportToast(fetch(url, { method: "POST", body: data }));
+    }
+  });
+}
+
+interface ImportCharactersJsonProps extends DataUploadBaseProps {}
+export async function ImportPostJson({
+  apiOrigin,
+}: ImportCharactersJsonProps = {}) {
+  const url = (apiOrigin || "") + "/blog/import";
+  return jsonFileDialog().then((json) => {
+    const version = json.version;
+    const data = new FormData();
+    if (typeof version === "undefined") {
+      const oldData = json as Omit<OldPostType, "localDraft">[];
+      const dataMap = new Map(
+        oldData.map((v) => {
+          const {
+            postId,
+            category,
+            date,
+            updatedAt,
+            noindex,
+            draft,
+            flags,
+            ..._v
+          } = v;
+          const value: Omit<PostDataType, "id"> = {
+            postId: postId!,
+            category: category?.join(","),
+            noindex:
+              typeof noindex === "boolean" ? (noindex ? 1 : 0) : undefined,
+            draft: typeof draft === "boolean" ? (draft ? 1 : 0) : undefined,
+            time: date ? new Date(date).toISOString() : undefined,
+            lastmod: updatedAt ? new Date(updatedAt).toISOString() : undefined,
+            ..._v,
+          };
+          return [v.postId, value];
+        })
+      );
       data.append("version", "0");
       data.append(
         "data",

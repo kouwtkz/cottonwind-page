@@ -189,7 +189,7 @@ export class MeeSqlClass<T> {
             indexKey = v.index;
             break;
           default:
-            if (v.index && indexName) indexKey = indexName;
+            if (v.index) indexKey = indexName || ("INDEX_" + k);
             break;
         }
         if (indexKey && indexFields.value) {

@@ -15,6 +15,7 @@ export default function PostState() {
     if (postsData && env) {
       const postsMap = new Map<string, PostType>();
       postsData.forEach((v) => {
+        if (!v.body) return;
         const item: PostType = {
           ...v,
           category: v.category ? v.category.split(",") : [],

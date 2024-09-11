@@ -2,6 +2,8 @@ import { discordInviteMatch } from "./ServerContent";
 import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
 import { MakeRss } from "./functions/blogFunction";
+import { ServerPostsGetRssData } from "@/api/blog";
+import { MeeSqlD1 } from "./functions/MeeSqlD1";
 
 export function ServerCommon(app: CommonHono) {
   app.post("/life/check", async (c) => {
@@ -12,7 +14,8 @@ export function ServerCommon(app: CommonHono) {
   });
   app.route("/workers", app_workers);
   app.get("/blog/rss.xml", async (c) => {
-    return new Response(await MakeRss(c), {
+    const postsData = await ServerPostsGetRssData(c.env, 10);
+    return new Response(MakeRss(c.env, postsData), {
       headers: {
         "Content-Type": "application/xml",
       },

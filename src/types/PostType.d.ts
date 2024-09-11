@@ -7,7 +7,7 @@ interface PostDataType {
   pin?: number;
   noindex?: number;
   draft?: number;
-  flags?: number | null;
+  schedule?: number;
   memo?: string | null;
   time?: string;
   lastmod?: string;
@@ -17,12 +17,13 @@ interface PostType extends PostDataType {
   category?: string[];
   noindex?: boolean;
   draft?: boolean;
+  schedule?: boolean;
   localDraft?: boolean;
   time?: Date,
   lastmod?: Date,
 }
 
-type PostType = {
+type OldPostType = {
   id?: number;
   postId?: string;
   userId?: string;

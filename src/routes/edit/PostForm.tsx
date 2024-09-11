@@ -29,7 +29,11 @@ import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
-import { imagesLoadAtom, postsLoadAtom } from "@/state/DataState";
+import {
+  imagesLoadAtom,
+  ImportPostJson,
+  postsLoadAtom,
+} from "@/state/DataState";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -83,7 +87,7 @@ export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
   const posts = useAtom(postsAtom)[0];
-  const Reload = useAtom(postsLoadAtom)[1];
+  const setPostsLoad = useAtom(postsLoadAtom)[1];
   const [apiOrigin] = useAtom(ApiOriginAtom);
 
   const nav = useNavigate();
@@ -165,7 +169,11 @@ export function PostForm() {
   useEffect(() => {
     if (Location.state?.draft) {
       const draft = getLocalDraft();
-      reset({ ...defaultValues, ...draft, time: dateJISOfromDate(draft?.time) });
+      reset({
+        ...defaultValues,
+        ...draft,
+        time: dateJISOfromDate(draft?.time),
+      });
       setCategoryList((c) => {
         const draftOnlyCategory =
           draft?.category?.filter((item) =>
@@ -217,15 +225,30 @@ export function PostForm() {
   };
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
-      axios
-        .delete(apiOrigin + "/blog/send", {
-          data: JSON.stringify({ postId: getValues("postId") }),
-          withCredentials: true,
-        })
+      toast
+        .promise(
+          fetch(apiOrigin + "/blog/send", {
+            method: "DELETE",
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            } as ContentTypeHeader,
+            body: JSON.stringify({ postId: getValues("postId") }),
+          }).then(async (r) => {
+            if (r.ok) return r;
+            else throw await r.text();
+          }),
+          {
+            loading: "削除中",
+            success: "削除しました",
+            error: (e) => "削除に失敗しました" + (e ? `\n[${e}]` : ""),
+          }
+        )
         .then((r) => {
-          toast("削除しました", { duration: 2000 });
-          Reload(true);
-          nav("/blog", { replace: true });
+          if (r.ok) {
+            setPostsLoad("no-cache-reload");
+            nav("/blog", { replace: true });
+          }
         });
     }
   };
@@ -347,24 +370,34 @@ export function PostForm() {
         }
       });
       if (sendEnable) {
-        const res = await axios.post(apiOrigin + "/blog/send", formData, {
-          withCredentials: true,
-        });
-        if (res.status === 200) {
-          toast(updateMode ? "更新しました" : "投稿しました", {
-            duration: 2000,
-          });
-          Reload(true);
-          if (attached) setImagesLoad("no-cache");
-          refIsSubmitted.current = true;
-          setTimeout(() => {
-            if (res.data.postId) {
-              nav(`/blog?postId=${res.data.postId}`, { replace: true });
+        toast
+          .promise(
+            fetch(apiOrigin + "/blog/send", {
+              method: "post",
+              mode: "cors",
+              body: formData,
+            }).then(async (r) => {
+              if (r.ok) return r;
+              else throw await r.text();
+            }),
+            {
+              loading: "送信中",
+              success: (r) =>
+                r.status === 200 ? "更新しました" : "投稿しました",
+              error: (e) => "送信に失敗しました" + (e ? `\n[${e}]` : ""),
+            }
+          )
+          .then(async (r) => (await r.json()) as KeyValueType<string>)
+          .then((data) => {
+            refIsSubmitted.current = true;
+            setPostsLoad("no-cache-reload");
+            if (attached) setImagesLoad("no-cache");
+            if (data.postId) {
+              nav(`/blog?postId=${data.postId}`, { replace: true });
             } else {
               nav(`/blog`, { replace: true });
             }
-          }, 200);
-        }
+          });
       } else {
         toast.error("更新するデータがありませんでした", { duration: 2000 });
       }
@@ -372,7 +405,7 @@ export function PostForm() {
       toast.error("エラーが発生しました", { duration: 2000 });
       console.error(error);
     }
-  }, [defaultValues, getValues, postCategories, nav, updateMode]);
+  }, [apiOrigin, defaultValues, getValues, postCategories, nav, updateMode]);
 
   return (
     <>
@@ -467,30 +500,10 @@ export function PostForm() {
                   }
                   break;
                 case "upload":
-                  const uploadFileSelector = document.createElement("input");
-                  uploadFileSelector.type = "file";
-                  uploadFileSelector.accept = "application/json";
-                  uploadFileSelector.onchange = () => {
-                    if (
-                      uploadFileSelector.files &&
-                      confirm("記事データを一括で上書きしますか？")
-                    ) {
-                      axios
-                        .post(
-                          apiOrigin + "/blog/send/all",
-                          uploadFileSelector.files[0],
-                          {
-                            withCredentials: true,
-                          }
-                        )
-                        .then(() => {
-                          alert("記事データを上書きしました。");
-                          location.href = "/blog";
-                        });
-                    }
-                  };
-                  uploadFileSelector.click();
-                  break;
+                  ImportPostJson({ apiOrigin }).then(() => {
+                    setPostsLoad("no-cache-reload");
+                    nav(`/blog`, { replace: true });
+                  });
               }
             }}
           >

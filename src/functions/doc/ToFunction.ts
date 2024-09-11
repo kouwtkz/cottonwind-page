@@ -10,7 +10,7 @@ export function KeyValueToString(value: KeyValueType<unknown> | KeyValueType<unk
           entry[k] = entry[k].map(v => String(v)).join(",")
         else {
           const type = typeof entry[k];
-          if (type === "object")
+          if (type === "object" && type !== null)
             entry[k] = JSON.stringify(entry[k])
         }
       })

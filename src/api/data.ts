@@ -13,6 +13,7 @@ export const app = new Hono<MeeBindings<MeeAPIEnv>>({
 app.get(
   "*",
   async (c, next) => {
+    if (c.env.DEV) return next();
     const Url = new URL(c.req.url);
     const hasCacheParam = Url.searchParams.has("cache");
     const hasEndpointParam = Url.searchParams.has("lastmod");
