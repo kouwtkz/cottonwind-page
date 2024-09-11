@@ -1,73 +1,55 @@
-import { create } from "zustand";
-import { useEffect, useLayoutEffect } from "react";
-import axios from "axios";
+import { useLayoutEffect } from "react";
 import { useSoundPlayer } from "./SoundPlayer";
-const defaultUrl = "/json/sound.json";
+import { atom, useAtom } from "jotai";
 
-function parseSoundItems(soundAlbum: SoundAlbumType) {
-  const soundList: SoundItemType[] = [];
-  soundAlbum.playlist?.forEach((playlist) => {
-    playlist.list.forEach((item) => {
-      soundList.push(item);
-    });
-  });
-  return soundList;
-}
-interface SoundDataType {
-  isSet: boolean;
-  SoundAlbum: SoundAlbumType | null;
-  SoundItemList: Array<SoundItemType>;
-  defaultPlaylist: SoundPlaylistType | null;
-  SetSoundAlbum: (album: SoundAlbumType) => void;
-  SetDefaultPlaylist: (playlist: SoundPlaylistType) => void;
-}
+export const soundsAtom = atom<SoundItemType[]>();
+export const soundAlbumAtom = atom<SoundAlbumType>();
+export const soundDefaultPlaylistAtom = atom<SoundPlaylistType>();
+export const soundLoadAtom = atom(true);
 
-export const useSoundState = create<SoundDataType>((set) => ({
-  isSet: false,
-  SoundAlbum: null,
-  SoundItemList: [],
-  defaultPlaylist: null,
-  SetSoundAlbum(data) {
-    set(() => ({
-      SoundAlbum: data,
-      SoundItemList: parseSoundItems(data),
-      isSet: true,
-    }));
-  },
-  SetDefaultPlaylist(playlist) {
-    set(() => ({
-      defaultPlaylist: playlist,
-    }));
-  },
-}));
+const url = "/json/sound.json";
 
-export function SoundState({ url = defaultUrl }: { url?: string }) {
-  const { isSet, SetSoundAlbum, SetDefaultPlaylist } =
-    useSoundState();
+export function SoundState() {
+  const setSounds = useAtom(soundsAtom)[1];
+  const setAlbum = useAtom(soundAlbumAtom)[1];
+  const setDefaultPlaylist = useAtom(soundDefaultPlaylistAtom)[1];
+  const [load, setLoad] = useAtom(soundLoadAtom);
   const RegistPlaylist = useSoundPlayer((state) => state.RegistPlaylist);
   useLayoutEffect(() => {
-    if (!isSet) {
-      axios(url).then((r) => {
-        const album = r.data as SoundAlbumType;
-        SetSoundAlbum(album);
-        const setupPlaylist = album.playlist?.find((playlist) =>
-          playlist.list.some((item) => item.setup)
-        ) || { list: [] };
-        if (setupPlaylist?.list.length > 0) {
-          const defaultPlaylist = setupPlaylist;
-          SetDefaultPlaylist(defaultPlaylist);
-          if (defaultPlaylist) {
-            const setupSoundIndex = defaultPlaylist?.list.findIndex(
-              (item) => item.setup
-            );
-            RegistPlaylist({
-              playlist: defaultPlaylist,
-              current: setupSoundIndex,
-            });
+    if (load) {
+      fetch(url)
+        .then((r) => r.json())
+        .then((data) => {
+          const album = data as SoundAlbumType;
+          setAlbum(album);
+          setSounds(
+            album.playlist?.reduce<SoundItemType[]>((a, c) => {
+              c.list.forEach((s) => {
+                console.log(s);
+                a.push(s);
+              });
+              return a;
+            }, [])
+          );
+          const setupPlaylist = album.playlist?.find((playlist) =>
+            playlist.list.some((item) => item.setup)
+          ) || { list: [] };
+          if (setupPlaylist?.list.length > 0) {
+            const defaultPlaylist = setupPlaylist;
+            setDefaultPlaylist(defaultPlaylist);
+            if (defaultPlaylist) {
+              const setupSoundIndex = defaultPlaylist?.list.findIndex(
+                (item) => item.setup
+              );
+              RegistPlaylist({
+                playlist: defaultPlaylist,
+                current: setupSoundIndex,
+              });
+            }
           }
-        }
-      });
+        });
+      setLoad(false);
     }
-  }, []);
+  }, [load, setLoad, setSounds, setAlbum, setDefaultPlaylist, RegistPlaylist]);
   return <></>;
 }

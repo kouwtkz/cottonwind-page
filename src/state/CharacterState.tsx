@@ -1,15 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect } from "react";
-import { create } from "zustand";
-import axios from "axios";
+import { useEffect } from "react";
 import { imagesAtom } from "./ImageState";
-import { useSoundState } from "./SoundState";
-import { convertCharaData } from "../data/functions/convertCharaData";
+import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
 import { atom, useAtom } from "jotai";
-import { pageIsCompleteAtom, siteIsFirstAtom } from "./StateSet";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
-import { ApiOriginAtom, EnvAtom } from "./EnvState";
-import { StorageDataClass } from "@/functions/StorageDataClass";
-import { getBasename } from "@/functions/doc/PathParse";
+import { EnvAtom } from "./EnvState";
 import { charactersDataAtom } from "./DataState";
 
 export const charactersAtom = atom<CharacterType[]>();
@@ -38,6 +32,8 @@ export function CharacterState() {
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersMap = useAtom(charactersMapAtom)[1];
   const images = useAtom(imagesAtom)[0];
+  const sounds = useAtom(soundsAtom)[0];
+  const defaultPlaylist = useAtom(soundDefaultPlaylistAtom)[0];
   const env = useAtom(EnvAtom)[0];
   useEffect(() => {
     if (images && characterData && env) {
@@ -63,6 +59,7 @@ export function CharacterState() {
         { kind: "image", name: "charaImages" },
         { kind: "headerImage" },
       ];
+
       charactersMap.forEach((chara) => {
         if (!chara.media) chara.media = {};
         const charaMedia = chara.media;
@@ -78,43 +75,42 @@ export function CharacterState() {
             );
           }
         });
+
+        if (sounds && defaultPlaylist) {
+          charactersMap.forEach((chara) => {
+            let playlist = chara.playlist;
+            if (playlist) {
+              const playlistTitle = `${chara.name}のプレイリスト`;
+              if (!chara.media) chara.media = {};
+              chara.media.playlist = {
+                title: playlistTitle,
+                list: playlist
+                  .reduce((a, c) => {
+                    if (c === "default") {
+                      defaultPlaylist?.list.forEach(({ src }) => {
+                        const foundIndex = sounds.findIndex(
+                          (item) => item.src === src
+                        );
+                        if (foundIndex >= 0) a.push(foundIndex);
+                      });
+                    } else {
+                      const foundIndex = sounds.findIndex((item) =>
+                        item.src.endsWith(c)
+                      );
+                      if (foundIndex >= 0) a.push(foundIndex);
+                    }
+                    return a;
+                  }, [] as number[])
+                  .filter((i) => i >= 0)
+                  .map((i) => sounds[i]),
+              };
+            }
+          });
+        }
       });
       setCharactersMap(charactersMap);
       setCharacters(Object.values(Object.fromEntries(charactersMap)));
     }
-  }, [characterData, images, env]);
-  // useEffect(() => {
-  //   if (charaList && SoundItemList.length > 0) {
-  //     charaList.forEach((chara) => {
-  //       let playlist = chara.playlist;
-  //       if (playlist) {
-  //         const playlistTitle = `${chara.name}のプレイリスト`;
-  //         if (!chara.media) chara.media = {};
-  //         chara.media.playlist = {
-  //           title: playlistTitle,
-  //           list: playlist
-  //             .reduce((a, c) => {
-  //               if (c === "default") {
-  //                 defaultPlaylist?.list.forEach(({ src }) => {
-  //                   const foundIndex = SoundItemList.findIndex(
-  //                     (item) => item.src === src
-  //                   );
-  //                   if (foundIndex >= 0) a.push(foundIndex);
-  //                 });
-  //               } else {
-  //                 const foundIndex = SoundItemList.findIndex((item) =>
-  //                   item.src.endsWith(c)
-  //                 );
-  //                 if (foundIndex >= 0) a.push(foundIndex);
-  //               }
-  //               return a;
-  //             }, [] as number[])
-  //             .filter((i) => i >= 0)
-  //             .map((i) => SoundItemList[i]),
-  //         };
-  //       }
-  //     });
-  //   }
-  // }, [SoundItemList, charaList]);
+  }, [characterData, images, sounds, defaultPlaylist, env]);
   return <></>;
 }

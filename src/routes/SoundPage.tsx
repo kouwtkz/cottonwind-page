@@ -1,11 +1,13 @@
 import toast from "react-hot-toast";
 import { useSoundPlayer } from "@/state/SoundPlayer";
-import { SoundState, useSoundState } from "@/state/SoundState";
+import { soundAlbumAtom, soundsAtom, SoundState } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
+import { useAtom } from "jotai";
 
 export function SoundPage() {
-  const { SoundAlbum, SoundItemList } = useSoundState();
+  const sounds = useAtom(soundsAtom)[0];
+  const soundAlbum = useAtom(soundAlbumAtom)[0];
   const {
     Play,
     Pause,
@@ -24,7 +26,7 @@ export function SoundPage() {
         className="title en-title-font"
         onClick={() => {
           if (special) {
-            const playlist = SoundAlbum?.playlist?.find((item) =>
+            const playlist = soundAlbum?.playlist?.find((item) =>
               item.list.some((sound) => sound.src === src)
             );
             if (playlist) {
@@ -39,9 +41,9 @@ export function SoundPage() {
             RegistPlaylist({
               playlist: {
                 title: "すべて再生",
-                list: SoundItemList,
+                list: sounds || [],
               },
-              current: SoundItemList.findIndex((sound) => sound.src === src),
+              current: sounds?.findIndex((sound) => sound.src === src),
               special: true,
             });
             toast("すべて再生", { duration: 1000 });
@@ -50,7 +52,7 @@ export function SoundPage() {
       >
         Sound Room
       </h1>
-      {SoundAlbum?.playlist?.map((playlist, i) => {
+      {soundAlbum?.playlist?.map((playlist, i) => {
         return (
           <div key={i} className="playlist">
             <h3 className="label">{playlist.title}</h3>
@@ -65,7 +67,7 @@ export function SoundPage() {
                       if (itemPaused) {
                         if (special) {
                           Play({
-                            current: SoundItemList.findIndex(
+                            current: sounds?.findIndex(
                               (_sound) => _sound.src === sound.src
                             ),
                           });

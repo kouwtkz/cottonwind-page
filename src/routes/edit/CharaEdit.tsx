@@ -31,7 +31,7 @@ import {
   charactersMapAtom,
   characterTagsAtom,
 } from "@/state/CharacterState";
-import { SoundState, useSoundState } from "@/state/SoundState";
+import { soundsAtom, SoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
 import {
@@ -67,7 +67,7 @@ export default function CharaEditForm() {
   const charactersMap = useAtom(charactersMapAtom)[0];
   const setCharactersLoad = useAtom(charactersLoadAtom)[1];
   const characterTags = useAtom(characterTagsAtom)[0];
-  const soundState = useSoundState();
+  const sounds = useAtom(soundsAtom)[0];
   const chara =
     charactersMap && charaName ? charactersMap.get(charaName) : null;
   const getDefaultValues = useCallback(
@@ -92,12 +92,12 @@ export default function CharaEditForm() {
   const playlistOptions = useMemo(
     () =>
       [{ label: "デフォルト音楽", value: "default" }].concat(
-        soundState.SoundItemList.map((s) => ({
+        (sounds || []).map((s) => ({
           label: s.title,
           value: s.src.slice(s.src.lastIndexOf("/") + 1),
         }))
       ) as ContentsTagsOption[],
-    [soundState.SoundItemList]
+    [sounds]
   );
 
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
@@ -375,7 +375,7 @@ export function CharaEditButton() {
             className="round large"
             title="キャラクターデータベースのインポート"
             onClick={() => {
-              ImportCharacterJson({apiOrigin}).then(() => {
+              ImportCharacterJson({ apiOrigin }).then(() => {
                 setCharactersLoad("no-cache-reload");
               });
             }}
