@@ -266,7 +266,7 @@ app.post("/send", async (c, next) => {
     }
     function Select() {
       const where: MeeSqlFindWhereType<ImageDataType> = id === null ? { src: imagePath } : { id };
-      return db.select({ table, where })
+      return db.select<ImageDataType>({ table, where })
     }
     const selectValue = await Select().catch(() => CreateTable(db).then(() => Select()));
     const timeNum = Number(mtime);
@@ -357,9 +357,7 @@ app.post("/import", async (c, next) => {
       if (Array.isArray(list)) {
         lastModToUniqueNow(list);
         KeyValueToString(list);
-        const sqlList = list.map((item) => MeeSqlClass.insertSQL({ table, entry: item }));
-        const sql = sqlList.join(";\n") + ";";
-        await db.db.exec(sql);
+        await Promise.all(list.map((item) => db.insert({ table, entry: item })));
         return c.text("インポート完了しました！")
       }
     }
