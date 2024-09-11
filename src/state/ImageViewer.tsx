@@ -35,7 +35,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { charactersMapAtom, CharaState } from "./CharaState";
+import { charactersMapAtom, CharacterState } from "./CharacterState";
 import { imagesAtom, UrlMediaOrigin } from "./ImageState";
 import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
@@ -113,7 +113,7 @@ function InfoArea({ image }: InfoAreaProps) {
 
   return (
     <div className="infoArea">
-      <CharaState />
+      <CharacterState />
       {isComplete ? (
         <>
           {isEdit ? null : (

@@ -11,7 +11,7 @@ import {
   charactersAtom,
   charactersMapAtom,
   characterTagsAtom,
-} from "@/state/CharaState";
+} from "@/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { imageAlbumsAtom } from "@/state/ImageState";

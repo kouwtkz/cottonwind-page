@@ -4,7 +4,7 @@ import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { MetaValues } from "./SetMeta";
-import { charactersMapAtom } from "@/state/CharaState";
+import { charactersMapAtom } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
 import { imagesAtom } from "@/state/ImageState";
 import { postsAtom } from "@/state/PostState";

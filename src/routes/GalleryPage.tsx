@@ -50,7 +50,7 @@ import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { getName } from "@/functions/doc/PathParse";
 import { imagesLoadAtom, ImportImagesJson } from "@/state/DataState";
-import { charactersAtom, charactersMapAtom } from "@/state/CharaState";
+import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { TbDatabaseImport } from "react-icons/tb";

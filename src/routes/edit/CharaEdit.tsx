@@ -30,7 +30,7 @@ import {
   charactersAtom,
   charactersMapAtom,
   characterTagsAtom,
-} from "@/state/CharaState";
+} from "@/state/CharacterState";
 import { SoundState, useSoundState } from "@/state/SoundState";
 import { ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";

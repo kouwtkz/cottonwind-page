@@ -26,7 +26,7 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
-import { charactersAtom } from "@/state/CharaState";
+import { charactersAtom } from "@/state/CharacterState";
 import { AutoImageItemType, getCopyRightList } from "@/data/functions/images";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";

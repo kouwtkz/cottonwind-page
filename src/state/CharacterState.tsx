@@ -33,7 +33,7 @@ export const characterTagsAtom = atom<ContentsTagsOption[]>([]);
   // const charaTags = Object.values(Object.fromEntries(tagOptionsMap));
 }
 
-export function CharaState() {
+export function CharacterState() {
   const characterData = useAtom(charactersDataAtom)[0];
   const setCharacters = useAtom(charactersAtom)[1];
   const setCharactersMap = useAtom(charactersMapAtom)[1];

@@ -9,7 +9,7 @@ import { EnvAtom, EnvState } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { charactersDataAtom, DataState, imagesDataAtom } from "./DataState";
-import { CharaState } from "./CharaState";
+import { CharacterState } from "./CharacterState";
 import PostState from "./PostState";
 
 export const siteIsFirstAtom = atom(true);
@@ -44,7 +44,7 @@ export function StateSet() {
       <PostState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
-        <CharaState />
+        <CharacterState />
         <FeedState />
       </LoadingState>
       {ThemeState.State()}
