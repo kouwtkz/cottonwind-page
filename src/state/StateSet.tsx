@@ -26,7 +26,6 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
-  console.log("test");
   const isSetList = [
     Boolean(useAtom(imagesDataAtom)[0]),
     Boolean(useAtom(charactersDataAtom)[0]),

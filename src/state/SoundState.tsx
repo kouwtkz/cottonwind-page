@@ -25,7 +25,6 @@ export function SoundState() {
           setSounds(
             album.playlist?.reduce<SoundItemType[]>((a, c) => {
               c.list.forEach((s) => {
-                console.log(s);
                 a.push(s);
               });
               return a;

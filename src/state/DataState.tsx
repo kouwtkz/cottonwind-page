@@ -55,7 +55,6 @@ async function loadData<T>({
     if (sEndpoint) Url.searchParams.set("lastmod", sEndpoint);
     const cache = typeof loadAtomValue === "string" ? loadAtomValue : undefined;
     if (cache) Url.searchParams.set("cache", cache);
-    console.log(Url, StorageData);
     await fetch(Url.href, {
       cache: cache !== "no-cache-reload" ? cache : undefined,
     })
