@@ -74,7 +74,14 @@ export default defineConfig(({ mode }) => {
               }
               return 'static/[name].[ext]';
             }
-          }
+          },
+          onwarn(warning, warn) {
+            // Suppress "Module level directives cause errors when bundled" warnings
+            if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+              return;
+            }
+            warn(warning);
+          },
         },
         // manifest: true,
         chunkSizeWarningLimit: 3000
