@@ -20,6 +20,9 @@ import {
   MdEditNote,
   MdFileDownload,
   MdFileUpload,
+  MdOutlineImage,
+  MdOutlineInsertEmoticon,
+  MdOutlineLandscape,
 } from "react-icons/md";
 import { TbArrowsMove, TbDatabaseImport } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
@@ -32,7 +35,7 @@ import {
   characterTagsAtom,
 } from "@/state/CharacterState";
 import { soundsAtom, SoundState } from "@/state/SoundState";
-import { ImageMeeIcon } from "@/layout/ImageMee";
+import { ImageMee, ImageMeeIcon } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
 import {
   DndContext,
@@ -56,9 +59,14 @@ import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDownload } from "@/components/FileTool";
+import { fileDialog, fileDownload } from "@/components/FileTool";
 import { ApiOriginAtom } from "@/state/EnvState";
-import { charactersLoadAtom, ImportCharacterJson } from "@/state/DataState";
+import {
+  charactersLoadAtom,
+  imagesLoadAtom,
+  ImportCharacterJson,
+} from "@/state/DataState";
+import { ImagesUpload } from "./ImageEditForm";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -66,6 +74,7 @@ export function CharacterEditForm() {
   const { charaName } = useParams();
   const charactersMap = useAtom(charactersMapAtom)[0];
   const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
   const characterTags = useAtom(characterTagsAtom)[0];
   const sounds = useAtom(soundsAtom)[0];
   const chara =
@@ -185,6 +194,57 @@ export function CharacterEditForm() {
       });
   }
 
+  const ImageSetter = useCallback(
+    (mode: characterImageMode, title = "画像の設定") => {
+      return (
+        <button
+          className={"normal" + (chara?.media?.[mode] ? " plain" : "")}
+          title={title}
+          type="button"
+          onClick={() => {
+            if (chara) {
+              fileDialog("image/*")
+                .then((files) => Array.from(files))
+                .then((files) =>
+                  ImagesUpload({
+                    files,
+                    apiOrigin,
+                    iconOnly: mode === "icon" ? true : undefined,
+                  })
+                )
+                .then(async (r) => {
+                  setImagesLoad("no-cache");
+                  return r
+                    ? ((await r.results[0].json()) as KeyValueType<unknown>)
+                    : null;
+                })
+                .then(async (o) => {
+                  if (o && typeof o.name === "string") {
+                    const formData = new FormData();
+                    formData.append("target", chara.id);
+                    formData.append(mode, o.name);
+                    return fetch(apiOrigin + "/character/send", {
+                      method: "POST",
+                      body: formData,
+                    }).then(() => {
+                      setCharactersLoad("no-cache");
+                    });
+                  }
+                });
+            }
+          }}
+        >
+          {chara?.media?.[mode] ? (
+            <ImageMeeIcon className="charaIcon" imageItem={chara.media[mode]} />
+          ) : (
+            <MdFileUpload />
+          )}
+        </button>
+      );
+    },
+    [chara]
+  );
+
   return (
     <form className="edit">
       <SoundState />
@@ -219,24 +279,29 @@ export function CharacterEditForm() {
         <textarea placeholder="概要" {...register("overview")} />
       </div>
       <div className="flex column">
-        <label className="flex center">
-          <span className="label-l">アイコン</span>
+        <label className="flex center pointer">
+          {ImageSetter("icon", "アイコンの設定")}
+          <span className="label-l normal flex center around">アイコン</span>
           <input
             className="flex-1"
             placeholder="自動設定"
             {...register("icon")}
           />
         </label>
-        <label className="flex center">
-          <span className="label-l">ヘッダー画像</span>
+        <label className="flex center pointer">
+          {ImageSetter("headerImage", "ヘッダーの設定")}
+          <span className="label-l normal flex center around">
+            ヘッダー画像
+          </span>
           <input
             className="flex-1"
             placeholder="ヘッダー画像"
             {...register("headerImage")}
           />
         </label>
-        <label className="flex center">
-          <span className="label-l">メイン画像</span>
+        <label className="flex center pointer">
+          {ImageSetter("image", "メイン画像の設定")}
+          <span className="label-l normal flex center around">メイン画像</span>
           <input
             className="flex-1"
             placeholder="メイン画像"
@@ -344,7 +409,8 @@ export const useEditSwitchState = create<{
 
 export function CharaEditButton() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
-  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const isComplete = useAtom(dataIsCompleteAtom)[0];
+  const setImagesLoad = useAtom(imagesLoadAtom)[1];
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   const setCharactersLoad = useAtom(charactersLoadAtom)[1];
@@ -369,6 +435,27 @@ export function CharaEditButton() {
             }}
           >
             <MdFileDownload />
+          </button>
+          <button
+            type="button"
+            className="round large"
+            title="キャラクター用のアイコンのインポート"
+            onClick={() => {
+              fileDialog("image/*", true)
+                .then((files) => Array.from(files))
+                .then((files) =>
+                  ImagesUpload({
+                    files,
+                    apiOrigin,
+                    iconOnly: true,
+                  })
+                )
+                .then(() => {
+                  setImagesLoad("no-cache");
+                });
+            }}
+          >
+            <MdFileUpload />
           </button>
           <button
             type="button"
@@ -523,4 +610,85 @@ function SortableItem({ chara }: { chara: CharacterType }) {
       <CharaListItem chara={chara} />
     </div>
   );
+}
+
+interface CharaImageRbButtonsProps {
+  image: ImageType | null;
+}
+export function CharaImageSettingRbButtons({
+  image,
+}: CharaImageRbButtonsProps) {
+  const params = useParams();
+  if (params.charaName) {
+    const apiOrigin = useAtom(ApiOriginAtom)[0];
+    const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+    function onClickHandler(mode: characterImageMode) {
+      if (image) {
+        const formData = new FormData();
+        formData.append("target", String(params.charaName));
+        formData.append(mode, image.key);
+        return toast
+          .promise(
+            fetch(apiOrigin + "/character/send", {
+              method: "POST",
+              body: formData,
+            }),
+            {
+              loading: "送信中",
+              success: () => {
+                switch (mode) {
+                  case "icon":
+                    return "アイコンに設定しました";
+                  case "headerImage":
+                    return "ヘッダーに設定しました";
+                  case "image":
+                    return "メイン画像に設定しました";
+                }
+              },
+              error: "送信に失敗しました",
+            }
+          )
+          .then(() => {
+            setCharactersLoad("no-cache");
+          });
+      }
+    }
+
+    return (
+      <>
+        <button
+          type="button"
+          className="round"
+          title="キャラクターのアイコンに設定"
+          onClick={() => {
+            onClickHandler("icon");
+          }}
+        >
+          <MdOutlineInsertEmoticon />
+        </button>
+        <button
+          type="button"
+          className="round"
+          title="キャラクターのヘッダーに設定"
+          onClick={() => {
+            onClickHandler("headerImage");
+          }}
+        >
+          <MdOutlineLandscape />
+        </button>
+        <button
+          type="button"
+          className="round"
+          title="キャラクターのメイン画像に設定"
+          onClick={() => {
+            onClickHandler("image");
+          }}
+        >
+          <MdOutlineImage />
+        </button>
+      </>
+    );
+  } else {
+    return <></>;
+  }
 }

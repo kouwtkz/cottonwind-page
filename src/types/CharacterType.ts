@@ -30,3 +30,5 @@ interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "b
     playlist?: SoundPlaylistType,
   },
 }
+
+type characterImageMode = "icon" | "image" | "headerImage";

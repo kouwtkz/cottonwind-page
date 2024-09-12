@@ -102,8 +102,17 @@ export function ImageMee({
       return [width, height];
     }
   }, [imageItem, size, width, height]);
+  const iconOnly = useMemo(
+    () =>
+      imageItem &&
+      imageItem.icon &&
+      !imageItem.src &&
+      !imageItem.webp &&
+      !imageItem.webp,
+    [imageItem]
+  );
   const thumbnail = useMemo(
-    () => MediaOrigin(imageItem?.thumbnail),
+    () => MediaOrigin(imageItem?.thumbnail || imageItem?.icon),
     [imageItem, MediaOrigin]
   );
 
@@ -113,14 +122,15 @@ export function ImageMee({
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
-        : (imageItem as unknown as KeyValueType<string>)[mode] || src,
+        : MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
+          src,
     [imageItem, mode, src, thumbnail, isSetOrigin]
   );
   const imageShowList = useMemo(() => {
     const list: (string | null)[] = [];
     if (mode === "simple" && thumbnail) list.push(thumbnail);
     else list.push(null);
-    list.push(imageSrc);
+    if (imageSrc) list.push(imageSrc);
     return list;
   }, [imageSrc, mode, thumbnail]);
   const max = useMemo(() => {
@@ -137,8 +147,9 @@ export function ImageMee({
     const list: string[] = [];
     if (className) list.push(className);
     if (!mainImgSrc) list.push("blank");
+    if (iconOnly) list.push("pixel");
     return list.length > 0 ? list.join(" ") : undefined;
-  }, [className, mainImgSrc]);
+  }, [className, mainImgSrc, iconOnly]);
   return (
     <img
       src={mainImgSrc || blankSrc}

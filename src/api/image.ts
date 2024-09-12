@@ -4,7 +4,10 @@ import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
-import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import {
+  KeyValueToString,
+  lastModToUniqueNow,
+} from "@/functions/doc/ToFunction";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
@@ -13,19 +16,19 @@ export const app = new Hono<MeeBindings<MeeAPIEnv>>({
 
 app.use("*", async (c, next) => {
   if (IsLogin(c)) return next();
-  else return c.text("403 Forbidden", 403)
+  else return c.text("403 Forbidden", 403);
 });
 
 const table = "images";
 
 const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   id: { primary: true },
-  src: { type: "TEXT", unique: true, notNull: true },
   key: { type: "TEXT", unique: true, notNull: true },
   name: { type: "TEXT" },
   album: { type: "TEXT" },
   description: { type: "TEXT" },
-  webp: { type: "TEXT", unique: true },
+  src: { type: "TEXT" },
+  webp: { type: "TEXT" },
   thumbnail: { type: "TEXT" },
   icon: { type: "TEXT" },
   width: { type: "INTEGER" },
@@ -53,7 +56,10 @@ async function CreateTable(d1: MeeSqlD1) {
     .catch(() => { });
 }
 
-export async function ServerImagesGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
+export async function ServerImagesGetData(
+  searchParams: URLSearchParams,
+  db: MeeSqlD1
+) {
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
@@ -82,8 +88,8 @@ function FormBoolToInt(v?: string) {
 }
 
 function BlankStringsToNull(...args: (string | undefined)[]) {
-  if (args.some(v => v !== undefined)) {
-    const union = args.filter(v => v).join(",");
+  if (args.some((v) => v !== undefined)) {
+    const union = args.filter((v) => v).join(",");
     return union || null;
   } else return undefined;
 }
@@ -112,32 +118,37 @@ app.patch("/send", async (c, next) => {
     ...Object.entries(values).reduce<KeyValueType<unknown>>((a, [k, v]) => {
       a[k] = BlankStringsToNull(v as string | undefined);
       return a;
-    }, {})
+    }, {}),
   };
   const id = Number(_id);
   if (rename) {
     const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
     if (value) {
       entry.key = rename;
-      async function renamePut(key: "src" | "webp" | "thumbnail" | "icon", rename: string) {
+      async function renamePut(
+        key: "src" | "webp" | "thumbnail" | "icon",
+        rename: string
+      ) {
         if (value[key]) {
-          const object = await c.env.BUCKET.get(value[key])
+          const object = await c.env.BUCKET.get(value[key]);
           if (object) {
             entry[key] = rename;
-            await c.env.BUCKET.put(rename, await object.arrayBuffer())
+            await c.env.BUCKET.put(rename, await object.arrayBuffer());
             await c.env.BUCKET.delete(value[key]);
           }
         }
       }
-      const renameSrc = rename + "." + getExtension(value.src)
+      const renameSrc = value.src
+        ? rename + "." + getExtension(value.src)
+        : null;
       const renameWebp = rename + ".webp";
-      await renamePut("src", "image/" + renameSrc);
+      if (renameSrc) await renamePut("src", "image/" + renameSrc);
       await renamePut("webp", "image/webp/" + renameWebp);
       await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
       await renamePut("icon", "image/icon/" + renameWebp);
     }
   }
-  await db.update<ImageDataType>({ table, entry, where: { id } })
+  await db.update<ImageDataType>({ table, entry, where: { id } });
   return c.text(src ?? id + "を更新しました");
 });
 
@@ -146,7 +157,9 @@ app.delete("/send", async (c, next) => {
   const formdata = await c.req.parseBody();
   if (typeof formdata.id === "string") {
     const id = Number(formdata.id);
-    const values = (await db.select<ImageDataType>({ table, params: "*", where: { id } }))[0];
+    const values = (
+      await db.select<ImageDataType>({ table, params: "*", where: { id } })
+    )[0];
     if (values.src) c.env.BUCKET.delete(values.src);
     if (values.webp) c.env.BUCKET.delete(values.webp);
     if (values.thumbnail) c.env.BUCKET.delete(values.thumbnail);
@@ -155,7 +168,7 @@ app.delete("/send", async (c, next) => {
     await db.update<ImageDataType>({
       table,
       entry: { ...nullEntry, lastmod: new Date().toISOString() },
-      where: { id }
+      where: { id },
     });
     return c.text(values.src + "を削除しました");
   }
@@ -205,7 +218,12 @@ async function Resize({
 async function getRetryTime(e: Error, time: Date, db: MeeSqlD1) {
   if (/UNIQUE.+\.time/.test(e.message)) {
     time.setSeconds(time.getSeconds() + 1);
-    const values = await db.select<any>({ table, where: { time: { lt: time.toISOString() } }, take: 1, orderBy: { time: "desc" } });
+    const values = await db.select<any>({
+      table,
+      where: { time: { lt: time.toISOString() } },
+      take: 1,
+      orderBy: { time: "desc" },
+    });
     if (values.length > 0 && values[0].time) {
       const retryTime = new Date(values[0].time);
       retryTime.setMilliseconds(retryTime.getMilliseconds() + 1);
@@ -215,28 +233,33 @@ async function getRetryTime(e: Error, time: Date, db: MeeSqlD1) {
   return null;
 }
 
-type ModeType = "src" | "webp" | "thumbnail" | "icon";
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const formData = (await c.req.parseBody()) as KeyValueType<unknown>;
-  const attached = (formData.attached as File | undefined) || null;
-  const mtime = (formData.mtime as string | undefined) || null;
-  const album = (formData["album"] as string | undefined);
-  const tags = (formData["tags"] as string | undefined) || null;
-  const characters = (formData["characters"] as string | undefined) || null;
-  const images: { [k in ModeType]?: { path: string, buf?: Uint8Array | ArrayBuffer | null } } = {};
-  const webp = typeof formData.webp === "string" ? null : formData.webp as File | undefined;
-  const thumbnail = typeof formData.thumbnail === "string" ? null : formData.thumbnail as File | undefined;
-  const icon = typeof formData.icon === "string" ? null : formData.icon as File | undefined;
-  const filename = attached?.name || webp?.name || thumbnail?.name || icon?.name;
+  const formData = await c.req.formData();
+  const attached = formData.get("attached") as File | null;
+  const mtime = formData.get("mtime") as string | null;
+  const album = formData.get("album") as string | null;
+  const tags = formData.get("tags") as string | null;
+  const characters = formData.get("characters") as string | null;
+  const images: {
+    [k in imageModeType]?: { path: string; buf?: Uint8Array | ArrayBuffer | null };
+  } = {};
+  const webp = formData.get("webp") as File | null;
+  const thumbnail = formData.get("thumbnail") as File | null;
+  const icon = formData.get("icon") as File | null;
+  const filename = attached?.name || (icon || webp || thumbnail)?.name;
   const name = filename ? getName(filename) : "";
-  const id = typeof formData.id === "string" ? Number(formData.id) : null;
-  async function fileModeUpload(mode: ModeType, file?: File | null) {
+  const id = formData.has("id") ? Number(formData.get("id")) : null;
+  const width = formData.has("width") ? Number(formData.get("width")) : null;
+  const height = formData.has("height") ? Number(formData.get("height")) : null;
+  let metaSize: { width: number; height: number } | undefined;
+  if (width && height) metaSize = { width, height };
+  async function fileModeUpload(mode: imageModeType, file?: File | null) {
     if (file) {
-      const path = "image/" + (mode === "src" ? "" : (mode + "/")) + file.name;
+      const path = "image/" + (mode === "src" ? "" : mode + "/") + file.name;
       images[mode] = {
         path,
-        buf: await file.arrayBuffer()
+        buf: await file.arrayBuffer(),
       };
     }
   }
@@ -244,6 +267,18 @@ app.post("/send", async (c, next) => {
   await fileModeUpload("thumbnail", thumbnail);
   await fileModeUpload("icon", icon);
   let imageBuffer: ArrayBuffer | undefined;
+  function Select() {
+    const where: MeeSqlFindWhereType<ImageDataType> =
+      id === null ? { key: name } : { id };
+    return db.select<ImageDataType>({ table, where });
+  }
+  const selectValue = await Select().catch(() =>
+    CreateTable(db).then(() => Select())
+  );
+  const timeNum = Number(mtime);
+  const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
+  const timeString = time.toISOString();
+  const value = selectValue[0];
   if (attached) {
     imageBuffer = await attached.arrayBuffer();
     const imagePath = "image/" + attached.name;
@@ -251,7 +286,7 @@ app.post("/send", async (c, next) => {
     const arr = new Uint8Array(imageBuffer);
     const blob = new Blob([arr]);
     const ext = getExtension(attached.name);
-    const metaSize = await imageDimensionsFromStream(blob.stream());
+    if (!metaSize) metaSize = await imageDimensionsFromStream(blob.stream());
     switch (ext) {
       case "svg":
         break;
@@ -265,15 +300,6 @@ app.post("/send", async (c, next) => {
         }
         break;
     }
-    function Select() {
-      const where: MeeSqlFindWhereType<ImageDataType> = id === null ? { src: imagePath } : { id };
-      return db.select<ImageDataType>({ table, where })
-    }
-    const selectValue = await Select().catch(() => CreateTable(db).then(() => Select()));
-    const timeNum = Number(mtime);
-    const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
-    const timeString = time.toISOString();
-    const value = selectValue[0];
     if (value?.mtime !== timeString) {
       if (images.src && imageBuffer) images.src.buf = imageBuffer;
       if (imageBuffer && images.webp && !images.webp.buf) {
@@ -296,50 +322,62 @@ app.post("/send", async (c, next) => {
       delete images.thumbnail;
       delete images.icon;
     }
-    if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
-    if (images.webp?.buf) await c.env.BUCKET.put(images.webp.path, images.webp.buf);
-    if (images.thumbnail?.buf) await c.env.BUCKET.put(images.thumbnail.path, images.thumbnail.buf);
-    if (images.icon?.buf) await c.env.BUCKET.put(images.icon.path, images.icon.buf);
-    const pathes = Object.fromEntries(Object.entries(images).map(([k, v]) => ([k, v.path || undefined])));
-    if (selectValue.length > 0) {
-      const updateTags = tags ? (value.tags ? value.tags + "," : "") + tags : undefined;
-      const updateCharacters = characters ? (value.characters ? value.characters + "," : "") + characters : undefined;
-      await db.update<ImageDataType>({
-        table,
-        where: { src: imagePath },
-        entry: {
-          name,
-          album: album ? album : (value.album ? undefined : "uploads"),
-          ...pathes,
-          ...metaSize,
-          tags: updateTags,
-          characters: updateCharacters,
-          time: value.time ? undefined : timeString,
-          mtime: timeString,
-          version: (value.version ?? 0) + 1
-        },
-        rawEntry: { lastmod: MeeSqlD1.isoFormat() },
-      });
-    } else {
-      await db.insert<ImageDataType>({
-        table,
-        entry: {
-          name,
-          album: album || "art",
-          time: timeString,
-          mtime: timeString,
-          key: getName(imagePath),
-          src: imagePath,
-          ...pathes,
-          ...metaSize,
-          tags,
-          characters,
-          version: 1,
-        },
-      });
-    }
   }
-  return c.newResponse(null);
+  if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
+  if (images.webp?.buf)
+    await c.env.BUCKET.put(images.webp.path, images.webp.buf);
+  if (images.thumbnail?.buf)
+    await c.env.BUCKET.put(images.thumbnail.path, images.thumbnail.buf);
+  if (images.icon?.buf)
+    await c.env.BUCKET.put(images.icon.path, images.icon.buf);
+  const pathes = Object.fromEntries(
+    Object.entries(images).map(([k, v]) => [k, v.path || undefined])
+  );
+  if (selectValue.length > 0) {
+    const updateTags = tags
+      ? (value.tags ? value.tags + "," : "") + tags
+      : undefined;
+    const updateCharacters = characters
+      ? (value.characters ? value.characters + "," : "") + characters
+      : undefined;
+    const entry: MeeSqlEntryType<ImageDataType> = {
+      name,
+      album: album ? album : value.album ? undefined : "uploads",
+      ...pathes,
+      ...metaSize,
+      tags: updateTags,
+      characters: updateCharacters,
+      time: value.time ? undefined : timeString,
+      mtime: timeString,
+      version: (value.version ?? 0) + 1,
+    };
+    await db.update<ImageDataType>({
+      table,
+      where: { key: name },
+      entry,
+      rawEntry: { lastmod: MeeSqlD1.isoFormat() },
+    });
+    return c.json(entry);
+  } else {
+    const entry: MeeSqlEntryType<ImageDataType> = {
+      name,
+      album: album || "art",
+      time: timeString,
+      mtime: timeString,
+      key: name,
+      src: images.src?.path,
+      ...pathes,
+      ...metaSize,
+      tags,
+      characters,
+      version: 1,
+    };
+    await db.insert<ImageDataType>({
+      table,
+      entry,
+    });
+    return c.json(entry);
+  }
 });
 
 app.post("/import", async (c, next) => {
@@ -359,13 +397,15 @@ app.post("/import", async (c, next) => {
       if (Array.isArray(list)) {
         lastModToUniqueNow(list);
         KeyValueToString(list);
-        await Promise.all(list.map((item) => db.insert({ table, entry: item })));
-        return c.text("インポート完了しました！")
+        await Promise.all(
+          list.map((item) => db.insert({ table, entry: item }))
+        );
+        return c.text("インポート完了しました！");
       }
     }
   }
   return c.text("インポートに失敗しました", 500);
-})
+});
 
 app.delete("/", async (c, next) => {
   if (c.env.DEV) {

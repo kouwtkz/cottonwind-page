@@ -1,10 +1,10 @@
 interface ImageDataType {
   id: number;
-  src: string;
   key: string;
   name?: string | null;
   album?: string | null;
   description?: string | null;
+  src?: string;
   webp?: string | null;
   thumbnail?: string | null;
   icon?: string | null;
@@ -67,3 +67,5 @@ interface imageFormDataType extends Omit<ImageDataType, "width" | "height" | "ve
   topImage?: string;
   pickup?: string;
 }
+
+type imageModeType = "src" | "webp" | "thumbnail" | "icon";

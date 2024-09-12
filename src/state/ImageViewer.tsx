@@ -439,11 +439,11 @@ export function GalleryViewerPaging({
     [yfList, galleryItemIndex]
   );
   const imageIndex = useMemo(() => {
-    const src = image?.src;
-    if (src) {
-      return groupImageList.findIndex((groupImage) => groupImage.src === src);
+    const key = image?.key;
+    if (key) {
+      return groupImageList.findIndex((groupImage) => groupImage.key === key);
     } else return -1;
-  }, [image?.src, groupImageList]);
+  }, [image, groupImageList]);
 
   const prevNextImage = useMemo(
     () => ({
@@ -455,7 +455,7 @@ export function GalleryViewerPaging({
 
   const prevNextToHandler = useCallback(
     (image: ImageType) => {
-      if (image.src) searchParams.set("image", getName(image.src));
+      if (image.key) searchParams.set("image", image.key);
       return new URL("?" + searchParams.toString(), location.href).href;
     },
     [searchParams]

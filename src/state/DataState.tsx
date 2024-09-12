@@ -245,11 +245,23 @@ export function DataState() {
   return <></>;
 }
 
-export function UploadToast(promise: Promise<unknown>) {
+export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
     loading: "アップロード中…",
-    success: (result) => unknownToString(result) || "アップロードしました",
-    error: (error) => unknownToString(error) || "アップロードに失敗しました",
+    success: (result) => {
+      const kv = result as KeyValueType;
+      return (
+        unknownToString("message" in kv ? kv.message : result) ||
+        "アップロードしました"
+      );
+    },
+    error: (error) => {
+      const kv = error as KeyValueType;
+      return (
+        unknownToString("message" in kv ? kv.message : error) ||
+        "アップロードに失敗しました"
+      );
+    },
   });
 }
 
@@ -297,7 +309,6 @@ export async function ImportImagesJson({
               : null;
             const albumLastSlach = album.name?.lastIndexOf("/") ?? -1;
             dataMap.set(key, {
-              src: "image/" + item.src,
               key: getName(item.src),
               album:
                 album.name && albumLastSlach >= 0

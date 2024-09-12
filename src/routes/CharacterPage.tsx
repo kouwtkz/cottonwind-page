@@ -71,23 +71,25 @@ export const CharaListItem = memo(function CharaListItem({
   className?: string;
 }) {
   return (
-    <div className="inner" {...args}>
-      {chara.media?.image ? (
-        <ImageMeeThumbnail
-          imageItem={chara.media.image}
-          className="image"
-          loadingScreen={true}
-        />
-      ) : (
-        <img
-          src="/static/images/svg/question.svg"
-          alt={chara.name}
-          width={500}
-          height={500}
-        />
-      )}
+    <>
+      <div className="inner" {...args}>
+        {chara.media?.image ? (
+          <ImageMeeThumbnail
+            imageItem={chara.media.image}
+            className="image"
+            loadingScreen={true}
+          />
+        ) : (
+          <img
+            src="/static/images/svg/question.svg"
+            alt={chara.name}
+            width={500}
+            height={500}
+          />
+        )}
+      </div>
       <div className="name">{chara.name}</div>
-    </div>
+    </>
   );
 });
 

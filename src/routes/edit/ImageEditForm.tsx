@@ -16,7 +16,12 @@ import {
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
 } from "@/components/dropdown/SortFilterTags";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
@@ -24,10 +29,16 @@ import {
   MdDeleteForever,
   MdLibraryAddCheck,
   MdOutlineContentCopy,
+  MdOutlineImage,
+  MdOutlineLandscape,
+  MdOutlineInsertEmoticon,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { charactersAtom } from "@/state/CharacterState";
-import { AutoImageItemType, getCopyRightList } from "@/functions/imageFunctions";
+import {
+  AutoImageItemType,
+  getCopyRightList,
+} from "@/functions/imageFunctions";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
 import SetRegister from "@/components/hook/SetRegister";
@@ -50,6 +61,7 @@ import {
   resizeImageCanvas,
   resizeImageCanvasProps,
 } from "@/components/Canvas";
+import { CharaImageSettingRbButtons } from "./CharacterEdit";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -262,7 +274,25 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   return (
     <>
-      <RbButtonArea>
+      <RbButtonArea
+        dropdown={
+          <>
+            <button
+              title="マークダウン用のコピー"
+              type="button"
+              className="round rb"
+              onClick={() => {
+                if (image) {
+                  navigator.clipboard.writeText(`![](?image=${image.name})`);
+                  toast("コピーしました", { duration: 1500 });
+                }
+              }}
+            >
+              <MdOutlineContentCopy />
+            </button>
+          </>
+        }
+      >
         {isEdit ? (
           <>
             <button
@@ -298,19 +328,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             </button>
           </>
         ) : (
-          <button
-            title="マークダウン用のコピー"
-            type="button"
-            className="round rb"
-            onClick={() => {
-              if (image) {
-                navigator.clipboard.writeText(`![](?image=${image.name})`);
-                toast("コピーしました", { duration: 1500 });
-              }
-            }}
-          >
-            <MdOutlineContentCopy />
-          </button>
+          <>
+            <CharaImageSettingRbButtons image={image} />
+          </>
         )}
         <button
           title={isEdit ? "保存" : "編集"}
@@ -535,17 +555,38 @@ interface ImagesUploadOptions {
   album?: string;
   tags?: string | string[];
   character?: string;
+  original?: boolean;
+  webp?: boolean;
+  thumbnail?: boolean | number;
+  icon?: boolean | number;
+  iconOnly?: boolean | number;
+  width?: number;
+  height?: number;
 }
-interface ImagesUploadProps {
+interface ImagesUploadProps extends ImagesUploadOptions {
   files: File[];
   apiOrigin?: string;
-  options?: ImagesUploadOptions;
 }
 export async function ImagesUploadProcess({
   files,
   apiOrigin,
-  options = {},
+  tags,
+  album,
+  character,
+  original = true,
+  webp = true,
+  thumbnail = true,
+  icon = false,
+  iconOnly = false,
+  width,
+  height,
 }: ImagesUploadProps) {
+  if (iconOnly) {
+    original = false;
+    webp = false;
+    thumbnail = false;
+    icon = iconOnly;
+  }
   const url = (apiOrigin || "") + "/image/send";
   const checkTime = new Date().getTime();
   const targetFiles = files.filter((file) => {
@@ -557,62 +598,83 @@ export async function ImagesUploadProcess({
     }
   });
   if (targetFiles.length === 0) return false;
-  const joinedTags = Array.isArray(options.tags)
-    ? options.tags.join(",")
-    : options.tags;
+  const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
+  const iconSize = typeof icon === "number" ? icon : 48;
+  const joinedTags = Array.isArray(tags) ? tags.join(",") : tags;
   const fetchList = await Promise.all(
     targetFiles.map(async (file) => {
       const name = getName(file.name);
       const ext = getExtension(file.name);
       const webpName = name + ".webp";
       const formData = new FormData();
-      if (options.album) formData.append("album", options.album);
+      if (album) formData.append("album", album);
       if (joinedTags) formData.append("tags", joinedTags);
-      if (options.character) formData.append("characters", options.character);
-      formData.append("attached", file);
+      if (character) formData.append("characters", character);
+      if (original) formData.append("attached", file);
       switch (ext) {
         case "svg":
           break;
         default:
           const image = await imageObject(file);
-          if (ext !== "gif") {
+          if (webp) {
+            if (ext !== "gif") {
+              formData.append(
+                "webp",
+                await resizeImageCanvas({
+                  image,
+                  type: "webp",
+                }),
+                webpName
+              );
+            } else formData.append("webp", "");
+          }
+          if (thumbnail) {
+            const resizeProps: resizeImageCanvasProps = {
+              image,
+              size: thumbnailSize,
+              type: "webp",
+              expansion: false,
+            };
+            if (ext === "gif") {
+              formData.append(
+                "thumbnail",
+                await resizeImageCanvas({
+                  ...resizeProps,
+                  imageSmoothingEnabled: false,
+                }),
+                webpName
+              );
+            } else if (imageOverSizeCheck(image, resizeProps.size!)) {
+              formData.append(
+                "thumbnail",
+                await resizeImageCanvas({ ...resizeProps, quality: 0.8 }),
+                webpName
+              );
+            } else {
+              formData.append("thumbnail", "");
+            }
+          }
+          if (icon) {
+            const resizeProps: resizeImageCanvasProps = {
+              image,
+              size: iconSize,
+              type: "webp",
+              expansion: false,
+            };
             formData.append(
-              "webp",
-              await resizeImageCanvas({
-                image,
-                type: "webp",
-              }),
+              "icon",
+              await resizeImageCanvas(resizeProps),
               webpName
             );
-          } else formData.append("webp", "");
-          const thumbnailProps: resizeImageCanvasProps = {
-            image,
-            size: 340,
-            type: "webp",
-            expansion: false,
-          };
-          if (ext === "gif") {
-            formData.append(
-              "thumbnail",
-              await resizeImageCanvas({
-                ...thumbnailProps,
-                imageSmoothingEnabled: false,
-              }),
-              webpName
-            );
-          } else if (imageOverSizeCheck(image, thumbnailProps.size!)) {
-            formData.append(
-              "thumbnail",
-              await resizeImageCanvas({ ...thumbnailProps, quality: 0.8 }),
-              webpName
-            );
-          } else {
-            formData.append("thumbnail", "");
           }
           break;
       }
       if (file.lastModified)
         formData.append("mtime", String(file.lastModified));
+      if (iconOnly) {
+        formData.append("width", String(iconSize));
+        formData.append("height", String(iconSize));
+      }
       return () =>
         fetch(url, {
           method: "POST",
@@ -627,15 +689,20 @@ export async function ImagesUploadProcess({
   }
   const successCount = results.filter((r) => r.status === 200).length;
   if (results.length === successCount) {
-    return successCount + "件のアップロードに成功しました！";
+    return {
+      message: successCount + "件のアップロードに成功しました！",
+      results,
+    };
   } else {
-    throw (
-      (successCount
-        ? successCount + "件のアップロードに成功しましたが、"
-        : "") +
-      (results.length - successCount) +
-      "件のアップロードに失敗しました"
-    );
+    throw {
+      message:
+        (successCount
+          ? successCount + "件のアップロードに成功しましたが、"
+          : "") +
+        (results.length - successCount) +
+        "件のアップロードに失敗しました",
+      results,
+    };
   }
 }
 

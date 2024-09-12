@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { imagesAtom } from "./ImageState";
+import { imagesMapAtom } from "./ImageState";
 import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
 import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
@@ -15,13 +15,13 @@ export function CharacterState() {
   const characterData = useAtom(charactersDataAtom)[0];
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersMap = useAtom(charactersMapAtom)[1];
-  const images = useAtom(imagesAtom)[0];
+  const imagesMap = useAtom(imagesMapAtom)[0];
   const sounds = useAtom(soundsAtom)[0];
   const defaultPlaylist = useAtom(soundDefaultPlaylistAtom)[0];
   const env = useAtom(EnvAtom)[0];
   const setCharacterTags = useAtom(characterTagsAtom)[1];
   useEffect(() => {
-    if (images && characterData && env) {
+    if (imagesMap && characterData && env) {
       const charactersMap = getCharacterMap(characterData);
       type mediaKindType = "icon" | "image" | "headerImage";
       const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
@@ -35,13 +35,9 @@ export function CharacterState() {
         mediaKindArray.forEach((kindItem) => {
           const charaMediaItem = chara[kindItem.kind];
           if (charaMediaItem) {
-            charaMedia[kindItem.kind] = images.find(({ src }) =>
-              src?.match(charaMediaItem)
-            );
-          } else if (kindItem.name) {
-            charaMedia[kindItem.kind] = images.find(
-              ({ album, name }) => album === kindItem.name && name === chara.id
-            );
+            charaMedia[kindItem.kind] = imagesMap.get(charaMediaItem);
+          } else if (kindItem.name === "charaIcon") {
+            charaMedia[kindItem.kind] = imagesMap.get(chara.id);
           }
         });
 
@@ -91,6 +87,13 @@ export function CharacterState() {
       const characterTags = Object.values(Object.fromEntries(tagOptionsMap));
       setCharacterTags(characterTags);
     }
-  }, [characterData, images, sounds, defaultPlaylist, setCharacterTags, env]);
+  }, [
+    characterData,
+    imagesMap,
+    sounds,
+    defaultPlaylist,
+    setCharacterTags,
+    env,
+  ]);
   return <></>;
 }

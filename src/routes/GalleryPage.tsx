@@ -124,7 +124,8 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
                   ImagesUpload({
                     files,
                     apiOrigin,
-                    options: { character: params.charaName, album: group },
+                    character: params.charaName,
+                    album: group,
                   })
                 )
                 .then(() => {
@@ -445,16 +446,14 @@ function UploadChain({
       ImagesUpload({
         files: list,
         apiOrigin,
-        options: {
-          character,
-          ...(item
-            ? {
-                album: item.name,
-                tags: item.tags,
-                character: item.character,
-              }
-            : undefined),
-        },
+        character,
+        ...(item
+          ? {
+              album: item.name,
+              tags: item.tags,
+              character: item.character,
+            }
+          : undefined),
       }).then(() => {
         setImagesLoad("no-cache");
       });
