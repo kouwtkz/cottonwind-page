@@ -6,6 +6,7 @@ import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
 import { getBasename } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
+import { setPrefix } from "@/functions/doc/prefix";
 
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
@@ -78,15 +79,17 @@ interface setSearchParamsOptionProps<T> {
   searchParams: URLSearchParams;
   StorageData: StorageDataClass<T[]>;
   loadAtomValue?: LoadAtomType;
+  prefix?: string;
 }
 function setSearchParamsOption<T>({
   searchParams,
   StorageData,
   loadAtomValue,
+  prefix,
 }: setSearchParamsOptionProps<T>) {
   if (loadAtomValue === "no-cache-reload") StorageData.removeItem();
   const { lastmod: sEndpoint } = StorageData;
-  if (sEndpoint) searchParams.set("lastmod", sEndpoint);
+  if (sEndpoint) searchParams.set(setPrefix("lastmod", prefix), sEndpoint);
   return searchParams;
 }
 interface fetchDataProps<T>
@@ -108,6 +111,7 @@ async function fetchData<T>({
       loadAtomValue,
     });
     const cache = getCacheOption(loadAtomValue);
+    if (cache) Url.searchParams.set("cache", cache);
     return fetch(Url.href, {
       mode: "cors",
       cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -182,29 +186,26 @@ export function DataState() {
     if (apiOrigin && allLoad) {
       const Url = new URL(allDataSrc, apiOrigin);
       const cache = getCacheOption(allLoad);
-      const imageSearchParams = setSearchParamsOption({
-        searchParams: new URLSearchParams(),
+      setSearchParamsOption({
+        searchParams: Url.searchParams,
         StorageData: imageStorageData,
         loadAtomValue: allLoad,
+        prefix: "images",
       });
-      const characterSearchParams = setSearchParamsOption({
-        searchParams: new URLSearchParams(),
+      setSearchParamsOption({
+        searchParams: Url.searchParams,
         StorageData: characterStorageData,
         loadAtomValue: allLoad,
+        prefix: "characters",
       });
-      const postSearchParams = setSearchParamsOption({
-        searchParams: new URLSearchParams(),
+      setSearchParamsOption({
+        searchParams: Url.searchParams,
         StorageData: postStorageData,
         loadAtomValue: allLoad,
+        prefix: "posts",
       });
+      if (cache) Url.searchParams.set("cache", cache);
       fetch(Url.href, {
-        method: "POST",
-        body: JSON.stringify({
-          images: Object.fromEntries(imageSearchParams),
-          characters: Object.fromEntries(characterSearchParams),
-          posts: Object.fromEntries(postSearchParams),
-        }),
-        headers: { "Content-Type": "application/json" } as ContentTypeHeader,
         mode: "cors",
         cache: cache !== "no-cache-reload" ? cache : undefined,
       })

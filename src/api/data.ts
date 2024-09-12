@@ -5,6 +5,7 @@ import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { ServerCharactersGetData } from "./character";
 import { IsLogin } from "@/ServerContent";
 import { ServerPostsGetData } from "./blog";
+import { getDataWithoutPrefix } from "@/functions/doc/prefix";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -14,7 +15,6 @@ app.get("*", async (c, next) => {
   if (c.env.DEV) return next();
   const Url = new URL(c.req.url);
   const hasCacheParam = Url.searchParams.has("cache");
-  const hasEndpointParam = Url.searchParams.has("lastmod");
   if (hasCacheParam) {
     const cacheParam = Url.searchParams.get("cache") as CacheParamType;
     if (IsLogin(c)) {
@@ -24,8 +24,9 @@ app.get("*", async (c, next) => {
           return next();
       }
     }
+    Url.searchParams.delete("cache");
   }
-  if (hasEndpointParam)
+  if (Url.searchParams.size)
     return cache({
       cacheName: "data",
       cacheControl: "max-age=30",
@@ -64,13 +65,14 @@ app.get("/posts", async (c, next) => {
   );
 });
 
-app.post("/all", async (c, next) => {
-  const data = await c.req.json();
+app.get("/all", async (c, next) => {
+  const Url = new URL(c.req.url);
+  const query = Object.fromEntries(Url.searchParams);
   const db = new MeeSqlD1(c.env.DB);
   return c.json({
-    images: await ServerImagesGetData(new URLSearchParams(data.images), db),
-    characters: await ServerCharactersGetData(new URLSearchParams(data.characters), db),
-    posts: await ServerPostsGetData(new URLSearchParams(data.posts), db),
+    images: await ServerImagesGetData(new URLSearchParams(getDataWithoutPrefix("images", query)), db),
+    characters: await ServerCharactersGetData(new URLSearchParams(getDataWithoutPrefix("characters", query)), db),
+    posts: await ServerPostsGetData(new URLSearchParams(getDataWithoutPrefix("posts", query)), db),
   });
 });
 
