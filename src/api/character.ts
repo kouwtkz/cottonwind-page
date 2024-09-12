@@ -63,6 +63,9 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType
     honorific: data.honorific,
     defEmoji: data.defEmoji,
     overview: data.overview,
+    description: data.description,
+    tags: data.tags,
+    playlist: data.playlist,
     icon: data.icon,
     headerImage: data.headerImage,
     image: data.image,
@@ -72,9 +75,7 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType
     birthday: data.birthday
       ? new Date(String(data.birthday)).toISOString()
       : undefined,
-    tags: data.tags,
-    playlist: data.playlist,
-    description: data.description,
+    lastmod: data.lastmod,
   };
 }
 
@@ -119,6 +120,7 @@ app.post("/import", async (c, next) => {
       if (Array.isArray(list)) {
         lastModToUniqueNow(list);
         KeyValueToString(list);
+        console.log(list);
         await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
         return c.text("インポート完了しました！")
       }
