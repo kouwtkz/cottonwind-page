@@ -3,7 +3,6 @@ import { autoPostId, getPostsData, setPostsData } from "@/functions/blogFunction
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
-import { MeeSqlClass } from "@/functions/MeeSqlClass";
 
 export const app = new Hono<MeeBindings>();
 
@@ -61,7 +60,7 @@ export async function ServerPostsGetRssData(env: MeeCommonEnv, take = 10) {
   return await Select({
     db,
     where: {
-      OR: [{ draft: null }, { draft: 0 }],
+      OR: [{ draft: null }, { draft: 0 }, { schedule: null }, { schedule: 0 }],
       lastmod: { lte: new Date().toISOString() }
     },
     take,
@@ -76,7 +75,7 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<PostDataType> {
     body: data.body,
     category: data.category,
     pin: data.pin,
-    draft: data.category,
+    draft: data.draft,
     schedule: data.schedule,
     noindex: data.noindex,
     memo: data.memo,
