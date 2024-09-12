@@ -97,7 +97,7 @@ function CharaListPage() {
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
   const tags = useMemo(
-    () => searchParams.get("tag")?.split(","),
+    () => searchParams.get("tags")?.split(","),
     [searchParams]
   );
   const filters = useMemo(

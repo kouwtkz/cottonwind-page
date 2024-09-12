@@ -5,7 +5,7 @@ export function getCharacterMap(characterData: CharacterDataType[]) {
       ...v,
       media: {},
       tags: v.tags ? v.tags.split(",") : [],
-      playlist: [],
+      playlist: v.playlist ? v.playlist.split(",") : [],
       birthday: v.birthday ? new Date(v.birthday) : undefined,
       time: v.time ? new Date(v.time) : undefined,
       lastmod: v.lastmod ? new Date(v.lastmod) : undefined,

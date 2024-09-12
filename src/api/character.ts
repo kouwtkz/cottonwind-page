@@ -120,7 +120,6 @@ app.post("/import", async (c, next) => {
       if (Array.isArray(list)) {
         lastModToUniqueNow(list);
         KeyValueToString(list);
-        console.log(list);
         await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
         return c.text("インポート完了しました！")
       }
