@@ -2,17 +2,14 @@ import { Footer, LinksList } from "./layout/Footer";
 import { Loading } from "./layout/Loading";
 import { SetMeta, SetMetaProps } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
-import { parseImageItems } from "./data/functions/images";
 import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
 import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
 import { MeeSqlD1 } from "./functions/MeeSqlD1";
-import { getCharacterMap } from "./functions/characterFunction";
-
-export function SetMetaServerSide(args: SetMetaProps) {
-  return <SetMeta {...args} />;
-}
+import { getCharacterMap } from "./functions/characterFunctions";
+import { toImageType } from "./functions/imageFunctions";
+import { getMediaOrigin } from "./functions/originUrl";
 
 export function DefaultMeta() {
   return (
@@ -75,7 +72,7 @@ export interface ServerLayoutProps {
 }
 export async function ServerLayout({
   c,
-  characters,
+  characters: charactersMap,
   meta,
   styles,
   script,
@@ -88,26 +85,55 @@ export async function ServerLayout({
     c.req.header("user-agent") ?? ""
   );
   const params = c.req.param() as KeyValueStringType;
-  let images: ImageType[] | undefined;
+  let imagesMap = new Map<string, ImageType>();
   let posts: PostType[] = [];
   if (isBot) {
     const db = new MeeSqlD1(c.env.DB);
+    async function ImageSelectFromKey(key: string) {
+      return (
+        await db.select<ImageDataType>({
+          table: "images",
+          where: { key },
+          take: 1,
+        })
+      )[0];
+    }
     const isCharaName = Boolean(params.charaName);
-    if (isCharaName && !characters) {
-      characters = getCharacterMap(
+    if (Url.searchParams.has("image")) {
+      const key = Url.searchParams.get("image")!;
+      const data = await ImageSelectFromKey(key);
+      if (data) imagesMap.set(key, toImageType(data));
+    }
+    if (isCharaName && !charactersMap) {
+      charactersMap = getCharacterMap(
         await db.select<CharacterDataType>({
           table: "characters",
           where: { id: params.charaName },
           take: 1,
         })
       );
-    }
-    if (isCharaName || Url.searchParams.has("image")) {
-      // const jsonPath = Url.origin + dataPath + "/images.json";
-      // const r_images = await fetch(jsonPath);
-      // images = judgeJson(r_images)
-      //   ? parseImageItems(await r_images.json())
-      //   : undefined;
+      await Promise.all(
+        Object.values(Object.fromEntries(charactersMap)).map(
+          async (character) => {
+            character.media = {};
+            if (character.image) {
+              character.media.image = toImageType(
+                await ImageSelectFromKey(character.image)
+              );
+            }
+            if (character.headerImage) {
+              character.media.headerImage = toImageType(
+                await ImageSelectFromKey(character.headerImage)
+              );
+            }
+            if (character.icon) {
+              character.media.icon = toImageType(
+                await ImageSelectFromKey(character.icon)
+              );
+            }
+          }
+        )
+      );
     }
     if (Url.searchParams.has("postId")) posts = await getPostsData(c);
   }
@@ -115,14 +141,15 @@ export async function ServerLayout({
     <html lang="ja">
       <head>
         <DefaultMeta />
-        <SetMetaServerSide
+        <SetMeta
           url={url}
           path={c.req.path}
           query={c.req.query()}
-          characters={characters}
-          images={images}
+          charactersMap={charactersMap}
+          imagesMap={imagesMap}
           posts={posts}
           noindex={noindex}
+          mediaOrigin={getMediaOrigin(c.env, Url.origin)}
           env={c.env}
         />
         {c.env.RECAPTCHA_SITEKEY ? (

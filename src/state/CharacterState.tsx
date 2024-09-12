@@ -5,7 +5,7 @@ import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EnvAtom } from "./EnvState";
 import { charactersDataAtom } from "./DataState";
-import { getCharacterMap } from "@/functions/characterFunction";
+import { getCharacterMap } from "@/functions/characterFunctions";
 
 export const charactersAtom = atom<CharacterType[]>();
 export const charactersMapAtom = atom<Map<string, CharacterType>>();

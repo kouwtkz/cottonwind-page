@@ -599,7 +599,7 @@ function GalleryImageItem({
     preventScrollReset?: boolean;
   } => {
     if (image.direct) return { to: image.src ?? "" };
-    if (image.src) searchParams.set("image", getName(image.src));
+    searchParams.set("image", image.key);
     if (galleryName && image.albumObject?.name !== galleryName)
       searchParams.set("group", galleryName);
     else if (image.albumObject?.name)

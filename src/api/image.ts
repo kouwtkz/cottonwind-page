@@ -20,10 +20,11 @@ const table = "images";
 
 const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   id: { primary: true },
+  src: { type: "TEXT", unique: true, notNull: true },
+  key: { type: "TEXT", unique: true, notNull: true },
   name: { type: "TEXT" },
   album: { type: "TEXT" },
   description: { type: "TEXT" },
-  src: { type: "TEXT", unique: true, notNull: true },
   webp: { type: "TEXT", unique: true },
   thumbnail: { type: "TEXT" },
   icon: { type: "TEXT" },
@@ -102,15 +103,14 @@ app.patch("/send", async (c, next) => {
     pickup,
     ...values
   } = (await c.req.parseBody()) as unknown as imageFormDataType;
-  type typeValues = typeof values;
-  const entry: ImageDataType = {
+  const entry: MeeSqlEntryType<ImageDataType> = {
     topImage: FormBoolToInt(topImage),
     pickup: FormBoolToInt(pickup),
     name,
     time: time ? new Date(time).toISOString() : time,
     lastmod: new Date().toISOString(),
-    ...Object.entries(values).reduce<typeValues>((a, [k, v]) => {
-      a[(k as keyof typeValues)] = BlankStringsToNull(v as string | undefined);
+    ...Object.entries(values).reduce<KeyValueType<unknown>>((a, [k, v]) => {
+      a[k] = BlankStringsToNull(v as string | undefined);
       return a;
     }, {})
   };
@@ -118,6 +118,7 @@ app.patch("/send", async (c, next) => {
   if (rename) {
     const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
     if (value) {
+      entry.key = rename;
       async function renamePut(key: "src" | "webp" | "thumbnail" | "icon", rename: string) {
         if (value[key]) {
           const object = await c.env.BUCKET.get(value[key])
@@ -128,9 +129,9 @@ app.patch("/send", async (c, next) => {
           }
         }
       }
-      const renameBase = getName(rename);
-      const renameWebp = renameBase + ".webp";
-      await renamePut("src", "image/" + rename);
+      const renameSrc = rename + "." + getExtension(value.src)
+      const renameWebp = rename + ".webp";
+      await renamePut("src", "image/" + renameSrc);
       await renamePut("webp", "image/webp/" + renameWebp);
       await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
       await renamePut("icon", "image/icon/" + renameWebp);
@@ -327,6 +328,7 @@ app.post("/send", async (c, next) => {
           album: album || "art",
           time: timeString,
           mtime: timeString,
+          key: getName(imagePath),
           src: imagePath,
           ...pathes,
           ...metaSize,

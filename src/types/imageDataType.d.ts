@@ -1,6 +1,7 @@
 interface ImageDataType {
-  id?: number;
-  src?: string;
+  id: number;
+  src: string;
+  key: string;
   name?: string | null;
   album?: string | null;
   description?: string | null;
@@ -17,10 +18,10 @@ interface ImageDataType {
   type?: string | null;
   topImage?: number | null;
   pickup?: number | null;
+  version?: number | null;
   time?: string;
   mtime?: string;
-  lastmod?: string;
-  version?: number | null;
+  lastmod: string;
 }
 interface ImageType extends ImageDataType {
   albumObject?: ImageAlbumType;

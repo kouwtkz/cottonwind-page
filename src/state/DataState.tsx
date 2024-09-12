@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react";
 import { StorageDataClass } from "@/functions/StorageDataClass";
 import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
-import { getBasename } from "@/functions/doc/PathParse";
+import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { setPrefix } from "@/functions/doc/prefix";
 
@@ -284,7 +284,7 @@ export async function ImportImagesJson({
     const data = new FormData();
     if (typeof version === "undefined") {
       const oldData = json as YamlDataType[];
-      const dataMap = new Map<string, ImageDataType>();
+      const dataMap = new Map<string, Omit<ImageDataType, "id" | "lastmod">>();
       oldData.forEach((album) => {
         album.list?.forEach((item) => {
           const key = getBasename(String(item.src || item.name));
@@ -298,6 +298,7 @@ export async function ImportImagesJson({
             const albumLastSlach = album.name?.lastIndexOf("/") ?? -1;
             dataMap.set(key, {
               src: "image/" + item.src,
+              key: getName(item.src),
               album:
                 album.name && albumLastSlach >= 0
                   ? album.name.slice(albumLastSlach + 1)

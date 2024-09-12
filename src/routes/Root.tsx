@@ -6,26 +6,28 @@ import { useAtom } from "jotai";
 import { MetaValues } from "./SetMeta";
 import { charactersMapAtom } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
-import { imagesAtom } from "@/state/ImageState";
+import { imagesAtom, imagesMapAtom } from "@/state/ImageState";
 import { postsAtom } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
-import { EnvAtom } from "@/state/EnvState";
+import { EnvAtom, MediaOriginAtom } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
-  const characters = useAtom(charactersMapAtom)[0];
-  const images = useAtom(imagesAtom)[0];
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const imagesMap = useAtom(imagesMapAtom)[0];
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const posts = useAtom(postsAtom)[0];
+  const mediaOrigin = useAtom(MediaOriginAtom)[0];
   const [env] = useAtom(EnvAtom);
   if (notFirst) {
     document.title = MetaValues({
       path: pathname,
       query: search,
-      characters,
-      images,
+      charactersMap,
+      imagesMap,
       posts,
+      mediaOrigin,
       env: env ?? { TITLE: document.title },
     })!.title;
   } else if (isComplete) setNotFirst(true);

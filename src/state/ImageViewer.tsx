@@ -36,7 +36,7 @@ import {
   RiStore3Fill,
 } from "react-icons/ri";
 import { charactersMapAtom, CharacterState } from "./CharacterState";
-import { imagesAtom, UrlMediaOrigin } from "./ImageState";
+import { imagesAtom } from "./ImageState";
 import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -44,6 +44,7 @@ import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { isLoginAtom, MediaOriginAtom } from "./EnvState";
 import { getName } from "@/functions/doc/PathParse";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 type ImageViewerType = {
   image: OldMediaImageItemType | null;
@@ -240,7 +241,7 @@ interface PreviewAreaProps {
 function PreviewArea({ image }: PreviewAreaProps) {
   const mediaOrigin = useAtom(MediaOriginAtom)[0];
   const MediaOrigin = useCallback(
-    (src?: string) => UrlMediaOrigin(mediaOrigin, src),
+    (src?: string) => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin]
   );
   const l = useLocation();
@@ -366,8 +367,7 @@ export function ImageViewer() {
 
   const image = useMemo(() => {
     if (imageParam) {
-      const searchParam = "/" + imageParam + ".";
-      return imageItemList.find((v) => v.src?.includes(searchParam));
+      return imageItemList.find((v) => v.key === imageParam);
     } else return;
   }, [imageItemList, imageParam]);
 

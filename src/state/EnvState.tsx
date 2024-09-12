@@ -1,3 +1,4 @@
+import { getAPIOrigin, getMediaOrigin } from "@/functions/originUrl";
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 import { useCookies } from "react-cookie";
@@ -21,16 +22,8 @@ export function EnvState() {
   }, []);
   useEffect(() => {
     if (env) {
-      if (env.ORIGIN === location.origin) {
-        setApiOrigin(env.API_ORIGIN);
-        setMediaOrigin(env.MEDIA_ORIGIN);
-      } else if (env.PAGES_DEV_ORIGIN === location.origin) {
-        setApiOrigin(env.API_WORKERS_ORIGIN);
-        setMediaOrigin(env.MEDIA_WORKERS_ORIGIN);
-      } else {
-        setApiOrigin(env.API_LOCAL_ORIGIN);
-        setMediaOrigin(env.MEDIA_LOCAL_ORIGIN);
-      }
+      setApiOrigin(getAPIOrigin(env, location.origin));
+      setMediaOrigin(getMediaOrigin(env, location.origin));
     }
   }, [env]);
   const setIsLogin = useAtom(isLoginAtom)[1];

@@ -1,4 +1,3 @@
-import { imageFindFromName } from "../data/functions/images";
 import { WebSite, WithContext } from "schema-dts";
 import { toUpperFirstCase } from "../functions/doc/StrFunctions";
 import {
@@ -8,15 +7,17 @@ import {
 } from "../components/dropdown/SortFilterTags";
 import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 export interface SetMetaProps {
   path: string;
   query?: QueryType;
   url?: string;
-  characters?: Map<string, CharacterType>;
-  images?: ImageType[];
+  charactersMap?: Map<string, CharacterType>;
+  imagesMap?: Map<string, ImageType>;
   posts?: PostType[];
   noindex?: boolean;
+  mediaOrigin?: string;
   env?: SiteConfigEnv;
 }
 
@@ -30,10 +31,11 @@ type MetaValuesReturnType = {
 export function MetaValues({
   path,
   query,
-  characters,
-  images,
+  charactersMap,
+  imagesMap,
   posts,
   noindex,
+  mediaOrigin,
   env,
 }: SetMetaProps): MetaValuesReturnType {
   const siteTitle = env?.TITLE;
@@ -67,23 +69,22 @@ export function MetaValues({
         break;
       case "character":
         const name = list[2] ?? queryParams.name;
-        const chara = characters && name ? characters.get(name) : null;
+        const chara = charactersMap && name ? charactersMap.get(name) : null;
         title = chara
           ? chara.name + " - キャラクター | " + siteTitle
           : "キャラクター | " + siteTitle;
         description =
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
-        if (images && chara?.image) {
-          const charaImage = chara.image;
-          const charaImageItem = images?.find(({ src }) =>
-            src?.match(charaImage)
-          );
-          if (charaImageItem) {
-            image = charaImageItem.src;
-            if (charaImageItem.width && charaImageItem.height) {
+        if (chara?.media?.image) {
+          if (chara.media.image) {
+            image = concatOriginUrl(
+              mediaOrigin,
+              chara.media.image.webp || chara.media.image.src
+            );
+            if (chara.media.image.width && chara.media.image.height) {
               imageSize = {
-                w: charaImageItem.width,
-                h: charaImageItem.height,
+                w: chara.media.image.width,
+                h: chara.media.image.height,
               };
             }
           }
@@ -129,26 +130,21 @@ export function MetaValues({
     }
   if (queryParams.p) noindex = true;
   const imageParam = queryParams.image;
-  const albumParam = queryParams.album;
   if (imageParam) noindex = true;
   if (imageParam) {
-    const foundImage = imageFindFromName({
-      imageParam,
-      albumParam,
-      imageItemList: images,
-    });
+    const foundImage = imagesMap?.get(imageParam);
     if (foundImage) {
-      title = (foundImage.name || foundImage.src) + " | " + title;
-      image = foundImage.src;
+      title = (foundImage.name || foundImage.key) + " | " + title;
+      image = concatOriginUrl(mediaOrigin, foundImage.webp || foundImage.src);
       if (foundImage.width && foundImage.height) {
         imageSize = {
           w: foundImage.width,
           h: foundImage.height,
         };
       }
-      const charaListFound = characters
+      const charaListFound = charactersMap
         ? ((foundImage.tags ?? [])
-            .map((tag) => characters.get(tag))
+            .map((tag) => charactersMap.get(tag))
             .filter((v) => v) as CharacterType[])
         : [];
       const charaList = charaListFound
@@ -201,11 +197,11 @@ export function MetaValues({
   }
   if (!title) title = siteTitle + " - " + env?.OVERVIEW;
   if (!description) description = env?.DESCRIPTION ?? "";
-  if (!image) image = env?.SITE_IMAGE;
+  if (!image) image = (env?.ORIGIN ?? "") + env?.SITE_IMAGE;
   return {
     title,
     description,
-    image: (env?.ORIGIN ?? "") + image,
+    image,
     imageSize,
     noindex,
   };

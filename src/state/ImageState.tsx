@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { atom, useAtom } from "jotai";
 import { EnvAtom } from "./EnvState";
-import { getBasename } from "@/functions/doc/PathParse";
 import { imagesDataAtom } from "./DataState";
+import { getImageObjectMap } from "@/functions/imageFunctions";
 
 export const imagesAtom = atom<ImageType[]>([]);
 export const imagesMapAtom = atom<Map<string, ImageType>>();
@@ -16,51 +16,14 @@ export function ImageState() {
   const env = useAtom(EnvAtom)[0];
   useEffect(() => {
     if (imagesData && env) {
-      const albums = new Map<string, ImageAlbumType>();
-      env.IMAGE_ALBUMS?.forEach((album) => {
-        if (album.name && !albums.has(album.name)) {
-          albums.set(album.name, {
-            visible: { filename: true, info: true, title: true },
-            ...album,
-            list: [],
-          });
-        }
-      });
-      const imagesMap = new Map<string, ImageType>();
-      imagesData
-        .filter((v) => v.version)
-        .forEach((v) => {
-          const albumObject = v.album ? albums.get(v.album) : undefined;
-          const item: ImageType = {
-            ...v,
-            tags: v.tags?.split(","),
-            characters: v.characters?.split(","),
-            copyright: v.copyright?.split(","),
-            topImage:
-              typeof v.topImage === "number" ? Boolean(v.topImage) : undefined,
-            pickup:
-              typeof v.pickup === "number" ? Boolean(v.pickup) : undefined,
-            time: v.time ? new Date(v.time) : undefined,
-            mtime: v.mtime ? new Date(v.mtime) : undefined,
-            lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
-            albumObject,
-          };
-          const key = getBasename(String(item.src || item.name));
-          if (!imagesMap.has(key)) {
-            albumObject?.list.push(item);
-            imagesMap.set(key, item);
-          }
-        });
+      const { imagesMap, imageAlbumMap } = getImageObjectMap(
+        imagesData,
+        env.IMAGE_ALBUMS
+      );
       setImagesMap(imagesMap);
       setImages(Object.values(Object.fromEntries(imagesMap)));
-      setAlbums(albums);
+      setAlbums(imageAlbumMap);
     }
   }, [imagesData, env]);
   return <></>;
-}
-
-export function UrlMediaOrigin(mediaOrigin?: string, src?: OrNull<string>) {
-  if (mediaOrigin && src) {
-    return mediaOrigin + "/" + src;
-  } else return "";
 }

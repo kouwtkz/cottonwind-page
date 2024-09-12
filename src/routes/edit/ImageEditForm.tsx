@@ -27,7 +27,7 @@ import {
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { charactersAtom } from "@/state/CharacterState";
-import { AutoImageItemType, getCopyRightList } from "@/data/functions/images";
+import { AutoImageItemType, getCopyRightList } from "@/functions/imageFunctions";
 import { ToFormJST } from "@/functions/DateFormat";
 import { atom, useAtom } from "jotai";
 import SetRegister from "@/components/hook/SetRegister";
@@ -134,7 +134,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       link: image?.link || "",
       embed: image?.embed || "",
       album: image?.album || "",
-      rename: image?.src ? getBasename(image.src) : "",
+      rename: image?.key || "",
     }),
     [image]
   );

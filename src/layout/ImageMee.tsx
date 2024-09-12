@@ -9,8 +9,8 @@ import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
 import { useAtom } from "jotai";
 import { MediaOriginAtom } from "@/state/EnvState";
-import { UrlMediaOrigin } from "@/state/ImageState";
 import { getExtension } from "@/functions/doc/PathParse";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -68,7 +68,7 @@ export function ImageMee({
   }, [imageItem?.version]);
   const MediaOrigin = useCallback(
     (src?: OrNull<string>) => {
-      let url = UrlMediaOrigin(mediaOrigin, src);
+      let url = concatOriginUrl(mediaOrigin, src);
       if (url) url = url + versionString;
       return url;
     },
@@ -113,7 +113,7 @@ export function ImageMee({
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
-        : (imageItem as KeyValueType<string>)[mode] || src,
+        : (imageItem as unknown as KeyValueType<string>)[mode] || src,
     [imageItem, mode, src, thumbnail, isSetOrigin]
   );
   const imageShowList = useMemo(() => {
