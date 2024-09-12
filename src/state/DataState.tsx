@@ -13,7 +13,7 @@ export const imageStorageData = new StorageDataClass<ImageDataType[]>(
   "1.2.0"
 );
 export const imagesDataAtom = atom<ImageDataType[]>();
-export const imagesLoadAtom = atom<LoadAtomType>(true);
+export const imagesLoadAtom = atom<LoadAtomType>(false);
 
 const charactersDataSrc = "/data/characters";
 export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
@@ -21,7 +21,7 @@ export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
   "1.2.0"
 );
 export const charactersDataAtom = atom<CharacterDataType[]>();
-export const charactersLoadAtom = atom<LoadAtomType>(true);
+export const charactersLoadAtom = atom<LoadAtomType>(false);
 
 const postsDataSrc = "/data/posts";
 export const postStorageData = new StorageDataClass<PostDataType[]>(
@@ -29,76 +29,109 @@ export const postStorageData = new StorageDataClass<PostDataType[]>(
   "1.1.1"
 );
 export const postsDataAtom = atom<PostDataType[]>();
-export const postsLoadAtom = atom<LoadAtomType>(true);
+export const postsLoadAtom = atom<LoadAtomType>(false);
 
-async function loadData<T>({
-  src,
-  apiOrigin,
-  StorageData,
-  setAtom,
-  loadAtomValue,
-  id = "id",
-  lastmod = "lastmod",
-}: {
-  src: string;
-  apiOrigin?: string;
-  StorageData: StorageDataClass<T[]>;
+const allDataSrc = "/data/all";
+export const allLoadAtom = atom<LoadAtomType>(true);
+
+interface readDataProps<T> {
+  data?: T[];
   setAtom: (args_0: SetStateAction<T[] | undefined>) => void;
-  loadAtomValue?: LoadAtomType;
+  StorageData: StorageDataClass<T[]>;
   id?: string;
   lastmod?: string;
-}) {
+}
+async function setData<T>({
+  data,
+  setAtom,
+  StorageData,
+  id = "id",
+  lastmod = "lastmod",
+}: readDataProps<T>) {
+  if (!data) return;
+  const { data: sData } = StorageData;
+  if (sData) {
+    data.forEach((d) => {
+      const index = sData.findIndex((v) => (v as any)[id] === (d as any)[id]);
+      if (index >= 0) {
+        sData[index] = d;
+      } else {
+        sData.push(d);
+      }
+    });
+    data = [...sData];
+  }
+  StorageData.setItem(
+    data,
+    data.reduce((a, c) => {
+      const cm = ((c as any)[lastmod] || "") as string;
+      return a > cm ? a : cm;
+    }, "")
+  );
+  setAtom(data);
+}
+
+function getCacheOption(loadAtomValue?: LoadAtomType) {
+  return typeof loadAtomValue === "string" ? loadAtomValue : undefined;
+}
+interface setSearchParamsOptionProps<T> {
+  searchParams: URLSearchParams;
+  StorageData: StorageDataClass<T[]>;
+  loadAtomValue?: LoadAtomType;
+}
+function setSearchParamsOption<T>({
+  searchParams,
+  StorageData,
+  loadAtomValue,
+}: setSearchParamsOptionProps<T>) {
+  if (loadAtomValue === "no-cache-reload") StorageData.removeItem();
+  const { lastmod: sEndpoint } = StorageData;
+  if (sEndpoint) searchParams.set("lastmod", sEndpoint);
+  return searchParams;
+}
+interface fetchDataProps<T>
+  extends Omit<setSearchParamsOptionProps<T>, "searchParams"> {
+  src?: string;
+  apiOrigin?: string;
+}
+async function fetchData<T>({
+  src = "",
+  apiOrigin,
+  StorageData,
+  loadAtomValue,
+}: fetchDataProps<T>) {
   if (apiOrigin) {
     const Url = new URL(src, apiOrigin);
-    if (loadAtomValue === "no-cache-reload") StorageData.removeItem();
-    const { data: sData, lastmod: sEndpoint } = StorageData;
-    if (sEndpoint) Url.searchParams.set("lastmod", sEndpoint);
-    const cache = typeof loadAtomValue === "string" ? loadAtomValue : undefined;
-    if (cache) Url.searchParams.set("cache", cache);
-    await fetch(Url.href, {
+    setSearchParamsOption({
+      searchParams: Url.searchParams,
+      StorageData,
+      loadAtomValue,
+    });
+    const cache = getCacheOption(loadAtomValue);
+    return fetch(Url.href, {
+      mode: "cors",
       cache: cache !== "no-cache-reload" ? cache : undefined,
-    })
-      .then(async (r) => (await r.json()) as T[])
-      .then((data) => {
-        if (sData) {
-          data.forEach((d) => {
-            const index = sData.findIndex(
-              (v) => (v as any)[id] === (d as any)[id]
-            );
-            if (index >= 0) {
-              sData[index] = d;
-            } else {
-              sData.push(d);
-            }
-          });
-          data = [...sData];
-        }
-        StorageData.setItem(
-          data,
-          data.reduce((a, c) => {
-            const cm = ((c as any)[lastmod] || "") as string;
-            return a > cm ? a : cm;
-          }, "")
-        );
-        setAtom(data);
-      });
-    return true;
+    }).then(async (r) => (await r.json()) as T[]);
   }
 }
 
 export function DataState() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
-
   const [imagesLoad, setImagesLoad] = useAtom(imagesLoadAtom);
   const setImagesData = useAtom(imagesDataAtom)[1];
   useEffect(() => {
     if (imagesLoad && apiOrigin) {
-      loadData({
+      fetchData({
         src: imagesDataSrc,
         apiOrigin,
         StorageData: imageStorageData,
-        setAtom: setImagesData,
         loadAtomValue: imagesLoad,
+      }).then((data) => {
+        setData({
+          data,
+          setAtom: setImagesData,
+          StorageData: imageStorageData,
+        });
       });
       setImagesLoad(false);
     }
@@ -108,12 +141,17 @@ export function DataState() {
   const setCharactersData = useAtom(charactersDataAtom)[1];
   useEffect(() => {
     if (charactersLoad && apiOrigin) {
-      loadData({
+      fetchData({
         src: charactersDataSrc,
         apiOrigin,
         StorageData: characterStorageData,
-        setAtom: setCharactersData,
         loadAtomValue: charactersLoad,
+      }).then((data) => {
+        setData({
+          data,
+          setAtom: setCharactersData,
+          StorageData: characterStorageData,
+        });
       });
       setCharactersLoad(false);
     }
@@ -123,17 +161,86 @@ export function DataState() {
   const setPostsData = useAtom(postsDataAtom)[1];
   useEffect(() => {
     if (postsLoad && apiOrigin) {
-      loadData({
+      fetchData({
         src: postsDataSrc,
         apiOrigin,
         StorageData: postStorageData,
-        setAtom: setPostsData,
         loadAtomValue: postsLoad,
+      }).then((data) => {
+        setData({
+          data,
+          setAtom: setPostsData,
+          StorageData: postStorageData,
+        });
       });
       setPostsLoad(false);
     }
   }, [apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
+  const [allLoad, setAllLoad] = useAtom(allLoadAtom);
+  useEffect(() => {
+    if (apiOrigin && allLoad) {
+      const Url = new URL(allDataSrc, apiOrigin);
+      const cache = getCacheOption(allLoad);
+      const imageSearchParams = setSearchParamsOption({
+        searchParams: new URLSearchParams(),
+        StorageData: imageStorageData,
+        loadAtomValue: allLoad,
+      });
+      const characterSearchParams = setSearchParamsOption({
+        searchParams: new URLSearchParams(),
+        StorageData: characterStorageData,
+        loadAtomValue: allLoad,
+      });
+      const postSearchParams = setSearchParamsOption({
+        searchParams: new URLSearchParams(),
+        StorageData: postStorageData,
+        loadAtomValue: allLoad,
+      });
+      fetch(Url.href, {
+        method: "POST",
+        body: JSON.stringify({
+          images: Object.fromEntries(imageSearchParams),
+          characters: Object.fromEntries(characterSearchParams),
+          posts: Object.fromEntries(postSearchParams),
+        }),
+        headers: { "Content-Type": "application/json" } as ContentTypeHeader,
+        mode: "cors",
+        cache: cache !== "no-cache-reload" ? cache : undefined,
+      })
+        .then(async (r) => (await r.json()) as KeyValueType<unknown[]>)
+        .then(async (v) => {
+          return Promise.all([
+            setData({
+              data: v.images as ImageDataType[],
+              setAtom: setImagesData,
+              StorageData: imageStorageData,
+            }),
+            setData({
+              data: v.characters as CharacterDataType[],
+              setAtom: setCharactersData,
+              StorageData: characterStorageData,
+            }),
+            setData({
+              data: v.posts as PostDataType[],
+              setAtom: setPostsData,
+              StorageData: postStorageData,
+            }),
+          ]);
+        })
+        .then(() => {
+          setAllLoad(false);
+        });
+    }
+  }, [
+    apiOrigin,
+    allLoad,
+    setAllLoad,
+    setPostsLoad,
+    setImagesData,
+    setCharactersData,
+    setPostsData,
+  ]);
   return <></>;
 }
 
