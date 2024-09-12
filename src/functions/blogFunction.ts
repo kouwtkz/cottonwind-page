@@ -96,6 +96,10 @@ export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[]) {
       site_url: SITE_URL + "/blog",
       language: "ja",
       image_url: `${SITE_URL}${env.SITE_IMAGE}`,
+      pubDate: new Date(postsData.reduce((a, c) => {
+        const lastmod = c.lastmod || "";
+        return a > lastmod ? a : lastmod
+      }, "")).toUTCString(),
       items:
         postsData.map((post) => {
           let Url = new URL(`${SITE_URL}/blog?postId=${post.postId}`);

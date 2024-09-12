@@ -29,7 +29,7 @@ export default function GenerateRss(options: Options) {
     ].join('')}</image>`)
   }
   entries.push(`<generator>RSS for Node</generator>`);
-  entries.push(`<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`);
+  entries.push(`<lastBuildDate>${options.pubDate || new Date().toUTCString()}</lastBuildDate>`);
   entries.push(`<language>${options.language ?? 'ja'}</language>`);
   xmlChannel.appendChild(p.parseFromString(entries.join(''), "application/xml"));
   options.items?.forEach(item => {
