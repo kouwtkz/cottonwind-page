@@ -7,6 +7,8 @@ import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
 import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
+import { MeeSqlD1 } from "./functions/MeeSqlD1";
+import { getCharacterMap } from "./functions/characterFunction";
 
 export function SetMetaServerSide(args: SetMetaProps) {
   return <SetMeta {...args} />;
@@ -89,22 +91,23 @@ export async function ServerLayout({
   let images: ImageType[] | undefined;
   let posts: PostType[] = [];
   if (isBot) {
-    const dataPath = "/json";
+    const db = new MeeSqlD1(c.env.DB);
     const isCharaName = Boolean(params.charaName);
     if (isCharaName && !characters) {
-      const r_characters = await fetch(
-        Url.origin + dataPath + "/characters.json"
+      characters = getCharacterMap(
+        await db.select<CharacterDataType>({
+          table: "characters",
+          where: { id: params.charaName },
+          take: 1,
+        })
       );
-      characters = judgeJson(r_characters)
-        ? await r_characters.json()
-        : undefined;
     }
     if (isCharaName || Url.searchParams.has("image")) {
-      const jsonPath = Url.origin + dataPath + "/images.json";
-      const r_images = await fetch(jsonPath);
-      images = judgeJson(r_images)
-        ? parseImageItems(await r_images.json())
-        : undefined;
+      // const jsonPath = Url.origin + dataPath + "/images.json";
+      // const r_images = await fetch(jsonPath);
+      // images = judgeJson(r_images)
+      //   ? parseImageItems(await r_images.json())
+      //   : undefined;
     }
     if (Url.searchParams.has("postId")) posts = await getPostsData(c);
   }

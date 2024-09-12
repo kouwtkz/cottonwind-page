@@ -5,6 +5,7 @@ import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EnvAtom } from "./EnvState";
 import { charactersDataAtom } from "./DataState";
+import { getCharacterMap } from "@/functions/characterFunction";
 
 export const charactersAtom = atom<CharacterType[]>();
 export const charactersMapAtom = atom<Map<string, CharacterType>>();
@@ -37,29 +38,13 @@ export function CharacterState() {
   const env = useAtom(EnvAtom)[0];
   useEffect(() => {
     if (images && characterData && env) {
-      const charactersMap = new Map<string, CharacterType>();
-      characterData.forEach((v) => {
-        const item: CharacterType = {
-          ...v,
-          media: {},
-          tags: v.tags ? v.tags.split(",") : [],
-          playlist: [],
-          birthday: v.birthday ? new Date(v.birthday) : undefined,
-          time: v.time ? new Date(v.time) : undefined,
-          lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
-        };
-        const key = item.id;
-        if (!charactersMap.has(key)) {
-          charactersMap.set(key, item);
-        }
-      });
+      const charactersMap = getCharacterMap(characterData);
       type mediaKindType = "icon" | "image" | "headerImage";
       const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
         { kind: "icon", name: "charaIcon" },
         { kind: "image", name: "charaImages" },
         { kind: "headerImage" },
       ];
-
       charactersMap.forEach((chara) => {
         if (!chara.media) chara.media = {};
         const charaMedia = chara.media;
