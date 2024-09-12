@@ -51,7 +51,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
-import { CharaListItem } from "../CharaPage";
+import { CharaListItem } from "../CharacterPage";
 import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
@@ -60,7 +60,7 @@ import { fileDownload } from "@/components/FileTool";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { charactersLoadAtom, ImportCharacterJson } from "@/state/DataState";
 
-export default function CharaEditForm() {
+export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const nav = useNavigate();
   const { charaName } = useParams();

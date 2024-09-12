@@ -16,11 +16,12 @@ import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { imageAlbumsAtom } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import CharaEditForm, {
+import {
+  CharacterEditForm,
   CharaEditButton,
   SortableObject,
   useEditSwitchState,
-} from "./edit/CharaEdit";
+} from "./edit/CharacterEdit";
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -32,7 +33,7 @@ import {
 } from "@/components/dropdown/SortFilterTags";
 import { useAtom } from "jotai";
 
-export function CharaPage() {
+export function CharacterPage() {
   const { charaName } = useParams();
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
@@ -40,7 +41,7 @@ export function CharaPage() {
   return (
     <div id="characterPage">
       {isDev && isEdit ? (
-        <CharaEditForm />
+        <CharacterEditForm />
       ) : (
         <>
           {isDev ? <CharaEditButton /> : null}

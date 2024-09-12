@@ -2,7 +2,7 @@ import { NonIndexRouteObject, RouteObject } from "react-router-dom";
 import Root from "./Root";
 import ErrorPage from "./ErrorPage";
 import Home from "./Home";
-import { CharaPage } from "./CharaPage";
+import { CharacterPage } from "./CharacterPage";
 import { GalleryGroupPage, GalleryPage } from "./GalleryPage";
 import { ComicsViewer } from "@/state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
@@ -32,11 +32,11 @@ export const Routing: RouteObject[] = [
       },
       {
         path: "character",
-        element: <CharaPage />,
+        element: <CharacterPage />,
       },
       {
         path: "character/:charaName",
-        element: <CharaPage />,
+        element: <CharacterPage />,
       },
       {
         path: "gallery",
