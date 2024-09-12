@@ -20,7 +20,12 @@ app.route("/test", app_test_api);
 app.route("/image", app_image_api);
 app.route("/character", app_character_api);
 app.route("/data", app_data_api);
+import { cache } from 'hono/cache'
 
+app.get("/feed/get", cache({
+  cacheName: "feed-get",
+  cacheControl: "max-age=1800",
+}));
 app.get("/feed/get", async (c, next) => {
   if (c.env.FEED_FROM) {
     return c.json(await FeedSet({ url: c.env.FEED_FROM, env: c.env, minute: 10 }));

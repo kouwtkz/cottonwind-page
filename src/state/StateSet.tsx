@@ -4,11 +4,15 @@ import { ImageViewer } from "./ImageViewer";
 import { ImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
-import { FeedState, outFeedAtom } from "./FeedState";
 import { EnvAtom, EnvState } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
-import { charactersDataAtom, DataState, imagesDataAtom } from "./DataState";
+import {
+  charactersDataAtom,
+  DataState,
+  imagesDataAtom,
+  postsDataAtom,
+} from "./DataState";
 import { CharacterState } from "./CharacterState";
 import PostState from "./PostState";
 
@@ -29,8 +33,8 @@ export function StateSet() {
   const isSetList = [
     Boolean(useAtom(imagesDataAtom)[0]),
     Boolean(useAtom(charactersDataAtom)[0]),
+    Boolean(useAtom(postsDataAtom)[0]),
     Boolean(useAtom(EnvAtom)[0]),
-    Boolean(useAtom(outFeedAtom)[0]),
   ];
   return (
     <>
@@ -39,11 +43,10 @@ export function StateSet() {
       <SoundPlayer />
       <ImageViewer />
       <Toaster />
-      <PostState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />
-        <FeedState />
+        <PostState />
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}

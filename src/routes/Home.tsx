@@ -4,8 +4,8 @@ import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
-import { NoteView } from "@/state/FeedState";
 import { useAtom } from "jotai";
+import { postsAtom } from "@/state/PostState";
 
 export default function Home() {
   return (
@@ -75,9 +75,35 @@ export default function Home() {
           </li>
         </ul>
         <TopPageBannerLink />
-        <NoteView />
+        <PostsView />
       </div>
     </>
+  );
+}
+
+function PostsView() {
+  const Posts = useAtom(postsAtom)[0];
+  const posts = useMemo(() => {
+    const posts = Posts ? [...Posts] : [];
+    posts.sort((a, b) => (a.time && b.time ? (a.time < b.time ? 1 : -1) : 0));
+    return posts;
+  }, [Posts]);
+  return (
+    <div className="blog">
+      <h3>
+        <Link className="title en-title-font" to="/blog" title="ブログ">
+          Blog
+        </Link>
+      </h3>
+      <div className="list">
+        {posts.slice(0, 3).map(({ time, title, postId }, i) => (
+          <Link to={"/blog?postId=" + postId} className="article" key={i}>
+            <div className="date">{time?.toLocaleDateString("ja")}</div>
+            <div className="title">{title?.slice(0, 32)}</div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
