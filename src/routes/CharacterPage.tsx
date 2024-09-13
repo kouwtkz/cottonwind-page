@@ -32,19 +32,20 @@ import {
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
 import { useAtom } from "jotai";
+import { isLoginAtom } from "@/state/EnvState";
 
 export function CharacterPage() {
   const { charaName } = useParams();
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
-  const isDev = import.meta.env?.DEV;
+  const isLogin = useAtom(isLoginAtom)[0];
   return (
     <div className="characterPage">
-      {isDev && isEdit ? (
+      {isLogin && isEdit ? (
         <CharacterEditForm />
       ) : (
         <>
-          {isDev ? <CharaEditButton /> : null}
+          {isLogin ? <CharaEditButton /> : null}
           {charaName ? (
             <CharaDetail charaName={charaName} />
           ) : (
@@ -104,6 +105,7 @@ function CharaListPage() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+  const isLogin = useAtom(isLoginAtom)[0];
   const tags = useMemo(
     () => searchParams.get("tags")?.split(","),
     [searchParams]
@@ -112,9 +114,9 @@ function CharaListPage() {
     () => searchParams.get("filter")?.split(","),
     [searchParams]
   );
-  const notHide = useMemo(
-    () => import.meta.env?.DEV || filters?.some((v) => v === "notHide"),
-    [filters]
+  const showAll = useMemo(
+    () => isLogin || filters?.some((v) => v === "showAll"),
+    [filters, isLogin]
   );
   const whereOptions = useMemo(
     () =>
@@ -165,14 +167,14 @@ function CharaListPage() {
     let list = characters
       ? findMee({ list: [...characters], where, orderBy: orderBySort })
       : [];
-    if (!notHide) list = list.filter((chara) => chara.media?.image);
+    if (!showAll) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [where, characters, orderBySort, notHide]);
+  }, [where, characters, orderBySort, showAll]);
   const { sortable } = useEditSwitchState();
   return (
     <>
       <CharaSearchArea />
-      {import.meta.env?.DEV ? <SortableObject /> : null}
+      {isLogin ? <SortableObject /> : null}
       <div className="charaList" hidden={sortable}>
         {items.map((chara, i) => (
           <Link
@@ -197,13 +199,14 @@ function CharaListPage() {
 function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
   const characters = useAtom(charactersAtom)[0];
   const { state } = useLocation();
+  const isLogin = useAtom(isLoginAtom)[0];
   const filters: string[] | undefined = useMemo(
     () => state?.charaFilters,
     [state]
   );
-  const notHide = useMemo(
-    () => import.meta.env?.DEV || filters?.some((v) => v === "notHide"),
-    [filters]
+  const showAll = useMemo(
+    () => isLogin || filters?.some((v) => v === "showAll"),
+    [filters, isLogin]
   );
   const items = useMemo(() => {
     let list = characters!;
@@ -220,9 +223,9 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
         where: { AND: wheres },
       });
     }
-    if (!notHide) list = list.filter((chara) => chara.media?.image);
+    if (!showAll) list = list.filter((chara) => chara.media?.image);
     return list;
-  }, [characters, state, notHide]);
+  }, [characters, state, showAll]);
   const charaIndex = items.findIndex(({ key: id }) => id === chara.key);
   const { beforeChara, afterChara } = useMemo(() => {
     if (charaIndex >= 0) {
@@ -432,7 +435,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     const charaFilterOptions: ContentsTagsOption = {
       label: "フィルタ",
       name: "filter",
-      options: [{ label: "🔬全て表示", value: "filter:notHide" }],
+      options: [{ label: "🔬全て表示", value: "filter:showAll" }],
     };
     const charaTagsOptions: ContentsTagsOption = {
       label: "タグ",

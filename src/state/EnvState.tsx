@@ -1,7 +1,6 @@
 import { getAPIOrigin, getMediaOrigin } from "@/functions/originUrl";
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
-import { useCookies } from "react-cookie";
 export const EnvAtom = atom<SiteConfigEnv>();
 export const ApiOriginAtom = atom<string>();
 export const MediaOriginAtom = atom<string>();
@@ -9,7 +8,6 @@ export const isLoginAtom = atom(false);
 export const visibleWorkersAtom = atom(false);
 
 export function EnvState() {
-  const [cookies] = useCookies();
   const [env, setEnv] = useAtom(EnvAtom);
   const setApiOrigin = useAtom(ApiOriginAtom)[1];
   const setMediaOrigin = useAtom(MediaOriginAtom)[1];

@@ -545,7 +545,7 @@ function GalleryBody({
         {showGalleryHeader ? (
           <div className="header">
             <div className="icons">
-              {import.meta.env?.DEV ? (
+              {isLogin ? (
                 <>
                   <ImageMeeShowOriginSwitch />
                   <ImageGlobalEditModeSwitch />
@@ -920,8 +920,9 @@ const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
+  const isLogin = useAtom(isLoginAtom)[0];
   const tags = gallerySortTags.concat(
-    import.meta.env?.DEV ? defaultGalleryFilterTags : [],
+    isLogin ? defaultGalleryFilterTags : [],
     defaultGalleryTags
   );
   return <ContentsTagsSelect {...args} tags={tags} />;

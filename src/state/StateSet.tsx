@@ -4,7 +4,7 @@ import { ImageViewer } from "./ImageViewer";
 import { imagesAtom, ImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
-import { EnvAtom, EnvState } from "./EnvState";
+import { EnvAtom, EnvState, isLoginAtom } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { DataState } from "./DataState";
@@ -25,6 +25,7 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 ]);
 
 export function StateSet() {
+  const isLogin = useAtom(isLoginAtom)[0];
   const isSetList = [
     Boolean(useAtom(imagesAtom)[0]),
     Boolean(useAtom(charactersAtom)[0]),
@@ -45,7 +46,7 @@ export function StateSet() {
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}
-      {import.meta.env?.DEV ? (
+      {isLogin ? (
         <>
           <EmbedState />
         </>

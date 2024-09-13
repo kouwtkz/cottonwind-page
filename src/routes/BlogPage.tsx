@@ -92,7 +92,7 @@ export function PostsPage({
       page,
       q,
       take,
-      common: !import.meta.env?.DEV,
+      common: !isLogin,
     });
     result.posts.sort((a, b) => (b.pin || 0) - (a.pin || 0));
     return result;

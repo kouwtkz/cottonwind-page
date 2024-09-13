@@ -76,8 +76,7 @@ function InfoArea({ image }: InfoAreaProps) {
   const stateIsEdit = useAtom(imageEditIsEdit)[0];
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const isLogin = useAtom(isLoginAtom);
-  const isDev = Boolean(import.meta.env?.DEV);
+  const isLogin = useAtom(isLoginAtom)[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
