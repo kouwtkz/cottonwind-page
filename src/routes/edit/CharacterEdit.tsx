@@ -5,7 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -78,6 +78,7 @@ import {
 } from "./ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { getBasename, getName } from "@/functions/doc/PathParse";
+import { CgGhostCharacter } from "react-icons/cg";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -752,4 +753,28 @@ export function CharaImageSettingRbButtons({
   } else {
     return <></>;
   }
+}
+
+export function CharacterMakeFromTags() {
+  const [searchParams] = useSearchParams();
+  const nav = useNavigate();
+  const q = searchParams.get("q");
+  const targetCharacterId = useMemo(() => q?.match(/^#(\w+)$/)?.[1], [q]);
+  
+  return (
+    <>
+      {targetCharacterId ? (
+        <button
+          type="button"
+          className="plain"
+          title={targetCharacterId + "で新しくキャラを作る"}
+          onClick={() => {
+            nav("/character/" + targetCharacterId + "?edit=on");
+          }}
+        >
+          <CgGhostCharacter />
+        </button>
+      ) : null}
+    </>
+  );
 }

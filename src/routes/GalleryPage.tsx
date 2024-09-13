@@ -2,7 +2,6 @@ import {
   Link,
   To,
   useLocation,
-  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
@@ -17,7 +16,6 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
 } from "react";
 import {
   defaultGalleryFilterTags,
@@ -33,18 +31,16 @@ import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
 import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
-import { ImageMeeThumbnail } from "@/layout/ImageMee";
+import { ImageMeeShowOriginSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "../data/functions/TimeFunctions";
 import { MdFileDownload, MdFileUpload } from "react-icons/md";
 import { findMee, setWhere } from "@/functions/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
-import { AiFillEdit, AiOutlineFileImage } from "react-icons/ai";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
-import { CgGhostCharacter } from "react-icons/cg";
 import { useImageViewer } from "@/state/ImageViewer";
-import { imageEditIsEditHold, ImagesUpload } from "./edit/ImageEditForm";
+import { ImageGlobalEditModeSwitch, ImagesUpload } from "./edit/ImageEditForm";
 import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
@@ -552,9 +548,8 @@ function GalleryBody({
             <div className="icons">
               {import.meta.env?.DEV ? (
                 <>
-                  <GalleryPageDevOtherSwitch />
-                  <GalleryPageOriginImageSwitch />
-                  <GalleryPageEditSwitch />
+                  <ImageMeeShowOriginSwitch />
+                  <ImageGlobalEditModeSwitch />
                 </>
               ) : null}
             </div>
@@ -589,8 +584,6 @@ function GalleryImageItem({
   image: ImageType;
 }) {
   const { pathname, state } = useLocation();
-  const { showOrigin } = useMemo(() => state ?? {}, [state]);
-  const isOrigin = useMemo(() => showOrigin === "on", [showOrigin]);
   const [searchParams] = useSearchParams();
   const toStatehandler = useCallback((): {
     to: To;
@@ -629,11 +622,7 @@ function GalleryImageItem({
           </div>
         ) : null
       ) : null}
-      <ImageMeeThumbnail
-        imageItem={image}
-        loadingScreen={true}
-        originWhenDev={isOrigin}
-      />
+      <ImageMeeThumbnail imageItem={image} loadingScreen={true} />
     </Link>
   );
 }
@@ -982,67 +971,5 @@ export function GalleryCharactersSelect({
         setSearchParams(searchParams);
       }}
     />
-  );
-}
-
-export function GalleryPageDevOtherSwitch() {
-  const [searchParams] = useSearchParams();
-  const nav = useNavigate();
-  const q = searchParams.get("q");
-  const targetCharacterId = useMemo(() => q?.match(/^#(\w+)$/)?.[1], [q]);
-  return (
-    <>
-      {targetCharacterId ? (
-        <button
-          type="button"
-          title={targetCharacterId + "で新しくキャラを作る"}
-          onClick={() => {
-            nav("/character/" + targetCharacterId + "?edit=on");
-          }}
-        >
-          <CgGhostCharacter />
-        </button>
-      ) : null}
-    </>
-  );
-}
-
-export function GalleryPageEditSwitch() {
-  const [isEditHold, setIsEditHold] = useAtom(imageEditIsEditHold);
-  return (
-    <button
-      title={isEditHold ? "元に戻す" : "常に編集モードにする"}
-      type="button"
-      onClick={() => {
-        setIsEditHold(!isEditHold);
-      }}
-      style={{ opacity: isEditHold ? 1 : 0.4 }}
-    >
-      <AiFillEdit />
-    </button>
-  );
-}
-
-export function GalleryPageOriginImageSwitch() {
-  const state = useLocation().state ?? {};
-  const { showOrigin } = state;
-  const isOrigin = useMemo(() => showOrigin === "on", [showOrigin]);
-  const stateHandler = useCallback(() => {
-    const _state = { ...state };
-    if (isOrigin) delete _state.showOrigin;
-    else _state.showOrigin = "on";
-    return _state;
-  }, [state]);
-  return (
-    <Link
-      title={isOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
-      state={stateHandler()}
-      style={{ opacity: isOrigin ? 1 : 0.4 }}
-      to={location.search}
-      replace={true}
-      preventScrollReset={true}
-    >
-      <AiOutlineFileImage />
-    </Link>
   );
 }

@@ -16,12 +16,7 @@ import {
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
 } from "@/components/dropdown/SortFilterTags";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
@@ -29,9 +24,6 @@ import {
   MdDeleteForever,
   MdLibraryAddCheck,
   MdOutlineContentCopy,
-  MdOutlineImage,
-  MdOutlineLandscape,
-  MdOutlineInsertEmoticon,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { charactersAtom } from "@/state/CharacterState";
@@ -51,13 +43,12 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { ApiOriginAtom } from "@/state/EnvState";
-import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
+import { getExtension, getName } from "@/functions/doc/PathParse";
 import { FormTags } from "react-hotkeys-hook/dist/types";
 import { imagesLoadAtom, UploadToast } from "@/state/DataState";
 import { sleep } from "@/functions/Time";
 import {
   imageObject,
-  imageObjectSrcType,
   imageOverSizeCheck,
   resizeImageCanvas,
   resizeImageCanvasProps,
@@ -729,4 +720,20 @@ export async function ImagesUploadProcess({
 
 export async function ImagesUpload(args: ImagesUploadProps) {
   return UploadToast(ImagesUploadProcess(args));
+}
+
+export function ImageGlobalEditModeSwitch() {
+  const [isEditHold, setIsEditHold] = useAtom(imageEditIsEditHold);
+  return (
+    <button
+      title={isEditHold ? "元に戻す" : "常に編集モードにする"}
+      type="button"
+      onClick={() => {
+        setIsEditHold(!isEditHold);
+      }}
+      style={{ opacity: isEditHold ? 1 : 0.4 }}
+    >
+      <AiFillEdit />
+    </button>
+  );
 }

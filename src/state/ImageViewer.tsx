@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
 import {
   createSearchParams,
@@ -43,7 +37,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { isLoginAtom, MediaOriginAtom } from "./EnvState";
-import { getName } from "@/functions/doc/PathParse";
 import { concatOriginUrl } from "@/functions/originUrl";
 
 type ImageViewerType = {
@@ -240,13 +233,6 @@ function PreviewArea({ image }: PreviewAreaProps) {
     (src?: string) => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin]
   );
-  const l = useLocation();
-  const state = l.state;
-  const isOrigin = useMemo(
-    () => state?.showOrigin === "on",
-    [state?.showOrigin]
-  );
-
   return (
     <div className="preview">
       {image ? (
@@ -311,11 +297,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
                 ) : null
               ) : null}
               <div className="wh-all-fill imageArea">
-                <ImageMee
-                  imageItem={image}
-                  title={image.name || image.src}
-                  originWhenDev={isOrigin}
-                />
+                <ImageMee imageItem={image} title={image.name || image.src} />
               </div>
             </div>
           )}
