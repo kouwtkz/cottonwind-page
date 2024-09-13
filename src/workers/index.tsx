@@ -1,3 +1,5 @@
+/* ※このページはCloudflareの認証前提になってます */
+
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { app_twix } from "./twix/twixPage";
