@@ -1,8 +1,10 @@
+export type imageObjectSrcType = string | Blob | MediaSource;
 export async function imageObject(
-  src: string | Blob | MediaSource
+  src: imageObjectSrcType
 ): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
+    image.crossOrigin = "use-credentials";
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", reject);
     image.src = typeof src === "string" ? src : URL.createObjectURL(src);
@@ -64,8 +66,8 @@ export async function resizeImageCanvas({
     afterWidth,
     afterHeight
   );
-  const jpegData = await new Promise((resolve) => {
+  const exportData = await new Promise((resolve) => {
     context.canvas.toBlob(resolve, `image/${type}`, quality);
   });
-  return jpegData as Blob;
+  return exportData as Blob;
 }

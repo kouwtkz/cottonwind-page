@@ -57,6 +57,7 @@ import { imagesLoadAtom, UploadToast } from "@/state/DataState";
 import { sleep } from "@/functions/Time";
 import {
   imageObject,
+  imageObjectSrcType,
   imageOverSizeCheck,
   resizeImageCanvas,
   resizeImageCanvasProps,
@@ -553,6 +554,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
 interface ImagesUploadOptions {
   album?: string;
+  albumOverwrite?: boolean;
   tags?: string | string[];
   character?: string;
   original?: boolean;
@@ -560,26 +562,24 @@ interface ImagesUploadOptions {
   thumbnail?: boolean | number;
   icon?: boolean | number;
   iconOnly?: boolean | number;
-  width?: number;
-  height?: number;
 }
+type srcType = string | File | { name: string; src: string | File };
 interface ImagesUploadProps extends ImagesUploadOptions {
-  files: File[];
+  src: srcType | srcType[];
   apiOrigin?: string;
 }
 export async function ImagesUploadProcess({
-  files,
+  src,
   apiOrigin,
   tags,
   album,
+  albumOverwrite,
   character,
   original = true,
   webp = true,
   thumbnail = true,
   icon = false,
   iconOnly = false,
-  width,
-  height,
 }: ImagesUploadProps) {
   if (iconOnly) {
     original = false;
@@ -589,33 +589,46 @@ export async function ImagesUploadProcess({
   }
   const url = (apiOrigin || "") + "/image/send";
   const checkTime = new Date().getTime();
-  const targetFiles = files.filter((file) => {
-    const fromBrowser = Math.abs(checkTime - file.lastModified) < 200;
-    if (fromBrowser) {
-      return false;
-    } else {
-      return true;
+  const files = Array.isArray(src) ? src : [src];
+  const targetFiles = files.filter((v) => {
+    const file = typeof v === "object" && "src" in v ? v.src : v;
+    if (typeof file === "object") {
+      const lastModified =
+        "lastModified" in file ? file.lastModified : undefined;
+      if (lastModified) {
+        const fromBrowser = Math.abs(checkTime - lastModified) < 200;
+        if (fromBrowser) return false;
+      }
     }
+    return true;
   });
   if (targetFiles.length === 0) return false;
   const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
-  const iconSize = typeof icon === "number" ? icon : 48;
+  const iconSize = typeof icon === "number" ? icon : 64;
   const joinedTags = Array.isArray(tags) ? tags.join(",") : tags;
   const fetchList = await Promise.all(
-    targetFiles.map(async (file) => {
-      const name = getName(file.name);
-      const ext = getExtension(file.name);
-      const webpName = name + ".webp";
+    targetFiles.map(async (v) => {
+      const object =
+        typeof v === "string"
+          ? { src: v, name: v }
+          : typeof v === "object" && "src" in v
+          ? v
+          : { src: v, name: v.name };
+      const basename = getName(object.name);
+      const ext = getExtension(object.name);
+      const webpName = basename + ".webp";
       const formData = new FormData();
       if (album) formData.append("album", album);
+      if (typeof albumOverwrite === "boolean")
+        formData.append("albumOverwrite", String(albumOverwrite));
       if (joinedTags) formData.append("tags", joinedTags);
       if (character) formData.append("characters", character);
-      if (original) formData.append("attached", file);
+      if (original) formData.append("attached", object.src);
       switch (ext) {
         case "svg":
           break;
         default:
-          const image = await imageObject(file);
+          const image = await imageObject(object.src);
           if (webp) {
             if (ext !== "gif") {
               formData.append(
@@ -669,8 +682,8 @@ export async function ImagesUploadProcess({
           }
           break;
       }
-      if (file.lastModified)
-        formData.append("mtime", String(file.lastModified));
+      if (typeof object.src === "object")
+        formData.append("mtime", String(object.src.lastModified));
       if (iconOnly) {
         formData.append("width", String(iconSize));
         formData.append("height", String(iconSize));

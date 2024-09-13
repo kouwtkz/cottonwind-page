@@ -1,6 +1,6 @@
 export function concatOriginUrl(origin?: string, src?: OrNull<string>) {
   if (origin && src) {
-    return origin + "/" + src;
+    return origin + (src.startsWith("/") ? "" : "/") + src;
   } else return "";
 }
 

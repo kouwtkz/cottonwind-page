@@ -1,8 +1,14 @@
 import { Hono } from "hono";
 import { cache } from 'hono/cache'
+import { cors } from "hono/cors";
 import { getMimeType } from "hono/utils/mime";
 
 export const app = new Hono<MeeBindings<MeeR2Env>>();
+
+app.use("*", (c, next) => {
+  const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51730"];
+  return cors({ origin, credentials: true })(c, next)
+})
 
 app.get(
   "*",

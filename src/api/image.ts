@@ -9,6 +9,7 @@ import {
   lastModToUniqueNow,
 } from "@/functions/doc/ToFunction";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
+import { JoinUnique } from "@/functions/doc/StrFunctions";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -239,6 +240,7 @@ app.post("/send", async (c, next) => {
   const attached = formData.get("attached") as File | null;
   const mtime = formData.get("mtime") as string | null;
   const album = formData.get("album") as string | null;
+  const albumOverwrite = (formData.get("albumOverwrite") || "true") === "true";
   const tags = formData.get("tags") as string | null;
   const characters = formData.get("characters") as string | null;
   const images: {
@@ -334,15 +336,11 @@ app.post("/send", async (c, next) => {
     Object.entries(images).map(([k, v]) => [k, v.path || undefined])
   );
   if (selectValue.length > 0) {
-    const updateTags = tags
-      ? (value.tags ? value.tags + "," : "") + tags
-      : undefined;
-    const updateCharacters = characters
-      ? (value.characters ? value.characters + "," : "") + characters
-      : undefined;
+    const updateTags = JoinUnique(value.tags, tags);
+    const updateCharacters = JoinUnique(value.characters, characters);
     const entry: MeeSqlEntryType<ImageDataType> = {
       name,
-      album: album ? album : value.album ? undefined : "uploads",
+      album: album && (albumOverwrite || !value.album) ? album : (value.album ? undefined : "uploads"),
       ...pathes,
       ...metaSize,
       tags: updateTags,
@@ -357,7 +355,7 @@ app.post("/send", async (c, next) => {
       entry,
       rawEntry: { lastmod: MeeSqlD1.isoFormat() },
     });
-    return c.json(entry);
+    return c.json({ ...value, ...entry });
   } else {
     const entry: MeeSqlEntryType<ImageDataType> = {
       name,

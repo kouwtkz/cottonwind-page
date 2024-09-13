@@ -122,7 +122,7 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
                 .then((files) => Array.from(files))
                 .then((files) =>
                   ImagesUpload({
-                    files,
+                    src: files,
                     apiOrigin,
                     character: params.charaName,
                     album: group,
@@ -444,7 +444,7 @@ function UploadChain({
         (f) => Math.abs(nowTime - f.lastModified) > 10
       );
       ImagesUpload({
-        files: list,
+        src: list,
         apiOrigin,
         character,
         ...(item

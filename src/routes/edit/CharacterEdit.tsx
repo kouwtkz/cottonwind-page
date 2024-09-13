@@ -59,14 +59,20 @@ import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "@/components/FileTool";
-import { ApiOriginAtom } from "@/state/EnvState";
+import {
+  fileDialog,
+  fileDownload,
+  responseToFile,
+} from "@/components/FileTool";
+import { ApiOriginAtom, MediaOriginAtom } from "@/state/EnvState";
 import {
   charactersLoadAtom,
   imagesLoadAtom,
   ImportCharacterJson,
 } from "@/state/DataState";
-import { ImagesUpload } from "./ImageEditForm";
+import { ImagesUpload, ImagesUploadProcess } from "./ImageEditForm";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { getBasename } from "@/functions/doc/PathParse";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -204,12 +210,18 @@ export function CharacterEditForm() {
           onClick={() => {
             if (chara) {
               fileDialog("image/*")
-                .then((files) => Array.from(files))
-                .then((files) =>
+                .then((fileList) => {
+                  const file = fileList.item(0)!;
+                  if (mode === "icon") return { src: file, name: chara.id };
+                  else return file;
+                })
+                .then((src) =>
                   ImagesUpload({
-                    files,
+                    src,
                     apiOrigin,
                     iconOnly: mode === "icon" ? true : undefined,
+                    album: mode,
+                    albumOverwrite: false,
                   })
                 )
                 .then(async (r) => {
@@ -222,7 +234,7 @@ export function CharacterEditForm() {
                   if (o && typeof o.name === "string") {
                     const formData = new FormData();
                     formData.append("target", chara.id);
-                    formData.append(mode, o.name);
+                    formData.append(mode, mode === "icon" ? "" : o.name);
                     return fetch(apiOrigin + "/character/send", {
                       method: "POST",
                       body: formData,
@@ -445,7 +457,7 @@ export function CharaEditButton() {
                 .then((files) => Array.from(files))
                 .then((files) =>
                   ImagesUpload({
-                    files,
+                    src: files,
                     apiOrigin,
                     iconOnly: true,
                   })
@@ -620,37 +632,43 @@ export function CharaImageSettingRbButtons({
 }: CharaImageRbButtonsProps) {
   const params = useParams();
   if (params.charaName) {
+    const charaName = params.charaName;
     const apiOrigin = useAtom(ApiOriginAtom)[0];
+    const mediaOrigin = useAtom(MediaOriginAtom)[0];
+    const setImagesLoad = useAtom(imagesLoadAtom)[1];
     const setCharactersLoad = useAtom(charactersLoadAtom)[1];
-    function onClickHandler(mode: characterImageMode) {
+    async function toastPromise(
+      promise: Promise<unknown>,
+      mode: characterImageMode
+    ) {
+      return toast.promise(promise, {
+        loading: "送信中",
+        success: () => {
+          switch (mode) {
+            case "icon":
+              return "アイコンに設定しました";
+            case "headerImage":
+              return "ヘッダーに設定しました";
+            case "image":
+              return "メイン画像に設定しました";
+          }
+        },
+        error: "送信に失敗しました",
+      });
+    }
+    async function onClickHandler(mode: characterImageMode) {
       if (image) {
         const formData = new FormData();
-        formData.append("target", String(params.charaName));
+        formData.append("target", charaName);
         formData.append(mode, image.key);
-        return toast
-          .promise(
-            fetch(apiOrigin + "/character/send", {
-              method: "POST",
-              body: formData,
-            }),
-            {
-              loading: "送信中",
-              success: () => {
-                switch (mode) {
-                  case "icon":
-                    return "アイコンに設定しました";
-                  case "headerImage":
-                    return "ヘッダーに設定しました";
-                  case "image":
-                    return "メイン画像に設定しました";
-                }
-              },
-              error: "送信に失敗しました",
-            }
-          )
-          .then(() => {
-            setCharactersLoad("no-cache");
-          });
+        await toastPromise(
+          fetch(concatOriginUrl(apiOrigin, "character/send"), {
+            method: "POST",
+            body: formData,
+          }),
+          mode
+        );
+        setCharactersLoad("no-cache");
       }
     }
 
@@ -660,8 +678,37 @@ export function CharaImageSettingRbButtons({
           type="button"
           className="round"
           title="キャラクターのアイコンに設定"
-          onClick={() => {
-            onClickHandler("icon");
+          onClick={async () => {
+            const src = image
+              ? image.src || image.icon || image.webp || image.thumbnail
+              : undefined;
+            if (src) {
+              toastPromise(
+                ImagesUploadProcess({
+                  src: {
+                    name: charaName,
+                    src: concatOriginUrl(mediaOrigin, src),
+                  },
+                  apiOrigin,
+                  iconOnly: true,
+                  album: "icon",
+                })
+                  .then(() => {
+                    setImagesLoad("no-cache");
+                    const formData = new FormData();
+                    formData.append("target", charaName);
+                    formData.append("icon", "");
+                    return fetch(concatOriginUrl(apiOrigin, "character/send"), {
+                      method: "POST",
+                      body: formData,
+                    });
+                  })
+                  .then(() => {
+                    setCharactersLoad("no-cache");
+                  }),
+                "icon"
+              );
+            }
           }}
         >
           <MdOutlineInsertEmoticon />
@@ -671,7 +718,7 @@ export function CharaImageSettingRbButtons({
           className="round"
           title="キャラクターのヘッダーに設定"
           onClick={() => {
-            onClickHandler("headerImage");
+            if (image) onClickHandler("headerImage");
           }}
         >
           <MdOutlineLandscape />
@@ -681,7 +728,7 @@ export function CharaImageSettingRbButtons({
           className="round"
           title="キャラクターのメイン画像に設定"
           onClick={() => {
-            onClickHandler("image");
+            if (image) onClickHandler("image");
           }}
         >
           <MdOutlineImage />

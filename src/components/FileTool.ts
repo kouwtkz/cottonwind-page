@@ -40,3 +40,15 @@ export function fileDownload(name: string, content: BlobPart | BlobPart[]) {
   link.click();
   URL.revokeObjectURL(link.href);
 }
+
+export async function responseToFile(res: Response, filename: string) {
+  return res
+  .blob()
+    .then(blob => ({
+      contentType: res.headers.get("Content-Type"),
+      blob: blob
+    }))
+    .then(data => {
+      return new File([data.blob], filename, { type: data.contentType || undefined });
+    })
+}
