@@ -70,7 +70,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const images = useAtom(imagesAtom)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
-  const copyrightList = useMemo(() => getCopyRightList(images), [images]);
+  const copyrightList = useMemo(() => getCopyRightList(images || []), [images]);
   const characters = useAtom(charactersAtom)[0] || [];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
 

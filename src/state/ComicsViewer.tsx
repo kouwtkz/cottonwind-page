@@ -40,14 +40,18 @@ export function ComicsViewer() {
 }
 
 function EBookGallery() {
-  const imageItemList = useAtom(imagesAtom)[0];
+  const images = useAtom(imagesAtom)[0];
+  const list = useMemo(
+    () => (images || []).filter((image) => image.type === "ebook"),
+    [images]
+  );
   return (
     <GalleryObject
       items={[
         {
           name: "comics",
           label: "comics",
-          list: imageItemList.filter((image) => image.type === "ebook"),
+          list,
         },
       ]}
     />

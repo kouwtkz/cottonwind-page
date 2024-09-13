@@ -4,7 +4,7 @@ import { EnvAtom } from "./EnvState";
 import { imagesDataAtom } from "./DataState";
 import { getImageObjectMap } from "@/functions/imageFunctions";
 
-export const imagesAtom = atom<ImageType[]>([]);
+export const imagesAtom = atom<ImageType[]>();
 export const imagesMapAtom = atom<Map<string, ImageType>>();
 export const imageAlbumsAtom = atom<Map<string, ImageAlbumType>>();
 

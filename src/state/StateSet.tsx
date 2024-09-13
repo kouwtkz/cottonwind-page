@@ -1,20 +1,15 @@
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
-import { ImageState } from "./ImageState";
+import { imagesAtom, ImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
 import { EnvAtom, EnvState } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
-import {
-  charactersDataAtom,
-  DataState,
-  imagesDataAtom,
-  postsDataAtom,
-} from "./DataState";
-import { CharacterState } from "./CharacterState";
-import PostState from "./PostState";
+import { DataState } from "./DataState";
+import { charactersAtom, CharacterState } from "./CharacterState";
+import PostState, { postsAtom } from "./PostState";
 
 export const siteIsFirstAtom = atom(true);
 export const dataIsCompleteAtom = atom(false);
@@ -31,9 +26,9 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 
 export function StateSet() {
   const isSetList = [
-    Boolean(useAtom(imagesDataAtom)[0]),
-    Boolean(useAtom(charactersDataAtom)[0]),
-    Boolean(useAtom(postsDataAtom)[0]),
+    Boolean(useAtom(imagesAtom)[0]),
+    Boolean(useAtom(charactersAtom)[0]),
+    Boolean(useAtom(postsAtom)[0]),
     Boolean(useAtom(EnvAtom)[0]),
   ];
   return (
