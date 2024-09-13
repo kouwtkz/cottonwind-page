@@ -264,6 +264,14 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
   );
 }
 
+const galleryList = [
+  { name: "art" },
+  { name: "goods" },
+  { name: "3D" },
+  { name: "picture" },
+  { name: "parody", max: 12 },
+  { name: "given", label: "Fanart", max: 40 },
+] as GalleryItemType[];
 function CharaDetail({ charaName }: { charaName: string }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
@@ -271,20 +279,6 @@ function CharaDetail({ charaName }: { charaName: string }) {
   const chara = useMemo(
     () => charactersMap?.get(charaName),
     [charactersMap, charaName]
-  );
-  const galleryList: CharaGalleryAlbumProps[] = useMemo(
-    () =>
-      chara
-        ? [
-            { chara, name: "art" },
-            { chara, name: "goods" },
-            { chara, name: "3D" },
-            { chara, name: "picture" },
-            { chara, name: "parody", max: 12 },
-            { chara, name: "given", label: "Fanart", max: 40 },
-          ]
-        : [],
-    [chara]
   );
   useEffect(() => {
     if (chara?.media?.playlist) {
@@ -335,20 +329,18 @@ function CharaDetail({ charaName }: { charaName: string }) {
             ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
             <GalleryObject
-              items={galleryList
-                .map((item) => {
-                  const albumImages = albums?.get(item.name)?.list || [];
-                  return {
-                    name: item.name,
-                    label: item.name,
-                    character: chara.id,
-                    list:
-                      albumImages.filter((image) =>
-                        image.characters?.some((name) => name === chara.id)
-                      ) ?? [],
-                  } as GalleryItemObjectType;
-                })
-                .filter((item) => item.list && item.list.length > 0)}
+              items={galleryList.map((item) => {
+                const albumImages = albums?.get(item.name)?.list || [];
+                return {
+                  name: item.name,
+                  label: item.name,
+                  character: chara.id,
+                  list:
+                    albumImages.filter((image) =>
+                      image.characters?.some((name) => name === chara.id)
+                    ) ?? [],
+                } as GalleryItemObjectType;
+              })}
               submitPreventScrollReset={true}
             />
           </div>
