@@ -114,14 +114,13 @@ function InfoArea({ image }: InfoAreaProps) {
         <>
           {isEdit ? null : (
             <div className="info window">
-              {image.albumObject?.visible ? (
-                image.albumObject.visible.title &&
-                image.albumObject.visible.filename
-              ) : true ? (
+              {(
+                image.albumObject.visible
+                  ? image.albumObject.visible.title
+                  : true
+              ) ? (
                 <h2 className="title">{image.name || image.key}</h2>
-              ) : (
-                <div className="title" />
-              )}
+              ) : null}
               <div className="description">
                 <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
               </div>
