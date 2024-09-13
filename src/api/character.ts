@@ -15,14 +15,15 @@ app.use("*", async (c, next) => {
 
 const table = "characters";
 const createEntry: MeeSqlCreateTableEntryType<CharacterDataType> = {
-  index: { primary: true },
-  id: { type: "TEXT", unique: true, notNull: true },
+  id: { primary: true },
+  key: { type: "TEXT", unique: true, notNull: true },
   name: { type: "TEXT" },
   honorific: { type: "TEXT" },
   defEmoji: { type: "TEXT" },
   overview: { type: "TEXT" },
   description: { type: "TEXT" },
   tags: { type: "TEXT" },
+  order: { type: "INTEGER" },
   playlist: { type: "TEXT" },
   icon: { type: "TEXT" },
   image: { type: "TEXT" },
@@ -46,10 +47,10 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
+  const key = searchParams.get("key");
+  if (key) wheres.push({ key });
   const id = searchParams.get("id");
-  if (id) wheres.push({ id });
-  const index = searchParams.get("index");
-  if (index) wheres.push({ index: Number(index) });
+  if (id) wheres.push({ id: Number(id) });
   function Select() {
     return db.select<CharacterDataType>({ table, where: { AND: wheres } });
   }
@@ -58,13 +59,14 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
 
 function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType> {
   return {
-    id: data.id,
+    key: data.key,
     name: data.name,
     honorific: data.honorific,
     defEmoji: data.defEmoji,
     overview: data.overview,
     description: data.description,
     tags: data.tags,
+    order: data.order,
     playlist: data.playlist,
     icon: data.icon,
     headerImage: data.headerImage,
@@ -88,22 +90,22 @@ app.post("/send", async (c, next) => {
     ? (
       await db.select<CharacterDataType>({
         table,
-        where: { id: target_id },
+        where: { key: target_id },
         take: 1,
       })
     )[0]
     : undefined;
   if (target) {
-    entry.id = formData.id;
+    entry.key = formData.id;
     await db.update<CharacterDataType>({
       table,
       entry,
-      where: { id: target_id! },
+      where: { key: target_id! },
       rawEntry: { lastmod: MeeSqlD1.isoFormat() },
     });
     return c.json({ ...target, ...entry, }, 200);
   } else {
-    entry.id = formData.id || target_id;
+    entry.key = formData.id || target_id;
     await db.insert<CharacterDataType>({ table, entry });
     return c.json(entry, 201);
   }
@@ -113,16 +115,14 @@ app.post("/import", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = await c.req.parseBody();
   if (typeof formData.data === "string") {
-    if (formData.version === "0") {
-      await db.dropTable({ table });
-      await CreateTable(db);
-      const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
-      if (Array.isArray(list)) {
-        lastModToUniqueNow(list);
-        KeyValueToString(list);
-        await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
-        return c.text("インポート完了しました！")
-      }
+    await db.dropTable({ table });
+    await CreateTable(db);
+    const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
+    if (Array.isArray(list)) {
+      lastModToUniqueNow(list);
+      KeyValueToString(list);
+      await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
+      return c.text("インポート完了しました！")
     }
   }
   return c.text("インポートに失敗しました", 500);

@@ -934,8 +934,8 @@ export function GalleryCharactersSelect({
   const characters = useAtom(charactersAtom)[0];
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
-    if (currentChara) list = list.filter((v) => v.id !== currentChara);
-    return list.map(({ name, id }) => ({
+    if (currentChara) list = list.filter((v) => v.key !== currentChara);
+    return list.map(({ name, key: id }) => ({
       label: name,
       value: id,
     }));

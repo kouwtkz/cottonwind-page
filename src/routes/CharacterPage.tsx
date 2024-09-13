@@ -170,7 +170,7 @@ function CharaListPage() {
       <div className="charaList" hidden={sortable}>
         {items.map((chara, i) => (
           <Link
-            to={`/character/${chara.id}`}
+            to={`/character/${chara.key}`}
             state={{
               ...(state ?? {}),
               characterSort: orderBySort,
@@ -217,7 +217,7 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
     if (!notHide) list = list.filter((chara) => chara.media?.image);
     return list;
   }, [characters, state, notHide]);
-  const charaIndex = items.findIndex(({ id }) => id === chara.id);
+  const charaIndex = items.findIndex(({ key: id }) => id === chara.key);
   const { beforeChara, afterChara } = useMemo(() => {
     if (charaIndex >= 0) {
       return {
@@ -232,7 +232,7 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
     <div className="beforeAfter">
       <div className="before">
         {beforeChara ? (
-          <Link to={"/character/" + beforeChara.id} state={state}>
+          <Link to={"/character/" + beforeChara.key} state={state}>
             <span className="cursor">＜</span>
             {beforeChara.media?.icon ? (
               <ImageMeeIcon
@@ -247,7 +247,7 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
       </div>
       <div className="after">
         {afterChara ? (
-          <Link to={"/character/" + afterChara.id} state={state}>
+          <Link to={"/character/" + afterChara.key} state={state}>
             {afterChara.media?.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.media.icon}
@@ -346,10 +346,10 @@ function CharaDetail({ charaName }: { charaName: string }) {
                 return {
                   name: item.name,
                   label: item.name,
-                  character: chara.id,
+                  character: chara.key,
                   list:
                     albumImages.filter((image) =>
-                      image.characters?.some((name) => name === chara.id)
+                      image.characters?.some((name) => name === chara.key)
                     ) ?? [],
                 } as GalleryItemObjectType;
               })}

@@ -339,6 +339,9 @@ export async function ImportImagesJson({
         "data",
         JSON.stringify(Object.values(Object.fromEntries(dataMap)))
       );
+    } else if ("data" in json) {
+      data.append("version", "1");
+      data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
       return ImportToast(fetch(url, { method: "POST", body: data }));
@@ -357,11 +360,18 @@ export async function ImportCharacterJson({
     if (typeof version === "undefined") {
       const oldData = json as OldCharaDataObjectType;
       const dataMap = new Map(Object.entries(oldData));
+      dataMap.forEach((v) => {
+        v.key = String(v.id);
+        delete v.id;
+      });
       data.append("version", "0");
       data.append(
         "data",
         JSON.stringify(Object.values(Object.fromEntries(dataMap)))
       );
+    } else if ("data" in json) {
+      data.append("version", "1");
+      data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
       return ImportToast(fetch(url, { method: "POST", body: data }));
@@ -409,6 +419,9 @@ export async function ImportPostJson({
         "data",
         JSON.stringify(Object.values(Object.fromEntries(dataMap)))
       );
+    } else if ("data" in json) {
+      data.append("version", "1");
+      data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
       return ImportToast(fetch(url, { method: "POST", body: data }));

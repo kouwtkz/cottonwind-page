@@ -93,7 +93,7 @@ export function CharacterEditForm() {
     charactersMap && charaName ? charactersMap.get(charaName) : null;
   const getDefaultValues = useCallback(
     (chara?: CharacterType | null) => ({
-      id: chara?.id || charaName || "",
+      key: chara?.key || charaName || "",
       name: chara?.name || "",
       honorific: chara?.honorific || "",
       overview: chara?.overview || "",
@@ -127,12 +127,12 @@ export function CharacterEditForm() {
   }, [characterTags]);
 
   const schema = z.object({
-    id: z
+    key: z
       .string()
       .min(1, { message: "IDは1文字以上必要です！" })
       .refine(
-        (id) => {
-          return !(charactersMap && chara?.id !== id && id in charactersMap);
+        (key) => {
+          return !(charactersMap && chara?.key !== key && key in charactersMap);
         },
         { message: "既に使用しているIDです！" }
       ),
@@ -177,8 +177,8 @@ export function CharacterEditForm() {
             break;
         }
     });
-    if (chara?.id) formData.append("target", chara.id);
-    else if (!formData.has("id")) formData.append("id", formValues["id"]);
+    if (chara?.key) formData.append("target", chara.key);
+    else if (!formData.has("key")) formData.append("key", formValues["key"]);
     toast
       .promise(
         fetch(apiOrigin + "/character/send", {
@@ -202,7 +202,7 @@ export function CharacterEditForm() {
       )
       .then(() => {
         setCharactersLoad("no-cache");
-        nav(`/character/${formValues.id}`);
+        nav(`/character/${formValues.key}`);
       });
   }
 
@@ -218,7 +218,7 @@ export function CharacterEditForm() {
               fileDialog("image/*")
                 .then((fileList) => {
                   const file = fileList.item(0)!;
-                  if (mode === "icon") return { src: file, name: chara.id };
+                  if (mode === "icon") return { src: file, name: chara.key };
                   else return file;
                 })
                 .then((src) =>
@@ -239,7 +239,7 @@ export function CharacterEditForm() {
                 .then(async (o) => {
                   if (o && typeof o.name === "string") {
                     const formData = new FormData();
-                    formData.append("target", chara.id);
+                    formData.append("target", chara.key);
                     formData.append(mode, mode === "icon" ? "" : o.name);
                     return fetch(apiOrigin + "/character/send", {
                       method: "POST",
@@ -272,9 +272,9 @@ export function CharacterEditForm() {
         ) : null}
       </div>
       <div>
-        <input placeholder="キャラクターID" {...register("id")} />
-        {"id" in errors ? (
-          <p className="warm">{errors.id?.message?.toString()}</p>
+        <input placeholder="キャラクターID" {...register("key")} />
+        {"key" in errors ? (
+          <p className="warm">{errors.key?.message?.toString()}</p>
         ) : null}
       </div>
       <div className="flex">
@@ -555,11 +555,11 @@ export function SortableObject() {
   useEffect(() => {
     if (characters && !sortable) {
       if (saveFlag) {
-        const isDirty = !items.every(({ id }, i) => characters[i].id === id);
+        const isDirty = !items.every(({ key }, i) => characters[i].key === key);
         if (isDirty) {
           setCharacters(items);
           const formData = new FormData();
-          items.forEach(({ id }) => formData.append("sorts[]", id));
+          items.forEach(({ key: key }) => formData.append("sorts[]", key));
           axios.post("/character/send", formData).then((res) => {
             toast(res.data.message, { duration: 2000 });
             if (res.status === 200) {
@@ -587,8 +587,8 @@ export function SortableObject() {
         return;
       }
       if (active.id !== over.id) {
-        const oldIndex = items.findIndex((v) => v.id === active.id);
-        const newIndex = items.findIndex((v) => v.id === over.id);
+        const oldIndex = items.findIndex((v) => v.key === active.id);
+        const newIndex = items.findIndex((v) => v.key === over.id);
         setItems(arrayMove(items, oldIndex, newIndex));
       }
     },
@@ -604,7 +604,7 @@ export function SortableObject() {
         >
           <SortableContext items={items} strategy={rectSortingStrategy}>
             {items.map((chara) => {
-              return <SortableItem chara={chara} key={chara.id} />;
+              return <SortableItem chara={chara} key={chara.key} />;
             })}
           </SortableContext>
         </DndContext>
@@ -615,7 +615,7 @@ export function SortableObject() {
 
 function SortableItem({ chara }: { chara: CharacterType }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: chara.id });
+    useSortable({ id: chara.key });
   const style: CSSProperties = {
     cursor: "move",
     listStyle: "none",

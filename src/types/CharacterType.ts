@@ -1,12 +1,13 @@
 interface CharacterDataType {
-  index: number;
-  id: string;
+  id: number;
+  key: string;
   name: string;
   honorific?: string;
   defEmoji?: string;
   overview?: string;
   description?: string;
   tags?: string;
+  order?: number;
   playlist?: string;
   icon?: string;
   image?: string;

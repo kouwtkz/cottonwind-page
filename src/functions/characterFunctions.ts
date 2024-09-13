@@ -10,7 +10,7 @@ export function getCharacterMap(characterData: CharacterDataType[]) {
       time: v.time ? new Date(v.time) : undefined,
       lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
     };
-    const key = item.id;
+    const key = item.key;
     if (!charactersMap.has(key)) {
       charactersMap.set(key, item);
     }

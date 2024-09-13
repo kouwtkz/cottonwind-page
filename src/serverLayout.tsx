@@ -108,7 +108,7 @@ export async function ServerLayout({
       charactersMap = getCharacterMap(
         await db.select<CharacterDataType>({
           table: "characters",
-          where: { id: params.charaName },
+          where: { key: params.charaName },
           take: 1,
         })
       );

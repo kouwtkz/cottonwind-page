@@ -121,7 +121,7 @@ function InfoArea({ image }: InfoAreaProps) {
                 {charaTags?.map((chara, i) => {
                   return (
                     <Link
-                      to={"/character/" + chara.id}
+                      to={"/character/" + chara.key}
                       onClick={() => {
                         onClose();
                         return true;

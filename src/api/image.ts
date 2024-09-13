@@ -382,24 +382,22 @@ app.post("/import", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = await c.req.parseBody();
   if (typeof formData.data === "string") {
-    if (formData.version === "0") {
-      if (c.env.DEV) {
-        const deleteList = (await c.env.BUCKET.list()).objects.map(
-          (object) => object.key
-        );
-        await c.env.BUCKET.delete(deleteList);
-        await db.dropTable({ table });
-        await CreateTable(db);
-      }
-      const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
-      if (Array.isArray(list)) {
-        lastModToUniqueNow(list);
-        KeyValueToString(list);
-        await Promise.all(
-          list.map((item) => db.insert({ table, entry: item }))
-        );
-        return c.text("インポート完了しました！");
-      }
+    if (c.env.DEV) {
+      const deleteList = (await c.env.BUCKET.list()).objects.map(
+        (object) => object.key
+      );
+      await c.env.BUCKET.delete(deleteList);
+    }
+    await db.dropTable({ table });
+    await CreateTable(db);
+    const list = JSON.parse(formData.data) as KeyValueType<unknown>[];
+    if (Array.isArray(list)) {
+      lastModToUniqueNow(list);
+      KeyValueToString(list);
+      await Promise.all(
+        list.map((item) => db.insert({ table, entry: item }))
+      );
+      return c.text("インポート完了しました！");
     }
   }
   return c.text("インポートに失敗しました", 500);

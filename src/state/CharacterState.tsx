@@ -38,7 +38,7 @@ export function CharacterState() {
           if (charaMediaItem) {
             charaMedia[key] = imagesMap.get(charaMediaItem);
           } else if (name === "charaIcon") {
-            charaMedia[key] = imagesMap.get(chara.id);
+            charaMedia[key] = imagesMap.get(chara.key);
           }
         });
 

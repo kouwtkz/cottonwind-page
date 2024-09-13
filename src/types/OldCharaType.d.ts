@@ -3,5 +3,5 @@ interface OldCharaObjectType {
 }
 
 interface OldCharaDataObjectType {
-  [name: string]: CharacterDataType
+  [name: string]: Omit<CharacterDataType, "id"> & { id: unknown }
 }

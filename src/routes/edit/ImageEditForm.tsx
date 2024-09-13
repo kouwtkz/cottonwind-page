@@ -109,7 +109,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 
   const charaLabelTags = useMemo(() => {
-    return characters.map(({ name, id }) => ({
+    return characters.map(({ name, key: id }) => ({
       label: name,
       value: id,
     }));
@@ -210,7 +210,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   const CharaTagsLabel = useCallback(
     ({ option }: { option?: labelValue }) => {
-      const chara = characters.find((chara) => chara.id === option?.value);
+      const chara = characters.find((chara) => chara.key === option?.value);
       return (
         <div className="flex center">
           <span className="label-sl">

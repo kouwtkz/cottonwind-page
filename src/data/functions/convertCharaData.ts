@@ -17,7 +17,7 @@ export function convertCharaList(charactersData: OldCharaObjectType) {
   return (Object.entries(charactersData) as [string, CharacterType][])
     .map(([id, chara]) => (
       {
-        ...chara, id,
+        ...chara, key: id,
         time: (chara.time ? new Date(chara.time) : undefined),
         birthday: (chara.birthday ? new Date(chara.birthday) : undefined)
       } as CharacterType));

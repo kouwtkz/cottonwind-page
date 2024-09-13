@@ -5,7 +5,7 @@ const charaConfigName = "config.characters";
 
 function setCharaId(charaObject: OldCharaObjectType) {
   Object.entries(charaObject).forEach(([key, chara]) => {
-    if (chara) chara.id = key;
+    if (chara) chara.key = key;
   });
 }
 
