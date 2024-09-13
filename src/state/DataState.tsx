@@ -19,7 +19,7 @@ export const imagesLoadAtom = atom<LoadAtomType>(false);
 const charactersDataSrc = "/data/characters";
 export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
   "characters",
-  "1.2.0"
+  "1.2.1"
 );
 export const charactersDataAtom = atom<CharacterDataType[]>();
 export const charactersLoadAtom = atom<LoadAtomType>(false);

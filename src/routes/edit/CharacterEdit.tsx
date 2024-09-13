@@ -158,32 +158,17 @@ export function CharacterEditForm() {
   async function onSubmit() {
     const formValues = getValues();
     if (!charactersMap) return;
-    const formData = new FormData();
+    const data = {} as KeyValueAnyType;
     Object.entries(formValues).forEach(([key, value]) => {
-      if (key in dirtyFields)
-        switch (key) {
-          default:
-            if (Array.isArray(value)) {
-              if (value.length > 0) {
-                value.forEach((v) => {
-                  formData.append(`${key}[]`, v);
-                });
-              } else {
-                formData.append(`${key}`, "");
-              }
-            } else {
-              formData.append(key, value);
-            }
-            break;
-        }
+      if (key in dirtyFields) data[key] = value;
     });
-    if (chara?.key) formData.append("target", chara.key);
-    else if (!formData.has("key")) formData.append("key", formValues["key"]);
+    if (chara?.key) data.target = chara.key;
+    else if (!data.key) data.key = formValues["key"];
     toast
       .promise(
-        fetch(apiOrigin + "/character/send", {
-          method: "POST",
-          body: formData,
+        SendPostFetch({
+          apiOrigin,
+          data,
         }),
         {
           loading: "送信中",
@@ -238,12 +223,12 @@ export function CharacterEditForm() {
                 })
                 .then(async (o) => {
                   if (o && typeof o.name === "string") {
-                    const formData = new FormData();
-                    formData.append("target", chara.key);
-                    formData.append(mode, mode === "icon" ? "" : o.name);
-                    return fetch(apiOrigin + "/character/send", {
-                      method: "POST",
-                      body: formData,
+                    return SendPostFetch({
+                      apiOrigin,
+                      data: {
+                        target: chara.key,
+                        [mode]: mode === "icon" ? "" : o.name,
+                      },
                     }).then(() => {
                       setCharactersLoad("no-cache");
                     });
@@ -543,6 +528,7 @@ export function SortableObject() {
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersLoad = useAtom(charactersLoadAtom)[1];
   const [items, setItems] = useState(characters || []);
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
   useEffect(() => {
     if (characters) setItems(characters);
   }, [characters]);
@@ -558,14 +544,31 @@ export function SortableObject() {
         const isDirty = !items.every(({ key }, i) => characters[i].key === key);
         if (isDirty) {
           setCharacters(items);
-          const formData = new FormData();
-          items.forEach(({ key: key }) => formData.append("sorts[]", key));
-          axios.post("/character/send", formData).then((res) => {
-            toast(res.data.message, { duration: 2000 });
-            if (res.status === 200) {
-              if (res.data.update.chara) setCharactersLoad("no-cache");
+          const data = [] as any[];
+          items.forEach((character, i) => {
+            const order = i + 1;
+            if (character.order !== order) {
+              data.push({
+                target: character.key,
+                order,
+              });
             }
           });
+          toast
+            .promise(
+              SendPostFetch({
+                apiOrigin,
+                data,
+              }),
+              {
+                loading: "並び順の送信中",
+                success: "並び順を登録しました",
+                error: "並び順の登録に失敗しました",
+              }
+            )
+            .then(() => {
+              setCharactersLoad("no-cache");
+            });
         }
         set({ save: false });
       } else if (resetFlag) {
@@ -573,7 +576,7 @@ export function SortableObject() {
         set({ reset: false });
       }
     }
-  }, [characters, items, resetFlag, saveFlag, sortable]);
+  }, [characters, items, resetFlag, saveFlag, sortable, apiOrigin]);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -669,13 +672,13 @@ export function CharaImageSettingRbButtons({
     }
     async function onClickHandler(mode: characterImageMode) {
       if (image) {
-        const formData = new FormData();
-        formData.append("target", charaName);
-        formData.append(mode, image.key);
         await toastPromise(
-          fetch(concatOriginUrl(apiOrigin, "character/send"), {
-            method: "POST",
-            body: formData,
+          SendPostFetch({
+            apiOrigin,
+            data: {
+              target: charaName,
+              [mode]: image.key,
+            },
           }),
           mode
         );
@@ -706,12 +709,9 @@ export function CharaImageSettingRbButtons({
                 })
                   .then(() => {
                     setImagesLoad("no-cache");
-                    const formData = new FormData();
-                    formData.append("target", charaName);
-                    formData.append("icon", "");
-                    return fetch(concatOriginUrl(apiOrigin, "character/send"), {
-                      method: "POST",
-                      body: formData,
+                    return SendPostFetch({
+                      apiOrigin,
+                      data: { target: charaName, icon: "" },
                     });
                   })
                   .then(() => {
@@ -773,4 +773,19 @@ export function CharacterMakeFromTags() {
       ) : null}
     </>
   );
+}
+
+interface SendPostFetchProps {
+  apiOrigin?: string;
+  data?: KeyValueAnyType;
+}
+async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
+  return fetch(concatOriginUrl(apiOrigin, "character/send"), {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+    } as ContentTypeHeader,
+    body: JSON.stringify(data),
+  });
 }

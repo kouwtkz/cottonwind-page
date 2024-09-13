@@ -75,6 +75,7 @@ export function CharacterState() {
       });
       setCharactersMap(charactersMap);
       const characters = Object.values(Object.fromEntries(charactersMap));
+      characters.sort((a, b) => (a.order || 0) - (b.order || 0));
       setCharacters(characters);
       const tagOptionsMap = characters.reduce((a, c) => {
         c.tags?.forEach((tag) => {

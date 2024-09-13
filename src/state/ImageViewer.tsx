@@ -308,7 +308,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
 }
 
 export function ImageViewer() {
-  const imageItemList = useAtom(imagesAtom)[0];
+  const images = useAtom(imagesAtom)[0];
   const { isOpen, onOpen, onClose } = useImageViewer();
   const [isDirty, setIsDirty] = useAtom(imageEditIsDirty);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -345,9 +345,9 @@ export function ImageViewer() {
 
   const image = useMemo(() => {
     if (imageParam) {
-      return imageItemList.find((v) => v.key === imageParam);
+      return images?.find((v) => v.key === imageParam);
     } else return;
-  }, [imageItemList, imageParam]);
+  }, [images, imageParam]);
 
   useEffect(() => {
     if (isOpen && !image) {

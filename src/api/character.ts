@@ -83,32 +83,44 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType
 
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const { id: _id, ...formData } = (await c.req.parseBody()) as KeyValueType<unknown>;
-  const entry = InsertEntry(formData);
-  const target_id = formData.target ? String(formData.target) : undefined;
-  const target = target_id
-    ? (
-      await db.select<CharacterDataType>({
-        table,
-        where: { key: target_id },
-        take: 1,
-      })
-    )[0]
-    : undefined;
-  if (target) {
-    entry.key = formData.id;
-    await db.update<CharacterDataType>({
-      table,
-      entry,
-      where: { key: target_id! },
-      rawEntry: { lastmod: MeeSqlD1.isoFormat() },
-    });
-    return c.json({ ...target, ...entry, }, 200);
-  } else {
-    entry.key = formData.id || target_id;
-    await db.insert<CharacterDataType>({ table, entry });
-    return c.json(entry, 201);
-  }
+  const rawData = await c.req.json();
+  const data = Array.isArray(rawData) ? rawData : [rawData];
+  const now = new Date();
+  return Promise.all(
+    data.map(async item => {
+      const { id: _id, ...data } = item as KeyValueType<unknown>;
+      const entry = InsertEntry(data);
+      entry.lastmod = now.toISOString();
+      now.setMilliseconds(now.getMilliseconds() + 1);
+      const target_id = data.target ? String(data.target) : undefined;
+      const target = target_id
+        ? (
+          await db.select<CharacterDataType>({
+            table,
+            where: { key: target_id },
+            take: 1,
+          })
+        )[0]
+        : undefined;
+      if (target) {
+        entry.key = data.id;
+        await db.update<CharacterDataType>({
+          table,
+          entry,
+          where: { key: target_id! },
+        });
+        return { type: "update", entry: { ...target, ...entry } };
+      } else {
+        entry.key = data.id || target_id;
+        await db.insert<CharacterDataType>({
+          table, entry,
+        });
+        return { type: "create", entry }
+      }
+    })
+  ).then(results => {
+    return c.json(results, results.some(({ type }) => type === "create") ? 201 : 200);
+  });
 });
 
 app.post("/import", async (c, next) => {
