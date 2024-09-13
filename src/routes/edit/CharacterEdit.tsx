@@ -268,11 +268,7 @@ export function CharacterEditForm() {
       <SoundState />
       <div>
         {chara?.media?.icon ? (
-          <ImageMeeIcon
-            imageItem={chara.media.icon}
-            size={40}
-            className="charaIcon"
-          />
+          <ImageMeeIcon imageItem={chara.media.icon} />
         ) : null}
       </div>
       <div>
@@ -760,7 +756,7 @@ export function CharacterMakeFromTags() {
   const nav = useNavigate();
   const q = searchParams.get("q");
   const targetCharacterId = useMemo(() => q?.match(/^#(\w+)$/)?.[1], [q]);
-  
+
   return (
     <>
       {targetCharacterId ? (

@@ -264,7 +264,7 @@ function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
   );
 }
 
-const galleryList = [
+const defaultGalleryList = [
   { name: "art" },
   { name: "goods" },
   { name: "3D" },
@@ -275,6 +275,18 @@ const galleryList = [
 function CharaDetail({ charaName }: { charaName: string }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
   const albums = useAtom(imageAlbumsAtom)[0];
+  const searchParams = useSearchParams()[0];
+  const showAllAlbum = searchParams.has("showAllAlbum");
+  const galleryList = useMemo(() => {
+    const list = [...defaultGalleryList];
+    if (showAllAlbum && albums) {
+      albums.forEach((value, key) => {
+        if (list.every(({ name }) => name !== key))
+          list.push({ ...value, name: key });
+      });
+    }
+    return list;
+  }, [albums, defaultGalleryList, showAllAlbum]);
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
     () => charactersMap?.get(charaName),
