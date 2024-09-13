@@ -15,7 +15,7 @@ export default function LinksPage() {
       <h2 className="color en-title-font">LINKS</h2>
       <div>
         <h3 className="leaf">各拠点</h3>
-        <ul>
+        <ul className="flex center column large">
           {env?.LINKS?.map((item, i) => {
             return (
               <li key={i}>
@@ -29,12 +29,14 @@ export default function LinksPage() {
       </div>
       <div>
         <h3 className="leaf">いろいろ</h3>
-        <p>
-          <InviteDiscordLink />
-        </p>
-        <p>
-          <a href="/suggest">Suggest page (links for miss typo)</a>
-        </p>
+        <ul className="flex center column large">
+          <li>
+            <InviteDiscordLink />
+          </li>
+          <li>
+            <a href="/suggest">Suggest page (links for miss typo)</a>
+          </li>
+        </ul>
       </div>
       <div>
         <h3 className="leaf">サイトのバナー</h3>
