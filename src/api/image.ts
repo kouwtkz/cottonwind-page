@@ -337,6 +337,10 @@ app.post("/send", async (c, next) => {
     Object.entries(images).map(([k, v]) => [k, v.path || undefined])
   );
   if (selectValue.length > 0) {
+    const value = selectValue[0];
+    if (images.src?.path && value.src && (images.src.path !== value.src)) {
+      await c.env.BUCKET.delete(value.src);
+    }
     const updateTags = JoinUnique(value.tags, tags);
     const updateCharacters = JoinUnique(value.characters, characters);
     const entry: MeeSqlEntryType<ImageDataType> = {
