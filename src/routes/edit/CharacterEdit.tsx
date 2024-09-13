@@ -80,6 +80,7 @@ import {
 import { concatOriginUrl } from "@/functions/originUrl";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { CgGhostCharacter } from "react-icons/cg";
+import { corsFetch } from "@/functions/fetch";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -779,12 +780,9 @@ interface SendPostFetchProps {
   data?: KeyValueAnyType;
 }
 async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
-  return fetch(concatOriginUrl(apiOrigin, "character/send"), {
-    method: "POST",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-    } as ContentTypeHeader,
+  return corsFetch(concatOriginUrl(apiOrigin, "character/send"), {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 }

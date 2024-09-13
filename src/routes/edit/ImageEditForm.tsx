@@ -48,6 +48,8 @@ import {
 import { CharaImageSettingRbButtons } from "./CharacterEdit";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
+import { corsFetch, methodType } from "@/functions/fetch";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -161,7 +163,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     setIsBusy(true);
     const fields = getValues();
     const formdata = new FormData();
-    let method = "PATCH";
+    let method: methodType = "PATCH";
     formdata.append("id", String(image!.id));
     formdata.append("src", String(image!.src));
     if (deleteMode) method = "DELETE";
@@ -171,7 +173,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           formdata.append(key, Array.isArray(value) ? value.join(",") : value);
       });
     }
-    const res = await fetch(apiOrigin + "/image/send", {
+    const res = await corsFetch(concatOriginUrl(apiOrigin, "/image/send"), {
       method,
       body: formdata,
     }).finally(() => {
@@ -660,7 +662,7 @@ export async function ImagesUploadProcess({
         formData.append("height", String(iconSize));
       }
       return () =>
-        fetch(url, {
+        corsFetch(url, {
           method: "POST",
           body: formData,
         });

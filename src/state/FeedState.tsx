@@ -1,6 +1,8 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 import { ApiOriginAtom } from "./EnvState";
+import { corsFetch } from "@/functions/fetch";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 export const outFeedAtom = atom<FeedContentType>();
 
@@ -9,7 +11,7 @@ export function FeedState() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   useEffect(() => {
     if (apiOrigin) {
-      fetch(apiOrigin + "/feed/get")
+      corsFetch(concatOriginUrl(apiOrigin, "/feed/get"))
         .then((res) => {
           return res.headers.get("Content-Type")?.startsWith("application/json")
             ? (res.json() as { note?: FeedContentType })
@@ -30,7 +32,12 @@ export function NoteView() {
   return (
     <div className="blog">
       <h3>
-        <a className="title en-title-font" href={link} title={title} target="blog">
+        <a
+          className="title en-title-font"
+          href={link}
+          title={title}
+          target="blog"
+        >
           Note
         </a>
       </h3>

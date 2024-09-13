@@ -35,6 +35,8 @@ import {
   postsLoadAtom,
   postStorageData,
 } from "@/state/DataState";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { corsFetch } from "@/functions/fetch";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -228,9 +230,8 @@ export function PostForm() {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
       toast
         .promise(
-          fetch(apiOrigin + "/blog/send", {
+          corsFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
             method: "DELETE",
-            mode: "cors",
             headers: {
               "Content-Type": "application/json",
             } as ContentTypeHeader,
@@ -373,9 +374,8 @@ export function PostForm() {
       if (sendEnable) {
         toast
           .promise(
-            fetch(apiOrigin + "/blog/send", {
-              method: "post",
-              mode: "cors",
+            corsFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
+              method: "POST",
               body: formData,
             }).then(async (r) => {
               if (r.ok) return r;

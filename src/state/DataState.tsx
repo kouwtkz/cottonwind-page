@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { setPrefix } from "@/functions/doc/prefix";
+import { corsFetch } from "@/functions/fetch";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
@@ -112,8 +114,7 @@ async function fetchData<T>({
     });
     const cache = getCacheOption(loadAtomValue);
     if (cache) Url.searchParams.set("cache", cache);
-    return fetch(Url.href, {
-      mode: "cors",
+    return corsFetch(Url.href, {
       cache: cache !== "no-cache-reload" ? cache : undefined,
     }).then(async (r) => (await r.json()) as T[]);
   }
@@ -205,8 +206,7 @@ export function DataState() {
         prefix: "posts",
       });
       if (cache) Url.searchParams.set("cache", cache);
-      fetch(Url.href, {
-        mode: "cors",
+      corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
       })
         .then(async (r) => (await r.json()) as KeyValueType<unknown[]>)
@@ -290,7 +290,6 @@ export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
 }: ImportImagesJsonProps = {}) {
-  const url = (apiOrigin || "") + "/image/import";
   return jsonFileDialog().then((json) => {
     const version = json.version;
     const data = new FormData();
@@ -344,7 +343,12 @@ export async function ImportImagesJson({
       data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(fetch(url, { method: "POST", body: data }));
+      return ImportToast(
+        corsFetch(concatOriginUrl(apiOrigin, "/image/import"), {
+          method: "POST",
+          body: data,
+        })
+      );
     }
   });
 }
@@ -353,7 +357,6 @@ interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportCharacterJson({
   apiOrigin,
 }: ImportCharactersJsonProps = {}) {
-  const url = (apiOrigin || "") + "/character/import";
   return jsonFileDialog().then((json) => {
     const version = json.version;
     const data = new FormData();
@@ -374,7 +377,12 @@ export async function ImportCharacterJson({
       data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(fetch(url, { method: "POST", body: data }));
+      return ImportToast(
+        corsFetch(concatOriginUrl(apiOrigin, "/character/import"), {
+          method: "POST",
+          body: data,
+        })
+      );
     }
   });
 }
@@ -383,7 +391,6 @@ interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportPostJson({
   apiOrigin,
 }: ImportCharactersJsonProps = {}) {
-  const url = (apiOrigin || "") + "/blog/import";
   return jsonFileDialog().then((json) => {
     const version = json.version;
     const data = new FormData();
@@ -424,7 +431,12 @@ export async function ImportPostJson({
       data.append("data", JSON.stringify(json.data));
     }
     if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(fetch(url, { method: "POST", body: data }));
+      return ImportToast(
+        corsFetch(concatOriginUrl(apiOrigin, "/blog/import"), {
+          method: "POST",
+          body: data,
+        })
+      );
     }
   });
 }
