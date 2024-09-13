@@ -50,6 +50,7 @@ import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetch, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { PromiseOrder } from "@/functions/arrayFunction";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -668,11 +669,7 @@ export async function ImagesUploadProcess({
         });
     })
   );
-  const results: Response[] = [];
-  for (let i = 0; i < fetchList.length; i++) {
-    results.push(await fetchList[i]());
-    await sleep(10);
-  }
+  const results = await PromiseOrder(fetchList, 10);
   const successCount = results.filter((r) => r.status === 200).length;
   if (results.length === successCount) {
     return {

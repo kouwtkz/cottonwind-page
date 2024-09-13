@@ -9,7 +9,7 @@ import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { setPrefix } from "@/functions/doc/prefix";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { arrayPartition } from "@/functions/arrayFunction";
+import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import { sleep } from "@/functions/Time";
 
 const imagesDataSrc = "/data/images";
@@ -287,7 +287,32 @@ interface DataUploadBaseProps {
   partition?: number;
 }
 
-type entryImageDataType = Omit<ImageDataType, "id" | "lastmod"> & {
+interface makeImportFetchListProps<T = unknown> extends DataUploadBaseProps {
+  src: string;
+  data: T[];
+  partition: number;
+  object: importEntryDataType;
+}
+function makeImportFetchList({
+  apiOrigin,
+  src,
+  data,
+  partition,
+  object,
+}: makeImportFetchListProps) {
+  return arrayPartition(data, partition).map((item, i) => {
+    const entry = { ...object, data: item };
+    if (i === 0) entry.overwrite = true;
+    return () =>
+      corsFetch(concatOriginUrl(apiOrigin, src), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+      });
+  });
+}
+
+type importEntryImageDataType = Omit<ImageDataType, "id" | "lastmod"> & {
   [k: string]: any;
 };
 interface ImportImagesJsonProps extends DataUploadBaseProps {
@@ -299,12 +324,12 @@ export async function ImportImagesJson({
   partition = 500,
 }: ImportImagesJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
+    let object: importEntryDataType<importEntryImageDataType>;
+    let data: importEntryImageDataType[];
     const version = json.version;
-    let object: importEntryDataType<entryImageDataType>;
-    let data: entryImageDataType[];
     if (typeof version === "undefined") {
       const oldData = json as YamlDataType[];
-      const dataMap = new Map<string, entryImageDataType>();
+      const dataMap = new Map<string, importEntryImageDataType>();
       oldData.forEach((album) => {
         album.list?.forEach((item) => {
           const key = getBasename(String(item.src || item.name));
@@ -349,36 +374,32 @@ export async function ImportImagesJson({
       object = _entry;
       data = _data ? _data : [];
     }
-    const fetchList = arrayPartition(data, partition).map((item, i) => {
-      const entry = { ...object, data: item };
-      if (i === 0) entry.overwrite = true;
-      return () =>
-        corsFetch(concatOriginUrl(apiOrigin, "/image/import"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(entry),
-        });
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: "/image/import",
+      partition,
+      data,
+      object,
     });
-    await ImportToast(
-      (async () => {
-        const results: Response[] = [];
-        for (let i = 0; i < fetchList.length; i++) {
-          results.push(await fetchList[i]());
-          await sleep(10);
-        }
-        return results;
-      })()
-    );
+    await ImportToast(PromiseOrder(fetchList, 10));
   });
 }
 
+type importEntryCharacterDataType = Omit<
+  CharacterDataType,
+  "id" | "lastmod"
+> & {
+  [k: string]: any;
+};
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportCharacterJson({
   apiOrigin,
+  partition = 500,
 }: ImportCharactersJsonProps = {}) {
-  return jsonFileDialog().then((json) => {
+  return jsonFileDialog().then(async (json) => {
+    let object: importEntryDataType<importEntryCharacterDataType>;
+    let data: importEntryCharacterDataType[];
     const version = json.version;
-    const data = new FormData();
     if (typeof version === "undefined") {
       const oldData = json as OldCharaDataObjectType;
       const dataMap = new Map(Object.entries(oldData));
@@ -386,33 +407,37 @@ export async function ImportCharacterJson({
         v.key = String(v.id);
         delete v.id;
       });
-      data.append("version", "0");
-      data.append(
-        "data",
-        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
-      );
-    } else if ("data" in json) {
-      data.append("version", "1");
-      data.append("data", JSON.stringify(json.data));
+      object = { version: "0" };
+      data = Object.values(Object.fromEntries(dataMap));
+    } else {
+      const { data: _data, ..._entry } =
+        json as dataBaseType<CharacterDataType>;
+      object = _entry;
+      data = _data ? _data : [];
     }
-    if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(
-        corsFetch(concatOriginUrl(apiOrigin, "/character/import"), {
-          method: "POST",
-          body: data,
-        })
-      );
-    }
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: "/character/import",
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(PromiseOrder(fetchList, 10));
   });
 }
 
+type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
+  [k: string]: any;
+};
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportPostJson({
   apiOrigin,
+  partition = 500,
 }: ImportCharactersJsonProps = {}) {
   return jsonFileDialog().then((json) => {
+    let object: importEntryDataType<importEntryPostDataType>;
+    let data: importEntryPostDataType[];
     const version = json.version;
-    const data = new FormData();
     if (typeof version === "undefined") {
       const oldData = json as Omit<OldPostType, "localDraft">[];
       const dataMap = new Map(
@@ -440,22 +465,20 @@ export async function ImportPostJson({
           return [v.postId, value];
         })
       );
-      data.append("version", "0");
-      data.append(
-        "data",
-        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
-      );
-    } else if ("data" in json) {
-      data.append("version", "1");
-      data.append("data", JSON.stringify(json.data));
+      object = { version: "0" };
+      data = Object.values(Object.fromEntries(dataMap));
+    } else {
+      const { data: _data, ..._entry } = json as dataBaseType<PostDataType>;
+      object = _entry;
+      data = _data ? _data : [];
     }
-    if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(
-        corsFetch(concatOriginUrl(apiOrigin, "/blog/import"), {
-          method: "POST",
-          body: data,
-        })
-      );
-    }
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: "/blog/import",
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(PromiseOrder(fetchList, 10));
   });
 }
