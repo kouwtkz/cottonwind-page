@@ -14,7 +14,7 @@ export function TopPage() {
   return (
     <WorkersLayout {...layoutAttr}>
       <h1>{defaultTitle}</h1>
-      <div className="list column">
+      <div className="flex center column large">
         <a href="/workers/twix">Twitterれんけい</a>
         <a href="/workers">ワーカーページにもどる</a>
       </div>

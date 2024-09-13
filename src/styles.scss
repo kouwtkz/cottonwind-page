@@ -195,7 +195,12 @@ style {
 
 .flex {
   display: flex;
-  &.center {
+  &.center,
+  &.justify-center {
+    justify-content: center;
+  }
+  &.center,
+  &.items-center {
     align-items: center;
   }
   &.row {
@@ -209,6 +214,12 @@ style {
   }
   &.evenly {
     justify-content: space-evenly;
+  }
+  &.large {
+    font-size: 1.5rem;
+    > * {
+      margin: 0.125rem;
+    }
   }
 }
 .flex-1 {
@@ -1298,7 +1309,7 @@ form select {
           position: absolute;
           top: 0;
           left: 0;
-          object-fit: cover;          
+          object-fit: cover;
           // display: block;
           // margin: auto;
           // max-width: 95%;
