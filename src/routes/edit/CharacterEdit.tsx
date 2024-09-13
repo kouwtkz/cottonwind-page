@@ -68,6 +68,7 @@ import {
 import { ApiOriginAtom, MediaOriginAtom } from "@/state/EnvState";
 import {
   charactersLoadAtom,
+  characterStorageData,
   imagesLoadAtom,
   ImportCharacterJson,
 } from "@/state/DataState";
@@ -427,10 +428,8 @@ export function CharaEditButton() {
             title="キャラデータのダウンロード"
             onClick={async () => {
               fileDownload(
-                "characters.json",
-                await fetch(apiOrigin + "/characters/data").then((r) =>
-                  r.text()
-                )
+                characterStorageData.key + ".json",
+                JSON.stringify(characterStorageData)
               );
             }}
           >

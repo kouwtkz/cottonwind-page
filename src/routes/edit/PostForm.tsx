@@ -33,6 +33,7 @@ import {
   imagesLoadAtom,
   ImportPostJson,
   postsLoadAtom,
+  postStorageData,
 } from "@/state/DataState";
 
 const backupStorageKey = "backupPostDraft";
@@ -496,7 +497,10 @@ export function PostForm() {
                   break;
                 case "download":
                   if (confirm("記事データを一括で取得しますか？")) {
-                    fileDownload("posts.json", JSON.stringify(posts));
+                    fileDownload(
+                      postStorageData.key + ".json",
+                      JSON.stringify(postStorageData)
+                    );
                   }
                   break;
                 case "upload":

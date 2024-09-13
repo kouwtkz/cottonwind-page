@@ -44,8 +44,11 @@ import { ImageGlobalEditModeSwitch, ImagesUpload } from "./edit/ImageEditForm";
 import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import { getName } from "@/functions/doc/PathParse";
-import { imagesLoadAtom, ImportImagesJson } from "@/state/DataState";
+import {
+  imagesLoadAtom,
+  imageStorageData,
+  ImportImagesJson,
+} from "@/state/DataState";
 import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
@@ -76,7 +79,6 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
   const charactersMap = useAtom(charactersMapAtom)[0];
   const params = useParams();
-  const url = useMemo(() => apiOrigin + "/image/data", [apiOrigin]);
   return (
     <>
       {isLogin ? (
@@ -89,8 +91,8 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
                 title="ダウンロードする"
                 onClick={async () => {
                   fileDownload(
-                    getName(url) + ".json",
-                    await fetch(url).then((r) => r.text())
+                    imageStorageData.key + ".json",
+                    JSON.stringify(imageStorageData)
                   );
                 }}
               >
