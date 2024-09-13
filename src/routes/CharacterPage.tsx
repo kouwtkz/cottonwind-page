@@ -39,7 +39,7 @@ export function CharacterPage() {
   const isEdit = searchParams.get("edit") === "on";
   const isDev = import.meta.env?.DEV;
   return (
-    <div id="characterPage">
+    <div className="characterPage">
       {isDev && isEdit ? (
         <CharacterEditForm />
       ) : (

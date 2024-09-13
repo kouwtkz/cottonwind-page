@@ -203,6 +203,12 @@ style {
   &.items-center {
     align-items: center;
   }
+  &.justify-start {
+    justify-content: flex-start;
+  }
+  &.justify-end {
+    justify-content: flex-end;
+  }
   &.row {
     flex-direction: row;
   }
@@ -1200,11 +1206,11 @@ form select {
 
 @mixin commonHeader() {
   .header {
+    justify-content: flex-end;
     &,
-    .flex {
+    & > .flex {
       display: flex;
       flex-wrap: wrap;
-      justify-content: flex-end;
       align-items: center;
       margin: 0.25rem;
       & > *,
@@ -1289,7 +1295,7 @@ form select {
   }
 }
 
-#characterPage {
+.characterPage {
   max-width: 1400px;
   @include commonHeader();
   .charaList {

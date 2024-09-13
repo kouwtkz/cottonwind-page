@@ -1,13 +1,5 @@
-import {
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import { GalleryViewerPaging } from "@/state/ImageViewer";
-import { ImageMee } from "@/layout/ImageMee";
 import toast from "react-hot-toast";
 import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
 import {
@@ -26,7 +18,7 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
-import { charactersAtom } from "@/state/CharacterState";
+import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
 import {
   AutoImageItemType,
   getCopyRightList,
@@ -55,7 +47,7 @@ import {
 } from "@/components/Canvas";
 import { CharaImageSettingRbButtons } from "./CharacterEdit";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
-type labelValue = { label: string; value: string };
+import { charaTagsLabel } from "@/components/FormatOptionLabel";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -208,31 +200,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     reset(defaultValues);
   }, [defaultValues]);
 
-  const CharaTagsLabel = useCallback(
-    ({ option }: { option?: labelValue }) => {
-      const chara = characters.find((chara) => chara.key === option?.value);
-      return (
-        <div className="flex center">
-          <span className="label-sl">
-            {chara?.media?.icon ? (
-              <ImageMee
-                imageItem={chara.media.icon}
-                mode="icon"
-                width={24}
-                height={24}
-                className="charaIcon"
-              />
-            ) : (
-              <>{chara?.defEmoji}</>
-            )}
-          </span>
-          <span>{chara?.name}</span>
-        </div>
-      );
-    },
-    [characters]
-  );
-
   const { togglePreviewMode, previewMode } = usePreviewMode();
   const TypeTagsOption = useMemo(
     () =>
@@ -264,6 +231,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charaFormatOptionLabel = useMemo(() => {
+    if (charactersMap) return charaTagsLabel(charactersMap);
+  }, [charactersMap]);
 
   return (
     <>
@@ -398,6 +369,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               getValues={getValues}
               isBusy={isBusy}
               placeholder="キャラの選択"
+              formatOptionLabel={charaFormatOptionLabel}
             />
           </div>
           <div>

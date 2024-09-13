@@ -51,6 +51,7 @@ import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
+import { charaTagsLabel } from "@/components/FormatOptionLabel";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -947,9 +948,14 @@ export function GalleryCharactersSelect({
       list?.some((item) => item === value)
     );
   }, [searchParams, charaLabelOptions]);
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charaFormatOptionLabel = useMemo(() => {
+    if (charactersMap) return charaTagsLabel(charactersMap);
+  }, [charactersMap]);
   return (
     <ReactSelect
       options={charaLabelOptions}
+      formatOptionLabel={charaFormatOptionLabel}
       isMulti
       isSearchable={false}
       isLoading={!Boolean(characters)}
