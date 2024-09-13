@@ -50,6 +50,7 @@ import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { TbDatabaseImport } from "react-icons/tb";
+import { BiPhotoAlbum } from "react-icons/bi";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useAtom(EnvAtom);
@@ -191,7 +192,7 @@ export function GalleryObjectConvert({
               case "topImage":
                 return {
                   ...item,
-                  list: filterPickFixed({ images: images, name }),
+                  list: filterPickFixed({ images: images || [], name }),
                   label: item.label ?? item.name,
                   max: item.max ?? 20,
                   linkLabel: item.linkLabel ?? false,
@@ -239,7 +240,7 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
 }));
 
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
   const filterParam = searchParams.get("filter");
   const typeParam = searchParams.get("type");
@@ -270,19 +271,16 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       filterGalleryMonthList.find(({ month }) => String(month) === monthParam),
     [monthParam]
   );
-  const notHideParam = useMemo(
-    () => filterParams.some((p) => p === "notHide"),
-    [filterParams]
-  );
+  const showAllAlbum = searchParams.has("showAllAlbum");
   const items = useMemo(() => {
-    if (notHideParam)
+    if (showAllAlbum)
       return _items.map((item) => ({
         ...item,
         hideWhenEmpty: false,
         hide: false,
       }));
     else return _items;
-  }, [_items, notHideParam]);
+  }, [_items, showAllAlbum]);
   const { setItems, setYFList } = useGalleryObject(
     useCallback(({ setItems, setYFList }) => ({ setItems, setYFList }), [items])
   );
@@ -550,6 +548,7 @@ function GalleryBody({
                 <>
                   <ImageMeeShowOriginSwitch />
                   <ImageGlobalEditModeSwitch />
+                  <ShowAllAlbumSwitch />
                 </>
               ) : null}
             </div>
@@ -971,5 +970,29 @@ export function GalleryCharactersSelect({
         setSearchParams(searchParams);
       }}
     />
+  );
+}
+
+export function ShowAllAlbumSwitch() {
+  const searchParams = useSearchParams()[0];
+  const key = "showAllAlbum";
+  const [showAllAlbum, href] = useMemo(() => {
+    const has = searchParams.has(key);
+    if (has) searchParams.delete(key);
+    else searchParams.set(key, "on");
+    return [has, searchParams.size ? "?" + searchParams.toString() : ""];
+  }, [key, searchParams]);
+  return (
+    <Link
+      title={
+        showAllAlbum ? "アルバム表示を元に戻す" : "全てのアルバムを表示する"
+      }
+      style={{ opacity: showAllAlbum ? 1 : 0.4 }}
+      to={href}
+      replace={true}
+      preventScrollReset={true}
+    >
+      <BiPhotoAlbum />
+    </Link>
   );
 }

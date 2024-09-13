@@ -118,7 +118,6 @@ export const defaultGalleryFilterTags: ContentsTagsOption[] = [
     options: [
       { value: "filter:topImage", label: "🪄トップ画像" },
       { value: "filter:pickup", label: "📍ピックアップ" },
-      { value: "filter:notHide", label: "🔬アルバム全表示" },
     ],
   },
 ];
