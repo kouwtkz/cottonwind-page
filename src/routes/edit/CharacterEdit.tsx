@@ -781,7 +781,7 @@ interface SendPostFetchProps {
 }
 async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
   return corsFetch(concatOriginUrl(apiOrigin, "character/send"), {
-    method: "GET",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
