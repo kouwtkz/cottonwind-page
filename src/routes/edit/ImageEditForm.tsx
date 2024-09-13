@@ -630,7 +630,6 @@ export async function ImagesUploadProcess({
       const joinedTags = JoinUnique(tags, object.tags);
       if (joinedTags) formData.append("tags", joinedTags);
       const joinedCharacters = JoinUnique(character, object.character);
-      console.log(object);
       if (joinedCharacters) formData.append("characters", joinedCharacters);
       if (original) formData.append("attached", object.src);
       switch (ext) {

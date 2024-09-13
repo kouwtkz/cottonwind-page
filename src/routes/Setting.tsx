@@ -37,7 +37,6 @@ export function SettingDetailPage() {
 
 function ImagesManager() {
   const albums = useAtom(imageAlbumsAtom)[0];
-  console.log(albums);
   const items = useMemo(() => {
     return Object.values(Object.fromEntries(albums || []));
   }, [albums]);
