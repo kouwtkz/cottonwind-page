@@ -1,3 +1,4 @@
+import { RoutingUnion } from "./routes/RoutingList";
 import { discordInviteMatch } from "./ServerContent";
 import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
@@ -13,4 +14,15 @@ export function ServerCommon(app: CommonHono) {
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });
+}
+
+export function NoIndex(path: RoutingUnion) {
+  switch (path) {
+    case "setting":
+    case "setting/:key":
+    case "suggest":
+      return true;
+    default:
+      return;
+  }
 }

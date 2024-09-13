@@ -4,7 +4,7 @@ import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { IsLogin } from "./ServerContent";
 import { renderHtml } from "./functions/render";
-import { ServerCommon } from "./server";
+import { NoIndex, ServerCommon } from "./server";
 import { cors } from "hono/cors";
 import { MakeRss } from "./functions/blogFunction";
 import { ServerPostsGetRssData } from "@/api/blog";
@@ -35,7 +35,6 @@ app.get("/blog/rss.xml", async (c) => {
 });
 
 ServerCommon(app);
-
 RoutingList.forEach((path) => {
   app.get(path, async (c, next) => {
     if (
@@ -54,7 +53,6 @@ RoutingList.forEach((path) => {
     return next();
   });
   app.get(path, (c, next) => {
-    const version = c.env?.VERSION ? "?v=" + c.env.VERSION : "";
     return ReactResponse({
       c,
       next,
@@ -62,6 +60,7 @@ RoutingList.forEach((path) => {
       styles: <Style href="/css/styles.css" />,
       script: <script type="module" src="/static/js/client.js" />,
       isLogin: IsLogin(c),
+      noindex: NoIndex(path),
     });
   });
 });

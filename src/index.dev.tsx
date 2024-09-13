@@ -11,7 +11,7 @@ import importStyles from "@/styles.scss";
 import ssg from "./ssg";
 import { GitLogObject } from "@/data/functions/GitlogObject";
 
-import { ServerCommon } from "./server";
+import { NoIndex, ServerCommon } from "./server";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
 import { ServerPostsGetRssData } from "./api/blog";
@@ -73,6 +73,7 @@ RoutingList.forEach((path) => {
       styles: <Style href={stylePath} />,
       script: <script type="module" src="/src/client.tsx" />,
       isLogin: IsLogin(c),
+      noindex: NoIndex(path),
     })
   );
 });
