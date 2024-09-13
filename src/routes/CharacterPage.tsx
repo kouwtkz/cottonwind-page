@@ -79,6 +79,12 @@ export const CharaListItem = memo(function CharaListItem({
             className="image"
             loadingScreen={true}
           />
+        ) : chara.media?.icon ? (
+          <ImageMeeThumbnail
+            imageItem={chara.media.icon}
+            className="image"
+            loadingScreen={true}
+          />
         ) : (
           <img
             src="/static/images/svg/question.svg"
