@@ -33,6 +33,7 @@ import {
   charactersAtom,
   charactersMapAtom,
   characterTagsAtom,
+  charaMediaKindMap,
 } from "@/state/CharacterState";
 import { soundsAtom, SoundState } from "@/state/SoundState";
 import { ImageMee, ImageMeeIcon } from "@/layout/ImageMee";
@@ -70,9 +71,13 @@ import {
   imagesLoadAtom,
   ImportCharacterJson,
 } from "@/state/DataState";
-import { ImagesUpload, ImagesUploadProcess } from "./ImageEditForm";
+import {
+  ImagesUpload,
+  ImagesUploadProcess,
+  srcObjectType,
+} from "./ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { getBasename } from "@/functions/doc/PathParse";
+import { getBasename, getName } from "@/functions/doc/PathParse";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -220,7 +225,7 @@ export function CharacterEditForm() {
                     src,
                     apiOrigin,
                     iconOnly: mode === "icon" ? true : undefined,
-                    album: mode,
+                    album: charaMediaKindMap.get(mode),
                     albumOverwrite: false,
                   })
                 )
@@ -423,6 +428,7 @@ export function CharaEditButton() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const isComplete = useAtom(dataIsCompleteAtom)[0];
   const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const charactersMap = useAtom(charactersMapAtom)[0];
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
   const setCharactersLoad = useAtom(charactersLoadAtom)[1];
@@ -454,7 +460,15 @@ export function CharaEditButton() {
             title="キャラクター用のアイコンのインポート"
             onClick={() => {
               fileDialog("image/*", true)
-                .then((files) => Array.from(files))
+                .then((files) =>
+                  Array.from(files).map((src) => {
+                    const name = getName(src.name);
+                    return {
+                      src,
+                      character: charactersMap?.has(name) ? name : null,
+                    } as srcObjectType;
+                  })
+                )
                 .then((files) =>
                   ImagesUpload({
                     src: files,
@@ -691,7 +705,7 @@ export function CharaImageSettingRbButtons({
                   },
                   apiOrigin,
                   iconOnly: true,
-                  album: "icon",
+                  album: charaMediaKindMap.get("icon"),
                 })
                   .then(() => {
                     setImagesLoad("no-cache");

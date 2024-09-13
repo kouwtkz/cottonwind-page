@@ -1,6 +1,9 @@
 import { isLoginAtom } from "@/state/EnvState";
 import { useAtom } from "jotai";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { GalleryManageMenuButton, GalleryObject } from "./GalleryPage";
+import { imageAlbumsAtom } from "@/state/ImageState";
+import { useMemo } from "react";
 
 export function SettingPage() {
   const isLogin = useAtom(isLoginAtom)[0];
@@ -18,6 +21,34 @@ export function SettingPage() {
           </>
         ) : null}
       </div>
+    </main>
+  );
+}
+
+export function SettingDetailPage() {
+  const params = useParams();
+  switch (params.key) {
+    case "images":
+      return <ImagesManager />;
+    default:
+      return <></>;
+  }
+}
+
+function ImagesManager() {
+  const albums = useAtom(imageAlbumsAtom)[0];
+  console.log(albums);
+  const items = useMemo(() => {
+    return Object.values(Object.fromEntries(albums || []));
+  }, [albums]);
+  return (
+    <main>
+      <h2 className="color en-title-font">Images Manager</h2>
+      <GalleryObject
+        items={items}
+        showInPageMenu={false}
+      />
+      <GalleryManageMenuButton />
     </main>
   );
 }

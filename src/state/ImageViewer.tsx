@@ -89,11 +89,6 @@ function InfoArea({ image }: InfoAreaProps) {
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
   );
-  const titleEqFilename = useMemo(
-    () =>
-      isDev ? false : image?.name ? image.src?.startsWith(image.name) : true,
-    [image]
-  );
   const tagsOptions = autoFixGalleryTagsOptions(
     getTagsOptions(defaultGalleryTags)
   );
@@ -119,9 +114,11 @@ function InfoArea({ image }: InfoAreaProps) {
         <>
           {isEdit ? null : (
             <div className="info window">
-              {image.albumObject?.visible?.title &&
-              (image.albumObject.visible.filename || !titleEqFilename) ? (
-                <h2 className="title">{image.name}</h2>
+              {image.albumObject?.visible ? (
+                image.albumObject.visible.title &&
+                image.albumObject.visible.filename
+              ) : true ? (
+                <h2 className="title">{image.name || image.key}</h2>
               ) : (
                 <div className="title" />
               )}

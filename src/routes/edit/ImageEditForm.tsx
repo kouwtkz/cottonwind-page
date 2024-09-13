@@ -63,6 +63,7 @@ import {
   resizeImageCanvasProps,
 } from "@/components/Canvas";
 import { CharaImageSettingRbButtons } from "./CharacterEdit";
+import { JoinUnique } from "@/functions/doc/StrFunctions";
 type labelValue = { label: string; value: string };
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -563,7 +564,13 @@ interface ImagesUploadOptions {
   icon?: boolean | number;
   iconOnly?: boolean | number;
 }
-type srcType = string | File | { name: string; src: string | File };
+export type srcObjectType = {
+  name?: string;
+  tags?: string;
+  character?: string;
+  src: string | File;
+};
+type srcType = string | File | srcObjectType;
 interface ImagesUploadProps extends ImagesUploadOptions {
   src: srcType | srcType[];
   apiOrigin?: string;
@@ -604,15 +611,14 @@ export async function ImagesUploadProcess({
   });
   if (targetFiles.length === 0) return false;
   const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
-  const iconSize = typeof icon === "number" ? icon : 64;
-  const joinedTags = Array.isArray(tags) ? tags.join(",") : tags;
+  const iconSize = typeof icon === "number" ? icon : 96;
   const fetchList = await Promise.all(
     targetFiles.map(async (v) => {
       const object =
         typeof v === "string"
           ? { src: v, name: v }
           : typeof v === "object" && "src" in v
-          ? v
+          ? { name: typeof v.src === "object" ? v.src.name : v.src, ...v }
           : { src: v, name: v.name };
       const basename = getName(object.name);
       const ext = getExtension(object.name);
@@ -621,8 +627,11 @@ export async function ImagesUploadProcess({
       if (album) formData.append("album", album);
       if (typeof albumOverwrite === "boolean")
         formData.append("albumOverwrite", String(albumOverwrite));
+      const joinedTags = JoinUnique(tags, object.tags);
       if (joinedTags) formData.append("tags", joinedTags);
-      if (character) formData.append("characters", character);
+      const joinedCharacters = JoinUnique(character, object.character);
+      console.log(object);
+      if (joinedCharacters) formData.append("characters", joinedCharacters);
       if (original) formData.append("attached", object.src);
       switch (ext) {
         case "svg":

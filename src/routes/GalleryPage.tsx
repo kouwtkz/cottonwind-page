@@ -669,6 +669,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       step = 20,
       maxWhenSearch = 40,
     } = item;
+    const labelString = useMemo(() => label || name, [name, label]);
     const [searchParams] = useSearchParams();
     const q = searchParams.get("q");
     const tags = searchParams.get("tags");
@@ -714,12 +715,12 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         showGalleryLabel ? (
           <div className="galleryLabel">
             <h2 className="en-title-font">
-              <HeadingElm label={label?.toLocaleLowerCase()} />
+              <HeadingElm label={labelString} />
             </h2>
             {showCount ? <div className="count">({list.length})</div> : null}
           </div>
         ) : null,
-      [showGalleryLabel, label, list.length, showCount]
+      [showGalleryLabel, labelString, list.length, showCount]
     );
     const GalleryContent = useMemo(
       () =>

@@ -11,6 +11,13 @@ export const charactersAtom = atom<CharacterType[]>();
 export const charactersMapAtom = atom<Map<string, CharacterType>>();
 export const characterTagsAtom = atom<ContentsTagsOption[]>([]);
 
+export type mediaKindType = "icon" | "image" | "headerImage";
+export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
+  ["icon", "charaIcon"],
+  ["image", "charaImages"],
+  ["headerImage", "headerImage"],
+]);
+
 export function CharacterState() {
   const characterData = useAtom(charactersDataAtom)[0];
   const [characters, setCharacters] = useAtom(charactersAtom);
@@ -23,21 +30,15 @@ export function CharacterState() {
   useEffect(() => {
     if (imagesMap && characterData && env) {
       const charactersMap = getCharacterMap(characterData);
-      type mediaKindType = "icon" | "image" | "headerImage";
-      const mediaKindArray: Array<{ kind: mediaKindType; name?: string }> = [
-        { kind: "icon", name: "charaIcon" },
-        { kind: "image", name: "charaImages" },
-        { kind: "headerImage" },
-      ];
       charactersMap.forEach((chara) => {
         if (!chara.media) chara.media = {};
         const charaMedia = chara.media;
-        mediaKindArray.forEach((kindItem) => {
-          const charaMediaItem = chara[kindItem.kind];
+        charaMediaKindMap.forEach((name, key) => {
+          const charaMediaItem = chara[key];
           if (charaMediaItem) {
-            charaMedia[kindItem.kind] = imagesMap.get(charaMediaItem);
-          } else if (kindItem.name === "charaIcon") {
-            charaMedia[kindItem.kind] = imagesMap.get(chara.id);
+            charaMedia[key] = imagesMap.get(charaMediaItem);
+          } else if (name === "charaIcon") {
+            charaMedia[key] = imagesMap.get(chara.id);
           }
         });
 

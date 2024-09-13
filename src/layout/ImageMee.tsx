@@ -34,6 +34,7 @@ interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
   loadingScreen?: boolean;
   originWhenDev?: boolean;
   v?: string | number;
+  autoPixel?: boolean | number;
 }
 export function ImageMee({
   imageItem,
@@ -47,6 +48,7 @@ export function ImageMee({
   width,
   height,
   v,
+  autoPixel = true,
   loadingScreen = false,
   originWhenDev = false,
   style,
@@ -102,14 +104,9 @@ export function ImageMee({
       return [width, height];
     }
   }, [imageItem, size, width, height]);
-  const iconOnly = useMemo(
-    () =>
-      imageItem &&
-      imageItem.icon &&
-      !imageItem.src &&
-      !imageItem.webp &&
-      !imageItem.webp,
-    [imageItem]
+  const avgSize = useMemo(
+    () => (Number(width) + Number(height)) / 2,
+    [width, height]
   );
   const thumbnail = useMemo(
     () => MediaOrigin(imageItem?.thumbnail || imageItem?.icon),
@@ -147,9 +144,13 @@ export function ImageMee({
     const list: string[] = [];
     if (className) list.push(className);
     if (!mainImgSrc) list.push("blank");
-    if (iconOnly) list.push("pixel");
+    if (
+      autoPixel &&
+      (typeof autoPixel === "number" ? autoPixel : 128) >= avgSize
+    )
+      list.push("pixel");
     return list.length > 0 ? list.join(" ") : undefined;
-  }, [className, mainImgSrc, iconOnly]);
+  }, [className, mainImgSrc, avgSize, autoPixel]);
   return (
     <img
       src={mainImgSrc || blankSrc}
@@ -185,7 +186,7 @@ interface ImageMeeSimpleProps
 }
 
 export function ImageMeeIcon({ size, ...args }: ImageMeeSimpleProps) {
-  return ImageMee({ ...args, mode: "icon" });
+  return ImageMee({ autoPixel: false, ...args, mode: "icon" });
 }
 export function ImageMeeThumbnail({ size, ...args }: ImageMeeSimpleProps) {
   return ImageMee({ ...args, mode: "thumbnail" });
