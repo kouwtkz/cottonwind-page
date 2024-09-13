@@ -530,15 +530,16 @@ interface ImagesUploadOptions {
   icon?: boolean | number;
   iconOnly?: boolean | number;
 }
+type srcType = string | File;
 export type srcObjectType = {
   name?: string;
   tags?: string;
   character?: string;
-  src: string | File;
+  src: srcType;
 };
-type srcType = string | File | srcObjectType;
+type srcWithObjectType = srcType | srcObjectType;
 interface ImagesUploadProps extends ImagesUploadOptions {
-  src: srcType | srcType[];
+  src: srcWithObjectType | srcWithObjectType[];
   apiOrigin?: string;
 }
 export async function ImagesUploadProcess({
@@ -578,7 +579,7 @@ export async function ImagesUploadProcess({
   if (targetFiles.length === 0) return false;
   const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
   const iconSize = typeof icon === "number" ? icon : 96;
-  const fetchList = await Promise.all(
+  const formDataList = await Promise.all(
     targetFiles.map(async (v) => {
       const object =
         typeof v === "string"
@@ -662,12 +663,11 @@ export async function ImagesUploadProcess({
         formData.append("width", String(iconSize));
         formData.append("height", String(iconSize));
       }
-      return () =>
-        corsFetch(url, {
-          method: "POST",
-          body: formData,
-        });
+      return formData;
     })
+  );
+  const fetchList = formDataList.map(
+    (body) => () => corsFetch(url, { method: "POST", body })
   );
   const results = await PromiseOrder(fetchList, 10);
   const successCount = results.filter((r) => r.status === 200).length;
@@ -677,13 +677,24 @@ export async function ImagesUploadProcess({
       results,
     };
   } else {
+    console.error("以下のアップロードに失敗しました");
+    const failedList = results
+      .filter((r) => r.status !== 200)
+      .map((_, i) => formDataList[i])
+      .map((formData) => {
+        const src = (formData.get("src") || formData.get("icon")) as srcType;
+        const name = typeof src === "object" ? src.name : src;
+        console.error(name);
+        return name;
+      });
     throw {
       message:
         (successCount
           ? successCount + "件のアップロードに成功しましたが、"
           : "") +
-        (results.length - successCount) +
-        "件のアップロードに失敗しました",
+        failedList.length +
+        "件のアップロードに失敗しました\n" +
+        failedList.join("\n"),
       results,
     };
   }

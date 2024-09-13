@@ -268,6 +268,7 @@ app.post("/send", async (c, next) => {
   await fileModeUpload("webp", webp);
   await fileModeUpload("thumbnail", thumbnail);
   await fileModeUpload("icon", icon);
+  const alreadyOptimize = Boolean(icon || webp || thumbnail);
   let imageBuffer: ArrayBuffer | undefined;
   function Select() {
     const where: MeeSqlFindWhereType<ImageDataType> =
@@ -294,10 +295,10 @@ app.post("/send", async (c, next) => {
         break;
       default:
         const webpName = name + ".webp";
-        if (!images.webp && typeof webp === "undefined") {
+        if (!images.webp && !alreadyOptimize) {
           images.webp = { path: "image/webp/" + webpName };
         }
-        if (!images.webp && typeof thumbnail === "undefined") {
+        if (!images.webp && !alreadyOptimize) {
           images.webp = { path: "image/thumbnail/" + webpName };
         }
         break;
