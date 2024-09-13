@@ -6,6 +6,11 @@ import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction
 
 export const app = new Hono<MeeBindings>();
 
+app.use("*", async (c, next) => {
+  if (IsLogin(c)) return next();
+  else return c.text("403 Forbidden", 403);
+});
+
 const table = "posts";
 const createEntry: MeeSqlCreateTableEntryType<PostDataType> = {
   id: { primary: true },
@@ -89,7 +94,6 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<PostDataType> {
 }
 
 app.post("/send", async (c, next) => {
-  if (!IsLogin(c)) return c.text("ログインしていません", { status: 403 });
   const db = new MeeSqlD1(c.env.DB);
   const { id, postId, update, ...data } = (await c.req.parseBody()) as KeyValueType<unknown>;
   if (postId !== update) data.postId = postId;
@@ -120,7 +124,6 @@ app.post("/send", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  if (!IsLogin(c)) return c.text("ログインしていません", { status: 403 });
   const data = await c.req.json();
   const postId = String(data.postId || "");
   if (postId) {
@@ -142,7 +145,6 @@ app.delete("/send", async (c) => {
 });
 
 app.post("/import", async (c) => {
-  if (!IsLogin(c)) return new Response("ログインしていません", { status: 403 });
   const db = new MeeSqlD1(c.env.DB);
   const formData = await c.req.parseBody();
   if (typeof formData.data === "string") {
