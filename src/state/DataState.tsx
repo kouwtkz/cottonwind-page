@@ -9,6 +9,8 @@ import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { setPrefix } from "@/functions/doc/prefix";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { arrayPartition } from "@/functions/arrayFunction";
+import { sleep } from "@/functions/Time";
 
 const imagesDataSrc = "/data/images";
 export const imageStorageData = new StorageDataClass<ImageDataType[]>(
@@ -265,11 +267,12 @@ export function UploadToast<T = unknown>(promise: Promise<T>) {
   });
 }
 
-export function ImportToast(promise: Promise<Response>) {
+export function ImportToast(promise: Promise<Response | Response[]>) {
   return toast.promise(
     promise.then(async (r) => {
-      if (r.ok) return r;
-      else throw await r.text();
+      const rs = Array.isArray(r) ? r : [r];
+      if (rs.every((r) => r.ok)) return r;
+      else throw await rs.find((r) => !r.ok)!.text();
     }),
     {
       loading: "インポート中…",
@@ -281,21 +284,27 @@ export function ImportToast(promise: Promise<Response>) {
 
 interface DataUploadBaseProps {
   apiOrigin?: string;
+  partition?: number;
 }
 
+type entryImageDataType = Omit<ImageDataType, "id" | "lastmod"> & {
+  [k: string]: any;
+};
 interface ImportImagesJsonProps extends DataUploadBaseProps {
   charactersMap?: Map<string, CharacterType>;
 }
 export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
+  partition = 500,
 }: ImportImagesJsonProps = {}) {
-  return jsonFileDialog().then((json) => {
+  return jsonFileDialog().then(async (json) => {
     const version = json.version;
-    const data = new FormData();
+    let object: importEntryDataType<entryImageDataType>;
+    let data: entryImageDataType[];
     if (typeof version === "undefined") {
       const oldData = json as YamlDataType[];
-      const dataMap = new Map<string, Omit<ImageDataType, "id" | "lastmod">>();
+      const dataMap = new Map<string, entryImageDataType>();
       oldData.forEach((album) => {
         album.list?.forEach((item) => {
           const key = getBasename(String(item.src || item.name));
@@ -333,23 +342,33 @@ export async function ImportImagesJson({
           }
         });
       });
-      data.append("version", "0");
-      data.append(
-        "data",
-        JSON.stringify(Object.values(Object.fromEntries(dataMap)))
-      );
-    } else if ("data" in json) {
-      data.append("version", "1");
-      data.append("data", JSON.stringify(json.data));
+      object = { version: "0" };
+      data = Object.values(Object.fromEntries(dataMap));
+    } else {
+      const { data: _data, ..._entry } = json as dataBaseType<ImageDataType>;
+      object = _entry;
+      data = _data ? _data : [];
     }
-    if (Object.values(Object.fromEntries(data)).length > 0) {
-      return ImportToast(
+    const fetchList = arrayPartition(data, partition).map((item, i) => {
+      const entry = { ...object, data: item };
+      if (i === 0) entry.overwrite = true;
+      return () =>
         corsFetch(concatOriginUrl(apiOrigin, "/image/import"), {
           method: "POST",
-          body: data,
-        })
-      );
-    }
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(entry),
+        });
+    });
+    await ImportToast(
+      (async () => {
+        const results: Response[] = [];
+        for (let i = 0; i < fetchList.length; i++) {
+          results.push(await fetchList[i]());
+          await sleep(10);
+        }
+        return results;
+      })()
+    );
   });
 }
 
