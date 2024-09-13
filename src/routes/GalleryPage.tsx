@@ -967,7 +967,7 @@ export function GalleryCharactersSelect({
         const value = v.map(({ value }) => value).join(",");
         if (value) searchParams.set("characters", value);
         else searchParams.delete("characters");
-        setSearchParams(searchParams);
+        setSearchParams(searchParams, { preventScrollReset: true });
       }}
     />
   );
