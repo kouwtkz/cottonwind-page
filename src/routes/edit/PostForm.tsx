@@ -198,19 +198,23 @@ export function PostForm() {
     localStorage.setItem(backupStorageKey, JSON.stringify(values));
   }
 
+  const refIsDirty = useRef(false);
+  useEffect(() => {
+    refIsDirty.current = isDirty;
+  }, [isDirty]);
   const refIsSubmitted = useRef(false);
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (isDirty) event.preventDefault();
+      if (refIsDirty.current) event.preventDefault();
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      if (isDirty && !isSubmitted && !refIsSubmitted.current) {
+      if (refIsDirty.current && !refIsSubmitted.current) {
         saveLocalDraft();
       }
     };
-  }, [isDirty, isSubmitted]);
+  }, []);
 
   const onChangePostId = () => {
     const answer = prompt("記事のID名の変更", getValues("postId"));
@@ -247,7 +251,7 @@ export function PostForm() {
         )
         .then((r) => {
           if (r.ok) {
-            setPostsLoad("no-cache-reload");
+            setPostsLoad("no-cache");
             nav("/blog", { replace: true });
           }
         });
@@ -387,11 +391,13 @@ export function PostForm() {
               error: (e) => "送信に失敗しました" + (e ? `\n[${e}]` : ""),
             }
           )
-          .then(async (r) => (await r.json()) as KeyValueType<string>)
-          .then((data) => {
+          .then(async (r) => {
             refIsSubmitted.current = true;
-            setPostsLoad("no-cache-reload");
+            setPostsLoad("no-cache");
             if (attached) setImagesLoad("no-cache");
+            return (await r.json()) as KeyValueType<string>;
+          })
+          .then((data) => {
             if (data.postId) {
               nav(`/blog?postId=${data.postId}`, { replace: true });
             } else {
