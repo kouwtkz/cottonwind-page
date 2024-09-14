@@ -45,8 +45,7 @@ import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import {
-  imagesLoadAtom,
-  imageStorageData,
+  imageDataObject,
   ImportImagesJson,
 } from "@/state/DataState";
 import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
@@ -76,7 +75,7 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 export function GalleryManageMenuButton({ group }: { group?: string }) {
   const isLogin = useAtom(isLoginAtom)[0];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
-  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const charactersMap = useAtom(charactersMapAtom)[0];
   const params = useParams();
   return (
@@ -91,8 +90,8 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
                 title="ダウンロードする"
                 onClick={async () => {
                   fileDownload(
-                    imageStorageData.key + ".json",
-                    JSON.stringify(imageStorageData)
+                    imageDataObject.storage.key + ".json",
+                    JSON.stringify(imageDataObject.storage)
                   );
                 }}
               >
@@ -431,7 +430,7 @@ function UploadChain({
   enableOnClick?: boolean;
 }) {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
-  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const character = useParams().charaName;
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {

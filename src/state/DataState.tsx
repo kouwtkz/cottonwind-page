@@ -1,7 +1,7 @@
 import { atom, SetStateAction, useAtom } from "jotai";
 import { ApiOriginAtom, EnvAtom } from "./EnvState";
 import { useCallback, useEffect } from "react";
-import { StorageDataClass } from "@/functions/StorageDataClass";
+import { StorageDataClass } from "@/functions/storage/StorageDataClass";
 import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
 import { getBasename, getName } from "@/functions/doc/PathParse";
@@ -10,31 +10,28 @@ import { setPrefix } from "@/functions/doc/prefix";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
-import { sleep } from "@/functions/Time";
+import { StorageDataAtomClass } from "@/functions/storage/StorageDataAtomClass";
 
-const imagesDataSrc = "/data/images";
-export const imageStorageData = new StorageDataClass<ImageDataType[]>(
-  "images",
-  "1.2.0"
-);
-export const imagesDataAtom = atom<ImageDataType[]>();
-export const imagesLoadAtom = atom<LoadAtomType>(false);
+export const imageDataObject = new StorageDataAtomClass<ImageDataType>({
+  key: "images",
+  src: "/data/images",
+  version: "1.2.0",
+  preLoad: false,
+});
 
-const charactersDataSrc = "/data/characters";
-export const characterStorageData = new StorageDataClass<CharacterDataType[]>(
-  "characters",
-  "1.2.1"
-);
-export const charactersDataAtom = atom<CharacterDataType[]>();
-export const charactersLoadAtom = atom<LoadAtomType>(false);
+export const charactersDataObject = new StorageDataAtomClass<CharacterDataType>({
+  key: "characters",
+  src: "/data/characters",
+  version: "1.2.1",
+  preLoad: false,
+});
 
-const postsDataSrc = "/data/posts";
-export const postStorageData = new StorageDataClass<PostDataType[]>(
-  "posts",
-  "1.1.1"
-);
-export const postsDataAtom = atom<PostDataType[]>();
-export const postsLoadAtom = atom<LoadAtomType>(false);
+export const postsDataObject = new StorageDataAtomClass<PostDataType>({
+  key: "posts",
+  src: "/data/posts",
+  version: "1.1.1",
+  preLoad: false,
+});
 
 const allDataSrc = "/data/all";
 export const allLoadAtom = atom<LoadAtomType>(true);
@@ -124,60 +121,60 @@ async function fetchData<T>({
 
 export function DataState() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
-  const [imagesLoad, setImagesLoad] = useAtom(imagesLoadAtom);
-  const setImagesData = useAtom(imagesDataAtom)[1];
+  const [imagesLoad, setImagesLoad] = useAtom(imageDataObject.loadAtom);
+  const setImagesData = useAtom(imageDataObject.dataAtom)[1];
   useEffect(() => {
     if (imagesLoad && apiOrigin) {
       fetchData({
-        src: imagesDataSrc,
+        src: imageDataObject.src,
         apiOrigin,
-        StorageData: imageStorageData,
+        StorageData: imageDataObject.storage,
         loadAtomValue: imagesLoad,
       }).then((data) => {
         setData({
           data,
           setAtom: setImagesData,
-          StorageData: imageStorageData,
+          StorageData: imageDataObject.storage,
         });
       });
       setImagesLoad(false);
     }
   }, [apiOrigin, imagesLoad, setImagesLoad, setImagesData]);
 
-  const [charactersLoad, setCharactersLoad] = useAtom(charactersLoadAtom);
-  const setCharactersData = useAtom(charactersDataAtom)[1];
+  const [charactersLoad, setCharactersLoad] = useAtom(charactersDataObject.loadAtom);
+  const setCharactersData = useAtom(charactersDataObject.dataAtom)[1];
   useEffect(() => {
     if (charactersLoad && apiOrigin) {
       fetchData({
-        src: charactersDataSrc,
+        src: charactersDataObject.src,
         apiOrigin,
-        StorageData: characterStorageData,
+        StorageData: charactersDataObject.storage,
         loadAtomValue: charactersLoad,
       }).then((data) => {
         setData({
           data,
           setAtom: setCharactersData,
-          StorageData: characterStorageData,
+          StorageData: charactersDataObject.storage,
         });
       });
       setCharactersLoad(false);
     }
   }, [apiOrigin, charactersLoad, setCharactersLoad, setCharactersData]);
 
-  const [postsLoad, setPostsLoad] = useAtom(postsLoadAtom);
-  const setPostsData = useAtom(postsDataAtom)[1];
+  const [postsLoad, setPostsLoad] = useAtom(postsDataObject.loadAtom);
+  const setPostsData = useAtom(postsDataObject.dataAtom)[1];
   useEffect(() => {
     if (postsLoad && apiOrigin) {
       fetchData({
-        src: postsDataSrc,
+        src: postsDataObject.src,
         apiOrigin,
-        StorageData: postStorageData,
+        StorageData: postsDataObject.storage,
         loadAtomValue: postsLoad,
       }).then((data) => {
         setData({
           data,
           setAtom: setPostsData,
-          StorageData: postStorageData,
+          StorageData: postsDataObject.storage,
         });
       });
       setPostsLoad(false);
@@ -191,19 +188,19 @@ export function DataState() {
       const cache = getCacheOption(allLoad);
       setSearchParamsOption({
         searchParams: Url.searchParams,
-        StorageData: imageStorageData,
+        StorageData: imageDataObject.storage,
         loadAtomValue: allLoad,
         prefix: "images",
       });
       setSearchParamsOption({
         searchParams: Url.searchParams,
-        StorageData: characterStorageData,
+        StorageData: charactersDataObject.storage,
         loadAtomValue: allLoad,
         prefix: "characters",
       });
       setSearchParamsOption({
         searchParams: Url.searchParams,
-        StorageData: postStorageData,
+        StorageData: postsDataObject.storage,
         loadAtomValue: allLoad,
         prefix: "posts",
       });
@@ -217,17 +214,17 @@ export function DataState() {
             setData({
               data: v.images as ImageDataType[],
               setAtom: setImagesData,
-              StorageData: imageStorageData,
+              StorageData: imageDataObject.storage,
             }),
             setData({
               data: v.characters as CharacterDataType[],
               setAtom: setCharactersData,
-              StorageData: characterStorageData,
+              StorageData: charactersDataObject.storage,
             }),
             setData({
               data: v.posts as PostDataType[],
               setAtom: setPostsData,
-              StorageData: postStorageData,
+              StorageData: postsDataObject.storage,
             }),
           ]);
         })

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { atom, useAtom } from "jotai";
 import { EnvAtom } from "./EnvState";
-import { imagesDataAtom } from "./DataState";
+import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/imageFunctions";
 
 export const imagesAtom = atom<ImageType[]>();
@@ -9,7 +9,7 @@ export const imagesMapAtom = atom<Map<string, ImageType>>();
 export const imageAlbumsAtom = atom<Map<string, ImageAlbumType>>();
 
 export function ImageState() {
-  const imagesData = useAtom(imagesDataAtom)[0];
+  const imagesData = useAtom(imageDataObject.dataAtom)[0];
   const setImages = useAtom(imagesAtom)[1];
   const setImagesMap = useAtom(imagesMapAtom)[1];
   const setAlbums = useAtom(imageAlbumsAtom)[1];

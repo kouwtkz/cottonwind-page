@@ -60,17 +60,12 @@ import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import {
-  fileDialog,
-  fileDownload,
-  responseToFile,
-} from "@/components/FileTool";
+import { fileDialog, fileDownload } from "@/components/FileTool";
 import { ApiOriginAtom, MediaOriginAtom } from "@/state/EnvState";
 import {
-  charactersLoadAtom,
-  characterStorageData,
-  imagesLoadAtom,
+  charactersDataObject,
   ImportCharacterJson,
+  imageDataObject,
 } from "@/state/DataState";
 import {
   ImagesUpload,
@@ -78,7 +73,7 @@ import {
   srcObjectType,
 } from "./ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { getBasename, getName } from "@/functions/doc/PathParse";
+import { getName } from "@/functions/doc/PathParse";
 import { CgGhostCharacter } from "react-icons/cg";
 import { corsFetch } from "@/functions/fetch";
 
@@ -87,8 +82,8 @@ export function CharacterEditForm() {
   const nav = useNavigate();
   const { charaName } = useParams();
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
-  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
+  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const characterTags = useAtom(characterTagsAtom)[0];
   const sounds = useAtom(soundsAtom)[0];
   const chara =
@@ -411,11 +406,11 @@ export const useEditSwitchState = create<{
 export function CharaEditButton() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const isComplete = useAtom(dataIsCompleteAtom)[0];
-  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const charactersMap = useAtom(charactersMapAtom)[0];
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
-  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -429,8 +424,8 @@ export function CharaEditButton() {
             title="キャラデータのダウンロード"
             onClick={async () => {
               fileDownload(
-                characterStorageData.key + ".json",
-                JSON.stringify(characterStorageData)
+                charactersDataObject.storage.key + ".json",
+                JSON.stringify(charactersDataObject.storage)
               );
             }}
           >
@@ -526,7 +521,7 @@ export function CharaEditButton() {
 
 export function SortableObject() {
   const [characters, setCharacters] = useAtom(charactersAtom);
-  const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
   const [items, setItems] = useState(characters || []);
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   useEffect(() => {
@@ -649,8 +644,8 @@ export function CharaImageSettingRbButtons({
     const charaName = params.charaName;
     const apiOrigin = useAtom(ApiOriginAtom)[0];
     const mediaOrigin = useAtom(MediaOriginAtom)[0];
-    const setImagesLoad = useAtom(imagesLoadAtom)[1];
-    const setCharactersLoad = useAtom(charactersLoadAtom)[1];
+    const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
+    const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
     async function toastPromise(
       promise: Promise<unknown>,
       mode: characterImageMode

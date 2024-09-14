@@ -4,7 +4,7 @@ import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
 import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EnvAtom } from "./EnvState";
-import { charactersDataAtom } from "./DataState";
+import { charactersDataObject } from "./DataState";
 import { getCharacterMap } from "@/functions/characterFunctions";
 
 export const charactersAtom = atom<CharacterType[]>();
@@ -19,7 +19,7 @@ export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
 ]);
 
 export function CharacterState() {
-  const characterData = useAtom(charactersDataAtom)[0];
+  const characterData = useAtom(charactersDataObject.dataAtom)[0];
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersMap = useAtom(charactersMapAtom)[1];
   const imagesMap = useAtom(imagesMapAtom)[0];

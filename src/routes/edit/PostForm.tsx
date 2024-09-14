@@ -30,10 +30,9 @@ import { useAtom } from "jotai";
 import { ApiOriginAtom } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
 import {
-  imagesLoadAtom,
+  imageDataObject,
   ImportPostJson,
-  postsLoadAtom,
-  postStorageData,
+  postsDataObject,
 } from "@/state/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { corsFetch } from "@/functions/fetch";
@@ -90,7 +89,7 @@ export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
   const posts = useAtom(postsAtom)[0];
-  const setPostsLoad = useAtom(postsLoadAtom)[1];
+  const setPostsLoad = useAtom(postsDataObject.loadAtom)[1];
   const [apiOrigin] = useAtom(ApiOriginAtom);
 
   const nav = useNavigate();
@@ -264,7 +263,7 @@ export function PostForm() {
       );
     }
   });
-  const setImagesLoad = useAtom(imagesLoadAtom)[1];
+  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
 
   useHotkeys("b", () => nav(-1));
 
@@ -498,8 +497,8 @@ export function PostForm() {
                 case "download":
                   if (confirm("記事データを一括で取得しますか？")) {
                     fileDownload(
-                      postStorageData.key + ".json",
-                      JSON.stringify(postStorageData)
+                      postsDataObject.storage.key + ".json",
+                      JSON.stringify(postsDataObject.storage)
                     );
                   }
                   break;
