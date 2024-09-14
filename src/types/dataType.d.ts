@@ -8,3 +8,5 @@ interface dataBaseType<T = unknown> {
 interface importEntryDataType<T = unknown> extends dataBaseType<T> {
   overwrite?: boolean;
 }
+
+type LoadAtomType = boolean | CacheParamType;
