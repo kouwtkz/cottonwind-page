@@ -4,7 +4,7 @@ export async function imageObject(
 ): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = "use-credentials";
+    image.crossOrigin = "anonymous";
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", reject);
     image.src = typeof src === "string" ? src : URL.createObjectURL(src);
