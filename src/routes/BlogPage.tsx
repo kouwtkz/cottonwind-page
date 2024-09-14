@@ -1,7 +1,7 @@
 import { postsAtom } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { findMee } from "@/functions/findMee";
-import { getLocalDraft, useLocalDraftPost } from "@/routes/edit/PostForm";
+import { useLocalDraftPost } from "@/routes/edit/PostForm";
 import {
   HTMLAttributes,
   Suspense,
@@ -74,13 +74,12 @@ export function PostsPage({
   const page = Number(p);
   const posts = useAtom(postsAtom)[0];
   const take = postId ? undefined : 10;
-  const { localDraft, setLocalDraft } = useLocalDraftPost();
+  const { localDraft, getLocalDraft } = useLocalDraftPost();
   const isLogin = useAtom(isLoginAtom)[0];
   useEffect(() => {
     if (!isLogin) return;
-    const item = getLocalDraft();
-    if (item) setLocalDraft(item);
-  }, [setLocalDraft]);
+    getLocalDraft();
+  }, [isLogin, getLocalDraft]);
 
   const {
     posts: postsResult,

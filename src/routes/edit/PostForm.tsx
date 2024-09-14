@@ -41,27 +41,30 @@ const backupStorageKey = "backupPostDraft";
 
 export const useLocalDraftPost = create<{
   localDraft: PostType | null;
-  setLocalDraft: (post: PostType | null) => void;
+  setLocalDraft: (post: FieldValues | PostType | null) => void;
+  getLocalDraft: () => PostType | null;
   removeLocalDraft: () => void;
 }>((set) => ({
   localDraft: null,
-  setLocalDraft: (post) => {
-    set({ localDraft: post });
+  setLocalDraft(post) {
+    localStorage.setItem(backupStorageKey, JSON.stringify(post));
+    set({ localDraft: post as PostType | null });
   },
-  removeLocalDraft: () => {
+  getLocalDraft() {
+    const itemStr = localStorage.getItem(backupStorageKey);
+    if (!itemStr) return null;
+    const item = JSON.parse(itemStr) as any;
+    item.time = item.time ? new Date(item.time) : undefined;
+    item.localDraft = true;
+    const post = item as PostType;
+    set({ localDraft: post });
+    return item as PostType;
+  },
+  removeLocalDraft() {
     localStorage.removeItem(backupStorageKey);
     set({ localDraft: null });
   },
 }));
-
-export function getLocalDraft() {
-  const itemStr = localStorage.getItem(backupStorageKey);
-  if (!itemStr) return;
-  const item = JSON.parse(itemStr) as any;
-  item.time = item.time ? new Date(item.time) : undefined;
-  item.localDraft = true;
-  return item as PostType;
-}
 
 type labelValues = { label: string; value: string }[];
 
@@ -168,17 +171,22 @@ export function PostForm() {
     resolver: zodResolver(schema),
   });
 
+  const { getLocalDraft, localDraft, setLocalDraft, removeLocalDraft } =
+    useLocalDraftPost();
+  useEffect(() => {
+    getLocalDraft();
+  }, [getLocalDraft]);
+
   useEffect(() => {
     if (Location.state?.draft) {
-      const draft = getLocalDraft();
       reset({
         ...defaultValues,
-        ...draft,
-        time: dateJISOfromDate(draft?.time),
+        ...localDraft,
+        time: dateJISOfromDate(localDraft?.time),
       });
       setCategoryList((c) => {
         const draftOnlyCategory =
-          draft?.category?.filter((item) =>
+          localDraft?.category?.filter((item) =>
             c.every(({ value }) => value !== item)
           ) || [];
         if (draftOnlyCategory.length > 0)
@@ -190,12 +198,12 @@ export function PostForm() {
     } else {
       reset(defaultValues);
     }
-  }, [reset, defaultValues, Location.state]);
+  }, [reset, localDraft, defaultValues, Location.state]);
 
   function saveLocalDraft() {
     const values = getValues();
     values.time = dateJISOfromLocaltime(values.time);
-    localStorage.setItem(backupStorageKey, JSON.stringify(values));
+    setLocalDraft(values);
   }
 
   const refIsDirty = useRef(false);
