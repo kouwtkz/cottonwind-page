@@ -235,7 +235,6 @@ ul.flex {
   padding: 0;
 }
 
-
 label {
   span {
     display: inline-block;
@@ -1408,7 +1407,9 @@ form select {
     }
     .mainImage {
       display: inline-block;
-      margin: 1rem;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 1rem;
     }
   }
   .edit {
