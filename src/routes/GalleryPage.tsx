@@ -250,8 +250,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
   const qParam = searchParams.get("q") || "";
-  const tagsParam = searchParams.get("tags");
-  const charactersParam = searchParams.get("characters");
+  const tagsParam = searchParams.get("tags")?.toLowerCase();
+  const charactersParam = searchParams.get("characters"?.toLowerCase());
   const filterParams = useMemo(
     () => (filterParam ?? "").split(","),
     [filterParam]
