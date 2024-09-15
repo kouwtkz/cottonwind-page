@@ -13,21 +13,21 @@ import { StorageDataAtomClass as SdaClass } from "@/functions/storage/StorageDat
 export const imageDataObject = new SdaClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "1.2.0",
+  version: "1.3.0",
   preLoad: false,
 });
 
 export const charactersDataObject = new SdaClass<CharacterDataType>({
   key: "characters",
   src: "/data/characters",
-  version: "1.2.1",
+  version: "1.3.0",
   preLoad: false,
 });
 
 export const postsDataObject = new SdaClass<PostDataType>({
   key: "posts",
   src: "/data/posts",
-  version: "1.1.1",
+  version: "1.3.0",
   preLoad: false,
 });
 

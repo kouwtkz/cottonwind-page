@@ -71,7 +71,7 @@ export async function ServerImagesGetData(
   if (src) wheres.push({ src });
   async function Select() {
     return db.select<ImageDataType>({ table, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
+      .then(data => isLogin ? data : data.map(v => (v.draft || !v.version) ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
   }
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }
