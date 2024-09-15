@@ -44,10 +44,7 @@ import { ImageGlobalEditModeSwitch, ImagesUpload } from "./edit/ImageEditForm";
 import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import {
-  imageDataObject,
-  ImportImagesJson,
-} from "@/state/DataState";
+import { imageDataObject, ImportImagesJson } from "@/state/DataState";
 import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
@@ -200,6 +197,7 @@ export function GalleryObjectConvert({
                   linkLabel: item.linkLabel ?? false,
                   hideWhenFilter: true,
                   hideWhenEmpty: true,
+                  notYearList: true,
                 };
               default:
                 const album = imageAlbums?.get(name);
@@ -770,7 +768,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
 export function GalleryYearFilter({
   submitPreventScrollReset = true,
 }: SearchAreaOptionsProps) {
-  const { fList } = useGalleryObject(({ fList }) => ({ fList }));
+  const { fList, items } = useGalleryObject();
   const [searchParams, setSearchParams] = useSearchParams();
   const year = Number(searchParams.get("year") ?? NaN);
   const isOlder = searchParams.get("sort") === "leastRecently";
@@ -778,14 +776,16 @@ export function GalleryYearFilter({
   const yearListBase = useMemo(
     () =>
       getYearObjects(
-        fList.reduce((a, c) => {
-          c.forEach(({ time }) => {
-            if (time) a.push(time);
-          });
-          return a;
-        }, [] as Date[])
+        fList
+          .map((f, i) => (items[i].notYearList ? [] : f))
+          .reduce((a, c) => {
+            c.forEach(({ time }) => {
+              if (time) a.push(time);
+            });
+            return a;
+          }, [] as Date[])
       ),
-    [fList]
+    [fList, items]
   );
   const yearListBase2 = useMemo(() => {
     const addedList =
