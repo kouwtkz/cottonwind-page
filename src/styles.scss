@@ -1427,8 +1427,12 @@ form select {
     }
   }
   .edit {
-    max-width: 40rem;
+    max-width: 44rem;
     margin: auto;
+    padding: 0 0.5rem;
+    .flex > input {
+      margin: 0.125rem;
+    }
     * {
       font-size: 1.125rem;
     }
