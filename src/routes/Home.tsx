@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { imageAlbumsAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { filterPickFixed } from "../data/functions/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
@@ -132,10 +132,10 @@ export function TopPageBannerLink() {
 }
 
 export function HomeImage() {
-  const imageAlbumList = useAtom(imageAlbumsAtom)[0];
+  const { imageAlbums } = useImageState();
   const images = useMemo(
-    () => imageAlbumList?.get("art")?.list ?? [],
-    [imageAlbumList]
+    () => imageAlbums?.get("art")?.list ?? [],
+    [imageAlbums]
   );
   const topImages = filterPickFixed({
     images,

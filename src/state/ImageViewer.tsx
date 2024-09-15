@@ -30,7 +30,7 @@ import {
   RiStore3Fill,
 } from "react-icons/ri";
 import { charactersMapAtom, CharacterState } from "./CharacterState";
-import { imagesAtom } from "./ImageState";
+import { useImageState } from "./ImageState";
 import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -310,7 +310,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
 }
 
 export function ImageViewer() {
-  const images = useAtom(imagesAtom)[0];
+  const { images } = useImageState();
   const { isOpen, onOpen, onClose } = useImageViewer();
   const [isDirty, setIsDirty] = useAtom(imageEditIsDirty);
   const [searchParams, setSearchParams] = useSearchParams();

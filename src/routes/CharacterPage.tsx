@@ -19,7 +19,7 @@ import {
 } from "@/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
-import { imageAlbumsAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import {
   CharacterEdit,
@@ -307,7 +307,7 @@ const defaultGalleryList = [
 ] as GalleryItemType[];
 function CharaDetail({ charaName }: { charaName: string }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const albums = useAtom(imageAlbumsAtom)[0];
+  const { imageAlbums: albums } = useImageState();
   const searchParams = useSearchParams()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
   const galleryList = useMemo(() => {

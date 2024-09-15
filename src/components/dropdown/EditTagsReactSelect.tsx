@@ -12,10 +12,7 @@ import ReactSelect, {
   ThemeConfig,
 } from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
-import { ReactNode, useCallback, useMemo } from "react";
-import { useAtom } from "jotai";
-import { charactersMapAtom } from "@/state/CharacterState";
-import { ImageMeeIcon } from "@/layout/ImageMee";
+import { ReactNode } from "react";
 type setValueFunctionType = (
   name: string,
   value: any,

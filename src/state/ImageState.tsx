@@ -1,43 +1,45 @@
 import { useEffect } from "react";
-import { atom, useAtom } from "jotai";
-import { EnvAtom, isLoginAtom } from "./EnvState";
+import { useAtom } from "jotai";
+import { EnvAtom } from "./EnvState";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/imageFunctions";
+import { create } from "zustand";
 
-export const imagesAtom = atom<ImageType[]>();
-export const imagesMapAtom = atom<Map<string, ImageType>>();
-export const imageAlbumsAtom = atom<Map<string, ImageAlbumType>>();
+type imageStateType = {
+  images?: ImageType[];
+  imagesMap?: Map<string, ImageType>;
+  imageAlbums?: Map<string, ImageAlbumType>;
+  set: (imagesData: ImageDataType[], albumEnv?: ImageAlbumEnvType[]) => void;
+};
+export const useImageState = create<imageStateType>((set) => ({
+  set(data, albumEnv) {
+    const { imagesMap, imageAlbumMap } = getImageObjectMap(data, albumEnv);
+    imagesMap.forEach((image) => {
+      image.update = Boolean(
+        image.lastmod &&
+          imageDataObject.beforeLastmod &&
+          image.lastmod.getTime() > imageDataObject.beforeLastmod.getTime()
+      );
+      image.new =
+        image.update &&
+        (image.time && imageDataObject.latest?.time
+          ? image.time.toISOString() > imageDataObject.latest.time
+          : false);
+    });
+    set({
+      imagesMap,
+      images: Object.values(Object.fromEntries(imagesMap)),
+      imageAlbums: imageAlbumMap,
+    });
+  },
+}));
 
 export function ImageState() {
   const imagesData = useAtom(imageDataObject.dataAtom)[0];
-  const setImages = useAtom(imagesAtom)[1];
-  const setImagesMap = useAtom(imagesMapAtom)[1];
-  const setAlbums = useAtom(imageAlbumsAtom)[1];
   const env = useAtom(EnvAtom)[0];
-  const isLogin = useAtom(isLoginAtom)[1];
+  const { set } = useImageState();
   useEffect(() => {
-    if (imagesData && env) {
-      const { imagesMap, imageAlbumMap } = getImageObjectMap(
-        imagesData,
-        env.IMAGE_ALBUMS
-      );
-      imagesMap.forEach((image) => {
-        image.update = Boolean(
-          !isLogin &&
-            image.lastmod &&
-            imageDataObject.beforeLastmod &&
-            image.lastmod.getTime() > imageDataObject.beforeLastmod.getTime()
-        );
-        image.new =
-          image.update &&
-          (image.time && imageDataObject.latest?.time
-            ? image.time.toISOString() > imageDataObject.latest.time
-            : false);
-      });
-      setImagesMap(imagesMap);
-      setImages(Object.values(Object.fromEntries(imagesMap)));
-      setAlbums(imageAlbumMap);
-    }
-  }, [imagesData, env, isLogin]);
+    if (imagesData && env) set(imagesData, env?.IMAGE_ALBUMS);
+  }, [imagesData, env, set]);
   return <></>;
 }

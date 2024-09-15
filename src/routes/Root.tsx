@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { MetaValues } from "./SetMeta";
 import { charactersMapAtom } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
-import { imagesAtom, imagesMapAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { postsAtom } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { EnvAtom, MediaOriginAtom } from "@/state/EnvState";
@@ -14,7 +14,7 @@ import { EnvAtom, MediaOriginAtom } from "@/state/EnvState";
 function SetTitle() {
   const { pathname, search } = useLocation();
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const imagesMap = useAtom(imagesMapAtom)[0];
+  const { imagesMap } = useImageState();
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const posts = useAtom(postsAtom)[0];

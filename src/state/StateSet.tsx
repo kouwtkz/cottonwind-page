@@ -1,7 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
-import { imagesAtom, ImageState } from "./ImageState";
+import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
 import { EnvAtom, EnvState, isLoginAtom } from "./EnvState";
@@ -27,7 +27,7 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 export function StateSet() {
   const isLogin = useAtom(isLoginAtom)[0];
   const isSetList = [
-    Boolean(useAtom(imagesAtom)[0]),
+    Boolean(useImageState().images),
     Boolean(useAtom(charactersAtom)[0]),
     Boolean(useAtom(postsAtom)[0]),
     Boolean(useAtom(EnvAtom)[0]),

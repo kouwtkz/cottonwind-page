@@ -1,7 +1,7 @@
 import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import { GalleryViewerPaging } from "@/state/ImageViewer";
 import toast from "react-hot-toast";
-import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import {
   defaultGalleryTags,
   getTagsOptions,
@@ -77,8 +77,7 @@ function FormToBoolean(v?: string) {
 }
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
-  const images = useAtom(imagesAtom)[0];
-  const albums = useAtom(imageAlbumsAtom)[0];
+  const { images, imageAlbums: albums } = useImageState();
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const copyrightList = useMemo(() => getCopyRightList(images || []), [images]);
   const characters = useAtom(charactersAtom)[0] || [];

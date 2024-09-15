@@ -5,7 +5,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { imageAlbumsAtom, imagesAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/StateSet";
 import React, {
@@ -167,8 +167,7 @@ export function GalleryObjectConvert({
   submitPreventScrollReset,
   ...args
 }: GalleryObjectConvertProps) {
-  const images = useAtom(imagesAtom)[0];
-  const imageAlbums = useAtom(imageAlbumsAtom)[0];
+  const { images, imageAlbums } = useImageState();
   const convertItemArrayType = useCallback(
     (items?: GalleryItemsType) =>
       items ? (Array.isArray(items) ? items : [items]) : [],

@@ -2,7 +2,7 @@ import { isLoginAtom } from "@/state/EnvState";
 import { useAtom } from "jotai";
 import { Link, useParams } from "react-router-dom";
 import { GalleryManageMenuButton, GalleryObject } from "./GalleryPage";
-import { imageAlbumsAtom } from "@/state/ImageState";
+import { useImageState } from "@/state/ImageState";
 import { useMemo } from "react";
 
 export function SettingPage() {
@@ -36,7 +36,7 @@ export function SettingDetailPage() {
 }
 
 function ImagesManager() {
-  const albums = useAtom(imageAlbumsAtom)[0];
+  const { imageAlbums: albums } = useImageState();
   const items = useMemo(() => {
     return Object.values(Object.fromEntries(albums || []));
   }, [albums]);

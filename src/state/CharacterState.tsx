@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { imagesMapAtom } from "./ImageState";
+import { useImageState } from "./ImageState";
 import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
 import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
@@ -22,7 +22,7 @@ export function CharacterState() {
   const characterData = useAtom(charactersDataObject.dataAtom)[0];
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersMap = useAtom(charactersMapAtom)[1];
-  const imagesMap = useAtom(imagesMapAtom)[0];
+  const { imagesMap } = useImageState();
   const sounds = useAtom(soundsAtom)[0];
   const defaultPlaylist = useAtom(soundDefaultPlaylistAtom)[0];
   const env = useAtom(EnvAtom)[0];

@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { imagesAtom } from "./ImageState";
+import { useImageState } from "./ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
 import { getEmbedURL } from "./Embed";
 import { GalleryObject } from "../routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
 import { useLocation } from "react-router-dom";
-import { useAtom } from "jotai";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -40,7 +39,7 @@ export function ComicsViewer() {
 }
 
 function EBookGallery() {
-  const images = useAtom(imagesAtom)[0];
+  const { images } = useImageState();
   const list = useMemo(
     () => (images || []).filter((image) => image.type === "ebook"),
     [images]
