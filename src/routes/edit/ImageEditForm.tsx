@@ -48,7 +48,7 @@ import {
 import { CharaImageSettingRbButtons } from "./CharacterEdit";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { corsFetch, methodType } from "@/functions/fetch";
+import { corsFetch, corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
@@ -61,6 +61,20 @@ export const imageEditIsEdit = atom(false);
 export const imageEditIsEditHold = atom(false);
 export const imageEditIsDirty = atom(false);
 export const imageEditIsBusy = atom(false);
+
+function FormToBoolean(v?: string) {
+  switch (v) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    case "null":
+    case "undefined":
+      return null;
+    default:
+      return;
+  }
+}
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const images = useAtom(imagesAtom)[0];
@@ -163,32 +177,40 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }: { deleteMode?: boolean; turnOff?: boolean } = {}) {
     setIsBusy(true);
     const fields = getValues();
-    const formdata = new FormData();
+    const data = {} as KeyValueAnyType;
     let method: methodType = "PATCH";
-    formdata.append("id", String(image!.id));
-    formdata.append("src", String(image!.src));
+    data.id = image!.id;
+    data.src = image!.src;
     if (deleteMode) method = "DELETE";
     else {
       Object.entries(fields).forEach(([key, value]) => {
         if (dirtyFields[key as keyof typeof defaultValues]) {
-          switch (key as keyof imageFormDataType) {
+          switch (key as keyof imageUpdateJsonDataType) {
             case "time":
-              formdata.append(key, dateISOfromLocaltime(value));
+              data[key] = value
+                ? dateISOfromLocaltime(value)
+                : new Date().toISOString();
+              break;
+            case "pickup":
+            case "topImage":
+              data[key] = FormToBoolean(value);
               break;
             default:
-              formdata.append(
-                key,
-                Array.isArray(value) ? value.join(",") : value
-              );
+              console.log({ value });
+              value = Array.isArray(value) ? value.join(",") : value;
+              if (value === "") data[key] = null;
+              else if (isNaN(value)) data[key] = value;
+              else data[key] = Number(value);
               break;
           }
         }
       });
     }
-    const res = await corsFetch(concatOriginUrl(apiOrigin, "/image/send"), {
-      method,
-      body: formdata,
-    }).finally(() => {
+    const res = await corsFetchJSON(
+      concatOriginUrl(apiOrigin, "/image/send"),
+      data,
+      { method }
+    ).finally(() => {
       setIsBusy(false);
       if (turnOff && isEdit) setIsEdit(false);
     });

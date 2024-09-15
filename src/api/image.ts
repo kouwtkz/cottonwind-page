@@ -5,7 +5,7 @@ import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
 import {
-  KeyValueToString,
+  KeyValueConvertDBEntry,
   lastModToUniqueNow,
 } from "@/functions/doc/ToFunction";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
@@ -74,83 +74,55 @@ export async function ServerImagesGetData(
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }
 
-function FormBoolToInt(v?: string) {
-  switch (v) {
-    case "true":
-      return 1;
-    case "false":
-      return 0;
-    case "null":
-    case "undefined":
-      return null;
-    default:
-      return;
-  }
-}
-
-function BlankStringsToNull(...args: (string | undefined)[]) {
-  if (args.some((v) => v !== undefined)) {
-    const union = args.filter((v) => v).join(",");
-    return union || null;
-  } else return undefined;
-}
-
 app.patch("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  let {
-    id: _id,
-    src,
-    rename,
-    name,
-    time,
-    mtime,
-    charaTags,
-    otherTags,
-    topImage,
-    pickup,
-    ...values
-  } = (await c.req.parseBody()) as unknown as imageFormDataType;
-  const entry: MeeSqlEntryType<ImageDataType> = {
-    topImage: FormBoolToInt(topImage),
-    pickup: FormBoolToInt(pickup),
-    name,
-    time: time ? new Date(time).toISOString() : time,
-    lastmod: new Date().toISOString(),
-    ...Object.entries(values).reduce<KeyValueType<unknown>>((a, [k, v]) => {
-      a[k] = BlankStringsToNull(v as string | undefined);
-      return a;
-    }, {}),
-  };
-  const id = Number(_id);
-  if (rename) {
-    const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
-    if (value) {
-      entry.key = rename;
-      async function renamePut(
-        key: "src" | "webp" | "thumbnail" | "icon",
-        rename: string
-      ) {
-        if (value[key]) {
-          const object = await c.env.BUCKET.get(value[key]);
-          if (object) {
-            entry[key] = rename;
-            await c.env.BUCKET.put(rename, await object.arrayBuffer());
-            await c.env.BUCKET.delete(value[key]);
+  const rawData = await c.req.json();
+  const data = Array.isArray(rawData) ? rawData : [rawData];
+  const now = new Date();
+  return Promise.all(
+    data.map(async item => {
+      let {
+        id,
+        rename,
+        ...values
+      } = item as imageUpdateJsonDataType;
+      const entry: MeeSqlEntryType<ImageDataType> = {
+        ...values,
+        lastmod: now.toISOString(),
+      };
+      KeyValueConvertDBEntry(entry);
+      console.log(entry);
+      if (rename) {
+        const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
+        if (value) {
+          entry.key = rename;
+          async function renamePut(
+            key: "src" | "webp" | "thumbnail" | "icon",
+            rename: string
+          ) {
+            if (value[key]) {
+              const object = await c.env.BUCKET.get(value[key]);
+              if (object) {
+                entry[key] = rename;
+                await c.env.BUCKET.put(rename, await object.arrayBuffer());
+                await c.env.BUCKET.delete(value[key]);
+              }
+            }
           }
+          const renameSrc = value.src
+            ? rename + "." + getExtension(value.src)
+            : null;
+          const renameWebp = rename + ".webp";
+          if (renameSrc) await renamePut("src", "image/" + renameSrc);
+          await renamePut("webp", "image/webp/" + renameWebp);
+          await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
+          await renamePut("icon", "image/icon/" + renameWebp);
         }
       }
-      const renameSrc = value.src
-        ? rename + "." + getExtension(value.src)
-        : null;
-      const renameWebp = rename + ".webp";
-      if (renameSrc) await renamePut("src", "image/" + renameSrc);
-      await renamePut("webp", "image/webp/" + renameWebp);
-      await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
-      await renamePut("icon", "image/icon/" + renameWebp);
-    }
-  }
-  await db.update<ImageDataType>({ table, entry, where: { id } });
-  return c.text(src ?? id + "を更新しました");
+      await db.update<ImageDataType>({ table, entry, where: { id } });
+      now.setMilliseconds(now.getMilliseconds() + 1);
+    })
+  ).then((results) => c.json(results));
 });
 
 app.delete("/send", async (c, next) => {
@@ -400,7 +372,7 @@ app.post("/import", async (c, next) => {
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
-      KeyValueToString(list);
+      KeyValueConvertDBEntry(list);
       await Promise.all(
         list.map((item) => db.insert({ table, entry: item }))
       );

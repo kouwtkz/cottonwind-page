@@ -35,8 +35,11 @@ import {
   postsDataObject,
 } from "@/state/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { corsFetch } from "@/functions/fetch";
-import { dateJISOfromDate, dateISOfromLocaltime } from "@/functions/DateFunctions";
+import { corsFetch, corsFetchJSON } from "@/functions/fetch";
+import {
+  dateJISOfromDate,
+  dateISOfromLocaltime,
+} from "@/functions/DateFunctions";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -334,17 +337,16 @@ export function PostForm() {
   );
 
   const onSubmit: SubmitHandler<FieldValues> = useCallback(async () => {
-    const formData = new FormData();
     let sendEnable = false;
     let attached = false;
-    let data = getValues();
+    let values = getValues();
+    const data = {} as KeyValueAnyType;
     const append = (name: string, value: string | Blob, sendCheck = true) => {
-      formData.append(name, value);
+      data[name] = value;
       if (sendCheck && !sendEnable) sendEnable = true;
     };
-
     try {
-      Object.entries(data).forEach(([key, item]) => {
+      Object.entries(values).forEach(([key, item]) => {
         const defaultItem = (defaultValues as { [k: string]: any })[key];
         switch (key) {
           case "postId":
@@ -360,14 +362,6 @@ export function PostForm() {
             const value = item.join(",");
             if (postCategories?.join(",") !== value) append(key, value);
             break;
-          case "attached":
-            for (const _item of Array.from(item) as any[]) {
-              append(`${key}[]`, _item);
-              if (!attached) attached = true;
-              if (_item.lastModified)
-                append(`${key}_lastmod[]`, _item.lastModified);
-            }
-            break;
           default:
             if (item !== defaultItem && !(item === "" && !defaultItem))
               append(key, item);
@@ -377,13 +371,12 @@ export function PostForm() {
       if (sendEnable) {
         toast
           .promise(
-            corsFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
-              method: "POST",
-              body: formData,
-            }).then(async (r) => {
-              if (r.ok) return r;
-              else throw await r.text();
-            }),
+            corsFetchJSON(concatOriginUrl(apiOrigin, "/blog/send"), data).then(
+              async (r) => {
+                if (r.ok) return r;
+                else throw await r.text();
+              }
+            ),
             {
               loading: "送信中",
               success: (r) =>

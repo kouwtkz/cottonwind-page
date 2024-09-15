@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { autoPostId, getPostsData, setPostsData } from "@/functions/blogFunction";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
-import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
 
 export const app = new Hono<MeeBindings>();
 
@@ -95,10 +95,11 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<PostDataType> {
 
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const { id, postId, update, ...data } = (await c.req.parseBody()) as KeyValueType<unknown>;
-  if (postId !== update) data.postId = postId;
+  const { id, postId, update, ...data } = await c.req.json() as PostFormType;
   const entry = InsertEntry(data);
-
+  KeyValueConvertDBEntry(entry);
+  if (postId !== update) entry.postId = postId;
+  entry.lastmod = new Date().toISOString()
   const target = update
     ? (
       await db.select<PostDataType>({
@@ -112,9 +113,10 @@ app.post("/send", async (c, next) => {
     await db.update<PostDataType>({
       table,
       entry,
-      where: { postId: update! },
-      rawEntry: { lastmod: MeeSqlD1.isoFormat() },
+      where: { postId: update },
+      viewSql: true
     });
+    ;
     return c.json({ ...target, ...entry, }, 200);
   } else {
     if (!entry.postId) entry.postId = autoPostId();
@@ -155,7 +157,7 @@ app.post("/import", async (c) => {
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
-      KeyValueToString(list);
+      KeyValueConvertDBEntry(list);
       await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
       return c.text("インポートしました！")
     }

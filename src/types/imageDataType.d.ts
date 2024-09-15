@@ -59,13 +59,8 @@ interface ImageAlbumDataType {
   list?: ImageDataType;
 }
 
-interface imageFormDataType extends Omit<ImageDataType, "width" | "height" | "version" | "lastmod"> {
-  id?: string;
+interface imageUpdateJsonDataType extends Omit<ImageType, "width" | "height" | "version" | "lastmod"> {
   rename?: string;
-  charaTags?: string;
-  otherTags?: string;
-  topImage?: string;
-  pickup?: string;
 }
 
 type imageModeType = "src" | "webp" | "thumbnail" | "icon";

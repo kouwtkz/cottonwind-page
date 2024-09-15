@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
-import { KeyValueToString, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -89,7 +89,7 @@ app.post("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item as KeyValueType<unknown>;
-      KeyValueToString(data);
+      KeyValueConvertDBEntry(data);
       const entry = InsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
@@ -135,7 +135,7 @@ app.post("/import", async (c, next) => {
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
-      KeyValueToString(list);
+      KeyValueConvertDBEntry(list);
       await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
       return c.text("インポートしました！")
     }

@@ -23,6 +23,12 @@ interface PostType extends PostDataType {
   lastmod?: Date,
 }
 
+interface PostFormType extends Omit<PostType, "time" | "lastmod"> {
+  time?: string;
+  postId?: string;
+  update: string;
+};
+
 type OldPostType = {
   id?: number;
   postId?: string;
@@ -39,14 +45,3 @@ type OldPostType = {
   flags?: number | null;
   memo?: string | null;
 }
-
-type OldPostFormType = {
-  title?: string;
-  body?: string;
-  category?: string[];
-  pin?: number;
-  draft?: boolean;
-  date?: Date;
-  postId?: string;
-  userId?: string;
-};

@@ -10,3 +10,13 @@ export async function corsFetch(input: string | URL | globalThis.Request, init?:
     ...init
   })
 }
+
+/** @mothod default: POST */
+export async function corsFetchJSON(input: string | URL | globalThis.Request, body: Object, { method = "POST", ...init }: initType = {}) {
+  return corsFetch(input, {
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    method,
+    ...init
+  })
+}

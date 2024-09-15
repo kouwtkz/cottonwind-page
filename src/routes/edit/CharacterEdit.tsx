@@ -75,7 +75,7 @@ import {
 import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
 import { CgGhostCharacter } from "react-icons/cg";
-import { corsFetch } from "@/functions/fetch";
+import { corsFetchJSON } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
@@ -792,12 +792,8 @@ export function CharacterMakeFromTags() {
 
 interface SendPostFetchProps {
   apiOrigin?: string;
-  data?: KeyValueAnyType;
+  data: KeyValueAnyType;
 }
 async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
-  return corsFetch(concatOriginUrl(apiOrigin, "character/send"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  return corsFetchJSON(concatOriginUrl(apiOrigin, "character/send"), data);
 }
