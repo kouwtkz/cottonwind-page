@@ -177,10 +177,13 @@ function InfoArea({ image }: InfoAreaProps) {
                   </Link>
                 </div>
               ) : null}
-              <div className="grayRight">
+              <div className="gray right">
                 {image.time ? (
                   <div className="time">
-                    {image.time.toLocaleString("ja", opt)}
+                    {image.draft ? (
+                      <span className="mr">（下書き）</span>
+                    ) : null}
+                    <span>{image.time.toLocaleString("ja", opt)}</span>
                   </div>
                 ) : null}
                 {image.embed && image.type === "ebook" ? (
@@ -188,7 +191,7 @@ function InfoArea({ image }: InfoAreaProps) {
                 ) : null}
               </div>
               {image.copyright ? (
-                <div className="grayRight">
+                <div className="gray right">
                   <div className="copyright">
                     <span>版権元:</span>
                     {image.copyright.map((value, i) => (

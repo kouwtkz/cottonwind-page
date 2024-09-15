@@ -69,6 +69,7 @@ function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType
     description: data.description,
     tags: data.tags,
     order: data.order,
+    draft: data.draft,
     playlist: data.playlist,
     icon: data.icon,
     headerImage: data.headerImage,

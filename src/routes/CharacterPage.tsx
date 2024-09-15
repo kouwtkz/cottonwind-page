@@ -196,7 +196,8 @@ function CharaListPage() {
     </>
   );
 }
-function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
+
+export function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
   const characters = useAtom(charactersAtom)[0];
   const { state } = useLocation();
   const isLogin = useAtom(isLoginAtom)[0];
@@ -312,6 +313,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
         chara ? (
           <div className="charaDetail">
             <CharaBeforeAfter chara={chara} />
+            {chara.draft ? <div className="gray">（下書き中のキャラクター）</div> : null}
             <div className="head">
               <h1 className="title">
                 {chara.media?.icon ? (

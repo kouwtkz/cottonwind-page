@@ -105,6 +105,7 @@ export function CharacterEditForm() {
       birthday: ToFormJST(chara?.birthday),
       tags: chara?.tags || [],
       playlist: chara?.playlist || [],
+      draft: chara?.draft,
     }),
     []
   );
@@ -131,7 +132,11 @@ export function CharacterEditForm() {
       .min(1, { message: "IDは1文字以上必要です！" })
       .refine(
         (key) => {
-          return !(charactersMap && chara?.key !== key && key in charactersMap);
+          return !(
+            charactersMap &&
+            chara?.key !== key &&
+            charactersMap.has(key)
+          );
         },
         { message: "既に使用しているIDです！" }
       ),
@@ -275,10 +280,14 @@ export function CharacterEditForm() {
       </div>
       <div>
         <input placeholder="キャラクターID" {...register("key")} />
-        {"key" in errors ? (
-          <p className="warm">{errors.key?.message?.toString()}</p>
-        ) : null}
+        <label className="ml">
+          <input {...register("draft")} type="checkbox" />
+          <span>下書き</span>
+        </label>
       </div>
+      {"key" in errors ? (
+        <p className="warm">{errors.key?.message?.toString()}</p>
+      ) : null}
       <div className="flex">
         <input placeholder="名前" {...register("name")} />
         <input placeholder="敬称" {...register("honorific")} />
@@ -287,10 +296,10 @@ export function CharacterEditForm() {
           placeholder="絵文字"
           {...register("defEmoji")}
         />
-        {"name" in errors ? (
-          <p className="warm">{errors.name?.message?.toString()}</p>
-        ) : null}
       </div>
+      {"name" in errors ? (
+        <p className="warm">{errors.name?.message?.toString()}</p>
+      ) : null}
       <div>
         <textarea placeholder="概要" {...register("overview")} />
       </div>

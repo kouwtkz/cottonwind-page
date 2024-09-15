@@ -92,6 +92,10 @@
   --form-background-color: var(--dark-form-background-color);
 }
 
+.gray {
+  color: var(--main-color-light-grayish);
+}
+
 :root {
   color: var(--current-text-color);
   @extend %lightMode;
@@ -464,6 +468,13 @@ a {
 .hidden {
   display: none !important;
   border: none !important;
+}
+
+.ml {
+  margin-left: 1rem;
+}
+.mr {
+  margin-right: 1rem;
 }
 
 .emoji {
@@ -1951,7 +1962,7 @@ select.yearFilter {
         }
       }
 
-      .grayRight {
+      .right {
         color: var(--main-color-light-grayish);
         text-align: right;
         margin-top: 1rem;
@@ -2027,9 +2038,6 @@ select.yearFilter {
       }
       label, .label {
         display: flex;
-        &.ml {
-          margin-left: 1rem;
-        }
         button {
           display: inline-block;
           margin-left: 0.5rem;
