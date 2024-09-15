@@ -89,6 +89,7 @@ app.post("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item as KeyValueType<unknown>;
+      KeyValueToString(data);
       const entry = InsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
