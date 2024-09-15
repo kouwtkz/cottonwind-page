@@ -6,7 +6,12 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { ImageMee, ImageMeeIcon, ImageMeeThumbnail } from "@/layout/ImageMee";
+import {
+  ImageMee,
+  ImageMeeIcon,
+  ImageMeeQuestion,
+  ImageMeeThumbnail,
+} from "@/layout/ImageMee";
 import {
   charactersAtom,
   charactersMapAtom,
@@ -87,12 +92,7 @@ export const CharaListItem = memo(function CharaListItem({
             loadingScreen={true}
           />
         ) : (
-          <img
-            src="/static/images/svg/question.svg"
-            alt={chara.name}
-            width={500}
-            height={500}
-          />
+          <ImageMeeQuestion alt={chara.name} />
         )}
       </div>
       <div className="name">{chara.name}</div>

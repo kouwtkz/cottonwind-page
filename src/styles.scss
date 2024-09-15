@@ -1430,6 +1430,10 @@ form select {
     max-width: 44rem;
     margin: auto;
     padding: 0 0.5rem;
+    img.icon {
+      width: 96px;
+      height: 96px;
+    }
     .flex > input {
       margin: 0.125rem;
     }

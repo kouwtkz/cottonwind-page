@@ -28,7 +28,6 @@ import {
 import { TbArrowsMove, TbDatabaseImport } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
-import axios from "axios";
 import toast from "react-hot-toast";
 import {
   charactersAtom,
@@ -37,7 +36,7 @@ import {
   charaMediaKindMap,
 } from "@/state/CharacterState";
 import { soundsAtom, SoundState } from "@/state/SoundState";
-import { ImageMee, ImageMeeIcon } from "@/layout/ImageMee";
+import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
 import {
   DndContext,
@@ -313,8 +312,10 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
         <SoundState />
         <div>
           {chara.media?.icon ? (
-            <ImageMeeIcon imageItem={chara.media.icon} />
-          ) : null}
+            <ImageMeeIcon className="icon" imageItem={chara.media.icon} />
+          ) : (
+            <ImageMeeQuestion alt={chara.name} className="icon" />
+          )}
         </div>
         <div>
           <input placeholder="キャラクターID" {...register("key")} />

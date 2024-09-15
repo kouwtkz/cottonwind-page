@@ -273,3 +273,14 @@ export function ImageMeeShowOriginSwitch() {
     </button>
   );
 }
+
+export function ImageMeeQuestion(args: ImgHTMLAttributes<HTMLImageElement>) {
+  return (
+    <img
+      src="/static/images/svg/question.svg"
+      width={500}
+      height={500}
+      {...args}
+    />
+  );
+}
