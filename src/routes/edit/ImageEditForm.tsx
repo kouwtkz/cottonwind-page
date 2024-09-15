@@ -83,14 +83,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const enableOnFormTags: FormTags[] = ["INPUT", "TEXTAREA", "SELECT"];
 
   useHotkeys(
     "ctrl+enter",
     (e) => {
       if (isEdit && isDirty) SubmitImage();
     },
-    { enableOnFormTags }
+    { enableOnFormTags: true }
   );
   useHotkeys(
     "escape",
@@ -100,7 +99,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         e.preventDefault();
       }
     },
-    { enableOnFormTags }
+    { enableOnFormTags: true }
   );
 
   const charaLabelTags = useMemo(() => {

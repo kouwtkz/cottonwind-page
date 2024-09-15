@@ -76,6 +76,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
 import { CgGhostCharacter } from "react-icons/cg";
 import { corsFetch } from "@/functions/fetch";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -243,6 +244,14 @@ export function CharacterEditForm() {
       );
     },
     [chara]
+  );
+
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isDirty) onSubmit();
+    },
+    { enableOnFormTags: true }
   );
 
   return (
