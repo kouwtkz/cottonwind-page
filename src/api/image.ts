@@ -128,11 +128,10 @@ app.patch("/send", async (c, next) => {
 
 app.delete("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const formdata = await c.req.parseBody();
-  if (typeof formdata.id === "string") {
-    const id = Number(formdata.id);
+  const data = await c.req.json();
+  if (typeof data.id === "number") {
     const values = (
-      await db.select<ImageDataType>({ table, params: "*", where: { id } })
+      await db.select<ImageDataType>({ table, params: "*", where: { id: data.id } })
     )[0];
     if (values.src) c.env.BUCKET.delete(values.src);
     if (values.webp) c.env.BUCKET.delete(values.webp);
@@ -142,7 +141,7 @@ app.delete("/send", async (c, next) => {
     await db.update<ImageDataType>({
       table,
       entry: { ...nullEntry, lastmod: new Date().toISOString() },
-      where: { id },
+      where: { id: data.id },
     });
     return c.text(values.src + "を削除しました");
   }
@@ -342,6 +341,7 @@ app.post("/send", async (c, next) => {
       mtime: timeString,
       key: name,
       src: images.src?.path,
+      draft: 1,
       ...pathes,
       ...metaSize,
       tags,
