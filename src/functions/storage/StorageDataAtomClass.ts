@@ -20,11 +20,11 @@ export class StorageDataAtomClass<T extends Object = {}> {
   get isLogin() { return this._isLogin; };
   set isLogin(isLogin) {
     this._isLogin = isLogin;
-    this.storage.version = setSuffix(this.version, this._isLogin ? "login" : "")
+    this.storage.Version = setSuffix(this.version, this._isLogin ? "login" : "")
   };
   constructor({ src, key, version = "1", preLoad, isLogin }: StorageDataAtomClassProps) {
     this.version = version;
-    this.storage = new StorageDataClass(key, version);
+    this.storage = new StorageDataClass(key);
     this.src = src;
     this.loadAtom = atom(preLoad);
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
