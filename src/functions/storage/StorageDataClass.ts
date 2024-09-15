@@ -5,16 +5,21 @@ type dataType<T> = {
 };
 
 export class StorageDataClass<T extends Object = {}> {
-  version?: string;
+  private _version?: string;
+  get version() { return this._version }
+  set version(x) {
+    this._version = x;
+    this.removeItem();
+  }
   lastmod?: string;
   data?: T;
   key: string;
   /** @comment バージョンを変えると自動でデータを破棄して読み込み直すことができる */
   constructor(key: string, version?: string | number) {
     this.key = key;
-    this.version = version ? String(version) : undefined;
+    this._version = version ? String(version) : undefined;
     const got = this.getItem();
-    if (this.version !== got.version) this.removeItem();
+    if (this._version !== got.version) this.removeItem();
   }
   private __getItem() {
     const storageValue = localStorage.getItem(this.key);
@@ -32,7 +37,7 @@ export class StorageDataClass<T extends Object = {}> {
   setItem(data: T, lastmod?: string) {
     return localStorage.setItem(
       this.key,
-      JSON.stringify({ lastmod, version: this.version, data })
+      JSON.stringify({ lastmod, version: this._version, data })
     );
   }
   removeItem() {

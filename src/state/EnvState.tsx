@@ -4,13 +4,18 @@ import { useEffect } from "react";
 export const EnvAtom = atom<SiteConfigEnv>();
 export const ApiOriginAtom = atom<string>();
 export const MediaOriginAtom = atom<string>();
-export const isLoginAtom = atom(false);
+export const isLoginAtom = atom<boolean>();
 export const visibleWorkersAtom = atom(false);
 
 export function EnvState() {
   const [env, setEnv] = useAtom(EnvAtom);
   const setApiOrigin = useAtom(ApiOriginAtom)[1];
   const setMediaOrigin = useAtom(MediaOriginAtom)[1];
+  const setIsLogin = useAtom(isLoginAtom)[1];
+  useEffect(() => {
+    const serverData = document.getElementById("server-data");
+    setIsLogin(Boolean(serverData?.dataset.isLogin === "true"));
+  }, [setIsLogin]);
   useEffect(() => {
     fetch("/env.json")
       .then((r) => r.json() as unknown as SiteConfigEnv)
@@ -24,10 +29,5 @@ export function EnvState() {
       setMediaOrigin(getMediaOrigin(env, location.origin));
     }
   }, [env]);
-  const setIsLogin = useAtom(isLoginAtom)[1];
-  useEffect(() => {
-    const serverData = document.getElementById("server-data");
-    setIsLogin(serverData?.dataset.isLogin === "true");
-  }, [setIsLogin]);
   return <></>;
 }

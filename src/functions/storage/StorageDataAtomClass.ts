@@ -1,32 +1,43 @@
 import { atom, PrimitiveAtom, SetStateAction } from "jotai";
 import { StorageDataClass } from "./StorageDataClass";
 import { corsFetch } from "../fetch";
-import { setPrefix } from "../prefix";
+import { setPrefix, setSuffix } from "../stringFix";
 
 interface StorageDataAtomClassProps {
   src: string;
   key: string;
   version?: string;
   preLoad?: LoadAtomType;
+  isLogin?: LoadAtomType;
 }
 export class StorageDataAtomClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
   src: string;
+  version: string;
   dataAtom = atom<T[]>();
   loadAtom: PrimitiveAtom<LoadAtomType | undefined>;
-  constructor({ src, key, version, preLoad }: StorageDataAtomClassProps) {
+  private _isLogin?: boolean;
+  get isLogin() { return this._isLogin; };
+  set isLogin(isLogin) {
+    this._isLogin = isLogin;
+    this.storage.version = setSuffix(this.version, this._isLogin ? "login" : "")
+  };
+  constructor({ src, key, version = "1", preLoad, isLogin }: StorageDataAtomClassProps) {
+    this.version = version;
     this.storage = new StorageDataClass(key, version);
     this.src = src;
     this.loadAtom = atom(preLoad);
+    if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
   setSearchParamsOption({
     searchParams,
     loadAtomValue,
     prefix,
   }: storageSetSearchParamsOptionProps<T>) {
+    const { lastmod, data } = this.storage;
+    if (!data) loadAtomValue === "no-cache-reload";
     if (loadAtomValue === "no-cache-reload") this.storage.removeItem();
-    const { lastmod: sEndpoint } = this.storage;
-    if (sEndpoint) searchParams.set(setPrefix("lastmod", prefix), sEndpoint);
+    if (lastmod) searchParams.set(setPrefix("lastmod", prefix), lastmod);
     return searchParams;
   }
   async fetchData({

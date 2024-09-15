@@ -5,7 +5,7 @@ import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { ServerCharactersGetData } from "./character";
 import { IsLogin } from "@/ServerContent";
 import { ServerPostsGetData } from "./blog";
-import { getDataWithoutPrefix } from "@/functions/prefix";
+import { getDataWithoutPrefix } from "@/functions/stringFix";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,

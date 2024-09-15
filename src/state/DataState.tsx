@@ -1,6 +1,6 @@
 import { atom, useAtom } from "jotai";
-import { ApiOriginAtom } from "./EnvState";
-import { useEffect } from "react";
+import { ApiOriginAtom, isLoginAtom } from "./EnvState";
+import { useEffect, useState } from "react";
 import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
 import { getBasename, getName } from "@/functions/doc/PathParse";
@@ -17,14 +17,12 @@ export const imageDataObject = new SdaClass<ImageDataType>({
   preLoad: false,
 });
 
-export const charactersDataObject = new SdaClass<CharacterDataType>(
-  {
-    key: "characters",
-    src: "/data/characters",
-    version: "1.2.1",
-    preLoad: false,
-  }
-);
+export const charactersDataObject = new SdaClass<CharacterDataType>({
+  key: "characters",
+  src: "/data/characters",
+  version: "1.2.1",
+  preLoad: false,
+});
 
 export const postsDataObject = new SdaClass<PostDataType>({
   key: "posts",
@@ -37,11 +35,21 @@ const allDataSrc = "/data/all";
 export const allLoadAtom = atom<LoadAtomType>(true);
 
 export function DataState() {
+  const isLogin = useAtom(isLoginAtom)[0];
+  const [settedIsLogin, setSettedIsLogin] = useState(false);
+  useEffect(() => {
+    if (typeof isLogin !== "undefined") {
+      imageDataObject.isLogin = isLogin;
+      charactersDataObject.isLogin = isLogin;
+      postsDataObject.isLogin = isLogin;
+      setSettedIsLogin(true);
+    }
+  }, [isLogin]);
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const [imagesLoad, setImagesLoad] = useAtom(imageDataObject.loadAtom);
   const setImagesData = useAtom(imageDataObject.dataAtom)[1];
   useEffect(() => {
-    if (imagesLoad && apiOrigin) {
+    if (settedIsLogin && imagesLoad && apiOrigin) {
       imageDataObject
         .fetchData({
           apiOrigin,
@@ -55,14 +63,14 @@ export function DataState() {
         });
       setImagesLoad(false);
     }
-  }, [apiOrigin, imagesLoad, setImagesLoad, setImagesData]);
+  }, [settedIsLogin, apiOrigin, imagesLoad, setImagesLoad, setImagesData]);
 
   const [charactersLoad, setCharactersLoad] = useAtom(
     charactersDataObject.loadAtom
   );
   const setCharactersData = useAtom(charactersDataObject.dataAtom)[1];
   useEffect(() => {
-    if (charactersLoad && apiOrigin) {
+    if (settedIsLogin && charactersLoad && apiOrigin) {
       charactersDataObject
         .fetchData({
           apiOrigin,
@@ -76,12 +84,18 @@ export function DataState() {
         });
       setCharactersLoad(false);
     }
-  }, [apiOrigin, charactersLoad, setCharactersLoad, setCharactersData]);
+  }, [
+    settedIsLogin,
+    apiOrigin,
+    charactersLoad,
+    setCharactersLoad,
+    setCharactersData,
+  ]);
 
   const [postsLoad, setPostsLoad] = useAtom(postsDataObject.loadAtom);
   const setPostsData = useAtom(postsDataObject.dataAtom)[1];
   useEffect(() => {
-    if (postsLoad && apiOrigin) {
+    if (settedIsLogin && postsLoad && apiOrigin) {
       postsDataObject
         .fetchData({
           apiOrigin,
@@ -95,11 +109,11 @@ export function DataState() {
         });
       setPostsLoad(false);
     }
-  }, [apiOrigin, postsLoad, setPostsLoad, setPostsData]);
+  }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
   const [allLoad, setAllLoad] = useAtom(allLoadAtom);
   useEffect(() => {
-    if (apiOrigin && allLoad) {
+    if (settedIsLogin && apiOrigin && allLoad) {
       const Url = new URL(allDataSrc, apiOrigin);
       const cache = SdaClass.getCacheOption(allLoad);
       imageDataObject.setSearchParamsOption({
@@ -143,6 +157,7 @@ export function DataState() {
         });
     }
   }, [
+    settedIsLogin,
     apiOrigin,
     allLoad,
     setAllLoad,
