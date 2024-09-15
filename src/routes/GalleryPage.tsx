@@ -360,7 +360,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         item.hide ||
         (!searchMode && item.hideWhenDefault) ||
         (item.hideWhenFilter &&
-          (topicParams.length > 0 || typeParam || monthParam))
+          (searchMode || topicParams.length > 0 || typeParam || monthParam))
           ? []
           : item.list ?? []
       )
