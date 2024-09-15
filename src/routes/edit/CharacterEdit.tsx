@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -55,7 +56,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
-import { CharaListItem } from "../CharacterPage";
+import { CharaBeforeAfter, CharaListItem } from "../CharacterPage";
 import { ToFormJST } from "@/functions/DateFormat";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
@@ -79,35 +80,42 @@ import { corsFetchJSON } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
-export function CharacterEditForm() {
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
-  const nav = useNavigate();
+export function CharacterEdit() {
   const { charaName } = useParams();
   const charactersMap = useAtom(charactersMapAtom)[0];
+  const chara = useMemo(
+    () => charactersMap?.get(charaName || ""),
+    [charactersMap, charaName]
+  );
+  return <>{chara ? <CharacterEditForm chara={chara} /> : null}</>;
+}
+
+function CharacterEditForm({ chara }: { chara: CharacterType }) {
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const nav = useNavigate();
   const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const characterTags = useAtom(characterTagsAtom)[0];
   const sounds = useAtom(soundsAtom)[0];
-  const chara =
-    charactersMap && charaName ? charactersMap.get(charaName) : null;
-  const getDefaultValues = useCallback(
-    (chara?: CharacterType | null) => ({
-      key: chara?.key || charaName || "",
-      name: chara?.name || "",
-      honorific: chara?.honorific || "",
-      overview: chara?.overview || "",
-      description: chara?.description || "",
-      defEmoji: chara?.defEmoji || "",
-      icon: chara?.icon || "",
-      image: chara?.image || "",
-      headerImage: chara?.headerImage || "",
-      time: ToFormJST(chara?.time),
-      birthday: ToFormJST(chara?.birthday),
-      tags: chara?.tags || [],
-      playlist: chara?.playlist || [],
-      draft: chara?.draft,
+  const getDefaultValues = useMemo(
+    () => ({
+      key: chara.key || "",
+      name: chara.name || "",
+      honorific: chara.honorific || "",
+      overview: chara.overview || "",
+      description: chara.description || "",
+      defEmoji: chara.defEmoji || "",
+      icon: chara.icon || "",
+      image: chara.image || "",
+      headerImage: chara.headerImage || "",
+      time: ToFormJST(chara.time),
+      birthday: ToFormJST(chara.birthday),
+      tags: chara.tags || [],
+      playlist: chara.playlist || [],
+      draft: chara.draft,
     }),
-    []
+    [chara]
   );
 
   const playlistOptions = useMemo(
@@ -134,7 +142,7 @@ export function CharacterEditForm() {
         (key) => {
           return !(
             charactersMap &&
-            chara?.key !== key &&
+            chara.key !== key &&
             charactersMap.has(key)
           );
         },
@@ -145,21 +153,44 @@ export function CharacterEditForm() {
 
   const {
     register,
-    handleSubmit,
     reset,
     getValues,
     setValue,
     control,
-    formState: { isDirty, defaultValues, errors, dirtyFields },
+    handleSubmit,
+    formState: {
+      isDirty,
+      defaultValues,
+      isSubmitSuccessful,
+      errors,
+      dirtyFields,
+    },
   } = useForm<FieldValues>({
-    defaultValues: getDefaultValues(chara),
+    defaultValues: getDefaultValues,
     resolver: zodResolver(schema),
   });
-  useEffect(() => {
-    reset(getDefaultValues(chara));
-  }, [chara, getDefaultValues, reset]);
 
-  async function onSubmit() {
+  const refIsNotFirst = useRef(false);
+  useEffect(() => {
+    if (refIsNotFirst.current) reset(getDefaultValues);
+  }, [reset, getDefaultValues]);
+
+  const refIsDirty = useRef(false);
+  useEffect(() => {
+    refIsDirty.current = isDirty;
+  }, [isDirty]);
+  useEffect(() => {
+    refIsNotFirst.current = true;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (refIsDirty.current) event.preventDefault();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  async function onSubmit(move?: boolean) {
     const formValues = getValues();
     if (!charactersMap) return;
     const data = {} as KeyValueAnyType;
@@ -176,7 +207,7 @@ export function CharacterEditForm() {
         }
       }
     });
-    if (chara?.key) data.target = chara.key;
+    if (chara.key) data.target = chara.key;
     else if (!data.key) data.key = formValues["key"];
     toast
       .promise(
@@ -201,7 +232,7 @@ export function CharacterEditForm() {
       )
       .then(() => {
         setCharactersLoad("no-cache");
-        nav(`/character/${formValues.key}`);
+        if (move) nav(`/character/${formValues.key}`);
       });
   }
 
@@ -209,7 +240,7 @@ export function CharacterEditForm() {
     (mode: characterImageMode, title = "画像の設定") => {
       return (
         <button
-          className={"normal" + (chara?.media?.[mode] ? " plain" : "")}
+          className={"normal" + (chara.media?.[mode] ? " plain" : "")}
           title={title}
           type="button"
           onClick={() => {
@@ -251,7 +282,7 @@ export function CharacterEditForm() {
             }
           }}
         >
-          {chara?.media?.[mode] ? (
+          {chara.media?.[mode] ? (
             <ImageMeeIcon className="charaIcon" imageItem={chara.media[mode]} />
           ) : (
             <MdFileUpload />
@@ -271,150 +302,182 @@ export function CharacterEditForm() {
   );
 
   return (
-    <form className="edit">
-      <SoundState />
-      <div>
-        {chara?.media?.icon ? (
-          <ImageMeeIcon imageItem={chara.media.icon} />
+    <>
+      <CharaBeforeAfter
+        charaName={chara.key}
+        onClick={() => {
+          if (isDirty) onSubmit();
+        }}
+      />
+      <form className="edit">
+        <SoundState />
+        <div>
+          {chara.media?.icon ? (
+            <ImageMeeIcon imageItem={chara.media.icon} />
+          ) : null}
+        </div>
+        <div>
+          <input placeholder="キャラクターID" {...register("key")} />
+          <label className="ml">
+            <input {...register("draft")} type="checkbox" />
+            <span>下書き</span>
+          </label>
+        </div>
+        {"key" in errors ? (
+          <p className="warm">{errors.key?.message?.toString()}</p>
         ) : null}
-      </div>
-      <div>
-        <input placeholder="キャラクターID" {...register("key")} />
-        <label className="ml">
-          <input {...register("draft")} type="checkbox" />
-          <span>下書き</span>
-        </label>
-      </div>
-      {"key" in errors ? (
-        <p className="warm">{errors.key?.message?.toString()}</p>
-      ) : null}
-      <div className="flex">
-        <input placeholder="名前" {...register("name")} />
-        <input placeholder="敬称" {...register("honorific")} />
-        <input
-          className="mini"
-          placeholder="絵文字"
-          {...register("defEmoji")}
-        />
-      </div>
-      {"name" in errors ? (
-        <p className="warm">{errors.name?.message?.toString()}</p>
-      ) : null}
-      <div>
-        <textarea placeholder="概要" {...register("overview")} />
-      </div>
-      <div className="flex column">
-        <label className="flex center pointer">
-          {ImageSetter("icon", "アイコンの設定")}
-          <span className="label-l normal flex center around">アイコン</span>
+        <div className="flex">
+          <input placeholder="名前" {...register("name")} />
+          <input placeholder="敬称" {...register("honorific")} />
           <input
-            className="flex-1"
-            placeholder="自動設定"
-            {...register("icon")}
+            className="mini"
+            placeholder="絵文字"
+            {...register("defEmoji")}
           />
-        </label>
-        <label className="flex center pointer">
-          {ImageSetter("headerImage", "ヘッダーの設定")}
-          <span className="label-l normal flex center around">
-            ヘッダー画像
-          </span>
-          <input
-            className="flex-1"
-            placeholder="ヘッダー画像"
-            {...register("headerImage")}
-          />
-        </label>
-        <label className="flex center pointer">
-          {ImageSetter("image", "メイン画像の設定")}
-          <span className="label-l normal flex center around">メイン画像</span>
-          <input
-            className="flex-1"
-            placeholder="メイン画像"
-            {...register("image")}
-          />
-        </label>
-      </div>
-      <div className="flex column">
-        <label className="flex center">
-          <span className="label-l">できた日</span>
-          <input
-            className="flex-1"
-            placeholder="初めてキャラクターができた日"
-            step={1}
-            type="datetime-local"
-            {...register("time")}
-          />
-        </label>
-        <label className="flex center">
-          <span className="label-l">お誕生日</span>
-          <input
-            className="flex-1"
-            placeholder="キャラクターの誕生日"
-            step={1}
-            type="datetime-local"
-            {...register("birthday")}
-          />
-        </label>
-      </div>
-      <div>
-        <EditTagsReactSelect
-          name="tags"
-          tags={tagsOptions}
-          set={setTagsOptions}
-          control={control}
-          setValue={setValue}
-          getValues={getValues}
-          placeholder="タグ"
-          enableEnterAdd
-          styles={{
-            menuList: (style) => ({ ...style, textAlign: "left" }),
-            option: (style) => ({ ...style, paddingLeft: "1em" }),
-          }}
-        />
-      </div>
-      <div>
-        <Controller
-          control={control}
-          name="playlist"
-          render={({ field }) => (
-            <ReactSelect
-              instanceId="CharaPlaylistSelect"
-              theme={callReactSelectTheme}
-              isMulti
-              options={playlistOptions}
-              styles={{
-                menuList: (style) => ({ ...style, textAlign: "left" }),
-                option: (style) => ({ ...style, paddingLeft: "1em" }),
-              }}
-              value={(field.value as string[]).map((fv) =>
-                playlistOptions.find(({ value }) => value === fv)
-              )}
-              placeholder="プレイリスト"
-              onChange={(newValues) => {
-                field.onChange(newValues.map((v) => v?.value));
-              }}
-              onBlur={field.onBlur}
+        </div>
+        {"name" in errors ? (
+          <p className="warm">{errors.name?.message?.toString()}</p>
+        ) : null}
+        <div>
+          <textarea placeholder="概要" {...register("overview")} />
+        </div>
+        <div className="flex column">
+          <label className="flex center pointer">
+            {ImageSetter("icon", "アイコンの設定")}
+            <span className="label-l normal flex center around">アイコン</span>
+            <input
+              className="flex-1"
+              placeholder="自動設定"
+              {...register("icon")}
             />
-          )}
-        />
-      </div>
-      <div>
-        <textarea
-          placeholder="詳細"
-          className="description"
-          {...register("description")}
-        />
-      </div>
-      <div>
-        <button
-          disabled={!isDirty}
-          type="button"
-          onClick={handleSubmit(onSubmit)}
-        >
-          送信
-        </button>
-      </div>
-    </form>
+          </label>
+          <label className="flex center pointer">
+            {ImageSetter("headerImage", "ヘッダーの設定")}
+            <span className="label-l normal flex center around">
+              ヘッダー画像
+            </span>
+            <input
+              className="flex-1"
+              placeholder="ヘッダー画像"
+              {...register("headerImage")}
+            />
+          </label>
+          <label className="flex center pointer">
+            {ImageSetter("image", "メイン画像の設定")}
+            <span className="label-l normal flex center around">
+              メイン画像
+            </span>
+            <input
+              className="flex-1"
+              placeholder="メイン画像"
+              {...register("image")}
+            />
+          </label>
+        </div>
+        <div className="flex column">
+          <label className="flex center">
+            <span className="label-l">できた日</span>
+            <input
+              className="flex-1"
+              placeholder="初めてキャラクターができた日"
+              step={1}
+              type="datetime-local"
+              {...register("time")}
+            />
+          </label>
+          <label className="flex center">
+            <span className="label-l">お誕生日</span>
+            <input
+              className="flex-1"
+              placeholder="キャラクターの誕生日"
+              step={1}
+              type="datetime-local"
+              {...register("birthday")}
+            />
+          </label>
+        </div>
+        <div>
+          <EditTagsReactSelect
+            name="tags"
+            tags={tagsOptions}
+            set={setTagsOptions}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            placeholder="タグ"
+            enableEnterAdd
+            styles={{
+              menuList: (style) => ({ ...style, textAlign: "left" }),
+              option: (style) => ({ ...style, paddingLeft: "1em" }),
+            }}
+          />
+        </div>
+        <div>
+          <Controller
+            control={control}
+            name="playlist"
+            render={({ field }) => (
+              <ReactSelect
+                instanceId="CharaPlaylistSelect"
+                theme={callReactSelectTheme}
+                isMulti
+                options={playlistOptions}
+                styles={{
+                  menuList: (style) => ({ ...style, textAlign: "left" }),
+                  option: (style) => ({ ...style, paddingLeft: "1em" }),
+                }}
+                value={(field.value as string[]).map((fv) =>
+                  playlistOptions.find(({ value }) => value === fv)
+                )}
+                placeholder="プレイリスト"
+                onChange={(newValues) => {
+                  field.onChange(newValues.map((v) => v?.value));
+                }}
+                onBlur={field.onBlur}
+              />
+            )}
+          />
+        </div>
+        <div>
+          <textarea
+            placeholder="詳細"
+            className="description"
+            {...register("description")}
+          />
+        </div>
+        <div className="flex around">
+          <span>
+            <button
+              disabled={!isDirty}
+              type="button"
+              onClick={() =>
+                reset({}, { keepDefaultValues: true, keepDirty: true })
+              }
+            >
+              リセット
+            </button>
+          </span>
+          <span>
+            <button
+              disabled={!isDirty}
+              type="button"
+              onClick={() => onSubmit()}
+            >
+              適用
+            </button>
+          </span>
+          <span>
+            <button
+              disabled={!isDirty}
+              type="button"
+              onClick={() => onSubmit(true)}
+            >
+              送信
+            </button>
+          </span>
+        </div>
+      </form>
+    </>
   );
 }
 

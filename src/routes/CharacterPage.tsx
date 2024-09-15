@@ -17,7 +17,7 @@ import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
 import { imageAlbumsAtom } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import {
-  CharacterEditForm,
+  CharacterEdit,
   CharaEditButton,
   SortableObject,
   useEditSwitchState,
@@ -36,13 +36,13 @@ import { isLoginAtom } from "@/state/EnvState";
 
 export function CharacterPage() {
   const { charaName } = useParams();
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useAtom(isLoginAtom)[0];
   return (
     <div className="characterPage">
       {isLogin && isEdit ? (
-        <CharacterEditForm />
+        <CharacterEdit />
       ) : (
         <>
           {isLogin ? <CharaEditButton /> : null}
@@ -197,9 +197,23 @@ function CharaListPage() {
   );
 }
 
-export function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
+interface CharaBeforeAfterProps extends HTMLAttributes<HTMLDivElement> {
+  charaName?: string;
+}
+export function CharaBeforeAfter({
+  charaName,
+  className,
+  ...props
+}: CharaBeforeAfterProps) {
+  const charactersMap = useAtom(charactersMapAtom)[0];
+  const chara = useMemo(
+    () => charactersMap?.get(charaName || ""),
+    [charactersMap, charaName]
+  );
   const characters = useAtom(charactersAtom)[0];
   const { state } = useLocation();
+  const searchParams = useSearchParams()[0];
+  const isEdit = searchParams.get("edit") === "on";
   const isLogin = useAtom(isLoginAtom)[0];
   const filters: string[] | undefined = useMemo(
     () => state?.charaFilters,
@@ -227,7 +241,10 @@ export function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
     if (!showAll) list = list.filter((chara) => chara.media?.image);
     return list;
   }, [characters, state, showAll]);
-  const charaIndex = items.findIndex(({ key: id }) => id === chara.key);
+  const charaIndex = useMemo(
+    () => (chara ? items.findIndex(({ key: id }) => id === chara?.key) : -1),
+    [items, chara]
+  );
   const { beforeChara, afterChara } = useMemo(() => {
     if (charaIndex >= 0) {
       return {
@@ -239,10 +256,13 @@ export function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
     }
   }, [items, charaIndex]);
   return (
-    <div className="beforeAfter">
-      <div className="before">
+    <div className={"beforeAfter" + (className ? " " + className : "")}>
+      <div className="before" {...props}>
         {beforeChara ? (
-          <Link to={"/character/" + beforeChara.key} state={state}>
+          <Link
+            to={"/character/" + beforeChara.key + (isEdit ? "?edit=on" : "")}
+            state={state}
+          >
             <span className="cursor">＜</span>
             {beforeChara.media?.icon ? (
               <ImageMeeIcon
@@ -255,9 +275,12 @@ export function CharaBeforeAfter({ chara }: { chara: CharacterType }) {
           </Link>
         ) : null}
       </div>
-      <div className="after">
+      <div className="after" {...props}>
         {afterChara ? (
-          <Link to={"/character/" + afterChara.key} state={state}>
+          <Link
+            to={"/character/" + afterChara.key + (isEdit ? "?edit=on" : "")}
+            state={state}
+          >
             {afterChara.media?.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.media.icon}
@@ -312,8 +335,10 @@ function CharaDetail({ charaName }: { charaName: string }) {
       {charactersMap ? (
         chara ? (
           <div className="charaDetail">
-            <CharaBeforeAfter chara={chara} />
-            {chara.draft ? <div className="gray">（下書き中のキャラクター）</div> : null}
+            <CharaBeforeAfter charaName={charaName} />
+            {chara.draft ? (
+              <div className="gray">（下書き中のキャラクター）</div>
+            ) : null}
             <div className="head">
               <h1 className="title">
                 {chara.media?.icon ? (

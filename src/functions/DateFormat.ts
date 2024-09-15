@@ -5,5 +5,5 @@ export function ToJST(date?: Date | null) {
 export function ToFormJST(date?: Date | null) {
   return date
     ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
-    .replace(" ", "T");
+    .replace(" ", "T") || "";
 }
