@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { atom, useAtom } from "jotai";
-import { EnvAtom } from "./EnvState";
+import { EnvAtom, isLoginAtom } from "./EnvState";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/imageFunctions";
 
@@ -14,16 +14,30 @@ export function ImageState() {
   const setImagesMap = useAtom(imagesMapAtom)[1];
   const setAlbums = useAtom(imageAlbumsAtom)[1];
   const env = useAtom(EnvAtom)[0];
+  const isLogin = useAtom(isLoginAtom)[1];
   useEffect(() => {
     if (imagesData && env) {
       const { imagesMap, imageAlbumMap } = getImageObjectMap(
         imagesData,
         env.IMAGE_ALBUMS
       );
+      imagesMap.forEach((image) => {
+        image.update = Boolean(
+          !isLogin &&
+            image.lastmod &&
+            imageDataObject.beforeLastmod &&
+            image.lastmod.getTime() > imageDataObject.beforeLastmod.getTime()
+        );
+        image.new =
+          image.update &&
+          (image.time && imageDataObject.latest?.time
+            ? image.time.toISOString() > imageDataObject.latest.time
+            : false);
+      });
       setImagesMap(imagesMap);
       setImages(Object.values(Object.fromEntries(imagesMap)));
       setAlbums(imageAlbumMap);
     }
-  }, [imagesData, env]);
+  }, [imagesData, env, isLogin]);
   return <></>;
 }

@@ -3,12 +3,13 @@ import { StorageDataClass } from "./StorageDataClass";
 import { corsFetch } from "../fetch";
 import { setPrefix, setSuffix } from "../stringFix";
 
-interface StorageDataAtomClassProps {
+interface StorageDataAtomClassProps<T> {
   src: string;
   key: string;
   version?: string;
   preLoad?: LoadAtomType;
   isLogin?: LoadAtomType;
+  latestField?: { [k in keyof T]?: OrderByType };
 }
 export class StorageDataAtomClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
@@ -16,17 +17,21 @@ export class StorageDataAtomClass<T extends Object = {}> {
   version: string;
   dataAtom = atom<T[]>();
   loadAtom: PrimitiveAtom<LoadAtomType | undefined>;
+  latestField?: { [k in keyof T]: OrderByType };
+  latest?: T;
+  beforeLastmod?: Date;
   private _isLogin?: boolean;
   get isLogin() { return this._isLogin; };
   set isLogin(isLogin) {
     this._isLogin = isLogin;
     this.storage.Version = setSuffix(this.version, this._isLogin ? "login" : "")
   };
-  constructor({ src, key, version = "1", preLoad, isLogin }: StorageDataAtomClassProps) {
+  constructor({ src, key, version = "1", preLoad, isLogin, latestField }: StorageDataAtomClassProps<T>) {
     this.version = version;
     this.storage = new StorageDataClass(key);
     this.src = src;
     this.loadAtom = atom(preLoad);
+    this.latestField = latestField as { [k in keyof T]: OrderByType };
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
   setSearchParamsOption({
@@ -65,6 +70,20 @@ export class StorageDataAtomClass<T extends Object = {}> {
     if (!data) return;
     const { data: sData } = this.storage;
     if (sData) {
+      if (this.latestField) {
+        if (this.storage.lastmod) this.beforeLastmod = new Date(this.storage.lastmod);
+        Object.entries<OrderByType>(this.latestField).forEach(([k, v]) => {
+          this.latest =
+            (sData as unknown as KeyValueType<any>[]).reduce<any>((a, c) => {
+              if (!a) return c;
+              else {
+                if (v === "desc") return a[k] > c[k] ? a : c;
+                else if (v === "asc") return a[k] < c[k] ? a : c;
+                else return a;
+              }
+            }, undefined);
+        });
+      }
       data.forEach((d) => {
         const index = sData.findIndex((v) => (v as any)[id] === (d as any)[id]);
         if (index >= 0) {

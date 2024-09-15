@@ -15,6 +15,7 @@ export const imageDataObject = new SdaClass<ImageDataType>({
   src: "/data/images",
   version: "1.3.1",
   preLoad: false,
+  latestField: { time: "desc" },
 });
 
 export const charactersDataObject = new SdaClass<CharacterDataType>({
@@ -22,6 +23,7 @@ export const charactersDataObject = new SdaClass<CharacterDataType>({
   src: "/data/characters",
   version: "1.3.1",
   preLoad: false,
+  latestField: { id: "desc" },
 });
 
 export const postsDataObject = new SdaClass<PostDataType>({
@@ -29,6 +31,7 @@ export const postsDataObject = new SdaClass<PostDataType>({
   src: "/data/posts",
   version: "1.3.1",
   preLoad: false,
+  latestField: { time: "desc" },
 });
 
 const allDataSrc = "/data/all";

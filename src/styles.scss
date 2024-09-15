@@ -1645,6 +1645,31 @@ select.yearFilter {
         fill: var(--main-color-soft);
         @extend %galleryTransition;
       }
+      .ribbon {
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+          sans-serif;
+        padding: 0.1rem 0.25rem;
+        vertical-align: middle;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 1;
+        color: white;
+        font-size: 0.5em;
+        background-color: rgb(126, 130, 127);
+        &.new {
+          background-color: rgb(244, 79, 79);
+        }
+        &.update {
+          background-color: rgb(244, 145, 79);
+        }
+        &.draft {
+          background-color: rgb(120, 131, 104);
+        }
+        @media (min-width: $tabletWidth) {
+          font-size: 1em;
+        }
+      }
       .translucent-special-button {
         @extend .translucent-button;
         background-color: rgb(100 110 88 / 74%);
@@ -2044,7 +2069,8 @@ select.yearFilter {
         margin-top: 1rem;
         margin-bottom: 1rem;
       }
-      label, .label {
+      label,
+      .label {
         display: flex;
         button {
           display: inline-block;

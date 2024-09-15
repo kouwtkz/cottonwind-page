@@ -603,6 +603,7 @@ function GalleryImageItem({
   }, [searchParams, image, state]);
   return (
     <Link className="item" {...toStatehandler()}>
+      <GalleryItemRibbon image={image} />
       {image.type === "ebook" || image.type === "goods" ? (
         image.embed ? (
           <div className="translucent-special-button">
@@ -1002,5 +1003,26 @@ export function ShowAllAlbumSwitch() {
     >
       <BiPhotoAlbum />
     </Link>
+  );
+}
+
+function GalleryItemRibbon({ image }: { image: ImageType }) {
+  const className = useMemo(() => {
+    const list = ["ribbon"];
+    if (image.draft) list.push("draft");
+    else if (image.update) {
+      if (image.new) list.push("new");
+      else list.push("update");
+    }
+    return list.join(" ");
+  }, [image.update, image.new, image.draft]);
+  return (
+    <>
+      {image.draft ? (
+        <div className={className}>Draft</div>
+      ) : image.update ? (
+        <div className={className}>{image.new ? "New!" : "Update"}</div>
+      ) : null}
+    </>
   );
 }

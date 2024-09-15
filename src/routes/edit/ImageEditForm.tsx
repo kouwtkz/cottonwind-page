@@ -728,7 +728,7 @@ export async function ImagesUploadProcess({
       .map((_, i) => formDataList[i])
       .map((formData) => {
         const src = (formData.get("src") || formData.get("icon")) as srcType;
-        const name = typeof src === "object" ? src.name : src;
+        const name = typeof src === "object" && "name" in src ? src.name : src;
         console.error(name);
         return name;
       });

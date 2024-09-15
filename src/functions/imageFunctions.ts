@@ -37,9 +37,13 @@ export function toImageType(data: ImageDataType): ImageType {
       typeof data.topImage === "number" ? Boolean(data.topImage) : undefined,
     pickup:
       typeof data.pickup === "number" ? Boolean(data.pickup) : undefined,
+    draft:
+      typeof data.draft === "number" ? Boolean(data.draft) : undefined,
     time: data.time ? new Date(data.time) : undefined,
     mtime: data.mtime ? new Date(data.mtime) : undefined,
     lastmod: data.lastmod ? new Date(data.lastmod) : undefined,
+    update: undefined,
+    new: undefined,
   };
 }
 
