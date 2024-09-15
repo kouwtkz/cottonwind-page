@@ -142,6 +142,11 @@ function CharaListPage() {
     else return null;
   }, [tags]);
   if (tagsWhere) wheres.push(tagsWhere);
+  const filterDraft = useMemo(
+    () => filters?.some((v) => v === "draft"),
+    [filters]
+  );
+  if (filterDraft) wheres.push({ draft: true });
   const where: findWhereType<CharacterType> = { AND: wheres };
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
@@ -409,6 +414,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useLocation();
+  const isLogin = useAtom(isLoginAtom)[0];
   const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
   function setConfirmUrl() {
     nav(location, {
@@ -464,13 +470,19 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
       name: "filter",
       options: [{ label: "🔬全て表示", value: "filter:showAll" }],
     };
+    if (isLogin) {
+      charaFilterOptions.options!.push({
+        value: "filter:draft",
+        label: "📝下書き",
+      });
+    }
     const charaTagsOptions: ContentsTagsOption = {
       label: "タグ",
       name: "tags",
       options: characterTags,
     };
     return characterSortTags.concat(charaFilterOptions, charaTagsOptions);
-  }, [characterTags]);
+  }, [characterTags, isLogin]);
 
   return (
     <div className="header">

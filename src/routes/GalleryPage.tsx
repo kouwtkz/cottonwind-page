@@ -321,12 +321,17 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         ),
     [charactersParam]
   );
-  let wheres = useMemo(() => {
+  const filterDraft = useMemo(
+    () => filterParams?.some((v) => v === "draft"),
+    [filterParams]
+  );
+  const wheres = useMemo(() => {
     const wheres = [where];
     if (tagsWhere) wheres.push(...tagsWhere);
     if (charactersWhere) wheres.push(...charactersWhere);
+    if (filterDraft) wheres.push({ draft: true });
     return wheres;
-  }, [where, tagsWhere, charactersWhere]);
+  }, [where, tagsWhere, charactersWhere, filterDraft]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
     const searchSort = sortParam ?? "";

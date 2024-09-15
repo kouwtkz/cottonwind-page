@@ -114,10 +114,11 @@ export const filterGalleryMonthList: filterMonthType[] = [
 
 export const defaultGalleryFilterTags: ContentsTagsOption[] = [
   {
-    label: "固定編集用",
+    label: "編集用のフィルタ",
     options: [
       { value: "filter:topImage", label: "🪄トップ画像" },
       { value: "filter:pickup", label: "📍ピックアップ" },
+      { value: "filter:draft", label: "📝下書き" },
     ],
   },
 ];
