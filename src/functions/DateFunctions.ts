@@ -1,3 +1,13 @@
+export function dateISOfromLocaltime(item?: string, timezone = "+09:00") {
+  return item ? new Date(item + timezone).toISOString() : "";
+}
+
+export function dateJISOfromDate(time?: Date | null) {
+  return (
+    time?.toLocaleString("sv-SE", { timeZone: "JST" }).replace(" ", "T") || ""
+  );
+}
+
 export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
   var d = date;
   var rp = format_str;

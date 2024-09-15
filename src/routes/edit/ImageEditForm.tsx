@@ -51,6 +51,7 @@ import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetch, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder } from "@/functions/arrayFunction";
+import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -172,10 +173,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         if (dirtyFields[key as keyof typeof defaultValues]) {
           switch (key as keyof imageFormDataType) {
             case "time":
-              formdata.append(key, new Date(value).toISOString());
+              formdata.append(key, dateISOfromLocaltime(value));
               break;
             default:
-              formdata.append(key, Array.isArray(value) ? value.join(",") : value);
+              formdata.append(
+                key,
+                Array.isArray(value) ? value.join(",") : value
+              );
               break;
           }
         }

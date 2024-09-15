@@ -36,6 +36,7 @@ import {
 } from "@/state/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { corsFetch } from "@/functions/fetch";
+import { dateJISOfromDate, dateISOfromLocaltime } from "@/functions/DateFunctions";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -78,15 +79,6 @@ const schema = z.object({
   draft: z.boolean().nullish(),
   attached: z.custom<FileList>().nullish(),
 });
-
-function dateJISOfromLocaltime(item?: string) {
-  return item ? new Date(`${item}+09:00`).toISOString() : "";
-}
-function dateJISOfromDate(time?: Date | null) {
-  return (
-    time?.toLocaleString("sv-SE", { timeZone: "JST" }).replace(" ", "T") || ""
-  );
-}
 
 export function PostForm() {
   const [searchParams] = useSearchParams();
@@ -202,7 +194,7 @@ export function PostForm() {
 
   function saveLocalDraft() {
     const values = getValues();
-    values.time = dateJISOfromLocaltime(values.time);
+    values.time = dateISOfromLocaltime(values.time);
     setLocalDraft(values);
   }
 
@@ -362,7 +354,7 @@ export function PostForm() {
             append(key, item, false);
             break;
           case "time":
-            if (item !== defaultItem) append(key, dateJISOfromLocaltime(item));
+            if (item !== defaultItem) append(key, dateISOfromLocaltime(item));
             break;
           case "category":
             const value = item.join(",");

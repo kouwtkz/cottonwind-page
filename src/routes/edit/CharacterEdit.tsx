@@ -77,6 +77,7 @@ import { getName } from "@/functions/doc/PathParse";
 import { CgGhostCharacter } from "react-icons/cg";
 import { corsFetch } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
+import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
 export function CharacterEditForm() {
   const apiOrigin = useAtom(ApiOriginAtom)[0];
@@ -158,7 +159,17 @@ export function CharacterEditForm() {
     if (!charactersMap) return;
     const data = {} as KeyValueAnyType;
     Object.entries(formValues).forEach(([key, value]) => {
-      if (key in dirtyFields) data[key] = value;
+      if (key in dirtyFields) {
+        switch (key as keyof CharacterDataType) {
+          case "time":
+          case "birthday":
+            data[key] = dateISOfromLocaltime(value);
+            break;
+          default:
+            data[key] = value;
+            break;
+        }
+      }
     });
     if (chara?.key) data.target = chara.key;
     else if (!data.key) data.key = formValues["key"];
