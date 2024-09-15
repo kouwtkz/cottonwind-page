@@ -170,8 +170,16 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     if (deleteMode) method = "DELETE";
     else {
       Object.entries(fields).forEach(([key, value]) => {
-        if (dirtyFields[key as keyof typeof defaultValues])
-          formdata.append(key, Array.isArray(value) ? value.join(",") : value);
+        if (dirtyFields[key as keyof typeof defaultValues]) {
+          switch (key as keyof imageFormDataType) {
+            case "time":
+              formdata.append(key, new Date(value).toISOString());
+              break;
+            default:
+              formdata.append(key, Array.isArray(value) ? value.join(",") : value);
+              break;
+          }
+        }
       });
     }
     const res = await corsFetch(concatOriginUrl(apiOrigin, "/image/send"), {
