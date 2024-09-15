@@ -148,7 +148,7 @@ export function PostForm() {
       category: postCategories,
       time: dateJISOfromDate(postTarget?.time),
       pin: Number(postTarget?.pin || 0),
-      draft: Boolean(postTarget?.draft),
+      draft: postTarget?.draft,
     }),
     [duplicationMode, postCategories, postTarget]
   );

@@ -46,7 +46,7 @@ async function Select({ db, ...args }: SelectProps) {
   return _s().catch(() => CreateTable(db).then(() => _s()))
 }
 
-export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
+export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
@@ -54,7 +54,8 @@ export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeS
   if (id) wheres.push({ id: Number(id) });
   const postId = searchParams.get("postId");
   if (postId) wheres.push({ postId });
-  return Select({ db, where: { AND: wheres } });
+  return Select({ db, where: { AND: wheres } })
+    .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
 }
 
 interface SelectProps extends Omit<MeeSqlSelectProps<PostDataType>, "table"> {
@@ -130,7 +131,7 @@ app.delete("/send", async (c) => {
   const postId = String(data.postId || "");
   if (postId) {
     const db = new MeeSqlD1(c.env.DB);
-    const nullEntry = MeeSqlD1.getNullEntry(createEntry);
+    const nullEntry = MeeSqlD1.fillNullEntry(createEntry);
     try {
       await db.update<PostDataType>({
         table,

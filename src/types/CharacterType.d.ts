@@ -8,6 +8,7 @@ interface CharacterDataType {
   description?: string;
   tags?: string;
   order?: number;
+  draft?: number;
   playlist?: string;
   icon?: string;
   image?: string;
@@ -21,6 +22,7 @@ interface CharacterDataType {
 interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod"> {
   tags?: string[],
   playlist?: string[],
+  draft?: boolean,
   time?: Date,
   birthday?: Date,
   lastmod?: Date,

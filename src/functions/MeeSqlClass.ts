@@ -127,7 +127,7 @@ export class MeeSqlClass<T> {
     const stmt = this.db.prepare(sql);
     return stmt.bind(...bind).run();
   }
-  static getNullEntry<K>(entry: MeeSqlCreateTableEntryType<K>) {
+  static fillNullEntry<K>(entry: MeeSqlCreateTableEntryType<K>) {
     type keyK = keyof K;
     const nullEntry: { [k in keyK]?: any } = {};
     Object.entries(entry).forEach(([k, _v]) => {

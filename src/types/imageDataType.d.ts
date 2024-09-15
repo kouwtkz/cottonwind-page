@@ -18,6 +18,7 @@ interface ImageDataType {
   type?: string | null;
   topImage?: number | null;
   pickup?: number | null;
+  draft?: number | null;
   version?: number | null;
   time?: string;
   mtime?: string;
@@ -32,6 +33,7 @@ interface ImageType extends ImageDataType {
   otherTags?: boolean;
   topImage?: boolean;
   pickup?: boolean;
+  draft?: boolean;
   time?: Date;
   mtime?: Date;
   lastmod?: Date;

@@ -215,6 +215,9 @@ style {
   &.column {
     flex-direction: column;
   }
+  &.wrap {
+    flex-wrap: wrap;
+  }
   &.around {
     justify-content: space-around;
   }
@@ -2022,8 +2025,11 @@ select.yearFilter {
         margin-top: 1rem;
         margin-bottom: 1rem;
       }
-      .label {
+      label, .label {
         display: flex;
+        &.ml {
+          margin-left: 1rem;
+        }
         button {
           display: inline-block;
           margin-left: 0.5rem;

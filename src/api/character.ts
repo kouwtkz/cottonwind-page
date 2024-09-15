@@ -24,6 +24,7 @@ const createEntry: MeeSqlCreateTableEntryType<CharacterDataType> = {
   description: { type: "TEXT" },
   tags: { type: "TEXT" },
   order: { type: "INTEGER" },
+  draft: { type: "INTEGER" },
   playlist: { type: "TEXT" },
   icon: { type: "TEXT" },
   image: { type: "TEXT" },
@@ -43,7 +44,7 @@ async function CreateTable(d1: MeeSqlD1) {
     .catch(() => { });
 }
 
-export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1) {
+export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
@@ -51,8 +52,9 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
   if (key) wheres.push({ key });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
-  function Select() {
-    return db.select<CharacterDataType>({ table, where: { AND: wheres } });
+  async function Select() {
+    return db.select<CharacterDataType>({ table, where: { AND: wheres } })
+      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
   }
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }

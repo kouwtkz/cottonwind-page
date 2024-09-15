@@ -146,6 +146,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       time: ToFormJST(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
+      draft: image?.draft,
       embed: image?.embed || "",
       album: image?.album || "",
       rename: image?.key || "",
@@ -180,7 +181,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     const data = {} as KeyValueAnyType;
     let method: methodType = "PATCH";
     data.id = image!.id;
-    data.src = image!.src;
     if (deleteMode) method = "DELETE";
     else {
       Object.entries(fields).forEach(([key, value]) => {
@@ -196,11 +196,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               data[key] = FormToBoolean(value);
               break;
             default:
-              console.log({ value });
               value = Array.isArray(value) ? value.join(",") : value;
-              if (value === "") data[key] = null;
-              else if (isNaN(value)) data[key] = value;
-              else data[key] = Number(value);
+              if (typeof data[key] === "string") {
+                if (value === "") data[key] = null;
+                else if (isNaN(value)) data[key] = value;
+                else data[key] = Number(value);
+              } else data[key] = value;
               break;
           }
         }
@@ -440,26 +441,37 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               enableEnterAdd
             />
           </div>
-          <label>
-            <span className="label-l">画像の種類</span>
-            <select title="種類の選択" {...register("type")} disabled={isBusy}>
-              <option value="">
-                自動(
-                {TypeTagsOption.find((item) => item.value === autoImageItemType)
-                  ?.label ?? autoImageItemType}
-                )
-              </option>
-              {TypeTagsOption.map((v, i) => (
-                <option value={v.value} key={i}>
-                  {v.label}
+          <div>
+            <label className="ml">
+              <span className="label-l">画像の種類</span>
+              <select
+                title="種類の選択"
+                {...register("type")}
+                disabled={isBusy}
+              >
+                <option value="">
+                  自動(
+                  {TypeTagsOption.find(
+                    (item) => item.value === autoImageItemType
+                  )?.label ?? autoImageItemType}
+                  )
                 </option>
-              ))}
-            </select>
-          </label>
+                {TypeTagsOption.map((v, i) => (
+                  <option value={v.value} key={i}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="ml">
+              <input {...register("draft")} type="checkbox" />
+              <span>下書き</span>
+            </label>
+          </div>
           <div>
             <div className="label">固定設定</div>
-            <div className="wide flex around">
-              <label>
+            <div className="flex wrap">
+              <label className="ml">
                 <span className="label-sl">トップ画像</span>
                 <select
                   title="トップ画像"
@@ -471,7 +483,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   <option value="false">固定しない</option>
                 </select>
               </label>
-              <label>
+              <label className="ml">
                 <span className="label-sl">ピックアップ</span>
                 <select
                   title="ピックアップ画像"

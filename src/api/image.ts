@@ -8,7 +8,6 @@ import {
   KeyValueConvertDBEntry,
   lastModToUniqueNow,
 } from "@/functions/doc/ToFunction";
-import { MeeSqlClass } from "@/functions/MeeSqlClass";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
@@ -42,6 +41,7 @@ const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
   type: { type: "TEXT" },
   topImage: { type: "INTEGER" },
   pickup: { type: "INTEGER" },
+  draft: { type: "INTEGER" },
   time: { type: "TEXT", index: true },
   mtime: { type: "TEXT" },
   lastmod: { createAt: true, unique: true },
@@ -59,7 +59,8 @@ async function CreateTable(d1: MeeSqlD1) {
 
 export async function ServerImagesGetData(
   searchParams: URLSearchParams,
-  db: MeeSqlD1
+  db: MeeSqlD1,
+  isLogin?: boolean
 ) {
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
@@ -68,8 +69,9 @@ export async function ServerImagesGetData(
   if (id) wheres.push({ id: Number(id) });
   const src = searchParams.get("src");
   if (src) wheres.push({ src });
-  function Select() {
-    return db.select<ImageDataType>({ table, where: { AND: wheres } });
+  async function Select() {
+    return db.select<ImageDataType>({ table, where: { AND: wheres } })
+      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
   }
   return Select().catch(() => CreateTable(db).then(() => Select()));
 }
@@ -91,7 +93,6 @@ app.patch("/send", async (c, next) => {
         lastmod: now.toISOString(),
       };
       KeyValueConvertDBEntry(entry);
-      console.log(entry);
       if (rename) {
         const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
         if (value) {
@@ -137,7 +138,7 @@ app.delete("/send", async (c, next) => {
     if (values.webp) c.env.BUCKET.delete(values.webp);
     if (values.thumbnail) c.env.BUCKET.delete(values.thumbnail);
     if (values.icon) c.env.BUCKET.delete(values.icon);
-    const nullEntry = MeeSqlD1.getNullEntry(createEntry);
+    const nullEntry = MeeSqlD1.fillNullEntry(createEntry);
     await db.update<ImageDataType>({
       table,
       entry: { ...nullEntry, lastmod: new Date().toISOString() },
@@ -360,7 +361,7 @@ app.post("/import", async (c, next) => {
   const object = await c.req.json() as importEntryDataType<KeyValueType<unknown>>;
   if (object.data) {
     if (object.overwrite) {
-      if (c.env.DEV) {
+      if (object.deleteBucket) {
         const deleteList = (await c.env.BUCKET.list()).objects.map(
           (object) => object.key
         );
