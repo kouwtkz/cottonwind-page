@@ -3,6 +3,7 @@ import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
 import { MeeSqlClass } from "@/functions/MeeSqlClass";
 import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { PromiseOrder } from "@/functions/arrayFunction";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -139,7 +140,7 @@ app.post("/import", async (c, next) => {
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
       KeyValueConvertDBEntry(list);
-      await Promise.all(list.map((item) => db.insert({ table, entry: InsertEntry(item) })));
+      await PromiseOrder(list.map((item) => () => db.insert({ table, entry: InsertEntry(item) })), 0);
       return c.text("インポートしました！")
     }
   }

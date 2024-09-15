@@ -13,21 +13,21 @@ import { StorageDataAtomClass as SdaClass } from "@/functions/storage/StorageDat
 export const imageDataObject = new SdaClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
 });
 
 export const charactersDataObject = new SdaClass<CharacterDataType>({
   key: "characters",
   src: "/data/characters",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
 });
 
 export const postsDataObject = new SdaClass<PostDataType>({
   key: "posts",
   src: "/data/posts",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
 });
 
@@ -243,7 +243,7 @@ interface ImportImagesJsonProps extends DataUploadBaseProps {
 export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
-  partition = 500,
+  partition = 250,
 }: ImportImagesJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
@@ -316,7 +316,7 @@ type importEntryCharacterDataType = Omit<
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportCharacterJson({
   apiOrigin,
-  partition = 500,
+  partition = 250,
 }: ImportCharactersJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
@@ -354,7 +354,7 @@ type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportPostJson({
   apiOrigin,
-  partition = 500,
+  partition = 250,
 }: ImportCharactersJsonProps = {}) {
   return jsonFileDialog().then((json) => {
     let object: importEntryDataType<importEntryPostDataType>;
