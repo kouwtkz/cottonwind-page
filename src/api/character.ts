@@ -1,49 +1,44 @@
 import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/ServerContent";
-import { MeeSqlClass } from "@/functions/MeeSqlClass";
-import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { PromiseOrder } from "@/functions/arrayFunction";
+import { DBTableClass } from "./DBTableClass";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
+});
+
+const TableObject = new DBTableClass<CharacterDataType>({
+  table: "characters",
+  createEntry: {
+    id: { primary: true },
+    key: { type: "TEXT", unique: true, notNull: true },
+    name: { type: "TEXT" },
+    honorific: { type: "TEXT" },
+    defEmoji: { type: "TEXT" },
+    overview: { type: "TEXT" },
+    description: { type: "TEXT" },
+    tags: { type: "TEXT" },
+    order: { type: "INTEGER" },
+    draft: { type: "INTEGER" },
+    playlist: { type: "TEXT" },
+    icon: { type: "TEXT" },
+    image: { type: "TEXT" },
+    headerImage: { type: "TEXT" },
+    embed: { type: "TEXT" },
+    birthday: { type: "TEXT" },
+    time: { type: "TEXT" },
+    lastmod: { createAt: true, unique: true },
+  },
+  insertEntryKeys: ["key", "name", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
+  insertEntryTimes: ["time", "birthday", "lastmod"]
 });
 
 app.use("*", async (c, next) => {
   if (IsLogin(c)) return next();
   else return c.text("403 Forbidden", 403)
 });
-
-const table = "characters";
-const createEntry: MeeSqlCreateTableEntryType<CharacterDataType> = {
-  id: { primary: true },
-  key: { type: "TEXT", unique: true, notNull: true },
-  name: { type: "TEXT" },
-  honorific: { type: "TEXT" },
-  defEmoji: { type: "TEXT" },
-  overview: { type: "TEXT" },
-  description: { type: "TEXT" },
-  tags: { type: "TEXT" },
-  order: { type: "INTEGER" },
-  draft: { type: "INTEGER" },
-  playlist: { type: "TEXT" },
-  icon: { type: "TEXT" },
-  image: { type: "TEXT" },
-  headerImage: { type: "TEXT" },
-  embed: { type: "TEXT" },
-  birthday: { type: "TEXT" },
-  time: { type: "TEXT" },
-  lastmod: { createAt: true, unique: true },
-};
-
-async function CreateTable(d1: MeeSqlD1) {
-  await d1
-    .createTable({
-      table,
-      entry: createEntry,
-    })
-    .catch(() => { });
-}
 
 export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
@@ -54,35 +49,10 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
-    return db.select<CharacterDataType>({ table, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
+    return TableObject.Select({ db, where: { AND: wheres } })
+      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...TableObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => CreateTable(db).then(() => Select()));
-}
-
-function InsertEntry(data: KeyValueType<any>): MeeSqlEntryType<CharacterDataType> {
-  return {
-    key: data.key,
-    name: data.name,
-    honorific: data.honorific,
-    defEmoji: data.defEmoji,
-    overview: data.overview,
-    description: data.description,
-    tags: data.tags,
-    order: data.order,
-    draft: data.draft,
-    playlist: data.playlist,
-    icon: data.icon,
-    headerImage: data.headerImage,
-    image: data.image,
-    time: data.time
-      ? new Date(String(data.time)).toISOString()
-      : undefined,
-    birthday: data.birthday
-      ? new Date(String(data.birthday)).toISOString()
-      : undefined,
-    lastmod: data.lastmod,
-  };
+  return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
 }
 
 app.post("/send", async (c, next) => {
@@ -93,33 +63,20 @@ app.post("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item as KeyValueType<unknown>;
-      KeyValueConvertDBEntry(data);
-      const entry = InsertEntry(data);
+      const entry = TableObject.getInsertEntry({ data });
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
       const target_id = data.target ? String(data.target) : undefined;
       const target = target_id
-        ? (
-          await db.select<CharacterDataType>({
-            table,
-            where: { key: target_id },
-            take: 1,
-          })
-        )[0]
+        ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
         : undefined;
       if (target) {
         entry.key = data.id;
-        await db.update<CharacterDataType>({
-          table,
-          entry,
-          where: { key: target_id! },
-        });
+        await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
         return { type: "update", entry: { ...target, ...entry } };
       } else {
         entry.key = data.id || target_id;
-        await db.insert<CharacterDataType>({
-          table, entry,
-        });
+        await TableObject.Insert({ db, entry });
         return { type: "create", entry }
       }
     })
@@ -133,14 +90,15 @@ app.post("/import", async (c, next) => {
   const object = await c.req.json() as importEntryDataType<KeyValueType<unknown>>;
   if (object.data) {
     if (object.overwrite) {
-      await db.dropTable({ table });
-      await CreateTable(db);
+      await TableObject.Drop({ db });
+      await TableObject.CreateTable({ db });
     }
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
-      KeyValueConvertDBEntry(list);
-      await PromiseOrder(list.map((item) => () => db.insert({ table, entry: InsertEntry(item) })), 0);
+      await PromiseOrder(list.map((item) => () =>
+        TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
+      ), 0);
       return c.text("インポートしました！")
     }
   }
@@ -149,7 +107,7 @@ app.post("/import", async (c, next) => {
 app.delete("/all", async (c, next) => {
   if (c.env.DEV) {
     const db = new MeeSqlD1(c.env.DB);
-    await db.dropTable({ table });
+    await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }
   return next();

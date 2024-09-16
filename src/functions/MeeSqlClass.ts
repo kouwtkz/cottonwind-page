@@ -56,7 +56,7 @@ export class MeeSqlClass<T> {
   async select<K>(args: MeeSqlSelectProps<K>) {
     const { bind, sql } = MeeSqlClass.selectBindSQL(args)
     const stmt = this.db.prepare(sql);
-    return stmt.bind(...bind).all();
+    return stmt.bind(...bind).all() as K[];
   }
   async insert<K extends Object>({ table, entry, rawEntry = {} as K, viewSql }: MeeSqlInsertProps<K>) {
     const entries = Object.entries(entry ?? {}).filter(v => v[1] !== undefined);
@@ -129,7 +129,7 @@ export class MeeSqlClass<T> {
   }
   static fillNullEntry<K>(entry: MeeSqlCreateTableEntryType<K>) {
     type keyK = keyof K;
-    const nullEntry: { [k in keyK]?: any } = {};
+    const nullEntry: { [k in keyK]?: unknown | null } = {};
     Object.entries(entry).forEach(([k, _v]) => {
       const v: MeeSqlCreateTableEntryItemType<K> = (_v && typeof _v === "object") ? _v : { default: _v };
       if (!v.notNull && !v.createAt && !v.primary) {

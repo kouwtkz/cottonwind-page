@@ -9,6 +9,7 @@ import {
   lastModToUniqueNow,
 } from "@/functions/doc/ToFunction";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
+import { DBTableClass } from "./DBTableClass";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -19,43 +20,35 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403);
 });
 
-const table = "images";
-
-const createEntry: MeeSqlCreateTableEntryType<ImageDataType> = {
-  id: { primary: true },
-  key: { type: "TEXT", unique: true, notNull: true },
-  name: { type: "TEXT" },
-  album: { type: "TEXT" },
-  description: { type: "TEXT" },
-  src: { type: "TEXT" },
-  webp: { type: "TEXT" },
-  thumbnail: { type: "TEXT" },
-  icon: { type: "TEXT" },
-  width: { type: "INTEGER" },
-  height: { type: "INTEGER" },
-  tags: { type: "TEXT" },
-  characters: { type: "TEXT" },
-  copyright: { type: "TEXT" },
-  link: { type: "TEXT" },
-  embed: { type: "TEXT" },
-  type: { type: "TEXT" },
-  topImage: { type: "INTEGER" },
-  pickup: { type: "INTEGER" },
-  draft: { type: "INTEGER" },
-  time: { type: "TEXT", index: true },
-  mtime: { type: "TEXT" },
-  lastmod: { createAt: true, unique: true },
-  version: { type: "INTEGER" },
-};
-
-async function CreateTable(d1: MeeSqlD1) {
-  await d1
-    .createTable({
-      table,
-      entry: createEntry,
-    })
-    .catch(() => { });
-}
+const TableObject = new DBTableClass<ImageDataType>({
+  table: "images",
+  createEntry: {
+    id: { primary: true },
+    key: { type: "TEXT", unique: true, notNull: true },
+    name: { type: "TEXT" },
+    album: { type: "TEXT" },
+    description: { type: "TEXT" },
+    src: { type: "TEXT" },
+    webp: { type: "TEXT" },
+    thumbnail: { type: "TEXT" },
+    icon: { type: "TEXT" },
+    width: { type: "INTEGER" },
+    height: { type: "INTEGER" },
+    tags: { type: "TEXT" },
+    characters: { type: "TEXT" },
+    copyright: { type: "TEXT" },
+    link: { type: "TEXT" },
+    embed: { type: "TEXT" },
+    type: { type: "TEXT" },
+    topImage: { type: "INTEGER" },
+    pickup: { type: "INTEGER" },
+    draft: { type: "INTEGER" },
+    time: { type: "TEXT", index: true },
+    mtime: { type: "TEXT" },
+    lastmod: { createAt: true, unique: true },
+    version: { type: "INTEGER" },
+  },
+});
 
 export async function ServerImagesGetData(
   searchParams: URLSearchParams,
@@ -70,10 +63,10 @@ export async function ServerImagesGetData(
   const src = searchParams.get("src");
   if (src) wheres.push({ src });
   async function Select() {
-    return db.select<ImageDataType>({ table, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => (v.draft || !v.version) ? { ...v, ...MeeSqlD1.fillNullEntry(createEntry), key: null } : v));
+    return TableObject.Select({ db, where: { AND: wheres } })
+      .then(data => isLogin ? data : data.map(v => (v.draft || !v.version) ? { ...v, ...TableObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => CreateTable(db).then(() => Select()));
+  return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
 }
 
 app.patch("/send", async (c, next) => {
@@ -94,7 +87,7 @@ app.patch("/send", async (c, next) => {
       };
       KeyValueConvertDBEntry(entry);
       if (rename) {
-        const value = (await db.select<ImageDataType>({ table, where: { id } }))[0];
+        const value = (await TableObject.Select({ db, where: { id } }))[0];
         if (value) {
           entry.key = rename;
           async function renamePut(
@@ -120,7 +113,7 @@ app.patch("/send", async (c, next) => {
           await renamePut("icon", "image/icon/" + renameWebp);
         }
       }
-      await db.update<ImageDataType>({ table, entry, where: { id } });
+      await TableObject.Update({ db, entry, where: { id } });
       now.setMilliseconds(now.getMilliseconds() + 1);
     })
   ).then((results) => c.json(results));
@@ -130,19 +123,13 @@ app.delete("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const data = await c.req.json();
   if (typeof data.id === "number") {
-    const values = (
-      await db.select<ImageDataType>({ table, params: "*", where: { id: data.id } })
-    )[0];
+    const values = (await TableObject.Select({ db, params: "*", where: { id: data.id } }))[0];
     if (values.src) c.env.BUCKET.delete(values.src);
     if (values.webp) c.env.BUCKET.delete(values.webp);
     if (values.thumbnail) c.env.BUCKET.delete(values.thumbnail);
     if (values.icon) c.env.BUCKET.delete(values.icon);
-    const nullEntry = MeeSqlD1.fillNullEntry(createEntry);
-    await db.update<ImageDataType>({
-      table,
-      entry: { ...nullEntry, lastmod: new Date().toISOString() },
-      where: { id: data.id },
-    });
+    const nullEntry = TableObject.getFillNullEntry;
+    await TableObject.Update({ db, entry: { ...nullEntry, lastmod: new Date().toISOString() }, where: { id: data.id } });
     return c.text(values.src + "を削除しました");
   }
   return c.text("削除するデータがありません");
@@ -188,24 +175,6 @@ async function Resize({
   return null;
 }
 
-async function getRetryTime(e: Error, time: Date, db: MeeSqlD1) {
-  if (/UNIQUE.+\.time/.test(e.message)) {
-    time.setSeconds(time.getSeconds() + 1);
-    const values = await db.select<any>({
-      table,
-      where: { time: { lt: time.toISOString() } },
-      take: 1,
-      orderBy: { time: "desc" },
-    });
-    if (values.length > 0 && values[0].time) {
-      const retryTime = new Date(values[0].time);
-      retryTime.setMilliseconds(retryTime.getMilliseconds() + 1);
-      return retryTime;
-    }
-  }
-  return null;
-}
-
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = await c.req.formData();
@@ -245,10 +214,10 @@ app.post("/send", async (c, next) => {
   function Select() {
     const where: MeeSqlFindWhereType<ImageDataType> =
       id === null ? { key: name } : { id };
-    return db.select<ImageDataType>({ table, where });
+    return TableObject.Select({ db, where });
   }
   const selectValue = await Select().catch(() =>
-    CreateTable(db).then(() => Select())
+    TableObject.CreateTable({ db }).then(() => Select())
   );
   const timeNum = Number(mtime);
   const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
@@ -324,14 +293,10 @@ app.post("/send", async (c, next) => {
       characters: updateCharacters,
       time: value.time ? undefined : timeString,
       mtime: timeString,
+      lastmod: new Date().toISOString(),
       version: (value.version ?? 0) + 1,
     };
-    await db.update<ImageDataType>({
-      table,
-      where: { key: name },
-      entry,
-      rawEntry: { lastmod: MeeSqlD1.isoFormat() },
-    });
+    await TableObject.Update({ db, where: { key: name }, entry });
     return c.json({ ...value, ...entry });
   } else {
     const entry: MeeSqlEntryType<ImageDataType> = {
@@ -348,10 +313,7 @@ app.post("/send", async (c, next) => {
       characters,
       version: 1,
     };
-    await db.insert<ImageDataType>({
-      table,
-      entry,
-    });
+    await TableObject.Insert({ db, entry });
     return c.json(entry);
   }
 });
@@ -367,15 +329,15 @@ app.post("/import", async (c, next) => {
         );
         await c.env.BUCKET.delete(deleteList);
       }
-      await db.dropTable({ table });
-      await CreateTable(db);
+      await TableObject.Drop({ db });
+      await TableObject.CreateTable({ db });
     }
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
       KeyValueConvertDBEntry(list);
       await Promise.all(
-        list.map((item) => db.insert({ table, entry: item }))
+        list.map((item) => TableObject.Insert({ db, entry: item }))
       );
       return c.text("インポートしました！");
     }
@@ -401,7 +363,7 @@ app.delete("/all", async (c, next) => {
     );
     await c.env.BUCKET.delete(list);
     const db = new MeeSqlD1(c.env.DB);
-    await db.dropTable({ table });
+    await TableObject.Drop({ db });
     return c.json({ message: "successed!", list });
   }
   return next();
