@@ -66,7 +66,6 @@ app.post("/send", async (c, next) => {
       const entry = TableObject.getInsertEntry({ data });
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
-      console.log(data);
       const target_id = data.target ? String(data.target) : undefined;
       const target = target_id
         ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
