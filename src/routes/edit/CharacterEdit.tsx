@@ -86,10 +86,10 @@ export function CharacterEdit() {
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
   );
-  return <>{chara ? <CharacterEditForm chara={chara} /> : null}</>;
+  return <><CharacterEditForm chara={chara} /></>;
 }
 
-function CharacterEditForm({ chara }: { chara: CharacterType }) {
+function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
   const apiOrigin = useAtom(ApiOriginAtom)[0];
   const nav = useNavigate();
@@ -99,20 +99,20 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
   const sounds = useAtom(soundsAtom)[0];
   const getDefaultValues = useMemo(
     () => ({
-      key: chara.key || "",
-      name: chara.name || "",
-      honorific: chara.honorific || "",
-      overview: chara.overview || "",
-      description: chara.description || "",
-      defEmoji: chara.defEmoji || "",
-      icon: chara.icon || "",
-      image: chara.image || "",
-      headerImage: chara.headerImage || "",
-      time: ToFormJST(chara.time),
-      birthday: ToFormJST(chara.birthday),
-      tags: chara.tags || [],
-      playlist: chara.playlist || [],
-      draft: chara.draft,
+      key: chara?.key || "",
+      name: chara?.name || "",
+      honorific: chara?.honorific || "",
+      overview: chara?.overview || "",
+      description: chara?.description || "",
+      defEmoji: chara?.defEmoji || "",
+      icon: chara?.icon || "",
+      image: chara?.image || "",
+      headerImage: chara?.headerImage || "",
+      time: ToFormJST(chara?.time),
+      birthday: ToFormJST(chara?.birthday),
+      tags: chara?.tags || [],
+      playlist: chara?.playlist || [],
+      draft: chara?.draft,
     }),
     [chara]
   );
@@ -141,7 +141,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
         (key) => {
           return !(
             charactersMap &&
-            chara.key !== key &&
+            chara?.key !== key &&
             charactersMap.has(key)
           );
         },
@@ -206,13 +206,16 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
         }
       }
     });
-    if (chara.key) data.target = chara.key;
+    if (chara?.key) data.target = chara.key;
     else if (!data.key) data.key = formValues["key"];
     toast
       .promise(
         SendPostFetch({
           apiOrigin,
           data,
+        }).then(async (r) => {
+          if (r.ok) return r;
+          else throw await r.text();
         }),
         {
           loading: "送信中",
@@ -239,7 +242,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
     (mode: characterImageMode, title = "画像の設定") => {
       return (
         <button
-          className={"normal" + (chara.media?.[mode] ? " plain" : "")}
+          className={"normal" + (chara?.media?.[mode] ? " plain" : "")}
           title={title}
           type="button"
           onClick={() => {
@@ -281,7 +284,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
             }
           }}
         >
-          {chara.media?.[mode] ? (
+          {chara?.media?.[mode] ? (
             <ImageMeeIcon className="charaIcon" imageItem={chara.media[mode]} />
           ) : (
             <MdFileUpload />
@@ -295,7 +298,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
   useHotkeys(
     "ctrl+enter",
     (e) => {
-      if (isDirty) onSubmit();
+      if (isDirty) onSubmit(true);
     },
     { enableOnFormTags: true }
   );
@@ -303,7 +306,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
   return (
     <>
       <CharaBeforeAfter
-        charaName={chara.key}
+        charaName={chara?.key}
         onClick={() => {
           if (isDirty) onSubmit();
         }}
@@ -311,10 +314,10 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
       <form className="edit">
         <SoundState />
         <div>
-          {chara.media?.icon ? (
+          {chara?.media?.icon ? (
             <ImageMeeIcon className="icon" imageItem={chara.media.icon} />
           ) : (
-            <ImageMeeQuestion alt={chara.name} className="icon" />
+            <ImageMeeQuestion alt={chara?.name} className="icon" />
           )}
         </div>
         <div>
@@ -836,30 +839,6 @@ export function CharaImageSettingRbButtons({
   } else {
     return <></>;
   }
-}
-
-export function CharacterMakeFromTags() {
-  const [searchParams] = useSearchParams();
-  const nav = useNavigate();
-  const q = searchParams.get("q");
-  const targetCharacterId = useMemo(() => q?.match(/^#(\w+)$/)?.[1], [q]);
-
-  return (
-    <>
-      {targetCharacterId ? (
-        <button
-          type="button"
-          className="plain"
-          title={targetCharacterId + "で新しくキャラを作る"}
-          onClick={() => {
-            nav("/character/" + targetCharacterId + "?edit=on");
-          }}
-        >
-          <CgGhostCharacter />
-        </button>
-      ) : null}
-    </>
-  );
 }
 
 interface SendPostFetchProps {

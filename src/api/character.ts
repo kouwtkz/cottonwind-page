@@ -66,6 +66,7 @@ app.post("/send", async (c, next) => {
       const entry = TableObject.getInsertEntry({ data });
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
+      console.log(data);
       const target_id = data.target ? String(data.target) : undefined;
       const target = target_id
         ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
@@ -75,7 +76,7 @@ app.post("/send", async (c, next) => {
         await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
         return { type: "update", entry: { ...target, ...entry } };
       } else {
-        entry.key = data.id || target_id;
+        entry.key = data.key || target_id;
         await TableObject.Insert({ db, entry });
         return { type: "create", entry }
       }
