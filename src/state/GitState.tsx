@@ -97,7 +97,7 @@ function ReadMoreTextButton({
     <div className="summary">
       <span
         tabIndex={0}
-        className={"date" + (once ? " once" : "")}
+        className={"date cursor-pointer" + (once ? " once" : "")}
         onClick={onClick}
         onKeyDown={(e) => {
           if (e.code === "Enter") onClick();
@@ -217,7 +217,7 @@ export function ChangeLog() {
                 {git.list.length > 0 ? (
                   <>
                     <span>最終更新:</span>
-                    <span className="date">{git.lastUpdate}</span>
+                    <span className="date cursor-pointer">{git.lastUpdate}</span>
                   </>
                 ) : (
                   "(データなし)"

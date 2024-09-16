@@ -343,7 +343,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
           <textarea placeholder="概要" {...register("overview")} />
         </div>
         <div className="flex column">
-          <label className="flex center pointer">
+          <label className="flex center cursor-pointer">
             {ImageSetter("icon", "アイコンの設定")}
             <span className="label-l normal flex center around">アイコン</span>
             <input
@@ -352,7 +352,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
               {...register("icon")}
             />
           </label>
-          <label className="flex center pointer">
+          <label className="flex center cursor-pointer">
             {ImageSetter("headerImage", "ヘッダーの設定")}
             <span className="label-l normal flex center around">
               ヘッダー画像
@@ -363,7 +363,7 @@ function CharacterEditForm({ chara }: { chara: CharacterType }) {
               {...register("headerImage")}
             />
           </label>
-          <label className="flex center pointer">
+          <label className="flex center cursor-pointer">
             {ImageSetter("image", "メイン画像の設定")}
             <span className="label-l normal flex center around">
               メイン画像
@@ -708,14 +708,13 @@ function SortableItem({ chara }: { chara: CharacterType }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: chara.key });
   const style: CSSProperties = {
-    cursor: "move",
     listStyle: "none",
     transform: dndCSS.Transform.toString(transform),
     transition,
   };
   return (
     <div
-      className="item"
+      className={"item move"}
       ref={setNodeRef}
       style={style}
       {...attributes}

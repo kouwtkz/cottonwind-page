@@ -127,7 +127,7 @@ app.get("/", async (c) => {
           {token ? (
             <div
               id="copyArea"
-              className="pointer"
+              className="cursor-pointer"
               data-token={token?.access_token}
             >
               アクセストークンのコピー

@@ -63,7 +63,7 @@ export const InPageMenu = memo(function InPageMenu({
         return (
           <div
             key={i}
-            className={"item" + (currentMode ? " current" : "")}
+            className={"item cursor-pointer" + (currentMode ? " current" : "")}
             onClick={() => {
               const top = (element.offsetTop || 0) - adjust;
               scrollTo({ top, behavior: "smooth" });

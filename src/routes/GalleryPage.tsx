@@ -466,7 +466,7 @@ function UploadChain({
     const list = ["dropzone"];
     if (className) list.push(className);
     if (isDragAccept) list.push("isDrag");
-    if (enableOnClick) list.push("pointer");
+    if (enableOnClick) list.push("cursor-pointer");
     return list.join(" ");
   }, [className, isDragAccept, enableOnClick]);
   return (

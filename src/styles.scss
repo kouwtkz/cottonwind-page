@@ -96,7 +96,94 @@
   color: var(--main-color-light-grayish);
 }
 
+@mixin CursorKeyflame($name, $url_or_time, $urls...) {
+  $max: length($urls);
+  $keyname: cursor-#{$name};
+  @if $max > 0 {
+    @keyframes #{$keyname} {
+      $i: 0;
+      @each $url in $urls {
+        $p: (100 * ($i / $max)) + "%";
+        $i: $i + 1;
+        #{$p} {
+          cursor: url(#{$url}), #{$name};
+        }
+      }
+    }
+    %#{$keyname} {
+      animation: #{$keyname} #{$url_or_time} step-end infinite;
+    }
+  } @else {
+    %#{$keyname} {
+      cursor: url(#{$url_or_time}), #{$name};
+    }
+  }
+  .#{$keyname} {
+    @extend %#{$keyname};
+  }
+}
+
+@include CursorKeyflame(
+  "default",
+  "/static/images/cursor/わたかぜくんカーソル_通常_00.cur"
+);
+@include CursorKeyflame(
+  "pointer",
+  1000ms,
+  "/static/images/cursor/わたかぜくんカーソル_ポインター_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_ポインター_01.cur"
+);
+@include CursorKeyflame(
+  "move",
+  1000ms,
+  "/static/images/cursor/わたかぜくんカーソル_移動_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_移動_01.cur"
+);
+@include CursorKeyflame(
+  "backgorund",
+  1000ms,
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
+);
+@include CursorKeyflame(
+  "progress",
+  1000ms,
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
+);
+@include CursorKeyflame(
+  "wait",
+  2000ms,
+  "/static/images/cursor/わたかぜくんカーソル_待機_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_待機_01.cur",
+  "/static/images/cursor/わたかぜくんカーソル_待機_02.cur",
+  "/static/images/cursor/わたかぜくんカーソル_待機_03.cur"
+);
+@include CursorKeyflame(
+  "not-allowed",
+  1000ms,
+  "/static/images/cursor/わたかぜくんカーソル_禁止_00.cur",
+  "/static/images/cursor/わたかぜくんカーソル_禁止_01.cur"
+);
+@include CursorKeyflame(
+  "text",
+  "/static/images/cursor/わたかぜくんカーソル_テキスト選択_00.cur"
+);
+a,
+.pointer,
+.readmore,
+select,
+input[type="checkbox"] {
+  @extend %cursor-pointer;
+}
+input,
+textarea,
+[editable] {
+  @extend %cursor-text;
+}
+
 :root {
+  @extend %cursor-default;
   color: var(--current-text-color);
   @extend %lightMode;
   &.dark {
@@ -177,10 +264,6 @@ $desktopWidth: 1280px;
 
 .warm {
   color: var(--warm-color);
-}
-
-.pointer {
-  cursor: pointer;
 }
 
 .pixel,
@@ -358,7 +441,7 @@ svg.stock {
 
 button,
 .button {
-  cursor: pointer;
+  @extend %cursor-pointer;
   &:not(.plain) {
     color: white;
     background-color: var(--main-color);
@@ -595,7 +678,7 @@ h4 {
     }
     .item,
     [tabindex] {
-      cursor: pointer;
+      @extend %cursor-pointer;
       padding: 0.25em 0.75em;
       &:hover {
         background-color: var(--main-color);
@@ -645,7 +728,7 @@ details {
   > summary {
     display: list-item;
     padding: 0.4em 1em;
-    cursor: pointer;
+    @extend %cursor-pointer;
     color: white;
     background-color: var(--main-color);
     font-weight: 700;
@@ -728,7 +811,6 @@ code {
   margin-bottom: 0.5rem;
   padding-right: 0.25rem;
   .item {
-    cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: baseline;
@@ -877,14 +959,12 @@ header {
       font-size: 1.5rem;
       line-height: 2.5rem;
       color: var(--main-color);
-      cursor: pointer;
     }
   }
   .siteMenu {
     .button {
       width: 3.25rem;
       height: 3.25rem;
-      cursor: pointer;
       display: block;
       fill: var(--main-color);
       background-color: var(--main-color);
@@ -911,7 +991,6 @@ header {
         min-width: 12rem;
         padding: 0.5rem 1rem;
         color: var(--main-color-strong);
-        cursor: pointer;
         &:hover,
         &:focus {
           color: white;
@@ -1262,7 +1341,7 @@ form select {
     .characterSelect {
       text-align: left;
       > div:first-of-type {
-        cursor: pointer;
+        @extend %cursor-pointer;
       }
     }
   }
@@ -1304,9 +1383,9 @@ form select {
   display: grid;
   @include GridListOneSize($baseGrid);
   $i: 0;
-  @each $item in $media_width {
+  @each $url in $media_width {
     $i: $i + 1;
-    @media (min-width: #{$item}) {
+    @media (min-width: #{$url}) {
       @include GridListOneSize($baseGrid + $i);
     }
   }
@@ -1545,7 +1624,6 @@ select.yearFilter {
   margin: 0.5rem;
   height: 1.5rem;
   min-width: 4rem;
-  cursor: pointer;
   color: var(--main-color);
   background-color: transparent;
   border: none;
@@ -1631,7 +1709,6 @@ select.yearFilter {
       aspect-ratio: 1;
       overflow: hidden;
       position: relative;
-      cursor: pointer;
       &,
       & > img,
       svg {
@@ -1721,7 +1798,6 @@ select.yearFilter {
       display: flex;
       svg {
         margin: 0.25rem;
-        cursor: pointer;
         fill: var(--main-color-soft);
         &:hover {
           fill: var(--main-color-pale);
@@ -1736,7 +1812,6 @@ select.yearFilter {
 .soundPage {
   .title {
     @extend .common-h2;
-    cursor: pointer;
   }
   .playlist {
     margin: 1.5rem auto;
@@ -1756,7 +1831,6 @@ select.yearFilter {
         display: flex;
         align-items: center;
         font-weight: bold;
-        cursor: pointer;
         &:hover {
           background-color: var(--main-color-pale-fluo);
         }
@@ -1853,7 +1927,6 @@ select.yearFilter {
     margin: 0.5rem;
     width: 3rem;
     height: 3rem;
-    cursor: pointer;
     path {
       opacity: 0.7;
     }
@@ -2228,7 +2301,6 @@ ul {
     align-items: center;
     margin: 0.25rem;
     text-align: left;
-    cursor: pointer;
     svg {
       color: var(--main-color-dark-grayish);
     }
@@ -2245,7 +2317,6 @@ ul {
   }
   .readmore {
     color: var(--main-color-dark-grayish);
-    cursor: pointer;
     margin-left: 0.5rem;
     text-decoration: underline var(--main-color-light-grayish);
   }
@@ -2478,9 +2549,6 @@ form.blogEdit {
   select,
   button:not(.close) {
     font-size: 1.125rem;
-  }
-  select {
-    cursor: pointer;
   }
   button {
     padding: 0.25em 1em;

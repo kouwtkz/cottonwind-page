@@ -23,7 +23,7 @@ export function SoundPage() {
     <div className="soundPage">
       <SoundState />
       <h1
-        className="title en-title-font"
+        className="title en-title-font cursor-pointer"
         onClick={() => {
           if (special) {
             const playlist = soundAlbum?.playlist?.find((item) =>
@@ -62,7 +62,7 @@ export function SoundPage() {
                 return (
                   <div
                     key={i}
-                    className={"item" + (itemPaused ? " paused" : "")}
+                    className={"item cursor-pointer" + (itemPaused ? " paused" : "")}
                     onClick={() => {
                       if (itemPaused) {
                         if (special) {

@@ -24,7 +24,8 @@
       {
         "duplicate-id": "off"
       }
-    ]
+    ],
+    "detect-css-reflows/composite": "off"
   },
   "browserslist": [
     "defaults",

@@ -32,20 +32,26 @@ export default function SoundFixed() {
         <div className="soundFixed">
           <div>
             <div>
-              <StopButton onClick={() => Stop()} />
-              <LoopButton loopMode={loopMode} onClick={() => NextLoopMode()} />
+              <StopButton className="cursor-pointer" onClick={() => Stop()} />
+              <LoopButton
+                className="cursor-pointer"
+                loopMode={loopMode}
+                onClick={() => NextLoopMode()}
+              />
               <ShuffleButton
+                className="cursor-pointer"
                 shuffle={shuffle}
                 onClick={() => ToggleShuffle()}
               />
             </div>
             <div>
-              <PrevButton onClick={() => Prev()} />
+              <PrevButton className="cursor-pointer" onClick={() => Prev()} />
               <PlayPauseButton
+                className="cursor-pointer"
                 paused={paused}
                 onClick={() => (paused ? Play() : Pause())}
               />
-              <NextButton onClick={() => Next()} />
+              <NextButton className="cursor-pointer" onClick={() => Next()} />
             </div>
             <div className="text">
               {title && !(paused && ended) ? "♪ " + title : "（たいきちゅう）"}
