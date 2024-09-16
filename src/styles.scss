@@ -103,7 +103,7 @@
     @keyframes #{$keyname} {
       $i: 0;
       @each $url in $urls {
-        $p: (100 * ($i / $max)) + "%";
+        $p: (100 * calc($i / $max)) + "%";
         $i: $i + 1;
         #{$p} {
           cursor: url(#{$url}), #{$name};
