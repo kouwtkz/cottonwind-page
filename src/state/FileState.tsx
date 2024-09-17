@@ -1,7 +1,9 @@
-import { useEffect } from "react";
-import { useEnv } from "@/state/EnvState";
+import { HTMLAttributes, useEffect, useState } from "react";
+import { useEnv, useMediaOrigin } from "@/state/EnvState";
 import { filesDataObject } from "./DataState";
 import { CreateState } from "./CreateState";
+import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 export const useFiles = CreateState<FilesRecordType[]>();
 export const useFilesMap = CreateState<Map<string, FilesRecordType>>();
@@ -18,7 +20,8 @@ export default function FileState() {
         if (!v.src) return;
         const item: FilesRecordType = {
           ...v,
-          private: typeof v.private === "number" ? Boolean(v.private) : undefined,
+          private:
+            typeof v.private === "number" ? Boolean(v.private) : undefined,
           mtime: v.mtime ? new Date(v.mtime) : undefined,
           lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
         };
@@ -32,4 +35,43 @@ export default function FileState() {
     }
   }, [postsData, env, setFiles, setFilesMap]);
   return <></>;
+}
+
+interface EmbedNodeProps extends HTMLAttributes<HTMLDivElement> {
+  embed?: string;
+}
+
+export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
+  const [element, setElement] = useState<string>();
+  const mediaOrigin = useMediaOrigin()[0];
+  const filesMap = useFilesMap()[0];
+  useEffect(() => {
+    if (embed && mediaOrigin) {
+      if (embed.includes("</")) {
+        setElement(embed);
+      } else {
+        const file = filesMap?.get(embed);
+        if (file) {
+          const url = concatOriginUrl(mediaOrigin, file.src);
+          fetch(url)
+            .then((r) => r.text())
+            .then((data) => {
+              setElement(data);
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        }
+      }
+    }
+  }, [embed, mediaOrigin]);
+  return element ? (
+    <div {...args}>
+      <MultiParserWithMedia only={{ toDom: true }}>
+        {element}
+      </MultiParserWithMedia>
+    </div>
+  ) : (
+    <></>
+  );
 }

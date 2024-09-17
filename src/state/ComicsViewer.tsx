@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useImageState } from "./ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
-import { getEmbedURL } from "./Embed";
 import { GalleryObject } from "../routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
 import { useLocation } from "react-router-dom";
+import { useMediaOrigin } from "./EnvState";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { useFilesMap } from "./FileState";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -33,7 +35,7 @@ export function ComicsViewer() {
   const src = s.get("name") ?? "";
   if (src)
     if (/\.epub$/i.test(src)) {
-      return <EPubViewer url={src} />;
+      return <EPubViewer src={src} />;
     } else return <></>;
   else return <EBookGallery />;
 }
@@ -57,13 +59,19 @@ function EBookGallery() {
   );
 }
 
-export function EPubViewer({ url }: { url: string }) {
+export function EPubViewer({ src }: { src: string }) {
   const [srcList, setSrcList] = useState<any[]>([]);
   const [metadata, setMetadata] = useState<ePubMetadataType | null>(null);
   const backRenderElm = useRef<HTMLDivElement>(null);
+  const mediaOrigin = useMediaOrigin()[0];
+  const filesMap = useFilesMap()[0];
+  const url = useMemo(() => {
+    const file = filesMap?.get(src);
+    return file?.src ? concatOriginUrl(mediaOrigin, file.src) : undefined;
+  }, [mediaOrigin, src, filesMap]);
   useEffect(() => {
-    if (!backRenderElm.current) return;
-    const book = ePub(getEmbedURL(url));
+    if (!url || !backRenderElm.current) return;
+    const book = ePub(url);
     const rendition = book.renderTo(backRenderElm.current);
     rendition.display().then(() => {
       setMetadata(book.packaging.metadata);

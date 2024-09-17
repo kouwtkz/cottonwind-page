@@ -80,10 +80,8 @@ export function MultiParser({
   }, [children]);
   const childString = useMemo(() => {
     let childString = typeof children === "string" ? children : "";
-    childString =
-      childString && markdown
-        ? (parse(childString, { async: false }) as string)
-        : "";
+    if (childString && markdown)
+      childString = parse(childString, { async: false }) as string;
     return childString;
   }, [children, markdown]);
   const ReactParserArgs = { trim, htmlparser2, library, transform };

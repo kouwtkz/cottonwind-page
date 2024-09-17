@@ -3,7 +3,6 @@ import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { DataState } from "./DataState";
 import { ImageState, useImageState } from "./ImageState";
-import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
 import { useEffect, useMemo, useRef } from "react";
@@ -51,11 +50,6 @@ export function StateSet() {
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}
-      {isLogin ? (
-        <>
-          <EmbedState />
-        </>
-      ) : null}
     </>
   );
 }

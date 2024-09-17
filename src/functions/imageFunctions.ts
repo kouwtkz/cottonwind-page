@@ -16,7 +16,7 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
       if (v.album && !imageAlbumMap.has(v.album)) imageAlbumMap.set(v.album, { name: v.album, list: [] });
       const albumObject = v.album ? imageAlbumMap.get(v.album) : undefined;
       const item: ImageType = {
-        ...toImageType(v),
+        ...toImageType(v, imageAlbumMap),
         albumObject,
       };
       if (!imagesMap.has(item.key)) {
@@ -27,9 +27,12 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
   return { imagesMap, imageAlbumMap }
 }
 
-export function toImageType(data: ImageDataType): ImageType {
+export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAlbumType>): ImageType {
+  const albumObject = data.album && albumsMap ? albumsMap.get(data.album) : undefined;
   return {
     ...data,
+    type: data.type ? data.type : AutoImageItemType(data.embed, albumObject?.type),
+    albumObject,
     tags: data.tags?.split(","),
     characters: data.characters?.split(","),
     copyright: data.copyright?.split(","),

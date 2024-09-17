@@ -11,7 +11,6 @@ import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { ImageMee } from "@/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
-import { EmbedNode, getEmbedURL } from "./Embed";
 import ImageEditForm, {
   useImageEditIsDirty,
   useImageEditIsEdit,
@@ -37,6 +36,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { useIsLogin, useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { EmbedNode, useFilesMap } from "./FileState";
 
 type ImageViewerType = {
   image: OldMediaImageItemType | null;
@@ -287,14 +287,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
                     <RiBook2Fill />
                   </Link>
                 ) : image.type === "pdf" ? (
-                  <a
-                    title="ひらく"
-                    href={getEmbedURL(image.embed)}
-                    target="_blank"
-                    className="open"
-                  >
-                    <RiFilePdf2Fill />
-                  </a>
+                  <EmbedOpen embed={image.embed} />
                 ) : null
               ) : null}
               <div className="wh-all-fill imageArea">
@@ -305,6 +298,21 @@ function PreviewArea({ image }: PreviewAreaProps) {
         </>
       ) : null}
     </div>
+  );
+}
+
+function EmbedOpen({ embed }: { embed?: string }) {
+  const mediaOrigin = useMediaOrigin()[0];
+  const filesMap = useFilesMap()[0];
+  const url = useMemo(() => {
+    const src = embed ? filesMap?.get(embed)?.src : undefined;
+    if (src !== undefined) return concatOriginUrl(mediaOrigin, src);
+    else return "";
+  }, [embed, filesMap]);
+  return (
+    <a title="ひらく" href={url} target="_blank" className="open translucent-button">
+      <RiFilePdf2Fill />
+    </a>
   );
 }
 
