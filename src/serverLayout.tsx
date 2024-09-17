@@ -240,7 +240,7 @@ export function ServerSimpleLayout({
         </header>
         <div className="content-base">
           {children}
-          <Footer />
+          <Footer env={env} />
         </div>
       </body>
     </html>

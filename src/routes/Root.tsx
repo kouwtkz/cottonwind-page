@@ -1,5 +1,5 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
-import { Header } from "@/layout/Header";
+import { HeaderClient } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
@@ -35,6 +35,7 @@ function SetTitle() {
 }
 
 export function Base({ children }: { children?: ReactNode }) {
+  const env = useAtom(EnvAtom)[0];
   useLayoutEffect(() => {
     if (isMobile) {
       document.body.classList.add("mobile");
@@ -44,10 +45,10 @@ export function Base({ children }: { children?: ReactNode }) {
     <>
       <ScrollRestoration />
       <StateSet />
-      <Header />
+      <HeaderClient env={env} />
       <div className="content-base">
         <div className="content-parent">{children}</div>
-        <Footer />
+        <Footer env={env} />
       </div>
       <div id="audio_background" />
     </>

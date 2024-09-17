@@ -1,10 +1,6 @@
-// import { buildTime } from "../data/env";
 import { getJSTYear } from "../data/functions/TimeFunctions";
-import { useAtom } from "jotai";
-import { EnvAtom } from "../state/EnvState";
 
-export function Footer() {
-  const [env] = useAtom(EnvAtom);
+export function Footer({ env }: { env?: SiteConfigEnv }) {
   return (
     <footer>
       {env ? (

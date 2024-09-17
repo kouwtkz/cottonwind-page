@@ -2,15 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
 import { SiteMenu } from "@/state/SiteMenu";
-import { ImageMee } from "./ImageMee";
-import { useAtom } from "jotai";
-import { EnvAtom } from "@/state/EnvState";
 
-export const SiteTitle = React.memo(function SiteTitle({
-  title,
-}: {
-  title: string;
-}) {
+export function SiteTitle({ title }: { title: string }) {
   return (
     <div className="title-container">
       <Link
@@ -24,7 +17,7 @@ export const SiteTitle = React.memo(function SiteTitle({
         }}
       >
         <h2>
-          <ImageMee
+          <img
             src="/static/images/webp/cottonwind_logo_min.webp"
             alt={title}
           />
@@ -32,14 +25,17 @@ export const SiteTitle = React.memo(function SiteTitle({
       </Link>
     </div>
   );
-});
+}
 
-export function Header() {
-  const [env] = useAtom(EnvAtom);
+export function HeaderClient({ env }: { env?: SiteConfigEnv }) {
   return (
     <header id="header">
       <BackButton className="backButton" />
-      <SiteTitle title={env?.TITLE ?? document.title} />
+      <SiteTitle
+        title={
+          env?.TITLE ?? typeof document !== "undefined" ? document.title : ""
+        }
+      />
       <SiteMenu />
       <div className="headerBackground" />
     </header>
