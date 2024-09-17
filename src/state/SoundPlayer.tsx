@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { create } from "zustand";
 import SoundFixed from "@/layout/SoundFixed";
 import { useMediaOrigin } from "./EnvState";
@@ -137,25 +137,29 @@ export function SoundPlayer() {
   const { paused, ended, Stop, playlist, current, loopMode, Next } =
     useSoundPlayer();
   const mediaOrigin = useMediaOrigin()[0];
-  const src = playlist.list[current]?.src;
-  if (audioElm) {
-    if (src && mediaOrigin && !audioElm.src.endsWith(src))
-      audioElm.src = concatOriginUrl(mediaOrigin, src);
-    if (audioElm.paused !== paused) {
-      if (paused) {
-        audioElm.pause();
-      } else {
-        if (ended) audioElm.currentTime = 0;
-        audioElm.play();
+  const src = useMemo(() => playlist.list[current]?.src, [playlist, current]);
+  useEffect(() => {
+    if (audioElm && mediaOrigin) {
+      if (src && !audioElm.src.endsWith(src))
+        audioElm.src = concatOriginUrl(mediaOrigin, src);
+      if (audioElm.paused !== paused) {
+        if (paused) {
+          audioElm.pause();
+        } else {
+          if (ended) audioElm.currentTime = 0;
+          audioElm.play();
+        }
       }
     }
-  }
-  const html = typeof window === "object" ? document?.documentElement : null;
-  if (paused) {
-    html?.classList.remove("audio_play");
-  } else {
-    html?.classList.add("audio_play");
-  }
+  }, [src, mediaOrigin, paused, ended]);
+  useEffect(() => {
+    const html = typeof window === "object" ? document?.documentElement : null;
+    if (paused) {
+      html?.classList.remove("audio_play");
+    } else {
+      html?.classList.add("audio_play");
+    }
+  }, [paused]);
   return (
     <>
       <SoundFixed />
