@@ -1,6 +1,6 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
-import { ApiOriginAtom } from "./EnvState";
+import { useApiOrigin } from "./EnvState";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 
@@ -8,7 +8,7 @@ export const outFeedAtom = atom<FeedContentType>();
 
 export function FeedState() {
   const setOutFeed = useAtom(outFeedAtom)[1];
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   useEffect(() => {
     if (apiOrigin) {
       corsFetch(concatOriginUrl(apiOrigin, "/feed/get"))

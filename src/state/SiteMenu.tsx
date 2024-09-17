@@ -6,8 +6,7 @@ import { DarkThemeState, ThemeState } from "./StateSet";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useAtom } from "jotai";
-import { EnvAtom } from "./EnvState";
+import { useEnv } from "./EnvState";
 
 export function ThemeChangeButton({
   children = "いろかえ",
@@ -80,7 +79,7 @@ function ThemeSwitchButtons({
 }
 
 export function SiteMenu() {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   const navList = env?.NAV ?? [];
   const list = useMemo(() => {
     const list = navList.concat();

@@ -1,5 +1,5 @@
 import { atom, useAtom } from "jotai";
-import { ApiOriginAtom, isLoginAtom } from "./EnvState";
+import { useApiOrigin, useIsLogin } from "./EnvState";
 import { useEffect, useState } from "react";
 import { jsonFileDialog } from "@/components/FileTool";
 import toast from "react-hot-toast";
@@ -34,11 +34,19 @@ export const postsDataObject = new SdaClass<PostDataType>({
   latestField: { time: "desc" },
 });
 
+export const soundsDataObject = new SdaClass<PostDataType>({
+  key: "sounds",
+  src: "/data/sounds",
+  version: "1.2.0",
+  preLoad: false,
+  latestField: { time: "desc" },
+});
+
 const allDataSrc = "/data/all";
 export const allLoadAtom = atom<LoadAtomType>(true);
 
 export function DataState() {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const [settedIsLogin, setSettedIsLogin] = useState(false);
   useEffect(() => {
     if (typeof isLogin !== "undefined") {
@@ -48,7 +56,7 @@ export function DataState() {
       setSettedIsLogin(true);
     }
   }, [isLogin]);
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   const [imagesLoad, setImagesLoad] = useAtom(imageDataObject.loadAtom);
   const setImagesData = useAtom(imageDataObject.dataAtom)[1];
   useEffect(() => {
@@ -97,6 +105,25 @@ export function DataState() {
 
   const [postsLoad, setPostsLoad] = useAtom(postsDataObject.loadAtom);
   const setPostsData = useAtom(postsDataObject.dataAtom)[1];
+  useEffect(() => {
+    if (settedIsLogin && postsLoad && apiOrigin) {
+      postsDataObject
+        .fetchData({
+          apiOrigin,
+          loadAtomValue: postsLoad,
+        })
+        .then((data) => {
+          postsDataObject.setData({
+            data,
+            setAtom: setPostsData,
+          });
+        });
+      setPostsLoad(false);
+    }
+  }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
+
+  const [soundsLoad, setSoundsLoad] = useAtom(soundsDataObject.loadAtom);
+  const setSoundsData = useAtom(postsDataObject.dataAtom)[1];
   useEffect(() => {
     if (settedIsLogin && postsLoad && apiOrigin) {
       postsDataObject

@@ -61,7 +61,7 @@ import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import { ApiOriginAtom, MediaOriginAtom } from "@/state/EnvState";
+import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import {
   charactersDataObject,
   ImportCharacterJson,
@@ -74,7 +74,6 @@ import {
 } from "./ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
-import { CgGhostCharacter } from "react-icons/cg";
 import { corsFetchJSON } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
@@ -91,7 +90,7 @@ export function CharacterEdit() {
 
 function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   const nav = useNavigate();
   const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
@@ -500,7 +499,7 @@ export const useEditSwitchState = create<{
 }));
 
 export function CharaEditButton() {
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   const isComplete = useAtom(dataIsCompleteAtom)[0];
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const charactersMap = useAtom(charactersMapAtom)[0];
@@ -619,7 +618,7 @@ export function SortableObject() {
   const [characters, setCharacters] = useAtom(charactersAtom);
   const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
   const [items, setItems] = useState(characters || []);
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   useEffect(() => {
     if (characters) setItems(characters);
   }, [characters]);
@@ -737,8 +736,8 @@ export function CharaImageSettingRbButtons({
   const params = useParams();
   if (params.charaName) {
     const charaName = params.charaName;
-    const apiOrigin = useAtom(ApiOriginAtom)[0];
-    const mediaOrigin = useAtom(MediaOriginAtom)[0];
+    const apiOrigin = useApiOrigin()[0];
+    const mediaOrigin = useMediaOrigin()[0];
     const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
     const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
     async function toastPromise(

@@ -36,7 +36,7 @@ import { useGalleryObject } from "../routes/GalleryPage";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
-import { isLoginAtom, MediaOriginAtom } from "./EnvState";
+import { useIsLogin, useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 
 type ImageViewerType = {
@@ -76,7 +76,7 @@ function InfoArea({ image }: InfoAreaProps) {
   const stateIsEdit = useAtom(imageEditIsEdit)[0];
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
   const charactersMap = useAtom(charactersMapAtom)[0];
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
@@ -230,7 +230,7 @@ interface PreviewAreaProps {
   image: ImageType;
 }
 function PreviewArea({ image }: PreviewAreaProps) {
-  const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const mediaOrigin = useMediaOrigin()[0];
   const MediaOrigin = useCallback(
     (src?: string) => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin]

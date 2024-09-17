@@ -8,7 +8,7 @@ import React, {
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
 import { atom, useAtom } from "jotai";
-import { MediaOriginAtom } from "@/state/EnvState";
+import { useMediaOrigin } from "@/state/EnvState";
 import { getExtension } from "@/functions/doc/PathParse";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { AiOutlineFileImage } from "react-icons/ai";
@@ -62,7 +62,7 @@ export function ImageMee({
   const refImgSrc = useRef("");
   const refShowList = useRef<(string | null)[]>([]);
   const ShowOrigin = useAtom(ImageMeeShowOriginAtom)[0];
-  const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const mediaOrigin = useMediaOrigin()[0];
   const versionString = useMemo(() => {
     if (imageItem)
       return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";

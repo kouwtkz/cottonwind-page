@@ -37,13 +37,13 @@ import {
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
 import { useAtom } from "jotai";
-import { isLoginAtom } from "@/state/EnvState";
+import { useIsLogin } from "@/state/EnvState";
 
 export function CharacterPage() {
   const { charaName } = useParams();
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   return (
     <div className="characterPage">
       {isLogin && isEdit ? (
@@ -105,7 +105,7 @@ function CharaListPage() {
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const tags = useMemo(
     () => searchParams.get("tags")?.split(","),
     [searchParams]
@@ -219,7 +219,7 @@ export function CharaBeforeAfter({
   const { state } = useLocation();
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const filters: string[] | undefined = useMemo(
     () => state?.charaFilters,
     [state]
@@ -414,7 +414,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useLocation();
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
   function setConfirmUrl() {
     nav(location, {

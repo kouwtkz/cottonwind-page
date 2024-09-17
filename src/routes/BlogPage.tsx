@@ -18,7 +18,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { useAtom } from "jotai";
-import { EnvAtom, isLoginAtom } from "@/state/EnvState";
+import { useEnv, useIsLogin } from "@/state/EnvState";
 import { TfiWrite } from "react-icons/tfi";
 import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
 import { PiHandsClapping } from "react-icons/pi";
@@ -75,7 +75,7 @@ export function PostsPage({
   const posts = useAtom(postsAtom)[0];
   const take = postId ? undefined : 10;
   const { localDraft, getLocalDraft } = useLocalDraftPost();
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   useEffect(() => {
     if (!isLogin) return;
     getLocalDraft();
@@ -150,7 +150,7 @@ export function PostsPage({
 
 type OnePostProps = { post?: PostType; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const { removeLocalDraft } = useLocalDraftPost();
   const nav = useNavigate();
   useHotkeys("b", () => {
@@ -303,7 +303,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
 
 type FixedProps = { max?: number };
 export function PostsPageFixed({ max }: FixedProps) {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   return (
     <Suspense>
       <div className="fixed rightBottom">
@@ -321,7 +321,7 @@ export function PostsPageFixed({ max }: FixedProps) {
 
 type PostDetailFixedProps = { postId: string; posts: PostType[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   return (
     <Suspense>
       <div className="fixed rightBottom">
@@ -514,7 +514,7 @@ export function HandsClapButton({
   ...args
 }: HandsClapButtonProps) {
   className = className ? ` ${className}` : "";
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   return env?.WAVEBOX ? (
     <Link
       {...args}

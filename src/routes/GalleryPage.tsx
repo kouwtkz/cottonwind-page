@@ -41,7 +41,7 @@ import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect"
 import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/state/ImageViewer";
 import { ImageGlobalEditModeSwitch, ImagesUpload } from "./edit/ImageEditForm";
-import { ApiOriginAtom, EnvAtom, isLoginAtom } from "@/state/EnvState";
+import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { imageDataObject, ImportImagesJson } from "@/state/DataState";
@@ -53,7 +53,7 @@ import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   const galleryList =
     env?.IMAGE_ALBUMS?.map((album) => ({
       ...album.gallery?.pages,
@@ -70,8 +70,8 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 }
 
 export function GalleryManageMenuButton({ group }: { group?: string }) {
-  const isLogin = useAtom(isLoginAtom)[0];
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const isLogin = useIsLogin()[0];
+  const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const charactersMap = useAtom(charactersMapAtom)[0];
   const params = useParams();
@@ -139,7 +139,7 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
 
 export function GalleryGroupPage({}: SearchAreaOptionsProps) {
   const { group } = useParams();
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   const album = useMemo(
     () =>
       env?.IMAGE_ALBUMS?.find(
@@ -431,7 +431,7 @@ function UploadChain({
   children?: ReactNode;
   enableOnClick?: boolean;
 }) {
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const character = useParams().charaName;
   const onDrop = useCallback(
@@ -502,7 +502,7 @@ function GalleryBody({
     showGalleryLabel,
     showCount,
   };
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const inPageList = useMemo(
     () =>
@@ -926,7 +926,7 @@ const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   const tags = gallerySortTags.concat(
     isLogin ? defaultGalleryFilterTags : [],
     defaultGalleryTags

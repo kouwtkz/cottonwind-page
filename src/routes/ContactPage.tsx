@@ -1,13 +1,12 @@
-import { EnvAtom } from "@/state/EnvState";
-import { useAtom } from "jotai";
 import { useMemo } from "react";
+import { useEnv } from "@/state/EnvState";
 
 export default function ContactPage() {
   return <GoogleForm />;
 }
 
 export function GoogleForm() {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   const CONTACT_FORM_GOOGLE = env?.CONTACT_FORM_GOOGLE;
   return (
     <>

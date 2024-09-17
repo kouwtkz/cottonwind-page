@@ -1,7 +1,6 @@
-import { useAtom } from "jotai";
 import { useImageState } from "@/state/ImageState";
 import { GetImageItemFromSrc } from "@/layout/ImageMee";
-import { MediaOriginAtom } from "@/state/EnvState";
+import { useMediaOrigin } from "@/state/EnvState";
 import {
   MultiParser,
   MultiParserProps,
@@ -18,7 +17,7 @@ interface MultiParserWithMediaProps
 
 export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   const { images } = useImageState();
-  const mediaOrigin = useAtom(MediaOriginAtom)[0];
+  const mediaOrigin = useMediaOrigin()[0];
   // function MultiParserReplaceImages({ linkPush, n }: MultiParserReplaceProps) {
   //   if (images && linkPush && n.type === "tag" && n.name === "img") {
   //     let src = n.attribs.src;

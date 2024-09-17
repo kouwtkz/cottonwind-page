@@ -3,7 +3,7 @@ import { useImageState } from "./ImageState";
 import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
 import { atom, useAtom } from "jotai";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
-import { EnvAtom } from "./EnvState";
+import { useEnv } from "./EnvState";
 import { charactersDataObject } from "./DataState";
 import { getCharacterMap } from "@/functions/characterFunctions";
 
@@ -25,7 +25,7 @@ export function CharacterState() {
   const { imagesMap } = useImageState();
   const sounds = useAtom(soundsAtom)[0];
   const defaultPlaylist = useAtom(soundDefaultPlaylistAtom)[0];
-  const env = useAtom(EnvAtom)[0];
+  const env = useEnv()[0];
   const setCharacterTags = useAtom(characterTagsAtom)[1];
   useEffect(() => {
     if (imagesMap && characterData && env) {

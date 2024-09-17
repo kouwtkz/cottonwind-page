@@ -1,7 +1,6 @@
 import { HTMLAttributes, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
-import { useAtom } from "jotai";
-import { EnvAtom } from "@/state/EnvState";
+import { useEnv } from "@/state/EnvState";
 
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
@@ -241,7 +240,7 @@ export function PostEditSelectMedia({
   inputAttached,
   autoClose,
 }: PostEditSelectMediaProps) {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   return (
     <DropdownObject
       className={className}

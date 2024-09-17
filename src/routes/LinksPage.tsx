@@ -6,10 +6,10 @@ import { useAtom } from "jotai";
 import { dataIsCompleteAtom } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { LinksStateClass } from "@/state/LinksState";
-import { EnvAtom } from "@/state/EnvState";
+import { useEnv } from "@/state/EnvState";
 
 export default function LinksPage() {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   return (
     <div className="linkPage">
       <h2 className="color en-title-font">LINKS</h2>

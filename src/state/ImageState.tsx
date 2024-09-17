@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
-import { EnvAtom } from "./EnvState";
+import { useEnv } from "./EnvState";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/imageFunctions";
 import { create } from "zustand";
@@ -36,7 +36,7 @@ export const useImageState = create<imageStateType>((set) => ({
 
 export function ImageState() {
   const imagesData = useAtom(imageDataObject.dataAtom)[0];
-  const env = useAtom(EnvAtom)[0];
+  const env = useEnv()[0];
   const { set } = useImageState();
   useEffect(() => {
     if (imagesData && env) set(imagesData, env?.IMAGE_ALBUMS);

@@ -9,7 +9,7 @@ import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { postsAtom } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
-import { EnvAtom, MediaOriginAtom } from "@/state/EnvState";
+import { useEnv, useMediaOrigin } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -18,8 +18,8 @@ function SetTitle() {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
   const posts = useAtom(postsAtom)[0];
-  const mediaOrigin = useAtom(MediaOriginAtom)[0];
-  const [env] = useAtom(EnvAtom);
+  const mediaOrigin = useMediaOrigin()[0];
+  const [env] = useEnv();
   if (notFirst) {
     document.title = MetaValues({
       path: pathname,
@@ -35,7 +35,7 @@ function SetTitle() {
 }
 
 export function Base({ children }: { children?: ReactNode }) {
-  const env = useAtom(EnvAtom)[0];
+  const env = useEnv()[0];
   useLayoutEffect(() => {
     if (isMobile) {
       document.body.classList.add("mobile");

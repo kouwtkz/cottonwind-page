@@ -13,7 +13,6 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/hook/SetRegister";
-import axios from "axios";
 import { postsAtom } from "@/state/PostState";
 import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
@@ -27,7 +26,7 @@ import {
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useAtom } from "jotai";
-import { ApiOriginAtom } from "@/state/EnvState";
+import { useApiOrigin } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
 import {
   imageDataObject,
@@ -88,7 +87,7 @@ export function PostForm() {
   const Location = useLocation();
   const posts = useAtom(postsAtom)[0];
   const setPostsLoad = useAtom(postsDataObject.loadAtom)[1];
-  const [apiOrigin] = useAtom(ApiOriginAtom);
+  const apiOrigin = useApiOrigin()[0];
 
   const nav = useNavigate();
   const base = searchParams.get("base");

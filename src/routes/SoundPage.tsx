@@ -3,9 +3,27 @@ import { useSoundPlayer } from "@/state/SoundPlayer";
 import { soundAlbumAtom, soundsAtom, SoundState } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
+import { useSearchParams } from "react-router-dom";
+import { useIsLogin } from "@/state/EnvState";
 
 export function SoundPage() {
+  const searchParams = useSearchParams()[0];
+  const isEdit = searchParams.get("edit") === "on";
+  const isLogin = useIsLogin()[0];
+  return (
+    <div className="soundPage">
+      {isLogin && isEdit ? null : (
+        <>
+          {/* {isLogin ? <CharaEditButton /> : null} */}
+          <SoundMainPage />
+        </>
+      )}
+    </div>
+  );
+}
+
+function SoundMainPage() {
   const sounds = useAtom(soundsAtom)[0];
   const soundAlbum = useAtom(soundAlbumAtom)[0];
   const {
@@ -20,7 +38,7 @@ export function SoundPage() {
   const src = playerList.list[current]?.src || "";
 
   return (
-    <div className="soundPage">
+    <>
       <SoundState />
       <h1
         className="title en-title-font cursor-pointer"
@@ -62,7 +80,9 @@ export function SoundPage() {
                 return (
                   <div
                     key={i}
-                    className={"item cursor-pointer" + (itemPaused ? " paused" : "")}
+                    className={
+                      "item cursor-pointer" + (itemPaused ? " paused" : "")
+                    }
                     onClick={() => {
                       if (itemPaused) {
                         if (special) {
@@ -91,6 +111,6 @@ export function SoundPage() {
           </div>
         );
       })}
-    </div>
+    </>
   );
 }

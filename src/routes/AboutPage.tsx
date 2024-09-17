@@ -1,10 +1,9 @@
-import { EnvAtom } from "@/state/EnvState";
+import { useEnv } from "@/state/EnvState";
 import { ChangeLog } from "@/state/GitState";
-import { useAtom } from "jotai";
 import { Link } from "react-router-dom";
 
 export default function AboutPage() {
-  const [env] = useAtom(EnvAtom);
+  const [env] = useEnv();
   return (
     <div className="aboutPage">
       <h2 className="color en-title-font">About</h2>

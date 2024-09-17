@@ -1,12 +1,11 @@
-import { isLoginAtom } from "@/state/EnvState";
-import { useAtom } from "jotai";
+import { useMemo } from "react";
+import { useIsLogin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
 import { GalleryManageMenuButton, GalleryObject } from "./GalleryPage";
 import { useImageState } from "@/state/ImageState";
-import { useMemo } from "react";
 
 export function SettingPage() {
-  const isLogin = useAtom(isLoginAtom)[0];
+  const isLogin = useIsLogin()[0];
   return (
     <main>
       <h2 className="color en-title-font">Setting</h2>

@@ -34,7 +34,7 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { ApiOriginAtom } from "@/state/EnvState";
+import { useApiOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
 import { FormTags } from "react-hotkeys-hook/dist/types";
 import { imageDataObject, UploadToast } from "@/state/DataState";
@@ -81,7 +81,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
   const copyrightList = useMemo(() => getCopyRightList(images || []), [images]);
   const characters = useAtom(charactersAtom)[0] || [];
-  const apiOrigin = useAtom(ApiOriginAtom)[0];
+  const apiOrigin = useApiOrigin()[0];
 
   const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
   const [stateIsEditHold] = useAtom(imageEditIsEditHold);
