@@ -10,7 +10,8 @@
     { "label": "dev", "task": "npm: dev-with-api" },
     { "label": "build", "task": "npm: build" },
     { "label": "start", "task": "npm: start-with-api" },
-    { "label": "deploy", "task": "npm: deploy" }
+    { "label": "deploy", "task": "npm: deploy" },
+    { "label": "deploy-api", "task": "npm: deploy-api" }
   ],
   // Explorer で非表示にするもの
   "files.exclude": {
