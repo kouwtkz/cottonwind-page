@@ -19,9 +19,8 @@ export function getGitLogReduced(gitLogList: GitLogItemType[]) {
   })
   return gitLogReduced;
 }
-export function GitLogObject({ gitlogJsonPath = "./_data/gitlog", ...args }: GitLogObjectProps = {}) {
+export function GitLogObject({ gitlogJsonPath = "./src/data/gitlog", ...args }: GitLogObjectProps = {}) {
   let { list, remote_url } = getGitLogData(args)
-  list = getGitLogItemList({ branch: "main", dir: "_data" }).concat(list);
   try {
     readdirSync(gitlogJsonPath).map(name =>
       JSON.parse(String(readFileSync(resolve(gitlogJsonPath, name)))) as GitLogDataType

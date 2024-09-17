@@ -1,6 +1,4 @@
 import { execSync } from "child_process";
-import { resolve } from "path";
-import { writeFileSync } from "fs";
 
 export interface getGitLogDataProps { branch?: string, dir?: string };
 export function getGitLogData(args: getGitLogDataProps = {}): GitLogDataType {
@@ -26,10 +24,4 @@ export function getGitLogItemList({
     console.log(e);
     return [];
   }
-}
-
-export function writeGitLogData() {
-  const outputPath = resolve(process.argv[2] ?? "gitlog.json");
-  writeFileSync(outputPath, JSON.stringify(getGitLogData()));
-  console.log("Written " + outputPath);
 }
