@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/StateSet";
+import { useDataIsComplete } from "@/state/StateSet";
 import React, {
   ReactNode,
   createRef,
@@ -59,7 +59,7 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
       ...album.gallery?.pages,
       ...album,
     })).filter((v) => v) ?? [];
-  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const [isComplete] = useDataIsComplete();
   return (
     <div id="galleryPage">
       <GalleryManageMenuButton />
@@ -651,7 +651,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     },
     ref
   ) {
-    const [isComplete] = useAtom(dataIsCompleteAtom);
+    const [isComplete] = useDataIsComplete();
     let {
       name,
       linkLabel,

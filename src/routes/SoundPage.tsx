@@ -1,10 +1,11 @@
 import toast from "react-hot-toast";
 import { useSoundPlayer } from "@/state/SoundPlayer";
-import { useSoundAlbum, useSounds } from "@/state/SoundState";
+import { useSoundAlbums, useSounds } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 import { useSearchParams } from "react-router-dom";
 import { useIsLogin } from "@/state/EnvState";
+import { SoundEditButton } from "./edit/SoundEdit";
 
 export function SoundPage() {
   const searchParams = useSearchParams()[0];
@@ -12,9 +13,9 @@ export function SoundPage() {
   const isLogin = useIsLogin()[0];
   return (
     <div className="soundPage">
+      {isLogin ? <SoundEditButton /> : null}
       {isLogin && isEdit ? null : (
         <>
-          {/* {isLogin ? <CharaEditButton /> : null} */}
           <SoundMainPage />
         </>
       )}
@@ -24,7 +25,7 @@ export function SoundPage() {
 
 function SoundMainPage() {
   const sounds = useSounds()[0];
-  const soundAlbum = useSoundAlbum()[0];
+  const soundAlbums = useSoundAlbums()[0];
   const {
     Play,
     Pause,
@@ -42,9 +43,9 @@ function SoundMainPage() {
         className="title en-title-font cursor-pointer"
         onClick={() => {
           if (special) {
-            const playlist = soundAlbum?.playlist?.find((item) =>
-              item.list.some((sound) => sound.src === src)
-            );
+            const playlist = soundAlbums?.find(({ playlist }) =>
+              playlist?.list.some((sound) => sound.src === src)
+            )?.playlist;
             if (playlist) {
               RegistPlaylist({
                 playlist,
@@ -68,47 +69,50 @@ function SoundMainPage() {
       >
         Sound Room
       </h1>
-      {soundAlbum?.playlist?.map((playlist, i) => {
-        return (
-          <div key={i} className="playlist">
-            <h3 className="label">{playlist.title}</h3>
-            <div className="list">
-              {playlist.list.map((sound, i) => {
-                const itemPaused = sound.src === src ? paused : true;
-                return (
-                  <div
-                    key={i}
-                    className={
-                      "item cursor-pointer" + (itemPaused ? " paused" : "")
-                    }
-                    onClick={() => {
-                      if (itemPaused) {
-                        if (special) {
-                          Play({
-                            current: sounds?.findIndex(
-                              (_sound) => _sound.src === sound.src
-                            ),
-                          });
-                        } else {
-                          Play({ playlist, current: i });
-                        }
-                      } else Pause();
-                    }}
-                  >
-                    <div className="cursor">
-                      {sound.src === src ? <TriangleCursor /> : null}
+      {soundAlbums
+        ?.filter((album) => album.playlist)
+        .map((album, i) => {
+          const playlist = album.playlist!;
+          return (
+            <div key={i} className="playlist">
+              <h3 className="label">{playlist.title}</h3>
+              <div className="list">
+                {playlist.list.map((sound, i) => {
+                  const itemPaused = sound.src === src ? paused : true;
+                  return (
+                    <div
+                      key={i}
+                      className={
+                        "item cursor-pointer" + (itemPaused ? " paused" : "")
+                      }
+                      onClick={() => {
+                        if (itemPaused) {
+                          if (special) {
+                            Play({
+                              current: sounds?.findIndex(
+                                (_sound) => _sound.src === sound.src
+                              ),
+                            });
+                          } else {
+                            Play({ playlist, current: i });
+                          }
+                        } else Pause();
+                      }}
+                    >
+                      <div className="cursor">
+                        {sound.src === src ? <TriangleCursor /> : null}
+                      </div>
+                      <div className="name">
+                        <span>{sound.title}</span>
+                      </div>
+                      <PlayPauseButton className="play" paused={itemPaused} />
                     </div>
-                    <div className="name">
-                      <span>{sound.title}</span>
-                    </div>
-                    <PlayPauseButton className="play" paused={itemPaused} />
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </>
   );
 }

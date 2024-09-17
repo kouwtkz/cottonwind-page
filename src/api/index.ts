@@ -15,12 +15,14 @@ app.use("*", (c, next) => {
   return cors({ origin, credentials: true })(c, next)
 })
 
-app.route("/blog", app_blog_api);
 app.route("/test", app_test_api);
 app.route("/image", app_image_api);
 app.route("/character", app_character_api);
+app.route("/blog", app_blog_api);
+app.route("/sound", app_sound_api);
 app.route("/data", app_data_api);
 import { cache } from 'hono/cache'
+import { app_sound_api } from "./sound";
 
 app.get("/feed/get", cache({
   cacheName: "feed-get",

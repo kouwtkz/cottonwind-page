@@ -31,10 +31,9 @@ import {
 } from "react-icons/ri";
 import { useCharactersMap, CharacterState } from "./CharacterState";
 import { useImageState } from "./ImageState";
-import { dataIsCompleteAtom } from "./StateSet";
+import { useDataIsComplete } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useAtom } from "jotai";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { useIsLogin, useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
@@ -70,7 +69,7 @@ interface InfoAreaProps {
   image: ImageType;
 }
 function InfoArea({ image }: InfoAreaProps) {
-  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const [isComplete] = useDataIsComplete();
   const { onClose } = useImageViewer();
   const searchParams = useSearchParams()[0];
   const stateIsEdit = useImageEditIsEdit()[0];

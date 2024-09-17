@@ -37,7 +37,15 @@ export const postsDataObject = new SdsClass<PostDataType>({
 export const soundsDataObject = new SdsClass<SoundDataType>({
   key: "sounds",
   src: "/data/sounds",
-  version: "1.2.0",
+  version: "1.3.0",
+  preLoad: false,
+  latestField: { time: "desc" },
+});
+
+export const soundAlbumsDataObject = new SdsClass<SoundAlbumDataType>({
+  key: "soundAlbums",
+  src: "/data/soundAlbums",
+  version: "1.3.0",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -58,7 +66,7 @@ export function DataState() {
   }, [isLogin]);
 
   const apiOrigin = useApiOrigin()[0];
-  function SdsClassSetData<T extends object>(dataObject: SdsClass<T> ) {
+  function SdsClassSetData<T extends object>(dataObject: SdsClass<T>) {
     const [load, setLoad] = dataObject.useLoad();
     const setData = dataObject.useData()[1];
     useEffect(() => {
@@ -78,7 +86,7 @@ export function DataState() {
       }
     }, [settedIsLogin, apiOrigin, load, setLoad, setData]);
   }
-  
+
   SdsClassSetData(imageDataObject);
   const setImagesData = imageDataObject.useData()[1];
 
@@ -91,31 +99,46 @@ export function DataState() {
   SdsClassSetData(soundsDataObject);
   const setSoundsData = soundsDataObject.useData()[1];
 
+  SdsClassSetData(soundAlbumsDataObject);
+  const setSoundAlbumsData = soundAlbumsDataObject.useData()[1];
+
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
     if (settedIsLogin && apiOrigin && allLoad) {
       const Url = new URL(allDataSrc, apiOrigin);
       const cache = SdsClass.getCacheOption(allLoad);
-      imageDataObject.setSearchParamsOption({
-        searchParams: Url.searchParams,
-        loadValue: allLoad,
-        prefix: "images",
-      });
-      charactersDataObject.setSearchParamsOption({
-        searchParams: Url.searchParams,
-        loadValue: allLoad,
-        prefix: "characters",
-      });
-      postsDataObject.setSearchParamsOption({
-        searchParams: Url.searchParams,
-        loadValue: allLoad,
-        prefix: "posts",
-      });
-      soundsDataObject.setSearchParamsOption({
-        searchParams: Url.searchParams,
-        loadValue: allLoad,
-        prefix: "sounds",
-      });
+      function SetSearchParamsOption<T extends object>(
+        dataObject: SdsClass<T>
+      ) {
+        dataObject.setSearchParamsOption({
+          searchParams: Url.searchParams,
+          loadValue: allLoad,
+          prefix: dataObject.key,
+        });
+      }
+      function SetData<T extends object>(
+        dataObject: SdsClass<T>,
+        v: unknown[] | KeyValueType<unknown>,
+        setState: setStateFunction<T>
+      ) {
+        const data = (Array.isArray(v) ? v : v[dataObject.key]) as T[];
+        return (
+          dataObject.setData({
+            data,
+            setState,
+          }),
+          dataObject.setSearchParamsOption({
+            searchParams: Url.searchParams,
+            loadValue: allLoad,
+            prefix: dataObject.key,
+          })
+        );
+      }
+      SetSearchParamsOption(imageDataObject);
+      SetSearchParamsOption(charactersDataObject);
+      SetSearchParamsOption(postsDataObject);
+      SetSearchParamsOption(soundsDataObject);
+      SetSearchParamsOption(soundAlbumsDataObject);
       if (cache) Url.searchParams.set("cache", cache);
       corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -123,22 +146,11 @@ export function DataState() {
         .then(async (r) => (await r.json()) as KeyValueType<unknown[]>)
         .then(async (v) => {
           return Promise.all([
-            imageDataObject.setData({
-              data: v.images as ImageDataType[],
-              setState: setImagesData,
-            }),
-            charactersDataObject.setData({
-              data: v.characters as CharacterDataType[],
-              setState: setCharactersData,
-            }),
-            postsDataObject.setData({
-              data: v.posts as PostDataType[],
-              setState: setPostsData,
-            }),
-            soundsDataObject.setData({
-              data: v.sounds as SoundDataType[],
-              setState: setSoundsData,
-            }),
+            SetData(imageDataObject, v, setImagesData),
+            SetData(charactersDataObject, v, setCharactersData),
+            SetData(postsDataObject, v, setPostsData),
+            SetData(soundsDataObject, v, setSoundsData),
+            SetData(soundAlbumsDataObject, v, setSoundAlbumsData),
           ]);
         })
         .then(() => {
@@ -154,6 +166,7 @@ export function DataState() {
     setCharactersData,
     setPostsData,
     setSoundsData,
+    setSoundAlbumsData,
   ]);
   return <></>;
 }

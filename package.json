@@ -38,6 +38,7 @@
     "js-yaml": "^4.1.0",
     "jsonc-parser": "^3.2.1",
     "marked": "^12.0.1",
+    "music-metadata": "^10.5.0",
     "react": "^18.2.0",
     "react-comic-viewer": "^0.4.0",
     "react-cookie": "^7.1.0",

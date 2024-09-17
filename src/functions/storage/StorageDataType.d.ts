@@ -1,6 +1,7 @@
+type setStateFunction<T> = (args_0: SetStateAction<T[] | undefined>) => void;
 interface storageReadDataProps<T> {
   data?: T[];
-  setState: (args_0: SetStateAction<T[] | undefined>) => void;
+  setState: setStateFunction<T>;
   id?: string;
   lastmod?: string;
 }

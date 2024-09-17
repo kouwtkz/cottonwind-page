@@ -4,7 +4,7 @@ import { useSoundDefaultPlaylist, useSounds } from "./SoundState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
 import { charactersDataObject } from "./DataState";
-import { getCharacterMap } from "@/functions/characterFunctions";
+import { getCharacterMap as getCharactersMap } from "@/functions/characterFunctions";
 import { CreateState } from "./CreateState";
 
 export const useCharacters = CreateState<CharacterType[]>();
@@ -29,7 +29,7 @@ export function CharacterState() {
   const setCharacterTags = useCharacterTags()[1];
   useEffect(() => {
     if (imagesMap && characterData && env) {
-      const charactersMap = getCharacterMap(characterData);
+      const charactersMap = getCharactersMap(characterData);
       charactersMap.forEach((chara) => {
         if (!chara.media) chara.media = {};
         const charaMedia = chara.media;
@@ -60,8 +60,8 @@ export function CharacterState() {
                       if (foundIndex >= 0) a.push(foundIndex);
                     });
                   } else {
-                    const foundIndex = sounds.findIndex((item) =>
-                      item.src.endsWith(c)
+                    const foundIndex = sounds.findIndex(
+                      (item) => item.key === c
                     );
                     if (foundIndex >= 0) a.push(foundIndex);
                   }

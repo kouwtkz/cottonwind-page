@@ -13,6 +13,7 @@ interface StorageDataStateClassProps<T> {
 }
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
+  key: string;
   src: string;
   version: string;
   useData = CreateState<T[]>();
@@ -28,6 +29,7 @@ export class StorageDataStateClass<T extends Object = {}> {
   };
   constructor({ src, key, version = "1", preLoad, isLogin, latestField }: StorageDataStateClassProps<T>) {
     this.version = version;
+    this.key = key;
     this.storage = new StorageDataClass(key);
     this.src = src;
     this.useLoad = CreateState(preLoad);

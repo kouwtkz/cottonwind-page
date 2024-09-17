@@ -39,13 +39,13 @@ export class DBTableClass<T extends Object = any> {
     return db.dropTable({ table: this.table, viewSql });
   }
   getInsertEntry({ data, keys = this.insertEntryKeys, times = this.insertEntryTimes, enableKVConvert = true }: {
-    data: KeyValueType<any>, keys?: (keyof T)[], times?: (keyof T)[], enableKVConvert?: boolean
+    data: { [k in keyof T]?: any }, keys?: (keyof T)[], times?: (keyof T)[], enableKVConvert?: boolean
   }): MeeSqlEntryType<T> {
-    if (enableKVConvert) KeyValueConvertDBEntry(data);
-    const entries = (keys || []).map(k => [k, data[k as string]]).filter(([k, v]) => v !== undefined);
+    if (enableKVConvert) KeyValueConvertDBEntry(data as KeyValueType);
+    const entries = (keys || []).map(k => [k, data[k]]).filter(([k, v]) => v !== undefined);
     if (times) times.forEach(k => {
       const _k = k as string;
-      if (data[_k]) entries.push([k, new Date(String(data[_k])).toISOString()]);
+      if (data[k]) entries.push([k, new Date(String(data[k])).toISOString()]);
     })
     return Object.fromEntries(entries);
   }

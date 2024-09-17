@@ -1,39 +1,55 @@
 interface SoundDataType {
-  id: number;
+  id?: number;
   key: string;
   src?: string;
   track?: number;
   title?: string;
   description?: string;
   album?: string;
-  category?: string;
   cover?: string;
+  artist?: string;
+  grouping?: string;
+  genre?: string;
+  draft?: number;
+  time?: string;
+  mtime?: string;
+  lastmod?: string;
+}
+
+interface SoundItemType extends SoundDataType {
+  genre?: string[];
+  grouping?: string[];
+  draft?: boolean;
+  time?: Date;
+  lastmod?: Date;
+}
+
+interface SoundPlaylistType {
+  title?: string;
+  list: SoundItemType[];
+}
+
+interface SoundAlbumDataType {
+  id?: number;
+  key: string;
+  title?: string;
+  description?: string;
+  order?: number;
+  artist?: string;
+  cover?: string;
+  category?: string;
+  setup?: number;
   draft?: number;
   time?: string;
   lastmod?: string;
 }
 
-interface SoundAlbumType {
-  title: string;
-  src: string;
-  name: string;
-  playlist?: SoundPlaylistType[];
-  setupSound?: string;
-  dir?: string;
-}
-
-interface SoundPlaylistType {
-  dir?: string;
-  title?: string;
-  list: SoundItemType[];
-}
-
-interface SoundItemType extends SoundDataType {
-  src: string;
-  dir?: string;
-  title: string;
+interface SoundAlbumType extends SoundAlbumDataType {
+  playlist?: SoundPlaylistType;
   setup?: boolean;
-  category?: string[];
+  draft?: boolean;
+  time?: Date;
+  lastmod?: Date;
 }
 
 type SoundLoopMode = "off" | "loop" | "loopOne" | "playUntilEnd";

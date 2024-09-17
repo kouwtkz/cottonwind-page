@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useAtom } from "jotai";
 import { useLocation } from "react-router-dom";
-import { dataIsCompleteAtom, pageIsCompleteAtom } from "@/state/StateSet";
+import { useDataIsComplete, usePageIsComplete } from "@/state/StateSet";
 import hljs from "highlight.js";
 
 interface codeToHighlightProps {
@@ -34,8 +34,8 @@ export function Code(
 
 export function WhenRootCodeToHighlight() {
   const location = useLocation();
-  const [dataIsComplete] = useAtom(dataIsCompleteAtom);
-  const [pageIsComplete] = useAtom(pageIsCompleteAtom);
+  const [dataIsComplete] = useDataIsComplete();
+  const [pageIsComplete] = usePageIsComplete();
   const isComplete = useMemo(
     () => dataIsComplete && pageIsComplete,
     [dataIsComplete, pageIsComplete]

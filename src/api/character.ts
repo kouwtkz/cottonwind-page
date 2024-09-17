@@ -62,7 +62,7 @@ app.post("/send", async (c, next) => {
   const now = new Date();
   return Promise.all(
     data.map(async item => {
-      const { id: _id, ...data } = item as KeyValueType<unknown>;
+      const { id: _id, ...data } = item;
       const entry = TableObject.getInsertEntry({ data });
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
@@ -87,7 +87,7 @@ app.post("/send", async (c, next) => {
 
 app.post("/import", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
-  const object = await c.req.json() as importEntryDataType<KeyValueType<unknown>>;
+  const object = await c.req.json() as importEntryDataType<CharacterDataType>;
   if (object.data) {
     if (object.overwrite) {
       await TableObject.Drop({ db });
@@ -95,7 +95,7 @@ app.post("/import", async (c, next) => {
     }
     const list = object.data;
     if (Array.isArray(list)) {
-      lastModToUniqueNow(list);
+      lastModToUniqueNow(list as KeyValueType<any>);
       await PromiseOrder(list.map((item) => () =>
         TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
       ), 0);

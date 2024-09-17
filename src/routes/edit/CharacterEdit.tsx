@@ -13,7 +13,7 @@ import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
 import { useAtom } from "jotai";
-import { dataIsCompleteAtom } from "@/state/StateSet";
+import { useDataIsComplete } from "@/state/StateSet";
 import {
   MdAdd,
   MdClose,
@@ -503,7 +503,7 @@ export const useEditSwitchState = create<{
 
 export function CharaEditButton() {
   const apiOrigin = useApiOrigin()[0];
-  const isComplete = useAtom(dataIsCompleteAtom)[0];
+  const isComplete = useDataIsComplete()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const charactersMap = useCharactersMap()[0];
   const { charaName } = useParams();

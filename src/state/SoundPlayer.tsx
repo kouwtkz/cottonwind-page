@@ -1,15 +1,16 @@
 import { useRef } from "react";
 import { create } from "zustand";
 import SoundFixed from "@/layout/SoundFixed";
-import { getBasename } from "@/functions/doc/PathParse";
-const LoopModeList: SoundLoopMode[] = ["loop", "loopOne", "playUntilEnd", "off"];
+import { useMediaOrigin } from "./EnvState";
+import { concatOriginUrl } from "@/functions/originUrl";
+const LoopModeList: SoundLoopMode[] = [
+  "loop",
+  "loopOne",
+  "playUntilEnd",
+  "off",
+];
 
-type PlaylistRegistType =
-  | string
-  | string[]
-  | SoundItemType
-  | SoundItemType[]
-  | SoundPlaylistType;
+type PlaylistRegistType = SoundItemType | SoundItemType[] | SoundPlaylistType;
 export type PlaylistRegistProps = {
   playlist?: PlaylistRegistType;
   current?: number;
@@ -55,32 +56,16 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
-      playlist?: SoundPlaylistType;
+      playlist?: SoundPlaylistType | undefined;
       current?: number;
       special?: boolean;
     } = { current };
     if (special !== undefined) value.special = special;
-    if (Array.isArray(_playlist)) {
-      value.playlist = {
-        list: _playlist.map((item) =>
-          typeof item === "string"
-            ? { src: item, title: getBasename(item) }
-            : item
-        ),
-      };
-    } else {
-      if (typeof _playlist === "string")
-        value.playlist = {
-          list: [{ src: _playlist, title: getBasename(_playlist) }],
-        };
-      else if (_playlist) {
-        if ((_playlist as any).list !== undefined) {
-          value.playlist = _playlist as SoundPlaylistType;
-        } else {
-          value.playlist = { list: [_playlist as SoundItemType] };
-        }
-      }
-    }
+    value.playlist = _playlist
+      ? "list" in _playlist
+        ? _playlist
+        : { list: Array.isArray(_playlist) ? _playlist : [_playlist] }
+      : undefined;
     set(() => value);
   },
   SetCurrent: (current) => {
@@ -151,9 +136,11 @@ export function SoundPlayer() {
   const audioElm = refAudio.current;
   const { paused, ended, Stop, playlist, current, loopMode, Next } =
     useSoundPlayer();
-  const src = playlist.list[current]?.src || "";
+  const mediaOrigin = useMediaOrigin()[0];
+  const src = playlist.list[current]?.src;
   if (audioElm) {
-    if (src && !audioElm.src.endsWith(src)) audioElm.src = src;
+    if (src && mediaOrigin && !audioElm.src.endsWith(src))
+      audioElm.src = concatOriginUrl(mediaOrigin, src);
     if (audioElm.paused !== paused) {
       if (paused) {
         audioElm.pause();

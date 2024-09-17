@@ -11,10 +11,11 @@ import { DataState } from "./DataState";
 import { useCharacters, CharacterState } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
+import { CreateState } from "./CreateState";
 
-export const siteIsFirstAtom = atom(true);
-export const dataIsCompleteAtom = atom(false);
-export const pageIsCompleteAtom = atom(true);
+export const useSiteIsFirst = CreateState(true);
+export const useDataIsComplete = CreateState(false);
+export const usePageIsComplete = CreateState(true);
 
 export const ThemeState = new ThemeStateClass("theme", [
   "theme-orange",
@@ -70,9 +71,9 @@ interface LoadingStateProps {
 }
 function LoadingState({ isSetList, children }: LoadingStateProps) {
   const fScrollY = useRef(window.scrollY);
-  const [isFirst, setIsFirst] = useAtom(siteIsFirstAtom);
-  const [dataIsComplete, setIsComplete] = useAtom(dataIsCompleteAtom);
-  const [pageIsComplete, setPageIsComplete] = useAtom(pageIsCompleteAtom);
+  const [isFirst, setIsFirst] = useSiteIsFirst();
+  const [dataIsComplete, setIsComplete] = useDataIsComplete();
+  const [pageIsComplete, setPageIsComplete] = usePageIsComplete();
   const isComplete = useMemo(
     () => dataIsComplete && pageIsComplete,
     [dataIsComplete, pageIsComplete]

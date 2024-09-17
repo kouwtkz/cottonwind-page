@@ -8,14 +8,14 @@ import { useCharactersMap } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePosts } from "@/state/PostState";
-import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
+import { StateSet, useDataIsComplete } from "@/state/StateSet";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
   const charactersMap = useCharactersMap()[0];
   const { imagesMap } = useImageState();
-  const [isComplete] = useAtom(dataIsCompleteAtom);
+  const [isComplete] = useDataIsComplete();
   const [notFirst, setNotFirst] = useState(false);
   const posts = usePosts()[0];
   const mediaOrigin = useMediaOrigin()[0];
