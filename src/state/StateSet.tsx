@@ -1,17 +1,17 @@
 import { Toaster } from "react-hot-toast";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
+import { DataState } from "./DataState";
 import { ImageState, useImageState } from "./ImageState";
 import { EmbedState } from "./Embed";
 import { ThemeStateClass } from "./ThemeSetter";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
-import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
-import { DataState } from "./DataState";
 import { useCharacters, CharacterState } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
 import { CreateState } from "./CreateState";
+import FileState from "./FileState";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -47,6 +47,7 @@ export function StateSet() {
         <CharacterState />
         <PostState />
         <SoundState />
+        <FileState />
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}

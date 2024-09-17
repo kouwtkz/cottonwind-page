@@ -6,7 +6,7 @@ import { DarkThemeState, ThemeState } from "./StateSet";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useEnv } from "./EnvState";
+import { useEnv, useIsLogin } from "./EnvState";
 
 export function ThemeChangeButton({
   children = "いろかえ",
@@ -80,12 +80,13 @@ function ThemeSwitchButtons({
 
 export function SiteMenu() {
   const [env] = useEnv();
-  const navList = env?.NAV ?? [];
+  const isLogin = useIsLogin()[0];
   const list = useMemo(() => {
-    const list = navList.concat();
+    const list = (env?.NAV || []).concat();
+    list.push({ name: "setting", url: "setting" });
     list.push({ name: "theme", switch: "theme" });
     return list;
-  }, [navList]);
+  }, [env, isLogin]);
   return (
     <div className="siteMenu en-title-font">
       <DropdownObject

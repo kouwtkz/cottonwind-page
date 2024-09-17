@@ -47,7 +47,13 @@ export const soundAlbumsDataObject = new SdsClass<SoundAlbumDataType>({
   src: "/data/soundAlbums",
   version: "1.3.0",
   preLoad: false,
-  latestField: { time: "desc" },
+});
+
+export const filesDataObject = new SdsClass<FilesRecordDataType>({
+  key: "files",
+  src: "/data/files",
+  version: "1.3.0",
+  preLoad: false,
 });
 
 const allDataSrc = "/data/all";
@@ -102,6 +108,9 @@ export function DataState() {
   SdsClassSetData(soundAlbumsDataObject);
   const setSoundAlbumsData = soundAlbumsDataObject.useData()[1];
 
+  SdsClassSetData(filesDataObject);
+  const setFilesData = filesDataObject.useData()[1];
+
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
     if (settedIsLogin && apiOrigin && allLoad) {
@@ -139,6 +148,7 @@ export function DataState() {
       SetSearchParamsOption(postsDataObject);
       SetSearchParamsOption(soundsDataObject);
       SetSearchParamsOption(soundAlbumsDataObject);
+      SetSearchParamsOption(filesDataObject);
       if (cache) Url.searchParams.set("cache", cache);
       corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -151,6 +161,7 @@ export function DataState() {
             SetData(postsDataObject, v, setPostsData),
             SetData(soundsDataObject, v, setSoundsData),
             SetData(soundAlbumsDataObject, v, setSoundAlbumsData),
+            SetData(filesDataObject, v, setFilesData),
           ]);
         })
         .then(() => {
@@ -167,6 +178,7 @@ export function DataState() {
     setPostsData,
     setSoundsData,
     setSoundAlbumsData,
+    setFilesData,
   ]);
   return <></>;
 }

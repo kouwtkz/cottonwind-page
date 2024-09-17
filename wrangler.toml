@@ -89,10 +89,6 @@ url = "/about"
 name = "blog"
 url = "/blog"
 
-[[vars.NAV]]
-name = "setting"
-url = "/setting"
-
 [[vars.LINKS]]
 mask = "#mask_twitter"
 name = "𝕏 (Twitter)"

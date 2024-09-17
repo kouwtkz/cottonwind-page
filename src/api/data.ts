@@ -7,6 +7,7 @@ import { IsLogin } from "@/ServerContent";
 import { ServerPostsGetData } from "./blog";
 import { getDataWithoutPrefix } from "@/functions/stringFix";
 import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
+import { ServerFilesGetData } from "./file";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -49,7 +50,7 @@ app.get("/images", async (c) => {
   );
 });
 
-app.get("/characters", async (c, next) => {
+app.get("/characters", async (c) => {
   return c.json(
     await ServerCharactersGetData(
       new URL(c.req.url).searchParams,
@@ -59,7 +60,7 @@ app.get("/characters", async (c, next) => {
   );
 });
 
-app.get("/posts", async (c, next) => {
+app.get("/posts", async (c) => {
   return c.json(
     await ServerPostsGetData(
       new URL(c.req.url).searchParams,
@@ -69,7 +70,7 @@ app.get("/posts", async (c, next) => {
   );
 });
 
-app.get("/sounds", async (c, next) => {
+app.get("/sounds", async (c) => {
   return c.json(
     await ServerSoundsGetData(
       new URL(c.req.url).searchParams,
@@ -79,7 +80,7 @@ app.get("/sounds", async (c, next) => {
   );
 });
 
-app.get("/soundAlbums", async (c, next) => {
+app.get("/soundAlbums", async (c) => {
   return c.json(
     await ServerSoundAlbumsGetData(
       new URL(c.req.url).searchParams,
@@ -89,7 +90,17 @@ app.get("/soundAlbums", async (c, next) => {
   );
 });
 
-app.get("/all", async (c, next) => {
+app.get("/files", async (c) => {
+  return c.json(
+    await ServerFilesGetData(
+      new URL(c.req.url).searchParams,
+      new MeeSqlD1(c.env.DB),
+      IsLogin(c)
+    )
+  );
+});
+
+app.get("/all", async (c) => {
   const isLogin = IsLogin(c);
   const Url = new URL(c.req.url);
   const query = Object.fromEntries(Url.searchParams);
@@ -100,6 +111,7 @@ app.get("/all", async (c, next) => {
     posts: await ServerPostsGetData(new URLSearchParams(getDataWithoutPrefix("posts", query)), db, isLogin),
     sounds: await ServerSoundsGetData(new URLSearchParams(getDataWithoutPrefix("sounds", query)), db, isLogin),
     soundAlbums: await ServerSoundAlbumsGetData(new URLSearchParams(getDataWithoutPrefix("soundAlbums", query)), db, isLogin),
+    files: await ServerFilesGetData(new URLSearchParams(getDataWithoutPrefix("files", query)), db, isLogin),
   });
 });
 

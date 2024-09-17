@@ -415,7 +415,7 @@ export function PostForm() {
         className="blogEdit"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h1>Post form</h1>
+        <h1 className="en-title-font">Post form</h1>
         <input {...register("update")} type="hidden" />
         <input
           {...SetRegister({ name: "postId", ref: postIdRef, register })}

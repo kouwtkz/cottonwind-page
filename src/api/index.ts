@@ -1,12 +1,15 @@
 import { Hono } from "hono";
-import { app_blog_api } from "./blog";
 import { cors } from 'hono/cors';
-import { app_test_api } from "./test";
+import { cache } from 'hono/cache'
 import { scheduleTask } from "./schedule";
 import { FeedSet } from "@/ServerContent";
+import { app_test_api } from "./test";
+import { app_data_api } from "./data";
 import { app_image_api } from "./image";
 import { app_character_api } from "./character";
-import { app_data_api } from "./data";
+import { app_blog_api } from "./blog";
+import { app_sound_api } from "./sound";
+import { app_files_api as app_file_api } from "./file";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>();
 
@@ -20,9 +23,8 @@ app.route("/image", app_image_api);
 app.route("/character", app_character_api);
 app.route("/blog", app_blog_api);
 app.route("/sound", app_sound_api);
+app.route("/file", app_file_api);
 app.route("/data", app_data_api);
-import { cache } from 'hono/cache'
-import { app_sound_api } from "./sound";
 
 app.get("/feed/get", cache({
   cacheName: "feed-get",

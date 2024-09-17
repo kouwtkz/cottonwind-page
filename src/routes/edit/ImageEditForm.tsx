@@ -50,6 +50,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 import { CreateState } from "@/state/CreateState";
+import { useFiles } from "@/state/FileState";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -95,6 +96,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const files = useFiles()[0];
+  const embedList = useMemo(() => {
+    const list = (files || []).concat();
+    list.sort(
+      (a, b) => (b.lastmod?.getTime() || 0) - (a.lastmod?.getTime() || 0)
+    );
+    return list;
+  }, [files]);
 
   useHotkeys(
     "ctrl+enter",
@@ -511,9 +520,19 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <input
                 title="埋め込み"
                 type="text"
+                list="galleryEditEmbedList"
                 {...register("embed")}
                 disabled={isBusy}
               />
+              <datalist id="galleryEditEmbedList">
+                {embedList.map((file, i) => {
+                  return (
+                    <option key={i} value={file.key}>
+                      {file.src || file.key}
+                    </option>
+                  );
+                })}
+              </datalist>
             </div>
           </label>
           <label>
