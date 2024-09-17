@@ -44,7 +44,6 @@ honoTest(app);
 ServerCommon(app);
 
 app.get("/src/*", serveStatic({ root: "./" }));
-app.get("/_data/*", serveStatic({ root: "./" }));
 
 app.get("/json/gitlog.json", (c) => {
   return c.json(GitLogObject());
