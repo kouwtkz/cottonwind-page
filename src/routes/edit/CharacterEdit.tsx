@@ -124,8 +124,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     () =>
       [{ label: "デフォルト音楽", value: "default" }].concat(
         (sounds || []).map((s) => ({
-          label: s.title,
-          value: s.src.slice(s.src.lastIndexOf("/") + 1),
+          label: s.title || s.key,
+          value: s.key,
         }))
       ) as ContentsTagsOption[],
     [sounds]
