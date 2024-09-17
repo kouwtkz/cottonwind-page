@@ -13,7 +13,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/hook/SetRegister";
-import { postsAtom } from "@/state/PostState";
+import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
@@ -25,7 +25,6 @@ import {
   PostEditSelectMedia,
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useAtom } from "jotai";
 import { useApiOrigin } from "@/state/EnvState";
 import { fileDownload } from "@/components/FileTool";
 import {
@@ -85,8 +84,8 @@ const schema = z.object({
 export function PostForm() {
   const [searchParams] = useSearchParams();
   const Location = useLocation();
-  const posts = useAtom(postsAtom)[0];
-  const setPostsLoad = useAtom(postsDataObject.loadAtom)[1];
+  const posts = usePosts()[0];
+  const setPostsLoad = postsDataObject.useLoad()[1];
   const apiOrigin = useApiOrigin()[0];
 
   const nav = useNavigate();
@@ -269,7 +268,7 @@ export function PostForm() {
       );
     }
   });
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
+  const setImagesLoad = imageDataObject.useLoad()[1];
 
   useHotkeys("b", () => nav(-1));
 

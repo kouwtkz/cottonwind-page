@@ -45,7 +45,7 @@ import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { imageDataObject, ImportImagesJson } from "@/state/DataState";
-import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
+import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/theme/main";
 import { TbDatabaseImport } from "react-icons/tb";
@@ -72,8 +72,8 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
 export function GalleryManageMenuButton({ group }: { group?: string }) {
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const charactersMap = useCharactersMap()[0];
   const params = useParams();
   return (
     <>
@@ -432,7 +432,7 @@ function UploadChain({
   enableOnClick?: boolean;
 }) {
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
+  const setImagesLoad = imageDataObject.useLoad()[1];
   const character = useParams().charaName;
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -939,7 +939,7 @@ export function GalleryCharactersSelect({
 }: SelectAreaProps) {
   const params = useParams();
   const currentChara = params["charaName"];
-  const characters = useAtom(charactersAtom)[0];
+  const characters = useCharacters()[0];
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (currentChara) list = list.filter((v) => v.key !== currentChara);
@@ -955,7 +955,7 @@ export function GalleryCharactersSelect({
       list?.some((item) => item === value)
     );
   }, [searchParams, charaLabelOptions]);
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
   }, [charactersMap]);

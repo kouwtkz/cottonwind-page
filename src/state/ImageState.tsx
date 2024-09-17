@@ -35,7 +35,7 @@ export const useImageState = create<imageStateType>((set) => ({
 }));
 
 export function ImageState() {
-  const imagesData = useAtom(imageDataObject.dataAtom)[0];
+  const imagesData = imageDataObject.useData()[0];
   const env = useEnv()[0];
   const { set } = useImageState();
   useEffect(() => {

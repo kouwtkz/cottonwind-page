@@ -1,22 +1,22 @@
-import { atom, PrimitiveAtom, SetStateAction } from "jotai";
 import { StorageDataClass } from "./StorageDataClass";
 import { corsFetch } from "../fetch";
 import { setPrefix, setSuffix } from "../stringFix";
+import { CreateState, CreateStateFunctionType } from "@/state/CreateState";
 
-interface StorageDataAtomClassProps<T> {
+interface StorageDataStateClassProps<T> {
   src: string;
   key: string;
   version?: string;
-  preLoad?: LoadAtomType;
-  isLogin?: LoadAtomType;
+  preLoad?: LoadStateType;
+  isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };
 }
-export class StorageDataAtomClass<T extends Object = {}> {
+export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
   src: string;
   version: string;
-  dataAtom = atom<T[]>();
-  loadAtom: PrimitiveAtom<LoadAtomType | undefined>;
+  useData = CreateState<T[]>();
+  useLoad: CreateStateFunctionType<LoadStateType | undefined>;
   latestField?: { [k in keyof T]: OrderByType };
   latest?: T;
   beforeLastmod?: Date;
@@ -26,11 +26,11 @@ export class StorageDataAtomClass<T extends Object = {}> {
     this._isLogin = isLogin;
     this.storage.Version = setSuffix(this.version, this._isLogin ? "login" : "")
   };
-  constructor({ src, key, version = "1", preLoad, isLogin, latestField }: StorageDataAtomClassProps<T>) {
+  constructor({ src, key, version = "1", preLoad, isLogin, latestField }: StorageDataStateClassProps<T>) {
     this.version = version;
     this.storage = new StorageDataClass(key);
     this.src = src;
-    this.loadAtom = atom(preLoad);
+    this.useLoad = CreateState(preLoad);
     this.latestField = latestField as { [k in keyof T]: OrderByType };
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
@@ -55,7 +55,7 @@ export class StorageDataAtomClass<T extends Object = {}> {
       searchParams: Url.searchParams,
       loadAtomValue,
     });
-    const cache = StorageDataAtomClass.getCacheOption(loadAtomValue);
+    const cache = StorageDataStateClass.getCacheOption(loadAtomValue);
     if (cache) Url.searchParams.set("cache", cache);
     return corsFetch(Url.href, {
       cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -103,7 +103,7 @@ export class StorageDataAtomClass<T extends Object = {}> {
     );
     setAtom(data);
   }
-  static getCacheOption(loadAtomValue?: LoadAtomType) {
+  static getCacheOption(loadAtomValue?: LoadStateType) {
     return typeof loadAtomValue === "string" ? loadAtomValue : undefined;
   }
 }

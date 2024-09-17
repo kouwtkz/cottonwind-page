@@ -1,15 +1,15 @@
 import { useEffect } from "react";
-import { atom, useAtom } from "jotai";
 import { useEnv } from "@/state/EnvState";
 import { postsDataObject } from "./DataState";
+import { CreateState } from "./CreateState";
 
-export const postsAtom = atom<PostType[]>();
-export const postsMapAtom = atom<Map<string, PostType>>();
+export const usePosts = CreateState<PostType[]>();
+export const usePostsMap = CreateState<Map<string, PostType>>();
 
 export default function PostState() {
-  const postsData = useAtom(postsDataObject.dataAtom)[0];
-  const setPosts = useAtom(postsAtom)[1];
-  const setPostsMap = useAtom(postsMapAtom)[1];
+  const postsData = postsDataObject.useData()[0];
+  const setPosts = usePosts()[1];
+  const setPostsMap = usePostsMap()[1];
   const env = useEnv()[0];
   useEffect(() => {
     if (postsData && env) {

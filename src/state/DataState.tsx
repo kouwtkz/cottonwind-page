@@ -1,4 +1,3 @@
-import { atom, useAtom } from "jotai";
 import { useApiOrigin, useIsLogin } from "./EnvState";
 import { useEffect, useState } from "react";
 import { jsonFileDialog } from "@/components/FileTool";
@@ -8,9 +7,10 @@ import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
-import { StorageDataAtomClass as SdaClass } from "@/functions/storage/StorageDataAtomClass";
+import { StorageDataStateClass as SdsClass } from "@/functions/storage/StorageDataStateClass";
+import { CreateState } from "./CreateState";
 
-export const imageDataObject = new SdaClass<ImageDataType>({
+export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
   version: "1.3.1",
@@ -18,7 +18,7 @@ export const imageDataObject = new SdaClass<ImageDataType>({
   latestField: { time: "desc" },
 });
 
-export const charactersDataObject = new SdaClass<CharacterDataType>({
+export const charactersDataObject = new SdsClass<CharacterDataType>({
   key: "characters",
   src: "/data/characters",
   version: "1.3.1",
@@ -26,7 +26,7 @@ export const charactersDataObject = new SdaClass<CharacterDataType>({
   latestField: { id: "desc" },
 });
 
-export const postsDataObject = new SdaClass<PostDataType>({
+export const postsDataObject = new SdsClass<PostDataType>({
   key: "posts",
   src: "/data/posts",
   version: "1.3.1",
@@ -34,7 +34,7 @@ export const postsDataObject = new SdaClass<PostDataType>({
   latestField: { time: "desc" },
 });
 
-export const soundsDataObject = new SdaClass<PostDataType>({
+export const soundsDataObject = new SdsClass<PostDataType>({
   key: "sounds",
   src: "/data/sounds",
   version: "1.2.0",
@@ -43,7 +43,7 @@ export const soundsDataObject = new SdaClass<PostDataType>({
 });
 
 const allDataSrc = "/data/all";
-export const allLoadAtom = atom<LoadAtomType>(true);
+export const allDataLoadState = CreateState<LoadStateType>(true);
 
 export function DataState() {
   const isLogin = useIsLogin()[0];
@@ -57,8 +57,8 @@ export function DataState() {
     }
   }, [isLogin]);
   const apiOrigin = useApiOrigin()[0];
-  const [imagesLoad, setImagesLoad] = useAtom(imageDataObject.loadAtom);
-  const setImagesData = useAtom(imageDataObject.dataAtom)[1];
+  const [imagesLoad, setImagesLoad] = imageDataObject.useLoad();
+  const setImagesData = imageDataObject.useData()[1];
   useEffect(() => {
     if (settedIsLogin && imagesLoad && apiOrigin) {
       imageDataObject
@@ -76,10 +76,9 @@ export function DataState() {
     }
   }, [settedIsLogin, apiOrigin, imagesLoad, setImagesLoad, setImagesData]);
 
-  const [charactersLoad, setCharactersLoad] = useAtom(
-    charactersDataObject.loadAtom
-  );
-  const setCharactersData = useAtom(charactersDataObject.dataAtom)[1];
+  const [charactersLoad, setCharactersLoad] =
+    charactersDataObject.useLoad();
+  const setCharactersData = charactersDataObject.useData()[1];
   useEffect(() => {
     if (settedIsLogin && charactersLoad && apiOrigin) {
       charactersDataObject
@@ -103,8 +102,8 @@ export function DataState() {
     setCharactersData,
   ]);
 
-  const [postsLoad, setPostsLoad] = useAtom(postsDataObject.loadAtom);
-  const setPostsData = useAtom(postsDataObject.dataAtom)[1];
+  const [postsLoad, setPostsLoad] = postsDataObject.useLoad();
+  const setPostsData = postsDataObject.useData()[1];
   useEffect(() => {
     if (settedIsLogin && postsLoad && apiOrigin) {
       postsDataObject
@@ -122,8 +121,8 @@ export function DataState() {
     }
   }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
-  const [soundsLoad, setSoundsLoad] = useAtom(soundsDataObject.loadAtom);
-  const setSoundsData = useAtom(postsDataObject.dataAtom)[1];
+  const [soundsLoad, setSoundsLoad] = soundsDataObject.useLoad();
+  const setSoundsData = postsDataObject.useData()[1];
   useEffect(() => {
     if (settedIsLogin && postsLoad && apiOrigin) {
       postsDataObject
@@ -141,11 +140,11 @@ export function DataState() {
     }
   }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
-  const [allLoad, setAllLoad] = useAtom(allLoadAtom);
+  const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
     if (settedIsLogin && apiOrigin && allLoad) {
       const Url = new URL(allDataSrc, apiOrigin);
-      const cache = SdaClass.getCacheOption(allLoad);
+      const cache = SdsClass.getCacheOption(allLoad);
       imageDataObject.setSearchParamsOption({
         searchParams: Url.searchParams,
         loadAtomValue: allLoad,

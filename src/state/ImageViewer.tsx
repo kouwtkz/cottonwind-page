@@ -13,9 +13,9 @@ import { ImageMee } from "@/layout/ImageMee";
 import CloseButton from "../components/svg/button/CloseButton";
 import { EmbedNode, getEmbedURL } from "./Embed";
 import ImageEditForm, {
-  imageEditIsDirty,
-  imageEditIsEdit,
-  imageEditIsEditHold,
+  useImageEditIsDirty,
+  useImageEditIsEdit,
+  useImageEditIsEditHold,
 } from "../routes/edit/ImageEditForm";
 import {
   defaultGalleryTags,
@@ -29,7 +29,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { charactersMapAtom, CharacterState } from "./CharacterState";
+import { useCharactersMap, CharacterState } from "./CharacterState";
 import { useImageState } from "./ImageState";
 import { dataIsCompleteAtom } from "./StateSet";
 import { useGalleryObject } from "../routes/GalleryPage";
@@ -73,9 +73,9 @@ function InfoArea({ image }: InfoAreaProps) {
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const { onClose } = useImageViewer();
   const searchParams = useSearchParams()[0];
-  const stateIsEdit = useAtom(imageEditIsEdit)[0];
-  const [stateIsEditHold] = useAtom(imageEditIsEditHold);
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const stateIsEdit = useImageEditIsEdit()[0];
+  const [stateIsEditHold] = useImageEditIsEditHold();
+  const charactersMap = useCharactersMap()[0];
   const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
@@ -312,13 +312,13 @@ function PreviewArea({ image }: PreviewAreaProps) {
 export function ImageViewer() {
   const { imagesMap } = useImageState();
   const { isOpen, onOpen, onClose } = useImageViewer();
-  const [isDirty, setIsDirty] = useAtom(imageEditIsDirty);
+  const [isDirty, setIsDirty] = useImageEditIsDirty();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
   const l = useLocation();
   const state = l.state;
   const imageParam = searchParams.get("image");
-  const setIsEdit = useAtom(imageEditIsEdit)[1];
+  const setIsEdit = useImageEditIsEdit()[1];
 
   function backAction() {
     if (

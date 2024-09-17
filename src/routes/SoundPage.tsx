@@ -1,9 +1,8 @@
 import toast from "react-hot-toast";
 import { useSoundPlayer } from "@/state/SoundPlayer";
-import { soundAlbumAtom, soundsAtom, SoundState } from "@/state/SoundState";
+import { useSoundAlbum, useSounds } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
-import { atom, useAtom } from "jotai";
 import { useSearchParams } from "react-router-dom";
 import { useIsLogin } from "@/state/EnvState";
 
@@ -24,8 +23,8 @@ export function SoundPage() {
 }
 
 function SoundMainPage() {
-  const sounds = useAtom(soundsAtom)[0];
-  const soundAlbum = useAtom(soundAlbumAtom)[0];
+  const sounds = useSounds()[0];
+  const soundAlbum = useSoundAlbum()[0];
   const {
     Play,
     Pause,
@@ -39,7 +38,6 @@ function SoundMainPage() {
 
   return (
     <>
-      <SoundState />
       <h1
         className="title en-title-font cursor-pointer"
         onClick={() => {

@@ -1,7 +1,7 @@
-import { Atom, atom, PrimitiveAtom, useAtom } from "jotai";
+import { atom, PrimitiveAtom, useAtom } from "jotai";
 import { SetStateAction } from "react";
 
-type CreateStateFunctionType<T> = (() => [
+export type CreateStateFunctionType<T> = (() => [
   Awaited<T>,
   SetAtom<[SetStateAction<T>], void>
 ]) & {

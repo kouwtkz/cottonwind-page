@@ -1,4 +1,4 @@
-import { postsAtom } from "@/state/PostState";
+import { usePosts } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { findMee } from "@/functions/findMee";
 import { useLocalDraftPost } from "@/routes/edit/PostForm";
@@ -13,11 +13,9 @@ import {
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
-import { pageIsCompleteAtom } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import { useAtom } from "jotai";
 import { useEnv, useIsLogin } from "@/state/EnvState";
 import { TfiWrite } from "react-icons/tfi";
 import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
@@ -72,7 +70,7 @@ export function PostsPage({
   postId?: string;
 }) {
   const page = Number(p);
-  const posts = useAtom(postsAtom)[0];
+  const posts = usePosts()[0];
   const take = postId ? undefined : 10;
   const { localDraft, getLocalDraft } = useLocalDraftPost();
   const isLogin = useIsLogin()[0];

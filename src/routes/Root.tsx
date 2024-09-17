@@ -4,20 +4,20 @@ import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { MetaValues } from "./SetMeta";
-import { charactersMapAtom } from "@/state/CharacterState";
+import { useCharactersMap } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
-import { postsAtom } from "@/state/PostState";
+import { usePosts } from "@/state/PostState";
 import { StateSet, dataIsCompleteAtom } from "@/state/StateSet";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const { imagesMap } = useImageState();
   const [isComplete] = useAtom(dataIsCompleteAtom);
   const [notFirst, setNotFirst] = useState(false);
-  const posts = useAtom(postsAtom)[0];
+  const posts = usePosts()[0];
   const mediaOrigin = useMediaOrigin()[0];
   const [env] = useEnv();
   if (notFirst) {

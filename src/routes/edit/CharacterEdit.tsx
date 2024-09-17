@@ -30,12 +30,12 @@ import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import toast from "react-hot-toast";
 import {
-  charactersAtom,
-  charactersMapAtom,
-  characterTagsAtom,
+  useCharacters,
+  useCharactersMap,
+  useCharacterTags,
   charaMediaKindMap,
 } from "@/state/CharacterState";
-import { soundsAtom, SoundState } from "@/state/SoundState";
+import { useSounds } from "@/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/theme/main";
 import {
@@ -80,22 +80,26 @@ import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
   );
-  return <><CharacterEditForm chara={chara} /></>;
+  return (
+    <>
+      <CharacterEditForm chara={chara} />
+    </>
+  );
 }
 
 function CharacterEditForm({ chara }: { chara?: CharacterType }) {
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const apiOrigin = useApiOrigin()[0];
   const nav = useNavigate();
-  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
-  const characterTags = useAtom(characterTagsAtom)[0];
-  const sounds = useAtom(soundsAtom)[0];
+  const setCharactersLoad = charactersDataObject.useLoad()[1];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const characterTags = useCharacterTags()[0];
+  const sounds = useSounds()[0];
   const getDefaultValues = useMemo(
     () => ({
       key: chara?.key || "",
@@ -129,7 +133,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
 
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
   useEffect(() => {
-    setTagsOptions(characterTags);
+    if (characterTags) setTagsOptions(characterTags);
   }, [characterTags]);
 
   const schema = z.object({
@@ -311,7 +315,6 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         }}
       />
       <form className="edit">
-        <SoundState />
         <div>
           {chara?.media?.icon ? (
             <ImageMeeIcon className="icon" imageItem={chara.media.icon} />
@@ -501,11 +504,11 @@ export const useEditSwitchState = create<{
 export function CharaEditButton() {
   const apiOrigin = useApiOrigin()[0];
   const isComplete = useAtom(dataIsCompleteAtom)[0];
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const charactersMap = useCharactersMap()[0];
   const { charaName } = useParams();
   const { sortable, set: setEditSwitch } = useEditSwitchState();
-  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
+  const setCharactersLoad = charactersDataObject.useLoad()[1];
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -615,8 +618,8 @@ export function CharaEditButton() {
 }
 
 export function SortableObject() {
-  const [characters, setCharacters] = useAtom(charactersAtom);
-  const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
+  const [characters, setCharacters] = useCharacters();
+  const setCharactersLoad = charactersDataObject.useLoad()[1];
   const [items, setItems] = useState(characters || []);
   const apiOrigin = useApiOrigin()[0];
   useEffect(() => {
@@ -738,8 +741,8 @@ export function CharaImageSettingRbButtons({
     const charaName = params.charaName;
     const apiOrigin = useApiOrigin()[0];
     const mediaOrigin = useMediaOrigin()[0];
-    const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
-    const setCharactersLoad = useAtom(charactersDataObject.loadAtom)[1];
+    const setImagesLoad = imageDataObject.useLoad()[1];
+    const setCharactersLoad = charactersDataObject.useLoad()[1];
     async function toastPromise(
       promise: Promise<unknown>,
       mode: characterImageMode

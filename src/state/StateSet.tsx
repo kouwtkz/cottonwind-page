@@ -8,8 +8,9 @@ import { useEnv, EnvState, useIsLogin } from "./EnvState";
 import { atom, useAtom } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { DataState } from "./DataState";
-import { charactersAtom, CharacterState } from "./CharacterState";
-import PostState, { postsAtom } from "./PostState";
+import { useCharacters, CharacterState } from "./CharacterState";
+import PostState, { usePosts } from "./PostState";
+import { SoundState, useSounds } from "./SoundState";
 
 export const siteIsFirstAtom = atom(true);
 export const dataIsCompleteAtom = atom(false);
@@ -27,10 +28,11 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
 export function StateSet() {
   const isLogin = useIsLogin()[0];
   const isSetList = [
-    Boolean(useImageState().images),
-    Boolean(useAtom(charactersAtom)[0]),
-    Boolean(useAtom(postsAtom)[0]),
     Boolean(useEnv()[0]),
+    Boolean(useImageState().images),
+    Boolean(useCharacters()[0]),
+    Boolean(usePosts()[0]),
+    Boolean(useSounds()[0]),
   ];
   return (
     <>
@@ -43,6 +45,7 @@ export function StateSet() {
         <ImageState />
         <CharacterState />
         <PostState />
+        <SoundState />
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}

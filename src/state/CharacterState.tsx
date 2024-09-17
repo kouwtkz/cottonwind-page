@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useImageState } from "./ImageState";
-import { soundDefaultPlaylistAtom, soundsAtom } from "./SoundState";
-import { atom, useAtom } from "jotai";
+import { useSoundDefaultPlaylist, useSounds } from "./SoundState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
 import { charactersDataObject } from "./DataState";
 import { getCharacterMap } from "@/functions/characterFunctions";
+import { CreateState } from "./CreateState";
 
-export const charactersAtom = atom<CharacterType[]>();
-export const charactersMapAtom = atom<Map<string, CharacterType>>();
-export const characterTagsAtom = atom<ContentsTagsOption[]>([]);
+export const useCharacters = CreateState<CharacterType[]>();
+export const useCharactersMap = CreateState<Map<string, CharacterType>>();
+export const useCharacterTags = CreateState<ContentsTagsOption[]>();
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -19,14 +19,14 @@ export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
 ]);
 
 export function CharacterState() {
-  const characterData = useAtom(charactersDataObject.dataAtom)[0];
-  const [characters, setCharacters] = useAtom(charactersAtom);
-  const setCharactersMap = useAtom(charactersMapAtom)[1];
+  const characterData = charactersDataObject.useData()[0];
+  const setCharacters = useCharacters()[1];
+  const setCharactersMap = useCharactersMap()[1];
   const { imagesMap } = useImageState();
-  const sounds = useAtom(soundsAtom)[0];
-  const defaultPlaylist = useAtom(soundDefaultPlaylistAtom)[0];
+  const sounds = useSounds()[0];
+  const defaultPlaylist = useSoundDefaultPlaylist()[0];
   const env = useEnv()[0];
-  const setCharacterTags = useAtom(characterTagsAtom)[1];
+  const setCharacterTags = useCharacterTags()[1];
   useEffect(() => {
     if (imagesMap && characterData && env) {
       const charactersMap = getCharacterMap(characterData);

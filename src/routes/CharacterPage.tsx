@@ -13,9 +13,9 @@ import {
   ImageMeeThumbnail,
 } from "@/layout/ImageMee";
 import {
-  charactersAtom,
-  charactersMapAtom,
-  characterTagsAtom,
+  useCharacters,
+  useCharactersMap,
+  useCharacterTags,
 } from "@/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
@@ -101,7 +101,7 @@ export const CharaListItem = memo(function CharaListItem({
 });
 
 function CharaListPage() {
-  const characters = useAtom(charactersAtom)[0];
+  const characters = useCharacters()[0];
   const [searchParams] = useSearchParams();
   const { state } = useLocation();
   const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
@@ -210,12 +210,12 @@ export function CharaBeforeAfter({
   className,
   ...props
 }: CharaBeforeAfterProps) {
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
   );
-  const characters = useAtom(charactersAtom)[0];
+  const characters = useCharacters()[0];
   const { state } = useLocation();
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
@@ -311,7 +311,7 @@ const defaultGalleryList = [
   { name: "given", label: "Fanart", max: 40 },
 ] as GalleryItemType[];
 function CharaDetail({ charaName }: { charaName: string }) {
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const { imageAlbums: albums } = useImageState();
   const searchParams = useSearchParams()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
@@ -410,7 +410,7 @@ const characterSortTags = [
   defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
-  const characterTags = useAtom(characterTagsAtom)[0];
+  const characterTags = useCharacterTags()[0];
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useLocation();

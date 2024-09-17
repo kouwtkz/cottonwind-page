@@ -18,13 +18,12 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
-import { charactersAtom, charactersMapAtom } from "@/state/CharacterState";
+import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import {
   AutoImageItemType,
   getCopyRightList,
 } from "@/functions/imageFunctions";
 import { ToFormJST } from "@/functions/DateFormat";
-import { atom, useAtom } from "jotai";
 import SetRegister from "@/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
@@ -36,9 +35,7 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { useApiOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
-import { FormTags } from "react-hotkeys-hook/dist/types";
 import { imageDataObject, UploadToast } from "@/state/DataState";
-import { sleep } from "@/functions/Time";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -52,15 +49,16 @@ import { corsFetch, corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { dateISOfromLocaltime } from "@/functions/DateFunctions";
+import { CreateState } from "@/state/CreateState";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
 }
 
-export const imageEditIsEdit = atom(false);
-export const imageEditIsEditHold = atom(false);
-export const imageEditIsDirty = atom(false);
-export const imageEditIsBusy = atom(false);
+export const useImageEditIsEdit = CreateState(false);
+export const useImageEditIsEditHold = CreateState(false);
+export const useImageEditIsDirty = CreateState(false);
+export const useImageEditIsBusy = CreateState(false);
 
 function FormToBoolean(v?: string) {
   switch (v) {
@@ -78,19 +76,19 @@ function FormToBoolean(v?: string) {
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
-  const setImagesLoad = useAtom(imageDataObject.loadAtom)[1];
+  const setImagesLoad = imageDataObject.useLoad()[1];
   const copyrightList = useMemo(() => getCopyRightList(images || []), [images]);
-  const characters = useAtom(charactersAtom)[0] || [];
+  const characters = useCharacters()[0] || [];
   const apiOrigin = useApiOrigin()[0];
 
-  const [stateIsEdit, setIsEdit] = useAtom(imageEditIsEdit);
-  const [stateIsEditHold] = useAtom(imageEditIsEditHold);
+  const [stateIsEdit, setIsEdit] = useImageEditIsEdit();
+  const [stateIsEditHold] = useImageEditIsEditHold();
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
   );
-  const [stateIsDirty, setIsDirty] = useAtom(imageEditIsDirty);
-  const [isBusy, setIsBusy] = useAtom(imageEditIsBusy);
+  const [stateIsDirty, setIsDirty] = useImageEditIsDirty();
+  const [isBusy, setIsBusy] = useImageEditIsBusy();
 
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
@@ -267,7 +265,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
-  const charactersMap = useAtom(charactersMapAtom)[0];
+  const charactersMap = useCharactersMap()[0];
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
   }, [charactersMap]);
@@ -749,7 +747,7 @@ export async function ImagesUpload(args: ImagesUploadProps) {
 }
 
 export function ImageGlobalEditModeSwitch() {
-  const [isEditHold, setIsEditHold] = useAtom(imageEditIsEditHold);
+  const [isEditHold, setIsEditHold] = useImageEditIsEditHold();
   return (
     <button
       title={isEditHold ? "元に戻す" : "常に編集モードにする"}

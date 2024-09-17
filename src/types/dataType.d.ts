@@ -10,4 +10,4 @@ interface importEntryDataType<T = unknown> extends dataBaseType<T> {
   deleteBucket?: boolean;
 }
 
-type LoadAtomType = boolean | CacheParamType;
+type LoadStateType = boolean | CacheParamType;

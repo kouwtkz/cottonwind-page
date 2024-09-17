@@ -6,7 +6,7 @@ interface storageReadDataProps<T> {
 }
 interface storageSetSearchParamsOptionProps<T> {
   searchParams: URLSearchParams;
-  loadAtomValue?: LoadAtomType;
+  loadAtomValue?: LoadStateType;
   prefix?: string;
 }
 interface storageFetchDataProps<T>

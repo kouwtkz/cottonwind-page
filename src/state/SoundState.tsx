@@ -1,20 +1,26 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useSoundPlayer } from "./SoundPlayer";
 import { atom, useAtom } from "jotai";
+import { CreateState } from "./CreateState";
+import { soundsDataObject } from "./DataState";
 
-export const soundsAtom = atom<SoundItemType[]>();
-export const soundAlbumAtom = atom<SoundAlbumType>();
-export const soundDefaultPlaylistAtom = atom<SoundPlaylistType>();
-export const soundLoadAtom = atom(true);
+export const useSounds = CreateState<SoundItemType[]>();
+export const useSoundAlbum = CreateState<SoundAlbumType>();
+export const useSoundDefaultPlaylist = CreateState<SoundPlaylistType>();
 
 const url = "/json/sound.json";
 
 export function SoundState() {
-  const setSounds = useAtom(soundsAtom)[1];
-  const setAlbum = useAtom(soundAlbumAtom)[1];
-  const setDefaultPlaylist = useAtom(soundDefaultPlaylistAtom)[1];
-  const [load, setLoad] = useAtom(soundLoadAtom);
+  const setSounds = useSounds()[1];
+  const setAlbum = useSoundAlbum()[1];
+  const setDefaultPlaylist = useSoundDefaultPlaylist()[1];
+  const load = soundsDataObject.useLoad()[0];
+  const data = soundsDataObject.useData()[0];
   const RegistPlaylist = useSoundPlayer((state) => state.RegistPlaylist);
+  useEffect(() => {
+    console.log(data);
+    setSounds([]);
+  }, [data])
   useLayoutEffect(() => {
     if (load) {
       fetch(url)
@@ -47,8 +53,7 @@ export function SoundState() {
             }
           }
         });
-      setLoad(false);
     }
-  }, [load, setLoad, setSounds, setAlbum, setDefaultPlaylist, RegistPlaylist]);
+  }, [load, setSounds, setAlbum, setDefaultPlaylist, RegistPlaylist]);
   return <></>;
 }
