@@ -19,10 +19,10 @@ AUTHOR_NAME = "わたかぜコウ"
 AUTHOR_EN_NAME = "WATAKAZE Kou"
 AUTHOR_EN_NAME_ON_PROP = "WATAKAZE Kou/koʊ/"
 AUTHOR_EN_PROP = "/watakaze koʊ/"
-AUTHOR_IMAGE = "/static/_media/images/art/2024/わたかぜくんの特徴はおおきなおみみ2024.webp"
+AUTHOR_IMAGE = "めぇ20240404"
 
 SINCE = 2017
-SITE_IMAGE = "/static/_media/icons/icon.webp"
+SITE_IMAGE = "コットンの日2023_わたかぜくん"
 
 WAVEBOX = "https://wavebox.me/wave/2l8tqqpnqjdccg85/"
 

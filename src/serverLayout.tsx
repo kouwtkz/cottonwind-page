@@ -98,6 +98,10 @@ export async function ServerLayout({
         })
       )[0];
     }
+    if (c.env.SITE_IMAGE) {
+      const data = await ImageSelectFromKey(c.env.SITE_IMAGE);
+      if (data) imagesMap.set(data.key, toImageType(data));
+    }
     const isCharaName = Boolean(params.charaName);
     if (Url.searchParams.has("image")) {
       const key = Url.searchParams.get("image")!;

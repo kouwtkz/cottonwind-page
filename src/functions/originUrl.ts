@@ -14,7 +14,7 @@ export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
   }
 }
 
-export function getMediaOrigin(env: SiteConfigEnv, origin: string) {
+export function getMediaOrigin(env: SiteConfigEnv, origin?: string) {
   if (env.ORIGIN === origin) {
     return env.MEDIA_ORIGIN;
   } else if (env.PAGES_DEV_ORIGIN === origin) {

@@ -2239,6 +2239,7 @@ ul {
   }
   img.authorImage {
     height: 20em;
+    width: auto;
     max-width: 100%;
   }
   @extend %a-line-none;

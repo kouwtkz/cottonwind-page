@@ -24,8 +24,8 @@ export interface SetMetaProps {
 type MetaValuesReturnType = {
   title: string;
   description: string;
-  image: string;
-  imageSize: { w: number; h: number };
+  image?: string | null;
+  imageSize?: { w: number; h: number };
   noindex?: boolean;
 };
 export function MetaValues({
@@ -197,7 +197,13 @@ export function MetaValues({
   }
   if (!title) title = siteTitle + " - " + env?.OVERVIEW;
   if (!description) description = env?.DESCRIPTION ?? "";
-  if (!image) image = (env?.ORIGIN ?? "") + env?.SITE_IMAGE;
+  if (!image && env?.SITE_IMAGE && imagesMap?.has(env.SITE_IMAGE)) {
+    const imageItem = imagesMap.get(env.SITE_IMAGE)!;
+    image = concatOriginUrl(
+      mediaOrigin,
+      String(imageItem.webp || imageItem.src || imageItem.icon)
+    );
+  }
   return {
     title,
     description,
@@ -210,8 +216,8 @@ export function MetaValues({
 interface MetaTagsProps extends SetMetaProps {
   title: string;
   description: string;
-  image: string;
-  imageSize: { w: number; h: number };
+  image?: string | null;
+  imageSize?: { w: number; h: number };
   card: "summary_large_image";
 }
 export function MetaTags({
@@ -247,13 +253,21 @@ export function MetaTags({
       <meta property="og:site_name" content={env?.TITLE} />
       <meta property="og:type" content="website" />
       <meta property="og:keywords" content={env?.ALTERNATE} />
-      <meta property="og:image" content={image} />
-      <meta property="og:image:width" content={String(imageSize.w)} />
-      <meta property="og:image:height" content={String(imageSize.h)} />
+      {image ? (
+        <>
+          <meta property="og:image" content={image} />
+          {imageSize ? (
+            <>
+              <meta property="og:image:width" content={String(imageSize.w)} />
+              <meta property="og:image:height" content={String(imageSize.h)} />
+            </>
+          ) : null}
+        </>
+      ) : null}
       <meta name="twitter:card" content={card} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      {image ? <meta name="twitter:image" content={image} /> : null}
       {noindex ? <meta name="robots" content="noindex" /> : null}
       {jsonLd ? (
         <script
