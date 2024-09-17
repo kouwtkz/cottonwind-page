@@ -9,7 +9,7 @@ export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
 });
 
-const TableObject = new DBTableClass<soundDataType>({
+const TableObject = new DBTableClass<SoundDataType>({
   table: "sounds",
   createEntry: {
     id: { primary: true },
@@ -33,7 +33,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerSoundsGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });

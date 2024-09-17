@@ -6,6 +6,7 @@ import { ServerCharactersGetData } from "./character";
 import { IsLogin } from "@/ServerContent";
 import { ServerPostsGetData } from "./blog";
 import { getDataWithoutPrefix } from "@/functions/stringFix";
+import { ServerSoundsGetData } from "./sound";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -68,6 +69,16 @@ app.get("/posts", async (c, next) => {
   );
 });
 
+app.get("/sounds", async (c, next) => {
+  return c.json(
+    await ServerSoundsGetData(
+      new URL(c.req.url).searchParams,
+      new MeeSqlD1(c.env.DB),
+      IsLogin(c)
+    )
+  );
+});
+
 app.get("/all", async (c, next) => {
   const isLogin = IsLogin(c);
   const Url = new URL(c.req.url);
@@ -77,6 +88,7 @@ app.get("/all", async (c, next) => {
     images: await ServerImagesGetData(new URLSearchParams(getDataWithoutPrefix("images", query)), db, isLogin),
     characters: await ServerCharactersGetData(new URLSearchParams(getDataWithoutPrefix("characters", query)), db, isLogin),
     posts: await ServerPostsGetData(new URLSearchParams(getDataWithoutPrefix("posts", query)), db, isLogin),
+    sounds: await ServerSoundsGetData(new URLSearchParams(getDataWithoutPrefix("sounds", query)), db, isLogin),
   });
 });
 

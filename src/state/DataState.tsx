@@ -34,7 +34,7 @@ export const postsDataObject = new SdsClass<PostDataType>({
   latestField: { time: "desc" },
 });
 
-export const soundsDataObject = new SdsClass<PostDataType>({
+export const soundsDataObject = new SdsClass<SoundDataType>({
   key: "sounds",
   src: "/data/sounds",
   version: "1.2.0",
@@ -56,89 +56,40 @@ export function DataState() {
       setSettedIsLogin(true);
     }
   }, [isLogin]);
+
   const apiOrigin = useApiOrigin()[0];
-  const [imagesLoad, setImagesLoad] = imageDataObject.useLoad();
+  function SdsClassSetData<T extends object>(dataObject: SdsClass<T> ) {
+    const [load, setLoad] = dataObject.useLoad();
+    const setData = dataObject.useData()[1];
+    useEffect(() => {
+      if (settedIsLogin && load && apiOrigin) {
+        dataObject
+          .fetchData({
+            apiOrigin,
+            loadValue: load,
+          })
+          .then((data) => {
+            dataObject.setData({
+              data,
+              setState: setData,
+            });
+          });
+        setLoad(false);
+      }
+    }, [settedIsLogin, apiOrigin, load, setLoad, setData]);
+  }
+  
+  SdsClassSetData(imageDataObject);
   const setImagesData = imageDataObject.useData()[1];
-  useEffect(() => {
-    if (settedIsLogin && imagesLoad && apiOrigin) {
-      imageDataObject
-        .fetchData({
-          apiOrigin,
-          loadAtomValue: imagesLoad,
-        })
-        .then((data) => {
-          imageDataObject.setData({
-            data,
-            setAtom: setImagesData,
-          });
-        });
-      setImagesLoad(false);
-    }
-  }, [settedIsLogin, apiOrigin, imagesLoad, setImagesLoad, setImagesData]);
 
-  const [charactersLoad, setCharactersLoad] =
-    charactersDataObject.useLoad();
+  SdsClassSetData(charactersDataObject);
   const setCharactersData = charactersDataObject.useData()[1];
-  useEffect(() => {
-    if (settedIsLogin && charactersLoad && apiOrigin) {
-      charactersDataObject
-        .fetchData({
-          apiOrigin,
-          loadAtomValue: charactersLoad,
-        })
-        .then((data) => {
-          charactersDataObject.setData({
-            data,
-            setAtom: setCharactersData,
-          });
-        });
-      setCharactersLoad(false);
-    }
-  }, [
-    settedIsLogin,
-    apiOrigin,
-    charactersLoad,
-    setCharactersLoad,
-    setCharactersData,
-  ]);
 
-  const [postsLoad, setPostsLoad] = postsDataObject.useLoad();
+  SdsClassSetData(postsDataObject);
   const setPostsData = postsDataObject.useData()[1];
-  useEffect(() => {
-    if (settedIsLogin && postsLoad && apiOrigin) {
-      postsDataObject
-        .fetchData({
-          apiOrigin,
-          loadAtomValue: postsLoad,
-        })
-        .then((data) => {
-          postsDataObject.setData({
-            data,
-            setAtom: setPostsData,
-          });
-        });
-      setPostsLoad(false);
-    }
-  }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
 
-  const [soundsLoad, setSoundsLoad] = soundsDataObject.useLoad();
-  const setSoundsData = postsDataObject.useData()[1];
-  useEffect(() => {
-    if (settedIsLogin && postsLoad && apiOrigin) {
-      postsDataObject
-        .fetchData({
-          apiOrigin,
-          loadAtomValue: postsLoad,
-        })
-        .then((data) => {
-          postsDataObject.setData({
-            data,
-            setAtom: setPostsData,
-          });
-        });
-      setPostsLoad(false);
-    }
-  }, [settedIsLogin, apiOrigin, postsLoad, setPostsLoad, setPostsData]);
+  SdsClassSetData(soundsDataObject);
+  const setSoundsData = soundsDataObject.useData()[1];
 
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
@@ -147,18 +98,23 @@ export function DataState() {
       const cache = SdsClass.getCacheOption(allLoad);
       imageDataObject.setSearchParamsOption({
         searchParams: Url.searchParams,
-        loadAtomValue: allLoad,
+        loadValue: allLoad,
         prefix: "images",
       });
       charactersDataObject.setSearchParamsOption({
         searchParams: Url.searchParams,
-        loadAtomValue: allLoad,
+        loadValue: allLoad,
         prefix: "characters",
       });
       postsDataObject.setSearchParamsOption({
         searchParams: Url.searchParams,
-        loadAtomValue: allLoad,
+        loadValue: allLoad,
         prefix: "posts",
+      });
+      soundsDataObject.setSearchParamsOption({
+        searchParams: Url.searchParams,
+        loadValue: allLoad,
+        prefix: "sounds",
       });
       if (cache) Url.searchParams.set("cache", cache);
       corsFetch(Url.href, {
@@ -169,15 +125,19 @@ export function DataState() {
           return Promise.all([
             imageDataObject.setData({
               data: v.images as ImageDataType[],
-              setAtom: setImagesData,
+              setState: setImagesData,
             }),
             charactersDataObject.setData({
               data: v.characters as CharacterDataType[],
-              setAtom: setCharactersData,
+              setState: setCharactersData,
             }),
             postsDataObject.setData({
               data: v.posts as PostDataType[],
-              setAtom: setPostsData,
+              setState: setPostsData,
+            }),
+            soundsDataObject.setData({
+              data: v.sounds as SoundDataType[],
+              setState: setSoundsData,
             }),
           ]);
         })
@@ -190,10 +150,10 @@ export function DataState() {
     apiOrigin,
     allLoad,
     setAllLoad,
-    setPostsLoad,
     setImagesData,
     setCharactersData,
     setPostsData,
+    setSoundsData,
   ]);
   return <></>;
 }

@@ -36,26 +36,26 @@ export class StorageDataStateClass<T extends Object = {}> {
   }
   setSearchParamsOption({
     searchParams,
-    loadAtomValue,
+    loadValue,
     prefix,
   }: storageSetSearchParamsOptionProps<T>) {
     const { lastmod, data } = this.storage;
-    if (!data) loadAtomValue === "no-cache-reload";
-    if (loadAtomValue === "no-cache-reload") this.storage.removeItem();
+    if (!data) loadValue === "no-cache-reload";
+    if (loadValue === "no-cache-reload") this.storage.removeItem();
     if (lastmod) searchParams.set(setPrefix("lastmod", prefix), lastmod);
     return searchParams;
   }
   async fetchData({
     src = this.src,
     apiOrigin,
-    loadAtomValue,
+    loadValue,
   }: storageFetchDataProps<T>) {
     const Url = new URL(src, apiOrigin || location.href);
     this.setSearchParamsOption({
       searchParams: Url.searchParams,
-      loadAtomValue,
+      loadValue: loadValue,
     });
-    const cache = StorageDataStateClass.getCacheOption(loadAtomValue);
+    const cache = StorageDataStateClass.getCacheOption(loadValue);
     if (cache) Url.searchParams.set("cache", cache);
     return corsFetch(Url.href, {
       cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -63,7 +63,7 @@ export class StorageDataStateClass<T extends Object = {}> {
   }
   async setData({
     data,
-    setAtom,
+    setState,
     id = "id",
     lastmod = "lastmod",
   }: storageReadDataProps<T>) {
@@ -101,7 +101,7 @@ export class StorageDataStateClass<T extends Object = {}> {
         return a > cm ? a : cm;
       }, "")
     );
-    setAtom(data);
+    setState(data);
   }
   static getCacheOption(loadAtomValue?: LoadStateType) {
     return typeof loadAtomValue === "string" ? loadAtomValue : undefined;

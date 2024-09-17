@@ -1,12 +1,12 @@
 interface storageReadDataProps<T> {
   data?: T[];
-  setAtom: (args_0: SetStateAction<T[] | undefined>) => void;
+  setState: (args_0: SetStateAction<T[] | undefined>) => void;
   id?: string;
   lastmod?: string;
 }
 interface storageSetSearchParamsOptionProps<T> {
   searchParams: URLSearchParams;
-  loadAtomValue?: LoadStateType;
+  loadValue?: LoadStateType;
   prefix?: string;
 }
 interface storageFetchDataProps<T>

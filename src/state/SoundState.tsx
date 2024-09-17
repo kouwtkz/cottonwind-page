@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect } from "react";
 import { useSoundPlayer } from "./SoundPlayer";
-import { atom, useAtom } from "jotai";
 import { CreateState } from "./CreateState";
 import { soundsDataObject } from "./DataState";
 
@@ -18,8 +17,9 @@ export function SoundState() {
   const data = soundsDataObject.useData()[0];
   const RegistPlaylist = useSoundPlayer((state) => state.RegistPlaylist);
   useEffect(() => {
-    console.log(data);
-    setSounds([]);
+    if (data) {
+      setSounds([]);
+    }
   }, [data])
   useLayoutEffect(() => {
     if (load) {

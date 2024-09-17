@@ -1,4 +1,4 @@
-interface soundDataType {
+interface SoundDataType {
   id: number;
   key: string;
   src?: string;
@@ -28,7 +28,7 @@ interface SoundPlaylistType {
   list: SoundItemType[];
 }
 
-interface SoundItemType extends soundDataType {
+interface SoundItemType extends SoundDataType {
   src: string;
   dir?: string;
   title: string;
