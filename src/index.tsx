@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
-import { IsLogin } from "./ServerContent";
+import { IsLogin } from "./admin";
 import { renderHtml } from "./functions/render";
 import { NoIndex, ServerCommon } from "./server";
 import { cors } from "hono/cors";

@@ -200,17 +200,28 @@ export async function ReactResponse({
   );
 }
 
+export interface ServerSimpleLayoutProps {
+  title?: string;
+  noindex?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+  env?: SiteConfigEnv;
+  meta?: React.ReactNode;
+  style?: React.ReactNode;
+  script?: React.ReactNode;
+  logo?: React.ReactNode | boolean | null;
+}
 export function ServerSimpleLayout({
   title,
   noindex,
+  className,
   children,
+  meta,
+  style,
+  script,
   env,
-}: {
-  title?: string;
-  noindex?: boolean;
-  children?: React.ReactNode;
-  env?: SiteConfigEnv;
-}) {
+  logo = true,
+}: ServerSimpleLayoutProps) {
   return (
     <html lang="ja">
       <head>
@@ -220,24 +231,33 @@ export function ServerSimpleLayout({
         <Style
           href={"/css/styles.css" + (env?.VERSION ? "?v=" + env.VERSION : "")}
         />
+        {meta}
+        {style}
       </head>
-      <body>
+      <body className={className}>
         <header id="header">
-          <div className="title-container">
-            <a id="siteTitle" href="/" title={env?.TITLE}>
-              <h2>
-                <img
-                  src="/static/images/webp/cottonwind_logo_min.webp"
-                  alt={env?.TITLE}
-                />
-              </h2>
-            </a>
-          </div>
+          {logo ? (
+            <div className="title-container">
+              <a id="siteTitle" href="/" title={env?.TITLE}>
+                <h2>
+                  {logo === true ? (
+                    <img
+                      src="/static/images/webp/cottonwind_logo_min.webp"
+                      alt={env?.TITLE}
+                    />
+                  ) : (
+                    logo
+                  )}
+                </h2>
+              </a>
+            </div>
+          ) : null}
         </header>
         <div className="content-base">
           {children}
           <Footer env={env} />
         </div>
+        {script}
       </body>
     </html>
   );

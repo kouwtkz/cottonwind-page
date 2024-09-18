@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { autoPostId } from "@/functions/blogFunction";
-import { IsLogin } from "@/ServerContent";
+import { IsLogin } from "@/admin";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { PromiseOrder } from "@/functions/arrayFunction";

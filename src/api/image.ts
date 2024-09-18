@@ -3,7 +3,7 @@ import { optimizeImage } from "wasm-image-optimization";
 import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
-import { IsLogin } from "@/ServerContent";
+import { IsLogin } from "@/admin";
 import {
   KeyValueConvertDBEntry,
   lastModToUniqueNow,

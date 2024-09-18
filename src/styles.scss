@@ -92,10 +92,6 @@
   --form-background-color: var(--dark-form-background-color);
 }
 
-.gray {
-  color: var(--main-color-light-grayish);
-}
-
 @mixin CursorKeyflame($name, $url_or_time, $urls...) {
   $max: length($urls);
   $keyname: cursor-#{$name};
@@ -266,6 +262,10 @@ $desktopWidth: 1280px;
   color: var(--warm-color);
 }
 
+.gray {
+  color: var(--main-color-light-grayish);
+}
+
 .pixel,
 img[src*=".gif"],
 img[data-origin-ext="gif"] {
@@ -314,7 +314,7 @@ style {
   &.large {
     font-size: 1.5rem;
     > * {
-      margin: 0.125rem;
+      margin: 0.5rem;
     }
   }
 }
@@ -558,6 +558,12 @@ a {
 }
 .mr {
   margin-right: 1rem;
+}
+.mt {
+  margin-top: 1rem;
+}
+.mb {
+  margin-bottom: 1rem;
 }
 
 .emoji {
@@ -2400,6 +2406,8 @@ ul {
 
 body.workers {
   margin: 2rem;
+}
+.workers {
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -2416,8 +2424,6 @@ body.workers {
   input,
   button {
     font-size: 1.5rem;
-  }
-  button {
     padding: 0.25rem 1rem;
   }
   .inline-block,

@@ -83,7 +83,7 @@ export function SiteMenu() {
   const isLogin = useIsLogin()[0];
   const list = useMemo(() => {
     const list = (env?.NAV || []).concat();
-    list.push({ name: "setting", url: "setting" });
+    list.push({ name: "admin", url: "admin" });
     list.push({ name: "theme", switch: "theme" });
     return list;
   }, [env, isLogin]);

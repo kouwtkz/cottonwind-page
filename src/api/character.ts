@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
-import { IsLogin } from "@/ServerContent";
+import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { DBTableClass } from "./DBTableClass";

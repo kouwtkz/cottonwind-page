@@ -3,7 +3,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
 import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
-import { IsLogin } from "./ServerContent";
+import { IsLogin } from "./admin";
 import { honoTest } from "./functions";
 import { renderHtml } from "./functions/render";
 import { CompactCode } from "@/functions/doc/StrFunctions";
