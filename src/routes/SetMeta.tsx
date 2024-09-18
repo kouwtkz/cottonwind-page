@@ -123,6 +123,18 @@ export function MetaValues({
           description = "わたかぜコウのサイト内ブログ";
         }
         break;
+      case "admin":
+        title = "かんりしつ | " + siteTitle;
+        switch (list[2]) {
+          case "images":
+            title = "がぞうかんり - " + title;
+            break;
+          case "files":
+            title = "ファイルかんり - " + title;
+            break;
+        }
+        description = "サイトの管理";
+        break;
       case "suggest":
         title = "ていあん | " + siteTitle;
         description = "打ち間違いなど用の誘導";
