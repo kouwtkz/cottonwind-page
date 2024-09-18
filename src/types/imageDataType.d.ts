@@ -37,6 +37,7 @@ interface ImageType extends ImageDataType {
   time?: Date;
   mtime?: Date;
   lastmod?: Date;
+  Src?: string;
   update?: boolean;
   new?: boolean;
 }
