@@ -48,9 +48,9 @@ export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeS
   return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
 }
 
-export async function ServerPostsGetRssData(env: MeeCommonEnv, take = 10) {
+export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
   return await TableObject.Select({
-    db: new MeeSqlD1(env.DB),
+    db,
     where: {
       OR: [{ draft: null }, { draft: 0 }, { schedule: null }, { schedule: 0 }],
       lastmod: { lte: new Date().toISOString() }

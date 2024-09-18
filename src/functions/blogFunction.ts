@@ -86,7 +86,7 @@ export function autoPostId() {
   );
 }
 
-export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[]) {
+export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[], image_url?: string) {
   const SITE_URL = env.ORIGIN;
   return GenerateRss(
     {
@@ -95,7 +95,7 @@ export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[]) {
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
       language: "ja",
-      image_url: `${SITE_URL}${env.SITE_IMAGE}`,
+      image_url,
       pubDate: new Date(postsData.reduce((a, c) => {
         const lastmod = c.lastmod || "";
         return a > lastmod ? a : lastmod

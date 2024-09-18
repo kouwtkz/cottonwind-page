@@ -60,6 +60,16 @@ function judgeJson(r: Response) {
   );
 }
 
+export async function ImageSelectFromKey(db: MeeSqlD1, key: string) {
+  return (
+    await db.select<ImageDataType>({
+      table: "images",
+      where: { key },
+      take: 1,
+    })
+  )[0];
+}
+
 export interface ServerLayoutProps {
   c: CommonContext<MeePagesEnv>;
   path: string;
@@ -89,23 +99,14 @@ export async function ServerLayout({
   let posts: PostType[] = [];
   if (isBot) {
     const db = new MeeSqlD1(c.env.DB);
-    async function ImageSelectFromKey(key: string) {
-      return (
-        await db.select<ImageDataType>({
-          table: "images",
-          where: { key },
-          take: 1,
-        })
-      )[0];
-    }
     if (c.env.SITE_IMAGE) {
-      const data = await ImageSelectFromKey(c.env.SITE_IMAGE);
+      const data = await ImageSelectFromKey(db, c.env.SITE_IMAGE);
       if (data) imagesMap.set(data.key, toImageType(data));
     }
     const isCharaName = Boolean(params.charaName);
     if (Url.searchParams.has("image")) {
       const key = Url.searchParams.get("image")!;
-      const data = await ImageSelectFromKey(key);
+      const data = await ImageSelectFromKey(db, key);
       if (data) imagesMap.set(key, toImageType(data));
     }
     if (isCharaName && !charactersMap) {
@@ -122,17 +123,17 @@ export async function ServerLayout({
             character.media = {};
             if (character.image) {
               character.media.image = toImageType(
-                await ImageSelectFromKey(character.image)
+                await ImageSelectFromKey(db, character.image)
               );
             }
             if (character.headerImage) {
               character.media.headerImage = toImageType(
-                await ImageSelectFromKey(character.headerImage)
+                await ImageSelectFromKey(db, character.headerImage)
               );
             }
             if (character.icon) {
               character.media.icon = toImageType(
-                await ImageSelectFromKey(character.icon)
+                await ImageSelectFromKey(db, character.icon)
               );
             }
           }

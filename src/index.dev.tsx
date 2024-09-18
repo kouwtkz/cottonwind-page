@@ -14,8 +14,6 @@ import { GitLogObject } from "@/data/functions/GitlogObject";
 import { NoIndex, ServerCommon } from "./server";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
-import { ServerPostsGetRssData } from "./api/blog";
-import { MakeRss } from "./functions/blogFunction";
 
 const compactStyles = CompactCode(importStyles);
 
@@ -30,15 +28,6 @@ const stylePath = "/css/styles.css";
 app.get(stylePath, (c) =>
   c.body(compactStyles, { headers: { "Content-Type": "text/css" } })
 );
-
-app.get("/blog/rss.xml", async (c) => {
-  const postsData = await ServerPostsGetRssData(c.env, 10);
-  return new Response(MakeRss(c.env, postsData), {
-    headers: {
-      "Content-Type": "application/xml",
-    },
-  });
-});
 
 honoTest(app);
 ServerCommon(app);

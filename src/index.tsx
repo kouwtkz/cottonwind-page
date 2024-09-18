@@ -6,8 +6,6 @@ import { IsLogin } from "./ServerContent";
 import { renderHtml } from "./functions/render";
 import { NoIndex, ServerCommon } from "./server";
 import { cors } from "hono/cors";
-import { MakeRss } from "./functions/blogFunction";
-import { ServerPostsGetRssData } from "@/api/blog";
 import { cache } from "hono/cache";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
@@ -25,14 +23,6 @@ app.get(
     cacheControl: "max-age=1800",
   })
 );
-app.get("/blog/rss.xml", async (c) => {
-  const postsData = await ServerPostsGetRssData(c.env, 10);
-  return new Response(MakeRss(c.env, postsData), {
-    headers: {
-      "Content-Type": "application/xml",
-    },
-  });
-});
 
 ServerCommon(app);
 RoutingList.forEach((path) => {
