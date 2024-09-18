@@ -7,9 +7,10 @@ import { Context, Next } from "hono";
 import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
 import { MeeSqlD1 } from "./functions/MeeSqlD1";
-import { getCharacterMap } from "./functions/characterFunctions";
-import { toImageType } from "./functions/imageFunctions";
+import { getCharacterMap } from "@/functions/characterFunction";
+import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
+import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
 
 export function DefaultMeta() {
   return (
@@ -58,16 +59,6 @@ function judgeJson(r: Response) {
     r.status === 200 &&
     r.headers.get("content-type")?.includes("application/json")
   );
-}
-
-export async function ImageSelectFromKey(db: MeeSqlD1, key: string) {
-  return (
-    await db.select<ImageDataType>({
-      table: "images",
-      where: { key },
-      take: 1,
-    })
-  )[0];
 }
 
 export interface ServerLayoutProps {

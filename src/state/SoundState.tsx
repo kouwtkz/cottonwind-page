@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useSoundPlayer } from "./SoundPlayer";
 import { CreateState } from "./CreateState";
 import { soundAlbumsDataObject, soundsDataObject } from "./DataState";
-import { getSoundAlbumsMap, getSoundsMap } from "@/functions/soundFunctions";
+import { getSoundAlbumsMap, getSoundsMap } from "@/functions/soundFunction";
 
 export const useSounds = CreateState<SoundItemType[]>();
 export const useSoundsMap = CreateState<Map<string, SoundItemType>>();

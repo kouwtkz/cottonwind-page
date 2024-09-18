@@ -9,8 +9,7 @@ import { renderHtml } from "./functions/render";
 import { CompactCode } from "@/functions/doc/StrFunctions";
 import importStyles from "@/styles.scss";
 import ssg from "./ssg";
-import { GitLogObject } from "@/data/functions/GitlogObject";
-
+import { GitLogObject } from "@/gitlog/GitlogObject";
 import { NoIndex, ServerCommon } from "./server";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";

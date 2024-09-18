@@ -7,7 +7,7 @@ import {
 } from "./serverLayout";
 import { RoutingList } from "./routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
-import { GitLogObject } from "./data/functions/GitlogObject";
+import { GitLogObject } from "@/gitlog/GitlogObject";
 import ENV from "../env.json";
 const { FAVORITE_LINKS } = ENV;
 

@@ -56,7 +56,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
 import { CharaBeforeAfter, CharaListItem } from "../CharacterPage";
-import { ToFormJST } from "@/functions/DateFormat";
+import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
@@ -76,7 +76,6 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
 import { corsFetchJSON } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
-import { dateISOfromLocaltime } from "@/functions/DateFunctions";
 
 export function CharacterEdit() {
   const { charaName } = useParams();

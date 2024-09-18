@@ -37,7 +37,7 @@ import { corsFetch, corsFetchJSON } from "@/functions/fetch";
 import {
   dateJISOfromDate,
   dateISOfromLocaltime,
-} from "@/functions/DateFunctions";
+} from "@/functions/DateFunction";
 
 const backupStorageKey = "backupPostDraft";
 

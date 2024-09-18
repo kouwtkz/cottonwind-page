@@ -1,4 +1,4 @@
-import { getJSTYear } from "../data/functions/TimeFunctions";
+import { getJSTYear } from "@/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {
   return (

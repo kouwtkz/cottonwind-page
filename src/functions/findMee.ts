@@ -1,4 +1,4 @@
-import { AutoAllotDate } from "./DateFunctions";
+import { AutoAllotDate } from "@/functions/DateFunction";
 
 export function findMee<T>({
   list,

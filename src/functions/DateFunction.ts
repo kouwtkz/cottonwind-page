@@ -1,3 +1,19 @@
+// 日本標準時で年の取得をする
+export function getJSTYear(date?: Date | null) {
+  if (!date) return 0;
+  return new Date(date.getTime() + 32400000).getUTCFullYear();
+}
+
+export function ToJST(date?: Date | null) {
+  return (date?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" }) + "+09:00");
+}
+
+export function ToFormJST(date?: Date | null) {
+  return date
+    ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
+    .replace(" ", "T") || "";
+}
+
 export function dateISOfromLocaltime(item?: string, timezone = "+09:00") {
   return item ? new Date(item + timezone).toISOString() : "";
 }

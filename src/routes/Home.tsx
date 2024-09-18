@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import { filterPickFixed } from "../data/functions/FilterImages";
+import { filterPickFixed } from "@/functions/media/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";

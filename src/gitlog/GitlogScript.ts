@@ -1,4 +1,4 @@
-import { getGitLogData } from "./gitlog";
+import { getGitLogData } from "./Gitlog";
 import { resolve } from "path";
 import { writeFileSync } from "fs";
 

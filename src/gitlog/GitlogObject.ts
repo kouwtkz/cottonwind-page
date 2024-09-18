@@ -1,4 +1,4 @@
-import { getGitLogData, getGitLogDataProps, getGitLogItemList } from "./gitlog";
+import { getGitLogData, getGitLogDataProps, getGitLogItemList } from "./Gitlog";
 import { readdirSync, readFileSync } from "fs";
 import { resolve } from "path";
 
@@ -19,7 +19,7 @@ export function getGitLogReduced(gitLogList: GitLogItemType[]) {
   })
   return gitLogReduced;
 }
-export function GitLogObject({ gitlogJsonPath = "./src/data/gitlog", ...args }: GitLogObjectProps = {}) {
+export function GitLogObject({ gitlogJsonPath = "./src/gitlog/data", ...args }: GitLogObjectProps = {}) {
   let { list, remote_url } = getGitLogData(args)
   try {
     readdirSync(gitlogJsonPath).map(name =>

@@ -4,7 +4,7 @@ import { useSoundDefaultPlaylist, useSounds } from "./SoundState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
 import { charactersDataObject } from "./DataState";
-import { getCharacterMap as getCharactersMap } from "@/functions/characterFunctions";
+import { getCharacterMap as getCharactersMap } from "@/functions/characterFunction";
 import { CreateState } from "./CreateState";
 
 export const useCharacters = CreateState<CharacterType[]>();
