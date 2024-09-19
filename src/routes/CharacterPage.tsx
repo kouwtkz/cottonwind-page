@@ -36,7 +36,6 @@ import {
   ContentsTagsOption,
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
-import { useAtom } from "jotai";
 import { useIsLogin } from "@/state/EnvState";
 
 export function CharacterPage() {
@@ -172,7 +171,7 @@ function CharaListPage() {
     let list = characters
       ? findMee({ list: [...characters], where, orderBy: orderBySort })
       : [];
-    if (!showAll) list = list.filter((chara) => chara.media?.image);
+    if (!showAll) list = list.filter((chara) => chara.visible);
     return list;
   }, [where, characters, orderBySort, showAll]);
   const { sortable } = useEditSwitchState();
@@ -243,7 +242,7 @@ export function CharaBeforeAfter({
         where: { AND: wheres },
       });
     }
-    if (!showAll) list = list.filter((chara) => chara.media?.image);
+    if (!showAll) list = list.filter((chara) => chara.visible);
     return list;
   }, [characters, state, showAll]);
   const charaIndex = useMemo(

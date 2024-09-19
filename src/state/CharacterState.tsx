@@ -41,13 +41,13 @@ export function CharacterState() {
             charaMedia[key] = imagesMap.get(chara.key);
           }
         });
+        chara.visible = Boolean(chara.media.image || chara.media.icon);
 
         if (sounds && defaultPlaylist) {
           let playlist = chara.playlist;
           if (playlist) {
             const playlistTitle = `${chara.name}のプレイリスト`;
             if (!chara.media) chara.media = {};
-
             chara.media.playlist = {
               title: playlistTitle,
               list: playlist

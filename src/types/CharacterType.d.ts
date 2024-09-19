@@ -26,6 +26,7 @@ interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "b
   time?: Date,
   birthday?: Date,
   lastmod?: Date,
+  visible?: boolean;
   media?: {
     icon?: ImageType | null,
     image?: ImageType | null,
