@@ -257,6 +257,7 @@ export function ServerSimpleLayout({
           {children}
           <Footer env={env} />
         </div>
+        <SvgMaskSns />
         {script}
       </body>
     </html>
