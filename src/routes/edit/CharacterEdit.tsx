@@ -16,6 +16,7 @@ import { useAtom } from "jotai";
 import { useDataIsComplete } from "@/state/StateSet";
 import {
   MdAdd,
+  MdCleaningServices,
   MdClose,
   MdDoneOutline,
   MdEditNote,
@@ -76,6 +77,9 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
 import { corsFetchJSON } from "@/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
+import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { BiBomb } from "react-icons/bi";
+import { SendDelete } from "@/functions/sendFunction";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -244,7 +248,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     (mode: characterImageMode, title = "画像の設定") => {
       return (
         <button
-          className={"normal" + (chara?.media?.[mode] ? " plain" : "")}
+          className={"normal setter" + (chara?.media?.[mode] ? " plain" : "")}
           title={title}
           type="button"
           onClick={() => {
@@ -450,36 +454,57 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             {...register("description")}
           />
         </div>
-        <div className="flex around">
-          <span>
+        <div className="flex around wrap">
+          <DropdownObject
+            MenuButton={<BiBomb />}
+            MenuButtonTitle="危険ゾーン"
+            MenuButtonClassName="plain warm-bg"
+          >
             <button
-              disabled={!isDirty}
               type="button"
-              onClick={() =>
-                reset({}, { keepDefaultValues: true, keepDirty: true })
-              }
+              className="squared item"
+              disabled={!Boolean(chara)}
+              onClick={() => {
+                if (chara && confirm("本当に削除しますか？")) {
+                  SendDelete({
+                    url: concatOriginUrl(apiOrigin, "/character/send"),
+                    data: { target: chara.key },
+                  }).then((r) => {
+                    if (r.ok) {
+                      setCharactersLoad("no-cache");
+                      nav("/character", { replace: true });
+                    }
+                  });
+                }
+              }}
             >
-              リセット
+              削除
             </button>
-          </span>
-          <span>
-            <button
-              disabled={!isDirty}
-              type="button"
-              onClick={() => onSubmit()}
-            >
-              適用
-            </button>
-          </span>
-          <span>
-            <button
-              disabled={!isDirty}
-              type="button"
-              onClick={() => onSubmit(true)}
-            >
-              送信
-            </button>
-          </span>
+          </DropdownObject>
+          <button
+            disabled={!isDirty}
+            type="button"
+            title="リセット"
+            onClick={() =>
+              reset({}, { keepDefaultValues: true, keepDirty: true })
+            }
+          >
+            <MdCleaningServices />
+          </button>
+          <button
+            disabled={!isDirty}
+            type="button"
+            onClick={handleSubmit(() => onSubmit())}
+          >
+            適用
+          </button>
+          <button
+            disabled={!isDirty}
+            type="button"
+            onClick={handleSubmit(() => onSubmit(true))}
+          >
+            送信
+          </button>
         </div>
       </form>
     </>

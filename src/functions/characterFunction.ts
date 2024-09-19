@@ -1,6 +1,7 @@
 export function getCharacterMap(data: CharacterDataType[]) {
   const charactersMap = new Map<string, CharacterType>();
   data.forEach((v) => {
+    if (!v.name) return;
     const item: CharacterType = {
       ...v,
       media: {},

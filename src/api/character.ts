@@ -66,7 +66,7 @@ app.post("/send", async (c, next) => {
       const entry = TableObject.getInsertEntry({ data });
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
-      const target_id = data.target ? String(data.target) : undefined;
+      const target_id = data.target || data.key;
       const target = target_id
         ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
         : undefined;
@@ -104,6 +104,27 @@ app.post("/import", async (c, next) => {
   }
   return c.text("インポートに失敗しました", 500);
 })
+
+app.delete("/send", async (c) => {
+  const data = await c.req.json();
+  const key = data.target;
+  if (key) {
+    const db = new MeeSqlD1(c.env.DB);
+    try {
+      await TableObject.Update({
+        db,
+        entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
+        where: { key }
+      });
+      return c.text(key);
+    } catch {
+      return c.text("データベースでの削除に失敗しました", { status: 500 });
+    }
+  } else {
+    return c.text("ID未指定です", { status: 500 });
+  }
+});
+
 app.delete("/all", async (c, next) => {
   if (c.env.DEV) {
     const db = new MeeSqlD1(c.env.DB);

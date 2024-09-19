@@ -38,6 +38,7 @@ import {
   dateJISOfromDate,
   dateISOfromLocaltime,
 } from "@/functions/DateFunction";
+import { SendDelete } from "@/functions/sendFunction";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -232,30 +233,15 @@ export function PostForm() {
   };
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
-      toast
-        .promise(
-          corsFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            } as ContentTypeHeader,
-            body: JSON.stringify({ postId: getValues("postId") }),
-          }).then(async (r) => {
-            if (r.ok) return r;
-            else throw await r.text();
-          }),
-          {
-            loading: "削除中",
-            success: "削除しました",
-            error: (e) => "削除に失敗しました" + (e ? `\n[${e}]` : ""),
-          }
-        )
-        .then((r) => {
-          if (r.ok) {
-            setPostsLoad("no-cache");
-            nav("/blog", { replace: true });
-          }
-        });
+      SendDelete({
+        url: concatOriginUrl(apiOrigin, "/blog/send"),
+        data: { postId: getValues("postId") },
+      }).then((r) => {
+        if (r.ok) {
+          setPostsLoad("no-cache");
+          nav("/blog", { replace: true });
+        }
+      });
     }
   };
   useEffect(() => {
