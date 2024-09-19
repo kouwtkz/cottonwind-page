@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
-import { useAtom } from "jotai";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { LinksStateClass } from "@/state/LinksState";
@@ -109,27 +108,24 @@ function InviteDiscordLink({
   );
 }
 
+const myBanners: { w: number; h: number; src: string }[] = [
+  { w: 200, h: 40, src: "/static/images/banner/banner_cottonwind_200_40.png" },
+  { w: 234, h: 60, src: "/static/images/banner/banner_cottonwind_234_60.png" },
+];
+
 export function MyBanners() {
   return (
     <div className="bannerArea">
-      <div>
-        <div>200×40 px</div>
-        <img
-          src="/static/images/banner/banner_cottonwind_200_40.png"
-          alt="200×40バナー"
-          width={200}
-          height={40}
-        />
-      </div>
-      <div>
-        <div>234×60 px</div>
-        <img
-          src="/static/images/banner/banner_cottonwind_234_60.png"
-          alt="234×60バナー"
-          width={234}
-          height={60}
-        />
-      </div>
+      {myBanners.map(({ w, h, src }, i) => (
+        <div key={i}>
+          <div>
+            {w}×{h} px
+          </div>
+          <a href={src} target="banner" className="overlay">
+            <img src={src} alt={`${w}×${h}バナー"`} width={w} height={h} className="banner" />
+          </a>
+        </div>
+      ))}
     </div>
   );
 }
