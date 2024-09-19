@@ -1982,6 +1982,7 @@ select.yearFilter {
     width: 100%;
     background-color: var(--lightbox-background-preview);
     position: relative;
+    overflow: hidden;
     .imageArea {
       display: flex;
       align-items: center;

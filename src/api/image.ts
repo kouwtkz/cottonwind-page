@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { optimizeImage } from "wasm-image-optimization";
 import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
@@ -135,46 +134,6 @@ app.delete("/send", async (c, next) => {
   return c.text("削除するデータがありません");
 });
 
-async function Resize({
-  image,
-  size,
-  quality,
-  format,
-  metaSize,
-}: {
-  image: BufferSource;
-  size: number;
-  quality?: number;
-  format?: "jpeg" | "png" | "webp";
-  metaSize?: { width: number; height: number };
-}) {
-  const resizable = metaSize
-    ? metaSize.height * metaSize.width > size * size
-    : true;
-  if (resizable) {
-    const width = metaSize
-      ? metaSize.width > metaSize.height
-        ? undefined
-        : size
-      : size;
-    const height = metaSize
-      ? metaSize.height > metaSize.width
-        ? undefined
-        : size
-      : size;
-    if (width || height) {
-      return await optimizeImage({
-        format,
-        image,
-        width,
-        height,
-        quality,
-      });
-    }
-  }
-  return null;
-}
-
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const formData = await c.req.formData();
@@ -206,67 +165,27 @@ app.post("/send", async (c, next) => {
       };
     }
   }
+  await fileModeUpload("src", webp);
   await fileModeUpload("webp", webp);
   await fileModeUpload("thumbnail", thumbnail);
   await fileModeUpload("icon", icon);
-  const alreadyOptimize = Boolean(icon || webp || thumbnail);
   let imageBuffer: ArrayBuffer | undefined;
   function Select() {
     const where: MeeSqlFindWhereType<ImageDataType> =
       id === null ? { key: name } : { id };
     return TableObject.Select({ db, where });
   }
-  const selectValue = await Select().catch(() =>
-    TableObject.CreateTable({ db }).then(() => Select())
-  );
   const timeNum = Number(mtime);
   const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
   const timeString = time.toISOString();
-  const value = selectValue[0];
-  if (attached) {
-    imageBuffer = await attached.arrayBuffer();
-    const imagePath = "image/" + attached.name;
-    images.src = { path: imagePath };
+  const mainFile = attached || webp || icon;
+  if (!metaSize && mainFile) {
+    imageBuffer = await mainFile.arrayBuffer();
     const arr = new Uint8Array(imageBuffer);
     const blob = new Blob([arr]);
-    const ext = getExtension(attached.name);
-    if (!metaSize) metaSize = await imageDimensionsFromStream(blob.stream());
-    switch (ext) {
-      case "svg":
-        break;
-      default:
-        const webpName = name + ".webp";
-        if (!images.webp && !alreadyOptimize) {
-          images.webp = { path: "image/webp/" + webpName };
-        }
-        if (!images.webp && !alreadyOptimize) {
-          images.webp = { path: "image/thumbnail/" + webpName };
-        }
-        break;
-    }
-    if (value?.mtime !== timeString) {
-      if (images.src && imageBuffer) images.src.buf = imageBuffer;
-      if (imageBuffer && images.webp && !images.webp.buf) {
-        images.webp.buf = await optimizeImage({
-          format: "webp",
-          image: imageBuffer,
-        });
-      }
-      if (imageBuffer && images.thumbnail && !images.thumbnail.buf) {
-        images.thumbnail.buf = await Resize({
-          image: imageBuffer,
-          format: "webp",
-          metaSize,
-          quality: 80,
-          size: c.env.THUMBNAIL_SIZE ?? 320,
-        });
-      }
-    } else if (images.src) {
-      delete images.webp;
-      delete images.thumbnail;
-      delete images.icon;
-    }
+    metaSize = await imageDimensionsFromStream(blob.stream());
   }
+  console.log(images);
   if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
   if (images.webp?.buf)
     await c.env.BUCKET.put(images.webp.path, images.webp.buf);
@@ -276,6 +195,9 @@ app.post("/send", async (c, next) => {
     await c.env.BUCKET.put(images.icon.path, images.icon.buf);
   const pathes = Object.fromEntries(
     Object.entries(images).map(([k, v]) => [k, v.path || undefined])
+  );
+  const selectValue = await Select().catch(() =>
+    TableObject.CreateTable({ db }).then(() => Select())
   );
   if (selectValue.length > 0) {
     const value = selectValue[0];

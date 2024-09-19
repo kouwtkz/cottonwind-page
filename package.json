@@ -54,7 +54,6 @@
     "react-transition-group": "^4.4.5",
     "schema-dts": "^1.1.2",
     "tsqlstring": "^1.0.1",
-    "wasm-image-optimization": "^1.0.4",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
