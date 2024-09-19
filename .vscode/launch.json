@@ -47,6 +47,10 @@
     {
       "name": "Firefox dev with api",
       "configurations": ["Launch Firefox", "dev", "dev api", "dev r2"]
+    },
+    {
+      "name": "Chrome start with api",
+      "configurations": ["Launch Chrome", "start", "dev api", "dev r2"]
     }
   ]
 }
