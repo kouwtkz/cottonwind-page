@@ -13,7 +13,7 @@ import { CreateState } from "./CreateState";
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "1.3.1",
+  version: "1.3.2",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -37,7 +37,7 @@ export const postsDataObject = new SdsClass<PostDataType>({
 export const soundsDataObject = new SdsClass<SoundDataType>({
   key: "sounds",
   src: "/data/sounds",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -45,7 +45,7 @@ export const soundsDataObject = new SdsClass<SoundDataType>({
 export const soundAlbumsDataObject = new SdsClass<SoundAlbumDataType>({
   key: "soundAlbums",
   src: "/data/soundAlbums",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
 });
 
@@ -59,14 +59,23 @@ export const filesDataObject = new SdsClass<FilesRecordDataType>({
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
 
+const DataObjectList: SdsClass<any>[] = [
+  imageDataObject,
+  charactersDataObject,
+  postsDataObject,
+  soundsDataObject,
+  soundAlbumsDataObject,
+  filesDataObject,
+];
+
 export function DataState() {
   const isLogin = useIsLogin()[0];
   const [settedIsLogin, setSettedIsLogin] = useState(false);
   useEffect(() => {
     if (typeof isLogin !== "undefined") {
-      imageDataObject.isLogin = isLogin;
-      charactersDataObject.isLogin = isLogin;
-      postsDataObject.isLogin = isLogin;
+      DataObjectList.forEach((object) => {
+        object.isLogin = isLogin;
+      });
       setSettedIsLogin(true);
     }
   }, [isLogin]);
@@ -143,12 +152,9 @@ export function DataState() {
           })
         );
       }
-      SetSearchParamsOption(imageDataObject);
-      SetSearchParamsOption(charactersDataObject);
-      SetSearchParamsOption(postsDataObject);
-      SetSearchParamsOption(soundsDataObject);
-      SetSearchParamsOption(soundAlbumsDataObject);
-      SetSearchParamsOption(filesDataObject);
+      DataObjectList.forEach((object) => {
+        SetSearchParamsOption(object);
+      });
       if (cache) Url.searchParams.set("cache", cache);
       corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
@@ -226,18 +232,19 @@ interface DataUploadBaseProps {
 interface makeImportFetchListProps<T = unknown> extends DataUploadBaseProps {
   src: string;
   data: T[];
-  partition: number;
-  object: importEntryDataType;
+  partition?: number;
+  object?: importEntryDataType;
 }
-function makeImportFetchList({
+export function makeImportFetchList({
   apiOrigin,
   src,
   data,
-  partition,
+  partition = 250,
   object,
 }: makeImportFetchListProps) {
   return arrayPartition(data, partition).map((item, i) => {
     const entry = { ...object, data: item };
+    console.log(entry);
     if (i === 0) entry.overwrite = true;
     return () =>
       corsFetch(concatOriginUrl(apiOrigin, src), {
