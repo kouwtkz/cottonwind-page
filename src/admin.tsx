@@ -45,7 +45,7 @@ export function LoginRoute<T extends MeeCommonEnv>() {
             <input type="hidden" name="redirect" value={redirect} />
           ) : null}
           {message ? <div className="warm">{message}</div> : null}
-          <button type="submit">送信</button>
+          <button className="color" type="submit">送信</button>
         </form>
       </ServerSimpleLayout>
     );

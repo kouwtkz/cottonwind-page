@@ -92,6 +92,7 @@ export function EditTagsReactSelect({
             <button
               title={addButtonTitle}
               type="button"
+              className="color"
               onClick={() => addTagsPrompt()}
               disabled={isBusy}
             >

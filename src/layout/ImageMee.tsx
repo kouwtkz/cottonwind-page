@@ -262,7 +262,6 @@ export function ImageMeeShowOriginSwitch() {
   return (
     <button
       type="button"
-      className="plain"
       title={showOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
       style={{ opacity: showOrigin ? 1 : 0.4 }}
       onClick={() => {

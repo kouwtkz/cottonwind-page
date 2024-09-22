@@ -34,7 +34,7 @@ export function SoundEditButton() {
         <>
           <button
             type="button"
-            className="round large"
+            className="color round large"
             title="サウンドデータのダウンロード"
             onClick={async () => {
               fileDownload(
@@ -47,7 +47,7 @@ export function SoundEditButton() {
           </button>
           {/* <button
             type="button"
-            className="round large"
+            className="color round large"
             title="サウンドデータベースのインポート"
             onClick={() => {
               ImportSoundJson({ apiOrigin }).then(() => {
@@ -62,14 +62,14 @@ export function SoundEditButton() {
     >
       <Link
         to={switchEditModeLink}
-        className="button round large"
+        className="button color round large"
         title={"サウンド編集モードの切り替え"}
       >
         {isEdit ? <MdArrowBackIosNew /> : <MdEditNote />}
       </Link>
       <button
         type="button"
-        className="round large"
+        className="color round large"
         title="音楽のアップロード"
         onClick={async () => {
           fileDialog("audio/*", true)

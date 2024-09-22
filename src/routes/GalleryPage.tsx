@@ -97,7 +97,7 @@ export function GalleryManageMenuButton({
               {dropdown}
               <button
                 type="button"
-                className="round large"
+                className="color round large"
                 title="ダウンロードする"
                 onClick={async () => {
                   fileDownload(
@@ -110,7 +110,7 @@ export function GalleryManageMenuButton({
               </button>
               <button
                 type="button"
-                className="round large"
+                className="color round large"
                 title="ギャラリーデータベースのインポート"
                 onClick={() => {
                   ImportImagesJson({ apiOrigin, charactersMap }).then(() => {
@@ -127,7 +127,7 @@ export function GalleryManageMenuButton({
           {addRight ? null : children}
           <button
             type="button"
-            className="round large"
+            className="color round large"
             title="アップロードする"
             onClick={() => {
               fileDialog("image/*", true)

@@ -364,7 +364,7 @@ export function BackForwardPost({
     <div {...args} className={"paging" + className}>
       <button
         type="button"
-        className="round"
+        className="color round"
         disabled={!beforePost}
         title={beforePost?.title || ""}
         onClick={() => {
@@ -375,7 +375,7 @@ export function BackForwardPost({
       </button>
       <button
         type="button"
-        className="round"
+        className="color round"
         disabled={!afterPost}
         title={afterPost?.title || ""}
         onClick={() => {
@@ -460,7 +460,7 @@ export function PagingArea({ max, className, ...args }: PagingAreaProps) {
       <button
         type="button"
         title="前のページ"
-        className="round prev"
+        className="color round prev"
         disabled={_min >= p}
         onClick={() => {
           if (pagingInputRef.current) {
@@ -485,7 +485,7 @@ export function PagingArea({ max, className, ...args }: PagingAreaProps) {
       <button
         type="button"
         title="次のページ"
-        className="round next"
+        className="color round next"
         disabled={_max <= p}
         onClick={() => {
           if (pagingInputRef.current) {

@@ -251,7 +251,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     (mode: characterImageMode, title = "画像の設定") => {
       return (
         <button
-          className={"normal setter" + (chara?.media?.[mode] ? " plain" : "")}
+          className={"normal setter" + (chara?.media?.[mode] ? "" : " color")}
           title={title}
           type="button"
           onClick={() => {
@@ -461,7 +461,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           <DropdownObject
             MenuButton={<BiBomb />}
             MenuButtonTitle="危険ゾーン"
-            MenuButtonClassName="plain warm-bg"
+            MenuButtonClassName="warm-bg"
           >
             <button
               type="button"
@@ -485,6 +485,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             </button>
           </DropdownObject>
           <button
+            className="color"
             disabled={!isDirty}
             type="button"
             title="リセット"
@@ -495,6 +496,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             <MdCleaningServices />
           </button>
           <button
+            className="color"
             disabled={!isDirty}
             type="button"
             onClick={handleSubmit(() => onSubmit())}
@@ -502,6 +504,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             適用
           </button>
           <button
+            className="color"
             disabled={!isDirty}
             type="button"
             onClick={handleSubmit(() => onSubmit(true))}
@@ -545,7 +548,7 @@ export function CharaEditButton() {
         <>
           <button
             type="button"
-            className="round large"
+            className="color round large"
             title="キャラデータのダウンロード"
             onClick={async () => {
               fileDownload(
@@ -558,7 +561,7 @@ export function CharaEditButton() {
           </button>
           <button
             type="button"
-            className="round large"
+            className="color round large"
             title="キャラクター用のアイコンのインポート"
             onClick={() => {
               fileDialog("image/*", true)
@@ -587,7 +590,7 @@ export function CharaEditButton() {
           </button>
           <button
             type="button"
-            className="round large"
+            className="color round large"
             title="キャラクターデータベースのインポート"
             onClick={() => {
               ImportCharacterJson({ apiOrigin }).then(() => {
@@ -604,7 +607,7 @@ export function CharaEditButton() {
         <>
           <button
             type="button"
-            className="round"
+            className="color round"
             title="ソートの中止"
             onClick={() =>
               setEditSwitch({ sortable: false, save: false, reset: true })
@@ -614,7 +617,7 @@ export function CharaEditButton() {
           </button>
           <button
             type="button"
-            className="round"
+            className="color round"
             title="ソートの完了"
             onClick={() => setEditSwitch({ sortable: false, save: true })}
           >
@@ -624,7 +627,7 @@ export function CharaEditButton() {
       ) : (
         <button
           type="button"
-          className="round large"
+          className="color round large"
           title="ソートモードにする"
           onClick={() =>
             setEditSwitch({ sortable: true, save: false, reset: false })
@@ -635,7 +638,7 @@ export function CharaEditButton() {
       )}
       <LinkMee
         to={{ query: { edit: "on" } }}
-        className="button round large"
+        className="button color round large"
         title={charaName ? "キャラクターの編集" : "キャラクターの追加"}
       >
         {charaName ? <MdEditNote /> : <MdAdd />}
@@ -811,7 +814,7 @@ export function CharaImageSettingRbButtons({
       <>
         <button
           type="button"
-          className="round"
+          className="color round"
           title="キャラクターのアイコンに設定"
           onClick={async () => {
             const src = image
@@ -847,7 +850,7 @@ export function CharaImageSettingRbButtons({
         </button>
         <button
           type="button"
-          className="round"
+          className="color round"
           title="キャラクターのヘッダーに設定"
           onClick={() => {
             if (image) onClickHandler("headerImage");
@@ -857,7 +860,7 @@ export function CharaImageSettingRbButtons({
         </button>
         <button
           type="button"
-          className="round"
+          className="color round"
           title="キャラクターのメイン画像に設定"
           onClick={() => {
             if (image) onClickHandler("image");

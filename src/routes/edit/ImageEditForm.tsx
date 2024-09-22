@@ -287,7 +287,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <button
               title="マークダウン用のコピー"
               type="button"
-              className="round rb"
+              className="color round rb"
               onClick={() => {
                 if (image) {
                   navigator.clipboard.writeText(`![](?image=${image.name})`);
@@ -305,7 +305,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <button
               title="リセット"
               type="reset"
-              className="round"
+              className="color round"
               onClick={() => {
                 reset(defaultValues);
               }}
@@ -316,7 +316,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <button
               title="削除"
               type="button"
-              className="round red"
+              className="color round red"
               onClick={async () => {
                 if (confirm("本当に削除しますか？")) {
                   if (image && (await SubmitImage({ deleteMode: true }))) {
@@ -342,7 +342,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         <button
           title={isEdit ? "保存" : "編集"}
           type="button"
-          className="round saveEdit"
+          className="color round saveEdit"
           onClick={() => {
             if (isEdit && isDirty) SubmitImage();
             setIsEdit(!isEdit);
@@ -383,6 +383,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <button
                 title="プレビューモードの切り替え"
                 type="button"
+                className="color"
                 onClick={() => togglePreviewMode(getValues("description"))}
               >
                 {previewMode ? "編集に戻る" : "プレビュー"}
@@ -780,6 +781,7 @@ export function ImageGlobalEditModeSwitch() {
     <button
       title={isEditHold ? "元に戻す" : "常に編集モードにする"}
       type="button"
+      className="color"
       onClick={() => {
         setIsEditHold(!isEditHold);
       }}

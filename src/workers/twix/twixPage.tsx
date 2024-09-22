@@ -143,7 +143,9 @@ app.get("/", async (c) => {
               </label>
             </p>
             <p>
-              <button type="submit">送信する</button>
+              <button className="color" type="submit">
+                送信する
+              </button>
             </p>
           </form>
         ) : null}

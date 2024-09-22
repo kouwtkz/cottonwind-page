@@ -43,7 +43,7 @@ export function DropdownObject({
   MenuButtonWhenOpen,
   MenuButtonAfter,
   MenuButtonTitle,
-  MenuButtonClassName,
+  MenuButtonClassName = "color",
   listClassName,
   children,
   onClick,
@@ -75,6 +75,7 @@ export function DropdownObject({
     if (listClassName) list.push(listClassName);
     return list.join(" ");
   }, [listClassName]);
+  
   return (
     <div
       className={_className}

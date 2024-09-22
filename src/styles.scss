@@ -450,7 +450,7 @@ button,
   border: 0;
   outline: none;
   font-weight: 700;
-  &:not(.plain) {
+  &.color {
     color: white;
     background-color: var(--main-color);
     &:hover {

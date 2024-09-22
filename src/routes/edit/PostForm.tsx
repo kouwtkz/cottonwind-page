@@ -425,7 +425,7 @@ export function PostForm() {
           <button
             title="新規カテゴリ"
             type="button"
-            className="add text"
+            className="color add text"
             onClick={() => {
               const answer = prompt("新規カテゴリーを入力してください");
               if (answer !== null) {
@@ -533,12 +533,12 @@ export function PostForm() {
         <div className="action">
           <button
             type="button"
-            className="text"
+            className="color text"
             onClick={() => togglePreviewMode(getValues("body"))}
           >
             プレビュー
           </button>
-          <button className="text" type="submit">
+          <button className="color text" type="submit">
             {updateMode ? "更新する" : "投稿する"}
           </button>
         </div>
