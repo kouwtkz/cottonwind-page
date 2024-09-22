@@ -2021,6 +2021,7 @@ select.yearFilter {
     }
     @media (min-width: $thisMobileWidth) {
       max-height: 100%;
+      overflow: hidden;
       img,
       iframe {
         max-height: max-content;
