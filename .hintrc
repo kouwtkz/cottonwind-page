@@ -11,7 +11,8 @@
           "min-width: fit-content",
           "overscroll-behavior",
           "scrollbar-color",
-          "scrollbar-width"
+          "scrollbar-width",
+          "scrollbar-width: thin"
         ]
       }
     ],
