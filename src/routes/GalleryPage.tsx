@@ -69,7 +69,20 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
   );
 }
 
-export function GalleryManageMenuButton({ group }: { group?: string }) {
+interface GalleryManageMenuButtonProps {
+  group?: string;
+  children?: ReactNode;
+  addRight?: boolean;
+  dropdown?: ReactNode;
+  dropdownRight?: ReactNode;
+}
+export function GalleryManageMenuButton({
+  group,
+  children,
+  addRight,
+  dropdown,
+  dropdownRight,
+}: GalleryManageMenuButtonProps) {
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
@@ -81,6 +94,7 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
         <RbButtonArea
           dropdown={
             <>
+              {dropdown}
               <button
                 type="button"
                 className="round large"
@@ -106,9 +120,11 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
               >
                 <TbDatabaseImport />
               </button>
+              {dropdownRight}
             </>
           }
         >
+          {addRight ? null : children}
           <button
             type="button"
             className="round large"
@@ -131,6 +147,7 @@ export function GalleryManageMenuButton({ group }: { group?: string }) {
           >
             <MdFileUpload />
           </button>
+          {addRight ? children : null}
         </RbButtonArea>
       ) : null}
     </>
@@ -456,10 +473,11 @@ function UploadChain({
         setImagesLoad("no-cache");
       });
     },
-    [item, character]
+    [item, character, apiOrigin]
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
+    accept: {"image/*": []},
     noClick: typeof enableOnClick === "boolean" ? !enableOnClick : true,
   });
   const classNameMemo = useMemo(() => {
@@ -475,7 +493,7 @@ function UploadChain({
         <input
           name="upload"
           id={item ? "upload_" + item.name : undefined}
-          {...getInputProps({ accept: "image/*" })}
+          {...getInputProps()}
         />
         {children}
       </div>

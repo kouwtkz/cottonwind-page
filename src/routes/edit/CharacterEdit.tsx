@@ -271,7 +271,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 .then(async (r) => {
                   setImagesLoad("no-cache");
                   return r
-                    ? ((await r.results[0].json()) as KeyValueType<unknown>)
+                    ? ((await r.results[0].data) as KeyValueType<unknown>)
                     : null;
                 })
                 .then(async (o) => {

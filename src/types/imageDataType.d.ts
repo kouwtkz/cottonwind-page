@@ -4,7 +4,7 @@ interface ImageDataType {
   name?: string | null;
   album?: string | null;
   description?: string | null;
-  src?: string;
+  src?: string | null;
   webp?: string | null;
   thumbnail?: string | null;
   icon?: string | null;

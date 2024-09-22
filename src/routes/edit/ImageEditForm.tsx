@@ -50,6 +50,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
+import axios, { AxiosError } from "axios";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -726,10 +727,19 @@ export async function ImagesUploadProcess({
       return formData;
     })
   );
-  const fetchList = formDataList.map(
-    (body) => () => corsFetch(url, { method: "POST", body })
+  const PostList = formDataList.map(
+    (body) => () =>
+      axios(url, {
+        method: "POST",
+        data: body,
+        withCredentials: true,
+        timeout: 2000,
+      }).catch((e: AxiosError) => {
+        if (e.response) return e.response;
+        else throw e;
+      })
   );
-  const results = await PromiseOrder(fetchList, 10);
+  const results = await PromiseOrder(PostList, 10);
   const successCount = results.filter((r) => r.status === 200).length;
   if (results.length === successCount) {
     return {
@@ -743,8 +753,8 @@ export async function ImagesUploadProcess({
       .map((_, i) => formDataList[i])
       .map((formData) => {
         const src = (formData.get("src") || formData.get("icon")) as srcType;
-        const name = typeof src === "object" && "name" in src ? src.name : src;
-        console.error(name);
+        const name =
+          src && typeof src === "object" && src.name ? src.name : src;
         return name;
       });
     throw {
