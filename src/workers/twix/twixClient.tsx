@@ -14,7 +14,7 @@ function App() {
     if (token) {
       copyArea.addEventListener("click", () => {
         navigator.clipboard?.writeText(token);
-        toast("コピーしました", { autoClose: 1500 });
+        toast.success("コピーしました", { autoClose: 1500 });
       });
     }
   }

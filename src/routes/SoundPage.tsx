@@ -52,7 +52,7 @@ function SoundMainPage() {
                 current: playlist.list.findIndex((sound) => sound.src === src),
                 special: false,
               });
-              toast(playlist.title + "を再生", { autoClose: 1000 });
+              toast.info(playlist.title + "を再生", { autoClose: 1000 });
             }
           } else {
             RegistPlaylist({
@@ -63,7 +63,7 @@ function SoundMainPage() {
               current: sounds?.findIndex((sound) => sound.src === src),
               special: true,
             });
-            toast("すべて再生", { autoClose: 1000 });
+            toast.info("すべて再生", { autoClose: 1000 });
           }
         }}
       >

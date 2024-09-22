@@ -222,7 +222,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       if (turnOff && isEdit) setIsEdit(false);
     });
     if (res.status === 200) {
-      toast(deleteMode ? "削除しました" : "更新しました！", {
+      toast.success(deleteMode ? "削除しました" : "更新しました！", {
         autoClose: 2000,
       });
       if (dirtyFields.rename && fields.rename) {
@@ -291,7 +291,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               onClick={() => {
                 if (image) {
                   navigator.clipboard.writeText(`![](?image=${image.name})`);
-                  toast("コピーしました", { autoClose: 1500 });
+                  toast.success("コピーしました", { autoClose: 1500 });
                 }
               }}
             >
