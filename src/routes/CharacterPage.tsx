@@ -341,7 +341,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
           <div className="charaDetail">
             <CharaBeforeAfter charaName={charaName} />
             {chara.draft ? (
-              <div className="gray">（下書き中のキャラクター）</div>
+              <div className="color-gray">（下書き中のキャラクター）</div>
             ) : null}
             <div className="head">
               <h1 className="title">

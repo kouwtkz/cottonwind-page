@@ -461,7 +461,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           <DropdownObject
             MenuButton={<BiBomb />}
             MenuButtonTitle="危険ゾーン"
-            MenuButtonClassName="warm-bg"
+            MenuButtonClassName="warm"
           >
             <button
               type="button"

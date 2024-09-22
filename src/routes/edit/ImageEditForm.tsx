@@ -316,7 +316,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             <button
               title="削除"
               type="button"
-              className="color round red"
+              className="warm round"
               onClick={async () => {
                 if (confirm("本当に削除しますか？")) {
                   if (image && (await SubmitImage({ deleteMode: true }))) {
