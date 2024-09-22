@@ -16,7 +16,7 @@ import SetRegister from "@/components/hook/SetRegister";
 import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/findMee";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "@/theme/main";
+import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { create } from "zustand";
 import {
   MenuItem,

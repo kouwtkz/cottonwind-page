@@ -47,7 +47,7 @@ import { fileDialog, fileDownload } from "@/components/FileTool";
 import { imageDataObject, ImportImagesJson } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "@/theme/main";
+import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";

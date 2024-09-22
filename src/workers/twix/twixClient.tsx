@@ -1,6 +1,7 @@
+import { defaultToastContainerOptions } from "@/components/define/toastContainerDef";
 import { createRoot } from "react-dom/client";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 const container = document.getElementById("app")!;
 const root = createRoot(container);
 
@@ -19,7 +20,7 @@ function App() {
   }
   return (
     <>
-      <ToastContainer />
+      <ToastContainer {...defaultToastContainerOptions} />
     </>
   );
 }

@@ -11,7 +11,7 @@ import ReactSelect, {
   StylesConfig,
   ThemeConfig,
 } from "react-select";
-import { callReactSelectTheme } from "@/theme/main";
+import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { ReactNode } from "react";
 type setValueFunctionType = (
   name: string,

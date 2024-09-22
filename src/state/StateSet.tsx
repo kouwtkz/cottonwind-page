@@ -1,4 +1,4 @@
-import { Slide, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
@@ -12,6 +12,7 @@ import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
 import { CreateState } from "./CreateState";
 import FileState from "./FileState";
+import { defaultToastContainerOptions } from "@/components/define/toastContainerDef";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -41,19 +42,7 @@ export function StateSet() {
       <DataState />
       <SoundPlayer />
       <ImageViewer />
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Slide}
-      />
+      <ToastContainer {...defaultToastContainerOptions} />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />
