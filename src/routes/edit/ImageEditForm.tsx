@@ -739,7 +739,7 @@ export async function ImagesUploadProcess({
         else throw e;
       })
   );
-  const results = await PromiseOrder(PostList, 10);
+  const results = await PromiseOrder(PostList, { interval: 10 });
   const successCount = results.filter((r) => r.status === 200).length;
   if (results.length === successCount) {
     return {

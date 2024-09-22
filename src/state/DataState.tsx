@@ -192,18 +192,18 @@ export function DataState() {
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
     loading: "アップロード中…",
-    success: (result) => {
-      const kv = result as KeyValueType;
+    success: (r) => {
+      const kv = r as KeyValueType;
       return (
-        unknownToString("message" in kv ? kv.message : result) ||
+        unknownToString(kv && "message" in kv ? kv.message : r) ||
         "アップロードしました"
       );
     },
-    error: (error) => {
-      const kv = error as KeyValueType;
+    error: (e) => {
       return (
-        unknownToString("message" in kv ? kv.message : error) ||
-        "アップロードに失敗しました"
+        unknownToString(
+          e && typeof e === "object" && e.message ? e.message : e
+        ) || "アップロードに失敗しました"
       );
     },
   });
@@ -244,7 +244,6 @@ export function makeImportFetchList({
 }: makeImportFetchListProps) {
   return arrayPartition(data, partition).map((item, i) => {
     const entry = { ...object, data: item };
-    console.log(entry);
     if (i === 0) entry.overwrite = true;
     return () =>
       corsFetch(concatOriginUrl(apiOrigin, src), {
@@ -324,7 +323,7 @@ export async function ImportImagesJson({
       data,
       object,
     });
-    await ImportToast(PromiseOrder(fetchList, 10));
+    await ImportToast(PromiseOrder(fetchList, { interval: 10 }));
   });
 }
 
@@ -365,7 +364,7 @@ export async function ImportCharacterJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, 10));
+    return ImportToast(PromiseOrder(fetchList, { interval: 10 }));
   });
 }
 
@@ -422,6 +421,6 @@ export async function ImportPostJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, 10));
+    return ImportToast(PromiseOrder(fetchList, { interval: 10 }));
   });
 }

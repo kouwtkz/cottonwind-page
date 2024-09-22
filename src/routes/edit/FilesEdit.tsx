@@ -6,7 +6,7 @@ export async function FilesUploadProcess({
   files,
   apiOrigin,
   path,
-  interval = 10
+  interval = 10,
 }: FilesUploadProps) {
   const url = (apiOrigin || "") + path;
   const formDataList = files.map((file) => {
@@ -17,7 +17,7 @@ export async function FilesUploadProcess({
   const fetchList = formDataList.map(
     (body) => () => corsFetch(url, { method: "POST", body })
   );
-  const results = await PromiseOrder(fetchList, interval);
+  const results = await PromiseOrder(fetchList, { interval });
   const successCount = results.filter((r) => r.status === 200).length;
   if (results.length === successCount) {
     return {
@@ -30,7 +30,7 @@ export async function FilesUploadProcess({
       .filter((r) => r.status !== 200)
       .map((_, i) => formDataList[i])
       .map((formData) => {
-        const file = (formData.get("file")) as File;
+        const file = formData.get("file") as File;
         const name = file.name;
         console.error(name);
         return name;

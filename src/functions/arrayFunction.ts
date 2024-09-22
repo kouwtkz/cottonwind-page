@@ -6,7 +6,11 @@ export function arrayPartition<T = unknown>(array: T[], partition: number) {
     .map((_, i) => array.slice(i * partition, (i + 1) * partition))
 }
 
-export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], interval?: number) {
+interface PromiseOrderOptions {
+  interval?: number;
+
+}
+export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { interval }: PromiseOrderOptions) {
   const results: T[] = [];
   for (let i = 0; i < list.length; i++) {
     results.push(await list[i]());

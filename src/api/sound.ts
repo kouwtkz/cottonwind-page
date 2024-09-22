@@ -173,7 +173,7 @@ app.post("/import", async (c, next) => {
       lastModToUniqueNow(list);
       await PromiseOrder(list.map((item) => () =>
         TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
-      ), 0);
+      ), { interval: 0 });
       return c.text("インポートしました！")
     }
   }
@@ -181,6 +181,10 @@ app.post("/import", async (c, next) => {
 })
 app.delete("/all", async (c, next) => {
   if (c.env.DEV) {
+    const list = (await c.env.BUCKET.list({ prefix: "sound" })).objects.map(
+      (object) => object.key
+    );
+    await c.env.BUCKET.delete(list);
     const db = new MeeSqlD1(c.env.DB);
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });

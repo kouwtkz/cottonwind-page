@@ -98,7 +98,7 @@ app.post("/import", async (c, next) => {
       lastModToUniqueNow(list as KeyValueType<any>);
       await PromiseOrder(list.map((item) => () =>
         TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
-      ), 0);
+      ), { interval: 0 });
       return c.text("インポートしました！")
     }
   }
