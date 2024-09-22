@@ -1982,7 +1982,6 @@ select.yearFilter {
     width: 100%;
     background-color: var(--lightbox-background-preview);
     position: relative;
-    overflow: hidden;
     .imageArea {
       display: flex;
       align-items: center;
@@ -2120,10 +2119,11 @@ select.yearFilter {
     .paging {
       display: flex;
       flex-shrink: 0;
-      height: 5rem;
       margin-bottom: 0;
       width: 100%;
-      > * {
+      min-height: 1rem;
+      > *:not(.flex-1) {
+        height: 4.5rem;
         padding-left: 0.5rem;
         padding-right: 0.5rem;
         flex: 1;

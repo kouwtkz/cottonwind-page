@@ -234,6 +234,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
     (src?: string) => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin]
   );
+  const imageUrl = useMemo(() => image.webp || image.src || "", [image]);
   return (
     <div className="preview">
       {image ? (
@@ -246,7 +247,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
             <div className="wh-fill">
               <a
                 title="別タブで画像を開く"
-                href={MediaOrigin(image.webp || image.src)}
+                href={MediaOrigin(imageUrl)}
                 target="_blank"
                 className="translucent-button hover-visible fullscreen"
               >
@@ -291,7 +292,10 @@ function PreviewArea({ image }: PreviewAreaProps) {
                 ) : null
               ) : null}
               <div className="wh-all-fill imageArea">
-                <ImageMee imageItem={image} title={image.name || image.src} />
+                <ImageMee
+                  imageItem={image}
+                  title={image.name || image.src || ""}
+                />
               </div>
             </div>
           )}
@@ -310,7 +314,12 @@ function EmbedOpen({ embed }: { embed?: string }) {
     else return "";
   }, [embed, filesMap]);
   return (
-    <a title="ひらく" href={url} target="_blank" className="open translucent-button">
+    <a
+      title="ひらく"
+      href={url}
+      target="_blank"
+      className="open translucent-button"
+    >
       <RiFilePdf2Fill />
     </a>
   );
