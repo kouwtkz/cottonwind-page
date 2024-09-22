@@ -1,15 +1,18 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
-import { GalleryManageMenuButton, GalleryObject } from "./GalleryPage";
-import { useImageState } from "@/state/ImageState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog } from "@/components/FileTool";
-import { filesDataObject } from "@/state/DataState";
-import { MdFileUpload } from "react-icons/md";
+import {
+  filesDataObject,
+} from "@/state/DataState";
+import {
+  MdFileUpload,
+} from "react-icons/md";
 import { FilesUpload } from "./edit/FilesEdit";
 import { useFiles } from "@/state/FileState";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { ImagesManager } from "./edit/ImagesManager";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -52,20 +55,6 @@ export function AdminDetailPage({ param }: { param: string }) {
   }
 }
 
-function ImagesManager() {
-  const { imageAlbums: albums } = useImageState();
-  const items = useMemo(() => {
-    return Object.values(Object.fromEntries(albums || []));
-  }, [albums]);
-  return (
-    <main>
-      <h2 className="color en-title-font">Images Manager</h2>
-      <GalleryObject items={items} showInPageMenu={false} />
-      <GalleryManageMenuButton />
-    </main>
-  );
-}
-
 function FilesManager() {
   const apiOrigin = useApiOrigin()[0];
   const mediaOrigin = useMediaOrigin()[0];
@@ -76,7 +65,7 @@ function FilesManager() {
       <RbButtonArea>
         <button
           type="button"
-          className="round large"
+          className="color round large"
           title="ファイルのアップロード"
           onClick={async () => {
             fileDialog("*", true)
@@ -93,7 +82,7 @@ function FilesManager() {
         </button>
       </RbButtonArea>
       <main>
-        <h2 className="color en-title-font">File Manager</h2>
+        <h2 className="color-main en-title-font">File Manager</h2>
         <div className="flex column">
           {files?.map((file, i) => {
             return (
