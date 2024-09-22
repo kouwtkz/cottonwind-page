@@ -165,7 +165,7 @@ app.post("/send", async (c, next) => {
       };
     }
   }
-  await fileModeUpload("src", webp);
+  await fileModeUpload("src", attached);
   await fileModeUpload("webp", webp);
   await fileModeUpload("thumbnail", thumbnail);
   await fileModeUpload("icon", icon);
@@ -185,7 +185,6 @@ app.post("/send", async (c, next) => {
     const blob = new Blob([arr]);
     metaSize = await imageDimensionsFromStream(blob.stream());
   }
-  console.log(images);
   if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
   if (images.webp?.buf)
     await c.env.BUCKET.put(images.webp.path, images.webp.buf);
@@ -280,7 +279,7 @@ app.delete("/", async (c, next) => {
 });
 app.delete("/all", async (c, next) => {
   if (c.env.DEV) {
-    const list = (await c.env.BUCKET.list()).objects.map(
+    const list = (await c.env.BUCKET.list({ prefix: "image" })).objects.map(
       (object) => object.key
     );
     await c.env.BUCKET.delete(list);
