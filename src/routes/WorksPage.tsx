@@ -7,7 +7,7 @@ export default function WorksPage() {
   const work = imageAlbums?.get("works");
   return (
     <div className="worksPage">
-      <h2 className="color en-title-font">Works</h2>
+      <h2 className="color-main en-title-font">Works</h2>
       {work ? (
         <GalleryObject
           items={[work]}

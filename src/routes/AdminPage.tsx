@@ -26,7 +26,7 @@ export function AdminPage() {
         <AdminDetailPage param={params.key} />
       ) : (
         <>
-          <h2 className="color en-title-font">Admin room</h2>
+          <h2 className="color-main en-title-font">Admin room</h2>
           <h4>かんりしつ</h4>
           <div className="flex center column large">
             {isLogin ? (

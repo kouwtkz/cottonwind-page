@@ -21,7 +21,7 @@ type ErrorType = {
 export function ErrorContent({ status, statusText }: ErrorType) {
   const errorObj = status ? errorList[status] : null;
   return (
-    <div className="color en-title-font middle">
+    <div className="color-main en-title-font middle">
       {errorObj ? (
         <>
           <h1>{errorObj.h1}</h1>

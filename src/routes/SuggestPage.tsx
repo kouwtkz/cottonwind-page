@@ -1,6 +1,6 @@
 export default function SuggestPage({ env }: { env: MeePagesEnv }) {
   return (
-    <main className="color en-title-font">
+    <main className="color-main en-title-font">
       <h1>SUGGEST</h1>
       <h4>類似サイトへの誘導</h4>
       <div className="gridLink">

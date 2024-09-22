@@ -13,7 +13,7 @@ export default function AboutPage() {
   }, [imagesMap, env?.AUTHOR_IMAGE]);
   return (
     <div className="aboutPage">
-      <h2 className="color en-title-font">About</h2>
+      <h2 className="color-main en-title-font">About</h2>
       <h3>プロフィール</h3>
       {env ? (
         <>
