@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { corsFetch } from "./fetch";
 
 interface SendDeleteProps {
@@ -19,9 +19,13 @@ export async function SendDelete({ url, data }: SendDeleteProps) {
         else throw await r.text();
       }),
       {
-        loading: "削除中",
+        pending: "削除中",
         success: "削除しました",
-        error: (e) => "削除に失敗しました" + (e ? `\n[${e}]` : ""),
+        error: {
+          render({ data: e }) {
+            return "削除に失敗しました" + (e ? `\n[${e}]` : "");
+          }
+        },
       }
     )
 }

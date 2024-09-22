@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
-import toast, { Toaster } from "react-hot-toast";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 const container = document.getElementById("app")!;
 const root = createRoot(container);
 
@@ -12,13 +13,13 @@ function App() {
     if (token) {
       copyArea.addEventListener("click", () => {
         navigator.clipboard?.writeText(token);
-        toast("コピーしました", {duration: 1500});
+        toast("コピーしました", { autoClose: 1500 });
       });
     }
   }
   return (
     <>
-      <Toaster />
+      <ToastContainer />
     </>
   );
 }

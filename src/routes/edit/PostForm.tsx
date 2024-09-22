@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { HotkeyRunEvent } from "@/components/hook/EventSet";
 import * as z from "zod";
 import {
@@ -250,7 +250,7 @@ export function PostForm() {
         Object.entries(errors)
           .map(([key, err]) => `${key}: ${err?.message} [${err?.type}]`)
           .join("\n"),
-        { duration: 2000 }
+        { autoClose: 2000 }
       );
     }
   });
@@ -362,10 +362,17 @@ export function PostForm() {
               }
             ),
             {
-              loading: "送信中",
-              success: (r) =>
-                r.status === 200 ? "更新しました" : "投稿しました",
-              error: (e) => "送信に失敗しました" + (e ? `\n[${e}]` : ""),
+              pending: "送信中",
+              success: {
+                render({ data: r }) {
+                  return r.status === 200 ? "更新しました" : "投稿しました";
+                },
+              },
+              error: {
+                render({ data: e }) {
+                  return "送信に失敗しました" + (e ? `\n[${e}]` : "");
+                },
+              },
             }
           )
           .then(async (r) => {
@@ -382,10 +389,10 @@ export function PostForm() {
             }
           });
       } else {
-        toast.error("更新するデータがありませんでした", { duration: 2000 });
+        toast.error("更新するデータがありませんでした", { autoClose: 2000 });
       }
     } catch (error) {
-      toast.error("エラーが発生しました", { duration: 2000 });
+      toast.error("エラーが発生しました", { autoClose: 2000 });
       console.error(error);
     }
   }, [apiOrigin, defaultValues, getValues, postCategories, nav, updateMode]);

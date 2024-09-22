@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";

@@ -1,4 +1,5 @@
-import { Toaster } from "react-hot-toast";
+import { Slide, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "./ImageViewer";
 import { DataState } from "./DataState";
@@ -40,7 +41,19 @@ export function StateSet() {
       <DataState />
       <SoundPlayer />
       <ImageViewer />
-      <Toaster />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Slide}
+      />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />

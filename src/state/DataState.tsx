@@ -1,7 +1,7 @@
 import { useApiOrigin, useIsLogin } from "./EnvState";
 import { useEffect, useState } from "react";
 import { jsonFileDialog } from "@/components/FileTool";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { corsFetch } from "@/functions/fetch";
@@ -191,20 +191,25 @@ export function DataState() {
 
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
-    loading: "アップロード中…",
-    success: (r) => {
-      const kv = r as KeyValueType;
-      return (
-        unknownToString(kv && "message" in kv ? kv.message : r) ||
-        "アップロードしました"
-      );
+    pending: "アップロード中…",
+    success: {
+      render(r) {
+        const kv = r.data as KeyValueType;
+        return (
+          unknownToString(kv && "message" in kv ? kv.message : r) ||
+          "アップロードしました"
+        );
+      },
     },
-    error: (e) => {
-      return (
-        unknownToString(
-          e && typeof e === "object" && e.message ? e.message : e
-        ) || "アップロードに失敗しました"
-      );
+    error: {
+      render: (r) => {
+        const e = r.data as any;
+        return (
+          unknownToString(
+            e && typeof e === "object" && e.message ? e.message : e
+          ) || "アップロードに失敗しました"
+        );
+      },
     },
   });
 }
@@ -217,9 +222,17 @@ export function ImportToast(promise: Promise<Response | Response[]>) {
       else throw await rs.find((r) => !r.ok)!.text();
     }),
     {
-      loading: "インポート中…",
-      success: (result) => unknownToString(result) || "インポートしました",
-      error: (e) => "インポートに失敗しました" + (e ? `\n[${e}]` : ""),
+      pending: "インポート中…",
+      success: {
+        render({ data: r }) {
+          return unknownToString(r) || "インポートしました";
+        },
+      },
+      error: {
+        render({ data: e }) {
+          return "インポートに失敗しました" + (e ? `\n[${e}]` : "");
+        },
+      },
     }
   );
 }

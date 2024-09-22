@@ -29,7 +29,7 @@ import {
 import { TbArrowsMove, TbDatabaseImport } from "react-icons/tb";
 import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import {
   useCharacters,
   useCharactersMap,
@@ -224,16 +224,19 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           else throw await r.text();
         }),
         {
-          loading: "送信中",
-          success: (res) => {
-            switch (res.status) {
-              case 200:
-                return "キャラクターの更新しました";
-              case 201:
-                return "キャラクターを新たに作成しました";
-              default:
-                return "キャラクターデータが更新されました";
-            }
+          pending: "送信中",
+          success: {
+            render(r) {
+              const res = r.data;
+              switch (res.status) {
+                case 200:
+                  return "キャラクターの更新しました";
+                case 201:
+                  return "キャラクターを新たに作成しました";
+                default:
+                  return "キャラクターデータが更新されました";
+              }
+            },
           },
           error: "送信に失敗しました",
         }
@@ -678,7 +681,7 @@ export function SortableObject() {
                 data,
               }),
               {
-                loading: "並び順の送信中",
+                pending: "並び順の送信中",
                 success: "並び順を登録しました",
                 error: "並び順の登録に失敗しました",
               }
@@ -772,16 +775,18 @@ export function CharaImageSettingRbButtons({
       mode: characterImageMode
     ) {
       return toast.promise(promise, {
-        loading: "送信中",
-        success: () => {
-          switch (mode) {
-            case "icon":
-              return "アイコンに設定しました";
-            case "headerImage":
-              return "ヘッダーに設定しました";
-            case "image":
-              return "メイン画像に設定しました";
-          }
+        pending: "送信中",
+        success: {
+          render() {
+            switch (mode) {
+              case "icon":
+                return "アイコンに設定しました";
+              case "headerImage":
+                return "ヘッダーに設定しました";
+              case "image":
+                return "メイン画像に設定しました";
+            }
+          },
         },
         error: "送信に失敗しました",
       });

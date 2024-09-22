@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useSoundAlbums, useSounds } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
@@ -52,7 +52,7 @@ function SoundMainPage() {
                 current: playlist.list.findIndex((sound) => sound.src === src),
                 special: false,
               });
-              toast(playlist.title + "を再生", { duration: 1000 });
+              toast(playlist.title + "を再生", { autoClose: 1000 });
             }
           } else {
             RegistPlaylist({
@@ -63,7 +63,7 @@ function SoundMainPage() {
               current: sounds?.findIndex((sound) => sound.src === src),
               special: true,
             });
-            toast("すべて再生", { duration: 1000 });
+            toast("すべて再生", { autoClose: 1000 });
           }
         }}
       >
