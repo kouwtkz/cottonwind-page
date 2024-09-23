@@ -2739,6 +2739,8 @@ form.blogEdit {
   }
 }
 
+@import "react-toastify/dist/ReactToastify.css";
+
 .Toastify__toast--default {
   .Toastify__close-button {
     color: var(--main-color-dark-grayish);
