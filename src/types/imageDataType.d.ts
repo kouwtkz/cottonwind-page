@@ -5,9 +5,7 @@ interface ImageDataType {
   album?: string | null;
   description?: string | null;
   src?: string | null;
-  webp?: string | null;
   thumbnail?: string | null;
-  icon?: string | null;
   width?: number | null;
   height?: number | null;
   tags?: string | null;
@@ -16,6 +14,7 @@ interface ImageDataType {
   link?: string | null;
   embed?: string | null;
   type?: string | null;
+  order?: number | null;
   topImage?: number | null;
   pickup?: number | null;
   draft?: number | null;
@@ -68,4 +67,4 @@ interface imageUpdateJsonDataType extends Omit<ImageType, "width" | "height" | "
   rename?: string;
 }
 
-type imageModeType = "src" | "webp" | "thumbnail" | "icon";
+type imageModeType = "src" | "thumbnail";

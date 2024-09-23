@@ -585,16 +585,15 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 }
 
-interface ImagesUploadOptions {
+export interface ImagesUploadOptions {
   album?: string;
   albumOverwrite?: boolean;
   tags?: string | string[];
   character?: string;
-  original?: boolean;
   webp?: boolean;
   thumbnail?: boolean | number;
-  icon?: boolean | number;
-  iconOnly?: boolean | number;
+  webpOptions?: resizeImageCanvasProps;
+  direct?: boolean;
 }
 type srcType = string | File;
 export type srcObjectType = {
@@ -604,7 +603,7 @@ export type srcObjectType = {
   src: srcType;
 };
 type srcWithObjectType = srcType | srcObjectType;
-interface MakeImagesUploadListProps extends ImagesUploadOptions {
+export interface MakeImagesUploadListProps extends ImagesUploadOptions {
   src: srcWithObjectType | srcWithObjectType[];
   apiOrigin?: string;
 }
@@ -615,18 +614,11 @@ export async function MakeImagesUploadList({
   album,
   albumOverwrite,
   character,
-  original = true,
   webp = true,
   thumbnail = true,
-  icon = false,
-  iconOnly = false,
+  webpOptions,
+  direct,
 }: MakeImagesUploadListProps) {
-  if (iconOnly) {
-    original = false;
-    webp = false;
-    thumbnail = false;
-    icon = iconOnly;
-  }
   const url = (apiOrigin || "") + "/image/send";
   const checkTime = new Date().getTime();
   const files = Array.isArray(src) ? src : [src];
@@ -644,7 +636,6 @@ export async function MakeImagesUploadList({
   });
   if (targetFiles.length === 0) return [];
   const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
-  const iconSize = typeof icon === "number" ? icon : 96;
   const formDataList = await Promise.all(
     targetFiles.map(async (v) => {
       const object =
@@ -664,23 +655,23 @@ export async function MakeImagesUploadList({
       if (joinedTags) formData.append("tags", joinedTags);
       const joinedCharacters = JoinUnique(character, object.character);
       if (joinedCharacters) formData.append("characters", joinedCharacters);
-      if (original) formData.append("attached", object.src);
       switch (ext) {
         case "svg":
           break;
         default:
           const image = await imageObject(object.src);
-          if (webp) {
-            if (ext !== "gif") {
-              formData.append(
-                "webp",
-                await resizeImageCanvas({
-                  image,
-                  type: "webp",
-                }),
-                webpName
-              );
-            } else formData.append("webp", "");
+          if (webp && ext !== "gif") {
+            formData.append(
+              "file",
+              await resizeImageCanvas({
+                image,
+                type: "webp",
+                ...webpOptions,
+              }),
+              webpName
+            );
+          } else {
+            formData.append("file", object.src);
           }
           if (thumbnail) {
             const resizeProps: resizeImageCanvasProps = {
@@ -708,27 +699,11 @@ export async function MakeImagesUploadList({
               formData.append("thumbnail", "");
             }
           }
-          if (icon) {
-            const resizeProps: resizeImageCanvasProps = {
-              image,
-              size: iconSize,
-              type: "webp",
-              expansion: false,
-            };
-            formData.append(
-              "icon",
-              await resizeImageCanvas(resizeProps),
-              webpName
-            );
-          }
           break;
       }
+      if (direct) formData.append("direct", "");
       if (typeof object.src === "object")
         formData.append("mtime", String(object.src.lastModified));
-      if (iconOnly) {
-        formData.append("width", String(iconSize));
-        formData.append("height", String(iconSize));
-      }
       return formData;
     })
   );
@@ -746,7 +721,7 @@ export async function MakeImagesUploadList({
   );
 }
 
-interface ImagesUploadProps extends MakeImagesUploadListProps {
+export interface ImagesUploadProps extends MakeImagesUploadListProps {
   interval?: number;
 }
 export async function ImagesUploadWithToast({
@@ -826,6 +801,12 @@ export async function ImagesUpload({
     PromiseOrder(list, { interval })
   );
 }
+
+export const iconImagesUploadOptions: ImagesUploadOptions = {
+  thumbnail: false,
+  webpOptions: { expansion: false, size: 96 },
+  direct: true,
+};
 
 export function ImageGlobalEditModeSwitch() {
   const [isEditHold, setIsEditHold] = useImageEditIsEditHold();

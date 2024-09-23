@@ -9,11 +9,15 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import { StorageDataStateClass as SdsClass } from "@/functions/storage/StorageDataStateClass";
 import { CreateState } from "./CreateState";
+import {
+  compat_v1_ImageDataType,
+  CompatSrcMerge,
+} from "@/routes/edit/compat/SrcMerge";
 
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "1.3.2",
+  version: "2.0.0",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -281,8 +285,9 @@ export async function ImportImagesJson({
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
     let data: importEntryImageDataType[];
-    const version = json.version;
-    if (typeof version === "undefined") {
+    const version: string = json.version || "0";
+    const versions = version.split(".");
+    if (version === "0") {
       const oldData = json as YamlDataType[];
       const dataMap = new Map<string, importEntryImageDataType>();
       oldData.forEach((album) => {
@@ -324,6 +329,18 @@ export async function ImportImagesJson({
       });
       object = { version: "0" };
       data = Object.values(Object.fromEntries(dataMap));
+    } else if (versions[0] === "1") {
+      const { data: _data, ..._entry } =
+        json as dataBaseType<compat_v1_ImageDataType>;
+      await CompatSrcMerge({ apiOrigin, data: _data, doneClose: 1000 });
+      _data?.forEach((v) => {
+        const webpPath = v.webp || v.icon;
+        if (webpPath) v.src = "image/" + getBasename(webpPath);
+        delete v.webp;
+        delete v.icon;
+      });
+      object = _entry;
+      data = _data ? _data : [];
     } else {
       const { data: _data, ..._entry } = json as dataBaseType<ImageDataType>;
       object = _entry;

@@ -6,13 +6,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { create } from "zustand";
 import { UrlObject } from "url";
-import { useAtom } from "jotai";
 import { useDataIsComplete } from "@/state/StateSet";
 import {
   MdAdd,
@@ -69,6 +68,7 @@ import {
   imageDataObject,
 } from "@/state/DataState";
 import {
+  iconImagesUploadOptions,
   ImagesUpload,
   ImagesUploadWithToast,
   srcObjectType,
@@ -262,15 +262,15 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   if (mode === "icon") return { src: file, name: chara.key };
                   else return file;
                 })
-                .then((src) =>
-                  ImagesUploadWithToast({
+                .then((src) => {
+                  return ImagesUploadWithToast({
                     src,
                     apiOrigin,
-                    iconOnly: mode === "icon" ? true : undefined,
                     album: charaMediaKindMap.get(mode),
                     albumOverwrite: false,
-                  })
-                )
+                    ...(mode === "icon" ? iconImagesUploadOptions : undefined),
+                  });
+                })
                 .then(async (r) => {
                   setImagesLoad("no-cache");
                   return r
@@ -578,7 +578,8 @@ export function CharaEditButton() {
                   ImagesUploadWithToast({
                     src: files,
                     apiOrigin,
-                    iconOnly: true,
+                    album: charaMediaKindMap.get("icon"),
+                    ...iconImagesUploadOptions,
                   })
                 )
                 .then(() => {
@@ -817,9 +818,7 @@ export function CharaImageSettingRbButtons({
           className="color round"
           title="キャラクターのアイコンに設定"
           onClick={async () => {
-            const src = image
-              ? image.src || image.icon || image.webp || image.thumbnail
-              : undefined;
+            const src = image ? image.src || image.thumbnail : undefined;
             if (src) {
               toastPromise(
                 ImagesUpload({
@@ -828,8 +827,8 @@ export function CharaImageSettingRbButtons({
                     src: concatOriginUrl(mediaOrigin, src),
                   },
                   apiOrigin,
-                  iconOnly: true,
                   album: charaMediaKindMap.get("icon"),
+                  ...iconImagesUploadOptions,
                 })
                   .then(() => {
                     setImagesLoad("no-cache");

@@ -45,7 +45,6 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
     time: data.time ? new Date(data.time) : undefined,
     mtime: data.mtime ? new Date(data.mtime) : undefined,
     lastmod: data.lastmod ? new Date(data.lastmod) : undefined,
-    Src: data.webp || data.src || data.icon || undefined,
     update: undefined,
     new: undefined,
   };
