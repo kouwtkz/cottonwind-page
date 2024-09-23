@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
           input: [
             './src/client.tsx',
             './src/styles.scss',
-            'src/workers/twix/twixClient.tsx'
+            './src/workers/twix/twixClient.tsx'
           ],
           output: {
             entryFileNames: `static/js/[name].js`,
