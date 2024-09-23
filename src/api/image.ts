@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getExtension, getName } from "@/functions/doc/PathParse";
+import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/MeeSqlD1";
 import { IsLogin } from "@/admin";
@@ -265,6 +265,41 @@ app.post("/import", async (c, next) => {
   }
   return c.text("インポートに失敗しました", 500);
 });
+
+app.post("/merge", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const object = await c.req.json() as { data: ImageDataType[] };
+  const now = new Date();
+  await Promise.all(
+    object.data.map(async item => {
+      const lastmod = now.toISOString();
+      now.setMilliseconds(now.getMilliseconds() + 1);
+      if (item.webp && item.icon) await c.env.BUCKET.delete(item.icon);
+      const oldSrc = item.src;
+      const webSrc = item.webp || item.icon || item.src;
+      if (webSrc) {
+        if (webSrc.startsWith("image/webp/") || webSrc.startsWith("image/icon/")) {
+          const newSrc = "image/" + getBasename(webSrc);
+          item.src = newSrc;
+          const value = await c.env.BUCKET.get(webSrc);
+          if (value) {
+            const buf = (await value?.arrayBuffer())!;
+            if (oldSrc !== newSrc) {
+              await c.env.BUCKET.put(newSrc, buf);
+              if (oldSrc) await c.env.BUCKET.delete(oldSrc);
+            }
+            await c.env.BUCKET.delete(webSrc);
+          }
+          await TableObject.Update({
+            db,
+            where: { key: item.key },
+            entry: { src: newSrc, webp: null, icon: null, lastmod },
+          })
+        }
+      }
+    }));
+  return c.text("");
+})
 
 app.delete("/", async (c, next) => {
   if (c.env.DEV) {
