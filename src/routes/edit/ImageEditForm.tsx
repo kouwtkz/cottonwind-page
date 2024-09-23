@@ -35,7 +35,7 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { useApiOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
-import { imageDataObject, UploadToast } from "@/state/DataState";
+import { imageDataObject } from "@/state/DataState";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -45,12 +45,16 @@ import {
 import { CharaImageSettingRbButtons } from "./CharacterEdit";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { corsFetch, corsFetchJSON, methodType } from "@/functions/fetch";
+import { corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { PromiseOrder } from "@/functions/arrayFunction";
+import { PromiseOrder, PromiseOrderStateType } from "@/functions/arrayFunction";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
 import axios, { AxiosError } from "axios";
+import {
+  toastLoadingOptions,
+  toastUpdateOptions,
+} from "@/components/define/toastContainerDef";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -600,11 +604,11 @@ export type srcObjectType = {
   src: srcType;
 };
 type srcWithObjectType = srcType | srcObjectType;
-interface ImagesUploadProps extends ImagesUploadOptions {
+interface MakeImagesUploadListProps extends ImagesUploadOptions {
   src: srcWithObjectType | srcWithObjectType[];
   apiOrigin?: string;
 }
-export async function ImagesUploadProcess({
+export async function MakeImagesUploadList({
   src,
   apiOrigin,
   tags,
@@ -616,7 +620,7 @@ export async function ImagesUploadProcess({
   thumbnail = true,
   icon = false,
   iconOnly = false,
-}: ImagesUploadProps) {
+}: MakeImagesUploadListProps) {
   if (iconOnly) {
     original = false;
     webp = false;
@@ -638,7 +642,7 @@ export async function ImagesUploadProcess({
     }
     return true;
   });
-  if (targetFiles.length === 0) return false;
+  if (targetFiles.length === 0) return [];
   const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
   const iconSize = typeof icon === "number" ? icon : 96;
   const formDataList = await Promise.all(
@@ -728,11 +732,11 @@ export async function ImagesUploadProcess({
       return formData;
     })
   );
-  const PostList = formDataList.map(
-    (body) => () =>
+  return formDataList.map(
+    (data) => () =>
       axios(url, {
         method: "POST",
-        data: body,
+        data,
         withCredentials: true,
         timeout: 2000,
       }).catch((e: AxiosError) => {
@@ -740,39 +744,87 @@ export async function ImagesUploadProcess({
         else throw e;
       })
   );
-  const results = await PromiseOrder(PostList, { interval: 10 });
-  const successCount = results.filter((r) => r.status === 200).length;
-  if (results.length === successCount) {
-    return {
-      message: successCount + "件のアップロードに成功しました！",
-      results,
-    };
-  } else {
-    console.error("以下のアップロードに失敗しました");
-    const failedList = results
-      .filter((r) => r.status !== 200)
-      .map((_, i) => formDataList[i])
-      .map((formData) => {
-        const src = (formData.get("src") || formData.get("icon")) as srcType;
-        const name =
-          src && typeof src === "object" && src.name ? src.name : src;
-        return name;
+}
+
+interface ImagesUploadProps extends MakeImagesUploadListProps {
+  interval?: number;
+}
+export async function ImagesUploadWithToast({
+  interval = 10,
+  ...args
+}: ImagesUploadProps) {
+  const state: PromiseOrderStateType = { abort: false };
+  const id = toast.loading("アップロードの準備しています", {
+    ...toastLoadingOptions,
+    onClose() {
+      state.abort = true;
+      toast.info("アップロードが中断されました");
+    },
+  });
+  const list = await MakeImagesUploadList(args);
+  if (list.length > 0) {
+    const render = "アップロード中…";
+    return PromiseOrder(list, {
+      interval,
+      state,
+      sync(i) {
+        toast.update(id, {
+          render,
+          progress: i / list.length,
+        });
+      },
+    })
+      .then((results) => {
+        const successCount = results.filter((r) => r.status === 200).length;
+        if (results.length === successCount) {
+          toast.update(id, {
+            ...toastUpdateOptions,
+            render: successCount + "件のアップロードに成功しました！",
+            type: "success",
+          });
+        } else {
+          console.error("以下のアップロードに失敗しました");
+          const failedList = results
+            .filter((r) => r.status !== 200)
+            .map((r) => {
+              const formData: FormData = r.data;
+              const src = (formData.get("src") ||
+                formData.get("icon")) as srcType;
+              const name =
+                src && typeof src === "object" && src.name ? src.name : src;
+              return name;
+            });
+          toast.update(id, {
+            ...toastUpdateOptions,
+            render:
+              (successCount
+                ? successCount + "件のアップロードに成功しましたが、"
+                : "") +
+              failedList.length +
+              "件のアップロードに失敗しました\n" +
+              failedList.join("\n"),
+            type: "error",
+          });
+        }
+        return results;
+      })
+      .catch(() => {
+        toast.update(id, {
+          ...toastUpdateOptions,
+          render: "失敗しました",
+          type: "error",
+        });
       });
-    throw {
-      message:
-        (successCount
-          ? successCount + "件のアップロードに成功しましたが、"
-          : "") +
-        failedList.length +
-        "件のアップロードに失敗しました\n" +
-        failedList.join("\n"),
-      results,
-    };
   }
 }
 
-export async function ImagesUpload(args: ImagesUploadProps) {
-  return UploadToast(ImagesUploadProcess(args));
+export async function ImagesUpload({
+  interval = 10,
+  ...args
+}: ImagesUploadProps) {
+  return MakeImagesUploadList(args).then((list) =>
+    PromiseOrder(list, { interval })
+  );
 }
 
 export function ImageGlobalEditModeSwitch() {

@@ -70,7 +70,7 @@ import {
 } from "@/state/DataState";
 import {
   ImagesUpload,
-  ImagesUploadProcess,
+  ImagesUploadWithToast,
   srcObjectType,
 } from "./ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
@@ -263,7 +263,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   else return file;
                 })
                 .then((src) =>
-                  ImagesUpload({
+                  ImagesUploadWithToast({
                     src,
                     apiOrigin,
                     iconOnly: mode === "icon" ? true : undefined,
@@ -274,7 +274,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 .then(async (r) => {
                   setImagesLoad("no-cache");
                   return r
-                    ? ((await r.results[0].data) as KeyValueType<unknown>)
+                    ? ((await r[0].data) as KeyValueType<unknown>)
                     : null;
                 })
                 .then(async (o) => {
@@ -575,7 +575,7 @@ export function CharaEditButton() {
                   })
                 )
                 .then((files) =>
-                  ImagesUpload({
+                  ImagesUploadWithToast({
                     src: files,
                     apiOrigin,
                     iconOnly: true,
@@ -822,7 +822,7 @@ export function CharaImageSettingRbButtons({
               : undefined;
             if (src) {
               toastPromise(
-                ImagesUploadProcess({
+                ImagesUpload({
                   src: {
                     name: charaName,
                     src: concatOriginUrl(mediaOrigin, src),

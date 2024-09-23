@@ -40,7 +40,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/state/ImageViewer";
-import { ImageGlobalEditModeSwitch, ImagesUpload } from "./edit/ImageEditForm";
+import { ImageGlobalEditModeSwitch, ImagesUploadWithToast } from "./edit/ImageEditForm";
 import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
@@ -133,7 +133,7 @@ export function GalleryManageMenuButton({
               fileDialog("image/*", true)
                 .then((files) => Array.from(files))
                 .then((files) =>
-                  ImagesUpload({
+                  ImagesUploadWithToast({
                     src: files,
                     apiOrigin,
                     character: params.charaName,
@@ -458,7 +458,7 @@ function UploadChain({
       const list = acceptedFiles.filter(
         (f) => Math.abs(nowTime - f.lastModified) > 10
       );
-      ImagesUpload({
+      await ImagesUploadWithToast({
         src: list,
         apiOrigin,
         character,
