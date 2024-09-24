@@ -220,7 +220,13 @@ h2 = "その他アップロード"
 label = "other"
 
 [[vars.IMAGE_ALBUMS]]
-name = "banner"
+name = "myBanner"
+type = "banner"
+[vars.IMAGE_ALBUMS.gallery.pages]
+hide = true
+
+[[vars.IMAGE_ALBUMS]]
+name = "favBanner"
 type = "banner"
 [vars.IMAGE_ALBUMS.gallery.pages]
 hide = true
