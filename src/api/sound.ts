@@ -99,7 +99,7 @@ app.patch("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item as KeyValueType<unknown>;
-      const entry = TableObject.getInsertEntry({ data });
+      const entry = TableObject.getInsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
       const target_id = data.target ? String(data.target) : undefined;
@@ -134,15 +134,13 @@ app.post("/send", async (c, next) => {
       const src = "sound/" + file.name;
       const key = getName(file.name);
       const entry = TableObject.getInsertEntry({
-        data: {
-          ...common,
-          src,
-          track: track.no,
-          grouping: (grouping?.split("\x00") || []).join(","),
-          time: time.toISOString(),
-          mtime,
-          lastmod: new Date().toISOString()
-        }
+        ...common,
+        src,
+        track: track.no,
+        grouping: (grouping?.split("\x00") || []).join(","),
+        time: time.toISOString(),
+        mtime,
+        lastmod: new Date().toISOString()
       });
       const selectValue = await TableObject.Select({ db, where: { key } })
       const value = selectValue[0];
@@ -172,7 +170,7 @@ app.post("/import", async (c, next) => {
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
       await PromiseOrder(list.map((item) => () =>
-        TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
+        TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
       ), { interval: 0 });
       return c.text("インポートしました！")
     }

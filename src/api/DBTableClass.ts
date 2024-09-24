@@ -38,13 +38,11 @@ export class DBTableClass<T extends Object = any> {
   async Drop<D extends MeeSqlClass<unknown>>({ db, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D }) {
     return db.dropTable({ table: this.table, viewSql });
   }
-  getInsertEntry({ data, keys = this.insertEntryKeys, times = this.insertEntryTimes, enableKVConvert = true }: {
-    data: { [k in keyof T]?: any }, keys?: (keyof T)[], times?: (keyof T)[], enableKVConvert?: boolean
-  }): MeeSqlEntryType<T> {
+  getInsertEntry(data: { [k in keyof T]?: any }, options?: getInsertEntryOptionsProps<T>): MeeSqlEntryType<T> {
+    const { keys = this.insertEntryKeys, times = this.insertEntryTimes, enableKVConvert = true } = options || {};
     if (enableKVConvert) KeyValueConvertDBEntry(data as KeyValueType);
     const entries = (keys || []).map(k => [k, data[k]]).filter(([k, v]) => v !== undefined);
     if (times) times.forEach(k => {
-      const _k = k as string;
       if (data[k]) entries.push([k, new Date(String(data[k])).toISOString()]);
     })
     return Object.fromEntries(entries);
@@ -52,4 +50,10 @@ export class DBTableClass<T extends Object = any> {
   get getFillNullEntry() {
     return MeeSqlClass.fillNullEntry(this.createEntry);
   }
+}
+
+interface getInsertEntryOptionsProps<T> {
+  keys?: (keyof T)[];
+  times?: (keyof T)[];
+  enableKVConvert?: boolean;
 }

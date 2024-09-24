@@ -53,7 +53,7 @@ app.patch("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item as KeyValueType<unknown>;
-      const entry = TableObject.getInsertEntry({ data });
+      const entry = TableObject.getInsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
       const target_id = data.target ? String(data.target) : undefined;
@@ -85,11 +85,9 @@ app.post("/send", async (c, next) => {
     const time = new Date(file.lastModified);
     const mtime = time.toISOString();
     const entry = TableObject.getInsertEntry({
-      data: {
-        src,
-        mtime,
-        lastmod: new Date().toISOString()
-      }
+      src,
+      mtime,
+      lastmod: new Date().toISOString()
     });
     const selectValue = await TableObject.Select({ db, where: { key } })
     const value = selectValue[0];
@@ -118,7 +116,7 @@ app.post("/import", async (c, next) => {
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
       await PromiseOrder(list.map((item) => () =>
-        TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
+        TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
       ), { interval: 0 });
       return c.text("インポートしました！")
     }

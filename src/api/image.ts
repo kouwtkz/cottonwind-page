@@ -46,6 +46,9 @@ const TableObject = new DBTableClass<ImageDataType>({
     lastmod: { createAt: true, unique: true },
     version: { type: "INTEGER" },
   },
+  insertEntryKeys: ["key", "name", "album", "description", "src", "thumbnail", "width", "height",
+    "tags", "characters", "copyright", "link", "embed", "type", "order", "topImage", "pickup", "draft", "version"],
+  insertEntryTimes: ["time", "mtime", "lastmod"]
 });
 
 export async function ServerImagesGetData(
@@ -246,7 +249,7 @@ app.post("/import", async (c, next) => {
       lastModToUniqueNow(list);
       KeyValueConvertDBEntry(list);
       await Promise.all(
-        list.map((item) => TableObject.Insert({ db, entry: item }))
+        list.map((item) => TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) }))
       );
       return c.text("インポートしました！");
     }

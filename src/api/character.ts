@@ -63,7 +63,7 @@ app.post("/send", async (c, next) => {
   return Promise.all(
     data.map(async item => {
       const { id: _id, ...data } = item;
-      const entry = TableObject.getInsertEntry({ data });
+      const entry = TableObject.getInsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
       const target_id = data.target || data.key;
@@ -97,7 +97,7 @@ app.post("/import", async (c, next) => {
     if (Array.isArray(list)) {
       lastModToUniqueNow(list as KeyValueType<any>);
       await PromiseOrder(list.map((item) => () =>
-        TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
+        TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
       ), { interval: 0 });
       return c.text("インポートしました！")
     }

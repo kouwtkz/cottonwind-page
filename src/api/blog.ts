@@ -63,7 +63,7 @@ export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
 app.post("/send", async (c, next) => {
   const db = new MeeSqlD1(c.env.DB);
   const { id, postId, update, ...data } = await c.req.json() as PostFormType;
-  const entry = TableObject.getInsertEntry({ data });
+  const entry = TableObject.getInsertEntry(data);
   if (postId !== update) entry.postId = postId;
   entry.lastmod = new Date().toISOString()
   const target = update
@@ -113,7 +113,7 @@ app.post("/import", async (c) => {
       lastModToUniqueNow(list);
       KeyValueConvertDBEntry(list);
       await PromiseOrder(list.map((item) => () =>
-        TableObject.Insert({ db, entry: TableObject.getInsertEntry({ data: item }) })
+        TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
       ), { interval: 0 });
       return c.text("インポートしました！")
     }
