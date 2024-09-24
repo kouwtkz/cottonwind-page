@@ -7,6 +7,7 @@ import {
   getTagsOptions,
   autoFixGalleryTagsOptions,
   ContentsTagsOption,
+  addExtentionGalleryTagsOptions,
 } from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
@@ -59,9 +60,6 @@ import {
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
 }
-const defaultGalleryTypeOptions = (
-  defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []
-).concat([{ value: "type:banner", label: "🖼バナー" }]);
 
 export const useImageEditIsEdit = CreateState(false);
 export const useImageEditIsEditHold = CreateState(false);
@@ -251,15 +249,17 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }, [defaultValues]);
 
   const { togglePreviewMode, previewMode } = usePreviewMode();
-  const TypeTagsOption = useMemo(
-    () =>
-      defaultGalleryTypeOptions.map((o) => {
-        const v = o.value ?? "";
-        const value = v.slice(v.indexOf(":") + 1);
-        return { ...o, value };
-      }),
-    [defaultGalleryTags]
-  );
+  const TypeTagsOption = useMemo(() => {
+    const tags =
+      defaultGalleryTags
+        .find(({ name }) => name === "type")
+        ?.options?.concat() || [];
+    return addExtentionGalleryTagsOptions(tags).map((o) => {
+      const v = o.value ?? "";
+      const value = v.slice(v.indexOf(":") + 1);
+      return { ...o, value };
+    });
+  }, []);
   const autoImageItemType = useMemo(
     () => AutoImageItemType(image?.embed, image?.albumObject?.type),
     [image?.embed, image?.albumObject?.type]

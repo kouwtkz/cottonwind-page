@@ -234,7 +234,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
     (src?: string) => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin]
   );
-  const imageUrl = useMemo(() => image.webp || image.src || "", [image]);
+  const imageUrl = useMemo(() => image.src || "", [image]);
   return (
     <div className="preview">
       {image ? (

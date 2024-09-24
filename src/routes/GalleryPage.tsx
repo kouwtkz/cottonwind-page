@@ -20,8 +20,9 @@ import React, {
 import {
   defaultGalleryFilterTags,
   defineSortTags,
-  defaultGalleryTags,
   filterGalleryMonthList,
+  addExtentionTagsOptions,
+  defaultGalleryTags,
 } from "@/components/dropdown/SortFilterTags";
 import {
   filterImagesTags,
@@ -977,10 +978,14 @@ const gallerySortTags = [
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
   const isLogin = useIsLogin()[0];
-  const tags = gallerySortTags.concat(
-    isLogin ? defaultGalleryFilterTags : [],
-    defaultGalleryTags
-  );
+  const tags = useMemo(() => {
+    return [
+      ...gallerySortTags,
+      ...(isLogin
+        ? [...defaultGalleryFilterTags, ...addExtentionTagsOptions()]
+        : defaultGalleryTags),
+    ];
+  }, [isLogin]);
   return <ContentsTagsSelect {...args} tags={tags} />;
 }
 export function GalleryCharactersSelect({

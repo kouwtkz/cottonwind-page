@@ -222,6 +222,8 @@ label = "other"
 [[vars.IMAGE_ALBUMS]]
 name = "banner"
 type = "banner"
+[vars.IMAGE_ALBUMS.gallery.pages]
+hide = true
 
 [[vars.IMAGE_ALBUMS]]
 description = "描いてくれたファンアートイラストです！"

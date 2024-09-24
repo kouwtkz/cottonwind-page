@@ -92,6 +92,21 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
   },
 ];
 
+export function addExtentionGalleryTagsOptions(options: ContentsTagsOption[]) {
+  options.push(...[{ value: "type:banner", label: "🖼バナー" }]);
+  return options;
+}
+
+export function addExtentionTagsOptions(options = defaultGalleryTags) {
+  const list = options.concat();
+  return list.map((item) => {
+    if (item.name === "type") {
+      return { ...item, options: addExtentionGalleryTagsOptions(item.options!.concat()) };
+    }
+    return item;
+  })
+}
+
 export type filterMonthType = {
   month: number;
   tags: string[];
