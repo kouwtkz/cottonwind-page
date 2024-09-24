@@ -23,6 +23,7 @@ type YearListType = { year: number; value?: string; label?: string; count: numbe
 
 interface GalleryItemObjectType extends GalleryListPropsBase {
   name: string;
+  type?: string;
   match?: string | RegExp;
   format?: GroupFormat;
   description?: string;

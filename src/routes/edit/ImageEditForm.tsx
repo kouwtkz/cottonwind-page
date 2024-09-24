@@ -59,6 +59,9 @@ import {
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
 }
+const defaultGalleryTypeOptions = (
+  defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []
+).concat([{ value: "type:banner", label: "🖼バナー" }]);
 
 export const useImageEditIsEdit = CreateState(false);
 export const useImageEditIsEditHold = CreateState(false);
@@ -250,9 +253,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const { togglePreviewMode, previewMode } = usePreviewMode();
   const TypeTagsOption = useMemo(
     () =>
-      (
-        defaultGalleryTags.find(({ name }) => name === "type")?.options ?? []
-      ).map((o) => {
+      defaultGalleryTypeOptions.map((o) => {
         const v = o.value ?? "";
         const value = v.slice(v.indexOf(":") + 1);
         return { ...o, value };
@@ -552,7 +553,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </label>
           <label>
             <div className="label-l">アルバム移動</div>
-            <select title="移動" {...register("album")} disabled={isBusy}>
+            <input
+              title="移動"
+              {...register("album")}
+              disabled={isBusy}
+              list="album-list"
+            />
+            <datalist id="album-list">
               {albums
                 ? Object.values(Object.fromEntries(albums))
                     .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
@@ -562,7 +569,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       </option>
                     ))
                 : null}
-            </select>
+            </datalist>
           </label>
           <label className="around">
             <div className="label-l">ファイル名変更</div>
@@ -807,20 +814,3 @@ export const iconImagesUploadOptions: ImagesUploadOptions = {
   webpOptions: { expansion: false, size: 96 },
   direct: true,
 };
-
-export function ImageGlobalEditModeSwitch() {
-  const [isEditHold, setIsEditHold] = useImageEditIsEditHold();
-  return (
-    <button
-      title={isEditHold ? "元に戻す" : "常に編集モードにする"}
-      type="button"
-      className="color"
-      onClick={() => {
-        setIsEditHold(!isEditHold);
-      }}
-      style={{ opacity: isEditHold ? 1 : 0.4 }}
-    >
-      <AiFillEdit />
-    </button>
-  );
-}

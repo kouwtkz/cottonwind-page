@@ -1733,15 +1733,22 @@ select.yearFilter {
   .list {
     margin: auto;
     @extend %userSelectNone;
-    @include GridList(4, $tabletWidth);
-    column-gap: 0.1rem;
-    row-gap: 0.1rem;
+    &.grid {
+      @include GridList(4, $tabletWidth);
+      column-gap: 0.1rem;
+      row-gap: 0.1rem;
+      .item {
+        aspect-ratio: 1;
+      }
+    }
+    &.banner {
+      @include GridList(1, $tabletWidth);
+    }
     .loadingNow {
       color: var(--main-color-soft);
       margin: 1rem auto;
     }
     .item {
-      aspect-ratio: 1;
       overflow: hidden;
       position: relative;
       &,

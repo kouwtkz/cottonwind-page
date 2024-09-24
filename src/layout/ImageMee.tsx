@@ -29,7 +29,8 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
 
 export const ImageMeeShowOriginAtom = atom(false);
 
-interface ImageMeeProps extends ImgHTMLAttributes<HTMLImageElement> {
+interface ImageMeeProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
+  src?: string | null;
   imageItem?: ImageType;
   hoverImageItem?: ImageType;
   mode?: ResizeMode;
@@ -77,17 +78,8 @@ export function ImageMee({
     [mediaOrigin, versionString]
   );
 
-  const ext = getExtension(_src || imageItem?.src || "");
-  const src =
-    _src ||
-    (imageItem
-      ? MediaOrigin(
-          ShowOrigin
-            ? imageItem.src || imageItem.icon || imageItem.webp
-            : imageItem.webp || imageItem.src
-        )
-      : null) ||
-    "";
+  const ext = getExtension(imageItem?.src || _src || "");
+  const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
   const alt = _alt || imageItem?.name || imageItem?.src || "";
 
   [width, height] = useMemo(() => {
@@ -111,7 +103,7 @@ export function ImageMee({
     [width, height]
   );
   const thumbnail = useMemo(
-    () => MediaOrigin(imageItem?.thumbnail || imageItem?.icon),
+    () => imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null,
     [imageItem, MediaOrigin]
   );
 
@@ -126,9 +118,8 @@ export function ImageMee({
     [imageItem, mode, src, thumbnail, ShowOrigin]
   );
   const imageShowList = useMemo(() => {
-    const list: (string | null)[] = [];
+    const list: (string)[] = [];
     if (mode === "simple" && thumbnail) list.push(thumbnail);
-    else list.push(null);
     if (imageSrc) list.push(imageSrc);
     return list;
   }, [imageSrc, mode, thumbnail]);
@@ -155,7 +146,7 @@ export function ImageMee({
   }, [className, mainImgSrc, avgSize, autoPixel]);
   return (
     <img
-      src={mainImgSrc || blankSrc}
+      src={mainImgSrc}
       alt={alt}
       ref={refImg}
       data-origin-ext={ext}
@@ -262,6 +253,7 @@ export function ImageMeeShowOriginSwitch() {
   return (
     <button
       type="button"
+      className="iconSwitch"
       title={showOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
       style={{ opacity: showOrigin ? 1 : 0.4 }}
       onClick={() => {

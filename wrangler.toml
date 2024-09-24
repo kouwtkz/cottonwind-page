@@ -168,6 +168,7 @@ h4 = "オリジナルキャラのイラストです！"
 [[vars.IMAGE_ALBUMS]]
 description = "Blenderなどで作った3Dモデルです！"
 name = "3D"
+type = "3d"
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作った3Dモデル！"
@@ -186,6 +187,7 @@ description = "わたかぜっこのオリジナルグッズやスタンプな�
 name = "goods"
 timeFormat = "Y.m.d"
 timeReplace = "released: $1"
+type = "goods"
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作ったグッズなど！"
@@ -216,6 +218,10 @@ max = 4
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "その他アップロード"
 label = "other"
+
+[[vars.IMAGE_ALBUMS]]
+name = "banner"
+type = "banner"
 
 [[vars.IMAGE_ALBUMS]]
 description = "描いてくれたファンアートイラストです！"

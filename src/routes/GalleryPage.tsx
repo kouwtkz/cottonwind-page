@@ -40,7 +40,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/state/ImageViewer";
-import { ImageGlobalEditModeSwitch, ImagesUploadWithToast } from "./edit/ImageEditForm";
+import {
+  ImagesUploadWithToast,
+  useImageEditIsEditHold,
+} from "./edit/ImageEditForm";
 import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
@@ -51,6 +54,7 @@ import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
+import { EditModeSwitch } from "./edit/CommonSwitch";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();
@@ -477,7 +481,7 @@ function UploadChain({
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
-    accept: {"image/*": []},
+    accept: { "image/*": [] },
     noClick: typeof enableOnClick === "boolean" ? !enableOnClick : true,
   });
   const classNameMemo = useMemo(() => {
@@ -569,7 +573,10 @@ function GalleryBody({
               {isLogin ? (
                 <>
                   <ImageMeeShowOriginSwitch />
-                  <ImageGlobalEditModeSwitch />
+                  <EditModeSwitch
+                    editTitle="常に編集モードにする"
+                    useSwitch={useImageEditIsEditHold}
+                  />
                   <ShowAllAlbumSwitch />
                 </>
               ) : null}
@@ -733,14 +740,30 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ) : null,
       [showGalleryLabel, labelString, list.length, showCount]
     );
+    const listClassName = useMemo(() => {
+      const classes = ["list"];
+      switch (item.type) {
+        case "banner":
+          classes.push("banner");
+          break;
+        default:
+          classes.push("grid");
+          break;
+      }
+      return classes.join(" ");
+    }, [item]);
     const GalleryContent = useMemo(
       () =>
         isComplete ? (
-          <div className="list">
+          <div className={listClassName}>
             {list
               .filter((_, i) => i < visibleMax)
               .map((image, i) => (
-                <GalleryImageItem image={image} galleryName={name} key={i} />
+                <GalleryImageItem
+                  image={image}
+                  galleryName={name}
+                  key={image.key}
+                />
               ))}
             {showMoreButton ? (
               <Link
@@ -766,7 +789,16 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         ) : (
           <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
         ),
-      [isComplete, list, visibleMax, curMax, step, showMoreButton, state]
+      [
+        listClassName,
+        isComplete,
+        list,
+        visibleMax,
+        curMax,
+        step,
+        showMoreButton,
+        state,
+      ]
     );
     const _className = useMemo(() => {
       const list = ["galleryContainer"];
@@ -1021,6 +1053,7 @@ export function ShowAllAlbumSwitch() {
       style={{ opacity: showAllAlbum ? 1 : 0.4 }}
       to={href}
       replace={true}
+      className="button iconSwitch"
       preventScrollReset={true}
     >
       <BiPhotoAlbum />
