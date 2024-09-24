@@ -7,14 +7,13 @@ import { IsLogin } from "./admin";
 import { honoTest } from "./functions";
 import { renderHtml } from "./functions/render";
 import { CompactCode } from "@/functions/doc/StrFunctions";
-import importStyles from "@/styles.scss";
 import ssg from "./ssg";
 import { GitLogObject } from "@/gitlog/GitlogObject";
 import { NoIndex, ServerCommon } from "./server";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
-
-const compactStyles = CompactCode(importStyles);
+import styles from "./styles.scss";
+import stylesImport from "./styles-import.scss";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
@@ -23,10 +22,19 @@ app.use("*", (c, next) => {
   return cors({ origin })(c, next);
 });
 
-const stylePath = "/css/styles.css";
-app.get(stylePath, (c) =>
-  c.body(compactStyles, { headers: { "Content-Type": "text/css" } })
-);
+const styleList = [
+  ["styles", styles],
+  ["styles-import", stylesImport],
+];
+const stylePathes: string[] = [];
+for (const [name, code] of styleList) {
+  const path = `/css/${name}.css`;
+  stylePathes.push(path);
+  const compactStyles = CompactCode(code);
+  app.get(path, (c) =>
+    c.body(compactStyles, { headers: { "Content-Type": "text/css" } })
+  );
+}
 
 honoTest(app);
 ServerCommon(app);
@@ -57,7 +65,7 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      styles: <Style href={stylePath} />,
+      styles: stylePathes.map((href, i) => <Style href={href} key={i} />),
       script: <script type="module" src="/src/client.tsx" />,
       isLogin: IsLogin(c),
       noindex: NoIndex(path),

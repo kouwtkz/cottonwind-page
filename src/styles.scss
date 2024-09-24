@@ -329,6 +329,12 @@ style {
 ul.flex {
   padding: 0;
 }
+.p-0 {
+  padding: 0;
+}
+.m-0 {
+  margin: 0;
+}
 
 label {
   span {
@@ -485,6 +491,17 @@ button,
       height: 1.75rem;
     }
   }
+  &.iconSwitch {
+    padding: 0;
+    background-color: transparent;
+    color: var(--main-color);
+    &:hover {
+      color: var(--main-color-deep);
+    }
+    svg {
+      font-size: 1.25rem;
+    }
+  }
   &.warm {
     color: white;
     background-color: var(--warm-color);
@@ -580,7 +597,7 @@ img {
   height: auto;
 }
 
-a.overlay {
+.overlay {
   transition: filter 100ms;
   &:hover {
     filter: brightness(0.9);
@@ -1335,14 +1352,6 @@ form {
     .icons {
       display: flex;
       align-items: center;
-      button {
-        padding: 0;
-        background-color: transparent;
-        color: var(--main-color);
-      }
-      svg {
-        font-size: 1.25rem;
-      }
     }
     .search {
       font-size: 1rem;
@@ -2738,8 +2747,6 @@ form.blogEdit {
     transform: translateX(-50%);
   }
 }
-
-@import "react-toastify/dist/ReactToastify.css";
 
 .Toastify__toast--default {
   .Toastify__close-button {

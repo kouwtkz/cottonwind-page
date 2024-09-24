@@ -47,7 +47,12 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      styles: <Style href="/css/styles.css" />,
+      styles: (
+        <>
+          <Style href="/css/styles.css" />
+          <Style href="/css/styles-import.css" />
+        </>
+      ),
       script: <script type="module" src="/static/js/client.js" />,
       isLogin: IsLogin(c),
       noindex: NoIndex(path),

@@ -228,9 +228,8 @@ export function ServerSimpleLayout({
         <DefaultMeta />
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
-        <Style
-          href={"/css/styles.css" + (env?.VERSION ? "?v=" + env.VERSION : "")}
-        />
+        <Style href="/css/styles.css" />
+        <Style href="/css/styles-import.css" />
         {meta}
         {style}
       </head>
