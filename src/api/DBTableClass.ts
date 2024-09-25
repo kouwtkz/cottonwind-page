@@ -7,9 +7,7 @@ export class DBTableClass<T extends Object = any> {
   errorEnable?: boolean;
   insertEntryKeys?: (keyof T)[];
   insertEntryTimes?: (keyof T)[];
-  constructor({ table, createEntry, insertEntryKeys, insertEntryTimes }: {
-    table: string, createEntry: MeeSqlCreateTableEntryType<T>, insertEntryKeys?: (keyof T)[], insertEntryTimes?: (keyof T)[]
-  }) {
+  constructor({ table, createEntry, insertEntryKeys, insertEntryTimes }: DBTableClassProps<T>) {
     this.table = table;
     this.createEntry = createEntry;
     this.insertEntryKeys = insertEntryKeys;
@@ -36,7 +34,7 @@ export class DBTableClass<T extends Object = any> {
     return db.insert<T>({ table: this.table, ...args });
   }
   async Drop<D extends MeeSqlClass<unknown>>({ db, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D }) {
-    return db.dropTable({ table: this.table, viewSql });
+    return db.dropTable({ table: this.table, viewSql }).catch(() => { });
   }
   getInsertEntry(data: { [k in keyof T]?: any }, options?: getInsertEntryOptionsProps<T>): MeeSqlEntryType<T> {
     const { keys = this.insertEntryKeys, times = this.insertEntryTimes, enableKVConvert = true } = options || {};
@@ -51,6 +49,15 @@ export class DBTableClass<T extends Object = any> {
     return MeeSqlClass.fillNullEntry(this.createEntry);
   }
 }
+
+export interface DBTableClassProps<T> {
+  table: string;
+  createEntry: MeeSqlCreateTableEntryType<T>;
+  insertEntryKeys?: (keyof T)[];
+  insertEntryTimes?: (keyof T)[];
+}
+
+export interface DBTableClassTemplateProps<T> extends Omit<DBTableClassProps<T>, "table"> { }
 
 interface getInsertEntryOptionsProps<T> {
   keys?: (keyof T)[];
