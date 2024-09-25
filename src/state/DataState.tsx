@@ -17,7 +17,7 @@ import {
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "2.0.0",
+  version: "2.0.1",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -60,6 +60,20 @@ export const filesDataObject = new SdsClass<FilesRecordDataType>({
   preLoad: false,
 });
 
+export const linksDataObject = new SdsClass<SiteLinkData>({
+  key: "links",
+  src: "/data/links",
+  version: "1.0.0",
+  preLoad: false,
+});
+
+export const favLinksDataObject = new SdsClass<SiteLinkData>({
+  key: "linksFav",
+  src: "/data/links/fav",
+  version: "1.0.1",
+  preLoad: false,
+});
+
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
 
@@ -70,6 +84,8 @@ const DataObjectList: SdsClass<any>[] = [
   soundsDataObject,
   soundAlbumsDataObject,
   filesDataObject,
+  linksDataObject,
+  favLinksDataObject,
 ];
 
 export function DataState() {
@@ -124,6 +140,12 @@ export function DataState() {
   SdsClassSetData(filesDataObject);
   const setFilesData = filesDataObject.useData()[1];
 
+  SdsClassSetData(linksDataObject);
+  const setLinksData = linksDataObject.useData()[1];
+
+  SdsClassSetData(favLinksDataObject);
+  const setFavLinksData = favLinksDataObject.useData()[1];
+
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
     if (settedIsLogin && apiOrigin && allLoad) {
@@ -172,6 +194,8 @@ export function DataState() {
             SetData(soundsDataObject, v, setSoundsData),
             SetData(soundAlbumsDataObject, v, setSoundAlbumsData),
             SetData(filesDataObject, v, setFilesData),
+            SetData(linksDataObject, v, setLinksData),
+            SetData(favLinksDataObject, v, setFavLinksData),
           ]);
         })
         .then(() => {
@@ -189,6 +213,8 @@ export function DataState() {
     setSoundsData,
     setSoundAlbumsData,
     setFilesData,
+    setLinksData,
+    setFavLinksData,
   ]);
   return <></>;
 }

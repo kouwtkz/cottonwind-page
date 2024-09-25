@@ -4,13 +4,18 @@ import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
-import { LinksStateClass } from "@/state/LinksState";
-import { useEnv } from "@/state/EnvState";
+import { LinksState, useFavLinks } from "@/state/LinksState";
+import { useEnv, useIsLogin } from "@/state/EnvState";
+import { ImageMee } from "@/layout/ImageMee";
+import { CreateState } from "@/state/CreateState";
+import { AddButton, EditModeSwitch } from "./edit/CommonSwitch";
+import { FavBannerEdit, useEditFavLinkID } from "./edit/LinksEdit";
 
 export default function LinksPage() {
   const [env] = useEnv();
   return (
     <div className="linkPage">
+      <LinksState />
       <h2 className="color-main en-title-font">LINKS</h2>
       <div>
         <h3 className="leaf">各拠点</h3>
@@ -41,10 +46,7 @@ export default function LinksPage() {
         <h3 className="leaf">サイトのバナー</h3>
         <MyBanners />
       </div>
-      <div>
-        <h3 className="leaf">お気に入りのサイト</h3>
-        <FavoriteLinks />
-      </div>
+      <FavoriteLinks />
     </div>
   );
 }
@@ -122,7 +124,13 @@ export function MyBanners() {
             {w}×{h} px
           </div>
           <a href={src} target="banner" className="overlay">
-            <img src={src} alt={`${w}×${h}バナー"`} width={w} height={h} className="banner" />
+            <img
+              src={src}
+              alt={`${w}×${h}バナー"`}
+              width={w}
+              height={h}
+              className="banner"
+            />
           </a>
         </div>
       ))}
@@ -130,37 +138,93 @@ export function MyBanners() {
   );
 }
 
-export const FavoriteLinksState = new LinksStateClass(
-  "/data/favorite_links.json"
-);
+export const useFavoriteLinksEditMode = CreateState(false);
 
 export function FavoriteLinks() {
-  const { list } = FavoriteLinksState.use();
+  const list = useFavLinks()[0];
+  const [edit, setEdit] = useEditFavLinkID();
+  const isLogin = useIsLogin()[0];
+  return (
+    <div>
+      {edit ? <FavBannerEdit /> : null}
+      <h3 className="leaf">お気に入りのサイト</h3>
+      {isLogin ? (
+        <div>
+          <EditModeSwitch useSwitch={useFavoriteLinksEditMode} />
+          <AddButton
+            onClick={() => {
+              setEdit(true);
+            }}
+          />
+        </div>
+      ) : null}
+      <div className="bannerArea">
+        {list?.map((v, i) => (
+          <BannerItem item={v} key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function getTitleWithDsc(item: SiteLink) {
+  return item.title + (item.description ? " - " + item.description : "");
+}
+
+export function BannerInner({
+  item,
+  title,
+  alt,
+}: {
+  item?: SiteLink | null;
+  title?: string;
+  alt?: string;
+}) {
   return (
     <>
-      {FavoriteLinksState.State()}
-      <div className="bannerArea">
-        {list?.map((v, i) => {
-          const titleWithDsc =
-            v.title + (v.description ? " - " + v.description : "");
-          return (
-            <a
-              href={v.url}
-              title={titleWithDsc}
-              target="_blank"
-              className="overlay"
-              key={i}
-            >
-              <img
-                src={v.image ?? ""}
-                width={200}
-                height={40}
-                alt={titleWithDsc}
-              />
-            </a>
-          );
-        })}
-      </div>
+      {item?.Image ? (
+        <ImageMee
+          className="banner"
+          imageItem={item.Image}
+          alt={alt || getTitleWithDsc(item)}
+          autoPixel={false}
+          style={{ width: 200, height: 40 }}
+        />
+      ) : item?.image ? (
+        <img
+          className="banner"
+          src={item.image}
+          width={200}
+          height={40}
+          alt={item.image}
+        />
+      ) : (
+        <div style={{ width: 200, height: 40 }} className="banner">
+          {title || item?.title}
+        </div>
+      )}
     </>
+  );
+}
+
+export function BannerItem({ item }: { item: SiteLink }) {
+  const isEdit = useFavoriteLinksEditMode()[0];
+  const setEditLink = useEditFavLinkID()[1];
+  const titleWithDsc = getTitleWithDsc(item);
+  return (
+    <a
+      href={item.url || ""}
+      title={titleWithDsc}
+      target="_blank"
+      className="overlay flex"
+      onClick={(e) => {
+        if (isEdit) {
+          setEditLink(item.id);
+          e.preventDefault();
+        }
+      }}
+    >
+      <BannerInner item={item} alt={titleWithDsc} />
+    </a>
   );
 }

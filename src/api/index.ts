@@ -10,6 +10,7 @@ import { app_character_api } from "./character";
 import { app_blog_api } from "./blog";
 import { app_sound_api } from "./sound";
 import { app_files_api as app_file_api } from "./file";
+import { app_links_api } from "./links";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>();
 
@@ -24,6 +25,7 @@ app.route("/character", app_character_api);
 app.route("/blog", app_blog_api);
 app.route("/sound", app_sound_api);
 app.route("/file", app_file_api);
+app.route("/links", app_links_api);
 app.route("/data", app_data_api);
 
 app.get("/feed/get", cache({

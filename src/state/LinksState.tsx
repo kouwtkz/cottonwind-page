@@ -1,36 +1,43 @@
-import { useEffect, useRef } from "react";
-import { useCookies } from "react-cookie";
-import { create, StoreApi, UseBoundStore } from "zustand";
+import { useEffect } from "react";
+import { CreateState } from "./CreateState";
+import { favLinksDataObject, linksDataObject } from "./DataState";
+import { useImageState } from "./ImageState";
 
-type LinksStateType = {
-  list?: SiteLink[];
-  setList: (list: SiteLink[]) => void;
-};
+export const useLinks = CreateState<SiteLink[]>();
+export const useFavLinks = CreateState<SiteLink[]>();
 
-export function createLinksState() {
-  return create<LinksStateType>((set) => ({
-    setList(list) {
-      set({ list });
-    },
-  }));
+function convertSiteLink(
+  data: SiteLinkData,
+  imagesMap?: Map<string, ImageType>
+): SiteLink {
+  const { url, draft, lastmod, ...other } = data;
+  return {
+    url: String(url),
+    draft: typeof draft === "number" ? Boolean(draft) : undefined,
+    lastmod: typeof lastmod === "string" ? new Date(lastmod) : lastmod,
+    Image:
+      other.image && imagesMap && imagesMap.has(other.image)
+        ? imagesMap.get(other.image)!
+        : undefined,
+    ...other,
+  };
 }
 
-export class LinksStateClass {
-  url: string;
-  use: UseBoundStore<StoreApi<LinksStateType>>;
-  constructor(url: string) {
-    this.url = url;
-    this.use = createLinksState();
-  }
-  State() {
-    const { setList } = this.use();
-    useEffect(() => {
-      fetch(this.url)
-        .then((r) => r.json())
-        .then((data) => {
-          if (Array.isArray(data)) setList(data);
-        });
-    }, [this.url]);
-    return <></>;
-  }
+export function LinksState() {
+  const linksData = linksDataObject.useData()[0];
+  const setLinks = useLinks()[1];
+  const { imagesMap } = useImageState();
+  useEffect(() => {
+    if (linksData && imagesMap) {
+      setFavLinks(linksData.map((data) => convertSiteLink(data, imagesMap)));
+    }
+  }, [linksData, setLinks, imagesMap]);
+  const favLinksData = favLinksDataObject.useData()[0];
+  const setFavLinks = useFavLinks()[1];
+  useEffect(() => {
+    if (favLinksData && imagesMap) {
+      setFavLinks(favLinksData.map((data) => convertSiteLink(data, imagesMap)));
+    }
+  }, [favLinksData, setFavLinks, imagesMap]);
+  return <></>;
 }

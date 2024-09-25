@@ -37,7 +37,7 @@
   --warm-color-hover: #fa5757;
   --lightbox-background: rgba(0, 0, 0, 0.3);
   --lightbox-background-preview: rgba(146, 147, 127, 0.8);
-  --lightbox-background-text: rgb(246, 246, 243);
+  --modal-window-background: rgb(246, 246, 243);
   --light-form-background-color: white;
   --dark-form-background-color: var(--dark-background-color);
 }
@@ -90,7 +90,7 @@
   --main-color-pale-grayish: var(--main-color-dark-grayish);
   --background: var(--dark-background-color);
   --background-bw: black;
-  --lightbox-background-text: var(--dark-background-color);
+  --modal-window-background: var(--dark-background-color);
   --play-background-color: var(--dark-play-background-color);
   --form-background-color: var(--dark-form-background-color);
 }
@@ -334,6 +334,13 @@ ul.flex {
 }
 .m-0 {
   margin: 0;
+}
+.m-auto {
+  margin: auto;
+}
+.m-lr-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 label {
@@ -1289,6 +1296,7 @@ select {
   border: solid 1px var(--main-color-deep);
   border-radius: 0.5em;
   box-sizing: border-box;
+  padding: 0.125rem 0.5rem;
 }
 
 form {
@@ -1720,6 +1728,12 @@ select.yearFilter {
   }
 }
 
+div.banner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .galleryContainer {
   width: 100%;
   max-width: 1400px;
@@ -1940,6 +1954,51 @@ select.yearFilter {
   }
 }
 
+.modalClose {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  path {
+    opacity: 0.7;
+  }
+  @media (min-width: $tabletWidth) {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0.5rem;
+  }
+}
+
+.modalEntire {
+  position: fixed;
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .modal {
+    background-color: var(--modal-window-background);
+    padding: 1rem;
+    border-radius: 1rem;
+    form.flex {
+      max-width: 80vw;
+      flex-direction: column;
+      & > * {
+        margin: 0.25rem;
+      }
+      * {
+        font-size: large;
+      }
+      @media (min-width: $tabletWidth) {
+        min-width: 20rem;
+      }
+    }
+  }
+  @extend .modal-background;
+}
+
 #image_viewer {
   $thisMobileWidth: #{$tabletWidth};
   position: fixed;
@@ -1961,23 +2020,6 @@ select.yearFilter {
       @media (min-width: $thisMobileWidth) {
         height: 100%;
       }
-    }
-  }
-  .modalClose {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 50;
-    margin: 0.5rem;
-    width: 3rem;
-    height: 3rem;
-    path {
-      opacity: 0.7;
-    }
-    @media (min-width: $thisMobileWidth) {
-      width: 3.5rem;
-      height: 3.5rem;
-      margin: 0.5rem;
     }
   }
   .modal {
@@ -2057,7 +2099,7 @@ select.yearFilter {
     }
   }
   .infoArea {
-    background-color: var(--lightbox-background-text);
+    background-color: var(--modal-window-background);
     display: flex;
     flex-direction: column;
     justify-content: space-between;

@@ -8,6 +8,7 @@ import { ServerPostsGetData } from "./blog";
 import { getDataWithoutPrefix } from "@/functions/stringFix";
 import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 import { ServerFilesGetData } from "./file";
+import { SiteFavLinkServer, SiteLinkServer } from "./links";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>({
   strict: false,
@@ -40,79 +41,59 @@ app.get("*", async (c, next) => {
     })(c, next);
 });
 
-app.get("/images", async (c) => {
-  return c.json(
-    await ServerImagesGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/characters", async (c) => {
-  return c.json(
-    await ServerCharactersGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/posts", async (c) => {
-  return c.json(
-    await ServerPostsGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/sounds", async (c) => {
-  return c.json(
-    await ServerSoundsGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/soundAlbums", async (c) => {
-  return c.json(
-    await ServerSoundAlbumsGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/files", async (c) => {
-  return c.json(
-    await ServerFilesGetData(
-      new URL(c.req.url).searchParams,
-      new MeeSqlD1(c.env.DB),
-      IsLogin(c)
-    )
-  );
-});
-
-app.get("/all", async (c) => {
-  const isLogin = IsLogin(c);
-  const Url = new URL(c.req.url);
-  const query = Object.fromEntries(Url.searchParams);
-  const db = new MeeSqlD1(c.env.DB);
-  return c.json({
-    images: await ServerImagesGetData(new URLSearchParams(getDataWithoutPrefix("images", query)), db, isLogin),
-    characters: await ServerCharactersGetData(new URLSearchParams(getDataWithoutPrefix("characters", query)), db, isLogin),
-    posts: await ServerPostsGetData(new URLSearchParams(getDataWithoutPrefix("posts", query)), db, isLogin),
-    sounds: await ServerSoundsGetData(new URLSearchParams(getDataWithoutPrefix("sounds", query)), db, isLogin),
-    soundAlbums: await ServerSoundAlbumsGetData(new URLSearchParams(getDataWithoutPrefix("soundAlbums", query)), db, isLogin),
-    files: await ServerFilesGetData(new URLSearchParams(getDataWithoutPrefix("files", query)), db, isLogin),
+function apps(
+  ...list: [
+    key: string,
+    path: string,
+    (
+      searchParams: URLSearchParams,
+      db: MeeSqlD1,
+      isLogin?: boolean
+    ) => Promise<any>
+  ][]
+) {
+  list.forEach(([key, path, getData]) => {
+    app.get(path, async (c) => {
+      return c.json(
+        await getData(
+          new URL(c.req.url).searchParams,
+          new MeeSqlD1(c.env.DB),
+          IsLogin(c)
+        )
+      );
+    });
   });
-});
+  app.get("/all", async (c) => {
+    const isLogin = IsLogin(c);
+    const Url = new URL(c.req.url);
+    const query = Object.fromEntries(Url.searchParams);
+    const db = new MeeSqlD1(c.env.DB);
+    return c.json(
+      Object.fromEntries(
+        await Promise.all(
+          list.map(async ([key, path, getData]) => [
+            key,
+            await getData(
+              new URLSearchParams(getDataWithoutPrefix(key, query)),
+              db,
+              isLogin
+            ),
+          ])
+        )
+      )
+    );
+  });
+}
+
+apps(
+  ["images", "/images", ServerImagesGetData],
+  ["characters", "/characters", ServerCharactersGetData],
+  ["posts", "/posts", ServerPostsGetData],
+  ["sounds", "/sounds", ServerSoundsGetData],
+  ["soundAlbums", "/soundAlbums", ServerSoundAlbumsGetData],
+  ["files", "/files", ServerFilesGetData],
+  ["links", "/links", SiteLinkServer.getData.bind(SiteLinkServer)],
+  ["linksFav", "/links/fav", SiteFavLinkServer.getData.bind(SiteFavLinkServer)]
+);
 
 export const app_data_api = app;
