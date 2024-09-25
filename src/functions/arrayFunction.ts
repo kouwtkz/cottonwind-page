@@ -11,11 +11,12 @@ export interface PromiseOrderStateType {
   isAborted?: boolean;
 }
 interface PromiseOrderOptions {
-  interval?: number;
+  sleepTime?: number;
+  minTime?: number;
   state?: PromiseOrderStateType;
   sync?: (i: number) => void;
 }
-export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { interval, state, sync }: PromiseOrderOptions) {
+export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { sleepTime, minTime, state, sync }: PromiseOrderOptions) {
   const results: T[] = [];
   if (state) state.isAborted = false;
   const max = list.length;
@@ -24,10 +25,11 @@ export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { in
     const startTime = performance.now()
     results.push(await list[i]());
     const endTime = performance.now()
-    if (interval) {
-      const sleepTime = interval - (endTime - startTime);
-      if (sleepTime > 0) await sleep(sleepTime);
+    if (minTime) {
+      const SleepTime = minTime - (endTime - startTime);
+      if (SleepTime > 0) await sleep(SleepTime);
     }
+    if (sleepTime) await sleep(sleepTime);
     if (state) {
       if (state.abort && (i < max - 1)) {
         state.isAborted = true;

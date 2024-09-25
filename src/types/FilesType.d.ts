@@ -20,5 +20,6 @@ interface UploadBaseProps {
 
 interface FilesUploadProps extends UploadBaseProps {
   path: string;
-  interval?: number;
+  sleepTime?: number;
+  minTime?: number;
 }

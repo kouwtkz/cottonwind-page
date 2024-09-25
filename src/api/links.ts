@@ -100,7 +100,7 @@ export class SiteLinkServerClass {
           lastModToUniqueNow(list as KeyValueType<any>);
           await PromiseOrder(list.map((item) => () =>
             TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
-          ), { interval: 0 });
+          ), { sleepTime: 0 });
           return c.text("インポートしました！")
         }
       }

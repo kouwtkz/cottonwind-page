@@ -114,7 +114,7 @@ app.post("/import", async (c) => {
       KeyValueConvertDBEntry(list);
       await PromiseOrder(list.map((item) => () =>
         TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
-      ), { interval: 0 });
+      ), { sleepTime: 0 });
       return c.text("インポートしました！")
     }
   }

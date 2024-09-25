@@ -36,7 +36,7 @@ export async function CompatSrcMerge({
   if (list.length > 0) {
     const state: PromiseOrderStateType = { abort: false };
     await PromiseOrder(list, {
-      interval: 50,
+      sleepTime: 50,
       state,
       sync(i) {
         toast.update(id, {

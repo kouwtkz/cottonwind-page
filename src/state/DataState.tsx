@@ -379,7 +379,7 @@ export async function ImportImagesJson({
       data,
       object,
     });
-    await ImportToast(PromiseOrder(fetchList, { interval: 20 }));
+    await ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
   });
 }
 
@@ -420,7 +420,7 @@ export async function ImportCharacterJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { interval: 20 }));
+    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
   });
 }
 
@@ -477,6 +477,6 @@ export async function ImportPostJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { interval: 20 }));
+    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
   });
 }

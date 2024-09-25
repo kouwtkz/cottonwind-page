@@ -729,10 +729,10 @@ export async function MakeImagesUploadList({
 }
 
 export interface ImagesUploadProps extends MakeImagesUploadListProps {
-  interval?: number;
+  sleepTime?: number;
 }
 export async function ImagesUploadWithToast({
-  interval = 10,
+  sleepTime = 10,
   ...args
 }: ImagesUploadProps) {
   const state: PromiseOrderStateType = { abort: false };
@@ -747,7 +747,7 @@ export async function ImagesUploadWithToast({
   if (list.length > 0) {
     const render = "アップロード中…";
     return PromiseOrder(list, {
-      interval,
+      sleepTime,
       state,
       sync(i) {
         toast.update(id, {
@@ -801,11 +801,11 @@ export async function ImagesUploadWithToast({
 }
 
 export async function ImagesUpload({
-  interval = 10,
+  sleepTime = 10,
   ...args
 }: ImagesUploadProps) {
   return MakeImagesUploadList(args).then((list) =>
-    PromiseOrder(list, { interval })
+    PromiseOrder(list, { sleepTime })
   );
 }
 
