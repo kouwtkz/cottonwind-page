@@ -86,6 +86,7 @@ app.patch("/send", async (c, next) => {
         ...values,
         lastmod: now.toISOString(),
       };
+      now.setMilliseconds(now.getMilliseconds() + 1);
       KeyValueConvertDBEntry(entry);
       if (rename) {
         const value = (await TableObject.Select({ db, where: { id } }))[0];
@@ -113,7 +114,6 @@ app.patch("/send", async (c, next) => {
         }
       }
       await TableObject.Update({ db, entry, where: { id } });
-      now.setMilliseconds(now.getMilliseconds() + 1);
     })
   ).then((results) => c.json(results));
 });

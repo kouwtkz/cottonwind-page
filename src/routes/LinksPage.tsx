@@ -13,17 +13,20 @@ import {
 } from "@/state/EnvState";
 import { ImageMee } from "@/layout/ImageMee";
 import { CreateState } from "@/state/CreateState";
-import { AddButton, EditModeSwitch } from "./edit/CommonSwitch";
-import { FavBannerEdit, useEditFavLinkID } from "./edit/LinksEdit";
 import {
-  ImagesUploadWithToast,
-  useImageEditIsEditHold,
-} from "./edit/ImageEditForm";
+  FavBannerEdit,
+  FavBannerEditButtons,
+  MyBannerEditButtons,
+  useEditFavLinkID,
+  useMoveFavLink,
+  useMoveMyBanner,
+} from "./edit/LinksEdit";
+import { useImageEditIsEditHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useImageViewer } from "@/state/ImageViewer";
-import { fileDialog } from "@/components/FileTool";
-import { imageDataObject } from "@/state/DataState";
+import { Movable } from "@/layout/edit/Movable";
+import { favLinksDataObject, imageDataObject } from "@/state/DataState";
 
 export default function LinksPage() {
   const [env] = useEnv();
@@ -123,77 +126,100 @@ function InviteDiscordLink({
 
 export const useBannersEditMode = CreateState(false);
 
-const myBannerName = "myBanner";
+export const myBannerName = "myBanner";
 export function MyBanners() {
-  const edit = useImageEditIsEditHold()[0];
+  const [move, setMove] = useMoveMyBanner();
   const isLogin = useIsLogin()[0];
   const { imageAlbums } = useImageState();
   const album = imageAlbums?.get(myBannerName);
-  const mediaOrigin = useMediaOrigin()[0];
-  const setSearchParams = useSearchParams()[1];
   const { setImages } = useImageViewer();
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
+  const setImageDataLoad = imageDataObject.useLoad()[1];
+  const myBanners = useMemo(() => {
+    const list = album?.list.concat() || [];
+    list.sort((a, b) => (a.order || 0xFFFF) - (b.order || 0xFFFF));
+    return list;
+  }, [album?.list]);
   useEffect(() => {
     setImages(album?.list || null);
   }, [setImages, album]);
   return (
     <div>
       <h3 className="leaf">サイトのバナー</h3>
-      {isLogin ? (
-        <div>
-          <EditModeSwitch useSwitch={useImageEditIsEditHold} />
-          <AddButton
-            onClick={() => {
-              fileDialog("image/*")
-                .then((fileList) => fileList.item(0)!)
-                .then((src) => {
-                  return ImagesUploadWithToast({
-                    src,
-                    apiOrigin,
-                    album: myBannerName,
-                    albumOverwrite: false,
-                    notDraft: true,
-                  });
-                })
-                .then(async () => {
-                  setImagesLoad("no-cache");
+      {isLogin ? <MyBannerEditButtons /> : null}
+      <div className="bannerArea">
+        {move ? (
+          <Movable
+            items={myBanners}
+            Inner={MyBannerInner}
+            submit={move === 2}
+            onSubmit={(items) => {
+              const dirty = items
+                .map((item, i) => ({
+                  ...item,
+                  newOrder: i + 1,
+                }))
+                .filter((item, i) => item.newOrder !== item.order)
+                .map(({ id, newOrder }) => {
+                  return { id, order: newOrder };
                 });
+              toast.promise(
+                axios
+                  .patch(concatOriginUrl(apiOrigin, "image/send"), dirty, {
+                    withCredentials: true,
+                  })
+                  .then(() => {
+                    setImageDataLoad("no-cache");
+                    setMove(0);
+                  }),
+                {
+                  pending: "送信中",
+                  success: "送信しました",
+                  error: "送信に失敗しました",
+                }
+              );
             }}
           />
-        </div>
-      ) : null}
-      <div className="bannerArea">
-        {album?.list.map((image, i) => (
-          <div key={i}>
-            <div>
-              {image.width}×{image.height} px
-            </div>
-            <a
-              title={image.name || image.src || ""}
-              href={concatOriginUrl(mediaOrigin, image.src)}
-              target="banner"
-              className="overlay"
-              onClick={(e) => {
-                if (edit) {
-                  setSearchParams(
-                    { image: image.key },
-                    { preventScrollReset: true }
-                  );
-                  e.preventDefault();
-                }
-              }}
-            >
-              <ImageMee
-                alt={`${image.width}×${image.height}バナー"`}
-                className="banner"
-                imageItem={image}
-                autoPixel={false}
-              />
-            </a>
-          </div>
-        ))}
+        ) : (
+          <>
+            {myBanners.map((image, i) => (
+              <MyBannerInner key={i} item={image} />
+            ))}
+          </>
+        )}
       </div>
+    </div>
+  );
+}
+
+function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
+  const mediaOrigin = useMediaOrigin()[0];
+  const setSearchParams = useSearchParams()[1];
+  const edit = useImageEditIsEditHold()[0];
+  return (
+    <div>
+      <div>
+        {item.width}×{item.height} px
+      </div>
+      <a
+        title={item.name || item.src || ""}
+        {...(move ? {} : { href: concatOriginUrl(mediaOrigin, item.src) })}
+        target="banner"
+        className="overlay"
+        onClick={(e) => {
+          if (edit) {
+            setSearchParams({ image: item.key }, { preventScrollReset: true });
+            e.preventDefault();
+          }
+        }}
+      >
+        <ImageMee
+          alt={`${item.width}×${item.height}バナー"`}
+          className="banner"
+          imageItem={item}
+          autoPixel={false}
+        />
+      </a>
     </div>
   );
 }
@@ -201,27 +227,57 @@ export function MyBanners() {
 export const useFavoriteLinksEditMode = CreateState(false);
 
 export function FavoriteLinks() {
-  const list = useFavLinks()[0];
-  const [edit, setEdit] = useEditFavLinkID();
+  const favLinks = useFavLinks()[0] || [];
+  const edit = useEditFavLinkID()[0];
+  const [move, setMove] = useMoveFavLink();
   const isLogin = useIsLogin()[0];
+  const apiOrigin = useApiOrigin()[0];
+  const setLoad = favLinksDataObject.useLoad()[1];
   return (
     <div>
       {edit ? <FavBannerEdit /> : null}
       <h3 className="leaf">お気に入りのサイト</h3>
-      {isLogin ? (
-        <div>
-          <EditModeSwitch useSwitch={useFavoriteLinksEditMode} />
-          <AddButton
-            onClick={() => {
-              setEdit(true);
+      {isLogin ? <FavBannerEditButtons /> : null}
+      <div className="bannerArea">
+        {move ? (
+          <Movable
+            items={favLinks}
+            Inner={BannerInner}
+            submit={move === 2}
+            onSubmit={(items) => {
+              const dirty = items
+                .map((item, i) => ({
+                  ...item,
+                  newOrder: i + 1,
+                }))
+                .filter((item, i) => item.newOrder !== item.order)
+                .map(({ id, newOrder }) => {
+                  return { id, order: newOrder };
+                });
+              toast.promise(
+                axios
+                  .post(concatOriginUrl(apiOrigin, "links/fav/send"), dirty, {
+                    withCredentials: true,
+                  })
+                  .then(() => {
+                    setLoad("no-cache");
+                    setMove(0);
+                  }),
+                {
+                  pending: "送信中",
+                  success: "送信しました",
+                  error: "送信に失敗しました",
+                }
+              );
             }}
           />
-        </div>
-      ) : null}
-      <div className="bannerArea">
-        {list?.map((v, i) => (
-          <BannerItem item={v} key={i} />
-        ))}
+        ) : (
+          <>
+            {favLinks?.map((v, i) => (
+              <BannerItem item={v} key={i} />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

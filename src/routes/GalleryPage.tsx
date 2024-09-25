@@ -55,7 +55,7 @@ import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { EditModeSwitch } from "./edit/CommonSwitch";
+import { EditModeSwitch } from "@/layout/edit/CommonSwitch";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();

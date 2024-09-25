@@ -36,7 +36,9 @@ export function LinksState() {
   const setFavLinks = useFavLinks()[1];
   useEffect(() => {
     if (favLinksData && imagesMap) {
-      setFavLinks(favLinksData.map((data) => convertSiteLink(data, imagesMap)));
+      const list = favLinksData.map((data) => convertSiteLink(data, imagesMap));
+      list.sort((a, b) => (a.order || 0xFFFF) - (b.order || 0xFFFF));
+      setFavLinks(list);
     }
   }, [favLinksData, setFavLinks, imagesMap]);
   return <></>;

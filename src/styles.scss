@@ -180,6 +180,15 @@ textarea,
 [editable] {
   @extend %cursor-text;
 }
+.move {
+  a {
+    pointer-events: none;
+  }
+  @extend %cursor-move;
+}
+img {
+  vertical-align: top;
+}
 
 :root {
   @extend %cursor-default;

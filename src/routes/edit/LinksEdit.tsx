@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
-import { ImagesUploadWithToast } from "./ImageEditForm";
+import { ImagesUploadWithToast, useImageEditIsEditHold } from "./ImageEditForm";
 import { useApiOrigin } from "@/state/EnvState";
-import { BannerInner } from "../LinksPage";
+import {
+  BannerInner,
+  myBannerName,
+  useFavoriteLinksEditMode,
+} from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
 import { favLinksDataObject, imageDataObject } from "@/state/DataState";
 import axios from "axios";
@@ -12,6 +16,13 @@ import { useFavLinks } from "@/state/LinksState";
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
+import {
+  AddButton,
+  CancelButton,
+  CompleteButton,
+  EditModeSwitch,
+  MoveButton,
+} from "@/layout/edit/CommonSwitch";
 
 export const useEditFavLinkID = CreateState<number | boolean>();
 export function FavBannerEdit() {
@@ -160,5 +171,95 @@ export function FavBannerEdit() {
         </button>
       </form>
     </Modal>
+  );
+}
+
+export const useMoveFavLink = CreateState(0);
+export function FavBannerEditButtons() {
+  const setEdit = useEditFavLinkID()[1];
+  const [move, setMove] = useMoveFavLink();
+  return (
+    <div>
+      {move ? (
+        <>
+          <CancelButton
+            onClick={() => {
+              setMove(0);
+            }}
+          />
+          <CompleteButton
+            onClick={() => {
+              setMove(2);
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <EditModeSwitch useSwitch={useFavoriteLinksEditMode} />
+          <AddButton
+            onClick={() => {
+              setEdit(true);
+            }}
+          />
+          <MoveButton
+            onClick={() => {
+              setMove(1);
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+export const useMoveMyBanner = CreateState(0);
+export function MyBannerEditButtons() {
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const [move, setMove] = useMoveMyBanner();
+  return (
+    <div>
+      {move ? (
+        <>
+          <CancelButton
+            onClick={() => {
+              setMove(0);
+            }}
+          />
+          <CompleteButton
+            onClick={() => {
+              setMove(2);
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <EditModeSwitch useSwitch={useImageEditIsEditHold} />
+          <AddButton
+            onClick={() => {
+              fileDialog("image/*")
+                .then((fileList) => fileList.item(0)!)
+                .then((src) => {
+                  return ImagesUploadWithToast({
+                    src,
+                    apiOrigin,
+                    album: myBannerName,
+                    albumOverwrite: false,
+                    notDraft: true,
+                  });
+                })
+                .then(async () => {
+                  setImagesLoad("no-cache");
+                });
+            }}
+          />
+          <MoveButton
+            onClick={() => {
+              setMove(1);
+            }}
+          />
+        </>
+      )}
+    </div>
   );
 }
