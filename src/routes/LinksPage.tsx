@@ -5,11 +5,25 @@ import { useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { LinksState, useFavLinks } from "@/state/LinksState";
-import { useEnv, useIsLogin } from "@/state/EnvState";
+import {
+  useApiOrigin,
+  useEnv,
+  useIsLogin,
+  useMediaOrigin,
+} from "@/state/EnvState";
 import { ImageMee } from "@/layout/ImageMee";
 import { CreateState } from "@/state/CreateState";
 import { AddButton, EditModeSwitch } from "./edit/CommonSwitch";
 import { FavBannerEdit, useEditFavLinkID } from "./edit/LinksEdit";
+import {
+  ImagesUploadWithToast,
+  useImageEditIsEditHold,
+} from "./edit/ImageEditForm";
+import { useImageState } from "@/state/ImageState";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { useImageViewer } from "@/state/ImageViewer";
+import { fileDialog } from "@/components/FileTool";
+import { imageDataObject } from "@/state/DataState";
 
 export default function LinksPage() {
   const [env] = useEnv();
@@ -42,10 +56,7 @@ export default function LinksPage() {
           </li>
         </ul>
       </div>
-      <div>
-        <h3 className="leaf">サイトのバナー</h3>
-        <MyBanners />
-      </div>
+      <MyBanners />
       <FavoriteLinks />
     </div>
   );
@@ -110,30 +121,79 @@ function InviteDiscordLink({
   );
 }
 
-const myBanners: { w: number; h: number; src: string }[] = [
-  { w: 200, h: 40, src: "/static/images/banner/banner_cottonwind_200_40.png" },
-  { w: 234, h: 60, src: "/static/images/banner/banner_cottonwind_234_60.png" },
-];
+export const useBannersEditMode = CreateState(false);
 
+const myBannerName = "myBanner";
 export function MyBanners() {
+  const edit = useImageEditIsEditHold()[0];
+  const isLogin = useIsLogin()[0];
+  const { imageAlbums } = useImageState();
+  const album = imageAlbums?.get(myBannerName);
+  const mediaOrigin = useMediaOrigin()[0];
+  const setSearchParams = useSearchParams()[1];
+  const { setImages } = useImageViewer();
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  useEffect(() => {
+    setImages(album?.list || null);
+  }, [setImages, album]);
   return (
-    <div className="bannerArea">
-      {myBanners.map(({ w, h, src }, i) => (
-        <div key={i}>
-          <div>
-            {w}×{h} px
-          </div>
-          <a href={src} target="banner" className="overlay">
-            <img
-              src={src}
-              alt={`${w}×${h}バナー"`}
-              width={w}
-              height={h}
-              className="banner"
-            />
-          </a>
+    <div>
+      <h3 className="leaf">サイトのバナー</h3>
+      {isLogin ? (
+        <div>
+          <EditModeSwitch useSwitch={useImageEditIsEditHold} />
+          <AddButton
+            onClick={() => {
+              fileDialog("image/*")
+                .then((fileList) => fileList.item(0)!)
+                .then((src) => {
+                  return ImagesUploadWithToast({
+                    src,
+                    apiOrigin,
+                    album: myBannerName,
+                    albumOverwrite: false,
+                    notDraft: true,
+                  });
+                })
+                .then(async () => {
+                  setImagesLoad("no-cache");
+                });
+            }}
+          />
         </div>
-      ))}
+      ) : null}
+      <div className="bannerArea">
+        {album?.list.map((image, i) => (
+          <div key={i}>
+            <div>
+              {image.width}×{image.height} px
+            </div>
+            <a
+              title={image.name || image.src || ""}
+              href={concatOriginUrl(mediaOrigin, image.src)}
+              target="banner"
+              className="overlay"
+              onClick={(e) => {
+                if (edit) {
+                  setSearchParams(
+                    { image: image.key },
+                    { preventScrollReset: true }
+                  );
+                  e.preventDefault();
+                }
+              }}
+            >
+              <ImageMee
+                alt={`${image.width}×${image.height}バナー"`}
+                className="banner"
+                imageItem={image}
+                autoPixel={false}
+              />
+            </a>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

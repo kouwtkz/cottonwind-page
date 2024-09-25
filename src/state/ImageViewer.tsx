@@ -39,8 +39,10 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { EmbedNode, useFilesMap } from "./FileState";
 
 type ImageViewerType = {
-  image: OldMediaImageItemType | null;
-  setImage: (image: OldMediaImageItemType | null) => void;
+  image: ImageType | null;
+  setImage: (image: ImageType | null) => void;
+  images: ImageType[] | null;
+  setImages: (images: ImageType[] | null) => void;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -48,11 +50,15 @@ type ImageViewerType = {
 export const useImageViewer = create<ImageViewerType>((set) => ({
   image: null,
   setImage(image) {
-    set(() => ({
+    set({
       image,
       isOpen: true,
-    }));
+    });
     scrollLock(true);
+  },
+  images: null,
+  setImages(images) {
+    set({ images });
   },
   isOpen: false,
   onOpen: () => {
@@ -424,36 +430,22 @@ export function GalleryViewerPaging({
   className,
   ...args
 }: GalleryViewerPagingProps) {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams()[0];
   const state = useLocation().state;
-  const albumParam = searchParams.get("album");
-  const groupParam = searchParams.get("group") ?? albumParam;
-  const { items, yfList } = useGalleryObject(({ items, yfList }) => ({
-    items,
-    yfList,
-  }));
-  const galleryItemIndex = useMemo(
-    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
-    [items, groupParam]
-  );
-
-  const groupImageList = useMemo(
-    () => yfList[galleryItemIndex] ?? [],
-    [yfList, galleryItemIndex]
-  );
+  const images = useImageViewer().images || [];
   const imageIndex = useMemo(() => {
     const key = image?.key;
     if (key) {
-      return groupImageList.findIndex((groupImage) => groupImage.key === key);
+      return images.findIndex((groupImage) => groupImage.key === key);
     } else return -1;
-  }, [image, groupImageList]);
+  }, [image, images]);
 
   const prevNextImage = useMemo(
     () => ({
-      before: groupImageList[imageIndex - 1],
-      after: groupImageList[imageIndex + 1],
+      before: images[imageIndex - 1],
+      after: images[imageIndex + 1],
     }),
-    [groupImageList, imageIndex]
+    [images, imageIndex]
   );
 
   const prevNextToHandler = useCallback(
