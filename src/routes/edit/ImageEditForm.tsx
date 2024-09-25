@@ -745,7 +745,14 @@ export async function MakeImagesUploadList({
         withCredentials: true,
         timeout: 10000,
       }).catch((e: AxiosError) => {
-        console.error(e);
+        const stock: unknown[] = [];
+        if (e.config?.data) {
+          const data = Object.fromEntries(e.config.data);
+          if (data.file?.name) stock.push(data.file.name);
+          stock.push(data);
+        }
+        stock.push(e);
+        console.error(...stock);
         if (e.response) return e.response;
         else return { status: 500 } as AxiosResponse;
       })
@@ -789,7 +796,6 @@ export async function ImagesUploadWithToast({
             type: "success",
           });
         } else {
-          console.error("以下のアップロードに失敗しました");
           const failedList = results
             .filter((r) => r.status !== 200)
             .map((r) => {
@@ -817,7 +823,7 @@ export async function ImagesUploadWithToast({
       .catch(() => {
         toast.update(id, {
           ...toastUpdateOptions,
-          render: "失敗しました",
+          render: "アップロードに失敗したファイルが含まれています",
           type: "error",
         });
       });
