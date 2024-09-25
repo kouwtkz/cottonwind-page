@@ -52,7 +52,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { PromiseOrder, PromiseOrderStateType } from "@/functions/arrayFunction";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import {
   toastLoadingOptions,
   toastUpdateOptions,
@@ -743,10 +743,11 @@ export async function MakeImagesUploadList({
         method: "POST",
         data,
         withCredentials: true,
-        timeout: 2000,
+        timeout: 10000,
       }).catch((e: AxiosError) => {
+        console.error(e);
         if (e.response) return e.response;
-        else throw e;
+        else return { status: 500 } as AxiosResponse;
       })
   );
 }
