@@ -306,7 +306,7 @@ interface ImportImagesJsonProps extends DataUploadBaseProps {
 export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
-  partition = 250,
+  partition = 200,
 }: ImportImagesJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
@@ -379,7 +379,7 @@ export async function ImportImagesJson({
       data,
       object,
     });
-    await ImportToast(PromiseOrder(fetchList, { interval: 10 }));
+    await ImportToast(PromiseOrder(fetchList, { interval: 20 }));
   });
 }
 
@@ -392,7 +392,7 @@ type importEntryCharacterDataType = Omit<
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportCharacterJson({
   apiOrigin,
-  partition = 250,
+  partition = 200,
 }: ImportCharactersJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
@@ -420,7 +420,7 @@ export async function ImportCharacterJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { interval: 10 }));
+    return ImportToast(PromiseOrder(fetchList, { interval: 20 }));
   });
 }
 
@@ -430,7 +430,7 @@ type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
 interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportPostJson({
   apiOrigin,
-  partition = 250,
+  partition = 200,
 }: ImportCharactersJsonProps = {}) {
   return jsonFileDialog().then((json) => {
     let object: importEntryDataType<importEntryPostDataType>;
@@ -477,6 +477,6 @@ export async function ImportPostJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { interval: 10 }));
+    return ImportToast(PromiseOrder(fetchList, { interval: 20 }));
   });
 }
