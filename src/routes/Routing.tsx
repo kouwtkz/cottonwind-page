@@ -3,7 +3,7 @@ import Root from "./Root";
 import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
-import { GalleryGroupPage, GalleryPage } from "./GalleryPage";
+import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
 import { ComicsViewer } from "@/state/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
@@ -42,12 +42,8 @@ export const Routing: RouteObject[] = [
         element: <GalleryPage />,
       },
       {
-        path: "gallery/ebook",
-        element: <ComicsViewer />,
-      },
-      {
         path: "gallery/:group",
-        element: <GalleryGroupPage />,
+        element: <GalleryGroupPageRoot />,
       },
       {
         path: "sound",

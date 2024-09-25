@@ -188,12 +188,6 @@ export async function ReactResponse({
         if (!chara) return next();
       }
       break;
-    case "gallery/:group":
-      const req = (c as Context<MeeBindings, typeof path, any>).req;
-      const group = req.param("group");
-      const f = c.env.IMAGE_ALBUMS?.some((v) => v.name === group);
-      if (!f) return next();
-      break;
   }
   return c.html(
     renderHtml(await ServerLayout({ c, path, characters, ...args }))

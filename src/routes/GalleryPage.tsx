@@ -56,6 +56,7 @@ import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { EditModeSwitch } from "@/layout/edit/CommonSwitch";
+import { ComicsViewer } from "@/state/ComicsViewer";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();
@@ -159,7 +160,12 @@ export function GalleryManageMenuButton({
   );
 }
 
-export function GalleryGroupPage({}: SearchAreaOptionsProps) {
+export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
+  const { group } = useParams();
+  return <>{group === "ebook" ? <ComicsViewer /> : <GalleryGroupPage />}</>;
+}
+
+function GalleryGroupPage() {
   const { group } = useParams();
   const [env] = useEnv();
   const album = useMemo(
