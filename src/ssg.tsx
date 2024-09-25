@@ -8,8 +8,6 @@ import {
 import { RoutingList } from "./routes/RoutingList";
 import SuggestPage from "./routes/SuggestPage";
 import { GitLogObject } from "@/gitlog/GitlogObject";
-import ENV from "../env.json";
-const { FAVORITE_LINKS } = ENV;
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
@@ -51,10 +49,6 @@ app.get("/404", async (c) => {
 
 app.get("/500", async (c) => {
   return c.html(renderHtml(<ServerError env={c.env} />), { status: 500 });
-});
-
-app.get("/data/favorite_links.json", async (c) => {
-  return c.json(FAVORITE_LINKS ?? []);
 });
 
 app.get("/suggest", async (c) => {
