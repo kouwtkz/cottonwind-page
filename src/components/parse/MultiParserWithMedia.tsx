@@ -34,7 +34,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
               })
             : null;
           if (imageItem) {
-            const src = imageItem.webp || imageItem.src;
+            const src = imageItem.src;
             n.attribs.src = src ? mediaOrigin + src : "";
             n.attribs.title = n.attribs.alt || imageItem.name || "";
             n.attribs.alt = n.attribs.title;

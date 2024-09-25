@@ -600,7 +600,7 @@ export interface ImagesUploadOptions {
   webp?: boolean;
   thumbnail?: boolean | number;
   webpOptions?: resizeImageCanvasProps;
-  direct?: boolean;
+  notDraft?: boolean;
 }
 type srcType = string | File;
 export type srcObjectType = {
@@ -624,7 +624,7 @@ export async function MakeImagesUploadList({
   webp = true,
   thumbnail = true,
   webpOptions,
-  direct,
+  notDraft: direct,
 }: MakeImagesUploadListProps) {
   const url = (apiOrigin || "") + "/image/send";
   const checkTime = new Date().getTime();
@@ -812,5 +812,5 @@ export async function ImagesUpload({
 export const iconImagesUploadOptions: ImagesUploadOptions = {
   thumbnail: false,
   webpOptions: { expansion: false, size: 96 },
-  direct: true,
+  notDraft: true,
 };

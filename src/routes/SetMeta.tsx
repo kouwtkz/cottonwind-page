@@ -77,10 +77,7 @@ export function MetaValues({
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
         if (chara?.media?.image) {
           if (chara.media.image) {
-            image = concatOriginUrl(
-              mediaOrigin,
-              chara.media.image.webp || chara.media.image.src
-            );
+            image = concatOriginUrl(mediaOrigin, chara.media.image.src);
             if (chara.media.image.width && chara.media.image.height) {
               imageSize = {
                 w: chara.media.image.width,
@@ -147,7 +144,7 @@ export function MetaValues({
     const foundImage = imagesMap?.get(imageParam);
     if (foundImage) {
       title = (foundImage.name || foundImage.key) + " | " + title;
-      image = concatOriginUrl(mediaOrigin, foundImage.webp || foundImage.src);
+      image = concatOriginUrl(mediaOrigin, foundImage.src);
       if (foundImage.width && foundImage.height) {
         imageSize = {
           w: foundImage.width,
@@ -211,10 +208,7 @@ export function MetaValues({
   if (!description) description = env?.DESCRIPTION ?? "";
   if (!image && env?.SITE_IMAGE && imagesMap?.has(env.SITE_IMAGE)) {
     const imageItem = imagesMap.get(env.SITE_IMAGE)!;
-    image = concatOriginUrl(
-      mediaOrigin,
-      String(imageItem.webp || imageItem.src || imageItem.icon)
-    );
+    image = concatOriginUrl(mediaOrigin, imageItem.src);
   }
   return {
     title,

@@ -191,7 +191,7 @@ function CharaListPage() {
               backUrl: location.href,
             }}
             className="item"
-            key={i}
+            key={chara.key}
           >
             <CharaListItem chara={chara} />
           </Link>
