@@ -180,17 +180,21 @@ app.post("/send", async (c, next) => {
     const blob = new Blob([arr]);
     metaSize = await imageDimensionsFromStream(blob.stream());
   }
-  if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
-  if (images.thumbnail?.buf)
-    await c.env.BUCKET.put(images.thumbnail.path, images.thumbnail.buf);
   const pathes = Object.fromEntries(
-    Object.entries(images).map(([k, v]) => [k, v.path || undefined])
+    Object.entries(images).map(([k, v]) => [k, v.path || null])
   );
-  const selectValue = await Select().catch(() =>
+  const selectValues = await Select().catch(() =>
     TableObject.CreateTable({ db }).then(() => Select())
   );
-  if (selectValue.length > 0) {
-    const value = selectValue[0];
+  const value = selectValues[0] ? selectValues[0] : null;
+  if (images.src?.buf) await c.env.BUCKET.put(images.src.path, images.src.buf);
+  if (images.thumbnail?.buf) {
+    await c.env.BUCKET.put(images.thumbnail.path, images.thumbnail.buf);
+  } else if (value?.thumbnail) {
+    await c.env.BUCKET.delete(value.thumbnail);
+    pathes.thumbnail = null;
+  }
+  if (value) {
     if (images.src?.path && value.src && (images.src.path !== value.src)) {
       await c.env.BUCKET.delete(value.src);
     }

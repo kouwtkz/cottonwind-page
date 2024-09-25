@@ -15,6 +15,7 @@ import { AiFillEdit } from "react-icons/ai";
 import {
   MdCleaningServices,
   MdDeleteForever,
+  MdFileUpload,
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
@@ -56,6 +57,7 @@ import {
   toastLoadingOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
+import { fileDialog } from "@/components/FileTool";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -290,12 +292,33 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         dropdown={
           <>
             <button
-              title="マークダウン用のコピー"
+              title="画像を置き換える"
+              type="button"
+              className="color round rb"
+              onClick={() => {
+                if (image)
+                  fileDialog("image/*")
+                    .then((files) => files.item(0)!)
+                    .then((file) =>
+                      ImagesUploadWithToast({
+                        src: { src: file, name: image.key },
+                        apiOrigin,
+                      })
+                    )
+                    .then(() => {
+                      setImagesLoad("no-cache");
+                    });
+              }}
+            >
+              <MdFileUpload />
+            </button>
+            <button
+              title="画像名のテキストコピー"
               type="button"
               className="color round rb"
               onClick={() => {
                 if (image) {
-                  navigator.clipboard.writeText(`![](?image=${image.name})`);
+                  navigator.clipboard.writeText(image.key);
                   toast.success("コピーしました", { autoClose: 1500 });
                 }
               }}
