@@ -1,4 +1,4 @@
-compatibility_date = "2024-09-15"
+compatibility_date = "2024-09-26"
 main = "src/api/r2.ts"
 name = "cottonwind-r2"
 
