@@ -4,10 +4,17 @@ export async function imageObject(
 ): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = "anonymous";
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", reject);
-    image.src = typeof src === "string" ? src : URL.createObjectURL(src);
+    if (typeof src === "string") {
+      fetch(src, { cache: "no-cache", mode: "cors" })
+        .then((r) => r.blob())
+        .then((data) => {
+          image.src = URL.createObjectURL(data);
+        });
+    } else {
+      image.src = URL.createObjectURL(src);
+    }
   });
 }
 
