@@ -793,7 +793,8 @@ details {
     line-height: 2em;
     border-radius: 0.5em;
     margin: 0.5em auto 0.5em 0.5em;
-    background-color: var(--main-color-grayish);
+    color: white;
+    background-color: var(--main-color-light-grayish);
     &:hover {
       background-color: var(--main-color-pale-grayish);
     }

@@ -398,7 +398,7 @@ export function PostButton({ postId, className, ...args }: PostButtonProps) {
   const link = `/blog/post${postId ? `?target=${postId}` : ""}`;
   useHotkeys("n", () => nav(link));
   return (
-    <button {...args} className={"round" + className} onClick={() => nav(link)}>
+    <button {...args} className={"round color" + className} onClick={() => nav(link)}>
       {postId ? <TfiWrite className="svg" /> : <AiFillEdit className="svg" />}
     </button>
   );
