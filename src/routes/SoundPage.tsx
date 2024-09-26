@@ -5,27 +5,15 @@ import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 import { useSearchParams } from "react-router-dom";
 import { useIsLogin } from "@/state/EnvState";
-import { SoundEditButton } from "./edit/SoundEdit";
+import { SoundEdit, SoundEditButton, useEditSoundKey } from "./edit/SoundEdit";
 
 export function SoundPage() {
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useIsLogin()[0];
-  return (
-    <div className="soundPage">
-      {isLogin ? <SoundEditButton /> : null}
-      {isLogin && isEdit ? null : (
-        <>
-          <SoundMainPage />
-        </>
-      )}
-    </div>
-  );
-}
-
-function SoundMainPage() {
   const sounds = useSounds()[0];
   const soundAlbums = useSoundAlbums()[0];
+  const [editSoundKey, setSoundKey] = useEditSoundKey();
   const {
     Play,
     Pause,
@@ -38,7 +26,9 @@ function SoundMainPage() {
   const src = playerList.list[current]?.src || "";
 
   return (
-    <>
+    <div className="soundPage">
+      {isLogin ? <SoundEditButton /> : null}
+      {editSoundKey ? <SoundEdit /> : null}
       <h1
         className="title en-title-font cursor-pointer"
         onClick={() => {
@@ -86,26 +76,36 @@ function SoundMainPage() {
                         "item cursor-pointer" + (itemPaused ? " paused" : "")
                       }
                       onClick={() => {
-                        if (itemPaused) {
-                          if (special) {
-                            Play({
-                              current: sounds?.findIndex(
-                                (_sound) => _sound.src === sound.src
-                              ),
-                            });
-                          } else {
-                            Play({ playlist, current: i });
-                          }
-                        } else Pause();
+                        if (isEdit) {
+                          setSoundKey(sound.key);
+                        } else {
+                          if (itemPaused) {
+                            if (special) {
+                              Play({
+                                current: sounds?.findIndex(
+                                  (_sound) => _sound.src === sound.src
+                                ),
+                              });
+                            } else {
+                              Play({ playlist, current: i });
+                            }
+                          } else Pause();
+                        }
                       }}
                     >
                       <div className="cursor">
-                        {sound.src === src ? <TriangleCursor /> : null}
+                        {!isEdit && sound.src === src ? (
+                          <TriangleCursor />
+                        ) : null}
                       </div>
                       <div className="name">
                         <span>{sound.title}</span>
                       </div>
-                      <PlayPauseButton className="play" paused={itemPaused} />
+                      {isEdit ? (
+                        <div className="play" />
+                      ) : (
+                        <PlayPauseButton className="play" paused={itemPaused} />
+                      )}
                     </div>
                   );
                 })}
@@ -113,6 +113,6 @@ function SoundMainPage() {
             </div>
           );
         })}
-    </>
+    </div>
   );
 }
