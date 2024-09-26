@@ -11,7 +11,7 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
   });
   const imagesMap = new Map<string, ImageType>();
   imagesData
-    .filter((v) => v.version)
+    .filter((v) => v.version && v.src)
     .forEach((v) => {
       if (v.album && !imageAlbumMap.has(v.album)) imageAlbumMap.set(v.album, { name: v.album, list: [] });
       const albumObject = v.album ? imageAlbumMap.get(v.album) : undefined;
