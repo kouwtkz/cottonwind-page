@@ -1,7 +1,8 @@
 import { getPlatformProxy } from "wrangler";
 import fs from "fs/promises";
 import { basename, dirname } from "path";
-import { CommonHono } from "./src/types/HonoCustomType";
+import { Hono } from "hono";
+import { BlankSchema } from "hono/types";
 
 let defaultSrc = "src/index"
 let defaultDir = "dist"
@@ -46,28 +47,37 @@ process.argv.reduce<previousType>((a, c) => {
   }
 }, "");
 
-export async function getStaticParamsFromModule(module: Record<string, any>) {
+export async function getStaticParamsFromModule<T = any>(module: Record<string, any>, env?: T) {
   const generateStaticParams = async () => {
-    if (module.generateStaticParams) return module.generateStaticParams();
+    if (module.generateStaticParams) return module.generateStaticParams(env);
   }
   return generateStaticParams();
 }
 
-interface ssgRunBuildProps {
+interface CommonEnv<T extends object | undefined = any> {
+  Bindings: T;
+  Response: any;
+}
+interface ssgRunBuildProps<T extends object | undefined = any> {
   src?: string;
   dir?: string;
   configPath?: string;
-  env?: any;
-  app?: CommonHono,
+  env?: T;
+  app?: Hono<CommonEnv<T>, BlankSchema, "/">,
   staticParams?: KeyValueType<unknown>[];
 }
 export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPath = defaultConfigPath, env, app: _app, staticParams = [] }: ssgRunBuildProps = {}) {
   const messageObject: KeyValueType = { dir };
+  if (!env) {
+    const proxy = await getPlatformProxy<MeeCommonEnv>({ configPath });
+    env = proxy.env;
+    await proxy.dispose();
+  }
   if (!_app) {
     await import(src).then(async (m) => {
       if (m.default?.routes) {
         _app = m.default;
-        const gottenStaticParams = await getStaticParamsFromModule(m);
+        const gottenStaticParams = await getStaticParamsFromModule(m, env);
         if (gottenStaticParams) staticParams = gottenStaticParams;
         messageObject.src = src;
         messageObject.config = configPath ?? "wrangler.toml";
@@ -77,11 +87,6 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
   if (!_app) return;
   const app = _app;
   console.log(messageObject);
-  if (!env) {
-    const proxy = await getPlatformProxy<MeeCommonEnv>({ configPath });
-    env = proxy.env;
-    await proxy.dispose();
-  }
   await Promise.all(
     app.routes.map(async (route) => {
       let base = basename(route.path);

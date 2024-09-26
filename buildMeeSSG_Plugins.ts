@@ -49,7 +49,8 @@ export function buildMeeSSG_Plugins({ entry = "./src/index.tsx", adapter }: buil
         throw new Error(`Failed to find a named export "default" from ${entry}`);
       }
       const dir = config.build.outDir;
-      await buildMeeSSG({ app, dir, env: adapter?.env, staticParams: await getStaticParamsFromModule(m) });
+      const env = adapter?.env;
+      await buildMeeSSG({ app, dir, env, staticParams: await getStaticParamsFromModule(m, env) });
       if (adapter?.onServerClose) adapter.onServerClose();
     },
   } as Plugin

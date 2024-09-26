@@ -13,4 +13,4 @@ interface ImportMeta {
   readonly env?: ImportMetaEnv;
 }
 
-declare async function generateStaticParams(): KeyValueType[];
+declare async function generateStaticParams<T = any>(env?: T): KeyValueType[];
