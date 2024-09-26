@@ -8,7 +8,7 @@
     "dev-with-api": "npx run-p dev dev-api dev-r2",
     "build": "npx vite build --mode client && npm run build-worker && npm run build-ssg",
     "build-worker": "npx vite build",
-    "build-ssg": "npx tsx ./buildMeeRunSSG.ts",
+    "build-ssg": "npx vite build --mode ssg",
     "start": "npx wrangler pages dev --port 51730",
     "start-with-api": "npx run-p start dev-api",
     "start-remote-api": "npx run-p start remote-api",

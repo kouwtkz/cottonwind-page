@@ -51,24 +51,33 @@ interface ssgRunBuildProps {
   dir?: string;
   configPath?: string;
   env?: any;
+  app?: CommonHono,
   staticParams?: KeyValueType<unknown>[];
 }
-export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPath = defaultConfigPath, env, staticParams = [] }: ssgRunBuildProps = {}) {
-  const { app, generateStaticParams }: { app: CommonHono, generateStaticParams: () => Promise<(KeyValueType<unknown>[] | void)> } =
-    await import(src).then(m => {
+export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPath = defaultConfigPath, env, app: _app, staticParams = [] }: ssgRunBuildProps = {}) {
+  const messageObject: KeyValueType = { dir };
+  if (!_app) {
+    await import(src).then(async (m) => {
       if (m.default?.routes) {
-        return {
-          app: m.default,
-          generateStaticParams: async () => {
-            if (m.generateStaticParams) return m.generateStaticParams();
-          }
-        };
+        _app = m.default;
+        const generateStaticParams = async () => {
+          if (m.generateStaticParams) return m.generateStaticParams();
+        }
+        const gottenStaticParams = await generateStaticParams();
+        if (gottenStaticParams) staticParams = gottenStaticParams;
+        messageObject.src = src;
+        messageObject.config = configPath ?? "wrangler.toml";
       } else throw ("Honoがデフォルトのエクスポートじゃないです");
     });
-  console.log({ src, dir, config: configPath ?? "wrangler.toml" });
-
-  const params = (await generateStaticParams() ?? []).concat(staticParams);
-  const proxy = await getPlatformProxy<MeeCommonEnv>({ configPath });
+  }
+  if (!_app) return;
+  const app = _app;
+  console.log(messageObject);
+  if (!env) {
+    const proxy = await getPlatformProxy<MeeCommonEnv>({ configPath });
+    env = proxy.env;
+    await proxy.dispose();
+  }
   app.routes.forEach(async (route) => {
     let base = basename(route.path);
     let routePathes: string[];
@@ -76,7 +85,7 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
       const paramsList = route.path.split("/").filter(v => v.startsWith(":"));
       if (paramsList.length > 0) {
         routePathes = [];
-        params.forEach(list => {
+        staticParams.forEach(list => {
           const routePath = Object.entries(list).reduce((path, [k, v]) => {
             path = path.replace(RegExp("/:" + k + "(/|$)"), (m, m1) => "/" + String(v) + m1);
             return path;
@@ -87,12 +96,11 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
     } else {
       routePathes = [route.path];
     }
-    let proxyEnv = { ...proxy.env, ...env };
     Promise.all(
       routePathes.map(async (routePath) => {
         return {
           routePath,
-          result: await (async () => app.fetch(new Request((proxy.env.ORIGIN ?? "http://localhost") + routePath), proxyEnv))(),
+          result: await (async () => app.fetch(new Request((env.ORIGIN ?? "http://localhost") + routePath), env))(),
         };
       })
     ).then(async (list) => {
@@ -111,7 +119,6 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
       })
     });;
   })
-  await proxy.dispose();
 }
 
 if (basename(import.meta.url) === basename(process.argv[1])) await buildMeeSSG();

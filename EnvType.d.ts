@@ -12,3 +12,5 @@ declare module 'process' {
 interface ImportMeta {
   readonly env?: ImportMetaEnv;
 }
+
+declare async function generateStaticParams(): KeyValueType[];
