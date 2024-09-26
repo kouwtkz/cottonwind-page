@@ -50,7 +50,14 @@ function fixSourceMaps(): Plugin {
 export default defineConfig(({ mode }) => {
   let config: UserConfig = {
     optimizeDeps: { include: [] },
-    plugins: [tsconfigPaths()]
+    plugins: [tsconfigPaths()],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: "modern-compiler",
+        }
+      }
+    }
   };
   switch (mode) {
     case "client":

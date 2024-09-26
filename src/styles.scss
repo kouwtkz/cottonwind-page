@@ -1441,9 +1441,9 @@ form {
   max-width: 1400px;
   @include commonHeader();
   .charaList {
-    @include GridList(2, $tabletWidth, $desktopWidth);
     margin: 0 auto;
     width: 95%;
+    @include GridList(2, $tabletWidth, $desktopWidth);
     .item {
       display: flex;
       flex-direction: column;
@@ -1759,9 +1759,9 @@ div.banner {
     margin: auto;
     @extend %userSelectNone;
     &.grid {
-      @include GridList(4, $tabletWidth);
       column-gap: 0.1rem;
       row-gap: 0.1rem;
+      @include GridList(4, $tabletWidth);
       .item {
         aspect-ratio: 1;
       }
