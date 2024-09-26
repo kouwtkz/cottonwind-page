@@ -46,6 +46,13 @@ process.argv.reduce<previousType>((a, c) => {
   }
 }, "");
 
+export async function getStaticParamsFromModule(module: Record<string, any>) {
+  const generateStaticParams = async () => {
+    if (module.generateStaticParams) return module.generateStaticParams();
+  }
+  return generateStaticParams();
+}
+
 interface ssgRunBuildProps {
   src?: string;
   dir?: string;
@@ -60,10 +67,7 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
     await import(src).then(async (m) => {
       if (m.default?.routes) {
         _app = m.default;
-        const generateStaticParams = async () => {
-          if (m.generateStaticParams) return m.generateStaticParams();
-        }
-        const gottenStaticParams = await generateStaticParams();
+        const gottenStaticParams = await getStaticParamsFromModule(m);
         if (gottenStaticParams) staticParams = gottenStaticParams;
         messageObject.src = src;
         messageObject.config = configPath ?? "wrangler.toml";
@@ -78,47 +82,50 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
     env = proxy.env;
     await proxy.dispose();
   }
-  app.routes.forEach(async (route) => {
-    let base = basename(route.path);
-    let routePathes: string[];
-    if (route.path.includes(":")) {
-      const paramsList = route.path.split("/").filter(v => v.startsWith(":"));
-      if (paramsList.length > 0) {
-        routePathes = [];
-        staticParams.forEach(list => {
-          const routePath = Object.entries(list).reduce((path, [k, v]) => {
-            path = path.replace(RegExp("/:" + k + "(/|$)"), (m, m1) => "/" + String(v) + m1);
-            return path;
-          }, route.path)
-          if (!routePath.includes(":")) routePathes.push(routePath);
+  await Promise.all(
+    app.routes.map(async (route) => {
+      let base = basename(route.path);
+      let routePathes: string[];
+      if (route.path.includes(":")) {
+        const paramsList = route.path.split("/").filter(v => v.startsWith(":"));
+        if (paramsList.length > 0) {
+          routePathes = [];
+          staticParams.forEach(list => {
+            const routePath = Object.entries(list).reduce((path, [k, v]) => {
+              path = path.replace(RegExp("/:" + k + "(/|$)"), (m, m1) => "/" + String(v) + m1);
+              return path;
+            }, route.path)
+            if (!routePath.includes(":")) routePathes.push(routePath);
+          })
+        } else routePathes = [];
+      } else {
+        routePathes = [route.path];
+      }
+      await Promise.all(
+        routePathes.map(async (routePath) => {
+          return {
+            routePath,
+            result: await (async () => app.fetch(new Request((env.ORIGIN ?? "http://localhost") + routePath), env))(),
+          };
         })
-      } else routePathes = [];
-    } else {
-      routePathes = [route.path];
-    }
-    Promise.all(
-      routePathes.map(async (routePath) => {
-        return {
-          routePath,
-          result: await (async () => app.fetch(new Request((env.ORIGIN ?? "http://localhost") + routePath), env))(),
-        };
-      })
-    ).then(async (list) => {
-      list.forEach(async ({ routePath, result: r }) => {
-        const isErrorPage = base && !isNaN(Number(base));
-        if ((r.ok || isErrorPage) && route.method === "GET") {
-          if (base.indexOf(".") < 0) {
-            if (isErrorPage) routePath = routePath + ".html";
-            else routePath = routePath + (base ? "/" : "") + "index.html";
-          }
-          const filepath = dir + routePath;
-          await fs.mkdir(dirname(filepath), { recursive: true }).catch(() => { });
-          await fs.writeFile(filepath, await r.text())
-          console.log("- " + routePath);
-        }
-      })
-    });;
-  })
+      ).then(async (list) =>
+        Promise.all(
+          list.map(async ({ routePath, result: r }) => {
+            const isErrorPage = base && !isNaN(Number(base));
+            if ((r.ok || isErrorPage) && route.method === "GET") {
+              if (base.indexOf(".") < 0) {
+                if (isErrorPage) routePath = routePath + ".html";
+                else routePath = routePath + (base ? "/" : "") + "index.html";
+              }
+              const filepath = dir + routePath;
+              await fs.mkdir(dirname(filepath), { recursive: true }).catch(() => { });
+              await fs.writeFile(filepath, await r.text())
+              console.log("- " + routePath);
+            }
+          })
+        ));
+    }));
+  console.log("Completed SSG build!")
 }
 
 if (basename(import.meta.url) === basename(process.argv[1])) await buildMeeSSG();
