@@ -6,7 +6,7 @@
     "remote-api": "npx wrangler dev --remote -c wrangler-api.toml --port 51731 --test-scheduled",
     "dev-r2": "npx wrangler dev --local -c wrangler-r2.toml --port 51732",
     "dev-with-api": "npx run-p dev dev-api dev-r2",
-    "build": "npx vite build --mode client && npm run build-worker && npm run build-ssg",
+    "build": "npx vite build --mode client && npm run build-ssg && npm run build-worker",
     "build-worker": "npx vite build",
     "build-ssg": "npx vite build --mode ssg",
     "start": "npx wrangler pages dev --port 51730",
