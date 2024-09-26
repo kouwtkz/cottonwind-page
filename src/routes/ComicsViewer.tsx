@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useImageState } from "./ImageState";
+import { useImageState } from "@/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
-import { GalleryObject } from "../routes/GalleryPage";
+import { GalleryObject } from "@/routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import ePub from "epubjs";
-import { useLocation } from "react-router-dom";
-import { useMediaOrigin } from "./EnvState";
+import { useSearchParams } from "react-router-dom";
+import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { useFilesMap } from "./FileState";
+import { useFilesMap } from "@/state/FileState";
 // const { default: ComicViewer } = await import("react-comic-viewer");
 // const { default: ePub } = await import("epubjs");
 
@@ -30,8 +30,7 @@ interface ePubMetadataType {
 }
 
 export function ComicsViewer() {
-  const search = useLocation().search;
-  const s = useMemo(() => new URLSearchParams(search), [search]);
+  const s = useSearchParams()[0];
   const src = s.get("name") ?? "";
   if (src)
     if (/\.epub$/i.test(src)) {

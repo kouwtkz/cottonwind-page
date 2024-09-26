@@ -4,7 +4,7 @@ import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
 import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
-import { ComicsViewer } from "@/state/ComicsViewer";
+import { ComicsViewer } from "@/routes/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
