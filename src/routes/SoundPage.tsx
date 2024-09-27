@@ -5,7 +5,7 @@ import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 import { useSearchParams } from "react-router-dom";
 import { useIsLogin } from "@/state/EnvState";
-import { SoundEdit, SoundEditButton, useEditSoundKey } from "./edit/SoundEdit";
+import { SoundAlbumEdit, SoundEdit, SoundEditButton, useEditSoundAlbumKey, useEditSoundKey } from "./edit/SoundEdit";
 
 export function SoundPage() {
   const searchParams = useSearchParams()[0];
@@ -14,6 +14,7 @@ export function SoundPage() {
   const sounds = useSounds()[0];
   const soundAlbums = useSoundAlbums()[0];
   const [editSoundKey, setSoundKey] = useEditSoundKey();
+  const [editSoundAlbumKey, setSoundAlbumKey] = useEditSoundAlbumKey();
   const {
     Play,
     Pause,
@@ -29,6 +30,7 @@ export function SoundPage() {
     <div className="soundPage">
       {isLogin ? <SoundEditButton /> : null}
       {editSoundKey ? <SoundEdit /> : null}
+      {editSoundAlbumKey ? <SoundAlbumEdit /> : null}
       <h1
         className="title en-title-font cursor-pointer"
         onClick={() => {
@@ -65,7 +67,11 @@ export function SoundPage() {
           const playlist = album.playlist!;
           return (
             <div key={i} className="playlist">
-              <h3 className="label">{playlist.title}</h3>
+              <h3 className={"label" + (isEdit ? " cursor-pointer" : "")} onClick={() => {
+                if (isEdit) setSoundAlbumKey(album.key);
+              }}>
+                {playlist.title}
+              </h3>
               <div className="list">
                 {playlist.list.map((sound, i) => {
                   const itemPaused = sound.src === src ? paused : true;

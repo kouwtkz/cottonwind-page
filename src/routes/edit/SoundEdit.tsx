@@ -1,7 +1,10 @@
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import { LinkMee } from "@/functions/doc/MakeURL";
-import { soundsDataObject, UploadToast } from "@/state/DataState";
+import {
+  soundAlbumsDataObject,
+  soundsDataObject,
+  UploadToast,
+} from "@/state/DataState";
 import { useApiOrigin } from "@/state/EnvState";
 import { useEffect, useMemo, useRef } from "react";
 import {
@@ -10,15 +13,11 @@ import {
   MdFileDownload,
   MdFileUpload,
 } from "react-icons/md";
-import { TbDatabaseImport } from "react-icons/tb";
 import { Link, useSearchParams } from "react-router-dom";
-import { srcObjectType } from "./ImageEditForm";
-import { corsFetch } from "@/functions/fetch";
-import { PromiseOrder } from "@/functions/arrayFunction";
 import { FilesUploadProcess } from "./FilesEdit";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
-import { useSounds, useSoundsMap } from "@/state/SoundState";
+import { useSoundAlbumsMap, useSoundsMap } from "@/state/SoundState";
 import { FieldValues, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
@@ -187,6 +186,101 @@ export function SoundEdit() {
         <input
           title="タイトル"
           placeholder="曲のタイトル"
+          {...register("title")}
+        />
+        <button
+          type="button"
+          className="color"
+          onClick={handleSubmit(Submit)}
+          disabled={!isDirty}
+        >
+          送信
+        </button>
+      </form>
+    </Modal>
+  );
+}
+
+export const useEditSoundAlbumKey = CreateState<string | null>(null);
+export function SoundAlbumEdit() {
+  const [edit, setEdit] = useEditSoundAlbumKey();
+  const soundAlbumsMap = useSoundAlbumsMap()[0];
+  const soundAlbumsData = soundAlbumsDataObject.useData()[0];
+  const setLoad = soundAlbumsDataObject.useLoad()[1];
+  const dataItem = useMemo(
+    () => soundAlbumsData?.find((v) => v.key === edit),
+    [soundAlbumsData, edit]
+  );
+  const item = useMemo(
+    () => (edit ? soundAlbumsMap?.get(edit) : false) || null,
+    [soundAlbumsMap, edit]
+  );
+  const targetLastmod = useRef<string | null>(null);
+  useEffect(() => {
+    if (targetLastmod.current) {
+      const found = soundAlbumsData?.find(
+        (v) => v.lastmod === targetLastmod.current
+      );
+      if (found) setEdit(found.key);
+      targetLastmod.current = null;
+    }
+  }, [soundAlbumsData]);
+  const apiOrigin = useApiOrigin()[0];
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { isDirty, dirtyFields },
+  } = useForm<FieldValues>({
+    defaultValues: {
+      title: item?.title || item?.key,
+    },
+  });
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isDirty) Submit();
+    },
+    { enableOnFormTags: true }
+  );
+  function Submit() {
+    if (item) {
+      const values = getValues();
+      const entry = Object.fromEntries(
+        Object.entries(dirtyFields)
+          .filter((v) => v[1])
+          .map((v) => [v[0], values[v[0]]])
+      );
+      entry.target = item.key;
+      toast.promise(
+        axios
+          .patch(concatOriginUrl(apiOrigin, "sound/album/send"), entry, {
+            withCredentials: true,
+          })
+          .then(() => {
+            setLoad("no-cache");
+            setEdit(null);
+          }),
+        {
+          pending: "送信中",
+          success: "送信しました",
+          error: "送信に失敗しました",
+        }
+      );
+    }
+  }
+  return (
+    <Modal
+      onClose={() => {
+        if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
+          setEdit(null);
+        }
+      }}
+    >
+      <form className="flex" onSubmit={handleSubmit(Submit)}>
+        <input
+          title="タイトル"
+          placeholder="アルバムのタイトル"
           {...register("title")}
         />
         <button

@@ -190,4 +190,35 @@ app.delete("/all", async (c, next) => {
   return next();
 });
 
+app.patch("/album/send", async (c, next) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const rawData = await c.req.json();
+  const data = Array.isArray(rawData) ? rawData : [rawData];
+  const now = new Date();
+  return Promise.all(
+    data.map(async item => {
+      const { id: _id, ...data } = item as KeyValueType<unknown>;
+      const entry = AlbumTableObject.getInsertEntry(data);
+      entry.lastmod = now.toISOString();
+      now.setMilliseconds(now.getMilliseconds() + 1);
+      const target_id = data.target ? String(data.target) : undefined;
+      const target = target_id
+        ? (await AlbumTableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
+        : undefined;
+      if (target) {
+        entry.key = data.id;
+        await AlbumTableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
+        return { type: "update", entry: { ...target, ...entry } };
+      } else {
+        entry.key = data.id || target_id;
+        if (!entry.title) entry.title = entry.key;
+        await AlbumTableObject.Insert({ db, entry });
+        return { type: "create", entry }
+      }
+    })
+  ).then(results => {
+    return c.json(results, results.some(({ type }) => type === "create") ? 201 : 200);
+  });
+});
+
 export const app_sound_api = app;
