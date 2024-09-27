@@ -1,17 +1,20 @@
 import React, {
   ImgHTMLAttributes,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { UrlObject } from "url";
 import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
-import { atom, useAtom } from "jotai";
 import { useMediaOrigin } from "@/state/EnvState";
 import { getExtension } from "@/functions/doc/PathParse";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { AiOutlineFileImage } from "react-icons/ai";
+import { CreateState } from "@/state/CreateState";
+import { resizeImageCanvas } from "@/components/Canvas";
+import { useToastProgress } from "@/state/ToastProgress";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -27,9 +30,10 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
   );
 }
 
-export const ImageMeeShowOriginAtom = atom(false);
+export const useImageMeeShowPng = CreateState(false);
 
-interface ImageMeeProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
+interface ImageMeeProps
+  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
   src?: string | null;
   imageItem?: ImageType;
   hoverImageItem?: ImageType;
@@ -62,7 +66,6 @@ export function ImageMee({
   const refImg = useRef<HTMLImageElement | null>(null);
   const refImgSrc = useRef("");
   const refShowList = useRef<(string | null)[]>([]);
-  const ShowOrigin = useAtom(ImageMeeShowOriginAtom)[0];
   const mediaOrigin = useMediaOrigin()[0];
   const versionString = useMemo(() => {
     if (imageItem)
@@ -78,6 +81,7 @@ export function ImageMee({
     [mediaOrigin, versionString]
   );
 
+  const { addProgress, addMax } = useToastProgress();
   const ext = getExtension(imageItem?.src || _src || "");
   const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
   const alt = _alt || imageItem?.name || imageItem?.src || "";
@@ -103,22 +107,35 @@ export function ImageMee({
     [width, height]
   );
   const thumbnail = useMemo(
-    () => imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null,
+    () => (imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null),
     [imageItem, MediaOrigin]
   );
+  const [pngURL, setPngURL] = useState<string>();
+  const showPng = useImageMeeShowPng()[0];
+  useEffect(() => {
+    if (showPng && !pngURL) {
+      addMax({ message: "PNGに変換しています", success: "変換完了しました" });
+      resizeImageCanvas({ src, type: "png" }).then((blob) => {
+        addProgress();
+        setPngURL(URL.createObjectURL(blob));
+      });
+    }
+  }, [showPng, pngURL, setPngURL, addProgress, addMax]);
 
   const imageSrc = useMemo(
     () =>
-      mode === "simple" || ShowOrigin
+      showPng
+        ? pngURL
+        : mode === "simple"
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
         : MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
           src,
-    [imageItem, mode, src, thumbnail, ShowOrigin]
+    [imageItem, mode, src, thumbnail, showPng, pngURL]
   );
   const imageShowList = useMemo(() => {
-    const list: (string)[] = [];
+    const list: string[] = [];
     if (mode === "simple" && thumbnail) list.push(thumbnail);
     if (imageSrc) list.push(imageSrc);
     return list;
@@ -249,15 +266,15 @@ export function ImgSwitch({
 }
 
 export function ImageMeeShowOriginSwitch() {
-  const [showOrigin, setShowOrigin] = useAtom(ImageMeeShowOriginAtom);
+  const [showPng, setShowPng] = useImageMeeShowPng();
   return (
     <button
       type="button"
       className="iconSwitch"
-      title={showOrigin ? "元に戻す" : "画像を元のファイルで表示する"}
-      style={{ opacity: showOrigin ? 1 : 0.4 }}
+      title={showPng ? "元に戻す" : "画像をPNGファイルにする"}
+      style={{ opacity: showPng ? 1 : 0.4 }}
       onClick={() => {
-        setShowOrigin(!showOrigin);
+        setShowPng(!showPng);
       }}
     >
       <AiOutlineFileImage />
