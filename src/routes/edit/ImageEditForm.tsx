@@ -1,5 +1,5 @@
 import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
-import { GalleryViewerPaging } from "@/state/ImageViewer";
+import { GalleryViewerPaging } from "@/layout/ImageViewer";
 import { toast } from "react-toastify";
 import { useImageState } from "@/state/ImageState";
 import {

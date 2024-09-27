@@ -40,7 +40,7 @@ import { findMee, setWhere } from "@/functions/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
-import { useImageViewer } from "@/state/ImageViewer";
+import { useImageViewer } from "@/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
   useImageEditIsEditHold,

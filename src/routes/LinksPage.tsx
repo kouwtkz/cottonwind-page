@@ -24,7 +24,7 @@ import {
 import { useImageEditIsEditHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { useImageViewer } from "@/state/ImageViewer";
+import { useImageViewer } from "@/layout/ImageViewer";
 import { Movable } from "@/layout/edit/Movable";
 import { favLinksDataObject, imageDataObject } from "@/state/DataState";
 

@@ -9,13 +9,13 @@ import {
 } from "react-router-dom";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
-import { ImageMee } from "@/layout/ImageMee";
-import CloseButton from "../components/svg/button/CloseButton";
+import { ImageMee } from "./ImageMee";
+import CloseButton from "@/components/svg/button/CloseButton";
 import ImageEditForm, {
   useImageEditIsDirty,
   useImageEditIsEdit,
   useImageEditIsEditHold,
-} from "../routes/edit/ImageEditForm";
+} from "@/routes/edit/ImageEditForm";
 import {
   defaultGalleryTags,
   getTagsOptions,
@@ -28,15 +28,14 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { useCharactersMap, CharacterState } from "./CharacterState";
-import { useImageState } from "./ImageState";
-import { useDataIsComplete } from "./StateSet";
-import { useGalleryObject } from "../routes/GalleryPage";
+import { useCharactersMap, CharacterState } from "@/state/CharacterState";
+import { useImageState } from "@/state/ImageState";
+import { useDataIsComplete } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { scrollLock } from "@/components/hook/ScrollLock";
-import { useIsLogin, useMediaOrigin } from "./EnvState";
+import { useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { EmbedNode, useFilesMap } from "./FileState";
+import { EmbedNode, useFilesMap } from "@/state/FileState";
 
 type ImageViewerType = {
   image: ImageType | null;

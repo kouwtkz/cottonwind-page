@@ -1,6 +1,6 @@
 import { ToastContainer } from "react-toastify";
 import { SoundPlayer } from "./SoundPlayer";
-import { ImageViewer } from "./ImageViewer";
+import { ImageViewer } from "@/layout/ImageViewer";
 import { DataState } from "./DataState";
 import { ImageState, useImageState } from "./ImageState";
 import { ThemeStateClass } from "./ThemeSetter";
