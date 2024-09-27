@@ -12,6 +12,7 @@ import { SoundState, useSounds } from "./SoundState";
 import { CreateState } from "./CreateState";
 import FileState from "./FileState";
 import { defaultToastContainerOptions } from "@/components/define/toastContainerDef";
+import { ToastProgressState } from "./ToastProgress";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -42,6 +43,7 @@ export function StateSet() {
       <SoundPlayer />
       <ImageViewer />
       <ToastContainer {...defaultToastContainerOptions} />
+      <ToastProgressState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />
