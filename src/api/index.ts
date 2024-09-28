@@ -11,15 +11,19 @@ import { app_blog_api } from "./blog";
 import { app_sound_api } from "./sound";
 import { app_files_api as app_file_api } from "./file";
 import { app_links_api } from "./links";
+import { getOriginFromAPI } from "@/functions/originUrl";
 
 export const app = new Hono<MeeBindings<MeeAPIEnv>>();
 
 app.use("*", (c, next) => {
-  const origin = c.env.CORS_ORIGIN ?? ["http://localhost:51730"];
+  const Url = new URL(c.req.url);
+  const origin: string[] = [];
+  const autoOrigin = getOriginFromAPI(c.env, Url.origin);
+  if (autoOrigin) origin.push(autoOrigin);
+  if (c.env.CORS_ORIGIN) origin.push(...c.env.CORS_ORIGIN);
   return cors({ origin, credentials: true })(c, next)
 })
 
-app.route("/test", app_test_api);
 app.route("/image", app_image_api);
 app.route("/character", app_character_api);
 app.route("/blog", app_blog_api);

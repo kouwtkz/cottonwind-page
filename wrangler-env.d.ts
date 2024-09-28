@@ -15,6 +15,7 @@ interface SiteConfigEnv {
   SINCE?: number;
   WAVEBOX?: string;
   PAGES_DEV_ORIGIN?: string;
+  LOCAL_ORIGIN?: string;
   API_ORIGIN?: string;
   API_WORKERS_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
@@ -36,7 +37,6 @@ interface MeeCommonEnv extends SiteConfigEnv {
   DB: D1Database;
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
-  LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
   FEED_FROM?: string;
   LIFE_CHECK_URL?: string;

@@ -12,13 +12,6 @@ VERSION = "1.1.0"
 AUTHOR_ACCOUNT = "kouwtkz"
 TITLE = "こっとんうぃんどのAPI"
 
-CORS_ORIGIN = [
-  "https://cottonwind.com",
-  "https://cottonwind.pages.dev",
-  "http://localhost:51730",
-  "http://127.0.0.1:51730",
-  "http://192.168.1.30:51730",
-]
 ORIGIN_HOST = "cottonwind.com"
 PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 

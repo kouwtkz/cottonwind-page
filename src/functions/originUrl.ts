@@ -11,7 +11,15 @@ export function getLocalOrigin(origin: string, envLocalOrigin?: string) {
       url.port = envLocalOrigin;
       return url.origin;
     } else return envLocalOrigin;
-  } else return origin;
+  } else return undefined;
+}
+
+export function getOriginFromAPI(env: SiteConfigEnv, origin: string) {
+  if (env.API_ORIGIN === origin) {
+    return env.ORIGIN;
+  } else if (env.API_WORKERS_ORIGIN === origin) {
+    return env.PAGES_DEV_ORIGIN;
+  } else return getLocalOrigin(origin, env.LOCAL_ORIGIN);
 }
 
 export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
