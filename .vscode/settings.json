@@ -19,7 +19,8 @@
   "files.exclude": {
     "**/.env.*.local": true,
     "**/node_modules": true,
-    "**/desktop.ini": true
+    "**/desktop.ini": true,
+    "vite.config.ts.timestamp-*": true
   },
   "emeraldwalk.runonsave": {
     "commands": [

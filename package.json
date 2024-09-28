@@ -17,7 +17,8 @@
     "deploy-api": "npx wrangler deploy -c wrangler-api.toml",
     "delete-all-image": "curl -X DELETE http://localhost:51731/image/all",
     "delete-all-character": "curl -X DELETE http://localhost:51731/character/all",
-    "delete-all-blog": "curl -X DELETE http://localhost:51731/blog/all"
+    "delete-all-blog": "curl -X DELETE http://localhost:51731/blog/all",
+    "clean-vite-timestamp": "node scripts/clean-vite-timestamp.cjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
