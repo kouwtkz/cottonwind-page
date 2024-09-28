@@ -11,10 +11,10 @@ import { GetUrlFlag, ToURL } from "@/functions/doc/MakeURL";
 import { useMediaOrigin } from "@/state/EnvState";
 import { getExtension } from "@/functions/doc/PathParse";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { AiOutlineFileImage } from "react-icons/ai";
 import { CreateState } from "@/state/CreateState";
 import { resizeImageCanvas } from "@/components/Canvas";
 import { useToastProgress } from "@/state/ToastProgress";
+import { PiFilePng } from "react-icons/pi";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -299,7 +299,7 @@ export function ImageMeeShowOriginSwitch() {
         setShowPng(!showPng);
       }}
     >
-      <AiOutlineFileImage />
+      <PiFilePng />
     </button>
   );
 }
