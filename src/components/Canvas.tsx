@@ -11,7 +11,8 @@ export async function imageObject(
         .then((r) => r.blob())
         .then((data) => {
           image.src = URL.createObjectURL(data);
-        });
+        })
+        .catch((e) => reject(e));
     } else {
       image.src = URL.createObjectURL(src);
     }
