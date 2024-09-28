@@ -19,7 +19,7 @@ export function ServerCommon(app: CommonHono) {
     const postsData = await ServerPostsGetRssData(db, 10);
     if (c.env.SITE_IMAGE) {
       const data = await ImageSelectFromKey(db, c.env.SITE_IMAGE);
-      if (data) image_url = data.webp || data.src || undefined;
+      if (data) image_url = data.src || undefined;
     }
     if (image_url && mediaOrigin)
       image_url = concatOriginUrl(mediaOrigin, image_url);
