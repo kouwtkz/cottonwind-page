@@ -186,9 +186,6 @@ textarea,
   }
   @extend %cursor-move;
 }
-img {
-  vertical-align: top;
-}
 
 %windowMinWidth {
   min-width: 360px;
@@ -366,6 +363,68 @@ label {
 %userSelectNone {
   -webkit-user-select: none;
   user-select: none;
+}
+
+button,
+a {
+  svg,
+  img {
+    vertical-align: bottom;
+  }
+}
+
+.icons > * {
+  margin: 0 0.25rem;
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.charaIcon {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 1.875rem;
+  margin-right: 0.25rem;
+}
+
+@mixin commonHeader() {
+  .header {
+    justify-content: flex-end;
+    &,
+    & > .flex {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 0.25rem;
+      & > * {
+        margin: 0.25rem;
+      }
+    }
+    .icons {
+      display: flex;
+      align-items: center;
+    }
+    .search {
+      font-size: 1rem;
+      width: 16rem;
+      padding: 0.375rem 0.5rem;
+    }
+    .tagSelect {
+      min-width: 20rem;
+    }
+    .characterSelect {
+      min-width: 16rem;
+    }
+    .tagSelect,
+    .characterSelect {
+      text-align: left;
+      > div:first-of-type {
+        @extend %cursor-pointer;
+      }
+    }
+  }
 }
 
 body {
@@ -1352,53 +1411,6 @@ form {
   margin-top: 0;
 }
 
-.charaIcon {
-  display: inline-block;
-  width: 1.25em;
-  height: 1.25em;
-  font-size: 1.875rem;
-  margin-right: 0.25rem;
-}
-
-@mixin commonHeader() {
-  .header {
-    justify-content: flex-end;
-    &,
-    & > .flex {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      margin: 0.25rem;
-      & > *,
-      .icons > * {
-        margin: 0.25rem;
-      }
-    }
-    .icons {
-      display: flex;
-      align-items: center;
-    }
-    .search {
-      font-size: 1rem;
-      width: 16rem;
-      padding: 0.375rem 0.5rem;
-    }
-    .tagSelect {
-      min-width: 20rem;
-    }
-    .characterSelect {
-      min-width: 16rem;
-    }
-    .tagSelect,
-    .characterSelect {
-      text-align: left;
-      > div:first-of-type {
-        @extend %cursor-pointer;
-      }
-    }
-  }
-}
-
 // ループ用のグリッドレイアウト関数、列数のみのシンプルな形
 @mixin GridListOneSize($grid) {
   // 基本の形、2倍の分割数にすることで半分ずらしに対応できる
@@ -1684,7 +1696,6 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
 select.yearFilter {
   font-size: 1.25rem;
   margin: 0.5rem;
-  height: 1.5rem;
   min-width: 4rem;
   color: var(--main-color);
   background-color: transparent;

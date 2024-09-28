@@ -179,7 +179,7 @@ export function FavBannerEditButtons() {
   const setEdit = useEditFavLinkID()[1];
   const [move, setMove] = useMoveFavLink();
   return (
-    <div>
+    <div className="icons">
       {move ? (
         <>
           <CancelButton
@@ -218,7 +218,7 @@ export function MyBannerEditButtons() {
   const setImagesLoad = imageDataObject.useLoad()[1];
   const [move, setMove] = useMoveMyBanner();
   return (
-    <div>
+    <div className="icons">
       {move ? (
         <>
           <CancelButton
