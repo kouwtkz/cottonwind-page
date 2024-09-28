@@ -4,22 +4,28 @@ export function concatOriginUrl(origin?: string, src?: OrNull<string>) {
   } else return "";
 }
 
+export function getLocalOrigin(origin: string, envLocalOrigin?: string) {
+  if (envLocalOrigin) {
+    if (!isNaN(Number(envLocalOrigin))) {
+      const url = new URL(origin);
+      url.port = envLocalOrigin;
+      return url.origin;
+    } else return envLocalOrigin;
+  } else return origin;
+}
+
 export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
   if (env.ORIGIN === origin) {
     return env.API_ORIGIN;
   } else if (env.PAGES_DEV_ORIGIN === origin) {
     return env.API_WORKERS_ORIGIN;
-  } else {
-    return env.API_LOCAL_ORIGIN;
-  }
+  } else return getLocalOrigin(origin, env.API_LOCAL_ORIGIN);
 }
 
-export function getMediaOrigin(env: SiteConfigEnv, origin?: string) {
+export function getMediaOrigin(env: SiteConfigEnv, origin: string) {
   if (env.ORIGIN === origin) {
     return env.MEDIA_ORIGIN;
   } else if (env.PAGES_DEV_ORIGIN === origin) {
     return env.MEDIA_WORKERS_ORIGIN;
-  } else {
-    return env.MEDIA_LOCAL_ORIGIN;
-  }
+  } else return getLocalOrigin(origin, env.MEDIA_LOCAL_ORIGIN);
 }

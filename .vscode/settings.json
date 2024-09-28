@@ -7,11 +7,13 @@
   "vs-browser.url": "http://localhost:51730/",
   "VsCodeTaskButtons.tasks": [
     { "task": "npm" },
-    { "label": "dev", "task": "npm: dev-with-api" },
     { "label": "build", "task": "npm: build" },
-    { "label": "start", "task": "npm: start-with-api" },
+    { "label": "start", "task": "npm: start" },
     { "label": "deploy", "task": "npm: deploy" },
-    { "label": "deploy-api", "task": "npm: deploy-api" }
+    { "label": "deploy-api", "task": "npm: deploy-api" },
+    { "label": "dev", "task": "npm: dev" },
+    { "label": "dev-api", "task": "npm: dev-api" },
+    { "label": "dev-r2", "task": "npm: dev-r2" },
   ],
   // Explorer で非表示にするもの
   "files.exclude": {

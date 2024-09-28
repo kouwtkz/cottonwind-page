@@ -79,6 +79,28 @@ export default defineConfig(async ({ mode }) => {
         emptyOutDir: modes[1] === "overwrite"
       }
     } as UserConfig;
+  } else if (mode === "api") {
+    return {
+      ...config,
+      plugins: [
+        ...defaultPlugins,
+        devServer({
+          entry: 'src/api/index.ts',
+          adapter: adapter({ proxy: { configPath: "wrangler-api.toml" } }),
+        })
+      ]
+    }
+  } else if (mode === "r2") {
+    return {
+      ...config,
+      plugins: [
+        ...defaultPlugins,
+        devServer({
+          entry: 'src/api/r2.ts',
+          adapter: adapter({ proxy: { configPath: "wrangler-r2.toml" } }),
+        })
+      ]
+    }
   } else {
     return {
       ...config,

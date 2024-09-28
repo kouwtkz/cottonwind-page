@@ -27,10 +27,10 @@ API_WORKERS_ORIGIN = "https://cottonwind-api.kouwtkz.workers.dev"
 
 MEDIA_ORIGIN = "https://media.cottonwind.com"
 MEDIA_WORKERS_ORIGIN = "https://cottonwind-r2.kouwtkz.workers.dev"
-MEDIA_LOCAL_ORIGIN = "http://localhost:51732"
 
-API_LOCAL_ORIGIN = "http://localhost:51731"
-LOCAL_ORIGIN = "http://localhost:51730"
+API_LOCAL_ORIGIN = "51731"
+LOCAL_ORIGIN = "51730"
+MEDIA_LOCAL_ORIGIN = "51732"
 
 LIFE_CHECK_URL = "https://cottonwind.com/life/check"
 # LIFE_CHECK_URL = "http://localhost:51730/life/check"
