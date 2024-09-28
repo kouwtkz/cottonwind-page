@@ -190,9 +190,14 @@ img {
   vertical-align: top;
 }
 
+%windowMinWidth {
+  min-width: 360px;
+}
+
 :root {
-  @extend %cursor-default;
   color: var(--current-text-color);
+  @extend %windowMinWidth;
+  @extend %cursor-default;
   @extend %lightMode;
   &.dark {
     @include darkMode();
@@ -970,9 +975,10 @@ header {
     align-items: center;
     justify-content: center;
   }
+  @extend %windowMinWidth;
   .backButton,
   .siteMenu {
-    margin: auto;
+    margin: auto 0.125rem;
     width: 3.25rem;
   }
   .backButton {
@@ -2744,6 +2750,7 @@ form.blogEdit {
   ul {
     text-align: left;
     width: max-content;
+    max-width: 100%;
     min-width: 12rem;
     margin: auto;
     li {
