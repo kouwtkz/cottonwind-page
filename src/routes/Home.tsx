@@ -141,6 +141,7 @@ export function HomeImage() {
     name: "topImage",
   });
   const [topImageState, setTopImage] = useState<ImageType>();
+  const nodeRef = useRef<HTMLImageElement>(null)
   const firstLoad = useRef(true);
   const currentTopImage = useRef<ImageType | null>(null);
   if (topImageState && currentTopImage) currentTopImage.current = topImageState;
@@ -172,8 +173,8 @@ export function HomeImage() {
     <div className="HomeImage wide">
       {currentTopImage.current && topImage ? (
         <TransitionGroup className="wrapper">
-          <CSSTransition key={currentTopImage.current.src || ""} timeout={750}>
-            <ImageMee imageItem={topImage} loading="eager" className="image" />
+          <CSSTransition nodeRef={nodeRef} key={currentTopImage.current.src || ""} timeout={750}>
+            <ImageMee ref={nodeRef} imageItem={topImage} loading="eager" className="image" />
           </CSSTransition>
         </TransitionGroup>
       ) : (

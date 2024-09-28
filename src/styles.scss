@@ -1262,12 +1262,13 @@ footer {
       height: 100%;
       left: 0;
       position: absolute;
-      transition: opacity 750ms;
-      &.appear {
-        opacity: 1;
-      }
-      &.exit-active {
+      &.enter {
+        z-index: 1;
         opacity: 0;
+      }
+      &.enter-active {
+        opacity: 1;
+        transition: opacity 750ms;
       }
     }
   }
