@@ -9,6 +9,7 @@ import { create } from "zustand";
 interface Messages {
   message?: string;
   success?: string;
+  autoClose?: number;
 }
 export const useToastProgress = create<{
   id?: Id;
@@ -16,6 +17,7 @@ export const useToastProgress = create<{
   max?: number;
   message?: string;
   success?: string;
+  autoClose?: number;
   setId: (id?: Id) => void;
   setMessages: (messages?: Messages) => void;
   setProgress: (progress?: number) => void;
@@ -31,6 +33,8 @@ export const useToastProgress = create<{
     set((state) => {
       if (!state.message && messages?.message) state.message = messages.message;
       if (!state.success && messages?.success) state.success = messages.success;
+      if (!state.autoClose && messages?.autoClose)
+        state.autoClose = messages.autoClose;
       return state;
     });
   },
@@ -64,7 +68,7 @@ export const useToastProgress = create<{
 }));
 
 export function ToastProgressState() {
-  const { id, setId, progress, max, message, success, reset } =
+  const { id, setId, progress, max, message, success, reset, autoClose } =
     useToastProgress();
   useEffect(() => {
     if (max && !id) {
@@ -84,9 +88,10 @@ export function ToastProgressState() {
         ...toastUpdateOptions,
         render: success || "処理が完了しました！",
         type: "success",
+        autoClose,
       });
       reset();
     }
-  }, [id, progress, max, reset, success]);
+  }, [id, progress, max, reset, success, autoClose]);
   return <></>;
 }

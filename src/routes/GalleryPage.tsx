@@ -681,7 +681,11 @@ function GalleryImageItem({
           </div>
         ) : null
       ) : null}
-      <ImageMeeThumbnail imageItem={image} loadingScreen={true} />
+      <ImageMeeThumbnail
+        imageItem={image}
+        loadingScreen={true}
+        showMessage={true}
+      />
     </Link>
   );
 }

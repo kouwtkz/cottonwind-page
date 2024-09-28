@@ -1,9 +1,9 @@
 import React, {
+  forwardRef,
   ImgHTMLAttributes,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { UrlObject } from "url";
@@ -33,7 +33,7 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
 export const useImageMeeShowPng = CreateState(false);
 
 interface ImageMeeProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
+  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "ref"> {
   src?: string | null;
   imageItem?: ImageType;
   hoverImageItem?: ImageType;
@@ -42,163 +42,179 @@ interface ImageMeeProps
   loadingScreen?: boolean;
   v?: string | number;
   autoPixel?: boolean | number;
+  showMessage?: boolean;
 }
-export function ImageMee({
-  imageItem,
-  mode = "simple",
-  alt: _alt,
-  src: _src,
-  hoverImageItem,
-  loading,
-  srcSet,
-  size,
-  width,
-  height,
-  v,
-  autoPixel = true,
-  loadingScreen = false,
-  style,
-  onLoad,
-  className,
-  ...attributes
-}: ImageMeeProps) {
-  const [showIndex, setShowIndex] = useState(0);
-  const refImg = useRef<HTMLImageElement | null>(null);
-  const refImgSrc = useRef("");
-  const refShowList = useRef<(string | null)[]>([]);
-  const mediaOrigin = useMediaOrigin()[0];
-  const versionString = useMemo(() => {
-    if (imageItem)
-      return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";
-    else return "";
-  }, [imageItem?.version]);
-  const MediaOrigin = useCallback(
-    (src?: OrNull<string>) => {
-      let url = concatOriginUrl(mediaOrigin, src);
-      if (url) url = url + versionString;
-      return url;
-    },
-    [mediaOrigin, versionString]
-  );
+export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
+  function ImageMee(
+    {
+      imageItem,
+      mode = "simple",
+      alt: _alt,
+      src: _src,
+      hoverImageItem,
+      loading,
+      srcSet,
+      size,
+      width,
+      height,
+      v,
+      autoPixel = true,
+      loadingScreen = false,
+      showMessage,
+      style,
+      onLoad,
+      className,
+      ...attributes
+    }: ImageMeeProps,
+    ref
+  ) {
+    const mediaOrigin = useMediaOrigin()[0];
+    const versionString = useMemo(() => {
+      if (imageItem)
+        return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";
+      else return "";
+    }, [imageItem?.version]);
+    const MediaOrigin = useCallback(
+      (src?: OrNull<string>) => {
+        let url = concatOriginUrl(mediaOrigin, src);
+        if (url) url = url + versionString;
+        return url;
+      },
+      [mediaOrigin, versionString]
+    );
 
-  const { addProgress, addMax } = useToastProgress();
-  const ext = getExtension(imageItem?.src || _src || "");
-  const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
-  const alt = _alt || imageItem?.name || imageItem?.src || "";
+    const { addProgress, addMax } = useToastProgress();
+    const ext = getExtension(imageItem?.src || _src || "");
+    const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
+    const alt = _alt || imageItem?.name || imageItem?.src || "";
 
-  [width, height] = useMemo(() => {
-    if (size) {
-      return new Array<number>(2).fill(size);
-    } else if (imageItem?.width && imageItem?.height) {
-      return [
-        height
-          ? Math.ceil((imageItem.width * Number(height)) / imageItem.height)
-          : imageItem.width,
-        width
-          ? Math.ceil((imageItem.height * Number(width)) / imageItem.width)
-          : imageItem.height,
-      ];
-    } else {
-      return [width, height];
-    }
-  }, [imageItem, size, width, height]);
-  const avgSize = useMemo(
-    () => (Number(width) + Number(height)) / 2,
-    [width, height]
-  );
-  const thumbnail = useMemo(
-    () => (imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null),
-    [imageItem, MediaOrigin]
-  );
-  const [pngURL, setPngURL] = useState<string>();
-  const showPng = useImageMeeShowPng()[0];
-  useEffect(() => {
-    if (showPng && !pngURL) {
-      addMax({ message: "PNGに変換しています", success: "変換完了しました" });
-      resizeImageCanvas({ src, type: "png" }).then((blob) => {
-        addProgress();
-        setPngURL(URL.createObjectURL(blob));
-      });
-    }
-  }, [showPng, pngURL, setPngURL, addProgress, addMax]);
+    [width, height] = useMemo(() => {
+      if (size) {
+        return new Array<number>(2).fill(size);
+      } else if (imageItem?.width && imageItem?.height) {
+        return [
+          height
+            ? Math.ceil((imageItem.width * Number(height)) / imageItem.height)
+            : imageItem.width,
+          width
+            ? Math.ceil((imageItem.height * Number(width)) / imageItem.width)
+            : imageItem.height,
+        ];
+      } else {
+        return [width, height];
+      }
+    }, [imageItem, size, width, height]);
+    const avgSize = useMemo(
+      () => (Number(width) + Number(height)) / 2,
+      [width, height]
+    );
 
-  const imageSrc = useMemo(
-    () =>
-      showPng
-        ? pngURL
-        : mode === "simple"
-        ? src
-        : mode === "thumbnail" && thumbnail
-        ? thumbnail
-        : MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
-          src,
-    [imageItem, mode, src, thumbnail, showPng, pngURL]
-  );
-  const imageShowList = useMemo(() => {
-    const list: string[] = [];
-    if (mode === "simple" && thumbnail) list.push(thumbnail);
-    if (imageSrc) list.push(imageSrc);
-    return list;
-  }, [imageSrc, mode, thumbnail]);
-  const max = useMemo(() => {
-    return imageShowList.length - 1;
-  }, [imageShowList.length]);
+    const [pngURL, setPngURL] = useState<string>();
+    const showPng = useImageMeeShowPng()[0];
+    useEffect(() => {
+      if (showPng && !pngURL) {
+        if (showMessage)
+          addMax({
+            message: "PNGに変換しています",
+            success: "完了しました",
+            autoClose: 750,
+          });
+        resizeImageCanvas({ src, type: "png" }).then((blob) => {
+          if (showMessage) addProgress();
+          setPngURL(URL.createObjectURL(blob));
+        });
+      }
+    }, [showMessage, showPng, pngURL, setPngURL, addProgress, addMax]);
 
-  if (refImgSrc.current !== src) {
-    setShowIndex(0);
-    refImgSrc.current = src;
-    refShowList.current = imageShowList;
+    const thumbnail = useMemo(
+      () => (imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null),
+      [imageItem, MediaOrigin]
+    );
+    const imageSrc = useMemo(
+      () =>
+        showPng && pngURL
+          ? pngURL
+          : mode === "simple"
+          ? src
+          : mode === "thumbnail" && thumbnail
+          ? thumbnail
+          : MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
+            src,
+      [imageItem, mode, src, thumbnail, showPng, pngURL]
+    );
+    const enableTempThumbnail = useMemo(
+      () => Boolean(mode === "simple" && thumbnail),
+      [mode, thumbnail]
+    );
+    const [tempThumbnail, setTempThumbnail] = useState(true);
+    const currentTempThumbnail = useMemo(
+      () => enableTempThumbnail && tempThumbnail,
+      [enableTempThumbnail, tempThumbnail]
+    );
+    const mainImgSrc = useMemo(
+      () => (currentTempThumbnail ? thumbnail : imageSrc),
+      [imageSrc, thumbnail, currentTempThumbnail]
+    );
+
+    useEffect(
+      () => () => {
+        setPngURL(undefined);
+        setTempThumbnail(true);
+      },
+      [imageItem, setPngURL, setTempThumbnail]
+    );
+
+    const _className = useMemo(() => {
+      const list: string[] = [];
+      if (className) list.push(className);
+      if (!mainImgSrc) list.push("blank");
+      if (
+        autoPixel &&
+        (typeof autoPixel === "number" ? autoPixel : 128) >= avgSize
+      )
+        list.push("pixel");
+      return list.length > 0 ? list.join(" ") : undefined;
+    }, [className, mainImgSrc, avgSize, autoPixel]);
+    return (
+      <img
+        src={mainImgSrc || ""}
+        alt={alt}
+        ref={ref}
+        data-origin-ext={ext}
+        {...{
+          width,
+          height,
+          style: {
+            ...style,
+            ...(loadingScreen
+              ? { background: "var(--main-color-grayish-fluo)" }
+              : {}),
+          },
+        }}
+        className={_className}
+        onLoad={(e) => {
+          if (currentTempThumbnail) setTempThumbnail(false);
+          else if (onLoad) onLoad(e);
+        }}
+        {...attributes}
+      />
+    );
   }
-  const mainImgSrc = imageShowList[showIndex];
-  const _className = useMemo(() => {
-    const list: string[] = [];
-    if (className) list.push(className);
-    if (!mainImgSrc) list.push("blank");
-    if (
-      autoPixel &&
-      (typeof autoPixel === "number" ? autoPixel : 128) >= avgSize
-    )
-      list.push("pixel");
-    return list.length > 0 ? list.join(" ") : undefined;
-  }, [className, mainImgSrc, avgSize, autoPixel]);
-  return (
-    <img
-      src={mainImgSrc}
-      alt={alt}
-      ref={refImg}
-      data-origin-ext={ext}
-      {...{
-        width,
-        height,
-        style: {
-          ...style,
-          ...(loadingScreen
-            ? { background: "var(--main-color-grayish-fluo)" }
-            : {}),
-        },
-      }}
-      className={_className}
-      onLoad={(e) => {
-        if (showIndex < max) setShowIndex(showIndex + 1);
-        else if (onLoad) onLoad(e);
-      }}
-      {...attributes}
-    />
-  );
-}
+);
 
 interface ImageMeeSimpleProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
   imageItem: ImageType;
   size?: number;
   loadingScreen?: boolean;
+  showMessage?: boolean;
 }
 
 export function ImageMeeIcon({ size, ...args }: ImageMeeSimpleProps) {
-  return ImageMee({ autoPixel: false, ...args, mode: "icon" });
+  return <ImageMee autoPixel={false} {...args} mode="icon" />;
 }
 export function ImageMeeThumbnail({ size, ...args }: ImageMeeSimpleProps) {
-  return ImageMee({ ...args, mode: "thumbnail" });
+  return <ImageMee {...args} mode="thumbnail" />;
 }
 
 interface GetImageItemFromSrcProps {
@@ -267,6 +283,12 @@ export function ImgSwitch({
 
 export function ImageMeeShowOriginSwitch() {
   const [showPng, setShowPng] = useImageMeeShowPng();
+  useEffect(
+    () => () => {
+      if (showPng) setShowPng(false);
+    },
+    [showPng, setShowPng]
+  );
   return (
     <button
       type="button"
