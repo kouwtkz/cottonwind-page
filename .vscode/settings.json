@@ -17,7 +17,6 @@
   ],
   // Explorer で非表示にするもの
   "files.exclude": {
-    "**/cmd/redirect": true,
     "**/.env.*.local": true,
     "**/node_modules": true,
     "**/desktop.ini": true
