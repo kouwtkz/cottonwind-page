@@ -6,7 +6,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import { useAtom } from "jotai";
 import { useDataIsComplete } from "@/state/StateSet";
 import React, {
   ReactNode,
@@ -18,20 +17,23 @@ import React, {
   useMemo,
 } from "react";
 import {
-  defaultGalleryFilterTags,
   defineSortTags,
   filterGalleryMonthList,
   addExtentionTagsOptions,
   defaultGalleryTags,
 } from "@/components/dropdown/SortFilterTags";
-import {
-  filterImagesTags,
-  filterPickFixed,
-} from "@/functions/media/FilterImages";
+import { filterPickFixed } from "@/functions/media/FilterImages";
 import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
-import { RiBook2Fill, RiFilePdf2Fill, RiStore3Fill } from "react-icons/ri";
+import {
+  RiBook2Fill,
+  RiChatPrivateLine,
+  RiFilePdf2Fill,
+  RiHomeGearLine,
+  RiPushpin2Line,
+  RiStore3Fill,
+} from "react-icons/ri";
 import { ImageMeeShowOriginSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "@/functions/DateFunction";
@@ -55,8 +57,9 @@ import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { EditModeSwitch } from "@/layout/edit/CommonSwitch";
+import { ModeSearchSwitch, ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { ComicsViewer } from "@/routes/ComicsViewer";
+import { AiFillEdit } from "react-icons/ai";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();
@@ -289,7 +292,6 @@ function GalleryObjectState() {
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
-  const filterParam = searchParams.get("filter");
   const typeParam = searchParams.get("type");
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
@@ -298,21 +300,6 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const charactersParam = searchParams.get("characters"?.toLowerCase());
-  const filterParams = useMemo(
-    () => (filterParam ?? "").split(","),
-    [filterParam]
-  );
-  const topicParams = useMemo(
-    () => filterParams.filter((p) => p === "topImage" || p === "pickup"),
-    [filterParams]
-  );
-  const topicWhere = useMemo<findWhereType<ImageType> | null>(
-    () =>
-      topicParams.length > 0
-        ? Object.fromEntries(topicParams.map((k) => [k, true]))
-        : null,
-    [topicParams]
-  );
   const searchMode = useMemo(
     () => Boolean(qParam || tagsParam || charactersParam),
     [qParam, tagsParam || charactersParam]
@@ -383,27 +370,34 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       })),
     [charactersParam]
   );
-  const filterDraft = useMemo(
-    () => filterParams?.some((v) => v === "draft"),
-    [filterParams]
+  const draftOnly = useMemo(
+    () => searchParams.has("draftOnly"),
+    [searchParams]
   );
+  const hasTopImage = useMemo(
+    () => searchParams.has("topImage"),
+    [searchParams]
+  );
+  const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
     const wheres = [where];
     if (tagsWhere) wheres.push(...tagsWhere);
     if (charactersWhere) wheres.push(...charactersWhere);
     if (whereMonth) wheres.push(whereMonth);
-    if (topicWhere) wheres.push(topicWhere);
+    if (hasTopImage) wheres.push({ topImage: true });
+    if (hasPickup) wheres.push({ pickup: true });
     if (typeParam) wheres.push({ type: typeParam });
-    if (filterDraft) wheres.push({ draft: true });
+    if (draftOnly) wheres.push({ draft: true });
     return wheres;
   }, [
     where,
     tagsWhere,
     charactersWhere,
     whereMonth,
-    topicWhere,
+    hasTopImage,
+    hasPickup,
     typeParam,
-    filterDraft,
+    draftOnly,
   ]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
@@ -437,7 +431,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         item.hide ||
         (!searchMode && item.hideWhenDefault) ||
         (item.hideWhenFilter &&
-          (searchMode || topicParams.length > 0 || typeParam || monthParam))
+          (searchMode || typeParam || monthParam || hasPickup || hasTopImage))
           ? []
           : item.list ?? []
       )
@@ -468,6 +462,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     wheres,
     orderBySort,
     year,
+    hasPickup,
+    hasTopImage,
   ]);
   useLayoutEffect(() => {
     setYFList(fList, yfList);
@@ -610,28 +606,57 @@ function GalleryBody({
       {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
       <div>
         {showGalleryHeader ? (
-          <div className="header">
-            <div className="icons">
-              {isLogin ? (
-                <>
-                  <ImageMeeShowOriginSwitch />
-                  <EditModeSwitch
-                    editTitle="常に編集モードにする"
-                    useSwitch={useImageEditIsEditHold}
-                  />
-                  <ShowAllAlbumSwitch />
-                </>
-              ) : null}
+          <div>
+            <div className="header">
+              <GalleryYearFilter {...SearchAreaOptions} />
+              <GallerySearchArea {...SearchAreaOptions} />
+              <div className="flex">
+                <GalleryCharactersSelect
+                  {...SearchAreaOptions}
+                  className="flex-1"
+                />
+                <GalleryTagsSelect {...SearchAreaOptions} className="flex-1" />
+              </div>
             </div>
-            <GalleryYearFilter {...SearchAreaOptions} />
-            <GallerySearchArea {...SearchAreaOptions} />
-            <div className="flex">
-              <GalleryCharactersSelect
-                {...SearchAreaOptions}
-                className="flex-1"
-              />
-              <GalleryTagsSelect {...SearchAreaOptions} className="flex-1" />
-            </div>
+            {isLogin ? (
+              <div className="icons">
+                <ImageMeeShowOriginSwitch />
+                <ModeSearchSwitch
+                  enableTitle="アルバム表示を元に戻す"
+                  disableTitle="全てのアルバムを表示する"
+                  searchKey="showAllAlbum"
+                >
+                  <BiPhotoAlbum />
+                </ModeSearchSwitch>
+                <ModeSearchSwitch
+                  enableTitle="トップ画像が有効なものを絞り込む"
+                  disableTitle="トップ画像から元の表示に戻す"
+                  searchKey="topImage"
+                >
+                  <RiHomeGearLine />
+                </ModeSearchSwitch>
+                <ModeSearchSwitch
+                  enableTitle="ピックアップが有効なものを絞り込む"
+                  disableTitle="ピックアップから元の表示に戻す"
+                  searchKey="pickup"
+                >
+                  <RiPushpin2Line />
+                </ModeSearchSwitch>
+                <ModeSearchSwitch
+                  enableTitle="下書きのみ表示"
+                  disableTitle="下書き以外も表示"
+                  searchKey="draftOnly"
+                >
+                  <RiChatPrivateLine />
+                </ModeSearchSwitch>
+                <ModeSwitch
+                  enableTitle="常に編集モードにする"
+                  useSwitch={useImageEditIsEditHold}
+                >
+                  <AiFillEdit />
+                </ModeSwitch>
+              </div>
+            ) : null}
           </div>
         ) : null}
         {galleryItem.length > 0 ? (
@@ -900,14 +925,15 @@ export function GalleryYearFilter({
     return addedList;
   }, [yearListBase, year]);
   const yearList = useMemo(() => {
-    const sortedList = isOlder
-      ? yearListBase2.sort((a, b) => a.year - b.year)
-      : yearListBase2.sort((a, b) => b.year - a.year);
+    const olderSign = isOlder ? 1 : -1;
+    const sortedList = yearListBase2.sort(
+      (a, b) => olderSign * (a.year - b.year)
+    );
     const count = sortedList.reduce((a, c) => a + c.count, 0);
     sortedList.unshift({
       year: 0,
       count,
-      label: `all (${count})`,
+      label: `Year (${count})`,
       value: "",
     });
     return sortedList;
@@ -1026,9 +1052,7 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
   const tags = useMemo(() => {
     return [
       ...gallerySortTags,
-      ...(isLogin
-        ? [...addExtentionTagsOptions(), ...defaultGalleryFilterTags]
-        : defaultGalleryTags),
+      ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
     ];
   }, [isLogin]);
   return <ContentsTagsSelect {...args} tags={tags} />;
@@ -1083,31 +1107,6 @@ export function GalleryCharactersSelect({
         setSearchParams(searchParams, { preventScrollReset: true });
       }}
     />
-  );
-}
-
-export function ShowAllAlbumSwitch() {
-  const searchParams = useSearchParams()[0];
-  const key = "showAllAlbum";
-  const [showAllAlbum, href] = useMemo(() => {
-    const has = searchParams.has(key);
-    if (has) searchParams.delete(key);
-    else searchParams.set(key, "on");
-    return [has, searchParams.size ? "?" + searchParams.toString() : ""];
-  }, [key, searchParams]);
-  return (
-    <Link
-      title={
-        showAllAlbum ? "アルバム表示を元に戻す" : "全てのアルバムを表示する"
-      }
-      style={{ opacity: showAllAlbum ? 1 : 0.4 }}
-      to={href}
-      replace={true}
-      className="button iconSwitch"
-      preventScrollReset={true}
-    >
-      <BiPhotoAlbum />
-    </Link>
   );
 }
 

@@ -20,7 +20,7 @@ import {
   AddButton,
   CancelButton,
   CompleteButton,
-  EditModeSwitch,
+  ModeSwitch,
   MoveButton,
 } from "@/layout/edit/CommonSwitch";
 
@@ -195,7 +195,7 @@ export function FavBannerEditButtons() {
         </>
       ) : (
         <>
-          <EditModeSwitch useSwitch={useFavoriteLinksEditMode} />
+          <ModeSwitch useSwitch={useFavoriteLinksEditMode} />
           <AddButton
             onClick={() => {
               setEdit(true);
@@ -234,7 +234,7 @@ export function MyBannerEditButtons() {
         </>
       ) : (
         <>
-          <EditModeSwitch useSwitch={useImageEditIsEditHold} />
+          <ModeSwitch useSwitch={useImageEditIsEditHold} />
           <AddButton
             onClick={() => {
               fileDialog("image/*")

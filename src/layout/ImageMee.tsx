@@ -15,6 +15,7 @@ import { CreateState } from "@/state/CreateState";
 import { resizeImageCanvas } from "@/components/Canvas";
 import { useToastProgress } from "@/state/ToastProgress";
 import { PiFilePng } from "react-icons/pi";
+import { ModeSwitch } from "./edit/CommonSwitch";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -282,25 +283,13 @@ export function ImgSwitch({
 }
 
 export function ImageMeeShowOriginSwitch() {
-  const [showPng, setShowPng] = useImageMeeShowPng();
-  useEffect(
-    () => () => {
-      if (showPng) setShowPng(false);
-    },
-    [showPng, setShowPng]
-  );
   return (
-    <button
-      type="button"
-      className="iconSwitch"
-      title={showPng ? "元に戻す" : "画像をPNGファイルにする"}
-      style={{ opacity: showPng ? 1 : 0.4 }}
-      onClick={() => {
-        setShowPng(!showPng);
-      }}
+    <ModeSwitch
+      enableTitle="画像をPNGファイルにする"
+      useSwitch={useImageMeeShowPng}
     >
       <PiFilePng />
-    </button>
+    </ModeSwitch>
   );
 }
 

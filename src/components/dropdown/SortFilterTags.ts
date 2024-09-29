@@ -128,17 +128,6 @@ export const filterGalleryMonthList: filterMonthType[] = [
   { month: 12, tags: ["december", "winter", "christmas", "myBirthday"] },
 ];
 
-export const defaultGalleryFilterTags: ContentsTagsOption[] = [
-  {
-    label: "編集用のフィルタ",
-    options: [
-      { value: "filter:topImage", label: "🪄トップ画像" },
-      { value: "filter:pickup", label: "📍ピックアップ" },
-      { value: "filter:draft", label: "📝下書き" },
-    ],
-  },
-];
-
 export type defineSortTagsUnion =
   | "recently"
   | "leastResently"
