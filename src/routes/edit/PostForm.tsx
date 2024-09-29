@@ -14,7 +14,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "@/components/hook/SetRegister";
 import { usePosts } from "@/state/PostState";
-import { findMee } from "@/functions/findMee";
+import { findMee } from "@/functions/find/findMee";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { create } from "zustand";

@@ -36,7 +36,7 @@ import { ImageMeeShowOriginSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "@/functions/DateFunction";
 import { MdFileDownload, MdFileUpload } from "react-icons/md";
-import { findMee, setWhere } from "@/functions/findMee";
+import { findMee, setWhere } from "@/functions/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";

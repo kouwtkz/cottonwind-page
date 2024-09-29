@@ -1,6 +1,6 @@
 import { usePosts } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { findMee } from "@/functions/findMee";
+import { findMee } from "@/functions/find/findMee";
 import { useLocalDraftPost } from "@/routes/edit/PostForm";
 import {
   HTMLAttributes,

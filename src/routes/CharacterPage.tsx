@@ -30,7 +30,7 @@ import {
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
-import { findMee, setWhere } from "@/functions/findMee";
+import { findMee, setWhere } from "@/functions/find/findMee";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import {
   ContentsTagsOption,

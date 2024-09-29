@@ -1,7 +1,7 @@
 import { CommonContext } from "@/types/HonoCustomType";
 import GenerateRss from "@/functions/doc/GenerateRss";
 import { parse } from "marked";
-import { findMee, setWhere } from "./findMee";
+import { findMee, setWhere } from "@/functions/find/findMee";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");
