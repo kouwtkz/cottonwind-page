@@ -283,10 +283,12 @@ export function ImgSwitch({
 }
 
 export function ImageMeeShowOriginSwitch() {
+  const showPng = useImageMeeShowPng()[0];
   return (
     <ModeSwitch
       enableTitle="画像をPNGファイルにする"
       useSwitch={useImageMeeShowPng}
+      beforeOnClick={() => showPng || confirm("PNGで表示しますか？")}
     >
       <PiFilePng />
     </ModeSwitch>
