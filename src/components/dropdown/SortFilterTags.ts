@@ -33,7 +33,8 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     label: "マンスリー",
     name: "monthly",
     options: [
-      { value: "filter:monthTag", label: "🔎月タグ", editable: false },
+      { value: "monthMode:tag", label: "🔎月タグ", editable: false },
+      { value: "monthMode:time", label: "🔎月検索", editable: false },
       { value: "month:1", label: "🎍1月" },
       { value: "month:2", label: "👹2月" },
       { value: "month:3", label: "🎎3月" },

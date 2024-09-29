@@ -27,6 +27,11 @@ export function ContentsTagsSelect({
       .get("month")
       ?.split(",")
       .map((v) => `month:${v}`) || [];
+  const searchMonthMode =
+    searchParams
+      .get("monthMode")
+      ?.split(",")
+      .map((v) => `monthMode:${v}`) || [];
   const searchFilters =
     searchParams
       .get("filter")
@@ -40,6 +45,7 @@ export function ContentsTagsSelect({
   const searchQuery = searchTags.concat(
     searchType,
     searchMonth,
+    searchMonthMode,
     searchFilters,
     searchSort
   );
@@ -54,6 +60,7 @@ export function ContentsTagsSelect({
         filter: [],
         tags: [],
         month: [],
+        monthMode: [],
       };
       list.forEach(({ value }) => {
         const values = (value?.split(":", 2) || [""]).concat("");
@@ -69,6 +76,9 @@ export function ContentsTagsSelect({
             break;
           case "month":
             listObj.month = [values[1]];
+            break;
+          case "monthMode":
+            listObj.monthMode = [values[1]];
             break;
           default:
             if (value) listObj.tags.push(value);

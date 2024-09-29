@@ -63,3 +63,5 @@ interface GalleryObjectProps extends GalleryBodyOptions {
 interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOptionsProps {
   items?: GalleryItemsType;
 }
+
+type MonthSearchModeType = "event" | "tag" | "time";

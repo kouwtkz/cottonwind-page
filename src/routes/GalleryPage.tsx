@@ -293,6 +293,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const typeParam = searchParams.get("type");
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
+  const monthModeParam = (searchParams.get("monthMode") ||
+    "event") as MonthSearchModeType;
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const charactersParam = searchParams.get("characters"?.toLowerCase());
@@ -304,20 +306,39 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     () => filterParams.filter((p) => p === "topImage" || p === "pickup"),
     [filterParams]
   );
+  const topicWhere = useMemo<findWhereType<ImageType> | null>(
+    () =>
+      topicParams.length > 0
+        ? Object.fromEntries(topicParams.map((k) => [k, true]))
+        : null,
+    [topicParams]
+  );
   const searchMode = useMemo(
     () => Boolean(qParam || tagsParam || charactersParam),
     [qParam, tagsParam || charactersParam]
   );
   const year = Number(yearParam);
-  const monthlyEventMode = useMemo(
-    () => !filterParams.some((p) => p === "monthTag"),
-    [filterParams]
+  const filterMonthly = useCallback(
+    (month: string | null) =>
+      filterGalleryMonthList.find((v) => String(v.month) === month),
+    [filterGalleryMonthList]
   );
-  const filterMonthly = useMemo(
-    () =>
-      filterGalleryMonthList.find(({ month }) => String(month) === monthParam),
-    [monthParam]
-  );
+  const whereMonth = useMemo<findWhereType<ImageType> | null>(() => {
+    if (monthParam) {
+      switch (monthModeParam) {
+        case "event":
+          const monthly = filterMonthly(monthParam);
+          if (monthly) return { tags: { in: monthly.tags } };
+          break;
+        case "tag":
+          const _monthly = filterMonthly(monthParam);
+          const monthTags = _monthly?.tags.filter((v, i) => i === 0);
+          if (monthTags) return { tags: { in: monthTags } };
+          break;
+      }
+    }
+    return null;
+  }, [monthModeParam, monthParam]);
   const showAllAlbum = searchParams.has("showAllAlbum");
   const items = useMemo(() => {
     if (showAllAlbum)
@@ -350,21 +371,16 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   );
   const tagsWhere = useMemo(
     () =>
-      tagsParam
-        ?.split(",")
-        ?.map(
-          (value) => ({ tags: { contains: value } } as findWhereType<ImageType>)
-        ),
+      tagsParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
+        tags: { contains: value },
+      })),
     [tagsParam]
   );
   const charactersWhere = useMemo(
     () =>
-      charactersParam
-        ?.split(",")
-        ?.map(
-          (value) =>
-            ({ characters: { contains: value } } as findWhereType<ImageType>)
-        ),
+      charactersParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
+        characters: { contains: value },
+      })),
     [charactersParam]
   );
   const filterDraft = useMemo(
@@ -375,9 +391,20 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     const wheres = [where];
     if (tagsWhere) wheres.push(...tagsWhere);
     if (charactersWhere) wheres.push(...charactersWhere);
+    if (whereMonth) wheres.push(whereMonth);
+    if (topicWhere) wheres.push(topicWhere);
+    if (typeParam) wheres.push({ type: typeParam });
     if (filterDraft) wheres.push({ draft: true });
     return wheres;
-  }, [where, tagsWhere, charactersWhere, filterDraft]);
+  }, [
+    where,
+    tagsWhere,
+    charactersWhere,
+    whereMonth,
+    topicWhere,
+    typeParam,
+    filterDraft,
+  ]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
     const searchSort = sortParam ?? "";
@@ -415,24 +442,11 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
           : item.list ?? []
       )
       .map((images) => {
-        if (filterMonthly) {
-          if (monthlyEventMode) {
-            images = filterImagesTags({
-              images,
-              tags: filterMonthly.tags,
-              every: false,
-            });
-          } else {
-            images = filterImagesTags({
-              images,
-              tags: filterMonthly.tags.filter((v, i) => i === 0),
-            });
-          }
+        if (monthModeParam === "time" && monthParam) {
+          images = images.filter(({ time }) => {
+            return time ? String(time.getMonth() + 1) === monthParam : false;
+          });
         }
-        topicParams.forEach((p) => {
-          images = images.filter((image) => image[p]);
-        });
-        if (typeParam) images = images.filter(({ type }) => type === typeParam);
         images = findMee({
           list: [...images],
           where: { AND: wheres },
@@ -448,11 +462,9 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     return { fList, yfList };
   }, [
     items,
-    topicParams,
     searchMode,
-    typeParam,
+    monthModeParam,
     monthParam,
-    filterMonthly,
     wheres,
     orderBySort,
     year,
