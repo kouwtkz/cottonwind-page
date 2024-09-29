@@ -205,10 +205,14 @@ textarea,
     }
   }
 }
+%backgroundTransition {
+  transition: background-color 1s;
+}
+
 :root,
 .headerBackground,
 .InPageMenu .background {
-  transition: background-color 1s;
+  @extend %backgroundTransition;
 }
 :root.audio_play {
   &,
@@ -1648,8 +1652,17 @@ form {
 }
 
 iframe {
+  margin: 0;
+  border: none;
   max-width: 100%;
-  background: var(--main-color-dark-grayish);
+  .preview & {
+    background: var(--main-color-dark-grayish);
+  }
+  &.contactForm {
+    border-radius: 1rem;
+    background: var(--background-color);
+    @extend %backgroundTransition;
+  }
 }
 
 .modal-background {
