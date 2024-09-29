@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
-import { imageDimensionsFromStream } from "image-dimensions";
+import { imageSize } from "image-size";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import {
@@ -173,12 +173,11 @@ app.post("/send", async (c, next) => {
   const timeNum = Number(mtime);
   const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
   const timeString = time.toISOString();
-  const mainFile = file;
-  if (!metaSize && mainFile) {
-    imageBuffer = await mainFile.arrayBuffer();
+  if (!metaSize && file) {
+    imageBuffer = await file.arrayBuffer();
     const arr = new Uint8Array(imageBuffer);
-    const blob = new Blob([arr]);
-    metaSize = await imageDimensionsFromStream(blob.stream());
+    const { width, height } = imageSize(arr);
+    if (width && height) metaSize = { width, height };
   }
   const pathes = Object.fromEntries(
     Object.entries(images).map(([k, v]) => [k, v.path || null])
