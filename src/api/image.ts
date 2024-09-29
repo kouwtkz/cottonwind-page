@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromStream } from "image-dimensions";
-import { MeeSqlD1 } from "@/functions/MeeSqlD1";
+import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import {
   KeyValueConvertDBEntry,

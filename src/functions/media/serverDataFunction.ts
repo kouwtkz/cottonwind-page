@@ -1,4 +1,4 @@
-import { MeeSqlD1 } from "../MeeSqlD1";
+import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 
 export async function ImageSelectFromKey(db: MeeSqlD1, key: string) {
   return (

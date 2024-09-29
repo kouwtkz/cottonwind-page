@@ -6,7 +6,7 @@ import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
 import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
-import { MeeSqlD1 } from "./functions/MeeSqlD1";
+import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { getCharacterMap } from "@/functions/characterFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
