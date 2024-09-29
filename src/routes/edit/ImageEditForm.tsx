@@ -17,6 +17,7 @@ import {
   MdDeleteForever,
   MdFileUpload,
   MdLibraryAddCheck,
+  MdOndemandVideo,
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
@@ -311,6 +312,29 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               }}
             >
               <MdFileUpload />
+            </button>
+            <button
+              title="サムネイルをアップロードする"
+              type="button"
+              className="color round rb"
+              onClick={() => {
+                if (image)
+                  fileDialog("image/*")
+                    .then((files) => files.item(0)!)
+                    .then((file) =>
+                      ImagesUploadWithToast({
+                        src: { src: file, name: image.key },
+                        original: false,
+                        thumbnail: true,
+                        apiOrigin,
+                      })
+                    )
+                    .then(() => {
+                      setImagesLoad("no-cache");
+                    });
+              }}
+            >
+              <MdOndemandVideo />
             </button>
             <button
               title="画像名のテキストコピー"
@@ -620,6 +644,7 @@ export interface ImagesUploadOptions {
   albumOverwrite?: boolean;
   tags?: string | string[];
   character?: string;
+  original?: boolean;
   webp?: boolean;
   thumbnail?: boolean | number;
   webpOptions?: resizeImageCanvasProps;
@@ -644,6 +669,7 @@ export async function MakeImagesUploadList({
   album,
   albumOverwrite,
   character,
+  original = true,
   webp = true,
   thumbnail = true,
   webpOptions,
@@ -674,8 +700,9 @@ export async function MakeImagesUploadList({
           : typeof v === "object" && "src" in v
           ? { name: typeof v.src === "object" ? v.src.name : v.src, ...v }
           : { src: v, name: v.name };
+        const filename = typeof object.src === "object" ? object.src.name : object.src;
       const basename = getName(object.name);
-      const ext = getExtension(object.name);
+      const ext = getExtension(filename);
       const webpName = basename + ".webp";
       const formData = new FormData();
       if (album) formData.append("album", album);
@@ -690,18 +717,20 @@ export async function MakeImagesUploadList({
           break;
         default:
           const image = await imageObject(object.src);
-          if (webp && ext !== "gif") {
-            formData.append(
-              "file",
-              await resizeImageCanvas({
-                image,
-                type: "webp",
-                ...webpOptions,
-              }),
-              webpName
-            );
-          } else {
-            formData.append("file", object.src);
+          if (original) {
+            if (webp && ext !== "gif") {
+              formData.append(
+                "file",
+                await resizeImageCanvas({
+                  image,
+                  type: "webp",
+                  ...webpOptions,
+                }),
+                webpName
+              );
+            } else {
+              formData.append("file", object.src);
+            }
           }
           if (thumbnail) {
             const resizeProps: resizeImageCanvasProps = {
