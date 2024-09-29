@@ -294,7 +294,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
   const monthModeParam = (searchParams.get("monthMode") ||
-    "event") as MonthSearchModeType;
+    "time") as MonthSearchModeType;
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const charactersParam = searchParams.get("characters"?.toLowerCase());
@@ -1027,7 +1027,7 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
     return [
       ...gallerySortTags,
       ...(isLogin
-        ? [...defaultGalleryFilterTags, ...addExtentionTagsOptions()]
+        ? [...addExtentionTagsOptions(), ...defaultGalleryFilterTags]
         : defaultGalleryTags),
     ];
   }, [isLogin]);
