@@ -42,10 +42,16 @@ interface WhereOptionsHashtagType {
   [k: string]: any;
 }
 
-interface WhereOptionsKvType<T> {
-  hashtag?: WhereOptionsHashtagType;
-  kanaReplace?: boolean;
-  [k: string]: string
+type WhereOptionsKeyType = string | string[];
+type WhereOptionsKeyUnion = "text" | "from" | "time";
+type WhereOptionsValueType<T> = string
   | findWhereFunction<T>
   | WhereOptionsType<T>;
+
+type WhereOptionsKvType<T> = {
+  hashtag?: WhereOptionsHashtagType;
+  kanaReplace?: boolean;
+  [k: string]: WhereOptionsValueType<T>;
+} & {
+  [k in WhereOptionsKeyUnion]?: WhereOptionsValueType<T>;
 };

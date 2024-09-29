@@ -142,7 +142,7 @@ export function createFilterEntry(
   }
 }
 
-function getKeyFromOptions<T>(key: string, options: WhereOptionsKvType<T>): (string | string[]) {
+function getKeyFromOptions<T>(key: WhereOptionsKeyUnion, options: WhereOptionsKvType<T>): (string | string[]) {
   const _options = options as any;
   return typeof _options[key] === "object" && ("key" in _options[key])
     ? _options[key].key
@@ -164,7 +164,7 @@ function whereFromKey(key: string | string[], value: findWhereWithConditionsType
 export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
-  const dateKey = getKeyFromOptions("date", options);
+  const timeKey = getKeyFromOptions("time", options);
   const hashtagKey = options.hashtag?.key ?? "hashtag";
   const kanaReplace = options.kanaReplace ?? false;
   const enableHashtagKey = options.hashtag?.enableKey ?? true;
@@ -263,7 +263,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             switch (orderValue) {
               case "asc":
               case "desc":
-                Array.isArray(dateKey) ? dateKey : [dateKey].forEach((k) => {
+                Array.isArray(timeKey) ? timeKey : [timeKey].forEach((k) => {
                   orderBy.push({ [k]: orderValue });
                 })
                 break;
@@ -290,7 +290,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             });
             break;
           case "since":
-            whereItem = whereFromKey(dateKey, {
+            whereItem = whereFromKey(timeKey, {
               gte: AutoAllotDate({
                 value: String(filterValue),
                 dayFirst: true,
@@ -298,7 +298,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             });
             break;
           case "until":
-            whereItem = whereFromKey(dateKey, {
+            whereItem = whereFromKey(timeKey, {
               lte: AutoAllotDate({
                 value: String(filterValue),
                 dayLast: true,
