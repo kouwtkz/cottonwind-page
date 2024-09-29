@@ -66,7 +66,7 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
       onLoad,
       className,
       ...attributes
-    }: ImageMeeProps,
+    },
     ref
   ) {
     const mediaOrigin = useMediaOrigin()[0];
