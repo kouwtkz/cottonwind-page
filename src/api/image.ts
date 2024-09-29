@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
-import { imageSize } from "image-size";
+import { imageDimensionsFromData } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import {
@@ -176,8 +176,8 @@ app.post("/send", async (c, next) => {
   if (!metaSize && file) {
     imageBuffer = await file.arrayBuffer();
     const arr = new Uint8Array(imageBuffer);
-    const { width, height } = imageSize(arr);
-    if (width && height) metaSize = { width, height };
+    const meta = imageDimensionsFromData(arr);
+    if (meta) metaSize = meta;
   }
   const pathes = Object.fromEntries(
     Object.entries(images).map(([k, v]) => [k, v.path || null])
