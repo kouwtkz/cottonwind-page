@@ -29,5 +29,5 @@ export function getExtension(path: string) {
   path = getPathnameWithHost(path);
   const dotCharPoint = path.lastIndexOf(".");
   path = path.toLocaleLowerCase();
-  return dotCharPoint < 0 ? path : path.slice(dotCharPoint + 1);
+  return dotCharPoint < 0 ? (/^\w+$/.test(path) ? path : "") : path.slice(dotCharPoint + 1);
 }
