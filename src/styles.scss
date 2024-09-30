@@ -183,6 +183,7 @@ textarea,
 .move {
   a {
     pointer-events: none;
+    text-decoration: none;
   }
   @extend %cursor-move;
 }
@@ -1482,6 +1483,28 @@ form {
     $i: $i + 1;
     @media (min-width: #{$url}) {
       @include GridListOneSize($baseGrid + $i);
+    }
+  }
+}
+
+// ループ用のフレックスレイアウト関数、列数のみのシンプルな形
+@mixin FlexListOneSize($grid) {
+  > * {
+    width: #{calc(100 / $grid) + "%"};
+    box-sizing: border-box;
+  }
+}
+
+// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
+@mixin FlexList($baseGrid, $media_width...) {
+  display: flex;
+  flex-wrap: wrap;
+  $i: 0;
+  @include FlexListOneSize($baseGrid);
+  @each $url in $media_width {
+    $i: $i + 1;
+    @media (min-width: #{$url}) {
+      @include FlexListOneSize($baseGrid + $i);
     }
   }
 }
