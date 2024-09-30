@@ -23,6 +23,7 @@ import {
   ModeSwitch,
   MoveButton,
 } from "@/layout/edit/CommonSwitch";
+import { AiFillEdit } from "react-icons/ai";
 
 export const useEditFavLinkID = CreateState<number | boolean>();
 export function FavBannerEdit() {
@@ -195,7 +196,12 @@ export function FavBannerEditButtons() {
         </>
       ) : (
         <>
-          <ModeSwitch useSwitch={useFavoriteLinksEditMode} />
+          <ModeSwitch
+            enableTitle="編集モードに切り替え"
+            useSwitch={useFavoriteLinksEditMode}
+          >
+            <AiFillEdit />
+          </ModeSwitch>
           <AddButton
             onClick={() => {
               setEdit(true);
@@ -234,7 +240,12 @@ export function MyBannerEditButtons() {
         </>
       ) : (
         <>
-          <ModeSwitch useSwitch={useImageEditIsEditHold} />
+          <ModeSwitch
+            enableTitle="編集モードに切り替え"
+            useSwitch={useImageEditIsEditHold}
+          >
+            <AiFillEdit />
+          </ModeSwitch>
           <AddButton
             onClick={() => {
               fileDialog("image/*")
