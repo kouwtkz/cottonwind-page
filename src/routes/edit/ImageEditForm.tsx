@@ -700,7 +700,8 @@ export async function MakeImagesUploadList({
           : typeof v === "object" && "src" in v
           ? { name: typeof v.src === "object" ? v.src.name : v.src, ...v }
           : { src: v, name: v.name };
-        const filename = typeof object.src === "object" ? object.src.name : object.src;
+      const filename =
+        typeof object.src === "object" ? object.src.name : object.src;
       const basename = getName(object.name);
       const ext = getExtension(filename);
       const webpName = basename + ".webp";
@@ -739,19 +740,19 @@ export async function MakeImagesUploadList({
               type: "webp",
               expansion: false,
             };
-            if (ext === "gif") {
+            if (imageOverSizeCheck(image, resizeProps.size!)) {
+              formData.append(
+                "thumbnail",
+                await resizeImageCanvas({ ...resizeProps, quality: 0.8 }),
+                webpName
+              );
+            } else if (ext === "gif" || !original) {
               formData.append(
                 "thumbnail",
                 await resizeImageCanvas({
                   ...resizeProps,
                   imageSmoothingEnabled: false,
                 }),
-                webpName
-              );
-            } else if (imageOverSizeCheck(image, resizeProps.size!)) {
-              formData.append(
-                "thumbnail",
-                await resizeImageCanvas({ ...resizeProps, quality: 0.8 }),
                 webpName
               );
             } else {
