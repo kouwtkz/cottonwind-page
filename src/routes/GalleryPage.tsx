@@ -31,6 +31,7 @@ import {
   RiChatPrivateLine,
   RiFilePdf2Fill,
   RiHomeGearLine,
+  RiPlayLargeFill,
   RiPushpin2Line,
   RiStore3Fill,
 } from "react-icons/ri";
@@ -710,6 +711,10 @@ function GalleryImageItem({
             <RiStore3Fill />
           </div>
         ) : null
+      ) : image.type === "movie" ? (
+        <div className="translucent-special-button">
+          <RiPlayLargeFill />
+        </div>
       ) : null}
       {image.embed ? (
         image.type === "pdf" ? (
