@@ -286,9 +286,7 @@ $desktopWidth: 1280px;
 @include ColorSetter("color-warm", var(--warm-color));
 @include ColorSetter("color-gray", var(--main-color-light-grayish));
 
-.pixel,
-img[src*=".gif"],
-img[data-origin-ext="gif"] {
+.pixel {
   image-rendering: pixelated;
 }
 
