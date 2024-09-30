@@ -197,7 +197,7 @@ export function FavBannerEditButtons() {
       ) : (
         <>
           <ModeSwitch
-            enableTitle="編集モードに切り替え"
+            toEnableTitle="編集モードに切り替え"
             useSwitch={useFavoriteLinksEditMode}
           >
             <AiFillEdit />
@@ -241,7 +241,7 @@ export function MyBannerEditButtons() {
       ) : (
         <>
           <ModeSwitch
-            enableTitle="編集モードに切り替え"
+            toEnableTitle="編集モードに切り替え"
             useSwitch={useImageEditIsEditHold}
           >
             <AiFillEdit />

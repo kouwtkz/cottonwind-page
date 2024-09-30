@@ -286,7 +286,7 @@ export function ImageMeeShowPngSwitch() {
   const showPng = useImageMeeShowPng()[0];
   return (
     <ModeSwitch
-      enableTitle="画像をPNGファイルにする"
+      toEnableTitle="画像をPNGファイルにする"
       useSwitch={useImageMeeShowPng}
       beforeOnClick={() => showPng || confirm("PNGで表示しますか？")}
     >

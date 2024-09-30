@@ -7,8 +7,8 @@ import { Link, useSearchParams } from "react-router-dom";
 
 interface ModeSwitchProps
   extends Omit<HTMLAttributes<HTMLButtonElement>, "ref" | "onClick"> {
-  enableTitle?: string;
-  disableTitle?: string;
+  toEnableTitle?: string;
+  toDisableTitle?: string;
   beforeOnClick?: (
     e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => boolean;
@@ -17,8 +17,8 @@ interface ModeSwitchProps
 export const ModeSwitch = forwardRef<HTMLButtonElement, ModeSwitchProps>(
   function ModeSwitch(
     {
-      enableTitle = "有効にする",
-      disableTitle = "元に戻す",
+      toEnableTitle = "有効にする",
+      toDisableTitle = "元に戻す",
       children = <AiOutlineTool />,
       useSwitch,
       beforeOnClick,
@@ -29,7 +29,7 @@ export const ModeSwitch = forwardRef<HTMLButtonElement, ModeSwitchProps>(
     const [isEnable, setIsEnable] = useSwitch();
     return (
       <button
-        title={isEnable ? disableTitle : enableTitle}
+        title={isEnable ? toDisableTitle : toEnableTitle}
         type="button"
         className="iconSwitch"
         onClick={(e) => {
@@ -47,8 +47,8 @@ export const ModeSwitch = forwardRef<HTMLButtonElement, ModeSwitchProps>(
 
 interface ModeSearchSwitchProps
   extends Omit<HTMLAttributes<HTMLAnchorElement>, "ref" | "onClick"> {
-  enableTitle?: string;
-  disableTitle?: string;
+  toEnableTitle?: string;
+  toDisableTitle?: string;
   searchKey: string;
 }
 export const ModeSearchSwitch = forwardRef<
@@ -56,8 +56,8 @@ export const ModeSearchSwitch = forwardRef<
   ModeSearchSwitchProps
 >(function ModeSearchSwitch(
   {
-    enableTitle = "有効にする",
-    disableTitle = "元に戻す",
+    toEnableTitle = "有効にする",
+    toDisableTitle = "元に戻す",
     children = <AiOutlineTool />,
     searchKey,
     ...props
@@ -73,7 +73,7 @@ export const ModeSearchSwitch = forwardRef<
   }, [searchKey, searchParams]);
   return (
     <Link
-      title={isEnable ? disableTitle : enableTitle}
+      title={isEnable ? toDisableTitle : toEnableTitle}
       style={{ opacity: isEnable ? 1 : 0.4 }}
       to={href}
       replace={true}

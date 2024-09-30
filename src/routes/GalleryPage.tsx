@@ -557,35 +557,35 @@ function GalleryBody({
                 </DropdownButton>
                 <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
-                  enableTitle="アルバム表示を元に戻す"
-                  disableTitle="全てのアルバムを表示する"
+                  toEnableTitle="全てのアルバムを表示する"
+                  toDisableTitle="アルバム表示を元に戻す"
                   searchKey="showAllAlbum"
                 >
                   <BiPhotoAlbum />
                 </ModeSearchSwitch>
                 <ModeSearchSwitch
-                  enableTitle="トップ画像が有効なものを絞り込む"
-                  disableTitle="トップ画像から元の表示に戻す"
+                  toEnableTitle="トップ画像が有効なものを絞り込む"
+                  toDisableTitle="トップ画像から元の表示に戻す"
                   searchKey="topImage"
                 >
                   <RiHomeGearLine />
                 </ModeSearchSwitch>
                 <ModeSearchSwitch
-                  enableTitle="ピックアップが有効なものを絞り込む"
-                  disableTitle="ピックアップから元の表示に戻す"
+                  toEnableTitle="ピックアップが有効なものを絞り込む"
+                  toDisableTitle="ピックアップから元の表示に戻す"
                   searchKey="pickup"
                 >
                   <RiPushpin2Line />
                 </ModeSearchSwitch>
                 <ModeSearchSwitch
-                  enableTitle="下書きのみ表示"
-                  disableTitle="下書き以外も表示"
+                  toEnableTitle="下書きのみ表示"
+                  toDisableTitle="下書き以外も表示"
                   searchKey="draftOnly"
                 >
                   <RiChatPrivateLine />
                 </ModeSearchSwitch>
                 <ModeSwitch
-                  enableTitle="常に編集モードにする"
+                  toEnableTitle="常に編集モードにする"
                   useSwitch={useImageEditIsEditHold}
                 >
                   <AiFillEdit />
