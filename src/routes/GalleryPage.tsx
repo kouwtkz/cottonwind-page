@@ -38,23 +38,16 @@ import {
 import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "@/functions/DateFunction";
-import { MdFileUpload, MdOutlineMenu, MdOutlineMenuOpen } from "react-icons/md";
 import { findMee, setWhere } from "@/functions/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/layout/ImageViewer";
 import {
-  CompatGalleryButton,
-  GalleryDownloadButton,
-  GalleryImportButton,
-  GalleryUploadButton,
   ImagesUploadWithToast,
   useImageEditIsEditHold,
 } from "./edit/ImageEditForm";
 import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog } from "@/components/FileTool";
 import { imageDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
@@ -64,8 +57,13 @@ import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { ModeSearchSwitch, ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { ComicsViewer } from "@/routes/ComicsViewer";
 import { AiFillEdit } from "react-icons/ai";
-import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
+import {
+  CompatGalleryButton,
+  GalleryDownloadButton,
+  GalleryImportButton,
+  GalleryUploadButton,
+} from "./edit/ImagesManager";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();

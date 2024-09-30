@@ -17,7 +17,7 @@ import {
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "2.0.1",
+  version: "2.1.0",
   preLoad: false,
   latestField: { time: "desc" },
 });
