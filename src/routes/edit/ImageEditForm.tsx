@@ -1,4 +1,12 @@
-import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { GalleryViewerPaging } from "@/layout/ImageViewer";
 import { toast } from "react-toastify";
 import { useImageState } from "@/state/ImageState";
@@ -9,12 +17,19 @@ import {
   ContentsTagsOption,
   addExtentionGalleryTagsOptions,
 } from "@/components/dropdown/SortFilterTags";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdCleaningServices,
   MdDeleteForever,
+  MdDriveFileRenameOutline,
+  MdFileDownload,
   MdFileUpload,
   MdLibraryAddCheck,
   MdOndemandVideo,
@@ -38,7 +53,7 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { useApiOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
-import { imageDataObject } from "@/state/DataState";
+import { imageDataObject, ImportImagesJson } from "@/state/DataState";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -50,7 +65,11 @@ import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { PromiseOrder, PromiseOrderStateType } from "@/functions/arrayFunction";
+import {
+  arrayPartition,
+  PromiseOrder,
+  PromiseOrderStateType,
+} from "@/functions/arrayFunction";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -58,7 +77,9 @@ import {
   toastLoadingOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
-import { fileDialog } from "@/components/FileTool";
+import { fileDialog, fileDownload } from "@/components/FileTool";
+import { TbDatabaseImport } from "react-icons/tb";
+import { useToastProgress } from "@/state/ToastProgress";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -675,7 +696,7 @@ export async function MakeImagesUploadList({
   webpOptions,
   notDraft: direct,
 }: MakeImagesUploadListProps) {
-  const url = (apiOrigin || "") + "/image/send";
+  const url = concatOriginUrl(apiOrigin, "/image/send");
   const checkTime = new Date().getTime();
   const files = Array.isArray(src) ? src : [src];
   const targetFiles = files.filter((v) => {
@@ -874,3 +895,169 @@ export const iconImagesUploadOptions: ImagesUploadOptions = {
   webpOptions: { expansion: false, size: 96 },
   notDraft: true,
 };
+
+interface GalleryBaseButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  icon?: ReactNode;
+  iconClass?: string;
+}
+export const GalleryImportButton = forwardRef<
+  HTMLButtonElement,
+  GalleryBaseButtonProps
+>(function GalleryImportButton(
+  { children, icon = <TbDatabaseImport />, iconClass, ...props },
+  ref
+) {
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const charactersMap = useCharactersMap()[0];
+  return (
+    <button
+      type="button"
+      title="ギャラリーデータベースのインポート"
+      {...props}
+      ref={ref}
+      onClick={() => {
+        ImportImagesJson({ apiOrigin, charactersMap }).then(() => {
+          setImagesLoad("no-cache-reload");
+        });
+      }}
+    >
+      {icon ? <span className={iconClass}>{icon}</span> : null}
+      {children ? <span className="text-bottom">{children}</span> : null}
+    </button>
+  );
+});
+
+interface GalleryUploadButtonProps extends GalleryBaseButtonProps {
+  group?: string;
+}
+export const GalleryUploadButton = forwardRef<
+  HTMLButtonElement,
+  GalleryUploadButtonProps
+>(function GalleryUploadButton(
+  { group, icon = <MdFileUpload />, iconClass, children, ...props },
+  ref
+) {
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const params = useParams();
+  return (
+    <button
+      type="button"
+      title="アップロードする"
+      {...props}
+      ref={ref}
+      onClick={() => {
+        fileDialog("image/*", true)
+          .then((files) => Array.from(files))
+          .then((files) =>
+            ImagesUploadWithToast({
+              src: files,
+              apiOrigin,
+              character: params.charaName,
+              album: group,
+            })
+          )
+          .then(() => {
+            setImagesLoad("no-cache");
+          });
+      }}
+    >
+      {icon ? <span className={iconClass}>{icon}</span> : null}
+      {children ? <span className="text-bottom">{children}</span> : null}
+    </button>
+  );
+});
+
+interface GalleryDownloadButtonProps extends GalleryBaseButtonProps {
+  beforeConfirm?: boolean;
+}
+export const GalleryDownloadButton = forwardRef<
+  HTMLButtonElement,
+  GalleryDownloadButtonProps
+>(function GalleryDownloadButton(
+  { beforeConfirm, icon = <MdFileDownload />, iconClass, children, ...props },
+  ref
+) {
+  return (
+    <button
+      type="button"
+      title="ダウンロードする"
+      {...props}
+      ref={ref}
+      onClick={async () => {
+        if (
+          !beforeConfirm ||
+          confirm("ギャラリーのJSONデータをダウンロードしますか？")
+        )
+          fileDownload(
+            imageDataObject.storage.key + ".json",
+            JSON.stringify(imageDataObject.storage)
+          );
+      }}
+    >
+      {icon ? <span className={iconClass}>{icon}</span> : null}
+      {children ? <span className="text-bottom">{children}</span> : null}
+    </button>
+  );
+});
+
+interface CompatGalleryButtonProps extends GalleryBaseButtonProps {
+  beforeConfirm?: boolean;
+}
+export const CompatGalleryButton = forwardRef<
+  HTMLButtonElement,
+  CompatGalleryButtonProps
+>(function CompatGalleryButton(
+  {
+    beforeConfirm = true,
+    icon = <MdDriveFileRenameOutline />,
+    iconClass,
+    children,
+    ...props
+  },
+  ref
+) {
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const { imageAlbums: albums } = useImageState();
+  const { addProgress, setMax } = useToastProgress();
+  return (
+    <button
+      type="button"
+      title="artアルバムをmainアルバムに変更する"
+      {...props}
+      ref={ref}
+      onClick={async () => {
+        if (
+          !beforeConfirm ||
+          confirm("artアルバムをmainアルバムに変更しますか？")
+        ) {
+          const url = concatOriginUrl(apiOrigin, "/image/send");
+          const list = albums
+            ?.get("art")
+            ?.list.map((image) => ({ id: image.id, album: "main" }));
+          if (!list) return;
+          const doList = arrayPartition(list, 200).map(
+            (items) => () =>
+              axios
+                .patch(url, items, {
+                  withCredentials: true,
+                })
+                .finally(() => {
+                  console.log("めぇ");
+                  addProgress();
+                })
+          );
+          setMax(doList.length);
+          PromiseOrder(doList, { sleepTime: 0 }).then(() => {
+            setImagesLoad("no-cache");
+          });
+        }
+      }}
+    >
+      {icon ? <span className={iconClass}>{icon}</span> : null}
+      {children ? <span className="text-bottom">{children}</span> : null}
+    </button>
+  );
+});

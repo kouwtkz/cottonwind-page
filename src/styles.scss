@@ -298,8 +298,24 @@ style {
   pointer-events: none;
 }
 
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+
 .flex {
   display: flex;
+  &.left {
+    align-items: flex-start;
+  }
+  &.right {
+    align-items: flex-end;
+  }
   &.center,
   &.justify-center {
     justify-content: center;
@@ -354,6 +370,12 @@ ul.flex {
 .m-lr-auto {
   margin-left: auto;
   margin-right: auto;
+}
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
 }
 
 label {
@@ -725,6 +747,10 @@ h4 {
       }
     }
   }
+}
+
+.text-bottom {
+  vertical-align: text-bottom;
 }
 
 .dropzone {
@@ -1784,7 +1810,7 @@ div.banner {
       // line-height: 2.25rem;
     }
   }
-  .list {
+  .galleryList {
     margin: auto;
     @extend %userSelectNone;
     &.grid {

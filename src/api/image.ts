@@ -216,7 +216,7 @@ app.post("/send", async (c, next) => {
   } else {
     const entry: MeeSqlEntryType<ImageDataType> = {
       name,
-      album: album || "art",
+      album: album || "main",
       time: timeString,
       mtime: timeString,
       key: name,

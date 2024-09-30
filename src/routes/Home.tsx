@@ -133,7 +133,7 @@ export function TopPageBannerLink() {
 export function HomeImage() {
   const { imageAlbums } = useImageState();
   const images = useMemo(
-    () => imageAlbums?.get("art")?.list ?? [],
+    () => imageAlbums?.get("main")?.list ?? [],
     [imageAlbums]
   );
   const topImages = filterPickFixed({

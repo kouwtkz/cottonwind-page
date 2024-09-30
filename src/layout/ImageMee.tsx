@@ -282,7 +282,7 @@ export function ImgSwitch({
   );
 }
 
-export function ImageMeeShowOriginSwitch() {
+export function ImageMeeShowPngSwitch() {
   const showPng = useImageMeeShowPng()[0];
   return (
     <ModeSwitch

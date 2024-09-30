@@ -302,7 +302,7 @@ export function CharaBeforeAfter({
 }
 
 const defaultGalleryList = [
-  { name: "art" },
+  { name: "main" },
   { name: "goods" },
   { name: "3D" },
   { name: "picture" },

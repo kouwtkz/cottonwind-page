@@ -35,32 +35,37 @@ import {
   RiPushpin2Line,
   RiStore3Fill,
 } from "react-icons/ri";
-import { ImageMeeShowOriginSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
+import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getJSTYear } from "@/functions/DateFunction";
-import { MdFileDownload, MdFileUpload } from "react-icons/md";
+import { MdFileUpload, MdOutlineMenu, MdOutlineMenuOpen } from "react-icons/md";
 import { findMee, setWhere } from "@/functions/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
 import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/layout/ImageViewer";
 import {
+  CompatGalleryButton,
+  GalleryDownloadButton,
+  GalleryImportButton,
+  GalleryUploadButton,
   ImagesUploadWithToast,
   useImageEditIsEditHold,
 } from "./edit/ImageEditForm";
 import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "@/components/FileTool";
-import { imageDataObject, ImportImagesJson } from "@/state/DataState";
+import { fileDialog } from "@/components/FileTool";
+import { imageDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { TbDatabaseImport } from "react-icons/tb";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { ModeSearchSwitch, ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { ComicsViewer } from "@/routes/ComicsViewer";
 import { AiFillEdit } from "react-icons/ai";
+import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { DropdownButton } from "@/components/dropdown/DropdownButton";
 
 export function GalleryPage({ children }: { children?: ReactNode }) {
   const [env] = useEnv();
@@ -72,95 +77,9 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
   const [isComplete] = useDataIsComplete();
   return (
     <div id="galleryPage">
-      <GalleryManageMenuButton />
       {children}
       {isComplete ? <GalleryObjectConvert items={galleryList} /> : null}
     </div>
-  );
-}
-
-interface GalleryManageMenuButtonProps {
-  group?: string;
-  children?: ReactNode;
-  addRight?: boolean;
-  dropdown?: ReactNode;
-  dropdownRight?: ReactNode;
-}
-export function GalleryManageMenuButton({
-  group,
-  children,
-  addRight,
-  dropdown,
-  dropdownRight,
-}: GalleryManageMenuButtonProps) {
-  const isLogin = useIsLogin()[0];
-  const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const charactersMap = useCharactersMap()[0];
-  const params = useParams();
-  return (
-    <>
-      {isLogin ? (
-        <RbButtonArea
-          dropdown={
-            <>
-              {dropdown}
-              <button
-                type="button"
-                className="color round large"
-                title="ダウンロードする"
-                onClick={async () => {
-                  fileDownload(
-                    imageDataObject.storage.key + ".json",
-                    JSON.stringify(imageDataObject.storage)
-                  );
-                }}
-              >
-                <MdFileDownload />
-              </button>
-              <button
-                type="button"
-                className="color round large"
-                title="ギャラリーデータベースのインポート"
-                onClick={() => {
-                  ImportImagesJson({ apiOrigin, charactersMap }).then(() => {
-                    setImagesLoad("no-cache-reload");
-                  });
-                }}
-              >
-                <TbDatabaseImport />
-              </button>
-              {dropdownRight}
-            </>
-          }
-        >
-          {addRight ? null : children}
-          <button
-            type="button"
-            className="color round large"
-            title="アップロードする"
-            onClick={() => {
-              fileDialog("image/*", true)
-                .then((files) => Array.from(files))
-                .then((files) =>
-                  ImagesUploadWithToast({
-                    src: files,
-                    apiOrigin,
-                    character: params.charaName,
-                    album: group,
-                  })
-                )
-                .then(() => {
-                  setImagesLoad("no-cache");
-                });
-            }}
-          >
-            <MdFileUpload />
-          </button>
-          {addRight ? children : null}
-        </RbButtonArea>
-      ) : null}
-    </>
   );
 }
 
@@ -182,7 +101,6 @@ function GalleryGroupPage() {
   const items = album ? { ...album?.gallery?.generate, ...album } : undefined;
   return (
     <>
-      <GalleryManageMenuButton group={group} />
       <GalleryObjectConvert
         items={items}
         max={40}
@@ -557,6 +475,7 @@ function GalleryBody({
   showCount = true,
   submitPreventScrollReset,
 }: GalleryBodyProps) {
+  const { group } = useParams();
   const args = {
     showInPageMenu,
     showGalleryHeader,
@@ -620,8 +539,25 @@ function GalleryBody({
               </div>
             </div>
             {isLogin ? (
-              <div className="icons">
-                <ImageMeeShowOriginSwitch />
+              <div className="icons flex center">
+                <DropdownButton
+                  MenuButtonClassName="iconSwitch"
+                  listClassName="flex column"
+                >
+                  <GalleryDownloadButton
+                    className="squared item text-left"
+                    beforeConfirm={true}
+                  >
+                    ギャラリーJSONデータのダウンロード
+                  </GalleryDownloadButton>
+                  <GalleryImportButton className="squared item text-left">
+                    ギャラリーJSONデータのインポート
+                  </GalleryImportButton>
+                  <CompatGalleryButton className="squared item text-left">
+                    アルバムをartからmainに移行する
+                  </CompatGalleryButton>
+                </DropdownButton>
+                <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
                   enableTitle="アルバム表示を元に戻す"
                   disableTitle="全てのアルバムを表示する"
@@ -656,6 +592,7 @@ function GalleryBody({
                 >
                   <AiFillEdit />
                 </ModeSwitch>
+                <GalleryUploadButton className="iconSwitch" group={group} />
               </div>
             ) : null}
           </div>
@@ -817,7 +754,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       [showGalleryLabel, labelString, list.length, showCount]
     );
     const listClassName = useMemo(() => {
-      const classes = ["list"];
+      const classes = ["galleryList"];
       switch (item.type) {
         case "banner":
           classes.push("banner");

@@ -157,8 +157,8 @@ max = 4
 
 [[vars.IMAGE_ALBUMS]]
 description = "オリジナルキャラクターのイラストです！"
-name = "art"
-title = "Art List"
+name = "main"
+title = "Main art"
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "メインイラスト！"

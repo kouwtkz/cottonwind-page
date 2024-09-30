@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useApiOrigin } from "@/state/EnvState";
-import { GalleryManageMenuButton, GalleryObject } from "../GalleryPage";
+import { GalleryObject } from "../GalleryPage";
 import { useImageState } from "@/state/ImageState";
 import { imageDataObject } from "@/state/DataState";
 
@@ -15,7 +15,6 @@ export function ImagesManager() {
     <main>
       <h2 className="color-main en-title-font">Images Manager</h2>
       <GalleryObject items={items} showInPageMenu={false} />
-      <GalleryManageMenuButton></GalleryManageMenuButton>
     </main>
   );
 }
