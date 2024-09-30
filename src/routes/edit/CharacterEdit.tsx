@@ -1,11 +1,4 @@
-import {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +23,6 @@ import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import {
-  useCharacters,
   useCharactersMap,
   useCharacterTags,
   charaMediaKindMap,
@@ -38,24 +30,7 @@ import {
 import { useSounds } from "@/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS as dndCSS } from "@dnd-kit/utilities";
-import { CharaBeforeAfter, CharaListItem } from "../CharacterPage";
+import { CharaBeforeAfter, useMoveCharacters } from "../CharacterPage";
 import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
@@ -537,7 +512,7 @@ export function CharaEditButton() {
   const setImagesLoad = imageDataObject.useLoad()[1];
   const charactersMap = useCharactersMap()[0];
   const { charaName } = useParams();
-  const { sortable, set: setEditSwitch } = useEditSwitchState();
+  const [move, setMove] = useMoveCharacters();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
@@ -604,15 +579,13 @@ export function CharaEditButton() {
         </>
       }
     >
-      {charaName ? null : sortable ? (
+      {charaName ? null : move ? (
         <>
           <button
             type="button"
             className="color round"
             title="ソートの中止"
-            onClick={() =>
-              setEditSwitch({ sortable: false, save: false, reset: true })
-            }
+            onClick={() => setMove(0)}
           >
             <MdClose />
           </button>
@@ -620,7 +593,7 @@ export function CharaEditButton() {
             type="button"
             className="color round"
             title="ソートの完了"
-            onClick={() => setEditSwitch({ sortable: false, save: true })}
+            onClick={() => setMove(2)}
           >
             <MdDoneOutline />
           </button>
@@ -630,9 +603,7 @@ export function CharaEditButton() {
           type="button"
           className="color round large"
           title="ソートモードにする"
-          onClick={() =>
-            setEditSwitch({ sortable: true, save: false, reset: false })
-          }
+          onClick={() => setMove(1)}
         >
           <TbArrowsMove />
         </button>
@@ -645,119 +616,6 @@ export function CharaEditButton() {
         {charaName ? <MdEditNote /> : <MdAdd />}
       </LinkMee>
     </RbButtonArea>
-  );
-}
-
-export function SortableObject() {
-  const [characters, setCharacters] = useCharacters();
-  const setCharactersLoad = charactersDataObject.useLoad()[1];
-  const [items, setItems] = useState(characters || []);
-  const apiOrigin = useApiOrigin()[0];
-  useEffect(() => {
-    if (characters) setItems(characters);
-  }, [characters]);
-  const {
-    sortable,
-    save: saveFlag,
-    reset: resetFlag,
-    set,
-  } = useEditSwitchState();
-  useEffect(() => {
-    if (characters && !sortable) {
-      if (saveFlag) {
-        const isDirty = !items.every(({ key }, i) => characters[i].key === key);
-        if (isDirty) {
-          setCharacters(items);
-          const data = [] as any[];
-          items.forEach((character, i) => {
-            const order = i + 1;
-            if (character.order !== order) {
-              data.push({
-                target: character.key,
-                order,
-              });
-            }
-          });
-          toast
-            .promise(
-              SendPostFetch({
-                apiOrigin,
-                data,
-              }),
-              {
-                pending: "並び順の送信中",
-                success: "並び順を登録しました",
-                error: "並び順の登録に失敗しました",
-              }
-            )
-            .then(() => {
-              setCharactersLoad("no-cache");
-            });
-        }
-        set({ save: false });
-      } else if (resetFlag) {
-        setItems(characters);
-        set({ reset: false });
-      }
-    }
-  }, [characters, items, resetFlag, saveFlag, sortable, apiOrigin]);
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over) {
-        return;
-      }
-      if (active.id !== over.id) {
-        const oldIndex = items.findIndex((v) => v.key === active.id);
-        const newIndex = items.findIndex((v) => v.key === over.id);
-        setItems(arrayMove(items, oldIndex, newIndex));
-      }
-    },
-    [items]
-  );
-  return (
-    <>
-      <div className="charaList" hidden={!sortable}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={items} strategy={rectSortingStrategy}>
-            {items.map((chara) => {
-              return <SortableItem chara={chara} key={chara.key} />;
-            })}
-          </SortableContext>
-        </DndContext>
-      </div>
-    </>
-  );
-}
-
-function SortableItem({ chara }: { chara: CharacterType }) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: chara.key });
-  const style: CSSProperties = {
-    listStyle: "none",
-    transform: dndCSS.Transform.toString(transform),
-    transition,
-  };
-  return (
-    <div
-      className={"item move"}
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      <CharaListItem chara={chara} />
-    </div>
   );
 }
 

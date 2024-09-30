@@ -18,15 +18,17 @@ import {
   useCharacterTags,
 } from "@/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
-import { HTMLAttributes, memo, useEffect, useMemo, useRef } from "react";
+import {
+  HTMLAttributes,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import {
-  CharacterEdit,
-  CharaEditButton,
-  SortableObject,
-  useEditSwitchState,
-} from "./edit/CharacterEdit";
+import { CharacterEdit, CharaEditButton } from "./edit/CharacterEdit";
 import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "@/state/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -36,7 +38,13 @@ import {
   ContentsTagsOption,
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
-import { useIsLogin } from "@/state/EnvState";
+import { useApiOrigin, useIsLogin } from "@/state/EnvState";
+import { CreateState } from "@/state/CreateState";
+import { Movable } from "@/layout/edit/Movable";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { charactersDataObject } from "@/state/DataState";
 
 export function CharacterPage() {
   const { charaName } = useParams();
@@ -99,6 +107,7 @@ export const CharaListItem = memo(function CharaListItem({
   );
 });
 
+export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const characters = useCharacters()[0];
   const [searchParams] = useSearchParams();
@@ -174,28 +183,71 @@ function CharaListPage() {
     if (!showAll) list = list.filter((chara) => chara.visible);
     return list;
   }, [where, characters, orderBySort, showAll]);
-  const { sortable } = useEditSwitchState();
+  const apiOrigin = useApiOrigin()[0];
+  const [move, setMove] = useMoveCharacters();
+  const setCharactersLoad = charactersDataObject.useLoad()[1];
+  const Inner = useCallback(
+    ({ item }: { item: CharacterType }) => (
+      <Link
+        to={move ? "" : `/character/${item.key}`}
+        state={{
+          ...(state ?? {}),
+          characterSort: orderBySort,
+          charaTagsWhere: tagsWhere,
+          charaFilters: filters,
+          backUrl: location.href,
+        }}
+        className={move ? "" : "item"}
+        key={item.key}
+      >
+        <CharaListItem chara={item} />
+      </Link>
+    ),
+    [move]
+  );
   return (
     <>
       <CharaSearchArea />
-      {isLogin ? <SortableObject /> : null}
-      <div className="charaList" hidden={sortable}>
-        {items.map((chara, i) => (
-          <Link
-            to={`/character/${chara.key}`}
-            state={{
-              ...(state ?? {}),
-              characterSort: orderBySort,
-              charaTagsWhere: tagsWhere,
-              charaFilters: filters,
-              backUrl: location.href,
+      <div className="charaList">
+        {move ? (
+          <Movable
+            items={items}
+            Inner={Inner}
+            submit={move === 2}
+            onSubmit={(items) => {
+              const dirty = items
+                .map((item, i) => ({
+                  ...item,
+                  newOrder: i + 1,
+                }))
+                .filter((item, i) => item.newOrder !== item.order)
+                .map(({ key, newOrder }) => {
+                  return { target: key, order: newOrder };
+                });
+              toast.promise(
+                axios
+                  .post(concatOriginUrl(apiOrigin, "character/send"), dirty, {
+                    withCredentials: true,
+                  })
+                  .then(() => {
+                    setCharactersLoad("no-cache");
+                    setMove(0);
+                  }),
+                {
+                  pending: "送信中",
+                  success: "送信しました",
+                  error: "送信に失敗しました",
+                }
+              );
             }}
-            className="item"
-            key={chara.key}
-          >
-            <CharaListItem chara={chara} />
-          </Link>
-        ))}
+          />
+        ) : (
+          <>
+            {items.map((chara, i) => (
+              <Inner key={i} item={chara} />
+            ))}
+          </>
+        )}
       </div>
     </>
   );
