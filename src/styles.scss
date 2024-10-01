@@ -261,6 +261,7 @@ textarea,
   letter-spacing: normal;
 }
 
+$mobiletWidth: 480px;
 $tabletWidth: 768px;
 $desktopWidth: 1280px;
 
@@ -1456,7 +1457,7 @@ form {
   }
   // 要素数が2つ以上の場合、要素数未満の場合のみループ処理で中央に揃う
   @if $grid > 2 {
-    .item:first-child {
+    & > *:first-child {
       @for $i from 2 to $grid {
         &:nth-last-child(#{$i}) {
           $base: $grid + 1 - $i;
@@ -1479,9 +1480,9 @@ form {
   display: grid;
   @include GridListOneSize($baseGrid);
   $i: 0;
-  @each $url in $media_width {
+  @each $width in $media_width {
     $i: $i + 1;
-    @media (min-width: #{$url}) {
+    @media (min-width: #{$width}) {
       @include GridListOneSize($baseGrid + $i);
     }
   }
@@ -2833,12 +2834,12 @@ form.blogEdit {
     }
   }
   .bannerArea {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    @include GridList(1, $mobiletWidth, $tabletWidth, $desktopWidth);
     > * {
       margin: 0.5rem 1rem;
+    }
+    .banner {
+      width: 100%;
     }
   }
 }

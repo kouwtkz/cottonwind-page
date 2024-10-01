@@ -137,7 +137,7 @@ export function MyBanners() {
   const setImageDataLoad = imageDataObject.useLoad()[1];
   const myBanners = useMemo(() => {
     const list = album?.list.concat() || [];
-    list.sort((a, b) => (a.order || 0xFFFF) - (b.order || 0xFFFF));
+    list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
     return list;
   }, [album?.list]);
   useEffect(() => {
@@ -304,7 +304,6 @@ export function BannerInner({
           imageItem={item.Image}
           alt={alt || getTitleWithDsc(item)}
           autoPixel={false}
-          style={{ width: 200, height: 40 }}
         />
       ) : item?.image ? (
         <img
@@ -315,8 +314,18 @@ export function BannerInner({
           alt={item.image}
         />
       ) : (
-        <div style={{ width: 200, height: 40 }} className="banner">
-          {title || item?.title}
+        <div className="banner">
+          <span
+            style={{
+              width: 200,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {title || item?.title}
+          </span>
         </div>
       )}
     </>
@@ -332,7 +341,7 @@ export function BannerItem({ item }: { item: SiteLink }) {
       href={item.url || ""}
       title={titleWithDsc}
       target="_blank"
-      className="overlay flex"
+      className="overlay"
       onClick={(e) => {
         if (isEdit) {
           setEditLink(item.id);
