@@ -182,7 +182,6 @@ export const CompatGalleryButton = forwardRef<
                   withCredentials: true,
                 })
                 .finally(() => {
-                  console.log("めぇ");
                   addProgress();
                 })
           );
