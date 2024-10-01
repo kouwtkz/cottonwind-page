@@ -261,8 +261,9 @@ textarea,
   letter-spacing: normal;
 }
 
-$mobiletWidth: 480px;
+$mobileWidth: 520px;
 $tabletWidth: 768px;
+$miniDesktopWidth: 960px;
 $desktopWidth: 1280px;
 
 * {
@@ -450,6 +451,74 @@ a {
       > div:first-of-type {
         @extend %cursor-pointer;
       }
+    }
+  }
+}
+
+// ループ用のグリッドレイアウト関数、列数のみのシンプルな形
+@mixin GridListOneSize($grid) {
+  // 基本の形、2倍の分割数にすることで半分ずらしに対応できる
+  grid-template-columns: repeat($grid * 2, 1fr);
+  > * {
+    grid-column: span 2;
+  }
+  // 要素数が1つのみの場合、中央にくる形になる
+  @if $grid > 0 {
+    & > *:only-child {
+      grid-column: $grid / span 2;
+    }
+  }
+  // 要素数が2つ以上の場合、要素数未満の場合のみループ処理で中央に揃う
+  @if $grid > 2 {
+    & > *:first-child {
+      @for $i from 2 to $grid {
+        &:nth-last-child(#{$i}) {
+          $base: $grid + 1 - $i;
+          & {
+            grid-column: $base / span 2;
+          }
+          @for $j from 2 through $i {
+            ~ *:nth-of-type(#{$j}) {
+              grid-column: #{$base + ($j - 1) * 2} / span 2;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
+@mixin GridList($baseGrid, $media_width...) {
+  display: grid;
+  @include GridListOneSize($baseGrid);
+  $i: 0;
+  @each $width in $media_width {
+    $i: $i + 1;
+    @media (min-width: #{$width}) {
+      @include GridListOneSize($baseGrid + $i);
+    }
+  }
+}
+
+// ループ用のフレックスレイアウト関数、列数のみのシンプルな形
+@mixin FlexListOneSize($grid) {
+  > * {
+    width: #{calc(100 / $grid) + "%"};
+    box-sizing: border-box;
+  }
+}
+
+// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
+@mixin FlexList($baseGrid, $media_width...) {
+  display: flex;
+  flex-wrap: wrap;
+  $i: 0;
+  @include FlexListOneSize($baseGrid);
+  @each $url in $media_width {
+    $i: $i + 1;
+    @media (min-width: #{$url}) {
+      @include FlexListOneSize($baseGrid + $i);
     }
   }
 }
@@ -1251,27 +1320,31 @@ footer {
   }
   @extend %a-line-none;
   ul {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
+    margin: auto;
     padding: 0.5rem 0;
+    max-width: 1600px;
+    @include GridList(
+      2,
+      $mobileWidth,
+      $tabletWidth,
+      $miniDesktopWidth,
+      $desktopWidth
+    );
+    &.banners {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      @include GridList(
+        1,
+        $mobileWidth,
+        $miniDesktopWidth,
+        $desktopWidth
+      );
+    }
     li {
       margin: 0.25rem;
       display: inline;
       img {
-        width: 10rem;
-        &.banner {
-          width: 14rem;
-        }
-        @media (min-width: $tabletWidth) {
-          width: 14rem;
-          &.banner {
-            width: 24rem;
-          }
-        }
+        width: 100%;
       }
     }
   }
@@ -1440,74 +1513,6 @@ form {
 
 .preview-area .parsed p:first-child {
   margin-top: 0;
-}
-
-// ループ用のグリッドレイアウト関数、列数のみのシンプルな形
-@mixin GridListOneSize($grid) {
-  // 基本の形、2倍の分割数にすることで半分ずらしに対応できる
-  grid-template-columns: repeat($grid * 2, 1fr);
-  > * {
-    grid-column: span 2;
-  }
-  // 要素数が1つのみの場合、中央にくる形になる
-  @if $grid > 0 {
-    & > *:only-child {
-      grid-column: $grid / span 2;
-    }
-  }
-  // 要素数が2つ以上の場合、要素数未満の場合のみループ処理で中央に揃う
-  @if $grid > 2 {
-    & > *:first-child {
-      @for $i from 2 to $grid {
-        &:nth-last-child(#{$i}) {
-          $base: $grid + 1 - $i;
-          & {
-            grid-column: $base / span 2;
-          }
-          @for $j from 2 through $i {
-            ~ *:nth-of-type(#{$j}) {
-              grid-column: #{$base + ($j - 1) * 2} / span 2;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
-@mixin GridList($baseGrid, $media_width...) {
-  display: grid;
-  @include GridListOneSize($baseGrid);
-  $i: 0;
-  @each $width in $media_width {
-    $i: $i + 1;
-    @media (min-width: #{$width}) {
-      @include GridListOneSize($baseGrid + $i);
-    }
-  }
-}
-
-// ループ用のフレックスレイアウト関数、列数のみのシンプルな形
-@mixin FlexListOneSize($grid) {
-  > * {
-    width: #{calc(100 / $grid) + "%"};
-    box-sizing: border-box;
-  }
-}
-
-// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
-@mixin FlexList($baseGrid, $media_width...) {
-  display: flex;
-  flex-wrap: wrap;
-  $i: 0;
-  @include FlexListOneSize($baseGrid);
-  @each $url in $media_width {
-    $i: $i + 1;
-    @media (min-width: #{$url}) {
-      @include FlexListOneSize($baseGrid + $i);
-    }
-  }
 }
 
 .characterPage {
@@ -2834,7 +2839,7 @@ form.blogEdit {
     }
   }
   .bannerArea {
-    @include GridList(1, $mobiletWidth, $tabletWidth, $desktopWidth);
+    @include GridList(1, $mobileWidth, $tabletWidth, $desktopWidth);
     > * {
       margin: 0.5rem 1rem;
     }

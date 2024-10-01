@@ -111,7 +111,7 @@ function PostsView() {
 export function TopPageBannerLink() {
   return (
     <>
-      <ul>
+      <ul className="banners">
         <li>
           <a
             href="https://cottonwind.booth.pm/"
