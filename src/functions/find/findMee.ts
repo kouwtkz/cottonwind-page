@@ -29,7 +29,7 @@ export function findMee<T>({
         if (sign !== 0) {
           list.sort((a: any, b: any) => {
             let result = 0;
-            const judgeValue = a[k] ?? b[k];
+            const judgeValue = a[k] || b[k];
             const typeofValue = typeof judgeValue;
             switch (typeofValue) {
               case "string":
@@ -39,7 +39,7 @@ export function findMee<T>({
                 result = a[k] - b[k];
                 break;
               case "object":
-                if ("getTime" in judgeValue) {
+                if (judgeValue && "getTime" in judgeValue) {
                   const atime = a[k]?.getTime() || 0;
                   const btime = b[k]?.getTime() || 0;
                   if (atime !== btime) result = atime - btime;
