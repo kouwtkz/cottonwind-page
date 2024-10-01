@@ -1321,7 +1321,8 @@ footer {
   @extend %a-line-none;
   ul {
     margin: auto;
-    padding: 0.5rem 0;
+    $padding-tb: 0.5rem;
+    padding: #{$padding-tb} 1rem;
     max-width: 1600px;
     @include GridList(
       2,
@@ -1331,8 +1332,6 @@ footer {
       $desktopWidth
     );
     &.banners {
-      padding-left: 1rem;
-      padding-right: 1rem;
       @include GridList(
         1,
         $mobileWidth,
