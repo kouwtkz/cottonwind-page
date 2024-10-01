@@ -301,7 +301,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     if (tagsWhere) wheres.push(...tagsWhere);
     if (charactersWhere) wheres.push(...charactersWhere);
     if (whereMonth) wheres.push(whereMonth);
-    if (hasTopImage) wheres.push({ topImage: true });
+    if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
     if (typeParam) wheres.push({ type: typeParam });
     if (draftOnly) wheres.push({ draft: true });
@@ -333,6 +333,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         list.push({ name: "desc" });
         break;
     }
+    if (hasTopImage) list.push({ topImage: "desc" });
     const keys = list.reduce((a, c) => {
       Object.keys(c).forEach((v) => a.push(v));
       return a;
@@ -340,7 +341,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     if (keys.every((key) => key !== "time")) list.unshift({ time: "desc" });
     if (keys.every((key) => key !== "name")) list.unshift({ name: "asc" });
     return list;
-  }, [sortParam, orderBy]);
+  }, [sortParam, orderBy, hasTopImage]);
 
   const { fList, yfList } = useMemo(() => {
     const fList = items

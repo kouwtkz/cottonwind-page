@@ -59,6 +59,7 @@ import {
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
 import { fileDialog } from "@/components/FileTool";
+import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -68,20 +69,6 @@ export const useImageEditIsEdit = CreateState(false);
 export const useImageEditIsEditHold = CreateState(false);
 export const useImageEditIsDirty = CreateState(false);
 export const useImageEditIsBusy = CreateState(false);
-
-function FormToBoolean(v?: string) {
-  switch (v) {
-    case "true":
-      return true;
-    case "false":
-      return false;
-    case "null":
-    case "undefined":
-      return null;
-    default:
-      return;
-  }
-}
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
@@ -152,7 +139,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     () => ({
       name: image?.name || "",
       description: image?.description || "",
-      topImage: String(image?.topImage),
+      topImage: String(image?.topImage || null),
       pickup: String(image?.pickup),
       tags: image?.tags || [],
       characters: image?.characters || [],
@@ -205,8 +192,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 ? dateISOfromLocaltime(value)
                 : new Date().toISOString();
               break;
-            case "pickup":
             case "topImage":
+              data[key] = FormToNumber(value);
+              break;
+            case "pickup":
               data[key] = FormToBoolean(value);
               break;
             default:
@@ -537,9 +526,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   {...register("topImage")}
                   disabled={isBusy}
                 >
-                  <option value="undefined">自動</option>
-                  <option value="true">固定する</option>
-                  <option value="false">固定しない</option>
+                  <option value="null">自動</option>
+                  <option value="1">ホームに表示する</option>
+                  <option value="2">最初に表示する</option>
+                  <option value="3">常に表示する</option>
+                  <option value="0">表示しない</option>
                 </select>
               </label>
               <label className="ml">

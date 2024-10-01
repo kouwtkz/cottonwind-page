@@ -30,13 +30,11 @@ interface ImageType extends ImageDataType {
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;
-  topImage?: boolean;
   pickup?: boolean;
   draft?: boolean;
   time?: Date;
   mtime?: Date;
   lastmod?: Date;
-  Src?: string;
   update?: boolean;
   new?: boolean;
 }

@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import { filterPickFixed } from "@/functions/media/FilterImages";
+import { filterPickFixed, monthlyFilter } from "@/functions/media/FilterImages";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
 import { usePosts } from "@/state/PostState";
+import { findMee } from "@/functions/find/findMee";
+import { CreateState } from "@/state/CreateState";
 
 export default function Home() {
   return (
@@ -130,19 +132,28 @@ export function TopPageBannerLink() {
   );
 }
 
+const useTopImageFirst = CreateState(true);
 export function HomeImage() {
   const { imageAlbums } = useImageState();
   const images = useMemo(
     () => imageAlbums?.get("main")?.list ?? [],
     [imageAlbums]
   );
-  const topImages = filterPickFixed({
-    images,
-    name: "topImage",
-  });
+  const topImages = useMemo(
+    () =>
+      findMee({
+        list: images,
+        where: {
+          OR: [{ topImage: { gte: 1 } }, { tags: { in: monthlyFilter?.tags } }],
+        },
+        orderBy: [{ topImage: "desc" }],
+      }),
+    [images, monthlyFilter]
+  );
   const [topImageState, setTopImage] = useState<ImageType>();
-  const nodeRef = useRef<HTMLImageElement>(null)
-  const firstLoad = useRef(true);
+  const [topImageFirstState, setTopImageFirst] = useTopImageFirst();
+  const topImageFirst = useRef(topImageFirstState);
+  const nodeRef = useRef<HTMLImageElement>(null);
   const currentTopImage = useRef<ImageType | null>(null);
   if (topImageState && currentTopImage) currentTopImage.current = topImageState;
   const topImage = currentTopImage.current;
@@ -158,10 +169,14 @@ export function HomeImage() {
     if (curIndex >= 0 && curIndex <= imageIndex) imageIndex++;
     setTopImage(topImages[imageIndex]);
   };
-  if (firstLoad.current && images.length > 0) {
-    setRndTopImage();
-    firstLoad.current = false;
-  }
+  useEffect(() => {
+    const topImageFirstFlag = topImageFirst.current;
+    const topImageFlag = topImages[0]?.topImage;
+    if (topImageFlag === 3 || (topImageFlag === 2 && topImageFirstFlag)) {
+      setTopImage(topImages[0]);
+    } else setRndTopImage();
+    if (topImageFirstFlag) setTopImageFirst(false);
+  }, [topImages, setTopImageFirst]);
   useEffect(() => {
     const timer = setInterval(() => {
       setRndTopImage();
@@ -173,8 +188,17 @@ export function HomeImage() {
     <div className="HomeImage wide">
       {currentTopImage.current && topImage ? (
         <TransitionGroup className="wrapper">
-          <CSSTransition nodeRef={nodeRef} key={currentTopImage.current.src || ""} timeout={750}>
-            <ImageMee ref={nodeRef} imageItem={topImage} loading="eager" className="image" />
+          <CSSTransition
+            nodeRef={nodeRef}
+            key={currentTopImage.current.src || ""}
+            timeout={750}
+          >
+            <ImageMee
+              ref={nodeRef}
+              imageItem={topImage}
+              loading="eager"
+              className="image"
+            />
           </CSSTransition>
         </TransitionGroup>
       ) : (

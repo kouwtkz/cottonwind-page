@@ -36,8 +36,6 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
     tags: data.tags?.split(","),
     characters: data.characters?.split(","),
     copyright: data.copyright?.split(","),
-    topImage:
-      typeof data.topImage === "number" ? Boolean(data.topImage) : undefined,
     pickup:
       typeof data.pickup === "number" ? Boolean(data.pickup) : undefined,
     draft:

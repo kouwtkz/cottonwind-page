@@ -29,7 +29,7 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
   )
 }
 
-const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
+export const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
 
 interface filterPickFixedProps {
   images: ImageType[];
