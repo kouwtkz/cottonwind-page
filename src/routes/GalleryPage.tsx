@@ -621,6 +621,7 @@ function GalleryImageItem({
     to: To;
     state?: any;
     preventScrollReset?: boolean;
+    title?: string;
   } => {
     if (image.direct) return { to: image.src ?? "" };
     searchParams.set("image", image.key);
@@ -632,6 +633,7 @@ function GalleryImageItem({
       to: new URL("?" + searchParams.toString(), location.href).href,
       state: { ...state, from: pathname },
       preventScrollReset: true,
+      title: image.name || undefined,
     };
   }, [searchParams, image, state]);
   return (

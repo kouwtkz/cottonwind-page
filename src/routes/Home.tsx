@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, To, useLocation, useSearchParams } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import { filterPickFixed, monthlyFilter } from "@/functions/media/FilterImages";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { monthlyFilter } from "@/functions/media/FilterImages";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
 import { usePosts } from "@/state/PostState";
@@ -183,7 +183,30 @@ export function HomeImage() {
     }, 10000);
     return () => clearInterval(timer);
   });
-
+  const { pathname, state } = useLocation();
+  const [searchParams] = useSearchParams();
+  const toStatehandler = useCallback(
+    ({
+      image,
+    }: {
+      image: ImageType;
+    }): {
+      to: To;
+      state?: any;
+      preventScrollReset?: boolean;
+      title?: string;
+    } => {
+      if (image.direct) return { to: image.src ?? "" };
+      searchParams.set("image", image.key);
+      return {
+        to: new URL("?" + searchParams.toString(), location.href).href,
+        state: { ...state, from: pathname },
+        preventScrollReset: true,
+        title: image.name || undefined,
+      };
+    },
+    [searchParams, state]
+  );
   return (
     <div className="HomeImage wide">
       {currentTopImage.current && topImage ? (
@@ -193,12 +216,14 @@ export function HomeImage() {
             key={currentTopImage.current.src || ""}
             timeout={750}
           >
-            <ImageMee
-              ref={nodeRef}
-              imageItem={topImage}
-              loading="eager"
-              className="image"
-            />
+            <Link className="item" {...toStatehandler({ image: topImage })}>
+              <ImageMee
+                ref={nodeRef}
+                imageItem={topImage}
+                loading="eager"
+                className="image"
+              />
+            </Link>
           </CSSTransition>
         </TransitionGroup>
       ) : (
