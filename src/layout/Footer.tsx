@@ -1,13 +1,16 @@
+import ShareButton from "@/components/button/ShareButton";
 import { getJSTYear } from "@/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {
   return (
     <footer>
-      {env ? (
-        <div className="copyright">
-          © {env.SINCE}-{getJSTYear(new Date())} {env.AUTHOR_ACCOUNT}
-        </div>
-      ) : null}
+      <div>
+        {env ? (
+          <span className="copyright">
+            © {env.SINCE}-{getJSTYear(new Date())} {env.AUTHOR_ACCOUNT}
+          </span>
+        ) : null}
+      </div>
       <LinksList myLinks={env?.LINKS || []} />
     </footer>
   );
@@ -54,6 +57,9 @@ export function LinksList({
                 </a>
               </li>
             ))}
+          <li>
+            <ShareButton className="color" />
+          </li>
         </ul>
       ) : null}
     </>

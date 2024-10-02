@@ -36,6 +36,7 @@ import { scrollLock } from "@/components/hook/ScrollLock";
 import { useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { EmbedNode, useFilesMap } from "@/state/FileState";
+import ShareButton from "@/components/button/ShareButton";
 
 type ImageViewerType = {
   image: ImageType | null;
@@ -105,7 +106,6 @@ function InfoArea({ image }: InfoAreaProps) {
 
   return (
     <div className="infoArea">
-      <CharacterState />
       {isComplete ? (
         <>
           {isEdit ? null : (
@@ -183,16 +183,17 @@ function InfoArea({ image }: InfoAreaProps) {
               ) : null}
               <div className="gray right">
                 {image.time ? (
-                  <div className="time">
+                  <span className="time">
                     {image.draft ? (
                       <span className="mr">（下書き）</span>
                     ) : null}
                     <span>{image.time.toLocaleString("ja", opt)}</span>
-                  </div>
+                  </span>
                 ) : null}
                 {image.embed && image.type === "ebook" ? (
-                  <div>本のマークから読むことができる作品です！</div>
+                  <span>本のマークから読むことができる作品です！</span>
                 ) : null}
+                <ShareButton />
               </div>
               {image.copyright ? (
                 <div className="gray right">
