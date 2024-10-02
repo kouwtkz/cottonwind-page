@@ -45,12 +45,13 @@ export function MetaValues({
   let imageSize = { w: 1000, h: 1000 };
   const list = path.split("/");
   const queryParams = QueryToParams(query) ?? {};
+  let isTopPage = false;
   if (queryParams.invite) {
     title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${siteTitle}`;
     description = "Discordへの招待ページ（合言葉式）";
   }
   if (!title)
-    switch (list[1] as RoutingUnion) {
+    switch (list[1] as RoutingUnion | "") {
       case "gallery":
         title = "ギャラリー | " + siteTitle;
         const group = list[2];
@@ -136,6 +137,13 @@ export function MetaValues({
         title = "ていあん | " + siteTitle;
         description = "打ち間違いなど用の誘導";
         break;
+      case "":
+        isTopPage = true;
+        title = siteTitle + (env?.OVERVIEW ? " - " + env.OVERVIEW : "");
+        break;
+      default:
+        title = siteTitle;
+        break;
     }
   if (queryParams.p) noindex = true;
   const imageParam = queryParams.image;
@@ -143,7 +151,10 @@ export function MetaValues({
   if (imageParam) {
     const foundImage = imagesMap?.get(imageParam);
     if (foundImage) {
-      title = (foundImage.name || foundImage.key) + " | " + title;
+      title =
+        (foundImage.name || foundImage.key) +
+        " | " +
+        (isTopPage ? siteTitle : title);
       image = concatOriginUrl(mediaOrigin, foundImage.src);
       if (foundImage.width && foundImage.height) {
         imageSize = {
@@ -204,14 +215,13 @@ export function MetaValues({
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
-  if (!title) title = siteTitle + " - " + env?.OVERVIEW;
   if (!description) description = env?.DESCRIPTION ?? "";
   if (!image && env?.SITE_IMAGE && imagesMap?.has(env.SITE_IMAGE)) {
     const imageItem = imagesMap.get(env.SITE_IMAGE)!;
     image = concatOriginUrl(mediaOrigin, imageItem.src);
   }
   return {
-    title,
+    title: title || "",
     description,
     image,
     imageSize,
