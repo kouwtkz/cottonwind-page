@@ -20,10 +20,40 @@
       "command": "npm run dev-r2"
     },
     {
+      "name": "dev-ssl",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-ssl"
+    },
+    {
+      "name": "dev api-ssl",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-api-ssl"
+    },
+    {
+      "name": "dev r2-ssl",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-r2-ssl"
+    },
+    {
       "name": "start",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm start"
+    },
+    {
+      "name": "Launch Chrome",
+      "type": "chrome",
+      "url": "http://localhost:51730",
+      "request": "launch"
+    },
+    {
+      "name": "Launch Chrome SSL",
+      "type": "chrome",
+      "url": "https://localhost:51730",
+      "request": "launch"
     },
     {
       "name": "Launch Firefox",
@@ -32,17 +62,15 @@
       "reAttach": true,
       "url": "http://localhost:51730"
     },
-    {
-      "name": "Launch Chrome",
-      "type": "chrome",
-      "url": "http://localhost:51730",
-      "request": "launch"
-    }
   ],
   "compounds": [
     {
       "name": "Chrome dev with api",
       "configurations": ["Launch Chrome", "dev", "dev api", "dev r2"]
+    },
+    {
+      "name": "Chrome dev with api ssl-mode",
+      "configurations": ["Launch Chrome SSL", "dev-ssl", "dev api-ssl", "dev r2-ssl"]
     },
     {
       "name": "Firefox dev with api",

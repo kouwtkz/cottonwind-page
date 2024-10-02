@@ -7,6 +7,7 @@ import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
 import { getPlatformProxy } from 'wrangler';
 import buildMeeSSG_Plugins from './buildMeeSSG_Plugins';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig(async ({ mode }) => {
   let defaultPlugins: PluginOption[] = [tsconfigPaths()];
@@ -21,7 +22,11 @@ export default defineConfig(async ({ mode }) => {
     }
   };
   const modes = mode.split("-");
-  if (modes[0] === "client") {
+  function includeModes(v: string) {
+    return modes.some(m => m === v);
+  }
+  if (includeModes("ssl")) defaultPlugins.push(basicSsl());
+  if (includeModes("client")) {
     return {
       ...config,
       plugins: defaultPlugins,
@@ -60,7 +65,7 @@ export default defineConfig(async ({ mode }) => {
         chunkSizeWarningLimit: 3000
       }
     } as UserConfig;
-  } else if (modes[0] === "ssg") {
+  } else if (includeModes("ssg")) {
     const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
     const entry = "src/ssg.tsx";
     return {
@@ -79,50 +84,52 @@ export default defineConfig(async ({ mode }) => {
         emptyOutDir: modes[1] === "overwrite"
       }
     } as UserConfig;
-  } else if (mode === "api") {
-    return {
-      ...config,
-      plugins: [
-        ...defaultPlugins,
-        devServer({
-          entry: 'src/api/index.ts',
-          adapter: adapter({ proxy: { configPath: "wrangler-api.toml" } }),
-        })
-      ]
-    }
-  } else if (mode === "r2") {
-    return {
-      ...config,
-      plugins: [
-        ...defaultPlugins,
-        devServer({
-          entry: 'src/api/r2.ts',
-          adapter: adapter({ proxy: { configPath: "wrangler-r2.toml" } }),
-        })
-      ]
-    }
   } else {
-    return {
-      ...config,
-      ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
-      plugins: [
-        ...defaultPlugins,
-        pages(),
-        devServer({
-          entry: 'src/index.dev.tsx',
-          adapter,
-          exclude: [
-            // /.*\.css$/,
-            /.*\.ts$/,
-            /.*\.tsx$/,
-            /^\/@.+$/,
-            /\?t\=\d+$/,
-            /^\/favicon\.ico$/,
-            /^\/static\/.+/,
-            /^\/node_modules\/.*/,
-          ],
-        }),
-      ],
-    } as UserConfig;
+    if (includeModes("api")) {
+      return {
+        ...config,
+        plugins: [
+          ...defaultPlugins,
+          devServer({
+            entry: 'src/api/index.ts',
+            adapter: adapter({ proxy: { configPath: "wrangler-api.toml" } }),
+          })
+        ]
+      }
+    } else if (includeModes("r2")) {
+      return {
+        ...config,
+        plugins: [
+          ...defaultPlugins,
+          devServer({
+            entry: 'src/api/r2.ts',
+            adapter: adapter({ proxy: { configPath: "wrangler-r2.toml" } }),
+          })
+        ]
+      }
+    } else {
+      return {
+        ...config,
+        ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
+        plugins: [
+          ...defaultPlugins,
+          pages(),
+          devServer({
+            entry: 'src/index.dev.tsx',
+            adapter,
+            exclude: [
+              // /.*\.css$/,
+              /.*\.ts$/,
+              /.*\.tsx$/,
+              /^\/@.+$/,
+              /\?t\=\d+$/,
+              /^\/favicon\.ico$/,
+              /^\/static\/.+/,
+              /^\/node_modules\/.*/,
+            ],
+          }),
+        ],
+      } as UserConfig;
+    }
   }
 })
