@@ -26,19 +26,19 @@ type findMeeProps<T> = {
 }
 
 type findWhereFunction<T> = (v: string) => findWhereType<T>;
+type KeyOfOrArray<T> = keyof T | (keyof T)[];
 
 interface WhereOptionsType<T> {
-  key?: string | string[];
+  key?: KeyOfOrArray<T>;
   where?: findWhereFunction<T>;
   take?: number;
   hidden?: boolean;
   [k: string]: any;
 }
 
-interface WhereOptionsHashtagType {
-  key?: string | string[];
-  enableText?: boolean;
-  enableKey?: boolean;
+interface WhereOptionsHashtagType<T> {
+  key?: KeyOfOrArray<T>;
+  textKey?: KeyOfOrArray<T>;
   [k: string]: any;
 }
 
@@ -49,7 +49,7 @@ type WhereOptionsValueType<T> = string
   | WhereOptionsType<T>;
 
 type WhereOptionsKvType<T> = {
-  hashtag?: WhereOptionsHashtagType;
+  hashtag?: WhereOptionsHashtagType<T>;
   kanaReplace?: boolean;
   [k: string]: WhereOptionsValueType<T>;
 } & {

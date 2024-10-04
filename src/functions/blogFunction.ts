@@ -39,8 +39,7 @@ export function getPosts({
   const skip = take && page ? take * page : 0;
   const options: WhereOptionsKvType<PostType> = {
     text: { key: "body" },
-    from: { key: "userId" },
-    hashtag: { enableText: true, key: "category" },
+    hashtag: { textKey: "body", key: "category" },
   };
   const wheres = [setWhere(q, options).where];
   if (common) wheres.push({ draft: false, time: { lte: new Date() } });

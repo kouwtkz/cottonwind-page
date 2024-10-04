@@ -265,11 +265,10 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             "copyright",
             "name",
             "description",
-            "URL",
             "embed",
           ],
         },
-        hashtag: { key: ["tags", "characters"] },
+        hashtag: { key: ["tags", "characters"], textKey: ["description"] },
       }),
     [qParam]
   );
