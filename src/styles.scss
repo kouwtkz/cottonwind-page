@@ -531,10 +531,41 @@ body {
   padding: 0;
   background-color: transparent;
   overflow-y: scroll;
+  &.dummy {
+    min-height: 5000rem;
+  }
   &.loading {
     overflow-y: hidden;
-    &.dummy {
-      min-height: 5000rem;
+  }
+}
+html.loading {
+  scrollbar-color: transparent transparent !important;
+}
+
+.loadingWindow {
+  display: none;
+  .loading & {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    max-width: var(--ct-width);
+    height: 100vh;
+    background-color: var(--background);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+    text-align: center;
+    .loadingNow {
+      color: var(--main-color);
+      font-size: 1.5rem;
+    }
+    img {
+      margin: 1rem;
+      width: auto;
+      height: 128px;
     }
   }
 }
@@ -1073,36 +1104,6 @@ code {
     height: 100%;
     @media (min-width: 1800px) {
       display: none;
-    }
-  }
-}
-
-body {
-  .loadingWindow {
-    display: none;
-  }
-  &.loading .loadingWindow {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    max-width: var(--ct-width);
-    height: 100vh;
-    background-color: var(--background);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: sans-serif;
-    text-align: center;
-    .loadingNow {
-      color: var(--main-color);
-      font-size: 1.5rem;
-    }
-    img {
-      margin: 1rem;
-      width: auto;
-      height: 128px;
     }
   }
 }
