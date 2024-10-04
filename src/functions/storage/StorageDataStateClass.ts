@@ -10,6 +10,7 @@ interface StorageDataStateClassProps<T> {
   preLoad?: LoadStateType;
   isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };
+  lastmodField?: string;
 }
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
@@ -20,20 +21,35 @@ export class StorageDataStateClass<T extends Object = {}> {
   useLoad: CreateStateFunctionType<LoadStateType | undefined>;
   latestField?: { [k in keyof T]: OrderByType };
   latest?: T;
+  lastmodField: string;
   beforeLastmod?: Date;
   private _isLogin?: boolean;
-  get isLogin() { return this._isLogin; };
+  get isLogin() {
+    return this._isLogin;
+  }
   set isLogin(isLogin) {
     this._isLogin = isLogin;
-    this.storage.Version = setSuffix(this.version, this._isLogin ? "login" : "")
-  };
-  constructor({ src, key, version = "1", preLoad, isLogin, latestField }: StorageDataStateClassProps<T>) {
+    this.storage.Version = setSuffix(
+      this.version,
+      this._isLogin ? "login" : ""
+    );
+  }
+  constructor({
+    src,
+    key,
+    version = "1",
+    preLoad,
+    isLogin,
+    latestField,
+    lastmodField = "lastmod",
+  }: StorageDataStateClassProps<T>) {
     this.version = version;
     this.key = key;
     this.storage = new StorageDataClass(key);
     this.src = src;
     this.useLoad = CreateState(preLoad);
     this.latestField = latestField as { [k in keyof T]: OrderByType };
+    this.lastmodField = lastmodField;
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
   setSearchParamsOption({
@@ -67,23 +83,26 @@ export class StorageDataStateClass<T extends Object = {}> {
     data,
     setState,
     id = "id",
-    lastmod = "lastmod",
+    lastmod = this.lastmodField,
   }: storageReadDataProps<T>) {
     if (!data) return;
     const { data: sData } = this.storage;
     if (sData) {
       if (this.latestField) {
-        if (this.storage.lastmod) this.beforeLastmod = new Date(this.storage.lastmod);
+        if (this.storage.lastmod)
+          this.beforeLastmod = new Date(this.storage.lastmod);
         Object.entries<OrderByType>(this.latestField).forEach(([k, v]) => {
-          this.latest =
-            (sData as unknown as KeyValueType<any>[]).reduce<any>((a, c) => {
+          this.latest = (sData as unknown as KeyValueType<any>[]).reduce<any>(
+            (a, c) => {
               if (!a) return c;
               else {
                 if (v === "desc") return a[k] > c[k] ? a : c;
                 else if (v === "asc") return a[k] < c[k] ? a : c;
                 else return a;
               }
-            }, undefined);
+            },
+            undefined
+          );
         });
       }
       data.forEach((d) => {
@@ -109,4 +128,3 @@ export class StorageDataStateClass<T extends Object = {}> {
     return typeof loadAtomValue === "string" ? loadAtomValue : undefined;
   }
 }
-
