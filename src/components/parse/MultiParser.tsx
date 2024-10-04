@@ -17,6 +17,7 @@ export interface MultiParserOptions {
   toDom?: boolean;
   detailsClosable?: boolean;
   linkPush?: boolean;
+  linkSame?: boolean;
   hashtag?: boolean;
 }
 export interface MultiParserProps
@@ -41,6 +42,7 @@ export function MultiParser({
   markdown = true,
   toDom = true,
   linkPush = true,
+  linkSame = true,
   hashtag = true,
   detailsOpen = false,
   detailsClosable = true,
@@ -110,14 +112,16 @@ export function MultiParser({
                           "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
                       v.attribs.onClick = ((e: any) => {
-                        const Url = new URL(url, location.href);
-                        if (Url.search) {
-                          Url.searchParams.delete("p");
+                        const baseHref = location.href;
+                        const Url = new URL(url, baseHref);
+                        if (Url.search) Url.searchParams.delete("p");
+                        if (
+                          Url.href !== baseHref ||
+                          (linkSame && window.scrollY > 0)
+                        ) {
                           nav(Url.pathname + Url.search + Url.hash, {
                             preventScrollReset: Boolean(Url.hash),
                           });
-                        } else {
-                          nav(url);
                         }
                         e.preventDefault();
                       }) as any;
