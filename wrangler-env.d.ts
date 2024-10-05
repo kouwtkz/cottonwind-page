@@ -61,6 +61,13 @@ interface MeePagesEnv extends MeeCommonEnv {
   RECAPTCHA_SITEKEY?: string;
   RECAPTCHA_SITEKEY_DEV?: string;
 }
+interface MeeSvEnv extends MeeCommonEnv {
+  ACCOUNT_ID?: string;
+  PROJECT_NAME?: string;
+  WORKERS_API_TOKEN?: string;
+  EXPIRATION_DAYS?: number;
+}
+
 interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
   Bindings: T;
   Response: any;

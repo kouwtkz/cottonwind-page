@@ -3,4 +3,9 @@ main = "src/sv/index.ts"
 name = "cottonwind-sv"
 
 [triggers]
-crons = ["0 19 * * *"]
+crons = ["0 19 * * *", "0 15 * * tue"]
+
+[vars]
+ACCOUNT_ID = "95737cecb3c443e0b8979d9679110507"
+PROJECT_NAME = "cottonwind-page"
+EXPIRATION_DAYS = 7
