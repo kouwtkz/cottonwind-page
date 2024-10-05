@@ -16,12 +16,12 @@ interface SiteConfigEnv {
   WAVEBOX?: string;
   PAGES_DEV_ORIGIN?: string;
   LOCAL_ORIGIN?: string;
-  API_ORIGIN?: string;
-  API_WORKERS_ORIGIN?: string;
-  API_LOCAL_ORIGIN?: string;
   MEDIA_ORIGIN?: string;
   MEDIA_WORKERS_ORIGIN?: string;
   MEDIA_LOCAL_ORIGIN?: string;
+  API_ORIGIN?: string;
+  API_WORKERS_ORIGIN?: string;
+  API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
@@ -35,6 +35,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   KV: KVNamespace;
   NOTICE_FEED_KV: KVNamespace;
   DB: D1Database;
+  BUCKET: R2Bucket;
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
@@ -66,11 +67,9 @@ interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
 }
 type MeePagesBindings = MeeBindings<MeePagesEnv>
 
-interface MeeAPIEnv extends MeeCommonEnv {
-  BUCKET: R2Bucket;
-  THUMBNAIL_SIZE?: number;
+interface MeeCommonEnv extends MeeCommonEnv {
 }
-type MeeAPIBindings = MeeBindings<MeeAPIEnv>;
+type MeeAPIBindings = MeeBindings<MeeCommonEnv>;
 
 interface MeeR2Env extends MeeCommonEnv {
   BUCKET: R2Bucket;

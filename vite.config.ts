@@ -84,52 +84,39 @@ export default defineConfig(async ({ mode }) => {
         emptyOutDir: modes[1] === "overwrite"
       }
     } as UserConfig;
-  } else {
-    if (includeModes("api")) {
-      return {
-        ...config,
-        plugins: [
-          ...defaultPlugins,
-          devServer({
-            entry: 'src/api/index.ts',
-            adapter: adapter({ proxy: { configPath: "wrangler-api.toml" } }),
-          })
-        ]
-      }
-    } else if (includeModes("r2")) {
-      return {
-        ...config,
-        plugins: [
-          ...defaultPlugins,
-          devServer({
-            entry: 'src/api/r2.ts',
-            adapter: adapter({ proxy: { configPath: "wrangler-r2.toml" } }),
-          })
-        ]
-      }
-    } else {
-      return {
-        ...config,
-        ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
-        plugins: [
-          ...defaultPlugins,
-          pages(),
-          devServer({
-            entry: 'src/index.dev.tsx',
-            adapter,
-            exclude: [
-              // /.*\.css$/,
-              /.*\.ts$/,
-              /.*\.tsx$/,
-              /^\/@.+$/,
-              /\?t\=\d+$/,
-              /^\/favicon\.ico$/,
-              /^\/static\/.+/,
-              /^\/node_modules\/.*/,
-            ],
-          }),
-        ],
-      } as UserConfig;
+  } else if (includeModes("media")) {
+    return {
+      ...config,
+      plugins: [
+        ...defaultPlugins,
+        devServer({
+          entry: 'src/workers/media.ts',
+          adapter: adapter({ proxy: { configPath: "wrangler-media.toml", } }),
+        })
+      ]
     }
+  } else {
+    return {
+      ...config,
+      ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
+      plugins: [
+        ...defaultPlugins,
+        pages(),
+        devServer({
+          entry: 'src/index.dev.tsx',
+          adapter,
+          exclude: [
+            // /.*\.css$/,
+            /.*\.ts$/,
+            /.*\.tsx$/,
+            /^\/@.+$/,
+            /\?t\=\d+$/,
+            /^\/favicon\.ico$/,
+            /^\/static\/.+/,
+            /^\/node_modules\/.*/,
+          ],
+        }),
+      ],
+    } as UserConfig;
   }
 })

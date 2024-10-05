@@ -6,7 +6,7 @@ import { PromiseOrder } from "@/functions/arrayFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { getBasename } from "@/functions/doc/PathParse";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 
@@ -57,7 +57,7 @@ export class SiteLinkServerClass {
     return Select().catch(() => ThisObject.CreateTable({ db }).then(() => Select()));
   }
   apps() {
-    const app = new Hono<MeeBindings<MeeAPIEnv>>({
+    const app = new Hono<MeeBindings<MeeCommonEnv>>({
       strict: false,
     });
     const TableObject = this.object;

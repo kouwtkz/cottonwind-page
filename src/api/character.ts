@@ -5,7 +5,7 @@ import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { DBTableClass } from "./DBTableClass";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 

@@ -9,8 +9,11 @@ import { discordInviteMatch } from "./ServerContent";
 import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
 import { LoginCheckMiddleware } from "./admin";
+import { app_api } from "./api";
 
 export function ServerCommon(app: CommonHono) {
+  app.route("/workers", app_workers);
+  app.route("/api", app_api);
   app.use("/admin/*", LoginCheckMiddleware);
   app.get("/blog/rss.xml", async (c) => {
     const mediaOrigin = getMediaOrigin(c.env, c.req.url);
@@ -35,7 +38,6 @@ export function ServerCommon(app: CommonHono) {
     if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");
     else return c.text("401 Unauthorized", 401);
   });
-  app.route("/workers", app_workers);
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });

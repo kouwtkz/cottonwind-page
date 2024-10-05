@@ -10,7 +10,7 @@ import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 import { ServerFilesGetData } from "./file";
 import { SiteFavLinkServer, SiteLinkServer } from "./links";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 

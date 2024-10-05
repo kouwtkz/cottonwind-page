@@ -7,7 +7,7 @@ import { DBTableClass } from "./DBTableClass";
 import { parseBlob } from 'music-metadata';
 import { getName } from "@/functions/doc/PathParse";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 

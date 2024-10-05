@@ -1,4 +1,4 @@
-export async function scheduleTask(event: ScheduledController, env: MeeAPIEnv) {
+export async function scheduleTask(event: ScheduledController, env: MeeCommonEnv) {
 	switch (event.cron) {
 		case "0 19 * * *":
 			if (env.LIFE_CHECK_URL) {

@@ -23,7 +23,9 @@ export function getOriginFromAPI(env: SiteConfigEnv, origin: string) {
 }
 
 export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
-  if (env.ORIGIN === origin) {
+  if ((env.API_ORIGIN && !env.API_ORIGIN.match("://"))) {
+    return new URL(env.API_ORIGIN, origin).href;
+  } if (env.ORIGIN === origin) {
     return env.API_ORIGIN;
   } else if (env.PAGES_DEV_ORIGIN === origin) {
     return env.API_WORKERS_ORIGIN;

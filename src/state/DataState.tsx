@@ -149,7 +149,9 @@ export function DataState() {
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
     if (settedIsLogin && apiOrigin && allLoad) {
-      const Url = new URL(allDataSrc, apiOrigin);
+      const Url = new URL(
+        concatOriginUrl(apiOrigin || location.href, allDataSrc)
+      );
       const cache = SdsClass.getCacheOption(allLoad);
       function SetSearchParamsOption<T extends object>(
         dataObject: SdsClass<T>

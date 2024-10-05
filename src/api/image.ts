@@ -10,7 +10,7 @@ import {
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { DBTableClass } from "./DBTableClass";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 

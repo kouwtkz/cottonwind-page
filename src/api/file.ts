@@ -6,7 +6,7 @@ import { PromiseOrder } from "@/functions/arrayFunction";
 import { DBTableClass } from "./DBTableClass";
 import { getBasename } from "@/functions/doc/PathParse";
 
-export const app = new Hono<MeeBindings<MeeAPIEnv>>({
+export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 

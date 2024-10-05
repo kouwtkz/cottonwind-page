@@ -2,6 +2,7 @@ import { StorageDataClass } from "./StorageDataClass";
 import { corsFetch } from "../fetch";
 import { setPrefix, setSuffix } from "../stringFix";
 import { CreateState, CreateStateFunctionType } from "@/state/CreateState";
+import { concatOriginUrl } from "../originUrl";
 
 interface StorageDataStateClassProps<T> {
   src: string;
@@ -68,7 +69,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     apiOrigin,
     loadValue,
   }: storageFetchDataProps<T>) {
-    const Url = new URL(src, apiOrigin || location.href);
+    const Url = new URL(concatOriginUrl(apiOrigin || location.href, src));
     this.setSearchParamsOption({
       searchParams: Url.searchParams,
       loadValue: loadValue,
