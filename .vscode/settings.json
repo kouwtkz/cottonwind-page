@@ -13,7 +13,8 @@
     { "label": "deploy-sv", "task": "npm: deploy-sv" },
     { "label": "dev", "task": "npm: dev" },
     { "label": "dev-media", "task": "npm: dev-media" },
-    { "label": "dev-sv", "task": "npm: dev-sv" }
+    { "label": "dev-sv", "task": "dev: sv" },
+    { "label": "test-scheduled", "task": "test: scheduled" }
   ],
   // Explorer で非表示にするもの
   "files.exclude": {

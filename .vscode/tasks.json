@@ -59,9 +59,15 @@
       "command": "npm run init-db-schema",
       "label": "db:schema.sql"
     },
+		{
+      "type": "shell",
+			"label": "dev: sv",
+			"command": "npx wrangler dev --local -c wrangler-sv.toml --port 51732 --test-scheduled",
+			"group": "build"
+		},
     {
       "type": "shell",
-      "command": "curl http://localhost:51731/__scheduled?cron=${input:cron}",
+      "command": "curl http://localhost:51732/__scheduled?cron=${input:cron}",
       "label": "test: scheduled",
       "group": "test"
     }
@@ -101,6 +107,12 @@
         { "label": "毎時0分と30分", "value": "0,30+*+*+*+*" }
       ],
       "default": ""
+    },
+    {
+      "id": "day",
+      "type": "promptString",
+      "default": "7",
+      "description": "日数の指定(0で現在のもの以外を全削除)"
     }
   ]
 }

@@ -3,7 +3,6 @@
   "scripts": {
     "dev": "npx vite --host --port 51730",
     "dev-media": "npx vite --host --port 51731 --mode media",
-    "dev-sv": "npx wrangler dev --local -c wrangler-sv.toml --port 51732 --test-scheduled",
     "dev-ssl": "npx vite --host --port 51730 --mode=ssl",
     "dev-media-ssl": "npx vite --host --port 51731 --mode media-ssl",
     "build": "npx vite build --mode client-overwrite && npm run build-ssg && npm run build-worker",
