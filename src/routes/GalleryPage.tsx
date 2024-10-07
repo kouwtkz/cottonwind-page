@@ -1053,19 +1053,24 @@ export function GalleryCharactersSelect({
 }
 
 function GalleryItemRibbon({ image }: { image: ImageType }) {
+  const schedule =
+    image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
   const className = useMemo(() => {
     const list = ["ribbon"];
     if (image.draft) list.push("draft");
+    else if (schedule) list.push("schedule");
     else if (image.update) {
       if (image.new) list.push("new");
       else list.push("update");
     }
     return list.join(" ");
-  }, [image.update, image.new, image.draft]);
+  }, [image.update, image.new, image.draft, schedule]);
   return (
     <>
       {image.draft ? (
         <div className={className}>Draft</div>
+      ) : schedule ? (
+        <div className={className}>Schedule</div>
       ) : image.update ? (
         <div className={className}>{image.new ? "New!" : "Update"}</div>
       ) : null}

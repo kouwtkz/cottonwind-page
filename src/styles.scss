@@ -1899,6 +1899,9 @@ div.banner {
         &.draft {
           background-color: rgb(120, 131, 104);
         }
+        &.schedule {
+          background-color: rgb(89, 171, 128);
+        }
         @media (min-width: $tabletWidth) {
           font-size: 1em;
         }

@@ -59,6 +59,7 @@ export async function ServerImagesGetData(
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
+  if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   const src = searchParams.get("src");
@@ -77,19 +78,22 @@ app.patch("/send", async (c, next) => {
   const now = new Date();
   return Promise.all(
     data.map(async item => {
+      const nowString = now.toISOString();
+      now.setMilliseconds(now.getMilliseconds() + 1);
       let {
         id,
         rename,
         ...values
       } = item as imageUpdateJsonDataType;
-      const entry: MeeSqlEntryType<ImageDataType> = {
-        ...values,
-        lastmod: now.toISOString(),
-      };
-      now.setMilliseconds(now.getMilliseconds() + 1);
-      KeyValueConvertDBEntry(entry);
+      const entry: MeeSqlEntryType<ImageDataType> = values;
+      const value = (await TableObject.Select({ db, where: { id } }))[0];
+      entry.lastmod = await TableObject.getClassifyScheduleValue({
+        db,
+        now: nowString,
+        time: item.time,
+        existTime: value.time,
+      });
       if (rename) {
-        const value = (await TableObject.Select({ db, where: { id } }))[0];
         if (value) {
           entry.key = rename;
           async function renamePut(
@@ -113,6 +117,7 @@ app.patch("/send", async (c, next) => {
           await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
         }
       }
+      KeyValueConvertDBEntry(entry);
       await TableObject.Update({ db, entry, where: { id } });
     })
   ).then((results) => c.json(results));
@@ -171,8 +176,7 @@ app.post("/send", async (c, next) => {
     return TableObject.Select({ db, where });
   }
   const timeNum = Number(mtime);
-  const time = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
-  const timeString = time.toISOString();
+  const new_mtime = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
   if (!metaSize && file) {
     imageBuffer = await file.arrayBuffer();
     const arr = new Uint8Array(imageBuffer);
@@ -193,12 +197,14 @@ app.post("/send", async (c, next) => {
     await c.env.BUCKET.delete(value.thumbnail);
     pathes.thumbnail = null;
   }
+  const timeString = new_mtime.toISOString();
   if (value) {
     if (images.src?.path && value.src && (images.src.path !== value.src)) {
       await c.env.BUCKET.delete(value.src);
     }
     const updateTags = JoinUnique(value.tags, tags);
     const updateCharacters = JoinUnique(value.characters, characters);
+    const nowString = new Date().toISOString();
     const entry: MeeSqlEntryType<ImageDataType> = {
       name,
       album: album && (albumOverwrite || !value.album) ? album : (value.album ? undefined : "uploads"),
@@ -208,7 +214,7 @@ app.post("/send", async (c, next) => {
       characters: updateCharacters,
       time: value.time ? undefined : timeString,
       mtime: timeString,
-      lastmod: new Date().toISOString(),
+      lastmod: value.time && value.time > nowString ? undefined : nowString,
       version: (value.version ?? 0) + 1,
     };
     await TableObject.Update({ db, where: { key: name }, entry });

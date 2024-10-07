@@ -37,6 +37,7 @@ interface ImageType extends ImageDataType {
   lastmod?: Date;
   update?: boolean;
   new?: boolean;
+  schedule?: boolean;
 }
 /** @comments ひとつのアルバムの変数 */
 interface ImageAlbumType {

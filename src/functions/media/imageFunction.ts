@@ -29,6 +29,7 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
 
 export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAlbumType>): ImageType {
   const albumObject = data.album && albumsMap ? albumsMap.get(data.album) : undefined;
+  const lastmod = data.lastmod ? new Date(data.lastmod) : undefined;
   return {
     ...data,
     type: data.type ? data.type : AutoImageItemType(data.embed, albumObject?.type),
@@ -42,9 +43,10 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
       typeof data.draft === "number" ? Boolean(data.draft) : undefined,
     time: data.time ? new Date(data.time) : undefined,
     mtime: data.mtime ? new Date(data.mtime) : undefined,
-    lastmod: data.lastmod ? new Date(data.lastmod) : undefined,
+    lastmod,
     update: undefined,
     new: undefined,
+    schedule: lastmod && lastmod.getTime() > Date.now(),
   };
 }
 
