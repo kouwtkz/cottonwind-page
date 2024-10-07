@@ -75,8 +75,11 @@ app.post("/send", async (c, next) => {
   } else if (target?.time) {
     if (target.time <= now) entry.lastmod = now;
   } else entry.lastmod = now;
+  if (typeof entry.lastmod === "string") {
+    entry.lastmod = await TableObject.addTimeFieldLatest({ db, value: entry.lastmod });
+  }
   if (target) {
-    await TableObject.Update({ db, entry, where: { postId: update }, viewSql: true });
+    await TableObject.Update({ db, entry, where: { postId: update } });
     return c.json({ ...target, ...entry, }, 200);
   } else {
     if (!entry.postId) entry.postId = autoPostId();
