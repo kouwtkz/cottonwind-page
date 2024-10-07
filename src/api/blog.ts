@@ -68,16 +68,11 @@ app.post("/send", async (c, next) => {
   const target = update
     ? (await TableObject.Select({ db, where: { postId: update }, take: 1 }))[0]
     : undefined;
-  const now = new Date().toISOString();
-  if (data.time) {
-    if (data.time > now) entry.lastmod = data.time;
-    else entry.lastmod = now;
-  } else if (target?.time) {
-    if (target.time <= now) entry.lastmod = now;
-  } else entry.lastmod = now;
-  if (typeof entry.lastmod === "string") {
-    entry.lastmod = await TableObject.addTimeFieldLatest({ db, value: entry.lastmod });
-  }
+  entry.lastmod = await TableObject.getClassifyScheduleValue({
+    db,
+    time: data.time,
+    existTime: target?.time,
+  });
   if (target) {
     await TableObject.Update({ db, entry, where: { postId: update } });
     return c.json({ ...target, ...entry, }, 200);

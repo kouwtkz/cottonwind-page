@@ -58,13 +58,26 @@ export class DBTableClass<T extends Object = any> {
       ...args
     }))[0] as T | undefined;
   }
-  async addTimeFieldLatest<D extends MeeSqlClass<unknown>>({ field = "lastmod", value, ...args }: getTimeFieldLatestProps<T, D>) {
+  async getTimeFieldLatestAddTime<D extends MeeSqlClass<unknown>>({ field = "lastmod", value, ...args }: getTimeFieldLatestProps<T, D>) {
     const latest: any = await this.getTimeFieldLatest({ field, value, ...args });
     if (latest && latest[field]) {
       const latestLastmod = new Date(latest[field]);
       latestLastmod.setMilliseconds(latestLastmod.getMilliseconds() + 1);
       return latestLastmod.toISOString();
     } else return value;
+  }
+  async getClassifyScheduleValue<D extends MeeSqlClass<unknown>>({
+    now = new Date().toISOString(), value, time, existTime, field = "lastmod", ...args
+  }: classifyScheduleEntryProps<T, D>) {
+    if (time) {
+      if (time > now) value = time;
+      else value = now;
+    } else if (existTime) {
+      if (existTime <= now) value = now;
+    } else value = now;
+    if (typeof value === "string") {
+      return await this.getTimeFieldLatestAddTime({ ...args, value, field });
+    } else return;
   }
   get getFillNullEntry() {
     return MeeSqlClass.fillNullEntry(this.createEntry);
@@ -87,7 +100,14 @@ interface getInsertEntryOptionsProps<T> {
 }
 
 interface getTimeFieldLatestProps<T, D> extends Omit<MeeSqlSelectProps<T>, "table" | "take" | "where" | "orderBy"> {
-  db: D,
-  field?: string,
-  value: string
+  db: D;
+  field?: string;
+  value: string;
+}
+
+interface classifyScheduleEntryProps<T, D> extends Omit<getTimeFieldLatestProps<T, D>, "value"> {
+  now?: string;
+  value?: unknown;
+  time?: string | null;
+  existTime?: string | null;
 }
