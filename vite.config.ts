@@ -1,13 +1,24 @@
 import pages from '@hono/vite-cloudflare-pages';
 import devServer from '@hono/vite-dev-server';
 import adapter from '@hono/vite-dev-server/cloudflare';
-import { PluginOption, UserConfig, defineConfig } from 'vite';
+import { BuildOptions, PluginOption, UserConfig, defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
 import { getPlatformProxy } from 'wrangler';
 import buildMeeSSG_Plugins from './buildMeeSSG_Plugins';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+
+const defaultBuild: BuildOptions = {
+  outDir: "dist",
+  emptyOutDir: false,
+  copyPublicDir: false,
+};
+const publicDirBuild: BuildOptions = {
+  outDir: "public",
+  emptyOutDir: false,
+  copyPublicDir: false,
+}
 
 export default defineConfig(async ({ mode }) => {
   let defaultPlugins: PluginOption[] = [tsconfigPaths()];
@@ -31,6 +42,7 @@ export default defineConfig(async ({ mode }) => {
       ...config,
       plugins: defaultPlugins,
       build: {
+        ...defaultBuild,
         emptyOutDir: modes[1] === "overwrite",
         rollupOptions: {
           input: [
@@ -70,6 +82,11 @@ export default defineConfig(async ({ mode }) => {
     const entry = "src/ssg.tsx";
     return {
       ...config,
+      build: {
+        ...defaultBuild,
+        emptyOutDir: modes[1] === "overwrite",
+        copyPublicDir: true,
+      },
       plugins: [
         ...defaultPlugins,
         buildMeeSSG_Plugins({ entry, adapter: { env, onServerClose: dispose } }),
@@ -80,9 +97,6 @@ export default defineConfig(async ({ mode }) => {
           exclude: ["/404", "/500", "/suggest"]
         }),
       ],
-      build: {
-        emptyOutDir: modes[1] === "overwrite"
-      }
     } as UserConfig;
   } else if (includeModes("media")) {
     return {
@@ -98,6 +112,7 @@ export default defineConfig(async ({ mode }) => {
   } else {
     return {
       ...config,
+      build: defaultBuild,
       ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
       plugins: [
         ...defaultPlugins,
