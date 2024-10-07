@@ -33,7 +33,7 @@ export const charactersDataObject = new SdsClass<CharacterDataType>({
 export const postsDataObject = new SdsClass<PostDataType>({
   key: "posts",
   src: "/data/posts",
-  version: "1.3.1",
+  version: "1.4.0",
   preLoad: false,
   latestField: { time: "desc" },
 });

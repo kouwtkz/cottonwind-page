@@ -12,6 +12,7 @@ interface StorageDataStateClassProps<T> {
   isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };
   lastmodField?: string;
+  scheduleEnable?: boolean;
 }
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
@@ -24,6 +25,7 @@ export class StorageDataStateClass<T extends Object = {}> {
   latest?: T;
   lastmodField: string;
   beforeLastmod?: Date;
+  scheduleEnable: boolean;
   private _isLogin?: boolean;
   get isLogin() {
     return this._isLogin;
@@ -43,6 +45,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     isLogin,
     latestField,
     lastmodField = "lastmod",
+    scheduleEnable = true
   }: StorageDataStateClassProps<T>) {
     this.version = version;
     this.key = key;
@@ -51,6 +54,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     this.useLoad = CreateState(preLoad);
     this.latestField = latestField as { [k in keyof T]: OrderByType };
     this.lastmodField = lastmodField;
+    this.scheduleEnable = scheduleEnable;
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
   setSearchParamsOption({
@@ -116,10 +120,12 @@ export class StorageDataStateClass<T extends Object = {}> {
       });
       data = [...sData];
     }
+    const now = new Date().toISOString();
     this.storage.setItem(
       data,
       data.reduce((a, c) => {
         const cm = ((c as any)[lastmod] || "") as string;
+        if (now < cm && this.scheduleEnable) return a;
         return a > cm ? a : cm;
       }, "")
     );

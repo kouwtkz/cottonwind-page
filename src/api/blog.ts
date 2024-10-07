@@ -24,12 +24,11 @@ const TableObject = new DBTableClass<PostDataType>({
     pin: { type: "INTEGER" },
     noindex: { type: "INTEGER" },
     draft: { type: "INTEGER" },
-    schedule: { type: "INTEGER" },
     memo: { type: "INTEGER" },
     time: { createAt: true, index: true },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["postId", "title", "body", "category", "pin", "draft", "schedule", "noindex", "memo"],
+  insertEntryKeys: ["postId", "title", "body", "category", "pin", "draft", "noindex", "memo"],
   insertEntryTimes: ["time", "lastmod"]
 });
 
@@ -37,6 +36,7 @@ export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeS
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
+  if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   const postId = searchParams.get("postId");
@@ -65,13 +65,18 @@ app.post("/send", async (c, next) => {
   const { id, postId, update, ...data } = await c.req.json() as PostFormType;
   const entry = TableObject.getInsertEntry(data);
   if (postId !== update) entry.postId = postId;
-  entry.lastmod = new Date().toISOString()
   const target = update
     ? (await TableObject.Select({ db, where: { postId: update }, take: 1 }))[0]
     : undefined;
+  const now = new Date().toISOString();
+  if (data.time) {
+    if (data.time > now) entry.lastmod = data.time;
+    else entry.lastmod = now;
+  } else if (target?.time) {
+    if (target.time <= now) entry.lastmod = now;
+  } else entry.lastmod = now;
   if (target) {
     await TableObject.Update({ db, entry, where: { postId: update }, viewSql: true });
-    ;
     return c.json({ ...target, ...entry, }, 200);
   } else {
     if (!entry.postId) entry.postId = autoPostId();

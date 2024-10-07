@@ -7,7 +7,6 @@ interface PostDataType {
   pin?: number;
   noindex?: number;
   draft?: number;
-  schedule?: number;
   memo?: string | null;
   time?: string;
   lastmod?: string;
@@ -23,7 +22,7 @@ interface PostType extends PostDataType {
   lastmod?: Date,
 }
 
-interface PostFormType extends Omit<PostType, "time" | "lastmod"> {
+interface PostFormType extends Omit<PostType, "time" | "lastmod" | "schedule"> {
   time?: string;
   postId?: string;
   update: string;
