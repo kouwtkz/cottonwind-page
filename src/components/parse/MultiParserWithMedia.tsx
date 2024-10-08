@@ -6,11 +6,8 @@ import {
   MultiParserProps,
   MultiParserReplaceProps,
 } from "./MultiParser";
-import {
-  ChildNode,
-  Element as NodeElement,
-  Text as NodeText,
-} from "domhandler";
+import { Element as NodeElement } from "domhandler";
+import { concatOriginUrl } from "@/functions/originUrl";
 
 interface MultiParserWithMediaProps
   extends Omit<MultiParserProps, "replaceFunctions"> {}
@@ -21,7 +18,11 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   function MultiParserReplaceImages({ linkPush, n }: MultiParserReplaceProps) {
     if (images && linkPush && n.type === "tag" && n.name === "img") {
       let src = n.attribs.src;
-      let Url = new URL(src, location.href);
+      const Url = new URL(location.href);
+      const srcSearchParams = new URLSearchParams(src);
+      srcSearchParams.forEach((v, k) => {
+        Url.searchParams.append(k, v);
+      });
       let pagenameFlag =
         location.host === Url.host && location.pathname === Url.pathname;
       if (pagenameFlag && !/^\w+:\/\//.test(src)) {
@@ -35,14 +36,14 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
             : null;
           if (imageItem) {
             const src = imageItem.src;
-            n.attribs.src = src ? mediaOrigin + src : "";
+            n.attribs.src = src ? concatOriginUrl(mediaOrigin, src) : "";
             n.attribs.title = n.attribs.alt || imageItem.name || "";
             n.attribs.alt = n.attribs.title;
             Url.searchParams.delete("pic");
             Url.searchParams.set("image", imageItem.key);
           }
         }
-        return new NodeElement("a", { href: Url.href }, [n]);
+        return new NodeElement("a", { href: Url.search }, [n]);
       }
     }
     return n;

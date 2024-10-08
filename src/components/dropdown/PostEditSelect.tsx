@@ -1,6 +1,9 @@
 import { HTMLAttributes, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
-import { useEnv } from "@/state/EnvState";
+import { useApiOrigin, useEnv } from "@/state/EnvState";
+import { fileDialog } from "../FileTool";
+import { ImagesUploadWithToast } from "@/routes/edit/ImageEditForm";
+import { imageDataObject } from "@/state/DataState";
 
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
@@ -226,8 +229,7 @@ export function setColorChange({
 }
 
 interface PostEditSelectMediaProps extends PostEditSelectProps {
-  enableAttatch?: boolean;
-  inputAttached?: HTMLInputElement | null;
+  album?: string;
 }
 
 export function PostEditSelectMedia({
@@ -236,11 +238,12 @@ export function PostEditSelectMedia({
   MenuButton = "メディア",
   MenuButtonTitle = "メディア",
   MenuButtonClassName,
-  enableAttatch = false,
-  inputAttached,
+  album,
   autoClose,
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
+  const apiOrigin = useApiOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
   return (
     <DropdownObject
       className={className}
@@ -251,44 +254,71 @@ export function PostEditSelectMedia({
       onClick={(e) => {
         setMedia({
           value: e.dataset.value ?? "",
-          inputAttached,
           textarea,
           env,
+          apiOrigin,
+          album,
+          setImagesLoad,
         });
       }}
     >
       <MenuItem value="link">リンク</MenuItem>
       <MenuItem value="gallery">ギャラリー</MenuItem>
-      {enableAttatch ? <MenuItem value="attached">添付</MenuItem> : null}
-      <MenuItem value="upload">アップロード</MenuItem>
+      {album ? <MenuItem value="upload">アップロード</MenuItem> : null}
+      <MenuItem value="external">外部アップロード</MenuItem>
     </DropdownObject>
   );
 }
 
 interface setMediaProps extends PostEditSelectBaseProps {
   value: string;
-  inputAttached?: HTMLInputElement | null;
+  apiOrigin?: string;
   env?: SiteConfigEnv;
+  album?: string;
+  setImagesLoad: (args: LoadStateType) => void;
 }
 export function setMedia({
   value,
-  inputAttached,
+  apiOrigin,
   textarea,
   env,
+  album,
+  setImagesLoad,
 }: setMediaProps) {
-  if (!value || !textarea) return;
+  if (!value || !textarea || !apiOrigin) return;
   switch (value) {
-    case "attached":
-      if (inputAttached) {
-        if (inputAttached.style.display === "none") inputAttached.value = "";
-        inputAttached.click();
-      }
-      break;
     case "upload":
+      fileDialog("image/*", true)
+        .then((files) => Array.from(files))
+        .then((files) =>
+          ImagesUploadWithToast({
+            src: files,
+            apiOrigin,
+            album,
+            notDraft: true,
+          })
+        )
+        .then((list) => {
+          setImagesLoad("no-cache");
+          return list
+            ?.map((r) => r.data as ImageDataType)
+            .filter((data) => data);
+        })
+        .then((list) => {
+          list?.forEach((data) => {
+            replacePostTextarea({
+              textarea,
+              before: `\n![${data.name}](?image=${data.key})\n`,
+              after: "",
+            });
+          });
+        });
+      break;
+    case "external":
       if (env?.UPLOAD_BRACKET)
         replacePostTextarea({ textarea, before: "![](", after: ")" });
       else textarea.focus();
-      window.open(env?.UPLOAD_SERVICE, "upload");
+      window.open(env?.UPLOAD_SERVICE, "uploadExternal");
       break;
     case "gallery":
       window.open("/gallery/", "gallery", "width=620px,height=720px");

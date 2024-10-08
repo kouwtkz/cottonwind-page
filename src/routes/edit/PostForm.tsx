@@ -468,7 +468,7 @@ export function PostForm() {
           />
         </div>
         <div className="modifier">
-          <PostEditSelectMedia textarea={textareaRef.current} />
+          <PostEditSelectMedia textarea={textareaRef.current} album="blog" />
           <PostEditSelectDecoration textarea={textareaRef.current} />
           <PostEditSelectInsert textarea={textareaRef.current} />
           <DropdownObject
@@ -512,23 +512,6 @@ export function PostForm() {
           id="post_body_area"
           placeholder="今何してる？"
           className="body"
-        />
-        <input
-          {...SetRegister({
-            name: "attached",
-            onChange: () =>
-              setAttached({
-                inputAttached: AttachedRef.current,
-                textarea: textareaRef.current,
-              }),
-            ref: AttachedRef,
-            register,
-          })}
-          type="file"
-          accept="image/*"
-          placeholder="画像選択"
-          multiple
-          style={{ display: "none" }}
         />
         <div className="action">
           <button
@@ -577,25 +560,4 @@ export function setCategory({
     }
   }
   selectCategory.dataset.before = selectCategory.value;
-}
-
-function setAttached({
-  inputAttached,
-  textarea,
-}: {
-  inputAttached: HTMLInputElement | null;
-  textarea: HTMLTextAreaElement | null;
-}) {
-  if (!inputAttached || !textarea) return;
-  const files = inputAttached.files || [];
-  Array.from(files).forEach((file) => {
-    const filename = file.name;
-    const uploadname = filename.replaceAll(" ", "_");
-    if (!textarea.value.match(uploadname)) {
-      const value = `\n![](?image=${uploadname}&pic)`;
-      textarea.setRangeText(value);
-      textarea.focus();
-    }
-  });
-  inputAttached.style.display = files.length === 0 ? "none" : "";
 }
