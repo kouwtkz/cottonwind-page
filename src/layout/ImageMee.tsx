@@ -218,36 +218,6 @@ export function ImageMeeThumbnail({ size, ...args }: ImageMeeSimpleProps) {
   return <ImageMee {...args} mode="thumbnail" />;
 }
 
-interface GetImageItemFromSrcProps {
-  src: string | UrlObject | URL;
-  list: ImageType[];
-}
-export function GetImageItemFromSrc({ src, list }: GetImageItemFromSrcProps) {
-  const Url = ToURL(src);
-  const { host: hostFlag, pathname: pagenameFlag } = GetUrlFlag(Url);
-  if (pagenameFlag) {
-    const toSearch = Object.fromEntries(Url.searchParams);
-    if ("image" in toSearch) {
-      if (toSearch.album)
-        list = list.filter((item) => item.albumObject?.name === toSearch.album);
-      return list.find(({ name }) => name?.startsWith(toSearch.image));
-    } else return null;
-  } else if (hostFlag) {
-    const _pathname = decodeURI(Url.pathname);
-    return list.find((image) => image.src?.match(_pathname));
-  } else return null;
-}
-
-export function GetImageURLFromSrc({ src, list }: GetImageItemFromSrcProps) {
-  const Url = ToURL(src);
-  const { pathname: pagenameFlag } = GetUrlFlag(Url);
-  const url = Url.href;
-  const imageItem = GetImageItemFromSrc({ src: url, list });
-  if (imageItem) return imageItem.src;
-  if (pagenameFlag) return "";
-  else return url;
-}
-
 interface ImgSwitchProps
   extends React.DetailedHTMLProps<
     React.ImgHTMLAttributes<HTMLImageElement>,
