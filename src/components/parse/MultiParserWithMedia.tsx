@@ -43,7 +43,9 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
             Url.searchParams.set("image", imageItem.key);
           }
         }
-        return new NodeElement("a", { href: Url.search }, [n]);
+        return new NodeElement("a", { href: Url.search, "prevent-scroll-reset": "" }, [
+          n,
+        ]);
       }
     }
     return n;

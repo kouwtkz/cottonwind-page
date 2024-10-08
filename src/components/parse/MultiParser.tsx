@@ -120,7 +120,7 @@ export function MultiParser({
                           (linkSame && window.scrollY > 0)
                         ) {
                           nav(Url.pathname + Url.search + Url.hash, {
-                            preventScrollReset: Boolean(Url.hash),
+                            preventScrollReset: Boolean(Url.hash || "prevent-scroll-reset" in v.attribs),
                           });
                         }
                         e.preventDefault();
