@@ -16,14 +16,14 @@ export default function PostState() {
       const postsMap = new Map<string, PostType>();
       postsData.forEach((v) => {
         if (!v.body) return;
+        const lastmod = v.lastmod ? new Date(v.lastmod) : undefined;
         const item: PostType = {
           ...v,
           category: v.category ? v.category.split(",") : [],
           draft: typeof v.draft === "number" ? Boolean(v.draft) : undefined,
           noindex:
             typeof v.noindex === "number" ? Boolean(v.noindex) : undefined,
-          schedule:
-            typeof v.schedule === "number" ? Boolean(v.schedule) : undefined,
+          schedule: lastmod && lastmod.getTime() > Date.now(),
           time: v.time ? new Date(v.time) : undefined,
           lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
         };

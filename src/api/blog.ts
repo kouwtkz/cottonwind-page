@@ -52,7 +52,7 @@ export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
   return await TableObject.Select({
     db,
     where: {
-      OR: [{ draft: null }, { draft: 0 }, { schedule: null }, { schedule: 0 }],
+      OR: [{ draft: null }, { draft: 0 }],
       lastmod: { lte: new Date().toISOString() }
     },
     take,
