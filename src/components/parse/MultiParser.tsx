@@ -114,7 +114,6 @@ export function MultiParser({
                       v.attribs.onClick = ((e: any) => {
                         const baseHref = location.href;
                         const Url = new URL(url, baseHref);
-                        if (Url.search) Url.searchParams.delete("p");
                         if (
                           Url.href !== baseHref ||
                           (linkSame && window.scrollY > 0)
