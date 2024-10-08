@@ -65,20 +65,20 @@ export function DropdownObject({
   useEffect(() => {
     if (!_menuFocus) setIsOpen(false);
   }, [_menuFocus]);
-  const _className = useMemo(() => {
+  className = useMemo(() => {
     const list = [className ?? "dropdown"];
     if (addClassName) list.push(addClassName);
     return list.join(" ");
   }, [className, addClassName]);
-  const _listClassName = useMemo(() => {
-    const list = ["list"];
+  listClassName = useMemo(() => {
+    const list = ["listMenu"];
     if (listClassName) list.push(listClassName);
     return list.join(" ");
   }, [listClassName]);
-  
+
   return (
     <div
-      className={_className}
+      className={className}
       style={style}
       tabIndex={-1}
       onFocus={() => {
@@ -88,7 +88,7 @@ export function DropdownObject({
         setMenuFocus(false);
       }}
     >
-      <div className="menu">
+      <div className="menu list">
         {typeof MenuButton === "function" ? (
           <MenuButton
             tabIndex={0}
@@ -109,10 +109,10 @@ export function DropdownObject({
             {isOpen ? MenuButtonWhenOpen ?? MenuButton : MenuButton}
           </button>
         )}
-        {MenuButtonAfter ? <div>{MenuButtonAfter}</div> : null}
+        {MenuButtonAfter ? <div className="list">{MenuButtonAfter}</div> : null}
       </div>
       <div
-        className={_listClassName}
+        className={listClassName}
         hidden={!isOpen}
         onClick={(e) => {
           if (onClick) onClick(e.target as HTMLElement);

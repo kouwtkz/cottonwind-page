@@ -2,14 +2,7 @@ import { usePosts } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { findMee } from "@/functions/find/findMee";
 import { useLocalDraftPost } from "@/routes/edit/PostForm";
-import {
-  HTMLAttributes,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { HTMLAttributes, useCallback, useEffect, useMemo, useRef } from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
@@ -21,6 +14,8 @@ import { TfiWrite } from "react-icons/tfi";
 import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
 import { PiHandsClapping } from "react-icons/pi";
 import { getPosts } from "@/functions/blogFunction";
+import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
+import { MdOutlineImage } from "react-icons/md";
 
 export function BlogPage({
   blogEnable,
@@ -299,21 +294,41 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
   );
 }
 
+const ImageManageButtonSearch = new URLSearchParams({
+  q: "album:blog",
+}).toString();
+function ImageManageButton() {
+  return (
+    <Link
+      className="button color round"
+      title="ブログの画像の編集"
+      to={{ pathname: "/admin/images", search: ImageManageButtonSearch }}
+    >
+      <MdOutlineImage />
+    </Link>
+  );
+}
+
 type FixedProps = { max?: number };
 export function PostsPageFixed({ max }: FixedProps) {
   const isLogin = useIsLogin()[0];
   return (
-    <Suspense>
-      <div className="fixed rightBottom">
-        <div className="list">
-          <PagingArea max={max} />
-          <div className="list">
-            <SearchArea />
-            {isLogin ? <PostButton /> : <HandsClapButton />}
-          </div>
-        </div>
+    <RbButtonArea
+      className="blog"
+      dropdown={
+        isLogin ? (
+          <>
+            <ImageManageButton />
+          </>
+        ) : null
+      }
+    >
+      <PagingArea className="list" max={max} />
+      <div className="list">
+        <SearchArea />
+        {isLogin ? <PostButton /> : <HandsClapButton />}
       </div>
-    </Suspense>
+    </RbButtonArea>
   );
 }
 
@@ -321,21 +336,20 @@ type PostDetailFixedProps = { postId: string; posts: PostType[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
   const isLogin = useIsLogin()[0];
   return (
-    <Suspense>
-      <div className="fixed rightBottom">
-        <div className="list">
-          <div className="list">
-            <BackForwardPost {...args} />
-            <SearchArea />
-            {isLogin ? (
-              <PostButton postId={args.postId} />
-            ) : (
-              <HandsClapButton />
-            )}
-          </div>
-        </div>
-      </div>
-    </Suspense>
+    <RbButtonArea
+      className="blog"
+      dropdown={
+        isLogin ? (
+          <>
+            <ImageManageButton />
+          </>
+        ) : null
+      }
+    >
+      <BackForwardPost className="list" {...args} />
+      <SearchArea />
+      {isLogin ? <PostButton postId={args.postId} /> : <HandsClapButton />}
+    </RbButtonArea>
   );
 }
 
@@ -350,8 +364,12 @@ export function BackForwardPost({
   className,
   ...args
 }: BackForwardPostProps) {
+  className = useMemo(() => {
+    const classes = ["paging"];
+    if (className) classes.push(className);
+    return classes.join(" ");
+  }, [className]);
   const nav = useNavigate();
-  className = className ? ` ${className}` : "";
   const postIndex = posts.findIndex((post) => post.postId === postId);
   const beforePost = posts[postIndex - 1];
   const afterPost = posts[postIndex + 1];
@@ -361,7 +379,7 @@ export function BackForwardPost({
   // const before;
 
   return (
-    <div {...args} className={"paging" + className}>
+    <div {...args} className={className}>
       <button
         type="button"
         className="color round"
@@ -398,7 +416,11 @@ export function PostButton({ postId, className, ...args }: PostButtonProps) {
   const link = `/blog/post${postId ? `?target=${postId}` : ""}`;
   useHotkeys("n", () => nav(link));
   return (
-    <button {...args} className={"round color" + className} onClick={() => nav(link)}>
+    <button
+      {...args}
+      className={"round color" + className}
+      onClick={() => nav(link)}
+    >
       {postId ? <TfiWrite className="svg" /> : <AiFillEdit className="svg" />}
     </button>
   );
@@ -409,7 +431,11 @@ interface PagingAreaProps extends HTMLAttributes<HTMLFormElement> {
 }
 
 export function PagingArea({ max, className, ...args }: PagingAreaProps) {
-  className = className ? ` ${className}` : "";
+  className = useMemo(() => {
+    const classes = ["paging"];
+    if (className) classes.push(className);
+    return classes.join(" ");
+  }, [className]);
   const _min = 1;
   const _max = max || 1;
   const pagingInputRef = useRef<HTMLInputElement>(null);
@@ -451,12 +477,7 @@ export function PagingArea({ max, className, ...args }: PagingAreaProps) {
   };
 
   return (
-    <form
-      {...args}
-      ref={FormRef}
-      className={"paging" + className}
-      onSubmit={submit}
-    >
+    <form {...args} ref={FormRef} className={className} onSubmit={submit}>
       <button
         type="button"
         title="前のページ"
@@ -511,6 +532,11 @@ export function HandsClapButton({
   className,
   ...args
 }: HandsClapButtonProps) {
+  className = useMemo(() => {
+    const classes = ["button round color"];
+    if (className) classes.push(className);
+    return classes.join(" ");
+  }, [className]);
   className = className ? ` ${className}` : "";
   const [env] = useEnv();
   return env?.WAVEBOX ? (
@@ -518,7 +544,7 @@ export function HandsClapButton({
       {...args}
       to={env.WAVEBOX}
       title="拍手ボタン"
-      className={"button round" + className}
+      className={className}
       target="_blank"
     >
       <PiHandsClapping className="svg" />

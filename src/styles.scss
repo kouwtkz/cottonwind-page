@@ -570,66 +570,6 @@ html.loading {
   }
 }
 
-.fixed {
-  position: fixed;
-  z-index: 30;
-  &.rightBottom {
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    input {
-      font-size: 1rem;
-    }
-    > * {
-      &:not(.list) {
-        pointer-events: auto;
-      }
-      &.list {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        margin: 0.5rem;
-        margin-left: 10rem;
-        > * {
-          &:not(.list) {
-            pointer-events: auto;
-          }
-          &.list {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            > * {
-              pointer-events: auto;
-            }
-          }
-        }
-      }
-    }
-    .paging {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin: 0;
-      input {
-        margin: 1rem 0.25rem;
-        width: 3.5rem;
-        padding: 0.25rem 0.5rem;
-      }
-      button {
-        width: 2.25rem;
-        height: 2.25rem;
-      }
-    }
-    .search {
-      margin: 1rem 0.5rem;
-      input {
-        width: 10rem;
-        padding: 0.25rem 0.5rem;
-      }
-    }
-  }
-}
-
 %a-line-none {
   a {
     text-decoration-line: none;
@@ -880,15 +820,48 @@ h4 {
   right: 0;
   bottom: 0;
   z-index: 50;
-  display: flex;
-  align-items: flex-end;
+  margin: 0.25rem 0.25rem 0.25rem 10rem;
+  pointer-events: none;
+  > * {
+    pointer-events: auto;
+  }
+  &,
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
   &.z30 {
     z-index: 30;
   }
   button.round,
   .button.round {
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin: 0.25rem;
+  }
+  input {
+    font-size: 1rem;
+  }
+  &.blog {
+    input {
+      margin: 0.5rem;
+    }
+    .paging {
+      input {
+        width: 3.5rem;
+        padding: 0.25rem 0.5rem;
+      }
+      button {
+        width: 2.25rem;
+        height: 2.25rem;
+      }
+    }
+    .search {
+      input {
+        width: 10rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
   }
 }
 
@@ -898,7 +871,7 @@ h4 {
   > .button {
     padding: 0.25em 0.5em;
   }
-  .list {
+  .listMenu {
     position: absolute;
     z-index: 100;
     text-align: left;
@@ -909,10 +882,6 @@ h4 {
     }
     &:not(.right) {
       left: 0;
-    }
-    :focus {
-      outline: none;
-      background-color: var(--main-color);
     }
     .item,
     [tabindex] {
@@ -925,6 +894,10 @@ h4 {
       }
     }
   }
+  button:focus {
+    outline: none;
+    background-color: var(--main-color);
+  }
   .menu > * {
     display: flex;
   }
@@ -934,7 +907,7 @@ h4 {
     :not(div) {
       pointer-events: all;
     }
-    .list {
+    .listMenu {
       position: inherit;
     }
     &.on {
@@ -948,10 +921,11 @@ h4 {
         display: flex;
       }
       &.right .menu {
+        justify-content: flex-start;
         flex-direction: row-reverse;
       }
     }
-    &.transparent .list {
+    &.transparent .listMenu {
       background-color: transparent;
     }
   }
@@ -1189,7 +1163,7 @@ header {
         outline: none;
       }
     }
-    .list {
+    .listMenu {
       margin-top: 0.125rem;
       background-color: rgba(255, 255, 255, 0.9);
       display: flex;

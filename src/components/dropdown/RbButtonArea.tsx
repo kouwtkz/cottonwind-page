@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { DropdownObject } from "./DropdownMenu";
 import { MdOutlineMenu, MdOutlineMenuOpen } from "react-icons/md";
 
@@ -11,10 +11,16 @@ export function RbButtonArea({
   children,
   zIndex = 30,
   style,
+  className,
   ...props
 }: RbButtonAreaProps) {
+  className = useMemo(() => {
+    const classes = ["rbButtonArea"];
+    if (className) classes.push(className);
+    return classes.join(" ");
+  }, [className]);
   return (
-    <div className="rbButtonArea" style={{ zIndex, ...style }} {...props}>
+    <div className={className} style={{ zIndex, ...style }} {...props}>
       {dropdown ? (
         <DropdownObject
           addClassName="flex on right row transparent"
