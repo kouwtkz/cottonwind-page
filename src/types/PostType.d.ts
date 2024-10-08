@@ -1,6 +1,6 @@
 interface PostDataType {
   id: number;
-  postId: string;
+  postId?: string;
   title?: string;
   body?: string;
   category?: string;
@@ -22,10 +22,12 @@ interface PostType extends PostDataType {
   lastmod?: Date,
 }
 
-interface PostFormType extends Omit<PostType, "time" | "lastmod" | "schedule"> {
+interface PostFormDraftType extends PostType {
+  update?: string;
+};
+
+interface PostFormType extends Omit<PostFormDraftType, "time" | "lastmod" | "schedule"> {
   time?: string;
-  postId?: string;
-  update: string;
 };
 
 type OldPostType = {

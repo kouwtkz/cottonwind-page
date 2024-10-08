@@ -157,6 +157,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       const url = new URL("/blog/post", location.href);
       if (post?.postId) url.searchParams.set("target", post.postId);
       if (post?.localDraft) state.draft = true;
+      state.backUrl = location.href;
       return (
         <Link
           className={className ? String(className) : undefined}

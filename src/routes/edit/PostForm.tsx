@@ -33,7 +33,7 @@ import {
   postsDataObject,
 } from "@/state/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { corsFetch, corsFetchJSON } from "@/functions/fetch";
+import { corsFetchJSON } from "@/functions/fetch";
 import {
   dateJISOfromDate,
   dateISOfromLocaltime,
@@ -43,15 +43,15 @@ import { SendDelete } from "@/functions/sendFunction";
 const backupStorageKey = "backupPostDraft";
 
 export const useLocalDraftPost = create<{
-  localDraft: PostType | null;
-  setLocalDraft: (post: FieldValues | PostType | null) => void;
-  getLocalDraft: () => PostType | null;
+  localDraft: PostFormDraftType | null;
+  setLocalDraft: (post: FieldValues | PostFormDraftType | null) => void;
+  getLocalDraft: () => PostFormDraftType | null;
   removeLocalDraft: () => void;
 }>((set) => ({
   localDraft: null,
   setLocalDraft(post) {
     localStorage.setItem(backupStorageKey, JSON.stringify(post));
-    set({ localDraft: post as PostType | null });
+    set({ localDraft: post as PostFormDraftType | null });
   },
   getLocalDraft() {
     const itemStr = localStorage.getItem(backupStorageKey);
@@ -59,9 +59,9 @@ export const useLocalDraftPost = create<{
     const item = JSON.parse(itemStr) as any;
     item.time = item.time ? new Date(item.time) : undefined;
     item.localDraft = true;
-    const post = item as PostType;
+    const post = item as PostFormDraftType;
     set({ localDraft: post });
-    return item as PostType;
+    return item as PostFormDraftType;
   },
   removeLocalDraft() {
     localStorage.removeItem(backupStorageKey);
@@ -135,7 +135,6 @@ export function PostForm() {
 
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const AttachedRef = useRef<HTMLInputElement | null>(null);
   const postIdRef = useRef<HTMLInputElement | null>(null);
 
   const defaultValues = useMemo(
@@ -155,7 +154,7 @@ export function PostForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isSubmitted },
+    formState: { errors, isDirty },
     getValues,
     setValue,
     reset,
@@ -382,6 +381,14 @@ export function PostForm() {
             return (await r.json()) as KeyValueType<string>;
           })
           .then((data) => {
+            if (localDraft) {
+              if (
+                !(values.update || localDraft.update) ||
+                values.update === localDraft.update
+              ) {
+                removeLocalDraft();
+              }
+            }
             if (data.postId) {
               nav(`/blog?postId=${data.postId}`, { replace: true });
             } else {
@@ -395,7 +402,16 @@ export function PostForm() {
       toast.error("エラーが発生しました", { autoClose: 2000 });
       console.error(error);
     }
-  }, [apiOrigin, defaultValues, getValues, postCategories, nav, updateMode]);
+  }, [
+    apiOrigin,
+    defaultValues,
+    getValues,
+    postCategories,
+    nav,
+    updateMode,
+    localDraft,
+    removeLocalDraft,
+  ]);
 
   return (
     <>
