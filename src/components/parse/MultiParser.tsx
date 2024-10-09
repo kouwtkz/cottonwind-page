@@ -111,15 +111,36 @@ export function MultiParser({
                           (v.attribs.class ? `${v.attribs.class} ` : "") +
                           "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
+                      const baseHref = location.href;
+                      const Url = new URL(url, baseHref);
+                      let preventScrollReset = Url.searchParams.has(
+                        "prevent-scroll-reset"
+                      );
+                      if (preventScrollReset) {
+                        Url.searchParams.delete("prevent-scroll-reset");
+                      } else {
+                        preventScrollReset =
+                          Url.searchParams.has("modal") ||
+                          Boolean(Url.hash) ||
+                          "prevent-scroll-reset" in v.attribs;
+                      }
+                      if (Url.searchParams.has("search-params-relative")) {
+                        Url.searchParams.delete("search-params-relative");
+                        const BaseUrl = new URL(baseHref);
+                        BaseUrl.searchParams.forEach((v, k) => {
+                          if (!Url.searchParams.has(k))
+                            Url.searchParams.set(k, v);
+                        });
+                        v.attribs.href = Url.href;
+                      }
                       v.attribs.onClick = ((e: any) => {
-                        const baseHref = location.href;
-                        const Url = new URL(url, baseHref);
                         if (
                           Url.href !== baseHref ||
                           (linkSame && window.scrollY > 0)
                         ) {
                           nav(Url.pathname + Url.search + Url.hash, {
-                            preventScrollReset: Boolean(Url.hash || "prevent-scroll-reset" in v.attribs),
+                            preventScrollReset,
+                            state: { from: location.href },
                           });
                         }
                         e.preventDefault();
