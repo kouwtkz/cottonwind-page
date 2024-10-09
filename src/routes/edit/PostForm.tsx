@@ -93,6 +93,8 @@ export function PostForm() {
   const base = searchParams.get("base");
   const duplicationMode = Boolean(base);
   const targetPostId = searchParams.get("target") || base;
+  const draft = searchParams.get("draft");
+  const isLocalDraft = draft === "local";
   const postTarget = targetPostId
     ? findMee({ list: posts, where: { postId: targetPostId }, take: 1 })[0]
     : null;
@@ -171,7 +173,7 @@ export function PostForm() {
   }, [getLocalDraft]);
 
   useEffect(() => {
-    if (Location.state?.draft) {
+    if (isLocalDraft) {
       reset({
         ...defaultValues,
         ...localDraft,
@@ -191,7 +193,7 @@ export function PostForm() {
     } else {
       reset(defaultValues);
     }
-  }, [reset, localDraft, defaultValues, Location.state]);
+  }, [reset, localDraft, defaultValues, isLocalDraft]);
 
   function saveLocalDraft() {
     const values = getValues();

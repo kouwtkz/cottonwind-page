@@ -1,7 +1,7 @@
 import { ContentsTagsOption, getTagsOptions } from "./SortFilterTags";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { HTMLAttributes, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import ReactSelect, { MultiValue } from "react-select";
 
 interface SelectAreaProps
@@ -15,7 +15,9 @@ export function ContentsTagsSelect({
   className,
   submitPreventScrollReset = true,
 }: SelectAreaProps) {
+  const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isModal = searchParams.has("modal");
   const searchTags = searchParams.get("tags")?.split(",") || [];
   const searchType =
     searchParams
@@ -91,6 +93,8 @@ export function ContentsTagsSelect({
       });
       setSearchParams(searchParams, {
         preventScrollReset: submitPreventScrollReset,
+        replace: isModal,
+        state,
       });
     },
     [searchParams]

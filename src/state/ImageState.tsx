@@ -4,6 +4,7 @@ import { useEnv } from "./EnvState";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/media/imageFunction";
 import { create } from "zustand";
+import { CreateState } from "./CreateState";
 
 type imageStateType = {
   images?: ImageType[];
@@ -43,3 +44,5 @@ export function ImageState() {
   }, [imagesData, env, set]);
   return <></>;
 }
+
+export const useSelectedImage = CreateState<ImageType | null>(null);

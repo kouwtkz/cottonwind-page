@@ -47,7 +47,7 @@ export function Modal({
         }}
       />
       <div className={ClassName} {...props} onClick={onClick}>
-        {children}
+        <div>{children}</div>
       </div>
     </div>
   );

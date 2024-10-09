@@ -1,9 +1,11 @@
-import { HTMLAttributes, useRef } from "react";
+import { HTMLAttributes, useEffect, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
 import { useApiOrigin, useEnv } from "@/state/EnvState";
 import { fileDialog } from "../FileTool";
 import { ImagesUploadWithToast } from "@/routes/edit/ImageEditForm";
 import { imageDataObject } from "@/state/DataState";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { useSelectedImage } from "@/state/ImageState";
 
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
@@ -244,6 +246,62 @@ export function PostEditSelectMedia({
   const [env] = useEnv();
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
+  const [searchParams, setSearchParams] = useSearchParams();
+  let { state } = useLocation();
+  const selectedImage = useSelectedImage()[0];
+  function replacePostTextareaFromImage(image: ImageType | ImageDataType) {
+    replacePostTextarea({
+      textarea,
+      before: `\n![${image.name}](?image=${image.key})\n`,
+      after: "",
+    });
+  }
+  useEffect(() => {
+    if (selectedImage) replacePostTextareaFromImage(selectedImage);
+  }, [selectedImage]);
+  function setMedia(value: string) {
+    if (!value || !textarea || !apiOrigin) return;
+    switch (value) {
+      case "upload":
+        fileDialog("image/*", true)
+          .then((files) => Array.from(files))
+          .then((files) =>
+            ImagesUploadWithToast({
+              src: files,
+              apiOrigin,
+              album,
+              notDraft: true,
+            })
+          )
+          .then((list) => {
+            setImagesLoad("no-cache");
+            return list
+              ?.map((r) => r.data as ImageDataType)
+              .filter((data) => data);
+          })
+          .then((list) => {
+            list?.forEach((data) => {
+              replacePostTextareaFromImage(data);
+            });
+          });
+        break;
+      case "external":
+        if (env?.UPLOAD_BRACKET)
+          replacePostTextarea({ textarea, before: "![](", after: ")" });
+        else textarea.focus();
+        window.open(env?.UPLOAD_SERVICE, "uploadExternal");
+        break;
+      case "gallery":
+        searchParams.set("modal", "gallery");
+        if (!state) state = {};
+        state.from = location.href;
+        setSearchParams(searchParams, { state });
+        break;
+      case "link":
+        replacePostTextarea({ textarea, before: "[", after: "]()" });
+        break;
+    }
+  }
   return (
     <DropdownObject
       className={className}
@@ -252,79 +310,15 @@ export function PostEditSelectMedia({
       MenuButtonClassName={MenuButtonClassName}
       autoClose={autoClose}
       onClick={(e) => {
-        setMedia({
-          value: e.dataset.value ?? "",
-          textarea,
-          env,
-          apiOrigin,
-          album,
-          setImagesLoad,
-        });
+        setMedia(e.dataset.value || "");
       }}
     >
       <MenuItem value="link">リンク</MenuItem>
       <MenuItem value="gallery">ギャラリー</MenuItem>
       {album ? <MenuItem value="upload">アップロード</MenuItem> : null}
-      <MenuItem value="external">外部アップロード</MenuItem>
+      {env?.UPLOAD_SERVICE ? (
+        <MenuItem value="external">外部アップロード</MenuItem>
+      ) : null}
     </DropdownObject>
   );
-}
-
-interface setMediaProps extends PostEditSelectBaseProps {
-  value: string;
-  apiOrigin?: string;
-  env?: SiteConfigEnv;
-  album?: string;
-  setImagesLoad: (args: LoadStateType) => void;
-}
-export function setMedia({
-  value,
-  apiOrigin,
-  textarea,
-  env,
-  album,
-  setImagesLoad,
-}: setMediaProps) {
-  if (!value || !textarea || !apiOrigin) return;
-  switch (value) {
-    case "upload":
-      fileDialog("image/*", true)
-        .then((files) => Array.from(files))
-        .then((files) =>
-          ImagesUploadWithToast({
-            src: files,
-            apiOrigin,
-            album,
-            notDraft: true,
-          })
-        )
-        .then((list) => {
-          setImagesLoad("no-cache");
-          return list
-            ?.map((r) => r.data as ImageDataType)
-            .filter((data) => data);
-        })
-        .then((list) => {
-          list?.forEach((data) => {
-            replacePostTextarea({
-              textarea,
-              before: `\n![${data.name}](?image=${data.key})\n`,
-              after: "",
-            });
-          });
-        });
-      break;
-    case "external":
-      if (env?.UPLOAD_BRACKET)
-        replacePostTextarea({ textarea, before: "![](", after: ")" });
-      else textarea.focus();
-      window.open(env?.UPLOAD_SERVICE, "uploadExternal");
-      break;
-    case "gallery":
-      window.open("/gallery/", "gallery", "width=620px,height=720px");
-      break;
-    case "link":
-      replacePostTextarea({ textarea, before: "[", after: "]()" });
-      break;
-  }
 }

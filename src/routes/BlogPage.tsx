@@ -155,8 +155,8 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       if (!isLogin) return <></>;
       const state: { [k: string]: any } = {};
       const url = new URL("/blog/post", location.href);
-      if (post?.postId) url.searchParams.set("target", post.postId);
-      if (post?.localDraft) state.draft = true;
+      if (post?.postId) url.searchParams.append("target", post.postId);
+      if (post?.localDraft) url.searchParams.append("draft", "local");
       state.backUrl = location.href;
       return (
         <Link

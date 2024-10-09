@@ -464,6 +464,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const characterTags = useCharacterTags()[0];
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const isModal = searchParams.has("modal");
   const { state } = useLocation();
   const isLogin = useIsLogin()[0];
   const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
@@ -498,7 +499,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     if (value) newSearchParams.set("q", value);
     else newSearchParams.delete("q");
     const addReplace: { replace: boolean; state?: any } = {
-      replace: location.href !== confirmUrl,
+      replace: isModal || location.href !== confirmUrl,
     };
     if (!addReplace.replace) {
       const _state = state ? { ...state } : {};

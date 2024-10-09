@@ -2,10 +2,11 @@ import {
   Link,
   To,
   useLocation,
+  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useImageState } from "@/state/ImageState";
+import { useImageState, useSelectedImage } from "@/state/ImageState";
 import { useDataIsComplete } from "@/state/StateSet";
 import React, {
   ReactNode,
@@ -64,8 +65,13 @@ import {
   GalleryImportButton,
   GalleryUploadButton,
 } from "./edit/ImagesManager";
+import { Modal } from "@/layout/Modal";
+import { CreateState } from "@/state/CreateState";
 
-export function GalleryPage({ children }: { children?: ReactNode }) {
+interface GalleryPageProps extends GalleryBodyOptions {
+  children?: ReactNode;
+}
+export function GalleryPage({ children, ...args }: GalleryPageProps) {
   const [env] = useEnv();
   const galleryList =
     env?.IMAGE_ALBUMS?.map((album) => ({
@@ -74,9 +80,11 @@ export function GalleryPage({ children }: { children?: ReactNode }) {
     })).filter((v) => v) ?? [];
   const [isComplete] = useDataIsComplete();
   return (
-    <div id="galleryPage">
+    <div className="galleryPage">
       {children}
-      {isComplete ? <GalleryObjectConvert items={galleryList} /> : null}
+      {isComplete ? (
+        <GalleryObjectConvert items={galleryList} {...args} />
+      ) : null}
     </div>
   );
 }
@@ -170,6 +178,7 @@ export function GalleryObjectConvert({
     <GalleryObject
       items={albums}
       submitPreventScrollReset={submitPreventScrollReset}
+      {...args}
     />
   );
 }
@@ -610,9 +619,11 @@ function GalleryBody({
 function GalleryImageItem({
   galleryName,
   image,
+  onClick,
 }: {
   galleryName?: string;
   image: ImageType;
+  onClick?: (image: ImageType) => void;
 }) {
   const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();
@@ -636,7 +647,18 @@ function GalleryImageItem({
     };
   }, [searchParams, image, state]);
   return (
-    <Link className="item" {...toStatehandler()}>
+    <Link
+      className="item"
+      {...toStatehandler()}
+      onClick={
+        onClick
+          ? (e) => {
+              e.preventDefault();
+              onClick(image);
+            }
+          : undefined
+      }
+    >
       <GalleryItemRibbon image={image} />
       {image.type === "ebook" || image.type === "goods" ? (
         image.embed ? (
@@ -710,6 +732,13 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       [q, tags, characters]
     );
     const { state } = useLocation();
+    const isModal = searchParams.get("modal") === "gallery";
+    const setSelectedImage = useSelectedImage()[1];
+    const imageOnClick = isModal
+      ? function (image: ImageType) {
+          setSelectedImage(image);
+        }
+      : undefined;
     const [w] = useWindowSize();
     const max = useMemo(
       () => (searchMode ? maxWhenSearch : maxFromArgs),
@@ -775,6 +804,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                 <GalleryImageItem
                   image={image}
                   galleryName={name}
+                  onClick={imageOnClick}
                   key={image.key}
                 />
               ))}
@@ -936,6 +966,8 @@ export function GallerySearchArea({
     { enableOnFormTags: ["INPUT"] }
   );
   const [searchParams, setSearchParams] = useSearchParams();
+  const isModal = searchParams.has("modal");
+  const { state } = useLocation();
   useEffect(() => {
     if (searchRef.current) {
       const q = searchParams.get("q") ?? "";
@@ -950,6 +982,8 @@ export function GallerySearchArea({
         else searchParams.delete("q");
         setSearchParams(searchParams, {
           preventScrollReset: submitPreventScrollReset,
+          replace: isModal,
+          state,
         });
         (document.activeElement as HTMLElement).blur();
         e?.preventDefault();
@@ -1014,7 +1048,9 @@ export function GalleryCharactersSelect({
       value: id,
     }));
   }, [characters, currentChara]);
+  const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isModal = searchParams.has("modal");
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
     return charaLabelOptions.filter(({ value }) =>
@@ -1046,7 +1082,11 @@ export function GalleryCharactersSelect({
         const value = v.map(({ value }) => value).join(",");
         if (value) searchParams.set("characters", value);
         else searchParams.delete("characters");
-        setSearchParams(searchParams, { preventScrollReset: true });
+        setSearchParams(searchParams, {
+          preventScrollReset: true,
+          replace: isModal,
+          state,
+        });
       }}
     />
   );
@@ -1073,6 +1113,38 @@ function GalleryItemRibbon({ image }: { image: ImageType }) {
         <div className={className}>Schedule</div>
       ) : image.update ? (
         <div className={className}>{image.new ? "New!" : "Update"}</div>
+      ) : null}
+    </>
+  );
+}
+
+export function MiniGallery() {
+  const [selectedImage, setSelectedImage] = useSelectedImage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const nav = useNavigate();
+  const { state } = useLocation();
+  const enable = searchParams.get("modal") === "gallery";
+  function closeHandler() {
+    if (state?.from) {
+      delete state.from;
+      nav(-1);
+    } else {
+      searchParams.delete("modal");
+      setSearchParams(searchParams, { state });
+    }
+  }
+  useEffect(() => {
+    if (selectedImage) {
+      setSelectedImage(null);
+      closeHandler();
+    }
+  }, [selectedImage, setSelectedImage]);
+  return (
+    <>
+      {enable ? (
+        <Modal className="window miniGallery" onClose={closeHandler}>
+          <GalleryPage showInPageMenu={false} />
+        </Modal>
       ) : null}
     </>
   );
