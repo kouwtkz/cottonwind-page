@@ -84,11 +84,15 @@ export default function Home() {
 
 function PostsView() {
   const Posts = usePosts()[0];
-  const posts = useMemo(() => {
-    const posts = Posts ? [...Posts] : [];
-    posts.sort((a, b) => (a.time && b.time ? (a.time < b.time ? 1 : -1) : 0));
-    return posts;
-  }, [Posts]);
+  const posts = useMemo(
+    () =>
+      findMee({
+        list: Posts,
+        where: { draft: false, time: { lte: new Date() } },
+        orderBy: [{ time: "desc" }],
+      }),
+    [Posts]
+  );
   return (
     <div className="blog">
       <h3>
