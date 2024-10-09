@@ -60,6 +60,7 @@ import {
 } from "@/components/define/toastContainerDef";
 import { fileDialog } from "@/components/FileTool";
 import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
+import { CopyWithToast } from "@/functions/toastFunction";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -330,10 +331,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               type="button"
               className="color round rb"
               onClick={() => {
-                if (image) {
-                  navigator.clipboard.writeText(image.key);
-                  toast.success("コピーしました", { autoClose: 1500 });
-                }
+                if (image) CopyWithToast(image.key);
               }}
             >
               <MdOutlineContentCopy />
