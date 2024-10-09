@@ -286,6 +286,9 @@ $desktopWidth: 1280px;
 }
 
 @include ColorSetter("color-main", var(--main-color));
+@include ColorSetter("color-soft", var(--main-color-soft));
+@include ColorSetter("color-deep", var(--main-color-deep));
+@include ColorSetter("color-dark", var(--main-color-dark));
 @include ColorSetter("color-warm", var(--warm-color));
 @include ColorSetter("color-gray", var(--main-color-light-grayish));
 
@@ -309,6 +312,26 @@ style {
 }
 .text-center {
   text-align: center;
+}
+
+ul {
+  text-align: left;
+  max-width: 32rem;
+  margin: auto;
+  li {
+    white-space: pre-line;
+    line-height: initial;
+  }
+  &.flex {
+    padding: 0;
+  }
+  .parsed &,
+  .default {
+    padding-left: 1.25rem;
+    li {
+      list-style: circle;
+    }
+  }
 }
 
 .flex {
@@ -358,9 +381,6 @@ style {
 .flex-1 {
   flex: 1;
 }
-ul.flex {
-  padding: 0;
-}
 .p-0 {
   padding: 0;
 }
@@ -379,6 +399,10 @@ ul.flex {
 }
 .absolute {
   position: absolute;
+}
+.container {
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
 }
 
 label {
@@ -573,6 +597,9 @@ html.loading {
 %a-line-none {
   a {
     text-decoration-line: none;
+    &.underline {
+      text-decoration-line: underline;
+    }
   }
 }
 
@@ -2381,31 +2408,18 @@ div.banner {
   }
 }
 
-ul {
-  .parsed &,
-  .default {
-    padding-left: 1.25rem;
-    li {
-      list-style: circle;
-    }
-  }
-}
-
 .aboutPage {
-  h3 {
+  h2 {
     font-size: 1.75rem;
-    color: var(--main-color-dark);
   }
-  h4 {
+  h3 {
     font-size: 2rem;
     margin: 1rem auto;
-    color: var(--main-color);
   }
-  h5 {
+  h4 {
     font-size: 1.25rem;
     margin: 1rem auto;
     font-family: sans-serif;
-    color: var(--main-color-soft);
   }
   img.authorImage {
     height: 20em;
