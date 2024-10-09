@@ -403,8 +403,7 @@ ul {
   position: absolute;
 }
 .container {
-  margin-top: 1rem;
-  margin-bottom: 2.5rem;
+  margin: 1rem 0.5rem 2.5rem;
 }
 
 label {
@@ -2469,7 +2468,7 @@ div.banner {
   .list {
     text-align: left;
     margin: auto;
-    max-width: 42rem;
+    max-width: 46rem;
   }
   .summary {
     display: flex;

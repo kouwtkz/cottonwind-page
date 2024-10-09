@@ -36,7 +36,9 @@ export default function AboutPage() {
       </div>
       <div className="container">
         <h3 className="color-main">ガイドライン</h3>
-        <p>わたかぜコウのキャラクターはファンアート歓迎しています！</p>
+        <p>
+          わたかぜコウのキャラクターはファンアートを描いてくれるのを歓迎してます！
+        </p>
         <p>
           ファンアートタグは
           <span
@@ -48,7 +50,7 @@ export default function AboutPage() {
           >
             #わたかぜメ絵
           </span>
-          を活用してください！
+          です！
         </p>
       </div>
       <div className="container">
