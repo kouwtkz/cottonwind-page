@@ -778,6 +778,13 @@ a {
   margin-bottom: 1rem;
 }
 
+.ml-s {
+  margin-left: 0.5rem;
+}
+.mr-s {
+  margin-right: 0.5rem;
+}
+
 .emoji {
   min-width: 1em;
   height: 1em;
@@ -806,6 +813,13 @@ h2 {
 }
 h3 {
   font-size: 1.5rem;
+  margin: 2rem auto;
+}
+.author h3 {
+  margin: 1rem auto;
+}
+.parsed h3 {
+  margin: initial;
 }
 h4 {
   font-size: 1.25rem;
@@ -2433,7 +2447,6 @@ div.banner {
   }
   h3 {
     font-size: 2rem;
-    margin: 1rem auto;
   }
   h4 {
     font-size: 1.25rem;

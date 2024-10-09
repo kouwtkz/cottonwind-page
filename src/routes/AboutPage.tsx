@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { ImageMee } from "@/layout/ImageMee";
 import { useEnv } from "@/state/EnvState";
 import { ChangeLog } from "@/state/GitState";
@@ -17,7 +16,7 @@ export default function AboutPage() {
       <h1 className="color-main en-title-font">About</h1>
       <h2 className="color-dark">プロフィール</h2>
       {env ? (
-        <>
+        <div className="author">
           <h3 className="color-main">{env.AUTHOR_NAME}</h3>
           <h4 className="color-soft">
             {env.AUTHOR_EN_NAME_ON_PROP || env.AUTHOR_EN_NAME}
@@ -29,7 +28,7 @@ export default function AboutPage() {
               alt="プロフィール画像"
             />
           ) : null}
-        </>
+        </div>
       ) : null}
       <div className="container">
         <p>わたかぜコウです！</p>
@@ -53,7 +52,9 @@ export default function AboutPage() {
         </p>
       </div>
       <div className="container">
-        <h4 className="color-deep">やっていいこと</h4>
+        <h4 className="color-deep">
+          <span className="mr-s">○</span>やっていいこと
+        </h4>
         <ul className="sm">
           <li>ファンアートを描くことや二次創作をすること</li>
           <li>非営利目的で二次創作グッズや同人誌を作ること</li>
@@ -61,7 +62,9 @@ export default function AboutPage() {
         </ul>
       </div>
       <div className="container">
-        <h4 className="color-warm">やってほしくないこと</h4>
+        <h4 className="color-warm">
+          <span className="mr-s">×</span>やってほしくないこと
+        </h4>
         <ul className="sm">
           <li>作品を悪用すること（転載、自作発言、機械学習など）</li>
           <li>作品やキャラクターを無断で商業利用すること</li>
