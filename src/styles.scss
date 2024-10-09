@@ -2636,7 +2636,7 @@ body.workers {
   }
   .article {
     width: 98%;
-    max-width: 60rem;
+    max-width: 68rem;
     text-align: left;
     margin: auto;
   }
@@ -2699,9 +2699,11 @@ body.workers {
     }
   }
   @media (min-width: $tabletWidth) {
-    .title h2,
-    .post .title h1 {
+    .title h2 {
       font-size: 2.25rem;
+    }
+    .post .title h1 {
+      font-size: 2rem;
     }
     a.feed {
       margin-left: 1rem;
