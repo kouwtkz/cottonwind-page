@@ -32,6 +32,8 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
           n.attribs.src = src ? concatOriginUrl(mediaOrigin, src) : "";
           n.attribs.title = n.attribs.alt || imageItem.name || "";
           n.attribs.alt = n.attribs.title;
+          if (imageItem.width) n.attribs.width = String(imageItem.width);
+          if (imageItem.height) n.attribs.height = String(imageItem.height);
           Url.searchParams.delete("pic");
           Url.searchParams.set("image", imageItem.key);
         }
