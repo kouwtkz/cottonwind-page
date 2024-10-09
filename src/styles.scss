@@ -2652,7 +2652,7 @@ body.workers {
     .title {
       display: inline-block;
       h1 {
-        font-size: 2.25rem;
+        font-size: 1.875rem;
         color: var(--main-color-deep);
         font-weight: bold;
         margin: 1rem 0.5rem;
@@ -2699,7 +2699,8 @@ body.workers {
     }
   }
   @media (min-width: $tabletWidth) {
-    .title h2 {
+    .title h2,
+    .post .title h1 {
       font-size: 2.25rem;
     }
     a.feed {
