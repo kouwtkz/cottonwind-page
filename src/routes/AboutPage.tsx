@@ -54,7 +54,7 @@ export default function AboutPage() {
       </div>
       <div className="container">
         <h4 className="color-deep">やっていいこと</h4>
-        <ul>
+        <ul className="sm">
           <li>ファンアートを描くことや二次創作をすること</li>
           <li>非営利目的で二次創作グッズや同人誌を作ること</li>
           <li>擬人化や獣化、マスコット化などのアレンジをすること</li>
@@ -62,7 +62,7 @@ export default function AboutPage() {
       </div>
       <div className="container">
         <h4 className="color-warm">やってほしくないこと</h4>
-        <ul>
+        <ul className="sm">
           <li>作品を悪用すること（転載、自作発言、機械学習など）</li>
           <li>作品やキャラクターを無断で商業利用すること</li>
           <li>

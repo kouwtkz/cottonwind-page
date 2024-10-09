@@ -7,6 +7,7 @@ import {
   BannerInner,
   myBannerName,
   useFavoriteLinksEditMode,
+  useLinksEditMode,
 } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
 import { favLinksDataObject, imageDataObject } from "@/state/DataState";
@@ -24,48 +25,68 @@ import {
   MoveButton,
 } from "@/layout/edit/CommonSwitch";
 import { AiFillEdit } from "react-icons/ai";
+import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
+import { MdDeleteForever } from "react-icons/md";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export const useEditFavLinkID = CreateState<number | boolean>();
-export function FavBannerEdit() {
-  const [edit, setEdit] = useEditFavLinkID();
-  const favLinks = useFavLinks()[0];
-  const favLinksData = favLinksDataObject.useData()[0];
+const schema = z.object({
+  title: z.string().min(1, { message: "サイト名を入力してください" }),
+});
+
+export function LinksEdit({
+  links,
+  dataObject,
+  send,
+  edit,
+  setEdit,
+  album,
+}: {
+  links?: SiteLink[];
+  dataObject: StorageDataStateClass<SiteLinkData>;
+  send: string;
+  edit?: number | boolean;
+  setEdit(v?: number | boolean): void;
+  album: string;
+}) {
+  const linksData = dataObject.useData()[0];
   const dataItem = useMemo(
-    () => favLinksData?.find((v) => v.id === edit),
-    [favLinksData, edit]
+    () => linksData?.find((v) => v.id === edit),
+    [linksData, edit]
   );
-  const item = useMemo(
-    () => favLinks?.find((v) => v.id === edit),
-    [favLinks, edit]
-  );
+  const item = useMemo(() => links?.find((v) => v.id === edit), [links, edit]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
-      setEdit(
-        favLinksData?.find((v) => v.lastmod === targetLastmod.current)?.id
-      );
+      setEdit(linksData?.find((v) => v.lastmod === targetLastmod.current)?.id);
       targetLastmod.current = null;
     }
-  }, [favLinksData]);
+  }, [linksData]);
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
-  const setLoad = favLinksDataObject.useLoad()[1];
+  const setLoad = dataObject.useLoad()[1];
   const {
     register,
     handleSubmit,
     getValues,
-    formState: { isDirty, dirtyFields },
+    formState: { isDirty, dirtyFields, errors },
   } = useForm<FieldValues>({
     defaultValues: {
       title: dataItem?.title,
       description: dataItem?.description,
       url: dataItem?.url,
     },
+    resolver: zodResolver(schema),
   });
+  useEffect(() => {
+    Object.values(errors).forEach((error) => {
+      toast.error(String(error?.message));
+    });
+  }, [errors]);
   useHotkeys(
     "ctrl+enter",
     (e) => {
-      if (isDirty) Submit();
+      if (isDirty) handleSubmit(Submit)();
     },
     { enableOnFormTags: true }
   );
@@ -79,7 +100,7 @@ export function FavBannerEdit() {
     entry.id = dataItem?.id;
     toast.promise(
       axios
-        .post(concatOriginUrl(apiOrigin, "links/fav/send"), entry, {
+        .post(concatOriginUrl(apiOrigin, send), entry, {
           withCredentials: true,
         })
         .then(() => {
@@ -102,6 +123,25 @@ export function FavBannerEdit() {
       }}
     >
       <form className="flex" onSubmit={handleSubmit(Submit)}>
+        <button
+          title="削除"
+          type="button"
+          className="color-warm absolute miniIcon"
+          onClick={async () => {
+            const id = item?.id;
+            if (id && confirm("本当に削除しますか？")) {
+              console.log(id);
+              axios
+                .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
+                .then(() => {
+                  setLoad("no-cache");
+                  setEdit(false);
+                });
+            }
+          }}
+        >
+          <MdDeleteForever />
+        </button>
         <div>
           <button
             title="画像の設定"
@@ -114,7 +154,7 @@ export function FavBannerEdit() {
                   return ImagesUploadWithToast({
                     src,
                     apiOrigin,
-                    album: "favBanner",
+                    album,
                     albumOverwrite: false,
                     notDraft: true,
                   });
@@ -129,7 +169,7 @@ export function FavBannerEdit() {
                   if (o && typeof o.name === "string") {
                     return axios
                       .post(
-                        concatOriginUrl(apiOrigin, "links/fav/send"),
+                        concatOriginUrl(apiOrigin, send),
                         {
                           id: dataItem?.id,
                           image: o.name,
@@ -175,6 +215,51 @@ export function FavBannerEdit() {
   );
 }
 
+export const useEditLinkID = CreateState<number | boolean>();
+export const useMoveLink = CreateState(0);
+export function LinksEditButtons() {
+  const setEdit = useEditLinkID()[1];
+  const [move, setMove] = useMoveLink();
+  return (
+    <div className="icons">
+      {move ? (
+        <>
+          <CancelButton
+            onClick={() => {
+              setMove(0);
+            }}
+          />
+          <CompleteButton
+            onClick={() => {
+              setMove(2);
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <ModeSwitch
+            toEnableTitle="編集モードに切り替え"
+            useSwitch={useLinksEditMode}
+          >
+            <AiFillEdit />
+          </ModeSwitch>
+          <AddButton
+            onClick={() => {
+              setEdit(true);
+            }}
+          />
+          <MoveButton
+            onClick={() => {
+              setMove(1);
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+export const useEditFavLinkID = CreateState<number | boolean>();
 export const useMoveFavLink = CreateState(0);
 export function FavBannerEditButtons() {
   const setEdit = useEditFavLinkID()[1];

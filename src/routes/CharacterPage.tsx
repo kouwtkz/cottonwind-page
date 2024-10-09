@@ -208,7 +208,7 @@ function CharaListPage() {
   return (
     <>
       <CharaSearchArea />
-      <div className="charaList">
+      <ul className="charaList">
         {move ? (
           <Movable
             items={items}
@@ -244,11 +244,13 @@ function CharaListPage() {
         ) : (
           <>
             {items.map((chara, i) => (
-              <Inner key={i} item={chara} />
+              <li key={i}>
+                <Inner item={chara} />
+              </li>
             ))}
           </>
         )}
-      </div>
+      </ul>
     </>
   );
 }

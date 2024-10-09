@@ -29,15 +29,21 @@ export function LinksState() {
   const { imagesMap } = useImageState();
   useEffect(() => {
     if (linksData && imagesMap) {
-      setFavLinks(linksData.map((data) => convertSiteLink(data, imagesMap)));
+      const list = linksData
+        .filter((data) => data.url || data.title || data.image)
+        .map((data) => convertSiteLink(data, imagesMap));
+      list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
+      setLinks(list);
     }
   }, [linksData, setLinks, imagesMap]);
   const favLinksData = favLinksDataObject.useData()[0];
   const setFavLinks = useFavLinks()[1];
   useEffect(() => {
     if (favLinksData && imagesMap) {
-      const list = favLinksData.map((data) => convertSiteLink(data, imagesMap));
-      list.sort((a, b) => (a.order || 0xFFFF) - (b.order || 0xFFFF));
+      const list = favLinksData
+        .filter((data) => data.url || data.title || data.image)
+        .map((data) => convertSiteLink(data, imagesMap));
+      list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
       setFavLinks(list);
     }
   }, [favLinksData, setFavLinks, imagesMap]);

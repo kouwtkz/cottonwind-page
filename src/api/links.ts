@@ -108,16 +108,16 @@ export class SiteLinkServerClass {
     })
     app.delete("/send", async (c) => {
       const data = await c.req.json();
-      const key = data.target;
-      if (key) {
+      const id = data.id;
+      if (id) {
         const db = new MeeSqlD1(c.env.DB);
         try {
           await TableObject.Update({
             db,
             entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
-            where: { key }
+            where: { id }
           });
-          return c.text(key);
+          return c.text(id);
         } catch {
           return c.text("データベースでの削除に失敗しました", { status: 500 });
         }

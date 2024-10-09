@@ -316,8 +316,10 @@ style {
 
 ul {
   text-align: left;
-  max-width: 32rem;
   margin: auto;
+  &.sm {
+    max-width: 32rem;
+  }
   li {
     white-space: pre-line;
     line-height: initial;
@@ -483,29 +485,29 @@ li {
 }
 
 // ループ用のグリッドレイアウト関数、列数のみのシンプルな形
-@mixin GridListOneSize($grid) {
+@mixin GridListOneSize($child, $grid) {
   // 基本の形、2倍の分割数にすることで半分ずらしに対応できる
   grid-template-columns: repeat($grid * 2, 1fr);
-  > * {
+  > #{$child} {
     grid-column: span 2;
   }
   // 要素数が1つのみの場合、中央にくる形になる
   @if $grid > 0 {
-    & > *:only-child {
+    & > #{$child}:only-child {
       grid-column: $grid / span 2;
     }
   }
   // 要素数が2つ以上の場合、要素数未満の場合のみループ処理で中央に揃う
   @if $grid > 2 {
-    & > *:first-child {
+    & > #{$child}:first-of-type {
       @for $i from 2 to $grid {
-        &:nth-last-child(#{$i}) {
+        &:nth-last-of-type(#{$i}) {
           $base: $grid + 1 - $i;
           & {
             grid-column: $base / span 2;
           }
           @for $j from 2 through $i {
-            ~ *:nth-of-type(#{$j}) {
+            ~ #{$child}:nth-of-type(#{$j}) {
               grid-column: #{$base + ($j - 1) * 2} / span 2;
             }
           }
@@ -515,15 +517,22 @@ li {
   }
 }
 
-// 最初の引数は列数、それ以降は列数を増やす横幅を任意の数指定できる
-@mixin GridList($baseGrid, $media_width...) {
+// 最初の引数は子要素名、二番目は列数、それ以降は列数を増やす横幅を任意の数指定できる
+@mixin GridList($child, $baseGrid: 1, $media_width...) {
   display: grid;
-  @include GridListOneSize($baseGrid);
+  @if $child == "li" {
+    padding: 0;
+    text-align: initial;
+    li {
+      list-style: none;
+    }
+  }
+  @include GridListOneSize($child, $baseGrid);
   $i: 0;
   @each $width in $media_width {
     $i: $i + 1;
     @media (min-width: #{$width}) {
-      @include GridListOneSize($baseGrid + $i);
+      @include GridListOneSize($child, $baseGrid + $i);
     }
   }
 }
@@ -668,15 +677,23 @@ button,
       height: 1.75rem;
     }
   }
+  &.miniIcon,
   &.iconSwitch {
     padding: 0;
     background-color: transparent;
+    svg {
+      font-size: 1.25rem;
+    }
+  }
+  &.iconSwitch {
     color: var(--main-color);
     &:hover {
       color: var(--main-color-deep);
     }
-    svg {
-      font-size: 1.25rem;
+  }
+  &.miniIcon {
+    &:hover {
+      opacity: 0.8;
     }
   }
   &.warm {
@@ -1119,7 +1136,7 @@ code {
     min-height: 70vh;
     min-height: 50vh;
     > *:not(.wide) {
-      max-width: 1160px;
+      max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -1337,6 +1354,7 @@ footer {
     padding: #{$padding-tb} 1rem;
     max-width: 1600px;
     @include GridList(
+      "*",
       2,
       $mobileWidth,
       $tabletWidth,
@@ -1344,7 +1362,7 @@ footer {
       $desktopWidth
     );
     &.banners {
-      @include GridList(1, $mobileWidth, $miniDesktopWidth, $desktopWidth);
+      @include GridList("*", 1, $mobileWidth, $miniDesktopWidth, $desktopWidth);
     }
     li {
       margin: 0.25rem;
@@ -1527,7 +1545,7 @@ form {
   .charaList {
     margin: 0 auto;
     width: 95%;
-    @include GridList(2, $tabletWidth, $desktopWidth);
+    @include GridList("li", 2, $tabletWidth, $desktopWidth);
     .item {
       display: flex;
       flex-direction: column;
@@ -1855,13 +1873,13 @@ div.banner {
     &.grid {
       column-gap: 0.1rem;
       row-gap: 0.1rem;
-      @include GridList(4, $tabletWidth);
+      @include GridList("*", 4, $tabletWidth);
       .item {
         aspect-ratio: 1;
       }
     }
     &.banner {
-      @include GridList(1, $tabletWidth);
+      @include GridList("*", 1, $tabletWidth);
     }
     .loadingNow {
       color: var(--main-color-soft);
@@ -2842,10 +2860,16 @@ form.blogEdit {
       display: block;
     }
   }
+  .linksArea {
+    @include GridList("li", 1);
+  }
   .bannerArea {
-    @include GridList(1, $mobileWidth, $tabletWidth, $desktopWidth);
+    @include GridList("li", 1, $mobileWidth, $tabletWidth, $desktopWidth);
+    & {
+      text-align: center;
+    }
     > * {
-      margin: 0.5rem 1rem;
+      padding: 0.5rem 1rem;
     }
     .banner {
       width: 100%;

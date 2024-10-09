@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
-import { LinksState, useFavLinks } from "@/state/LinksState";
+import { LinksState, useFavLinks, useLinks } from "@/state/LinksState";
 import {
   useApiOrigin,
   useEnv,
@@ -14,40 +14,33 @@ import {
 import { ImageMee } from "@/layout/ImageMee";
 import { CreateState } from "@/state/CreateState";
 import {
-  FavBannerEdit,
+  LinksEdit,
   FavBannerEditButtons,
   MyBannerEditButtons,
-  useEditFavLinkID,
+  useEditLinkID,
   useMoveFavLink,
   useMoveMyBanner,
+  LinksEditButtons,
+  useEditFavLinkID,
+  useMoveLink,
 } from "./edit/LinksEdit";
 import { useImageEditIsEditHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useImageViewer } from "@/layout/ImageViewer";
 import { Movable } from "@/layout/edit/Movable";
-import { favLinksDataObject, imageDataObject } from "@/state/DataState";
+import {
+  favLinksDataObject,
+  imageDataObject,
+  linksDataObject,
+} from "@/state/DataState";
 
 export default function LinksPage() {
-  const [env] = useEnv();
   return (
     <div className="linkPage">
       <LinksState />
       <h2 className="color-main en-title-font">LINKS</h2>
-      <div>
-        <h3 className="leaf">各拠点</h3>
-        <ul className="flex center column large">
-          {env?.LINKS?.map((item, i) => {
-            return (
-              <li key={i}>
-                <a href={item.url} target="_blank">
-                  {item.title ?? item.name}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <MeLinks />
       <div>
         <h3 className="leaf">いろいろ</h3>
         <ul className="flex center column large">
@@ -125,7 +118,6 @@ function InviteDiscordLink({
 }
 
 export const useBannersEditMode = CreateState(false);
-
 export const myBannerName = "myBanner";
 export function MyBanners() {
   const [move, setMove] = useMoveMyBanner();
@@ -143,11 +135,15 @@ export function MyBanners() {
   useEffect(() => {
     setImages(album?.list || null);
   }, [setImages, album]);
+  const className = useMemo(() => {
+    const classes = ["bannerArea"];
+    return classes.join(" ");
+  }, []);
   return (
     <div>
       <h3 className="leaf">サイトのバナー</h3>
       {isLogin ? <MyBannerEditButtons /> : null}
-      <div className="bannerArea">
+      <ul className={className}>
         {move ? (
           <Movable
             items={myBanners}
@@ -163,31 +159,35 @@ export function MyBanners() {
                 .map(({ id, newOrder }) => {
                   return { id, order: newOrder };
                 });
-              toast.promise(
-                axios
-                  .patch(concatOriginUrl(apiOrigin, "image/send"), dirty, {
-                    withCredentials: true,
-                  })
-                  .then(() => {
-                    setImageDataLoad("no-cache");
-                    setMove(0);
-                  }),
-                {
-                  pending: "送信中",
-                  success: "送信しました",
-                  error: "送信に失敗しました",
-                }
-              );
+              if (dirty.length > 0) {
+                toast.promise(
+                  axios
+                    .patch(concatOriginUrl(apiOrigin, "image/send"), dirty, {
+                      withCredentials: true,
+                    })
+                    .then(() => {
+                      setImageDataLoad("no-cache");
+                      setMove(0);
+                    }),
+                  {
+                    pending: "送信中",
+                    success: "送信しました",
+                    error: "送信に失敗しました",
+                  }
+                );
+              } else setMove(0);
             }}
           />
         ) : (
           <>
             {myBanners.map((image, i) => (
-              <MyBannerInner key={i} item={image} />
+              <li key={i}>
+                <MyBannerInner item={image} />
+              </li>
             ))}
           </>
         )}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -224,21 +224,131 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
   );
 }
 
-export const useFavoriteLinksEditMode = CreateState(false);
+export const useLinksEditMode = CreateState(false);
+export function MeLinks() {
+  const album = "linksImage";
+  const send = "links/send";
+  const links = useLinks()[0] || [];
+  const [edit, setEdit] = useEditLinkID();
+  const [move, setMove] = useMoveLink();
+  const isLogin = useIsLogin()[0];
+  const apiOrigin = useApiOrigin()[0];
+  const isEditable = useLinksEditMode()[0];
+  const setLoad = linksDataObject.useLoad()[1];
+  const setEditLink = useEditLinkID()[1];
+  const className = useMemo(() => {
+    const classes = ["linksArea large"];
+    return classes.join(" ");
+  }, [links]);
+  const LinkInner = useCallback(
+    ({ item }: { item: SiteLink }) => {
+      return (
+        <a
+          href={item.url || ""}
+          className="overlay"
+          target="_blank"
+          onClick={(e) => {
+            if (isEditable) {
+              setEditLink(item.id);
+              e.preventDefault();
+            }
+          }}
+        >
+          {item.title}
+        </a>
+      );
+    },
+    [isEditable]
+  );
+  return (
+    <div>
+      {edit ? (
+        <LinksEdit
+          send={send}
+          links={links}
+          dataObject={linksDataObject}
+          edit={edit}
+          setEdit={setEdit}
+          album={album}
+        />
+      ) : null}
+      <h3 className="leaf">わたかぜコウのリンクたち</h3>
+      {isLogin ? <LinksEditButtons /> : null}
+      <ul className={className}>
+        {move ? (
+          <Movable
+            items={links}
+            Inner={LinkInner}
+            submit={move === 2}
+            onSubmit={(items) => {
+              const dirty = items
+                .map((item, i) => ({
+                  ...item,
+                  newOrder: i + 1,
+                }))
+                .filter((item, i) => item.newOrder !== item.order)
+                .map(({ id, newOrder }) => {
+                  return { id, order: newOrder };
+                });
+              if (dirty.length > 0) {
+                toast.promise(
+                  axios
+                    .post(concatOriginUrl(apiOrigin, send), dirty, {
+                      withCredentials: true,
+                    })
+                    .then(() => {
+                      setLoad("no-cache");
+                      setMove(0);
+                    }),
+                  {
+                    pending: "送信中",
+                    success: "送信しました",
+                    error: "送信に失敗しました",
+                  }
+                );
+              } else setMove(0);
+            }}
+          />
+        ) : (
+          <>
+            {links?.map((v, i) => (
+              <li key={i}>
+                <LinkInner item={v} />
+              </li>
+            ))}
+          </>
+        )}
+      </ul>
+    </div>
+  );
+}
 
+export const useFavoriteLinksEditMode = CreateState(false);
 export function FavoriteLinks() {
+  const album = "favBanner";
+  const send = "links/fav/send";
   const favLinks = useFavLinks()[0] || [];
-  const edit = useEditFavLinkID()[0];
+  const [edit, setEdit] = useEditFavLinkID();
   const [move, setMove] = useMoveFavLink();
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
+  const isEditable = useFavoriteLinksEditMode()[0];
   const setLoad = favLinksDataObject.useLoad()[1];
   return (
     <div>
-      {edit ? <FavBannerEdit /> : null}
+      {edit ? (
+        <LinksEdit
+          send={send}
+          links={favLinks}
+          dataObject={favLinksDataObject}
+          edit={edit}
+          setEdit={setEdit}
+          album={album}
+        />
+      ) : null}
       <h3 className="leaf">お気に入りのサイト</h3>
       {isLogin ? <FavBannerEditButtons /> : null}
-      <div className="bannerArea">
+      <ul className="bannerArea">
         {move ? (
           <Movable
             items={favLinks}
@@ -254,31 +364,38 @@ export function FavoriteLinks() {
                 .map(({ id, newOrder }) => {
                   return { id, order: newOrder };
                 });
-              toast.promise(
-                axios
-                  .post(concatOriginUrl(apiOrigin, "links/fav/send"), dirty, {
-                    withCredentials: true,
-                  })
-                  .then(() => {
-                    setLoad("no-cache");
-                    setMove(0);
-                  }),
-                {
-                  pending: "送信中",
-                  success: "送信しました",
-                  error: "送信に失敗しました",
-                }
-              );
+              if (dirty.length > 0) {
+                toast.promise(
+                  axios
+                    .post(concatOriginUrl(apiOrigin, send), dirty, {
+                      withCredentials: true,
+                    })
+                    .then(() => {
+                      setLoad("no-cache");
+                      setMove(0);
+                    }),
+                  {
+                    pending: "送信中",
+                    success: "送信しました",
+                    error: "送信に失敗しました",
+                  }
+                );
+              } else setMove(0);
             }}
           />
         ) : (
           <>
             {favLinks?.map((v, i) => (
-              <BannerItem item={v} key={i} />
+              <BannerItem
+                item={v}
+                key={i}
+                isEdit={isEditable}
+                setEditLink={setEdit}
+              />
             ))}
           </>
         )}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -332,24 +449,32 @@ export function BannerInner({
   );
 }
 
-export function BannerItem({ item }: { item: SiteLink }) {
-  const isEdit = useFavoriteLinksEditMode()[0];
-  const setEditLink = useEditFavLinkID()[1];
+export function BannerItem({
+  item,
+  isEdit,
+  setEditLink,
+}: {
+  item: SiteLink;
+  isEdit?: boolean;
+  setEditLink: (v?: number | boolean) => void;
+}) {
   const titleWithDsc = getTitleWithDsc(item);
   return (
-    <a
-      href={item.url || ""}
-      title={titleWithDsc}
-      target="_blank"
-      className="overlay"
-      onClick={(e) => {
-        if (isEdit) {
-          setEditLink(item.id);
-          e.preventDefault();
-        }
-      }}
-    >
-      <BannerInner item={item} alt={titleWithDsc} />
-    </a>
+    <li>
+      <a
+        href={item.url || ""}
+        title={titleWithDsc}
+        target="_blank"
+        className="overlay"
+        onClick={(e) => {
+          if (isEdit) {
+            setEditLink(item.id);
+            e.preventDefault();
+          }
+        }}
+      >
+        <BannerInner item={item} alt={titleWithDsc} />
+      </a>
+    </li>
   );
 }

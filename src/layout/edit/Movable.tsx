@@ -97,7 +97,7 @@ function SortableItem({
     transition,
   };
   return (
-    <div
+    <li
       className={"item move"}
       ref={setNodeRef}
       style={style}
@@ -105,6 +105,6 @@ function SortableItem({
       {...listeners}
     >
       {children}
-    </div>
+    </li>
   );
 }
