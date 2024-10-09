@@ -250,9 +250,10 @@ export function PostEditSelectMedia({
   let { state } = useLocation();
   const selectedImage = useSelectedImage()[0];
   function replacePostTextareaFromImage(image: ImageType | ImageDataType) {
+    const searchParams = new URLSearchParams({ image: image.key });
     replacePostTextarea({
       textarea,
-      before: `\n![${image.name}](?image=${image.key})\n`,
+      before: `\n![${image.name}](?${searchParams})\n`,
       after: "",
     });
   }
