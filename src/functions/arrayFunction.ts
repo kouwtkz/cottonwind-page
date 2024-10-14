@@ -40,9 +40,15 @@ export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { sl
   return results;
 }
 
-export function getCountList<T extends Object>(list: T[], field: keyof T) {
+export function getCountList<T>(list: T[], field?: keyof T) {
   return (list as any[])
-    .reduce<ValueCountType[]>((list, { [field]: values }) => {
+    .reduce<ValueCountType[]>((list, values) => {
+      if (typeof values === "object" && field) {
+        values = values[field];
+      }
+      if (!Array.isArray(values) && values !== null && typeof values !== "undefined") {
+        values = [values];
+      }
       values?.forEach((value: any) => {
         if (value) {
           const item = list.find((item: any) => item.value === value);
