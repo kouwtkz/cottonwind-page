@@ -47,7 +47,7 @@ export function getCountList<T extends Object>(list: T[], field: keyof T) {
         if (value) {
           const item = list.find((item: any) => item.value === value);
           if (item) item.count++;
-          else list.push({ value, count: 0 });
+          else list.push({ value, count: 1 });
         }
       })
       return list;
