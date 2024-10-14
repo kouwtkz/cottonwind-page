@@ -43,6 +43,7 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
       typeof data.pickup === "number" ? Boolean(data.pickup) : undefined,
     draft:
       typeof data.draft === "number" ? Boolean(data.draft) : undefined,
+    wh: `${data.width}x${data.height}`,
     time: data.time ? new Date(data.time) : undefined,
     mtime: data.mtime ? new Date(data.mtime) : undefined,
     lastmod,

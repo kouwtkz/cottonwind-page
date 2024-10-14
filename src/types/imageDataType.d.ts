@@ -32,6 +32,7 @@ interface ImageType extends ImageDataType {
   otherTags?: boolean;
   pickup?: boolean;
   draft?: boolean;
+  wh?: string;
   time?: Date;
   mtime?: Date;
   lastmod?: Date;
