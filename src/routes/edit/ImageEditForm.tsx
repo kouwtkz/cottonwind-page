@@ -22,10 +22,7 @@ import {
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
-import {
-  AutoImageItemType,
-  getCopyRightList,
-} from "@/functions/media/imageFunction";
+import { AutoImageItemType } from "@/functions/media/imageFunction";
 import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
 import SetRegister from "@/components/hook/SetRegister";
 import {
@@ -50,7 +47,11 @@ import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { PromiseOrder, PromiseOrderStateType } from "@/functions/arrayFunction";
+import {
+  getCountList,
+  PromiseOrder,
+  PromiseOrderStateType,
+} from "@/functions/arrayFunction";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -74,7 +75,10 @@ export const useImageEditIsBusy = CreateState(false);
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
   const setImagesLoad = imageDataObject.useLoad()[1];
-  const copyrightList = useMemo(() => getCopyRightList(images || []), [images]);
+  const copyrightList = useMemo(
+    () => getCountList(images || [], "copyright"),
+    [images]
+  );
   const characters = useCharacters()[0] || [];
   const apiOrigin = useApiOrigin()[0];
 
@@ -129,12 +133,28 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     () => autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
     [defaultGalleryTags]
   );
-  const unregisteredTags = useMemo(
+  const allTagsOptions = useMemo(
     () =>
-      (image?.tags ?? []).filter((tag) =>
+      getCountList(images || [], "tags").map(
+        (v) =>
+          ({
+            label: `${v.value} (${v.count})`,
+            value: v.value,
+          } as ContentsTagsOption)
+      ),
+    [images]
+  );
+  const unregisteredTagsOptions = useMemo(
+    () =>
+      [
+        ...(image?.tags?.map(
+          (v) => ({ label: v, value: v } as ContentsTagsOption)
+        ) || []),
+        ...allTagsOptions,
+      ].filter(({ value: tag }) =>
         simpleDefaultTags.every(({ value }) => value !== tag)
       ),
-    [image?.tags, defaultGalleryTags]
+    [image?.tags, defaultGalleryTags, allTagsOptions]
   );
   const defaultValues = useMemo(
     () => ({
@@ -258,15 +278,24 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     [image?.embed, image?.albumObject?.type]
   );
 
-  const [stateTags, setStateTags] = useState(
-    autoFixGalleryTagsOptions(
-      getTagsOptions(
-        defaultGalleryTags.concat(
-          unregisteredTags.map((value) => ({ label: value, value }))
-        )
-      )
-    )
-  );
+  const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
+  const tagsList = useMemo(() => {
+    const list = [
+      ...autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
+    ];
+    if (stateTags.length > 0)
+      list.push({
+        label: "追加しようとしたタグ",
+        options: stateTags,
+      });
+    if (unregisteredTagsOptions.length > 0)
+      list.push({
+        label: "現在ギャラリーにあるタグ",
+        options: unregisteredTagsOptions,
+      });
+    return list;
+  }, [defaultGalleryTags, stateTags, unregisteredTagsOptions]);
+
   const [copyrightTags, setCopyrightTags] = useState(
     copyrightList.map(
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
@@ -460,7 +489,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               name="tags"
               labelVisible
               label="その他のタグ"
-              tags={stateTags}
+              tags={tagsList}
               set={setStateTags}
               control={control}
               setValue={setValue}

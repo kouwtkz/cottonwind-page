@@ -1,3 +1,5 @@
+import { getCountList } from "../arrayFunction";
+
 export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: ImageAlbumEnvType[]) {
   const imageAlbumMap = new Map<string, ImageAlbumType>();
   imageAlbumEnv?.forEach((album) => {
@@ -48,21 +50,6 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
     new: undefined,
     schedule: lastmod && lastmod.getTime() > Date.now(),
   };
-}
-
-export function getCopyRightList(imageItemList: ImageType[]) {
-  return imageItemList
-    .reduce((list, { copyright: values }) => {
-      values?.forEach((value) => {
-        if (value) {
-          const item = list.find((item) => item.value === value);
-          if (item) item.count++;
-          else list.push({ value, count: 0 });
-        }
-      })
-      return list;
-    }, [] as ValueCountType[])
-    .sort((a, b) => (a.value > b.value ? 1 : -1));
 }
 
 export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<string>) {

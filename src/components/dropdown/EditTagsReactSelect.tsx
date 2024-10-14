@@ -5,14 +5,14 @@ import {
   SetValueConfig,
   UseFormGetValues,
 } from "react-hook-form";
-import { ContentsTagsOption } from "./SortFilterTags";
+import { ContentsTagsOption, getTagsOptions } from "./SortFilterTags";
 import ReactSelect, {
   MultiValue,
   StylesConfig,
   ThemeConfig,
 } from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 type setValueFunctionType = (
   name: string,
   value: any,
@@ -59,6 +59,7 @@ export function EditTagsReactSelect({
   styles,
   formatOptionLabel,
 }: EditTagsReactSelectType) {
+  const searchTagsList = useMemo(() => getTagsOptions(tags), [tags]);
   function addTags(value: string) {
     const newValues = { label: value, value };
     if (set) set((c) => c.concat(newValues));
@@ -113,7 +114,7 @@ export function EditTagsReactSelect({
               styles={styles}
               options={tags}
               value={(field.value as string[]).map((fv) =>
-                tags.find((ci) => ci.value === fv)
+                searchTagsList.find((ci) => ci.value === fv)
               )}
               formatOptionLabel={formatOptionLabel}
               placeholder={placeholder}
