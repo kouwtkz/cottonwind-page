@@ -50,6 +50,7 @@ const TableObject = new DBTableClass<ImageDataType>({
     "tags", "characters", "copyright", "link", "embed", "type", "order", "topImage", "pickup", "draft", "version"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 });
+export const ImageTableObject = TableObject;
 
 export async function ServerImagesGetData(
   searchParams: URLSearchParams,

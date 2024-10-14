@@ -16,21 +16,21 @@ export function ServerCommon(app: CommonHono) {
   app.route("/api", app_api);
   app.use("/admin/*", LoginCheckMiddleware);
   app.get("/blog/rss.xml", async (c) => {
-    const mediaOrigin = getMediaOrigin(c.env, c.req.url);
     const db = new MeeSqlD1(c.env.DB);
-    let image_url: string | undefined;
     const postsData = await ServerPostsGetRssData(db, 10);
-    if (c.env.SITE_IMAGE) {
-      const data = await ImageSelectFromKey(db, c.env.SITE_IMAGE);
-      if (data) image_url = data.src || undefined;
-    }
-    if (image_url && mediaOrigin)
-      image_url = concatOriginUrl(mediaOrigin, image_url);
-    return new Response(MakeRss(c.env, postsData, image_url), {
-      headers: {
-        "Content-Type": "application/xml",
-      },
-    });
+    return new Response(
+      await MakeRss({
+        env: c.env,
+        db,
+        postsData,
+        url: c.req.url,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/xml",
+        },
+      }
+    );
   });
   app.post("/life/check", async (c) => {
     const body = await c.req.text();

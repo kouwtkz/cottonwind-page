@@ -2,6 +2,9 @@ import { CommonContext } from "@/types/HonoCustomType";
 import GenerateRss from "@/functions/doc/GenerateRss";
 import { parse } from "marked";
 import { findMee, setWhere } from "@/functions/find/findMee";
+import { MeeSqlD1 } from "./database/MeeSqlD1";
+import { concatOriginUrl, getMediaOrigin } from "./originUrl";
+import { ImageSelectFromKey } from "./media/serverDataFunction";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");
@@ -85,11 +88,38 @@ export function autoPostId() {
   );
 }
 
-export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[], image_url?: string) {
-  const SITE_URL = env.ORIGIN;
+interface MakeRssProps {
+  env: MeeCommonEnv;
+  db: MeeSqlD1;
+  url: string;
+  postsData: PostDataType[];
+}
+export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
+  const Url = new URL(url);
+  const SITE_URL = Url.origin;
+  const mediaOrigin = getMediaOrigin(env, url);
+  const imagesDataMap = new Map<string, ImageDataType>();
+  async function getImagesData(key?: string | null) {
+    let imageData: ImageDataType | undefined;
+    if (key) {
+      imageData = imagesDataMap.get(key);
+      if (!imageData) {
+        imageData = await ImageSelectFromKey(db, key);
+        if (imageData) imagesDataMap.set(key, imageData);
+      }
+    }
+    return imageData;
+  }
+  let image_url: string | undefined;
+  if (env.SITE_IMAGE) {
+    const data = await getImagesData(env.SITE_IMAGE);
+    if (data) image_url = data.src || undefined;
+  }
+  if (image_url && mediaOrigin)
+    image_url = concatOriginUrl(mediaOrigin, image_url);
   return GenerateRss(
     {
-      title: env.TITLE ?? "",
+      title: env.TITLE || "",
       description: env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
@@ -100,8 +130,8 @@ export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[], image_url?
         return a > lastmod ? a : lastmod
       }, "")).toUTCString(),
       items:
-        postsData.map((post) => {
-          let Url = new URL(`${SITE_URL}/blog?postId=${post.postId}`);
+        await Promise.all(postsData.map(async (post) => {
+          let Url = new URL("/blog?postId=" + post.postId, SITE_URL);
           let description = String(parse(post.body || "", { async: false }));
           description = description.replace(/(href=")([^"]+)(")/g, (m, m1, m2, m3) => {
             if (!/^https?\:\/\//.test(m2)) {
@@ -109,12 +139,28 @@ export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[], image_url?
               return m1 + SITE_URL + m2 + m3;
             } else return m;
           })
-          description = description.replace(/(<img .*src=")(\?[^"]+)(".*>)/g, (m, m1, m2, m3) => {
-            const alt_m = String(m3).match(/alt="([^"]+)"/);
-            const alt = "[画像]" + (alt_m ? alt_m[1] : "");
-            const s = { ...Object.fromEntries(Url.searchParams), ...Object.fromEntries(new URLSearchParams(m2)) };
-            return `<a href="${Url.origin + Url.pathname + "?" + String(new URLSearchParams(s))}">${alt}</a>`
-          });
+          const matches = Array.from(description.matchAll(/(<img .*src=")(\?[^"]+)(".*>)/g));
+          let index = 0;
+          let replaceDescription = "";
+          for (const m of matches) {
+            replaceDescription = replaceDescription + description.slice(index, m.index);
+            index = m.index + m[0].length;
+            const searchParams = new URLSearchParams(m[2]);
+            const alt_m = String(m).match(/alt="([^"]+)"/);
+            let alt = alt_m ? alt_m[1] : "";
+            const s = { ...Object.fromEntries(Url.searchParams), ...Object.fromEntries(searchParams) };
+            const href = Url.origin + Url.pathname + "?" + String(new URLSearchParams(s));
+            const imageData = await getImagesData(searchParams.get("image")!);
+            if (imageData) {
+              alt = alt || imageData.name || "";
+              replaceDescription = `<a href="${href}"><img alt="${alt}" src="${concatOriginUrl(mediaOrigin, imageData.src)}" /></a>`
+            } else {
+              replaceDescription = `<a href="${href}">[画像]${alt}</a>`
+            }
+          }
+          if (replaceDescription) {
+            description = replaceDescription + description.slice(index);
+          }
           return ({
             title: post.title || "",
             description,
@@ -122,7 +168,7 @@ export function MakeRss(env: MeeCommonEnv, postsData: PostDataType[], image_url?
             guid: `${SITE_URL}/blog?postId=${post.postId}`,
             date: post.time ? new Date(post.time) : new Date(0),
           })
-        })
+        }))
     }
   )
 }
