@@ -72,7 +72,8 @@ export async function FilesUpload(args: FilesUploadProps) {
 export const useEditFileID = CreateState<number>();
 
 const schema = z.object({
-  src: z.string().min(1, { message: "ファイル名を入力してください" }),
+  key: z.string().min(1, { message: "ファイルIDを入力してください" }),
+  src: z.string().min(1, { message: "ファイルパスを入力してください" }),
 });
 
 export function FilesEdit({
@@ -185,8 +186,8 @@ export function FilesEdit({
           {...register("key")}
         />
         <input
-          title="ファイル名"
-          placeholder="ファイル名"
+          title="ファイルパス"
+          placeholder="ファイルパス"
           {...register("src")}
         />
         <button
