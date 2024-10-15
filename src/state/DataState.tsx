@@ -6,13 +6,22 @@ import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
+import {
+  arrayPartition,
+  PromiseOrder,
+  PromiseOrderOptions,
+} from "@/functions/arrayFunction";
 import { StorageDataStateClass as SdsClass } from "@/functions/storage/StorageDataStateClass";
 import { CreateState } from "./CreateState";
 import {
   compat_v1_ImageDataType,
   CompatSrcMerge,
 } from "@/routes/edit/compat/SrcMerge";
+import {
+  toastLoadingOptions,
+  toastUpdateOptions,
+} from "@/components/define/toastContainerDef";
+import { sleep } from "@/functions/Time";
 
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
@@ -246,27 +255,43 @@ export function UploadToast<T = unknown>(promise: Promise<T>) {
   });
 }
 
-export function ImportToast(promise: Promise<Response | Response[]>) {
-  return toast.promise(
-    promise.then(async (r) => {
+interface ImportToastOption extends Omit<PromiseOrderOptions, "sync"> {}
+export async function ImportToast(
+  fetchList: (() => Promise<Response>)[],
+  options: ImportToastOption = {}
+) {
+  const id = toast.loading("インポート中…", toastLoadingOptions);
+  let max = fetchList.length;
+  return PromiseOrder(fetchList, {
+    minTime: 400,
+    ...options,
+    sync(i) {
+      if (id && i && max) {
+        toast.update(id, {
+          progress: i / max,
+        });
+      }
+    },
+  })
+    .then(async (r) => {
       const rs = Array.isArray(r) ? r : [r];
       if (rs.every((r) => r.ok)) return r;
       else throw await rs.find((r) => !r.ok)!.text();
-    }),
-    {
-      pending: "インポート中…",
-      success: {
-        render({ data: r }) {
-          return unknownToString(r) || "インポートしました";
-        },
-      },
-      error: {
-        render({ data: e }) {
-          return "インポートに失敗しました" + (e ? `\n[${e}]` : "");
-        },
-      },
-    }
-  );
+    })
+    .then((r) => {
+      toast.update(id!, {
+        ...toastUpdateOptions,
+        render: unknownToString(r) || "インポートしました",
+        type: "success",
+      });
+    })
+    .catch((e) => {
+      toast.update(id!, {
+        ...toastUpdateOptions,
+        render: "インポートに失敗しました" + (e ? `\n[${e}]` : ""),
+        type: "error",
+      });
+    });
 }
 
 interface DataUploadBaseProps {
@@ -284,7 +309,7 @@ export function makeImportFetchList({
   apiOrigin,
   src,
   data,
-  partition = 250,
+  partition = 100,
   object,
 }: makeImportFetchListProps) {
   return arrayPartition(data, partition).map((item, i) => {
@@ -308,7 +333,7 @@ interface ImportImagesJsonProps extends DataUploadBaseProps {
 export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
-  partition = 200,
+  partition,
 }: ImportImagesJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
@@ -381,7 +406,7 @@ export async function ImportImagesJson({
       data,
       object,
     });
-    await ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
+    return ImportToast(fetchList);
   });
 }
 
@@ -393,7 +418,7 @@ type importEntryCharacterDataType = Omit<
 };
 export async function ImportCharacterJson({
   apiOrigin,
-  partition = 200,
+  partition,
 }: DataUploadBaseProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
@@ -421,7 +446,7 @@ export async function ImportCharacterJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
+    return ImportToast(fetchList);
   });
 }
 
@@ -430,7 +455,7 @@ type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
 };
 export async function ImportPostJson({
   apiOrigin,
-  partition = 200,
+  partition,
 }: DataUploadBaseProps = {}) {
   return jsonFileDialog().then((json) => {
     let object: importEntryDataType<importEntryPostDataType>;
@@ -477,7 +502,7 @@ export async function ImportPostJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
+    return ImportToast(fetchList);
   });
 }
 
@@ -486,7 +511,7 @@ interface ImportLinksJsonProps extends DataUploadBaseProps {
 }
 export async function ImportLinksJson({
   apiOrigin,
-  partition = 200,
+  partition,
   dir = "",
 }: ImportLinksJsonProps = {}) {
   return jsonFileDialog().then((json) => {
@@ -502,6 +527,6 @@ export async function ImportLinksJson({
       data,
       object,
     });
-    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
+    return ImportToast(fetchList);
   });
 }

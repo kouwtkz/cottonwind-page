@@ -10,13 +10,13 @@ export interface PromiseOrderStateType {
   abort?: boolean;
   isAborted?: boolean;
 }
-interface PromiseOrderOptions {
+export interface PromiseOrderOptions {
   sleepTime?: number;
   minTime?: number;
   state?: PromiseOrderStateType;
   sync?: (i: number) => void;
 }
-export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { sleepTime, minTime, state, sync }: PromiseOrderOptions) {
+export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { sleepTime, minTime, state, sync }: PromiseOrderOptions = {}) {
   const results: T[] = [];
   if (state) state.isAborted = false;
   const max = list.length;
