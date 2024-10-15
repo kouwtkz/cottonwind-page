@@ -98,10 +98,11 @@ export class SiteLinkServerClass {
         const list = object.data;
         if (Array.isArray(list)) {
           lastModToUniqueNow(list as KeyValueType<any>);
+          console.log(list);
           for (const item of list) {
-            if (item.key) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
+            await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
           }
-              return c.text("インポートしました！")
+          return c.text("インポートしました！")
         }
       }
       return c.text("インポートに失敗しました", 500);
