@@ -37,6 +37,8 @@ export class StorageDataClass<T extends Object = {}> {
     return data;
   }
   setItem(data: T, lastmod?: string) {
+    this.data = data;
+    this.lastmod = lastmod;
     return localStorage.setItem(
       this.key,
       JSON.stringify({ lastmod, version: this.version, data })

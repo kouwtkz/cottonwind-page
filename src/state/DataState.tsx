@@ -119,8 +119,8 @@ export function DataState() {
             apiOrigin,
             loadValue: load,
           })
-          .then((data) => {
-            dataObject.setData({
+          .then(async (data) => {
+            await dataObject.setData({
               data,
               setState: setData,
             });
