@@ -98,7 +98,6 @@ export class SiteLinkServerClass {
         const list = object.data;
         if (Array.isArray(list)) {
           lastModToUniqueNow(list as KeyValueType<any>);
-          console.log(list);
           for (const item of list) {
             await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
           }
