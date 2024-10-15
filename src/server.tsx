@@ -48,6 +48,7 @@ export function NoIndex(path: RoutingUnion) {
     case "admin":
     case "admin/:key":
     case "suggest":
+    case "log":
       return true;
     default:
       return;

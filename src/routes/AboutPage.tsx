@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { ImageMee } from "@/layout/ImageMee";
 import { useEnv } from "@/state/EnvState";
-import { ChangeLog } from "@/state/GitState";
 import { useImageState } from "@/state/ImageState";
 import { CopyWithToast } from "@/functions/toastFunction";
 
@@ -79,7 +78,6 @@ export default function AboutPage() {
           <li>政治的、宗教的な目的で使用すること</li>
         </ul>
       </div>
-      <ChangeLog />
     </div>
   );
 }

@@ -202,7 +202,7 @@ function YearItem({
 export function ChangeLog() {
   const { git } = useGitState();
   return (
-    <div className="changeLog">
+    <div className="aboutPage changeLog">
       <GitState />
       {git ? (
         <>

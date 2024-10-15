@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "react-toastify";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import { LinksState, useFavLinks, useLinks } from "@/state/LinksState";
@@ -49,6 +49,11 @@ export default function LinksPage() {
           </li>
           <li>
             <a href="/suggest">Suggest page (links for miss typo)</a>
+          </li>
+          <li>
+            <Link to="/log" state={{ backUrl: location.href }}>
+              サイトの更新履歴 (Git)
+            </Link>
           </li>
         </ul>
       </div>
