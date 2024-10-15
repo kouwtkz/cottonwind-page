@@ -28,7 +28,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { useCharactersMap, CharacterState } from "@/state/CharacterState";
+import { useCharactersMap } from "@/state/CharacterState";
 import { useImageState } from "@/state/ImageState";
 import { useDataIsComplete } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -37,6 +37,7 @@ import { useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { EmbedNode, useFilesMap } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
+import { MdDownload, MdMoveToInbox } from "react-icons/md";
 
 type ImageViewerType = {
   image: ImageType | null;
@@ -293,8 +294,8 @@ function PreviewArea({ image }: PreviewAreaProps) {
                   >
                     <RiBook2Fill />
                   </Link>
-                ) : image.type === "pdf" ? (
-                  <EmbedOpen embed={image.embed} />
+                ) : image.type ? (
+                  <EmbedOpen embed={image.embed} type={image.type} />
                 ) : null
               ) : null}
               <div className="wh-all-fill imageArea">
@@ -311,7 +312,17 @@ function PreviewArea({ image }: PreviewAreaProps) {
   );
 }
 
-function EmbedOpen({ embed }: { embed?: string }) {
+interface EmbedOpenProps {
+  embed?: string;
+  type?: string;
+  title?: string;
+}
+function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
+  if (!title) {
+    if (type === "material") title = "素材をダウンロードする";
+    else if (type === "pdf") title = "PDFを開く";
+    else title = "ダウンロードする";
+  }
   const mediaOrigin = useMediaOrigin()[0];
   const filesMap = useFilesMap()[0];
   const url = useMemo(() => {
@@ -321,12 +332,18 @@ function EmbedOpen({ embed }: { embed?: string }) {
   }, [embed, filesMap]);
   return (
     <a
-      title="ひらく"
+      title={title}
       href={url}
       target="_blank"
       className="open translucent-button"
     >
-      <RiFilePdf2Fill />
+      {type === "material" ? (
+        <MdMoveToInbox />
+      ) : type === "pdf" ? (
+        <RiFilePdf2Fill />
+      ) : (
+        <MdDownload />
+      )}
     </a>
   );
 }

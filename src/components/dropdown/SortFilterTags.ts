@@ -27,6 +27,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
       { value: "type:movie", label: "🎬動画・アニメ" },
       { value: "type:picture", label: "📷写真・VRC" },
       { value: "type:3d", label: "🧶3Dモデル" },
+      { value: "type:material", label: "📦素材" },
     ],
   },
   {

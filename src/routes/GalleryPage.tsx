@@ -67,6 +67,7 @@ import {
 import { Modal } from "@/layout/Modal";
 import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
+import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -679,11 +680,23 @@ function GalleryImageItem({
         </div>
       ) : null}
       {image.embed ? (
-        image.type === "pdf" ? (
+        image.type === "material" ? (
+          <div className="translucent-special-button">
+            <MdMoveToInbox />
+          </div>
+        ) : image.type === "pdf" ? (
           <div className="translucent-special-button">
             <RiFilePdf2Fill />
           </div>
-        ) : null
+        ) : image.type === "3d" ? (
+          <div className="translucent-special-button">
+            <Md3dRotation />
+          </div>
+        ) : (
+          <div className="translucent-special-button">
+            <MdInsertDriveFile />
+          </div>
+        )
       ) : null}
       <ImageMeeThumbnail
         imageItem={image}

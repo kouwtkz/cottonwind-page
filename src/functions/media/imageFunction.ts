@@ -59,10 +59,13 @@ export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<str
       return "ebook";
     } else if (/\.(pdf)$/i.test(embed)) {
       return "pdf";
-    } else if (/^3d\//i.test(embed)) {
-      return "3d";
+    } else if (/\.(html?|xml)/i.test(embed)) {
+      if (/3d/i.test(embed)) return "3d";
+      else return "embed";
+    } else if (/素材|そざい|material/i.test(embed)) {
+      return "material";
     } else {
-      return "embed";
+      return "file";
     }
   } else if (albumType) {
     return albumType;
