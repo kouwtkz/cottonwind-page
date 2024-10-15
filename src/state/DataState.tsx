@@ -14,7 +14,7 @@ import {
 import { StorageDataStateClass as SdsClass } from "@/functions/storage/StorageDataStateClass";
 import { CreateState } from "./CreateState";
 import {
-  compat_v1_ImageDataType,
+  compat_v1_v2_ImageDataType,
   CompatSrcMerge,
 } from "@/routes/edit/compat/SrcMerge";
 import {
@@ -26,7 +26,7 @@ import { sleep } from "@/functions/Time";
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "2.1.1",
+  version: "3.0.1",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -338,9 +338,10 @@ export async function ImportImagesJson({
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
     let data: importEntryImageDataType[];
-    const version: string = json.version || "0";
-    const versions = version.split(".");
-    if (version === "0") {
+    const versionStr: string = json.version || "0";
+    const versions = versionStr.split(".");
+    const version = Number(versions[0]);
+    if (version === 0) {
       const oldData = json as YamlDataType[];
       const dataMap = new Map<string, importEntryImageDataType>();
       oldData.forEach((album) => {
@@ -360,7 +361,7 @@ export async function ImportImagesJson({
                 album.name && albumLastSlach >= 0
                   ? album.name.slice(albumLastSlach + 1)
                   : album.name,
-              name: item.name,
+              title: item.name,
               description: item.description,
               link: item.link,
               tags:
@@ -382,18 +383,24 @@ export async function ImportImagesJson({
       });
       object = { version: "0" };
       data = Object.values(Object.fromEntries(dataMap));
-    } else if (versions[0] === "1") {
-      const { data: _data, ..._entry } =
-        json as dataBaseType<compat_v1_ImageDataType>;
-      await CompatSrcMerge({ apiOrigin, data: _data, doneClose: 1000 });
-      _data?.forEach((v) => {
-        const webpPath = v.webp || v.icon;
-        if (webpPath) v.src = "image/" + getBasename(webpPath);
-        delete v.webp;
-        delete v.icon;
-      });
+    } else if (version <= 2) {
+      const _json: dataBaseType<compat_v1_v2_ImageDataType> = json;
+      if (version === 1) {
+        await CompatSrcMerge({
+          apiOrigin,
+          data: _json.data,
+          doneClose: 1000,
+        });
+        _json.data?.forEach((v) => {
+          const webpPath = v.webp || v.icon;
+          if (webpPath) v.src = "image/" + getBasename(webpPath);
+          delete v.webp;
+          delete v.icon;
+        });
+      }
+      const { data: _data, ..._entry } = _json;
       object = _entry;
-      data = _data ? _data : [];
+      data = _data ? _data.map((d) => ({ title: d.name, ...d })) : [];
     } else {
       const { data: _data, ..._entry } = json as dataBaseType<ImageDataType>;
       object = _entry;

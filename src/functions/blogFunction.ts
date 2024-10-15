@@ -152,7 +152,7 @@ export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
             const href = Url.origin + Url.pathname + "?" + String(new URLSearchParams(s));
             const imageData = await getImagesData(searchParams.get("image")!);
             if (imageData) {
-              alt = alt || imageData.name || "";
+              alt = alt || imageData.title || "";
               replaceDescription = `<a href="${href}"><img alt="${alt}" src="${concatOriginUrl(mediaOrigin, imageData.src)}" /></a>`
             } else {
               replaceDescription = `<a href="${href}">[画像]${alt}</a>`

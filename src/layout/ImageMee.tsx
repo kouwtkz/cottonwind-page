@@ -87,7 +87,7 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
     const { addProgress, addMax } = useToastProgress();
     const ext = getExtension(imageItem?.src || _src || "");
     const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
-    const alt = _alt || imageItem?.name || imageItem?.src || "";
+    const alt = _alt || imageItem?.title || imageItem?.src || "";
 
     [width, height] = useMemo(() => {
       if (size) {

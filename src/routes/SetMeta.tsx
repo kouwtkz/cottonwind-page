@@ -152,7 +152,7 @@ export function MetaValues({
     const foundImage = imagesMap?.get(imageParam);
     if (foundImage) {
       title =
-        (foundImage.name || foundImage.key) +
+        (foundImage.title || foundImage.key) +
         " | " +
         (isTopPage ? siteTitle : title);
       image = concatOriginUrl(mediaOrigin, foundImage.src);

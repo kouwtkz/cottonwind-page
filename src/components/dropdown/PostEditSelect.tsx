@@ -253,7 +253,7 @@ export function PostEditSelectMedia({
     const searchParams = new URLSearchParams({ image: image.key });
     replacePostTextarea({
       textarea,
-      before: `\n![${image.name}](?${searchParams})\n`,
+      before: `\n![${image.title}](?${searchParams})\n`,
       after: "",
     });
   }

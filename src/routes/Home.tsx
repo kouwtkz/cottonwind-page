@@ -206,7 +206,7 @@ export function HomeImage() {
         to: new URL("?" + searchParams.toString(), location.href).href,
         state: { ...state, from: pathname },
         preventScrollReset: true,
-        title: image.name || undefined,
+        title: image.title || undefined,
       };
     },
     [searchParams, state]

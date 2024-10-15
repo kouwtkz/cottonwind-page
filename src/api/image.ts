@@ -24,7 +24,7 @@ const TableObject = new DBTableClass<ImageDataType>({
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
-    name: { type: "TEXT" },
+    title: { type: "TEXT" },
     album: { type: "TEXT" },
     description: { type: "TEXT" },
     src: { type: "TEXT" },
@@ -46,7 +46,7 @@ const TableObject = new DBTableClass<ImageDataType>({
     lastmod: { createAt: true, unique: true },
     version: { type: "INTEGER" },
   },
-  insertEntryKeys: ["key", "name", "album", "description", "src", "thumbnail", "width", "height",
+  insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height",
     "tags", "characters", "copyright", "link", "embed", "type", "order", "topImage", "pickup", "draft", "version"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 });
@@ -152,7 +152,7 @@ app.post("/send", async (c, next) => {
   const images: {
     [k in imageModeType]?: { path: string; buf?: Uint8Array | ArrayBuffer | null };
   } = {};
-  const name = filename ? getName(filename) : "";
+  const title = filename ? getName(filename) : "";
   const id = formData.has("id") ? Number(formData.get("id")) : null;
   const width = formData.has("width") ? Number(formData.get("width")) : null;
   const height = formData.has("height") ? Number(formData.get("height")) : null;
@@ -173,7 +173,7 @@ app.post("/send", async (c, next) => {
   let imageBuffer: ArrayBuffer | undefined;
   function Select() {
     const where: MeeSqlFindWhereType<ImageDataType> =
-      id === null ? { key: name } : { id };
+      id === null ? { key: title } : { id };
     return TableObject.Select({ db, where });
   }
   const timeNum = Number(mtime);
@@ -207,7 +207,7 @@ app.post("/send", async (c, next) => {
     const updateCharacters = JoinUnique(value.characters, characters);
     const nowString = new Date().toISOString();
     const entry: MeeSqlEntryType<ImageDataType> = {
-      name,
+      title,
       album: album && (albumOverwrite || !value.album) ? album : (value.album ? undefined : "uploads"),
       ...pathes,
       ...metaSize,
@@ -218,15 +218,15 @@ app.post("/send", async (c, next) => {
       lastmod: value.time && value.time > nowString ? undefined : nowString,
       version: (value.version ?? 0) + 1,
     };
-    await TableObject.Update({ db, where: { key: name }, entry });
+    await TableObject.Update({ db, where: { key: title }, entry });
     return c.json({ ...value, ...entry });
   } else {
     const entry: MeeSqlEntryType<ImageDataType> = {
-      name,
+      title,
       album: album || "main",
       time: timeString,
       mtime: timeString,
-      key: name,
+      key: title,
       src: images.src?.path,
       draft: direct ? null : 1,
       ...pathes,

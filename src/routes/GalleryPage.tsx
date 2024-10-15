@@ -272,7 +272,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             "tags",
             "characters",
             "copyright",
-            "name",
+            "title",
             "description",
             "embed",
           ],
@@ -646,7 +646,7 @@ function GalleryImageItem({
       to: new URL("?" + searchParams.toString(), location.href).href,
       state: { ...state, from: pathname },
       preventScrollReset: true,
-      title: image.name || undefined,
+      title: image.title || undefined,
     };
   }, [searchParams, image, state]);
   return (

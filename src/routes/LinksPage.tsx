@@ -202,7 +202,7 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
         {item.width}×{item.height} px
       </div>
       <a
-        title={item.name || item.src || ""}
+        title={item.title || item.src || ""}
         {...(move ? {} : { href: concatOriginUrl(mediaOrigin, item.src) })}
         target="banner"
         className="overlay"

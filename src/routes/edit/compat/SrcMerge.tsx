@@ -6,7 +6,8 @@ import { PromiseOrder, PromiseOrderStateType } from "@/functions/arrayFunction";
 import { imageDataObject, makeImportFetchList } from "@/state/DataState";
 import { toast } from "react-toastify";
 
-export type compat_v1_ImageDataType = ImageDataType & {
+export type compat_v1_v2_ImageDataType = ImageDataType & {
+  name?: string | null;
   webp?: string | null;
   icon?: string | null;
 };
@@ -16,7 +17,7 @@ export async function CompatSrcMerge({
   doneClose,
 }: {
   apiOrigin?: string;
-  data?: compat_v1_ImageDataType[];
+  data?: compat_v1_v2_ImageDataType[];
   doneClose?: number;
 }) {
   const state: PromiseOrderStateType = { abort: false };

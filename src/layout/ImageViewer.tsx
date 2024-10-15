@@ -115,7 +115,7 @@ function InfoArea({ image }: InfoAreaProps) {
                   ? image.albumObject.visible.title
                   : true
               ) ? (
-                <h2 className="title">{image.name || image.key}</h2>
+                <h2 className="title">{image.title || image.key}</h2>
               ) : null}
               <div className="description">
                 <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
@@ -300,7 +300,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
               <div className="wh-all-fill imageArea">
                 <ImageMee
                   imageItem={image}
-                  title={image.name || image.src || ""}
+                  title={image.title || image.src || ""}
                 />
               </div>
             </div>
@@ -466,7 +466,7 @@ export function GalleryViewerPaging({
           replace={true}
         >
           <div className="cursor">≪</div>
-          <div>{prevNextImage.before.name}</div>
+          <div>{prevNextImage.before.title}</div>
         </Link>
       ) : (
         <div className="flex-1" />
@@ -479,7 +479,7 @@ export function GalleryViewerPaging({
           preventScrollReset={true}
           replace={true}
         >
-          <div>{prevNextImage.after.name}</div>
+          <div>{prevNextImage.after.title}</div>
           <div className="cursor">≫</div>
         </Link>
       ) : (

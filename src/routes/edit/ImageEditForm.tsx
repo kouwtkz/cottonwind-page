@@ -158,7 +158,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
   const defaultValues = useMemo(
     () => ({
-      name: image?.name || "",
+      title: image?.title || "",
       description: image?.description || "",
       topImage: String(image?.topImage || null),
       pickup: String(image?.pickup),
@@ -437,7 +437,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 className="title"
                 title="タイトル"
                 type="text"
-                {...register("name")}
+                {...register("title")}
                 disabled={isBusy}
               />
             </div>

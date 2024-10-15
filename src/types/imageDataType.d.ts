@@ -1,7 +1,7 @@
 interface ImageDataType {
   id: number;
   key: string;
-  name?: string | null;
+  title?: string | null;
   album?: string | null;
   description?: string | null;
   src?: string | null;
