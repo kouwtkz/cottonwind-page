@@ -97,7 +97,7 @@ interface MakeRssProps {
 export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
   const Url = new URL(url);
   const SITE_URL = Url.origin;
-  const mediaOrigin = getMediaOrigin(env, url);
+  const mediaOrigin = getMediaOrigin(env, SITE_URL);
   const imagesDataMap = new Map<string, ImageDataType>();
   async function getImagesData(key?: string | null) {
     let imageData: ImageDataType | undefined;
