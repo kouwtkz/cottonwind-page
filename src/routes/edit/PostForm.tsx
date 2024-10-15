@@ -26,7 +26,6 @@ import {
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useApiOrigin } from "@/state/EnvState";
-import { fileDownload } from "@/components/FileTool";
 import {
   imageDataObject,
   ImportPostJson,
@@ -39,6 +38,7 @@ import {
   dateISOfromLocaltime,
 } from "@/functions/DateFunction";
 import { SendDelete } from "@/functions/sendFunction";
+import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -504,10 +504,7 @@ export function PostForm() {
                   break;
                 case "download":
                   if (confirm("記事データを一括で取得しますか？")) {
-                    fileDownload(
-                      postsDataObject.storage.key + ".json",
-                      JSON.stringify(postsDataObject.storage)
-                    );
+                    DownloadDataObject(postsDataObject, { key: "postId" });
                   }
                   break;
                 case "upload":

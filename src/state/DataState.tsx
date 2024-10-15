@@ -1,6 +1,6 @@
 import { useApiOrigin, useIsLogin } from "./EnvState";
 import { useEffect, useState } from "react";
-import { jsonFileDialog } from "@/components/FileTool";
+import { fileDownload, jsonFileDialog } from "@/components/FileTool";
 import { toast } from "react-toastify";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
@@ -17,7 +17,7 @@ import {
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "2.1.0",
+  version: "2.1.1",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -391,11 +391,10 @@ type importEntryCharacterDataType = Omit<
 > & {
   [k: string]: any;
 };
-interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportCharacterJson({
   apiOrigin,
   partition = 200,
-}: ImportCharactersJsonProps = {}) {
+}: DataUploadBaseProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
     let data: importEntryCharacterDataType[];
@@ -429,11 +428,10 @@ export async function ImportCharacterJson({
 type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
   [k: string]: any;
 };
-interface ImportCharactersJsonProps extends DataUploadBaseProps {}
 export async function ImportPostJson({
   apiOrigin,
   partition = 200,
-}: ImportCharactersJsonProps = {}) {
+}: DataUploadBaseProps = {}) {
   return jsonFileDialog().then((json) => {
     let object: importEntryDataType<importEntryPostDataType>;
     let data: importEntryPostDataType[];
@@ -475,6 +473,31 @@ export async function ImportPostJson({
     const fetchList = makeImportFetchList({
       apiOrigin,
       src: "/blog/import",
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(PromiseOrder(fetchList, { sleepTime: 20 }));
+  });
+}
+
+interface ImportLinksJsonProps extends DataUploadBaseProps {
+  dir?: "" | "/fav";
+}
+export async function ImportLinksJson({
+  apiOrigin,
+  partition = 200,
+  dir = "",
+}: ImportLinksJsonProps = {}) {
+  return jsonFileDialog().then((json) => {
+    let object: importEntryDataType<SiteLinkData>;
+    let data: SiteLinkData[];
+    const { data: _data, ..._entry } = json as dataBaseType<SiteLinkData>;
+    object = _entry;
+    data = _data ? _data : [];
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: `/links${dir}/import`,
       partition,
       data,
       object,

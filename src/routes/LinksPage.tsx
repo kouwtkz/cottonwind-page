@@ -214,7 +214,7 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
         }}
       >
         <ImageMee
-          alt={`${item.width}×${item.height}バナー"`}
+          alt={`${item.width}×${item.height}バナー`}
           className="banner"
           imageItem={item}
           autoPixel={false}

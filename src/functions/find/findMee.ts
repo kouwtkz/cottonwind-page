@@ -33,7 +33,7 @@ export function findMee<T>({
             const typeofValue = typeof judgeValue;
             switch (typeofValue) {
               case "string":
-                result = a[k].localeCompare(b[k], 'ja');
+                if (a[k] && b[k]) result = a[k].localeCompare(b[k], 'ja');
                 break;
               case "number":
                 result = a[k] - b[k];

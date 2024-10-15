@@ -35,7 +35,7 @@ import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "@/components/FileTool";
+import { fileDialog } from "@/components/FileTool";
 import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import {
   charactersDataObject,
@@ -55,6 +55,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "@/functions/sendFunction";
+import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -525,11 +526,9 @@ export function CharaEditButton() {
             type="button"
             className="color round large"
             title="キャラデータのダウンロード"
-            onClick={async () => {
-              fileDownload(
-                charactersDataObject.storage.key + ".json",
-                JSON.stringify(charactersDataObject.storage)
-              );
+            onClick={() => {
+              if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
+                DownloadDataObject(charactersDataObject, { time: null });
             }}
           >
             <MdFileDownload />

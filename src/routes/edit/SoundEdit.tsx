@@ -1,5 +1,5 @@
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "@/components/FileTool";
+import { fileDialog } from "@/components/FileTool";
 import {
   soundAlbumsDataObject,
   soundsDataObject,
@@ -23,6 +23,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];
@@ -43,11 +44,9 @@ export function SoundEditButton() {
             type="button"
             className="color round large"
             title="サウンドデータのダウンロード"
-            onClick={async () => {
-              fileDownload(
-                soundsDataObject.storage.key + ".json",
-                JSON.stringify(soundsDataObject.storage)
-              );
+            onClick={() => {
+              if (confirm("音楽のJSONデータをダウンロードしますか？"))
+                DownloadDataObject(soundsDataObject, { time: null });
             }}
           >
             <MdFileDownload />

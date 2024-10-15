@@ -61,12 +61,12 @@ import { AiFillEdit } from "react-icons/ai";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
 import {
   CompatGalleryButton,
-  GalleryDownloadButton,
   GalleryImportButton,
   GalleryUploadButton,
 } from "./edit/ImagesManager";
 import { Modal } from "@/layout/Modal";
-import { CreateState } from "@/state/CreateState";
+import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
+import { TbDatabaseImport } from "react-icons/tb";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -551,13 +551,16 @@ function GalleryBody({
                   MenuButtonClassName="iconSwitch"
                   listClassName="flex column"
                 >
-                  <GalleryDownloadButton
+                  <ObjectDownloadButton
                     className="squared item text-left"
-                    beforeConfirm={true}
+                    dataObject={imageDataObject}
                   >
                     ギャラリーJSONデータのダウンロード
-                  </GalleryDownloadButton>
-                  <GalleryImportButton className="squared item text-left">
+                  </ObjectDownloadButton>
+                  <GalleryImportButton
+                    icon={<TbDatabaseImport />}
+                    className="squared item text-left"
+                  >
                     ギャラリーJSONデータのインポート
                   </GalleryImportButton>
                   <CompatGalleryButton className="squared item text-left">

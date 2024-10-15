@@ -10,7 +10,12 @@ import {
   useLinksEditMode,
 } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
-import { favLinksDataObject, imageDataObject } from "@/state/DataState";
+import {
+  favLinksDataObject,
+  imageDataObject,
+  ImportLinksJson,
+  linksDataObject,
+} from "@/state/DataState";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useFavLinks } from "@/state/LinksState";
@@ -29,6 +34,12 @@ import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass
 import { MdDeleteForever } from "react-icons/md";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DropdownButton } from "@/components/dropdown/DropdownButton";
+import {
+  ObjectDownloadButton,
+  ObjectCommonButton,
+} from "@/components/button/ObjectDownloadButton";
+import { TbDatabaseImport } from "react-icons/tb";
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
@@ -218,10 +229,12 @@ export function LinksEdit({
 export const useEditLinkID = CreateState<number | boolean>();
 export const useMoveLink = CreateState(0);
 export function LinksEditButtons() {
+  const apiOrigin = useApiOrigin()[0];
   const setEdit = useEditLinkID()[1];
+  const setLinksLoad = linksDataObject.useLoad()[1];
   const [move, setMove] = useMoveLink();
   return (
-    <div className="icons">
+    <div className="icons flex center">
       {move ? (
         <>
           <CancelButton
@@ -237,6 +250,29 @@ export function LinksEditButtons() {
         </>
       ) : (
         <>
+          <DropdownButton
+            MenuButtonClassName="iconSwitch"
+            listClassName="flex column"
+          >
+            <ObjectDownloadButton
+              className="squared item text-left"
+              dataObject={linksDataObject}
+              options={{ key: ["title", "url", "image"] }}
+            >
+              JSONデータのダウンロード
+            </ObjectDownloadButton>
+            <ObjectCommonButton
+              icon={<TbDatabaseImport />}
+              className="squared item text-left"
+              onClick={() => {
+                ImportLinksJson({ apiOrigin }).then(() => {
+                  setLinksLoad("no-cache-reload");
+                });
+              }}
+            >
+              JSONデータのインポート
+            </ObjectCommonButton>
+          </DropdownButton>
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
             useSwitch={useLinksEditMode}
@@ -262,10 +298,12 @@ export function LinksEditButtons() {
 export const useEditFavLinkID = CreateState<number | boolean>();
 export const useMoveFavLink = CreateState(0);
 export function FavBannerEditButtons() {
+  const apiOrigin = useApiOrigin()[0];
   const setEdit = useEditFavLinkID()[1];
+  const setFavLinksLoad = favLinksDataObject.useLoad()[1];
   const [move, setMove] = useMoveFavLink();
   return (
-    <div className="icons">
+    <div className="icons flex center">
       {move ? (
         <>
           <CancelButton
@@ -281,6 +319,29 @@ export function FavBannerEditButtons() {
         </>
       ) : (
         <>
+          <DropdownButton
+            MenuButtonClassName="iconSwitch"
+            listClassName="flex column"
+          >
+            <ObjectDownloadButton
+              className="squared item text-left"
+              dataObject={favLinksDataObject}
+              options={{ key: ["title", "url", "image"] }}
+            >
+              JSONデータのダウンロード
+            </ObjectDownloadButton>
+            <ObjectCommonButton
+              icon={<TbDatabaseImport />}
+              className="squared item text-left"
+              onClick={() => {
+                ImportLinksJson({ apiOrigin, dir: "/fav" }).then(() => {
+                  setFavLinksLoad("no-cache-reload");
+                });
+              }}
+            >
+              JSONデータのインポート
+            </ObjectCommonButton>
+          </DropdownButton>
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
             useSwitch={useFavoriteLinksEditMode}
