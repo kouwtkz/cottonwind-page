@@ -3,16 +3,13 @@ import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog } from "@/components/FileTool";
-import {
-  filesDataObject,
-} from "@/state/DataState";
-import {
-  MdFileUpload,
-} from "react-icons/md";
-import { FilesUpload } from "./edit/FilesEdit";
+import { filesDataObject } from "@/state/DataState";
+import { MdFileUpload, MdOpenInNew } from "react-icons/md";
+import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
 import { useFiles } from "@/state/FileState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { ImagesManager } from "./edit/ImagesManager";
+import { AiFillEdit } from "react-icons/ai";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -59,9 +56,13 @@ function FilesManager() {
   const apiOrigin = useApiOrigin()[0];
   const mediaOrigin = useMediaOrigin()[0];
   const setFilesLoad = filesDataObject.useLoad()[1];
+  const [edit, setEdit] = useEditFileID();
   const files = useFiles()[0];
   return (
     <>
+      {edit ? (
+        <FilesEdit edit={edit} setEdit={setEdit} dataObject={filesDataObject} />
+      ) : null}
       <RbButtonArea>
         <button
           type="button"
@@ -71,7 +72,7 @@ function FilesManager() {
             fileDialog("*", true)
               .then((files) => Array.from(files))
               .then((files) =>
-                FilesUpload({ path: "/file/send", files, apiOrigin })
+                FilesUpload({ send: "/file/send", files, apiOrigin })
               )
               .then(() => {
                 setFilesLoad("no-cache");
@@ -83,17 +84,34 @@ function FilesManager() {
       </RbButtonArea>
       <main>
         <h2 className="color-main en-title-font">File Manager</h2>
-        <div className="flex column">
+        <ul className="files">
           {files?.map((file, i) => {
             return (
-              <div key={i}>
-                <a target="file" href={concatOriginUrl(mediaOrigin, file.src)}>
-                  {file.key}
+              <li key={i} tabIndex={-1}>
+                <div className="name">{file.key}</div>
+                <button
+                  type="button"
+                  title="編集する"
+                  className="color-main miniIcon margin"
+                  onClick={(e) => {
+                    setEdit(file.id);
+                    e.preventDefault();
+                  }}
+                >
+                  <AiFillEdit />
+                </button>
+                <a
+                  className="open"
+                  title="ファイルを開く"
+                  target="file"
+                  href={concatOriginUrl(mediaOrigin, file.src)}
+                >
+                  <MdOpenInNew />
                 </a>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </main>
     </>
   );

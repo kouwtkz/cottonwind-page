@@ -52,26 +52,29 @@ app.patch("/send", async (c, next) => {
   const now = new Date();
   return Promise.all(
     data.map(async item => {
-      const { id: _id, ...data } = item as KeyValueType<unknown>;
+      const { id, ...data } = item as KeyValueType<unknown>;
       const entry = TableObject.getInsertEntry(data);
       entry.lastmod = now.toISOString();
       now.setMilliseconds(now.getMilliseconds() + 1);
-      const target_id = data.target ? String(data.target) : undefined;
-      const target = target_id
-        ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
+      const target = id
+        ? (await TableObject.Select({ db, where: { id }, take: 1 }))[0]
         : undefined;
       if (target) {
-        entry.key = data.id;
-        await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
+        entry.key = data.key;
+        if (entry.src && target.src && entry.src !== target.src) {
+          const rename = String(entry.src);
+          const object = await c.env.BUCKET.get(target.src);
+          if (object) {
+            await c.env.BUCKET.put(rename, await object.arrayBuffer());
+            await c.env.BUCKET.delete(target.src);
+          }
+        }
+        await TableObject.Update({ db, entry, take: 1, where: { id: id! } });
         return { type: "update", entry: { ...target, ...entry } };
-      } else {
-        entry.key = data.id || target_id;
-        await TableObject.Insert({ db, entry });
-        return { type: "create", entry }
       }
     })
   ).then(results => {
-    return c.json(results, results.some(({ type }) => type === "create") ? 201 : 200);
+    return c.json(results);
   });
 });
 
@@ -102,6 +105,27 @@ app.post("/send", async (c, next) => {
     }
   }
   return c.text("");
+});
+
+app.delete("/send", async (c) => {
+  const db = new MeeSqlD1(c.env.DB);
+  const data = await c.req.json();
+  const id = data.id;
+  if (typeof data.id === "number") {
+    const values = (await TableObject.Select({ db, params: "*", where: { id } }))[0];
+    try {
+      if (values.src) await c.env.BUCKET.delete(values.src);
+      await TableObject.Update({
+        db,
+        entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
+        where: { id }
+      });
+      return c.text(id);
+    } catch {
+      return c.text("データベースでの削除に失敗しました", { status: 500 });
+    }
+  }
+  return c.text("削除するデータがありません");
 });
 
 app.post("/import", async (c, next) => {

@@ -1,15 +1,31 @@
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { corsFetch } from "@/functions/fetch";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
+import { Modal } from "@/layout/Modal";
+import { CreateState } from "@/state/CreateState";
 import { UploadToast } from "@/state/DataState";
+import { useApiOrigin } from "@/state/EnvState";
+import { useFiles } from "@/state/FileState";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useEffect, useMemo, useRef } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+import { useHotkeys } from "react-hotkeys-hook";
+import { MdDeleteForever } from "react-icons/md";
+import { toast } from "react-toastify";
+import * as z from "zod";
+
+const SEND_FILES = "/file/send";
 
 export async function FilesUploadProcess({
   files,
   apiOrigin,
-  path,
+  send = SEND_FILES,
   sleepTime = 10,
   minTime,
 }: FilesUploadProps) {
-  const url = (apiOrigin || "") + path;
+  const url = (apiOrigin || "") + send;
   const formDataList = files.map((file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -51,4 +67,137 @@ export async function FilesUploadProcess({
 
 export async function FilesUpload(args: FilesUploadProps) {
   return UploadToast(FilesUploadProcess(args));
+}
+
+export const useEditFileID = CreateState<number>();
+
+const schema = z.object({
+  src: z.string().min(1, { message: "ファイル名を入力してください" }),
+});
+
+export function FilesEdit({
+  dataObject,
+  send = SEND_FILES,
+  edit,
+  setEdit,
+}: {
+  dataObject: StorageDataStateClass<FilesRecordDataType>;
+  send?: string;
+  edit?: number;
+  setEdit(v?: number): void;
+}) {
+  const files = useFiles()[0];
+  const filesData = dataObject.useData()[0];
+  const dataItem = useMemo(
+    () => filesData?.find((v) => v.id === edit),
+    [filesData, edit]
+  );
+  const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
+  const targetLastmod = useRef<string | null>(null);
+  useEffect(() => {
+    if (targetLastmod.current) {
+      setEdit(filesData?.find((v) => v.lastmod === targetLastmod.current)?.id);
+      targetLastmod.current = null;
+    }
+  }, [filesData]);
+  const apiOrigin = useApiOrigin()[0];
+  const setLoad = dataObject.useLoad()[1];
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { isDirty, dirtyFields, errors },
+  } = useForm<FieldValues>({
+    defaultValues: {
+      key: dataItem?.key,
+      src: dataItem?.src,
+    },
+    resolver: zodResolver(schema),
+  });
+  useEffect(() => {
+    Object.values(errors).forEach((error) => {
+      toast.error(String(error?.message));
+    });
+  }, [errors]);
+  function Submit() {
+    const values = getValues();
+    const entry = Object.fromEntries(
+      Object.entries(dirtyFields)
+        .filter((v) => v[1])
+        .map((v) => [v[0], values[v[0]]])
+    ) as SiteLink;
+    entry.id = dataItem?.id;
+    toast.promise(
+      axios
+        .patch(concatOriginUrl(apiOrigin, send), entry, {
+          withCredentials: true,
+        })
+        .then(() => {
+          setLoad("no-cache");
+          setEdit();
+        }),
+      {
+        pending: "送信中",
+        success: "送信しました",
+        error: "送信に失敗しました",
+      }
+    );
+  }
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isDirty) handleSubmit(Submit)();
+    },
+    { enableOnFormTags: true }
+  );
+  function Close() {
+    if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
+      setEdit();
+    }
+  }
+  useHotkeys("escape", Close, { enableOnFormTags: true });
+  return (
+    <Modal onClose={Close}>
+      <div className="text-left">
+        <button
+          title="削除"
+          type="button"
+          className="color-warm miniIcon margin"
+          onClick={async () => {
+            const id = item?.id;
+            if (id && confirm("本当に削除しますか？")) {
+              axios
+                .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
+                .then(() => {
+                  setLoad("no-cache");
+                  setEdit();
+                });
+            }
+          }}
+        >
+          <MdDeleteForever />
+        </button>
+      </div>
+      <form className="flex" onSubmit={handleSubmit(Submit)}>
+        <input
+          title="ファイルID"
+          placeholder="ファイルのID"
+          {...register("key")}
+        />
+        <input
+          title="ファイル名"
+          placeholder="ファイル名"
+          {...register("src")}
+        />
+        <button
+          type="button"
+          className="color"
+          onClick={handleSubmit(Submit)}
+          disabled={!isDirty}
+        >
+          送信
+        </button>
+      </form>
+    </Modal>
+  );
 }

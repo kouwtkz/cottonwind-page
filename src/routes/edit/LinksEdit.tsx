@@ -18,7 +18,6 @@ import {
 } from "@/state/DataState";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { useFavLinks } from "@/state/LinksState";
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -94,13 +93,6 @@ export function LinksEdit({
       toast.error(String(error?.message));
     });
   }, [errors]);
-  useHotkeys(
-    "ctrl+enter",
-    (e) => {
-      if (isDirty) handleSubmit(Submit)();
-    },
-    { enableOnFormTags: true }
-  );
   function Submit() {
     const values = getValues();
     const entry = Object.fromEntries(
@@ -125,14 +117,21 @@ export function LinksEdit({
       }
     );
   }
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isDirty) handleSubmit(Submit)();
+    },
+    { enableOnFormTags: true }
+  );
+  function Close() {
+    if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
+      setEdit(false);
+    }
+  }
+  useHotkeys("escape", Close, { enableOnFormTags: true });
   return (
-    <Modal
-      onClose={() => {
-        if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
-          setEdit(false);
-        }
-      }}
-    >
+    <Modal onClose={Close}>
       <form className="flex" onSubmit={handleSubmit(Submit)}>
         <button
           title="削除"
@@ -141,7 +140,6 @@ export function LinksEdit({
           onClick={async () => {
             const id = item?.id;
             if (id && confirm("本当に削除しますか？")) {
-              console.log(id);
               axios
                 .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
                 .then(() => {

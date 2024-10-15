@@ -98,7 +98,7 @@ export function SoundEditButton() {
 }
 
 export async function SoundsUploadProcess(args: UploadBaseProps) {
-  return FilesUploadProcess({ ...args, path: "/sound/send" });
+  return FilesUploadProcess({ ...args, send: "/sound/send" });
 }
 
 export async function SoundsUpload(args: UploadBaseProps) {
