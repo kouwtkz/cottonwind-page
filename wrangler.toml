@@ -202,6 +202,7 @@ h4 = "二次創作ファンアートやパロディを掲載してます！"
 
 [[vars.IMAGE_ALBUMS]]
 name = "picture"
+type = "picture"
 visible = {title = true, filename = false, info = true}
 [vars.IMAGE_ALBUMS.gallery.pages]
 max = 8
