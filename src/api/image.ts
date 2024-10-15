@@ -258,11 +258,9 @@ app.post("/import", async (c, next) => {
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
       KeyValueConvertDBEntry(list);
-      await Promise.all(
-        list.map((item) => {
-          if (item.key) TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
-        })
-      );
+      for (const item of list) {
+        if (item.key) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
+      }
       return c.text("インポートしました！");
     }
   }
