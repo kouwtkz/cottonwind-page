@@ -169,9 +169,9 @@ app.post("/import", async (c, next) => {
     const list = object.data;
     if (Array.isArray(list)) {
       lastModToUniqueNow(list);
-      await PromiseOrder(list.map((item) => () =>
-        TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) })
-      ), { sleepTime: 0 });
+      for (const item of list) {
+        if (item.key) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
+      }
       return c.text("インポートしました！")
     }
   }
