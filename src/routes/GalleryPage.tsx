@@ -678,8 +678,7 @@ function GalleryImageItem({
         <div className="translucent-special-button">
           <RiPlayLargeFill />
         </div>
-      ) : null}
-      {image.embed ? (
+      ) : image.embed ? (
         image.type === "material" ? (
           <div className="translucent-special-button">
             <MdMoveToInbox />
