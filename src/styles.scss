@@ -787,6 +787,13 @@ a {
   }
 }
 
+span.label {
+  &::after {
+    content: ":";
+    margin: 0 0.375rem 0 0.125rem;
+  }
+}
+
 [hidden],
 .hidden {
   display: none !important;
