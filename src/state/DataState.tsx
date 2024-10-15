@@ -1,6 +1,6 @@
 import { useApiOrigin, useIsLogin } from "./EnvState";
 import { useEffect, useState } from "react";
-import { fileDownload, jsonFileDialog } from "@/components/FileTool";
+import { jsonFileDialog } from "@/components/FileTool";
 import { toast } from "react-toastify";
 import { getBasename, getName } from "@/functions/doc/PathParse";
 import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
@@ -21,12 +21,11 @@ import {
   toastLoadingOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
-import { sleep } from "@/functions/Time";
 
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
   src: "/data/images",
-  version: "3.0.1",
+  version: "3.0.2",
   preLoad: false,
   latestField: { time: "desc" },
 });
@@ -263,7 +262,7 @@ export async function ImportToast(
   const id = toast.loading("インポート中…", toastLoadingOptions);
   let max = fetchList.length;
   return PromiseOrder(fetchList, {
-    minTime: 400,
+    minTime: 200,
     ...options,
     sync(i) {
       if (id && i && max) {
