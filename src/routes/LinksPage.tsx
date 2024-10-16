@@ -72,6 +72,7 @@ export default function LinksPage() {
       </div>
       <MyBanners />
       <FavoriteLinks />
+      <MeeLinks title="登録サーチ" category="search" />
     </div>
   );
 }
