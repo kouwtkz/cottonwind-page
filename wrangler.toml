@@ -17,8 +17,7 @@ AUTHOR_ACCOUNT = "kouwtkz"
 AUTHOR_NAME = "わたかぜコウ"
 
 AUTHOR_EN_NAME = "WATAKAZE Kou"
-AUTHOR_EN_NAME_ON_PROP = "WATAKAZE Kou/koʊ/"
-AUTHOR_EN_PROP = "/watakaze koʊ/"
+AUTHOR_EN_PROP = "watakaze kô"
 AUTHOR_IMAGE = "めぇ20240404"
 
 SINCE = 2017

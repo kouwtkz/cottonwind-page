@@ -5,7 +5,7 @@ import { useImageState } from "@/state/ImageState";
 import { CopyWithToast } from "@/functions/toastFunction";
 
 export default function AboutPage() {
-  const [env] = useEnv();
+  const env = useEnv()[0];
   const { imagesMap } = useImageState();
   const authorImage = useMemo(() => {
     if (env?.AUTHOR_IMAGE && imagesMap) return imagesMap.get(env.AUTHOR_IMAGE);
@@ -17,9 +17,12 @@ export default function AboutPage() {
       {env ? (
         <div className="author">
           <h3 className="color-main">{env.AUTHOR_NAME}</h3>
-          <h4 className="color-soft">
-            {env.AUTHOR_EN_NAME_ON_PROP || env.AUTHOR_EN_NAME}
-          </h4>
+          <div className="on-en-prop">
+            <h4 className="color-soft">{env.AUTHOR_EN_NAME}</h4>
+            {env.AUTHOR_EN_PROP ? (
+              <p className="color-soft">[{env.AUTHOR_EN_PROP}]</p>
+            ) : null}
+          </div>
           {authorImage ? (
             <ImageMee
               className="authorImage"

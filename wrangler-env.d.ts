@@ -8,7 +8,6 @@ interface SiteConfigEnv {
   AUTHOR_ACCOUNT?: string;
   AUTHOR_NAME?: string;
   AUTHOR_EN_NAME?: string;
-  AUTHOR_EN_NAME_ON_PROP?: string;
   AUTHOR_EN_PROP?: string;
   AUTHOR_IMAGE?: string;
   SITE_IMAGE?: string;

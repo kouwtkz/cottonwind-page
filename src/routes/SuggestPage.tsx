@@ -17,9 +17,7 @@ export default function SuggestPage({ env }: { env: MeePagesEnv }) {
         <a href="/" title="トップに戻る">
           <h2>こっとんうぃんど (cottonwind.com)</h2>
           <h4>
-            Portfolio site of artist "
-            {env.AUTHOR_EN_NAME_ON_PROP ||
-              env.AUTHOR_EN_NAME}
+            Portfolio site of artist "{env.AUTHOR_EN_NAME}
             ". (This site)
           </h4>
           <div>わたかぜコウのサイトはこちらです！</div>
