@@ -294,67 +294,72 @@ export function MeeLinks({
     },
     [isEditable]
   );
+  const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
   return (
-    <div className={className} {...props}>
-      {edit ? (
-        <LinksEdit
-          send={send}
-          links={links}
-          dataObject={linksDataObject}
-          edit={edit}
-          setEdit={setEdit}
-          album={album}
-          category={category}
-        />
+    <>
+      {visible ? (
+        <div className={className} {...props}>
+          {edit ? (
+            <LinksEdit
+              send={send}
+              links={links}
+              dataObject={linksDataObject}
+              edit={edit}
+              setEdit={setEdit}
+              album={album}
+              category={category}
+            />
+          ) : null}
+          <h3 className="leaf">{title || "リンク集"}</h3>
+          {isLogin ? <LinksEditButtons setEdit={setEdit} /> : null}
+          <ul className={ulClassName}>
+            {move ? (
+              <Movable
+                items={links}
+                Inner={LinkInner}
+                submit={move === 2}
+                onSubmit={(items) => {
+                  const dirty = items
+                    .map((item, i) => ({
+                      ...item,
+                      newOrder: i + 1,
+                    }))
+                    .filter((item, i) => item.newOrder !== item.order)
+                    .map(({ id, newOrder }) => {
+                      return { id, order: newOrder };
+                    });
+                  if (dirty.length > 0) {
+                    toast.promise(
+                      axios
+                        .post(concatOriginUrl(apiOrigin, send), dirty, {
+                          withCredentials: true,
+                        })
+                        .then(() => {
+                          setLoad("no-cache");
+                          setMove(0);
+                        }),
+                      {
+                        pending: "送信中",
+                        success: "送信しました",
+                        error: "送信に失敗しました",
+                      }
+                    );
+                  } else setMove(0);
+                }}
+              />
+            ) : (
+              <>
+                {links?.map((v, i) => (
+                  <li key={i}>
+                    <LinkInner item={v} />
+                  </li>
+                ))}
+              </>
+            )}
+          </ul>
+        </div>
       ) : null}
-      <h3 className="leaf">{title || "リンク集"}</h3>
-      {isLogin ? <LinksEditButtons setEdit={setEdit} /> : null}
-      <ul className={ulClassName}>
-        {move ? (
-          <Movable
-            items={links}
-            Inner={LinkInner}
-            submit={move === 2}
-            onSubmit={(items) => {
-              const dirty = items
-                .map((item, i) => ({
-                  ...item,
-                  newOrder: i + 1,
-                }))
-                .filter((item, i) => item.newOrder !== item.order)
-                .map(({ id, newOrder }) => {
-                  return { id, order: newOrder };
-                });
-              if (dirty.length > 0) {
-                toast.promise(
-                  axios
-                    .post(concatOriginUrl(apiOrigin, send), dirty, {
-                      withCredentials: true,
-                    })
-                    .then(() => {
-                      setLoad("no-cache");
-                      setMove(0);
-                    }),
-                  {
-                    pending: "送信中",
-                    success: "送信しました",
-                    error: "送信に失敗しました",
-                  }
-                );
-              } else setMove(0);
-            }}
-          />
-        ) : (
-          <>
-            {links?.map((v, i) => (
-              <li key={i}>
-                <LinkInner item={v} />
-              </li>
-            ))}
-          </>
-        )}
-      </ul>
-    </div>
+    </>
   );
 }
 
