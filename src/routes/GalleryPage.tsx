@@ -564,9 +564,11 @@ function GalleryBody({
                   >
                     ギャラリーJSONデータのインポート
                   </GalleryImportButton>
-                  <CompatGalleryButton className="squared item text-left">
-                    アルバムをartからmainに移行する
-                  </CompatGalleryButton>
+                  <CompatGalleryButton
+                    from="art"
+                    to="main"
+                    className="squared item text-left"
+                  />
                 </DropdownButton>
                 <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch

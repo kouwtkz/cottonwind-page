@@ -81,22 +81,31 @@ export function GalleryUploadButton({
   );
 }
 
-export function CompatGalleryButton(props: BaseObjectButtonProps) {
+interface CompatGalleryButtonProps extends BaseObjectButtonProps {
+  from: string;
+  to: string;
+}
+export function CompatGalleryButton({
+  children,
+  from,
+  to,
+  ...props
+}: CompatGalleryButtonProps) {
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const { imageAlbums: albums } = useImageState();
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton
-      title="artアルバムをmainアルバムに変更する"
+      title={`${from}アルバムを${to}アルバムに変更する`}
       icon={<MdDriveFileRenameOutline />}
       {...props}
-      beforeConfirm="artアルバムをmainアルバムに変更しますか？"
+      beforeConfirm={`${from}アルバムを${to}アルバムに変更しますか？`}
       onClick={() => {
         const url = concatOriginUrl(apiOrigin, "/image/send");
         const list = albums
-          ?.get("art")
-          ?.list.map((image) => ({ id: image.id, album: "main" }));
+          ?.get(from)
+          ?.list.map((image) => ({ id: image.id, album: to }));
         if (!list) return;
         const doList = arrayPartition(list, 200).map(
           (items) => () =>
@@ -113,6 +122,8 @@ export function CompatGalleryButton(props: BaseObjectButtonProps) {
           setImagesLoad("no-cache");
         });
       }}
-    />
+    >
+      {children || `アルバムを${from}から${to}に移行する`}
+    </ObjectCommonButton>
   );
 }
