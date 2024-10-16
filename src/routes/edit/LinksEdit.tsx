@@ -33,14 +33,11 @@ import {
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
-import { getCountList } from "@/functions/arrayFunction";
 import { Link } from "react-router-dom";
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
 });
-
-const defaultCategories = ["", "commission"];
 
 export type editLinksType = number | boolean | undefined;
 export type setEditLinksType = (v: editLinksType) => void;
@@ -53,6 +50,7 @@ interface LinksEditProps {
   setEdit: setEditLinksType;
   album: string;
   category?: string | null;
+  defaultCategories?: string[];
 }
 export function LinksEdit({
   links,
@@ -62,6 +60,7 @@ export function LinksEdit({
   setEdit,
   album,
   category,
+  defaultCategories,
 }: LinksEditProps) {
   const linksData = dataObject.useData()[0];
   const dataItem = useMemo(
@@ -70,16 +69,13 @@ export function LinksEdit({
   );
   const item = useMemo(() => links?.find((v) => v.id === edit), [links, edit]);
   const categories = useMemo(() => {
-    const countList = links ? getCountList(links, "category") : [];
-    const list = countList.map(({ value }) => value);
-    if (typeof category === "string") {
-      if (list.every((v) => v !== category)) list.push(category);
-      defaultCategories.forEach((dc) => {
-        if (list.every((v) => v !== dc)) list.push(dc);
-      });
-    }
+    const list = [""];
+    if (category && list.every((v) => v !== category)) list.push(category);
+    defaultCategories?.forEach((dc) => {
+      if (list.every((v) => v !== dc)) list.push(dc);
+    });
     return list;
-  }, [links, category]);
+  }, [links, category, defaultCategories]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
@@ -100,7 +96,7 @@ export function LinksEdit({
       title: dataItem?.title,
       description: dataItem?.description,
       url: dataItem?.url,
-      category: dataItem?.category,
+      category: dataItem?.category ?? category,
     },
     resolver: zodResolver(schema),
   });

@@ -76,6 +76,7 @@ export default function LinksPage() {
       </div>
       <MyBanners />
       <FavoriteLinks />
+      <FavoriteLinks title="参加してるイベント" category="event" />
       <FavoriteLinks title="登録サーチ" category="search" />
     </div>
   );
@@ -257,6 +258,7 @@ interface LinksContainerProps
   dropdown?: ReactNode;
   map?: LinksMapType;
   dataObject: StorageDataStateClass<SiteLinkData>;
+  defaultCategories?: string[];
 }
 function LinksContainer({
   category,
@@ -267,6 +269,7 @@ function LinksContainer({
   map,
   dataObject,
   dropdown,
+  defaultCategories,
   ...props
 }: LinksContainerProps) {
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
@@ -326,6 +329,7 @@ function LinksContainer({
               setEdit={setEdit}
               album={album}
               category={category}
+              defaultCategories={defaultCategories}
             />
           ) : null}
           <h3 className="leaf">{title || "リンク集"}</h3>
@@ -399,6 +403,7 @@ export function MeeLinks(props: MeeLinksProps) {
       send="links/send"
       map={useLinksMap()[0]}
       dataObject={linksDataObject}
+      defaultCategories={["commission"]}
       {...props}
     />
   );
@@ -420,6 +425,7 @@ export function FavoriteLinks(props: FavoriteLinksProps) {
         />
       }
       banner
+      defaultCategories={["event", "search"]}
       {...props}
     />
   );
