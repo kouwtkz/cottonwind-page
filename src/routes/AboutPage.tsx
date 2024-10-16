@@ -127,7 +127,7 @@ export default function AboutPage() {
                 <span>react-icons</span>
               </li>
               <li>
-                <span className="label">マークアップ</span>
+                <span className="label">マークダウン</span>
                 <span>marked</span>
               </li>
               <li>
