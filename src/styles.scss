@@ -1119,6 +1119,10 @@ code {
   bottom: 0;
   margin-bottom: 0.5rem;
   padding-right: 0.25rem;
+  transition: transform 100ms;
+  &.hide {
+    transform: translateX(100%);
+  }
   .item {
     display: flex;
     flex-direction: row;

@@ -1,10 +1,4 @@
-import {
-  RefObject,
-  memo,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { RefObject, memo, useEffect, useMemo, useState } from "react";
 import useScroll from "@/components/hook/useScroll";
 import TriangleCursor from "@/components/svg/cursor/Triangle";
 
@@ -13,17 +7,22 @@ type InPageRefObject = {
   ref: RefObject<HTMLElement>;
 };
 
+interface InPageMenuProps extends React.HTMLAttributes<HTMLDivElement> {
+  list?: InPageRefObject[];
+  adjust?: number;
+  cursorAdjust?: number;
+  lastAdjust?: number;
+  autoLastHide?: number;
+}
 export const InPageMenu = memo(function InPageMenu({
   list = [],
   adjust = 16,
   cursorAdjust = 64,
   lastAdjust = 8,
-}: {
-  list?: InPageRefObject[];
-  adjust?: number;
-  cursorAdjust?: number;
-  lastAdjust?: number;
-}) {
+  autoLastHide = 0,
+  className,
+  ...props
+}: InPageMenuProps) {
   const { y, h, wh } = useScroll();
   const jy = Math.floor(y + adjust + cursorAdjust);
   const isLastScroll = h - y - lastAdjust <= wh;
@@ -57,8 +56,18 @@ export const InPageMenu = memo(function InPageMenu({
     });
     return list;
   }, [parsedList, jy, isLastScroll]);
+  const lastHide = useMemo(
+    () => Math.ceil(y + wh) >= h - autoLastHide,
+    [y, h, wh, autoLastHide]
+  );
+  className = useMemo(() => {
+    const list = ["InPageMenu en-title-font"];
+    if (className) list.push(className);
+    if (lastHide) list.push("hide");
+    return list.join(" ");
+  }, [className, lastHide]);
   return (
-    <div className="InPageMenu en-title-font">
+    <div {...props} className={className}>
       {filterList.map(({ name, element, currentMode }, i) => {
         return (
           <div
