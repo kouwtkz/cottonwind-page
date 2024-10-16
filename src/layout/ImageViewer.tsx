@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
+import { SiteDateOptions as opt } from "@/functions/DateFunction";
 import { ImageMee } from "./ImageMee";
 import CloseButton from "@/components/svg/button/CloseButton";
 import ImageEditForm, {

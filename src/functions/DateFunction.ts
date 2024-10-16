@@ -1,27 +1,46 @@
-// 日本標準時で年の取得をする
-export function getJSTYear(date?: Date | null) {
-  if (!date) return 0;
-  return new Date(date.getTime() + 32400000).getUTCFullYear();
+export const siteTimeZone = "+09:00";
+
+export const SiteDateOptions: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZoneName: "shortOffset",
+  timeZone: siteTimeZone,
+};
+
+export function getTimeZoneMinute(timeZone?: string) {
+  const timeString = new Date().toLocaleString("en-US", { timeZone, timeZoneName: "longOffset" });
+  const m = timeString.match(/GMT([\+\-])(\d{2}):(\d{2})/);
+  if (m) return (m[1] === "+" ? 1 : -1) * (Number(m[2]) * 60 + Number(m[3]));
+  else return 0;
+}
+export const siteTimeZoneMinute = getTimeZoneMinute(siteTimeZone);
+
+export function timeZoneFromMinute(timeZoneMinute = siteTimeZoneMinute) {
+  const s = (timeZoneMinute >= 0 ? "+" : "-");
+  const a = Math.abs(timeZoneMinute);
+  return s + ("0" + Math.floor(a / 60)).slice(-2) + ":" + ("0" + (a % 60)).slice(-2);
+}
+export const siteTimeZoneGMT = timeZoneFromMinute(siteTimeZoneMinute);
+
+export function dateOffsetTimeZoneMinute(date: Date, timeZoneMinute = siteTimeZoneMinute) {
+  return new Date(date.getTime() + 60000 * timeZoneMinute);
 }
 
-export function ToJST(date?: Date | null) {
-  return (date?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" }) + "+09:00");
+export function getYear(date?: Date | null, timeZoneMinute?: number) {
+  if (date) return dateOffsetTimeZoneMinute(date, timeZoneMinute).getUTCFullYear();
+  else return 0;
 }
 
-export function ToFormJST(date?: Date | null) {
-  return date
-    ?.toLocaleString("sv-SE", { timeZone: "Asia/Tokyo" })
-    .replace(" ", "T") || "";
+export function ToFormTime(date?: Date | null) {
+  if (date) return dateOffsetTimeZoneMinute(date).toISOString().replace(/\..+$/, "");
+  else return "";
 }
 
-export function dateISOfromLocaltime(item?: string, timezone = "+09:00") {
-  return item ? new Date(item + timezone).toISOString() : "";
-}
-
-export function dateJISOfromDate(time?: Date | null) {
-  return (
-    time?.toLocaleString("sv-SE", { timeZone: "JST" }).replace(" ", "T") || ""
-  );
+export function IsoFormTime(value?: string) {
+  return (value ? new Date(value + siteTimeZoneGMT) : new Date()).toISOString();
 }
 
 export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
@@ -58,4 +77,8 @@ export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
   rp = rp.replace(/a/, ["am", "pm"][hour2i]);
   rp = rp.replace(/W/, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][week]);
   return rp;
+}
+
+export function getLocalTimeOffset() {
+  return timeZoneFromMinute(-(new Date().getTimezoneOffset()));
 }

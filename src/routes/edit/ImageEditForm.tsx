@@ -23,7 +23,7 @@ import {
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import { AutoImageItemType } from "@/functions/media/imageFunction";
-import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import SetRegister from "@/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
@@ -165,7 +165,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       tags: image?.tags || [],
       characters: image?.characters || [],
       type: image?.type || "",
-      time: ToFormJST(image?.time),
+      time: ToFormTime(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
       draft: image?.draft,
@@ -209,9 +209,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         if (dirtyFields[key as keyof typeof defaultValues]) {
           switch (key as keyof imageUpdateJsonDataType) {
             case "time":
-              data[key] = value
-                ? dateISOfromLocaltime(value)
-                : new Date().toISOString();
+              data[key] = IsoFormTime(value);
               break;
             case "topImage":
               data[key] = FormToNumber(value);

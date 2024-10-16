@@ -38,7 +38,7 @@ import {
 } from "react-icons/ri";
 import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
-import { getJSTYear } from "@/functions/DateFunction";
+import { getYear } from "@/functions/DateFunction";
 import { findMee, setWhere } from "@/functions/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
@@ -377,8 +377,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         return images;
       });
     const yfList = fList.map((images) => {
-      if (year)
-        images = images.filter((item) => getJSTYear(item.time) === year);
+      if (year) images = images.filter((item) => getYear(item.time) === year);
       return images;
     });
     return { fList, yfList };
@@ -1033,7 +1032,7 @@ export function GallerySearchArea({
 
 function getYearObjects(dates: (Date | null | undefined)[]) {
   return dates
-    .map((date) => getJSTYear(date))
+    .map((date) => getYear(date))
     .reduce((a, c) => {
       const g = a.find(({ year }) => c === year);
       if (g) g.count++;

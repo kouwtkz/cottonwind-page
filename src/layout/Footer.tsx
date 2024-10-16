@@ -1,5 +1,5 @@
 import ShareButton from "@/components/button/ShareButton";
-import { getJSTYear } from "@/functions/DateFunction";
+import { getYear } from "@/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {
   return (
@@ -7,7 +7,7 @@ export function Footer({ env }: { env?: SiteConfigEnv }) {
       <div>
         {env ? (
           <span className="copyright">
-            © {env.SINCE}-{getJSTYear(new Date())} {env.AUTHOR_ACCOUNT}
+            © {env.SINCE}-{getYear(new Date())} {env.AUTHOR_ACCOUNT}
           </span>
         ) : null}
       </div>

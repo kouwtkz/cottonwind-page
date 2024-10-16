@@ -31,7 +31,7 @@ import { useSounds } from "@/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { CharaBeforeAfter, useMoveCharacters } from "../CharacterPage";
-import { dateISOfromLocaltime, ToFormJST } from "@/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
@@ -90,8 +90,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       icon: chara?.icon || "",
       image: chara?.image || "",
       headerImage: chara?.headerImage || "",
-      time: ToFormJST(chara?.time),
-      birthday: ToFormJST(chara?.birthday),
+      time: ToFormTime(chara?.time),
+      birthday: ToFormTime(chara?.birthday),
       tags: chara?.tags || [],
       playlist: chara?.playlist || [],
       draft: chara?.draft,
@@ -180,7 +180,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         switch (key as keyof CharacterDataType) {
           case "time":
           case "birthday":
-            data[key] = dateISOfromLocaltime(value);
+            data[key] = IsoFormTime(value);
             break;
           default:
             data[key] = value;

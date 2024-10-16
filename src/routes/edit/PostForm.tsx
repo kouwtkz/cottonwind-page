@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { HotkeyRunEvent } from "@/components/hook/EventSet";
 import * as z from "zod";
@@ -33,10 +33,7 @@ import {
 } from "@/state/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { corsFetchJSON } from "@/functions/fetch";
-import {
-  dateJISOfromDate,
-  dateISOfromLocaltime,
-} from "@/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { SendDelete } from "@/functions/sendFunction";
 import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 
@@ -84,7 +81,6 @@ const schema = z.object({
 
 export function PostForm() {
   const [searchParams] = useSearchParams();
-  const Location = useLocation();
   const posts = usePosts()[0];
   const setPostsLoad = postsDataObject.useLoad()[1];
   const apiOrigin = useApiOrigin()[0];
@@ -146,7 +142,7 @@ export function PostForm() {
       title: postTarget?.title || "",
       body: postTarget?.body || "",
       category: postCategories,
-      time: dateJISOfromDate(postTarget?.time),
+      time: ToFormTime(postTarget?.time),
       pin: Number(postTarget?.pin || 0),
       draft: postTarget?.draft,
     }),
@@ -177,7 +173,7 @@ export function PostForm() {
       reset({
         ...defaultValues,
         ...localDraft,
-        time: dateJISOfromDate(localDraft?.time),
+        time: ToFormTime(localDraft?.time),
       });
       setCategoryList((c) => {
         const draftOnlyCategory =
@@ -197,7 +193,7 @@ export function PostForm() {
 
   function saveLocalDraft() {
     const values = getValues();
-    values.time = dateISOfromLocaltime(values.time);
+    values.time = IsoFormTime(values.time);
     setLocalDraft(values);
   }
 
@@ -341,7 +337,7 @@ export function PostForm() {
             append(key, item, false);
             break;
           case "time":
-            if (item !== defaultItem) append(key, dateISOfromLocaltime(item));
+            if (item !== defaultItem) append(key, IsoFormTime(item));
             break;
           case "category":
             const value = item.join(",");

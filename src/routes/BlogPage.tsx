@@ -7,7 +7,7 @@ import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
 import { useHotkeys } from "react-hotkeys-hook";
-import { BlogDateOptions as opt } from "@/functions/doc/DateTimeFormatOptions";
+import { SiteDateOptions as opt } from "@/functions/DateFunction";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { useEnv, useIsLogin } from "@/state/EnvState";
 import { TfiWrite } from "react-icons/tfi";
