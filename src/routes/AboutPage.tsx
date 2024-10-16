@@ -3,6 +3,8 @@ import { ImageMee } from "@/layout/ImageMee";
 import { useEnv } from "@/state/EnvState";
 import { useImageState } from "@/state/ImageState";
 import { CopyWithToast } from "@/functions/toastFunction";
+import { Link } from "react-router-dom";
+import { BiGitBranch } from "react-icons/bi";
 
 export default function AboutPage() {
   const env = useEnv()[0];
@@ -82,7 +84,17 @@ export default function AboutPage() {
         </ul>
       </div>
       <div className="container">
-        <h3 className="color-main">このサイトの構成</h3>
+        <h3 className="color-main">
+          このサイトの構成
+          <Link
+            className="button miniIcon ml inline-flex"
+            to="/log"
+            state={{ backUrl: location.href }}
+            title="サイトの更新履歴 (Git)"
+          >
+            <BiGitBranch />
+          </Link>
+        </h3>
         <ul className="sm">
           <li>
             サーバー関連

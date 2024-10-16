@@ -364,6 +364,12 @@ ul {
 
 .flex {
   display: flex;
+}
+.inline-flex {
+  display: inline-flex;
+}
+.flex,
+.inline-flex {
   &.left {
     align-items: flex-start;
   }
