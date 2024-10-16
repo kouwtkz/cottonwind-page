@@ -1,4 +1,4 @@
-import { forwardRef, HTMLAttributes, ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { useApiOrigin } from "@/state/EnvState";
 import { GalleryObject } from "../GalleryPage";
 import { useImageState } from "@/state/ImageState";
@@ -14,6 +14,7 @@ import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import axios from "axios";
 import {
   BaseObjectButtonProps,
+  ImportObjectButtonProps,
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
 
@@ -30,7 +31,10 @@ export function ImagesManager() {
   );
 }
 
-export function GalleryImportButton(props: BaseObjectButtonProps) {
+export function GalleryImportButton({
+  overwrite = true,
+  ...props
+}: ImportObjectButtonProps) {
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const charactersMap = useCharactersMap()[0];
@@ -39,8 +43,8 @@ export function GalleryImportButton(props: BaseObjectButtonProps) {
       {...props}
       title="ギャラリーのデータベースへインポート"
       onClick={() => {
-        ImportImagesJson({ apiOrigin, charactersMap }).then(() => {
-          setImagesLoad("no-cache-reload");
+        ImportImagesJson({ apiOrigin, charactersMap, overwrite }).then(() => {
+          setImagesLoad(overwrite ? "no-cache-reload" : "no-cache");
         });
       }}
     />

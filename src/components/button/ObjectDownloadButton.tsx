@@ -50,6 +50,10 @@ export interface BaseObjectButtonProps<E = HTMLButtonElement>
   customRef?: Ref<E>;
   beforeConfirm?: string | boolean;
 }
+export interface ImportObjectButtonProps<E = HTMLButtonElement>
+  extends BaseObjectButtonProps<E> {
+    overwrite?: boolean;
+}
 interface ObjectDownloadButtonProps<T extends object>
   extends BaseObjectButtonProps {
   dataObject: StorageDataStateClass<T>;

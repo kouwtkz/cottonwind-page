@@ -1,9 +1,7 @@
 import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
-import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
-import { PromiseOrder } from "@/functions/arrayFunction";
-import { DBTableClass } from "./DBTableClass";
+import { DBTableClass, DBTableImport } from "./DBTableClass";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -86,24 +84,14 @@ app.post("/send", async (c, next) => {
 });
 
 app.post("/import", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const object = await c.req.json() as importEntryDataType<CharacterDataType>;
-  if (object.data) {
-    if (object.overwrite) {
-      await TableObject.Drop({ db });
-      await TableObject.CreateTable({ db });
-    }
-    const list = object.data;
-    if (Array.isArray(list)) {
-      lastModToUniqueNow(list as KeyValueType<any>);
-      for (const item of list) {
-        if (item.key) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
-      }
-      return c.text("インポートしました！")
-    }
-  }
-  return c.text("インポートに失敗しました", 500);
-})
+  return DBTableImport({
+    db: new MeeSqlD1(c.env.DB),
+    object: await c.req.json(),
+    TableObject,
+  })
+    .then(() => c.text("インポートしました！"))
+    .catch(() => c.text("インポートに失敗しました", 500));
+});
 
 app.delete("/send", async (c) => {
   const data = await c.req.json();

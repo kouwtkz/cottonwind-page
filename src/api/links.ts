@@ -91,7 +91,7 @@ export class SiteLinkServerClass {
       const db = new MeeSqlD1(c.env.DB);
       const object = await c.req.json() as importEntryDataType<CharacterDataType>;
       if (object.data) {
-        if (object.overwrite) {
+        if (object.overwrite && object.first) {
           await TableObject.Drop({ db });
           await TableObject.CreateTable({ db });
         }

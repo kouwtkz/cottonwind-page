@@ -3,12 +3,9 @@ import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromData } from "image-dimensions";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
-import {
-  KeyValueConvertDBEntry,
-  lastModToUniqueNow,
-} from "@/functions/doc/ToFunction";
+import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
-import { DBTableClass } from "./DBTableClass";
+import { DBTableClass, DBTableImport } from "./DBTableClass";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -241,30 +238,14 @@ app.post("/send", async (c, next) => {
 });
 
 app.post("/import", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const object = await c.req.json() as importEntryDataType<KeyValueType<unknown>>;
-  if (object.data) {
-    if (object.overwrite) {
-      if (object.deleteBucket) {
-        const deleteList = (await c.env.BUCKET.list()).objects.map(
-          (object) => object.key
-        );
-        await c.env.BUCKET.delete(deleteList);
-      }
-      await TableObject.Drop({ db });
-      await TableObject.CreateTable({ db });
-    }
-    const list = object.data;
-    if (Array.isArray(list)) {
-      lastModToUniqueNow(list);
-      KeyValueConvertDBEntry(list);
-      for (const item of list) {
-        if (item.key) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
-      }
-      return c.text("インポートしました！");
-    }
-  }
-  return c.text("インポートに失敗しました", 500);
+  return DBTableImport({
+    db: new MeeSqlD1(c.env.DB),
+    object: await c.req.json(),
+    TableObject,
+    kvConvertEntry: true,
+  })
+    .then(() => c.text("インポートしました！"))
+    .catch(() => c.text("インポートに失敗しました", 500));
 });
 
 app.post("/compat/merge", async (c, next) => {

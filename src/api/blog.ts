@@ -2,9 +2,7 @@ import { Hono } from "hono";
 import { autoPostId } from "@/functions/blogFunction";
 import { IsLogin } from "@/admin";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
-import { KeyValueConvertDBEntry, lastModToUniqueNow } from "@/functions/doc/ToFunction";
-import { PromiseOrder } from "@/functions/arrayFunction";
-import { DBTableClass } from "./DBTableClass";
+import { DBTableClass, DBTableImport } from "./DBTableClass";
 
 export const app = new Hono<MeeBindings>();
 
@@ -104,24 +102,15 @@ app.delete("/send", async (c) => {
 });
 
 app.post("/import", async (c) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const object = await c.req.json() as importEntryDataType<KeyValueType<unknown>>;
-  if (object.data) {
-    if (object.overwrite) {
-      await TableObject.Drop({ db });
-      await TableObject.CreateTable({ db });
-    }
-    const list = object.data;
-    if (Array.isArray(list)) {
-      lastModToUniqueNow(list);
-      KeyValueConvertDBEntry(list);
-      for (const item of list) {
-        if (item.postId) await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
-      }
-      return c.text("インポートしました！")
-    }
-  }
-  return c.text("インポートに失敗しました", 500);
+  return DBTableImport({
+    db: new MeeSqlD1(c.env.DB),
+    object: await c.req.json(),
+    TableObject,
+    idKey: "postId",
+    kvConvertEntry: true,
+  })
+    .then(() => c.text("インポートしました！"))
+    .catch(() => c.text("インポートに失敗しました", 500));
 });
 
 app.delete("/all", async (c, next) => {

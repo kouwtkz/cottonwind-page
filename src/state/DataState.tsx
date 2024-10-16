@@ -303,6 +303,7 @@ interface makeImportFetchListProps<T = unknown> extends DataUploadBaseProps {
   data: T[];
   partition?: number;
   object?: importEntryDataType;
+  overwrite?: boolean;
 }
 export function makeImportFetchList({
   apiOrigin,
@@ -310,10 +311,12 @@ export function makeImportFetchList({
   data,
   partition = 100,
   object,
+  overwrite = true,
 }: makeImportFetchListProps) {
   return arrayPartition(data, partition).map((item, i) => {
     const entry = { ...object, data: item };
-    if (i === 0) entry.overwrite = true;
+    if (overwrite) entry.overwrite = true;
+    if (i === 0) entry.first = true;
     return () =>
       corsFetch(concatOriginUrl(apiOrigin, src), {
         method: "POST",
@@ -328,11 +331,13 @@ type importEntryImageDataType = Omit<ImageDataType, "id" | "lastmod"> & {
 };
 interface ImportImagesJsonProps extends DataUploadBaseProps {
   charactersMap?: Map<string, CharacterType>;
+  overwrite?: boolean;
 }
 export async function ImportImagesJson({
   apiOrigin,
   charactersMap,
   partition,
+  overwrite,
 }: ImportImagesJsonProps = {}) {
   return jsonFileDialog().then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
@@ -411,6 +416,7 @@ export async function ImportImagesJson({
       partition,
       data,
       object,
+      overwrite,
     });
     return ImportToast(fetchList);
   });

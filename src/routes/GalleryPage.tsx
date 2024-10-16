@@ -561,8 +561,16 @@ function GalleryBody({
                   <GalleryImportButton
                     icon={<TbDatabaseImport />}
                     className="squared item text-left"
+                    overwrite={false}
                   >
                     ギャラリーJSONデータのインポート
+                  </GalleryImportButton>
+                  <GalleryImportButton
+                    icon={<TbDatabaseImport />}
+                    className="squared item text-left"
+                    overwrite={true}
+                  >
+                    ギャラリーJSONデータの上書きインポート
                   </GalleryImportButton>
                   <CompatGalleryButton
                     from="art"
