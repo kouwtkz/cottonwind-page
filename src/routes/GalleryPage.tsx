@@ -61,6 +61,7 @@ import { AiFillEdit } from "react-icons/ai";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
 import {
   CompatGalleryButton,
+  CompatMendingThumbnailButton,
   GalleryImportButton,
   GalleryUploadButton,
 } from "./edit/ImagesManager";
@@ -572,6 +573,7 @@ function GalleryBody({
                   >
                     ギャラリーJSONデータの上書きインポート
                   </GalleryImportButton>
+                  <CompatMendingThumbnailButton className="squared item text-left" />
                   <CompatGalleryButton
                     from="art"
                     to="main"

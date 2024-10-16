@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useApiOrigin } from "@/state/EnvState";
+import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import { GalleryObject } from "../GalleryPage";
 import { useImageState } from "@/state/ImageState";
 import { imageDataObject, ImportImagesJson } from "@/state/DataState";
@@ -17,6 +17,9 @@ import {
   ImportObjectButtonProps,
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
+import { getName } from "@/functions/doc/PathParse";
+import { corsFetch } from "@/functions/fetch";
+import { sleep } from "@/functions/Time";
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -111,7 +114,7 @@ export function CompatGalleryButton({
           ?.get(from)
           ?.list.map((image) => ({ id: image.id, album: to }));
         if (!list) return;
-        const doList = arrayPartition(list, 200).map(
+        const doList = arrayPartition(list, 100).map(
           (items) => () =>
             axios
               .patch(url, items, {
@@ -122,12 +125,83 @@ export function CompatGalleryButton({
               })
         );
         setMax(doList.length);
-        PromiseOrder(doList, { sleepTime: 0 }).then(() => {
+        PromiseOrder(doList, { minTime: 200 }).then(() => {
           setImagesLoad("no-cache");
         });
       }}
     >
       {children || `アルバムを${from}から${to}に移行する`}
+    </ObjectCommonButton>
+  );
+}
+
+interface CompatMendingThumbnailButtonProps extends BaseObjectButtonProps {}
+export function CompatMendingThumbnailButton({
+  children,
+  ...props
+}: CompatMendingThumbnailButtonProps) {
+  const apiOrigin = useApiOrigin()[0];
+  const url = concatOriginUrl(apiOrigin, "/image/send");
+  const mediaOrigin = useMediaOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const { images } = useImageState();
+  const { addProgress, setMax } = useToastProgress();
+  return (
+    <ObjectCommonButton
+      title={"ギャラリーのサムネイルを修復する"}
+      icon={<MdDriveFileRenameOutline />}
+      {...props}
+      beforeConfirm={"ギャラリーのサムネイルを修復しますか？"}
+      onClick={async () => {
+        const noThumbnailList = (images || []).filter(
+          (image) => image.src && !image.thumbnail
+        );
+        setMax(noThumbnailList.length, {
+          message: "画像サーバーのみにあるサムネイルを取得しています…",
+          success: null,
+        });
+        const list = (
+          await PromiseOrder(
+            noThumbnailList.map((image) => {
+              const src = "image/thumbnail/" + getName(image.src!) + ".webp";
+              return () =>
+                fetch(concatOriginUrl(mediaOrigin, src), {
+                  method: "HEAD",
+                  mode: "cors",
+                }).then((r) => (r.status === 200 ? { src, image } : null)!);
+            }),
+            {
+              sync(i) {
+                addProgress();
+              },
+            }
+          )
+        )
+          .filter((v) => v)
+          .map(({ src, image }) => ({ id: image.id, thumbnail: src }));
+        if (list.length === 0) return;
+        const doList = arrayPartition(list, 100).map(
+          (items) => () =>
+            axios
+              .patch(url, items, {
+                withCredentials: true,
+              })
+              .finally(() => {
+                addProgress();
+              })
+        );
+        setMax(doList.length, {
+          message: "サムネイルを設定しています",
+          autoClose: 1500,
+        });
+        PromiseOrder(doList, {
+          minTime: 200,
+        }).then(() => {
+          setImagesLoad("no-cache");
+        });
+      }}
+    >
+      {children || "ギャラリーのサムネイルを修復する"}
     </ObjectCommonButton>
   );
 }

@@ -29,6 +29,7 @@ app.get("*", async (c, next) => {
         headers: mimeType ? { "Content-Type": mimeType } : {},
       });
   }
+  return c.notFound();
 });
 
 export default app;
