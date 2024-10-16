@@ -14,6 +14,7 @@ import FileState from "./FileState";
 import { defaultToastContainerOptions } from "@/components/define/toastContainerDef";
 import { ToastProgressState } from "./ToastProgress";
 import { MiniGallery } from "@/routes/GalleryPage";
+import { LinksState, useLinks } from "./LinksState";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -36,6 +37,7 @@ export function StateSet() {
     Boolean(useCharacters()[0]),
     Boolean(usePosts()[0]),
     Boolean(useSounds()[0]),
+    Boolean(useLinks()[0]),
   ];
   return (
     <>
@@ -52,6 +54,7 @@ export function StateSet() {
         <PostState />
         <SoundState />
         <FileState />
+        <LinksState />
       </LoadingState>
       {ThemeState.State()}
       {DarkThemeState.State()}

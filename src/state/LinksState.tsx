@@ -4,6 +4,7 @@ import { favLinksDataObject, linksDataObject } from "./DataState";
 import { useImageState } from "./ImageState";
 
 export const useLinks = CreateState<SiteLink[]>();
+export const useLinksMap = CreateState<Map<string, SiteLink[]>>();
 export const useFavLinks = CreateState<SiteLink[]>();
 
 function convertSiteLink(
@@ -26,6 +27,7 @@ function convertSiteLink(
 export function LinksState() {
   const linksData = linksDataObject.useData()[0];
   const setLinks = useLinks()[1];
+  const setLinkMaps = useLinksMap()[1];
   const { imagesMap } = useImageState();
   useEffect(() => {
     if (linksData && imagesMap) {
@@ -33,9 +35,20 @@ export function LinksState() {
         .filter((data) => data.url || data.title || data.image)
         .map((data) => convertSiteLink(data, imagesMap));
       list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
+      const map = new Map<string, SiteLink[]>();
+      list.forEach((item) => {
+        const category = item.category || "";
+        let links = map.get(category);
+        if (!links) {
+          links = [];
+          map.set(category, links);
+        }
+        links.push(item);
+      });
+      setLinkMaps(map);
       setLinks(list);
     }
-  }, [linksData, setLinks, imagesMap]);
+  }, [linksData, imagesMap, setLinks, setLinkMaps]);
   const favLinksData = favLinksDataObject.useData()[0];
   const setFavLinks = useFavLinks()[1];
   useEffect(() => {

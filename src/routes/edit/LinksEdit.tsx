@@ -39,11 +39,26 @@ import {
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
+import { getCountList } from "@/functions/arrayFunction";
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
 });
 
+const defaultCategories = ["", "commission"];
+
+export type editLinksType = number | boolean | undefined;
+export type setEditLinksType = (v: editLinksType) => void;
+
+interface LinksEditProps {
+  links?: SiteLink[];
+  dataObject: StorageDataStateClass<SiteLinkData>;
+  send: string;
+  edit?: number | boolean;
+  setEdit: setEditLinksType;
+  album: string;
+  category?: string | null;
+}
 export function LinksEdit({
   links,
   dataObject,
@@ -51,20 +66,25 @@ export function LinksEdit({
   edit,
   setEdit,
   album,
-}: {
-  links?: SiteLink[];
-  dataObject: StorageDataStateClass<SiteLinkData>;
-  send: string;
-  edit?: number | boolean;
-  setEdit(v?: number | boolean): void;
-  album: string;
-}) {
+  category,
+}: LinksEditProps) {
   const linksData = dataObject.useData()[0];
   const dataItem = useMemo(
     () => linksData?.find((v) => v.id === edit),
     [linksData, edit]
   );
   const item = useMemo(() => links?.find((v) => v.id === edit), [links, edit]);
+  const categories = useMemo(() => {
+    const countList = links ? getCountList(links, "category") : [];
+    const list = countList.map(({ value }) => value);
+    if (typeof category === "string") {
+      if (list.every((v) => v !== category)) list.push(category);
+      defaultCategories.forEach((dc) => {
+        if (list.every((v) => v !== dc)) list.push(dc);
+      });
+    }
+    return list;
+  }, [links, category]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
@@ -85,6 +105,7 @@ export function LinksEdit({
       title: dataItem?.title,
       description: dataItem?.description,
       url: dataItem?.url,
+      category: dataItem?.category,
     },
     resolver: zodResolver(schema),
   });
@@ -101,6 +122,12 @@ export function LinksEdit({
         .map((v) => [v[0], values[v[0]]])
     ) as SiteLink;
     entry.id = dataItem?.id;
+    if (typeof dataItem?.category === "undefined") {
+      entry.category = category;
+    }
+    if (typeof entry.category !== "undefined" && !entry.category) {
+      entry.category = null;
+    }
     toast.promise(
       axios
         .post(concatOriginUrl(apiOrigin, send), entry, {
@@ -211,6 +238,15 @@ export function LinksEdit({
           placeholder="サイトのURL"
           {...register("url")}
         />
+        {categories.length ? (
+          <select title="カテゴリ" {...register("category")}>
+            {categories.map((category) => (
+              <option value={category} key={category}>
+                {category || "未分類"}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <button
           type="button"
           className="color"
@@ -224,11 +260,12 @@ export function LinksEdit({
   );
 }
 
-export const useEditLinkID = CreateState<number | boolean>();
 export const useMoveLink = CreateState(0);
-export function LinksEditButtons() {
+interface LinksEditButtonsProps {
+  setEdit: setEditLinksType;
+}
+export function LinksEditButtons({ setEdit }: LinksEditButtonsProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setEdit = useEditLinkID()[1];
   const setLinksLoad = linksDataObject.useLoad()[1];
   const [move, setMove] = useMoveLink();
   return (

@@ -1,6 +1,7 @@
 import { useImageState } from "@/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
+import { MeeLinks } from "./LinksPage";
 
 export default function WorksPage() {
   const { imageAlbums } = useImageState();
@@ -16,6 +17,7 @@ export default function WorksPage() {
           showGalleryLabel={false}
         />
       ) : null}
+      <MeeLinks title="コミッション" category="commission" />
       <ContactPage />
     </div>
   );

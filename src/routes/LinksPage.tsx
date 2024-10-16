@@ -1,10 +1,17 @@
 import axios from "axios";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "react-toastify";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
-import { LinksState, useFavLinks, useLinks } from "@/state/LinksState";
+import { useFavLinks, useLinksMap } from "@/state/LinksState";
 import {
   useApiOrigin,
   useEnv,
@@ -17,12 +24,12 @@ import {
   LinksEdit,
   FavBannerEditButtons,
   MyBannerEditButtons,
-  useEditLinkID,
   useMoveFavLink,
   useMoveMyBanner,
   LinksEditButtons,
   useEditFavLinkID,
   useMoveLink,
+  editLinksType,
 } from "./edit/LinksEdit";
 import { useImageEditIsEditHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
@@ -36,11 +43,17 @@ import {
 } from "@/state/DataState";
 
 export default function LinksPage() {
+  const env = useEnv()[0];
+  const topLinkTitle = useMemo(() => {
+    let title: string | undefined;
+    if (env?.AUTHOR_NAME) title = env.AUTHOR_NAME + "のリンクたち";
+    return title;
+  }, [env]);
   return (
     <div className="linkPage">
-      <LinksState />
       <h2 className="color-main en-title-font">LINKS</h2>
-      <MeLinks />
+      <MeeLinks title={topLinkTitle} category="" />
+      <MeeLinks title="コミッション" category="commission" />
       <div>
         <h3 className="leaf">いろいろ</h3>
         <ul className="flex center column large">
@@ -230,21 +243,37 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
 }
 
 export const useLinksEditMode = CreateState(false);
-export function MeLinks() {
+interface MeLinksProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+  title?: string;
+  category?: string;
+}
+export function MeeLinks({
+  category,
+  title,
+  className,
+  ...props
+}: MeLinksProps) {
   const album = "linksImage";
   const send = "links/send";
-  const links = useLinks()[0] || [];
-  const [edit, setEdit] = useEditLinkID();
+  const map = useLinksMap()[0];
+  const links = useMemo(() => {
+    return map?.get(category || "") || [];
+  }, [map, category]);
+  const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useMoveLink();
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
   const isEditable = useLinksEditMode()[0];
   const setLoad = linksDataObject.useLoad()[1];
-  const setEditLink = useEditLinkID()[1];
-  const className = useMemo(() => {
+  const ulClassName = useMemo(() => {
     const classes = ["linksArea large"];
     return classes.join(" ");
   }, [links]);
+  className = useMemo(() => {
+    const list = ["linkPage"];
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className]);
   const LinkInner = useCallback(
     ({ item }: { item: SiteLink }) => {
       return (
@@ -254,7 +283,7 @@ export function MeLinks() {
           target="_blank"
           onClick={(e) => {
             if (isEditable) {
-              setEditLink(item.id);
+              setEdit(item.id);
               e.preventDefault();
             }
           }}
@@ -266,7 +295,7 @@ export function MeLinks() {
     [isEditable]
   );
   return (
-    <div>
+    <div className={className} {...props}>
       {edit ? (
         <LinksEdit
           send={send}
@@ -275,11 +304,12 @@ export function MeLinks() {
           edit={edit}
           setEdit={setEdit}
           album={album}
+          category={category}
         />
       ) : null}
-      <h3 className="leaf">わたかぜコウのリンクたち</h3>
-      {isLogin ? <LinksEditButtons /> : null}
-      <ul className={className}>
+      <h3 className="leaf">{title || "リンク集"}</h3>
+      {isLogin ? <LinksEditButtons setEdit={setEdit} /> : null}
+      <ul className={ulClassName}>
         {move ? (
           <Movable
             items={links}
