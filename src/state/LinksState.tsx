@@ -1,11 +1,14 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { CreateState } from "./CreateState";
 import { favLinksDataObject, linksDataObject } from "./DataState";
 import { useImageState } from "./ImageState";
 
+export type LinksMapType = Map<string, SiteLink[]>;
 export const useLinks = CreateState<SiteLink[]>();
-export const useLinksMap = CreateState<Map<string, SiteLink[]>>();
+export const useLinksMap = CreateState<LinksMapType>();
 export const useFavLinks = CreateState<SiteLink[]>();
+export const useFavLinksMap = CreateState<LinksMapType>();
+type imageMapType = Map<string, ImageType>;
 
 function convertSiteLink(
   data: SiteLinkData,
@@ -24,41 +27,54 @@ function convertSiteLink(
   };
 }
 
+function callSetLinks({
+  linksData,
+  setLinks,
+  setLinkMaps,
+  imagesMap,
+}: {
+  linksData?: SiteLinkData[];
+  setLinks(v?: SiteLink[]): void;
+  setLinkMaps(v?: LinksMapType): void;
+  imagesMap?: imageMapType;
+}) {
+  if (linksData && imagesMap) {
+    const list = linksData
+      .filter((data) => data.url || data.title || data.image)
+      .map((data) => convertSiteLink(data, imagesMap));
+    list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
+    const map = new Map<string, SiteLink[]>();
+    list.forEach((item) => {
+      const category = item.category || "";
+      let links = map.get(category);
+      if (!links) {
+        links = [];
+        map.set(category, links);
+      }
+      links.push(item);
+    });
+    setLinkMaps(map);
+    setLinks(list);
+  }
+}
 export function LinksState() {
+  const { imagesMap } = useImageState();
   const linksData = linksDataObject.useData()[0];
   const setLinks = useLinks()[1];
   const setLinkMaps = useLinksMap()[1];
-  const { imagesMap } = useImageState();
   useEffect(() => {
-    if (linksData && imagesMap) {
-      const list = linksData
-        .filter((data) => data.url || data.title || data.image)
-        .map((data) => convertSiteLink(data, imagesMap));
-      list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
-      const map = new Map<string, SiteLink[]>();
-      list.forEach((item) => {
-        const category = item.category || "";
-        let links = map.get(category);
-        if (!links) {
-          links = [];
-          map.set(category, links);
-        }
-        links.push(item);
-      });
-      setLinkMaps(map);
-      setLinks(list);
-    }
-  }, [linksData, imagesMap, setLinks, setLinkMaps]);
+    callSetLinks({ linksData, setLinks, setLinkMaps, imagesMap });
+  }, [linksData, setLinks, setLinkMaps, imagesMap]);
   const favLinksData = favLinksDataObject.useData()[0];
   const setFavLinks = useFavLinks()[1];
+  const setFavLinkMaps = useFavLinksMap()[1];
   useEffect(() => {
-    if (favLinksData && imagesMap) {
-      const list = favLinksData
-        .filter((data) => data.url || data.title || data.image)
-        .map((data) => convertSiteLink(data, imagesMap));
-      list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
-      setFavLinks(list);
-    }
-  }, [favLinksData, setFavLinks, imagesMap]);
+    callSetLinks({
+      linksData: favLinksData,
+      setLinks: setFavLinks,
+      setLinkMaps: setFavLinkMaps,
+      imagesMap,
+    });
+  }, [favLinksData, setFavLinks, setFavLinkMaps, imagesMap]);
   return <></>;
 }

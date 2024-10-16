@@ -224,7 +224,7 @@ type = "banner"
 hide = true
 
 [[vars.IMAGE_ALBUMS]]
-name = "favBanner"
+name = "linkBanner"
 type = "banner"
 [vars.IMAGE_ALBUMS.gallery.pages]
 hide = true

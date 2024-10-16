@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
   HTMLAttributes,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -11,7 +12,12 @@ import { toast } from "react-toastify";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
-import { useFavLinks, useLinksMap } from "@/state/LinksState";
+import {
+  LinksMapType,
+  useFavLinks,
+  useFavLinksMap,
+  useLinksMap,
+} from "@/state/LinksState";
 import {
   useApiOrigin,
   useEnv,
@@ -22,13 +28,9 @@ import { ImageMee } from "@/layout/ImageMee";
 import { CreateState } from "@/state/CreateState";
 import {
   LinksEdit,
-  FavBannerEditButtons,
   MyBannerEditButtons,
-  useMoveFavLink,
   useMoveMyBanner,
   LinksEditButtons,
-  useEditFavLinkID,
-  useMoveLink,
   editLinksType,
 } from "./edit/LinksEdit";
 import { useImageEditIsEditHold } from "./edit/ImageEditForm";
@@ -41,6 +43,8 @@ import {
   imageDataObject,
   linksDataObject,
 } from "@/state/DataState";
+import { CompatGalleryButton } from "./edit/ImagesManager";
+import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -72,7 +76,7 @@ export default function LinksPage() {
       </div>
       <MyBanners />
       <FavoriteLinks />
-      <MeeLinks title="登録サーチ" category="search" />
+      <FavoriteLinks title="登録サーチ" category="search" />
     </div>
   );
 }
@@ -244,32 +248,43 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
 }
 
 export const useLinksEditMode = CreateState(false);
-interface MeLinksProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+interface LinksContainerProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: string;
   category?: string;
+  banner?: boolean;
+  send: string;
+  dropdown?: ReactNode;
+  map?: LinksMapType;
+  dataObject: StorageDataStateClass<SiteLinkData>;
 }
-export function MeeLinks({
+function LinksContainer({
   category,
   title,
   className,
+  banner,
+  send,
+  map,
+  dataObject,
+  dropdown,
   ...props
-}: MeLinksProps) {
-  const album = "linksImage";
-  const send = "links/send";
-  const map = useLinksMap()[0];
+}: LinksContainerProps) {
+  const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const links = useMemo(() => {
     return map?.get(category || "") || [];
   }, [map, category]);
   const [edit, setEdit] = useState<editLinksType>();
-  const [move, setMove] = useMoveLink();
+  const [move, setMove] = useState(0);
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
   const isEditable = useLinksEditMode()[0];
   const setLoad = linksDataObject.useLoad()[1];
   const ulClassName = useMemo(() => {
-    const classes = ["linksArea large"];
-    return classes.join(" ");
-  }, [links]);
+    const list = ["linksArea"];
+    if (banner) list.push("bannerArea");
+    else list.push("large");
+    return list.join(" ");
+  }, [links, banner]);
   className = useMemo(() => {
     const list = ["linkPage"];
     if (className) list.push(className);
@@ -277,7 +292,9 @@ export function MeeLinks({
   }, [className]);
   const LinkInner = useCallback(
     ({ item }: { item: SiteLink }) => {
-      return (
+      return banner ? (
+        <BannerItem item={item} isEdit={isEditable} setEditLink={setEdit} />
+      ) : (
         <a
           href={item.url || ""}
           className="overlay"
@@ -293,7 +310,7 @@ export function MeeLinks({
         </a>
       );
     },
-    [isEditable]
+    [isEditable, banner]
   );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
   return (
@@ -304,7 +321,7 @@ export function MeeLinks({
             <LinksEdit
               send={send}
               links={links}
-              dataObject={linksDataObject}
+              dataObject={dataObject}
               edit={edit}
               setEdit={setEdit}
               album={album}
@@ -312,7 +329,16 @@ export function MeeLinks({
             />
           ) : null}
           <h3 className="leaf">{title || "リンク集"}</h3>
-          {isLogin ? <LinksEditButtons setEdit={setEdit} /> : null}
+          {isLogin ? (
+            <LinksEditButtons
+              setEdit={setEdit}
+              album={album}
+              dataObject={dataObject}
+              move={move}
+              setMove={setMove}
+              dropdown={dropdown}
+            />
+          ) : null}
           <ul className={ulClassName}>
             {move ? (
               <Movable
@@ -364,80 +390,38 @@ export function MeeLinks({
   );
 }
 
-export const useFavoriteLinksEditMode = CreateState(false);
-export function FavoriteLinks() {
-  const album = "favBanner";
-  const send = "links/fav/send";
-  const favLinks = useFavLinks()[0] || [];
-  const [edit, setEdit] = useEditFavLinkID();
-  const [move, setMove] = useMoveFavLink();
-  const isLogin = useIsLogin()[0];
-  const apiOrigin = useApiOrigin()[0];
-  const isEditable = useFavoriteLinksEditMode()[0];
-  const setLoad = favLinksDataObject.useLoad()[1];
+interface MeeLinksProps
+  extends Omit<LinksContainerProps, "send" | "dataObject"> {}
+export function MeeLinks(props: MeeLinksProps) {
   return (
-    <div>
-      {edit ? (
-        <LinksEdit
-          send={send}
-          links={favLinks}
-          dataObject={favLinksDataObject}
-          edit={edit}
-          setEdit={setEdit}
-          album={album}
+    <LinksContainer
+      title="お気に入りのサイト"
+      send="links/send"
+      map={useLinksMap()[0]}
+      dataObject={linksDataObject}
+      {...props}
+    />
+  );
+}
+interface FavoriteLinksProps
+  extends Omit<LinksContainerProps, "send" | "dataObject"> {}
+export function FavoriteLinks(props: FavoriteLinksProps) {
+  return (
+    <LinksContainer
+      title="お気に入りのサイト"
+      send="links/fav/send"
+      map={useFavLinksMap()[0]}
+      dataObject={favLinksDataObject}
+      dropdown={
+        <CompatGalleryButton
+          className="item"
+          from="favBanner"
+          to="linkBanner"
         />
-      ) : null}
-      <h3 className="leaf">お気に入りのサイト</h3>
-      {isLogin ? <FavBannerEditButtons /> : null}
-      <ul className="bannerArea">
-        {move ? (
-          <Movable
-            items={favLinks}
-            Inner={BannerInner}
-            submit={move === 2}
-            onSubmit={(items) => {
-              const dirty = items
-                .map((item, i) => ({
-                  ...item,
-                  newOrder: i + 1,
-                }))
-                .filter((item, i) => item.newOrder !== item.order)
-                .map(({ id, newOrder }) => {
-                  return { id, order: newOrder };
-                });
-              if (dirty.length > 0) {
-                toast.promise(
-                  axios
-                    .post(concatOriginUrl(apiOrigin, send), dirty, {
-                      withCredentials: true,
-                    })
-                    .then(() => {
-                      setLoad("no-cache");
-                      setMove(0);
-                    }),
-                  {
-                    pending: "送信中",
-                    success: "送信しました",
-                    error: "送信に失敗しました",
-                  }
-                );
-              } else setMove(0);
-            }}
-          />
-        ) : (
-          <>
-            {favLinks?.map((v, i) => (
-              <BannerItem
-                item={v}
-                key={i}
-                isEdit={isEditable}
-                setEditLink={setEdit}
-              />
-            ))}
-          </>
-        )}
-      </ul>
-    </div>
+      }
+      banner
+      {...props}
+    />
   );
 }
 
@@ -501,21 +485,19 @@ export function BannerItem({
 }) {
   const titleWithDsc = getTitleWithDsc(item);
   return (
-    <li>
-      <a
-        href={item.url || ""}
-        title={titleWithDsc}
-        target="_blank"
-        className="overlay"
-        onClick={(e) => {
-          if (isEdit) {
-            setEditLink(item.id);
-            e.preventDefault();
-          }
-        }}
-      >
-        <BannerInner item={item} alt={titleWithDsc} />
-      </a>
-    </li>
+    <a
+      href={item.url || ""}
+      title={titleWithDsc}
+      target="_blank"
+      className="overlay"
+      onClick={(e) => {
+        if (isEdit) {
+          setEditLink(item.id);
+          e.preventDefault();
+        }
+      }}
+    >
+      <BannerInner item={item} alt={titleWithDsc} />
+    </a>
   );
 }

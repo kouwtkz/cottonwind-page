@@ -1,17 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { HTMLAttributes, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
 import { ImagesUploadWithToast, useImageEditIsEditHold } from "./ImageEditForm";
 import { useApiOrigin } from "@/state/EnvState";
-import {
-  BannerInner,
-  myBannerName,
-  useFavoriteLinksEditMode,
-  useLinksEditMode,
-} from "../LinksPage";
+import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
 import {
-  favLinksDataObject,
   imageDataObject,
   ImportLinksJson,
   linksDataObject,
@@ -30,7 +24,7 @@ import {
 } from "@/layout/edit/CommonSwitch";
 import { AiFillEdit } from "react-icons/ai";
 import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
-import { MdDeleteForever } from "react-icons/md";
+import { MdDeleteForever, MdOutlineImage } from "react-icons/md";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
@@ -40,6 +34,7 @@ import {
 } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { getCountList } from "@/functions/arrayFunction";
+import { Link } from "react-router-dom";
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
@@ -134,6 +129,7 @@ export function LinksEdit({
           withCredentials: true,
         })
         .then(() => {
+          console.log(dataObject);
           setLoad("no-cache");
           setEdit(false);
         }),
@@ -170,6 +166,7 @@ export function LinksEdit({
               axios
                 .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
                 .then(() => {
+                  toast.success("削除しました");
                   setLoad("no-cache");
                   setEdit(false);
                 });
@@ -202,13 +199,14 @@ export function LinksEdit({
                     : null;
                 })
                 .then(async (o) => {
-                  if (o && typeof o.name === "string") {
+                  if (o && typeof o.key === "string") {
                     return axios
                       .post(
                         concatOriginUrl(apiOrigin, send),
                         {
                           id: dataItem?.id,
-                          image: o.name,
+                          image: o.key,
+                          category,
                         } as SiteLinkData,
                         {
                           withCredentials: true,
@@ -260,16 +258,44 @@ export function LinksEdit({
   );
 }
 
-export const useMoveLink = CreateState(0);
-interface LinksEditButtonsProps {
+export type editMoveLinkType = number;
+export type setEditMoveLinkType = (v: editMoveLinkType) => void;
+
+interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   setEdit: setEditLinksType;
+  album: string;
+  dropdown?: ReactNode;
+  dataObject: StorageDataStateClass<SiteLinkData>;
+  move: editMoveLinkType;
+  setMove: setEditMoveLinkType;
 }
-export function LinksEditButtons({ setEdit }: LinksEditButtonsProps) {
+export function LinksEditButtons({
+  setEdit,
+  album,
+  dropdown,
+  children,
+  className,
+  dataObject,
+  move,
+  setMove,
+  ...props
+}: LinksEditButtonsProps) {
   const apiOrigin = useApiOrigin()[0];
   const setLinksLoad = linksDataObject.useLoad()[1];
-  const [move, setMove] = useMoveLink();
+  const ImageManageButtonSearch = useMemo(
+    () =>
+      new URLSearchParams({
+        q: "album:" + album,
+      }).toString(),
+    [album]
+  );
+  className = useMemo(() => {
+    const list = ["icons flex center"];
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className]);
   return (
-    <div className="icons flex center">
+    <div className={className} {...props}>
       {move ? (
         <>
           <CancelButton
@@ -291,7 +317,7 @@ export function LinksEditButtons({ setEdit }: LinksEditButtonsProps) {
           >
             <ObjectDownloadButton
               className="squared item text-left"
-              dataObject={linksDataObject}
+              dataObject={dataObject}
               options={{ key: ["title", "url", "image"] }}
             >
               JSONデータのダウンロード
@@ -307,6 +333,21 @@ export function LinksEditButtons({ setEdit }: LinksEditButtonsProps) {
             >
               JSONデータのインポート
             </ObjectCommonButton>
+            <Link
+              className="button squared item text-left flex items-center"
+              title="画像の管理"
+              to={{
+                pathname: "/admin/images",
+                search: ImageManageButtonSearch,
+              }}
+              state={{ backUrl: location.href }}
+            >
+              <span>
+                <MdOutlineImage />
+              </span>
+              <span>アルバムの表示</span>
+            </Link>
+            {dropdown}
           </DropdownButton>
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
@@ -324,75 +365,7 @@ export function LinksEditButtons({ setEdit }: LinksEditButtonsProps) {
               setMove(1);
             }}
           />
-        </>
-      )}
-    </div>
-  );
-}
-
-export const useEditFavLinkID = CreateState<number | boolean>();
-export const useMoveFavLink = CreateState(0);
-export function FavBannerEditButtons() {
-  const apiOrigin = useApiOrigin()[0];
-  const setEdit = useEditFavLinkID()[1];
-  const setFavLinksLoad = favLinksDataObject.useLoad()[1];
-  const [move, setMove] = useMoveFavLink();
-  return (
-    <div className="icons flex center">
-      {move ? (
-        <>
-          <CancelButton
-            onClick={() => {
-              setMove(0);
-            }}
-          />
-          <CompleteButton
-            onClick={() => {
-              setMove(2);
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <DropdownButton
-            MenuButtonClassName="iconSwitch"
-            listClassName="flex column"
-          >
-            <ObjectDownloadButton
-              className="squared item text-left"
-              dataObject={favLinksDataObject}
-              options={{ key: ["title", "url", "image"] }}
-            >
-              JSONデータのダウンロード
-            </ObjectDownloadButton>
-            <ObjectCommonButton
-              icon={<TbDatabaseImport />}
-              className="squared item text-left"
-              onClick={() => {
-                ImportLinksJson({ apiOrigin, dir: "/fav" }).then(() => {
-                  setFavLinksLoad("no-cache-reload");
-                });
-              }}
-            >
-              JSONデータのインポート
-            </ObjectCommonButton>
-          </DropdownButton>
-          <ModeSwitch
-            toEnableTitle="編集モードに切り替え"
-            useSwitch={useFavoriteLinksEditMode}
-          >
-            <AiFillEdit />
-          </ModeSwitch>
-          <AddButton
-            onClick={() => {
-              setEdit(true);
-            }}
-          />
-          <MoveButton
-            onClick={() => {
-              setMove(1);
-            }}
-          />
+          {children}
         </>
       )}
     </div>
