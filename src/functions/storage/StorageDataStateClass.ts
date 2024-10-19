@@ -73,16 +73,20 @@ export class StorageDataStateClass<T extends Object = {}> {
     apiOrigin,
     loadValue,
   }: storageFetchDataProps<T>) {
-    const Url = new URL(concatOriginUrl(apiOrigin || location.href, src));
+    const Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
     this.setSearchParamsOption({
       searchParams: Url.searchParams,
       loadValue: loadValue,
     });
     const cache = StorageDataStateClass.getCacheOption(loadValue);
+    const isCacheReload = cache !== "no-cache-reload";
+    if (!isCacheReload) Url.searchParams.delete("lastmod");
     if (cache) Url.searchParams.set("cache", cache);
     return corsFetch(Url.href, {
-      cache: cache !== "no-cache-reload" ? cache : undefined,
-    }).then(async (r) => (await r.json()) as T[]);
+      cache: isCacheReload ? cache : undefined,
+    }).then(async (r) => {
+      return (await r.json()) as T[]
+    });
   }
   async setData({
     data,
