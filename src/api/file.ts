@@ -29,7 +29,7 @@ app.use("*", async (c, next) => {
 
 export async function ServerFilesGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
   const ThisObject = TableObject;
-  const wheres: MeeSqlFindWhereType<SoundDataType>[] = [];
+  const wheres: MeeSqlFindWhereType<FilesRecordDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
   const key = searchParams.get("key");
