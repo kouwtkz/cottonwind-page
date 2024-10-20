@@ -48,7 +48,7 @@ export default defineConfig(async ({ mode }) => {
           input: [
             './src/client.tsx',
             './src/styles.scss',
-            './src/styles-import.scss',
+            './src/styles-toastify.scss',
             './src/workers/twix/twixClient.tsx'
           ],
           output: {
