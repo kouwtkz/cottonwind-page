@@ -51,8 +51,7 @@ export function getPosts({
   orderBy.push({ time: "desc" });
 
   try {
-    let postsResult: PostType[] = findMee({
-      list: posts,
+    let postsResult: PostType[] = findMee(posts, {
       where: {
         AND: wheres,
       },

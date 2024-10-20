@@ -18,7 +18,6 @@ type OrderByKeyStr = { [k: string]: OrderByType };
 type OrderByItem<T> = { [K in keyof T]?: OrderByType };
 
 type findMeeProps<T> = {
-  list?: T[],
   where?: findWhereType<T>;
   take?: number,
   skip?: number,

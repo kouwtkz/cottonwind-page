@@ -94,10 +94,12 @@ export function PostsPage({
     return (
       <div className="article detail">
         <PostDetailFixed postId={postId} posts={postsResult} />
-        <OnePost
-          post={findMee({ list: posts, where: { postId }, take: 1 })[0]}
-          detail={true}
-        />
+        {posts ? (
+          <OnePost
+            post={findMee(posts, { where: { postId }, take: 1 })[0]}
+            detail={true}
+          />
+        ) : null}
       </div>
     );
   } else {

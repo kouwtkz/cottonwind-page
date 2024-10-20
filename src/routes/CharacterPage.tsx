@@ -178,7 +178,7 @@ function CharaListPage() {
   }, [sortParam, orderBy]);
   const items = useMemo(() => {
     let list = characters
-      ? findMee({ list: [...characters], where, orderBy: orderBySort })
+      ? findMee([...characters], { where, orderBy: orderBySort })
       : [];
     if (!showAll) list = list.filter((chara) => chara.visible);
     return list;
@@ -290,8 +290,7 @@ export function CharaBeforeAfter({
       list = [...list];
       const wheres: findWhereType<CharacterType>[] = [];
       if (charaTagsWhere) wheres.push(charaTagsWhere);
-      list = findMee({
-        list,
+      list = findMee(list, {
         orderBy: state.characterSort,
         where: { AND: wheres },
       });

@@ -91,9 +91,13 @@ export function PostForm() {
   const targetPostId = searchParams.get("target") || base;
   const draft = searchParams.get("draft");
   const isLocalDraft = draft === "local";
-  const postTarget = targetPostId
-    ? findMee({ list: posts, where: { postId: targetPostId }, take: 1 })[0]
-    : null;
+  const postTarget = useMemo(
+    () =>
+      targetPostId && posts
+        ? findMee(posts, { where: { postId: targetPostId }, take: 1 })[0]
+        : null,
+    [posts, targetPostId]
+  );
   const updateMode = postTarget && !duplicationMode;
 
   const categoryCount = useMemo(

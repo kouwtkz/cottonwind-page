@@ -86,8 +86,7 @@ function PostsView() {
   const Posts = usePosts()[0];
   const posts = useMemo(
     () =>
-      findMee({
-        list: Posts,
+      findMee(Posts || [], {
         where: { draft: false, time: { lte: new Date() } },
         orderBy: [{ time: "desc" }],
       }),
@@ -145,8 +144,7 @@ export function HomeImage() {
   );
   const topImages = useMemo(
     () =>
-      findMee({
-        list: images,
+      findMee(images, {
         where: {
           OR: [{ topImage: { gte: 1 } }, { tags: { in: monthlyFilter?.tags } }],
         },

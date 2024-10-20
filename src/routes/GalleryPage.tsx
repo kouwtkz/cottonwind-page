@@ -369,8 +369,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
             return time ? String(time.getMonth() + 1) === monthParam : false;
           });
         }
-        images = findMee({
-          list: [...images],
+        images = findMee([...images], {
           where: { AND: wheres },
           orderBy: orderBySort,
         });

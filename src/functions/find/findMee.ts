@@ -1,11 +1,11 @@
-export function findMee<T>({
-  list,
-  where,
-  take,
-  orderBy,
-  skip = 0,
-}: findMeeProps<T>): T[] {
-  if (!list) return [];
+export function findMee<T>(
+  list: T[],
+  {
+    where,
+    take,
+    orderBy,
+    skip = 0,
+  }: findMeeProps<T>): T[] {
   orderBy
     ?.reduce((a, c) => {
       Object.entries(c).forEach(([k, v]) => {
