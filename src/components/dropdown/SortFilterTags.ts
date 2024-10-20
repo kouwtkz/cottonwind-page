@@ -90,6 +90,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
       { value: "competition", label: "🚩コンペ" },
       { value: "prize", label: "👑入賞" },
       { value: "commission", label: "📒コミッション" },
+      { value: "recommend", label: "👍おすすめ" },
     ],
   },
 ];
