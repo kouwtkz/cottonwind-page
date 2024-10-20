@@ -336,6 +336,9 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                   const inList = v as unknown[];
                   inList.forEach((v) => { bind.push(v) });
                   return `${field} IN (${inList.map(() => "?").join(", ")})`;
+                case "regexp":
+                  bind.push((v as RegExp).source);
+                  return `${field} REGEXP ?`;
                 case "equals":
                 default:
                   bind.push(v);

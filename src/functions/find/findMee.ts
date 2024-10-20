@@ -90,7 +90,6 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                   return cval != v;
                 case "contains":
                   if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
-                  else if (typeof v === "object" && "test" in v) return v.test(cval);
                   else {
                     const _v = String(cval).toLocaleLowerCase();
                     if (/[\*\?]/.test(v)) {
@@ -120,6 +119,8 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                   if (Array.isArray(cval)) boolVal = cval.length > 0;
                   else boolVal = Boolean(cval);
                   return v ? boolVal : !boolVal;
+                case "regexp":
+                  return (v as RegExp).test(cval);
                 default:
                   return false;
               }
@@ -166,6 +167,18 @@ function whereFromKey(key: string | string[], value: findWhereWithConditionsType
   }
 }
 
+function TextToWhere(rawValue: string, value: string, forceContains?: boolean): filterConditionsAllKeyValue<any, unknown> {
+  if (forceContains) return { contains: value };
+  else {
+    const m = rawValue.match(/^\/(.+)\/(\w*)$/);
+    if (m) {
+      return { regexp: new RegExp(m[1], m[2]) };
+    } else {
+      return { contains: value };
+    }
+  }
+}
+
 export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
@@ -193,7 +206,6 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
       OR = true;
     } else {
       let whereItem: findWhereType<any> | undefined;
-      item = item.toLocaleLowerCase();
       let NOT = item.startsWith("-");
       if (NOT) item = item.slice(1);
       if (item.length > 1 && item.startsWith("#")) {
@@ -221,12 +233,13 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         }
       } else {
         const colonIndex = /^\w+:\/\//.test(item) ? -1 : item.indexOf(":");
-        const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex) : "";
+        const switchKey = colonIndex >= 0 ? item.slice(0, colonIndex).toLocaleLowerCase() : "";
         const UNDER = switchKey.startsWith("_");
         let filterKey = UNDER ? switchKey.slice(1) : switchKey;
-        let filterValue = switchKey.length > 0 ? item.slice(switchKey.length + 1) : item;
-        filterKey = filterKey.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
-        filterValue = filterValue.replace(/"([^"])"/g, (m, m1) => doubleQuoteDic[m1]);
+        let rawFilterValue = switchKey.length > 0 ? item.slice(switchKey.length + 1) : item;
+        filterKey = filterKey.replace(/"([^"]+)"/g, (m, m1) => doubleQuoteDic[m1]);
+        rawFilterValue = rawFilterValue.replace(/"([^"]+)"/g, (m, m1) => doubleQuoteDic[m1]);
+        let filterValue = rawFilterValue.toLocaleLowerCase();
         if (kanaReplace) filterValue = kanaToHira(filterValue);
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
@@ -247,7 +260,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = whereFromKey(textKey, { contains: filterValue });
+              whereItem = whereFromKey(textKey, TextToWhere(rawFilterValue, filterValue, options.forceContains));
             }
             break;
           case "id":
@@ -364,7 +377,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
                   filterEntry = { bool };
                   break;
                 default:
-                  filterEntry = { contains: filterValue };
+                  filterEntry = TextToWhere(rawFilterValue, filterValue, options.forceContains);
                   break;
               }
               whereItem = whereFromKey(key, filterEntry);
