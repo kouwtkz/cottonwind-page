@@ -24,9 +24,8 @@ export async function SvLifeCheck(env: MeeSvEnv) {
 }
 
 export async function SvCleanPages(env: MeeSvEnv, expirationDays?: number) {
-	if (!env.ACCOUNT_ID || !env.PROJECT_NAME || !env.WORKERS_API_TOKEN) return;
+	if (!env.ACCOUNT_ID || !env.PROJECT_NAMES || !env.WORKERS_API_TOKEN) return;
 	if (expirationDays === undefined) expirationDays = env.EXPIRATION_DAYS || 1;
-	const endpoint = `https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/pages/projects/${env.PROJECT_NAME}/deployments`;
 	const init = {
 		headers: {
 			"Content-Type": "application/json;charset=UTF-8",
@@ -34,22 +33,26 @@ export async function SvCleanPages(env: MeeSvEnv, expirationDays?: number) {
 			"Authorization": `Bearer ${env.WORKERS_API_TOKEN}`,
 		},
 	};
-	const response = await fetch(endpoint, init);
-	const deployments = await response.json() as { [k: string]: any };
-	const resultList = (deployments.result || []) as any[];
-	const now = Date.now();
-	await Promise.all(resultList.map(async (deployment) => {
-		if (deployment.aliases) return;
-		// Check if the deployment was created within the last x days (as defined by `expirationDays` above)
-		if ((now - new Date(deployment.created_on).getTime()) > (expirationDays * 86400000)) {
-			// Delete the deployment
-			await fetch(`${endpoint}/${deployment.id}`, {
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json;charset=UTF-8",
-					"Authorization": `Bearer ${env.WORKERS_API_TOKEN}`,
-				},
-			});
-		}
-	}));
+	const projects = Array.isArray(env.PROJECT_NAMES) ? env.PROJECT_NAMES : [env.PROJECT_NAMES];
+	for (const project of projects) {
+		const endpoint = `https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/pages/projects/${project}/deployments`;
+		const response = await fetch(endpoint, init);
+		const deployments = await response.json() as { [k: string]: any };
+		const resultList = (deployments.result || []) as any[];
+		const now = Date.now();
+		await Promise.all(resultList.map(async (deployment) => {
+			if (deployment.aliases) return;
+			// Check if the deployment was created within the last x days (as defined by `expirationDays` above)
+			if ((now - new Date(deployment.created_on).getTime()) > (expirationDays * 86400000)) {
+				// Delete the deployment
+				await fetch(`${endpoint}/${deployment.id}`, {
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json;charset=UTF-8",
+						"Authorization": `Bearer ${env.WORKERS_API_TOKEN}`,
+					},
+				});
+			}
+		}));
+	}
 }

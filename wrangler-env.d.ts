@@ -62,7 +62,7 @@ interface MeePagesEnv extends MeeCommonEnv {
 }
 interface MeeSvEnv extends MeeCommonEnv {
   ACCOUNT_ID?: string;
-  PROJECT_NAME?: string;
+  PROJECT_NAMES?: string | string[];
   WORKERS_API_TOKEN?: string;
   EXPIRATION_DAYS?: number;
 }
