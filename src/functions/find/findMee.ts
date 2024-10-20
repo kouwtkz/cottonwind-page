@@ -134,6 +134,8 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
   return where ? recursion(where) : true;
 }
 
+type CommonCondition = filterConditionsAllKeyValue<any, unknown>;
+
 export function createFilterEntry(
   filterValue: string
 ): filterConditionsAllKeyValue<any> {
@@ -215,17 +217,17 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
           whereHashtags.push({
             [k]: {
               contains: filterValue
-            }
+            } as CommonCondition
           })
         })
         hashtagTextKey?.forEach(k => {
           whereHashtags.push({
             [k]: {
-              contains: new RegExp(
+              regexp: new RegExp(
                 `#${filterValue.replace(/(\+)/g, "\\$1")}(\\s|$)`,
                 "i"
               )
-            }
+            } as CommonCondition
           })
         })
         if (whereHashtags.length > 0) {
