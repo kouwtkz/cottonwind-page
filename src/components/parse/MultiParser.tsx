@@ -52,7 +52,7 @@ export function MultiParser({
   className,
   tag = "div",
   parsedClassName = "parsed",
-  trim = true,
+  trim,
   replace,
   htmlparser2,
   library,
