@@ -18,7 +18,8 @@ export interface MultiParserOptions {
   detailsClosable?: boolean;
   linkPush?: boolean;
   linkSame?: boolean;
-  hashtag?: boolean;
+  hashtag?: boolean | string;
+  quoteNumberReply?: boolean | string;
 }
 export interface MultiParserProps
   extends MultiParserOptions,
@@ -44,6 +45,7 @@ export function MultiParser({
   linkPush = true,
   linkSame = true,
   hashtag = true,
+  quoteNumberReply = false,
   detailsOpen = false,
   detailsClosable = true,
   only,
@@ -68,6 +70,19 @@ export function MultiParser({
     hashtag = only.hashtag ?? false;
     detailsClosable = only.detailsClosable ?? false;
   }
+  const hashtagKey = useMemo(
+    () => (hashtag ? (typeof hashtag === "string" ? hashtag : "q") : ""),
+    [hashtag]
+  );
+  const QuoteNumberReplyKey = useMemo(
+    () =>
+      quoteNumberReply
+        ? typeof quoteNumberReply === "string"
+          ? quoteNumberReply
+          : "id"
+        : "",
+    [quoteNumberReply]
+  );
   useEffect(() => {
     if (existCode.current) {
       (
@@ -80,12 +95,23 @@ export function MultiParser({
       existCode.current = false;
     }
   }, [children]);
-  const childString = useMemo(() => {
-    let childString = typeof children === "string" ? children : "";
+  let childString = useMemo(
+    () => (typeof children === "string" ? children : ""),
+    [children]
+  );
+  childString = useMemo(() => {
+    if (childString && QuoteNumberReplyKey)
+      return childString.replace(
+        />(\d+)(\s|$)/g,
+        `<a href="?${QuoteNumberReplyKey}=$1">&#62;$1</a>$2`
+      );
+    else return childString;
+  }, [childString, QuoteNumberReplyKey]);
+  childString = useMemo(() => {
     if (childString && markdown)
-      childString = parse(childString, { async: false }) as string;
-    return childString;
-  }, [children, markdown]);
+      return parse(childString, { async: false }) as string;
+    else return childString;
+  }, [childString, markdown]);
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   const parsedChildren = useMemo((): React.ReactNode => {
     if (childString && toDom) {
@@ -169,17 +195,20 @@ export function MultiParser({
                     );
                   break;
                 default:
-                  if (typeof location === "undefined" || !(hashtag || linkPush))
+                  if (
+                    typeof location === "undefined" ||
+                    !(hashtagKey || linkPush)
+                  )
                     return;
                   const newChildren = v.children.reduce((a, n) => {
                     let _n: ChildNode | undefined = n;
-                    if (hashtag && n.type === "text") {
+                    if (hashtagKey && n.type === "text") {
                       if (!/^a$/.test(currentTag) && !/^\s*$/.test(n.data)) {
                         const replaced = n.data.replace(
                           /(^|\s?)(#[^\s#]+)/g,
                           (m, m1, m2) => {
                             const searchParams = createSearchParams({
-                              q: m2,
+                              [hashtagKey]: m2,
                             });
                             return `${m1}<a href="?${searchParams.toString()}" class="hashtag">${m2}</a>`;
                           }
@@ -209,7 +238,7 @@ export function MultiParser({
     toDom,
     ReactParserArgs,
     linkPush,
-    hashtag,
+    hashtagKey,
     detailsOpen,
     detailsClosable,
   ]);

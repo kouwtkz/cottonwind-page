@@ -5,7 +5,7 @@ type filterConditionsStringType = "contains" | "startsWith" | "endsWith";
 type filterConditionsBoolType = "bool";
 type filterConditionsVariadicType = "in" | "between";
 type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType;
-type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean };
+type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string | RegExp } & { [C in filterConditionsBoolType]?: boolean };
 type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue;
 type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T, K> };
 type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> } | filterConditionsGenericsAllKeyValue<T>;
