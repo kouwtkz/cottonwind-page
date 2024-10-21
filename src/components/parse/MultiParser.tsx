@@ -19,7 +19,7 @@ export interface MultiParserOptions {
   linkPush?: boolean;
   linkSame?: boolean;
   hashtag?: boolean | string;
-  quoteNumberReply?: boolean | string;
+  quoteNumberReply?: boolean | ((substring: string, ...args: any[]) => string);
 }
 export interface MultiParserProps
   extends MultiParserOptions,
@@ -74,15 +74,6 @@ export function MultiParser({
     () => (hashtag ? (typeof hashtag === "string" ? hashtag : "q") : ""),
     [hashtag]
   );
-  const QuoteNumberReplyKey = useMemo(
-    () =>
-      quoteNumberReply
-        ? typeof quoteNumberReply === "string"
-          ? quoteNumberReply
-          : "id"
-        : "",
-    [quoteNumberReply]
-  );
   useEffect(() => {
     if (existCode.current) {
       (
@@ -100,13 +91,15 @@ export function MultiParser({
     [children]
   );
   childString = useMemo(() => {
-    if (childString && QuoteNumberReplyKey)
+    if (childString && quoteNumberReply) {
       return childString.replace(
         />(\d+)(\s|$)/g,
-        `<a href="?${QuoteNumberReplyKey}=$1">&#62;$1</a>$2`
+        typeof quoteNumberReply === "function"
+          ? quoteNumberReply
+          : (m, m1, m2) => `<a href="?id=${m1}">&#62;${m1}</a>${m2}`
       );
-    else return childString;
-  }, [childString, QuoteNumberReplyKey]);
+    } else return childString;
+  }, [childString, quoteNumberReply]);
   childString = useMemo(() => {
     if (childString && markdown)
       return parse(childString, { async: false }) as string;
