@@ -228,21 +228,7 @@ textarea,
 //   transition: background-color 1s;
 // }
 
-@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Lexend+Peta:wght@100..900&family=Palanquin+Dark:wght@400;500;600;700&family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
-
-// 100-700
-@mixin Palanquin($weight: 400) {
-  font-family: "Palanquin", sans-serif;
-  font-weight: $weight;
-  font-style: normal;
-}
-
-// 400-700
-@mixin PalanquinDark($weight: 400) {
-  font-family: "Palanquin Dark", sans-serif;
-  font-weight: $weight;
-  font-style: normal;
-}
+@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Nunito:ital,wght@0,200..1000;1,200..1000&Lexend+Peta:wght@100..900&display=swap");
 
 // 100-900
 @mixin LexendPeta($weight: 400) {
@@ -252,8 +238,16 @@ textarea,
   font-style: normal;
 }
 
+// 200-1000
+@mixin Nunito($weight: 400) {
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: $weight;
+  font-style: normal;
+}
+
 :root {
-  font-family: "Palanquin", "Kosugi Maru", sans-serif;
+  font-family: "Nunito", "Kosugi Maru", sans-serif;
 }
 
 .en-title-font {
@@ -322,7 +316,7 @@ ul {
   }
   li {
     white-space: pre-line;
-    line-height: initial;
+    line-height: 1.75em;
     &[tabindex]:focus {
       background-color: var(--main-color-fluo);
     }
