@@ -10,7 +10,7 @@ app.get("*", cors({ origin: "*", credentials: true }));
 app.get(
   "*",
   async (c, next) => {
-    if (import.meta.env?.DEV) return next();
+    if (c.env.DEV) return next();
     else return cache({
       cacheName: 'media-cache',
       cacheControl: 'max-age=86400',
@@ -18,8 +18,9 @@ app.get(
   }
 );
 app.get("*", async (c, next) => {
-  const Url = new URL(c.req.url);
-  const pathname = decodeURI(Url.pathname).replace(/\/+/g, "/");
+  const root = c.req.routePath.slice(0, -2);
+  let pathname = c.req.path.replace(/\/+/g, "/");
+  if (root) pathname = pathname.replace(root, "");
   const filename = pathname.slice(pathname.indexOf("/", 0) + 1);
   if (filename) {
     const mimeType = getMimeType(filename);
@@ -32,4 +33,5 @@ app.get("*", async (c, next) => {
   return c.notFound();
 });
 
-export default app;
+const mediaApp = app;
+export default mediaApp;
