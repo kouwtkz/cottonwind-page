@@ -49,9 +49,13 @@
       "request": "launch",
       "reAttach": true,
       "url": "http://localhost:51730"
-    },
+    }
   ],
   "compounds": [
+    {
+      "name": "Chrome dev",
+      "configurations": ["Launch Chrome", "dev"]
+    },
     {
       "name": "Chrome dev with media",
       "configurations": ["Launch Chrome", "dev", "dev media"]
