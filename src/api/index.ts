@@ -10,15 +10,17 @@ import { app_sound_api } from "./sound";
 import { app_files_api as app_file_api } from "./file";
 import { app_links_api } from "./links";
 import { getOriginFromAPI } from "@/functions/originUrl";
+import { AddMetaEnv } from "@/serverLayout";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 
 app.use("*", (c, next) => {
   const Url = new URL(c.req.url);
   const origin: string[] = [];
-  const autoOrigin = getOriginFromAPI(c.env, Url.origin);
+  const env = AddMetaEnv(c.env);
+  const autoOrigin = getOriginFromAPI(env, Url.origin);
   if (autoOrigin) origin.push(autoOrigin);
-  if (c.env.CORS_ORIGIN) origin.push(...c.env.CORS_ORIGIN);
+  if (env.CORS_ORIGIN) origin.push(...env.CORS_ORIGIN);
   return cors({ origin, credentials: true })(c, next)
 })
 

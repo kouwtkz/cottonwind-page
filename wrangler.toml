@@ -31,7 +31,7 @@ PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 API_ORIGIN = "/api"
 
 MEDIA_ORIGIN = "https://media.cottonwind.com"
-MEDIA_WORKERS_ORIGIN = "https://cottonwind-media.kouwtkz.workers.dev"
+MEDIA_PAGES_ORIGIN = "/assets"
 
 LOCAL_ORIGIN = "51730"
 MEDIA_LOCAL_ORIGIN = "51731"

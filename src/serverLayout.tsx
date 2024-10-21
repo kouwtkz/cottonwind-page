@@ -80,6 +80,7 @@ export async function ServerLayout({
   noindex,
   isLogin = false,
 }: ServerLayoutProps) {
+  const env = AddMetaEnv(c.env);
   const url = c.req.url;
   const Url = new URL(url);
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
@@ -89,9 +90,9 @@ export async function ServerLayout({
   let imagesMap = new Map<string, ImageType>();
   let posts: PostType[] = [];
   if (isBot) {
-    const db = new MeeSqlD1(c.env.DB);
-    if (c.env.SITE_IMAGE) {
-      const data = await ImageSelectFromKey(db, c.env.SITE_IMAGE);
+    const db = new MeeSqlD1(env.DB);
+    if (env.SITE_IMAGE) {
+      const data = await ImageSelectFromKey(db, env.SITE_IMAGE);
       if (data) imagesMap.set(data.key, toImageType(data));
     }
     const isCharaName = Boolean(params.charaName);
@@ -145,21 +146,21 @@ export async function ServerLayout({
           imagesMap={imagesMap}
           posts={posts}
           noindex={noindex}
-          mediaOrigin={getMediaOrigin(c.env, Url.origin)}
-          env={c.env}
+          mediaOrigin={getMediaOrigin(env, Url.origin)}
+          env={env}
         />
-        {c.env.RECAPTCHA_SITEKEY ? (
+        {env.RECAPTCHA_SITEKEY ? (
           <script
             src={
               "https://www.google.com/recaptcha/api.js?render=" +
-              c.env.RECAPTCHA_SITEKEY
+              env.RECAPTCHA_SITEKEY
             }
           />
         ) : null}
         {meta}
         {styles}
       </head>
-      <DefaultBody env={c.env}>
+      <DefaultBody env={env}>
         {" "}
         <script id="server-data" data-is-login={isLogin} />
         {script}
@@ -298,4 +299,8 @@ export function Style({
       return <style dangerouslySetInnerHTML={{ __html }} />;
     } else return <style>{children}</style>;
   }
+}
+
+export function AddMetaEnv<E extends SiteConfigEnv>(env: E): E {
+  return { ...env, DEV: import.meta.env?.DEV };
 }

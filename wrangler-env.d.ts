@@ -16,10 +16,10 @@ interface SiteConfigEnv {
   PAGES_DEV_ORIGIN?: string;
   LOCAL_ORIGIN?: string;
   MEDIA_ORIGIN?: string;
-  MEDIA_WORKERS_ORIGIN?: string;
+  MEDIA_PAGES_ORIGIN?: string;
   MEDIA_LOCAL_ORIGIN?: string;
   API_ORIGIN?: string;
-  API_WORKERS_ORIGIN?: string;
+  API_PAGES_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
   UPLOAD_BRACKET?: boolean;
@@ -27,6 +27,7 @@ interface SiteConfigEnv {
   NAV?: Array<SiteMenuItemType>;
   LINKS?: Array<SiteMyLinksItemType>;
   IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
+  DEV?: boolean;
 }
 interface ImageAlbumEnvType extends Omit<ImageAlbumType, "list"> { }
 
@@ -43,7 +44,6 @@ interface MeeCommonEnv extends SiteConfigEnv {
   LIFE_CHECK_CHALLENGE?: string;
   LIFE_CHECK_VERIFIER?: string;
   LOGIN_TOKEN?: string;
-  DEV?: boolean;
   [k: string]: any;
 }
 interface MeePagesEnv extends MeeCommonEnv {

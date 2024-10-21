@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { renderHtml } from "./functions/render";
 import {
+  AddMetaEnv,
   ServerError,
   ServerNotFound,
   ServerSimpleLayout,
@@ -28,7 +29,7 @@ app.get("/env.json", async (c) => {
     LIFE_CHECKER_URL,
     CONTACT_FORM_GOOGLE_DEV,
     ..._env
-  } = c.env;
+  } = AddMetaEnv(c.env);
   const env = _env as SiteConfigEnv;
   if (new URL(c.req.url).hostname === "localhost")
     env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;

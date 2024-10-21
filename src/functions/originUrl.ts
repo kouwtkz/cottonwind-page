@@ -17,9 +17,9 @@ export function getLocalOrigin(origin: string, envLocalOrigin?: string) {
 export function getOriginFromAPI(env: SiteConfigEnv, origin: string) {
   if (env.API_ORIGIN === origin) {
     return env.ORIGIN;
-  } else if (env.API_WORKERS_ORIGIN === origin) {
-    return env.PAGES_DEV_ORIGIN;
-  } else return getLocalOrigin(origin, env.LOCAL_ORIGIN);
+  } else if (env.DEV) {
+    return getLocalOrigin(origin, env.LOCAL_ORIGIN);
+  } else return env.PAGES_DEV_ORIGIN;
 }
 
 export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
@@ -27,15 +27,15 @@ export function getAPIOrigin(env: SiteConfigEnv, origin: string) {
     return new URL(env.API_ORIGIN, origin).href;
   } if (env.ORIGIN === origin) {
     return env.API_ORIGIN;
-  } else if (env.PAGES_DEV_ORIGIN === origin) {
-    return env.API_WORKERS_ORIGIN;
-  } else return getLocalOrigin(origin, env.API_LOCAL_ORIGIN);
+  } else if (env.DEV) {
+    return getLocalOrigin(origin, env.API_LOCAL_ORIGIN);
+  } else return env.API_PAGES_ORIGIN;
 }
 
 export function getMediaOrigin(env: SiteConfigEnv, origin: string) {
   if (env.ORIGIN === origin) {
     return env.MEDIA_ORIGIN;
-  } else if (env.PAGES_DEV_ORIGIN === origin) {
-    return env.MEDIA_WORKERS_ORIGIN;
-  } else return getLocalOrigin(origin, env.MEDIA_LOCAL_ORIGIN);
+  } else if (env.DEV) {
+    return getLocalOrigin(origin, env.MEDIA_LOCAL_ORIGIN);
+  } else return env.MEDIA_PAGES_ORIGIN;
 }
