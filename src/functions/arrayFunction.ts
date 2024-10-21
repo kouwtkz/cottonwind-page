@@ -22,9 +22,9 @@ export async function PromiseOrder<T = unknown>(list: (() => Promise<T>)[], { sl
   const max = list.length;
   for (let i = 0; i < max; i++) {
     if (sync) sync(i);
-    const startTime = performance.now()
+    const startTime = performance.now();
     results.push(await list[i]());
-    const endTime = performance.now()
+    const endTime = performance.now();
     if (minTime) {
       const SleepTime = minTime - (endTime - startTime);
       if (SleepTime > 0) await sleep(SleepTime);

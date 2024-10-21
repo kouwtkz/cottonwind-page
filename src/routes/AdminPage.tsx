@@ -15,6 +15,7 @@ import { LinkButton } from "@/components/button/LinkButton";
 import { useImageState } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { useToastProgress } from "@/state/ToastProgress";
+import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -126,58 +127,77 @@ function FilesManager() {
 }
 
 function ZipPage() {
-  const mediaOrigin = useMediaOrigin()[0];
-  const { images } = useImageState();
-  const { setMax, addProgress } = useToastProgress();
-  const countImagesDL = 100;
   return (
     <>
       <h2 className="color-main en-title-font">Zip archive</h2>
       <h4>アーカイブのダウンロードページ</h4>
       <div className="flex center column large">
-        <LinkButton
-          onClick={async () => {
-            if (
-              images &&
-              confirm(`最新の画像を${countImagesDL}件ダウンロードしますか？`)
-            ) {
-              const zip = new JSZip();
-              const list = findMee(images, {
-                orderBy: [{ time: "desc" }],
-                take: countImagesDL,
-              }).reduce<string[]>((a, item) => {
-                if (item.src) a.push(item.src);
-                if (item.thumbnail) a.push(item.thumbnail);
-                return a;
-              }, []);
-              setMax(list.length + 1);
-              Promise.all(
-                list.map((src) =>
-                  fetch(concatOriginUrl(mediaOrigin, src), {
-                    cache: "no-cache",
-                  })
-                    .then((r) => r.blob())
-                    .then((blob) => {
-                      zip.file(src, blob);
-                    })
-                    .finally(() => {
-                      addProgress();
-                    })
-                )
-              )
-                .then(() => zip.generateAsync({ type: "blob" }))
-                .then((content) => {
-                  fileDownload(`latestImage_${countImagesDL}.zip`, content);
-                })
-                .finally(() => {
-                  addProgress();
-                });
-            }
-          }}
-        >
-          最新の画像{countImagesDL}件
-        </LinkButton>
+        <ImagesDownload take={100} />
+        <ImagesDownload />
       </div>
     </>
+  );
+}
+
+function ImagesDownload({ take }: { take?: number }) {
+  const mediaOrigin = useMediaOrigin()[0];
+  const { images } = useImageState();
+  const { setMax, addProgress } = useToastProgress();
+  const isAll = useMemo(() => typeof take !== "number", [take]);
+  return (
+    <LinkButton
+      onClick={async () => {
+        if (
+          images &&
+          confirm(
+            (isAll ? "画像を全件" : `最新の画像を${take}件`) +
+              "ダウンロードしますか？"
+          )
+        ) {
+          const zip = new JSZip();
+          const list = findMee(images, {
+            orderBy: [{ time: "desc" }],
+            take,
+          }).reduce<string[]>((a, item) => {
+            if (item.src) a.push(item.src);
+            if (item.thumbnail) a.push(item.thumbnail);
+            return a;
+          }, []);
+          setMax(list.length + 1);
+          PromiseOrder(
+            arrayPartition(list, 100).map(
+              (list) => () =>
+                Promise.all(
+                  list.map((src) =>
+                    fetch(concatOriginUrl(mediaOrigin, src), {
+                      cache: "no-cache",
+                    })
+                      .then((r) => r.blob())
+                      .then((blob) => {
+                        zip.file(src, blob);
+                      })
+                      .finally(() => {
+                        addProgress();
+                      })
+                  )
+                )
+            ),
+            { sleepTime: 100 }
+          )
+            .then(() => zip.generateAsync({ type: "blob" }))
+            .then((content) => {
+              fileDownload(
+                `latest_images${isAll ? "" : "_" + take}.zip`,
+                content
+              );
+            })
+            .finally(() => {
+              addProgress();
+            });
+        }
+      }}
+    >
+      {isAll ? "全ての画像" : `最新の画像${take}件`}
+    </LinkButton>
   );
 }
