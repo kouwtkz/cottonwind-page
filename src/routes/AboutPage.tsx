@@ -46,7 +46,7 @@ export default function AboutPage() {
         <p>
           ファンアートタグは
           <span
-            className="color-deep pointer"
+            className="color-deep pointer hashtag"
             onClick={(e) => {
               const elm = e.target as HTMLElement;
               if (elm?.innerText) CopyWithToast(elm.innerText);
