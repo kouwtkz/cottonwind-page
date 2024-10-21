@@ -16,6 +16,7 @@ import { useImageState } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { useToastProgress } from "@/state/ToastProgress";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
+import { useSounds } from "@/state/SoundState";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -132,37 +133,112 @@ function ZipPage() {
       <h2 className="color-main en-title-font">Zip archive</h2>
       <h4>アーカイブのダウンロードページ</h4>
       <div className="flex center column large">
-        <ImagesDownload take={100} />
-        <ImagesDownload />
+        <ImageFilesDownload take={100} />
+        <ImageFilesDownload />
+        <FilesDownload />
+        <SoundFilesDownload />
       </div>
     </>
   );
 }
 
-function ImagesDownload({ take }: { take?: number }) {
-  const mediaOrigin = useMediaOrigin()[0];
+interface DownloadBaseProps {
+  take?: number;
+}
+interface MediaDownloadProps extends DownloadBaseProps {
+  list?: string[];
+  name: string;
+  label: string;
+}
+
+function ImageFilesDownload({ take, ...props }: DownloadBaseProps) {
   const { images } = useImageState();
+  const list = useMemo(
+    () =>
+      findMee(images || [], {
+        orderBy: [{ time: "desc" }],
+        take,
+      }).reduce<string[]>((a, item) => {
+        if (item.src) a.push(item.src);
+        if (item.thumbnail) a.push(item.thumbnail);
+        return a;
+      }, []),
+    [images, take]
+  );
+  return (
+    <MediaDownload
+      list={list}
+      label="画像"
+      name="images"
+      take={take}
+      {...props}
+    />
+  );
+}
+
+function FilesDownload({ take, ...props }: DownloadBaseProps) {
+  const files = useFiles()[0];
+  const list = useMemo(
+    () =>
+      findMee(files || [], {
+        orderBy: [{ mtime: "desc" }],
+        take,
+      }).reduce<string[]>((a, item) => {
+        if (item.src) a.push(item.src);
+        return a;
+      }, []),
+    [files, take]
+  );
+  return (
+    <MediaDownload
+      list={list}
+      label="添付ファイル"
+      name="files"
+      take={take}
+      {...props}
+    />
+  );
+}
+
+function SoundFilesDownload({ take, ...props }: DownloadBaseProps) {
+  const sounds = useSounds()[0];
+  const list = useMemo(
+    () =>
+      findMee(sounds || [], {
+        orderBy: [{ mtime: "desc" }],
+        take,
+      }).reduce<string[]>((a, item) => {
+        if (item.src) a.push(item.src);
+        return a;
+      }, []),
+    [sounds, take]
+  );
+  return (
+    <MediaDownload
+      list={list}
+      label="音楽"
+      name="sounds"
+      take={take}
+      {...props}
+    />
+  );
+}
+
+function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
+  const mediaOrigin = useMediaOrigin()[0];
   const { setMax, addProgress } = useToastProgress();
   const isAll = useMemo(() => typeof take !== "number", [take]);
   return (
     <LinkButton
       onClick={async () => {
         if (
-          images &&
+          list &&
           confirm(
-            (isAll ? "画像を全件" : `最新の画像を${take}件`) +
+            (isAll ? `${label}を全件` : `最新の${label}を${take}件`) +
               "ダウンロードしますか？"
           )
         ) {
           const zip = new JSZip();
-          const list = findMee(images, {
-            orderBy: [{ time: "desc" }],
-            take,
-          }).reduce<string[]>((a, item) => {
-            if (item.src) a.push(item.src);
-            if (item.thumbnail) a.push(item.thumbnail);
-            return a;
-          }, []);
           setMax(list.length + 1);
           PromiseOrder(
             arrayPartition(list, 100).map(
@@ -187,7 +263,7 @@ function ImagesDownload({ take }: { take?: number }) {
             .then(() => zip.generateAsync({ type: "blob" }))
             .then((content) => {
               fileDownload(
-                `latest_images${isAll ? "" : "_" + take}.zip`,
+                isAll ? `files_${name}.zip` : `latest_${name}_${take}.zip`,
                 content
               );
             })
@@ -197,7 +273,7 @@ function ImagesDownload({ take }: { take?: number }) {
         }
       }}
     >
-      {isAll ? "全ての画像" : `最新の画像${take}件`}
+      {isAll ? `全ての${label}` : `最新の${label}${take}件`}
     </LinkButton>
   );
 }
