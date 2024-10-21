@@ -948,7 +948,7 @@ export function GalleryYearFilter({
   return (
     <select
       title="年フィルタ"
-      className="yearFilter"
+      className="noBorder year"
       ref={yearSelectRef}
       value={year || ""}
       onChange={changeHandler}

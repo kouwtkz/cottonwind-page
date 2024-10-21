@@ -1849,16 +1849,19 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
   }
 }
 
-select.yearFilter {
-  font-size: 1.25rem;
-  margin: 0.5rem;
-  min-width: 4rem;
-  color: var(--main-color);
-  background-color: transparent;
-  border: none;
-
-  option {
-    color: var(--main-color-dark);
+select {
+  &.noBorder {
+    background-color: transparent;
+    border: none;
+  }
+  &.year {
+    font-size: 1.25rem;
+    margin: 0.5rem;
+    min-width: 4rem;
+    color: var(--main-color);
+    option {
+      color: var(--main-color-dark);
+    }
   }
 }
 
