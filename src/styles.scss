@@ -228,11 +228,11 @@ textarea,
 //   transition: background-color 1s;
 // }
 
-@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Nunito:ital,wght@0,200..1000;1,200..1000&Lexend+Peta:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Lexend+Zetta:wght@100..900&display=swap");
 
 // 100-900
-@mixin LexendPeta($weight: 400) {
-  font-family: "Lexend Peta", sans-serif;
+@mixin LexendZetta($weight: 400) {
+  font-family: "Lexend Zetta", sans-serif;
   font-optical-sizing: auto;
   font-weight: $weight;
   font-style: normal;
@@ -251,7 +251,7 @@ textarea,
 }
 
 .en-title-font {
-  @include LexendPeta(700);
+  @include LexendZetta(700);
   letter-spacing: normal;
 }
 
