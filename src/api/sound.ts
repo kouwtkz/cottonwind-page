@@ -167,7 +167,7 @@ app.post("/import", async (c, next) => {
 });
 
 app.delete("/all", async (c, next) => {
-  if (c.env.DEV) {
+  if (import.meta.env?.DEV) {
     const list = (await c.env.BUCKET.list({ prefix: "sound" })).objects.map(
       (object) => object.key
     );

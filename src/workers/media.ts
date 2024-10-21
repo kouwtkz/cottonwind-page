@@ -10,7 +10,7 @@ app.get("*", cors({ origin: "*", credentials: true }));
 app.get(
   "*",
   async (c, next) => {
-    if (c.env.DEV) return next();
+    if (import.meta.env?.DEV) return next();
     else return cache({
       cacheName: 'media-cache',
       cacheControl: 'max-age=86400',

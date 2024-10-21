@@ -9,7 +9,7 @@ export function IsLogin<T extends MeeCommonEnv>(
   c: CommonContext<T>,
   trueWhenDev = false
 ) {
-  if (trueWhenDev && c.env.DEV) return Boolean(c.env.DEV);
+  if (trueWhenDev && import.meta.env?.DEV) return import.meta.env.DEV;
   return c.env?.LOGIN_TOKEN === getCookie(c, "LoginToken");
 }
 
@@ -45,7 +45,9 @@ export function LoginRoute<T extends MeeCommonEnv>() {
             <input type="hidden" name="redirect" value={redirect} />
           ) : null}
           {message ? <div className="warm">{message}</div> : null}
-          <button className="color" type="submit">送信</button>
+          <button className="color" type="submit">
+            送信
+          </button>
         </form>
       </ServerSimpleLayout>
     );
@@ -55,7 +57,7 @@ export function LoginRoute<T extends MeeCommonEnv>() {
     const Url = new URL(c.req.url);
     const redirect =
       Url.searchParams.get("redirect") || c.req.header("referer") || "/";
-    if (c.env.DEV) {
+    if (import.meta.env?.DEV) {
       SetLoginCookieProcess(c);
       return c.redirect(redirect);
     }

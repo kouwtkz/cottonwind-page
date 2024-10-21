@@ -289,7 +289,7 @@ app.post("/compat/merge", async (c, next) => {
 })
 
 app.delete("/", async (c, next) => {
-  if (c.env.DEV) {
+  if (import.meta.env?.DEV) {
     const Url = new URL(c.req.url);
     const filename = Url.searchParams.get("path");
     if (filename) {
@@ -300,7 +300,7 @@ app.delete("/", async (c, next) => {
   return next();
 });
 app.delete("/all", async (c, next) => {
-  if (c.env.DEV) {
+  if (import.meta.env?.DEV) {
     const list = (await c.env.BUCKET.list({ prefix: "image" })).objects.map(
       (object) => object.key
     );

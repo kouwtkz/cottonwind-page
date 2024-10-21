@@ -136,7 +136,7 @@ app.post("/import", async (c, next) => {
     .catch(() => c.text("インポートに失敗しました", 500));
 })
 app.delete("/all", async (c, next) => {
-  if (c.env.DEV) {
+  if (import.meta.env?.DEV) {
     const db = new MeeSqlD1(c.env.DB);
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });

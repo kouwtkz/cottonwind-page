@@ -15,7 +15,7 @@ export const app = new Hono<MeeBindings<MeeCommonEnv>>({
 });
 
 app.get("*", async (c, next) => {
-  if (c.env.DEV) return next();
+  if (import.meta.env?.DEV) return next();
   const Url = new URL(c.req.url);
   const hasCacheParam = Url.searchParams.has("cache");
   if (hasCacheParam) {

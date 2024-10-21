@@ -6,13 +6,13 @@ const scheduled: ExportedHandlerScheduledHandler<MeeSvEnv> = async (event, env, 
 };
 
 app.get("/life", async (c, next) => {
-  if (!c.env.DEV) return next();
+  if (!import.meta.env?.DEV) return next();
   await SvLifeCheck(c.env);
   return c.text("");
 })
 
 app.get("/clean", async (c, next) => {
-  if (!c.env.DEV) return next();
+  if (!import.meta.env?.DEV) return next();
   const Url = new URL(c.req.url);
   const day = Url.searchParams.has("d") ? Number(Url.searchParams.get("d")) : null;
   await SvCleanPages(c.env, day && !isNaN(day) ? day : undefined);
