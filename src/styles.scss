@@ -703,6 +703,7 @@ button,
       height: 1.75rem;
     }
   }
+  &.link,
   &.miniIcon,
   &.iconSwitch {
     padding: 0;
@@ -746,7 +747,10 @@ button,
   }
 }
 
-a {
+a,
+.link {
+  font: inherit;
+  text-decoration: underline;
   word-break: break-all;
   color: var(--main-color-strong);
   &:hover {
@@ -2989,4 +2993,3 @@ form.blogEdit {
     transform: translateX(-50%);
   }
 }
-

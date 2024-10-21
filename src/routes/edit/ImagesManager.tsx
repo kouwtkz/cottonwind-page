@@ -167,7 +167,7 @@ export function CompatMendingThumbnailButton({
               return () =>
                 fetch(concatOriginUrl(mediaOrigin, src), {
                   method: "HEAD",
-                  mode: "cors",
+                  cache: "no-cache",
                 }).then((r) => (r.status === 200 ? { src, image } : null)!);
             }),
             {
