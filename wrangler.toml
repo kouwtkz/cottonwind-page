@@ -34,7 +34,8 @@ MEDIA_ORIGIN = "https://media.cottonwind.com"
 MEDIA_PAGES_ORIGIN = "/assets"
 
 LOCAL_ORIGIN = "51730"
-MEDIA_LOCAL_ORIGIN = "51731"
+MEDIA_LOCAL_ORIGIN = "/media"
+# MEDIA_LOCAL_ORIGIN = "51731"
 # MEDIA_LOCAL_ORIGIN = "https://media.cottonwind.com"
 
 CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
