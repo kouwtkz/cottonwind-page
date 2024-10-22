@@ -967,6 +967,16 @@ h4 {
   }
 }
 
+.font-small {
+  font-size: small;
+}
+.font-medium {
+  font-size: medium;
+}
+.font-large {
+  font-size: large;
+}
+
 .dropdown {
   position: relative;
   > button,
@@ -979,6 +989,7 @@ h4 {
     text-align: left;
     width: max-content;
     background-color: var(--form-background-color);
+    font-size: medium;
     &.right {
       right: 0;
     }
@@ -989,9 +1000,18 @@ h4 {
     [tabindex] {
       @extend %cursor-pointer;
       padding: 0.25em 0.75em;
-      font-size: smaller;
+      font-size: 1em;
       color: var(--current-text-color);
       background-color: var(--background-bw);
+      .check {
+        width: 1em;
+        height: 1em;
+        vertical-align: text-bottom;
+        display: inline-block;
+      }
+    }
+    [tabIndex] {
+      @extend %cursor-pointer;
       &:hover {
         background-color: var(--main-color);
       }
