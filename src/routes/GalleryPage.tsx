@@ -550,7 +550,6 @@ function GalleryBody({
                 <DropdownButton
                   MenuButtonClassName="iconSwitch"
                   listClassName="flex column font-small"
-                  autoClose={false}
                 >
                   <ObjectDownloadButton
                     className="squared item text-left"
