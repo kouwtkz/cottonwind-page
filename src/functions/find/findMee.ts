@@ -410,7 +410,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
     }
   });
   const where: findWhereType<T> = whereList.length > 1 ? { AND: whereList } : (whereList[0] ?? {});
-  return { where, id, take, orderBy };
+  return { where, id, take, orderBy: orderBy as OrderByItem<T>[] };
 }
 
 function kanaToHira(str: string) {
