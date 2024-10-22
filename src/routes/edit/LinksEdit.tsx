@@ -309,7 +309,7 @@ export function LinksEditButtons({
         <>
           <DropdownButton
             MenuButtonClassName="iconSwitch"
-            listClassName="flex column"
+            listClassName="flex column font-small"
           >
             <ObjectDownloadButton
               className="squared item text-left"

@@ -1,12 +1,5 @@
-import { HTMLAttributes, useEffect, useRef } from "react";
+import { HTMLAttributes, useMemo, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
-import { useApiOrigin, useEnv } from "@/state/EnvState";
-import { fileDialog } from "../FileTool";
-import { ImagesUploadWithToast } from "@/routes/edit/ImageEditForm";
-import { imageDataObject } from "@/state/DataState";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { useSelectedImage } from "@/state/ImageState";
-
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
 }
@@ -58,13 +51,13 @@ export interface MenuItemProps extends HTMLAttributes<HTMLDivElement> {
   value?: string;
 }
 export function MenuItem({ value, className, ...args }: MenuItemProps) {
+  className = useMemo(() => {
+    const list = ["item"];
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className]);
   return (
-    <div
-      tabIndex={0}
-      data-value={value}
-      className={"item" + (className ? " " + className : "")}
-      {...args}
-    />
+    <div tabIndex={0} data-value={value} className={className} {...args} />
   );
 }
 export function PostEditSelectInsert({
@@ -243,61 +236,9 @@ export function PostEditSelectMedia({
   album,
   autoClose,
 }: PostEditSelectMediaProps) {
-  const [env] = useEnv();
-  const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const [searchParams, setSearchParams] = useSearchParams();
-  let { state } = useLocation();
-  const selectedImage = useSelectedImage()[0];
-  function replacePostTextareaFromImage(image: ImageType | ImageDataType) {
-    const searchParams = new URLSearchParams({ image: image.key });
-    replacePostTextarea({
-      textarea,
-      before: `\n![${image.title}](?${searchParams})\n`,
-      after: "",
-    });
-  }
-  useEffect(() => {
-    if (selectedImage) replacePostTextareaFromImage(selectedImage);
-  }, [selectedImage]);
   function setMedia(value: string) {
-    if (!value || !textarea || !apiOrigin) return;
+    if (!value || !textarea) return;
     switch (value) {
-      case "upload":
-        fileDialog("image/*", true)
-          .then((files) => Array.from(files))
-          .then((files) =>
-            ImagesUploadWithToast({
-              src: files,
-              apiOrigin,
-              album,
-              notDraft: true,
-            })
-          )
-          .then((list) => {
-            setImagesLoad("no-cache");
-            return list
-              ?.map((r) => r.data as ImageDataType)
-              .filter((data) => data);
-          })
-          .then((list) => {
-            list?.forEach((data) => {
-              replacePostTextareaFromImage(data);
-            });
-          });
-        break;
-      case "external":
-        if (env?.UPLOAD_BRACKET)
-          replacePostTextarea({ textarea, before: "![](", after: ")" });
-        else textarea.focus();
-        window.open(env?.UPLOAD_SERVICE, "uploadExternal");
-        break;
-      case "gallery":
-        searchParams.set("modal", "gallery");
-        if (!state) state = {};
-        state.from = location.href;
-        setSearchParams(searchParams, { state });
-        break;
       case "link":
         replacePostTextarea({ textarea, before: "[", after: "]()" });
         break;
@@ -315,11 +256,6 @@ export function PostEditSelectMedia({
       }}
     >
       <MenuItem value="link">リンク</MenuItem>
-      <MenuItem value="gallery">ギャラリー</MenuItem>
-      {album ? <MenuItem value="upload">アップロード</MenuItem> : null}
-      {env?.UPLOAD_SERVICE ? (
-        <MenuItem value="external">外部アップロード</MenuItem>
-      ) : null}
     </DropdownObject>
   );
 }

@@ -549,7 +549,8 @@ function GalleryBody({
               <div className="icons flex center">
                 <DropdownButton
                   MenuButtonClassName="iconSwitch"
-                  listClassName="flex column"
+                  listClassName="flex column font-small"
+                  autoClose={false}
                 >
                   <ObjectDownloadButton
                     className="squared item text-left"

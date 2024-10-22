@@ -31,7 +31,7 @@ export interface DropdownObjectBaseProps {
 
 interface DropdownObjectProps extends DropdownObjectBaseProps {
   children?: ReactNode;
-  onClick?: (e: HTMLElement) => void;
+  onClick?: (e: HTMLElement) => boolean | void;
   onClickFadeOutTime?: number;
 }
 
@@ -115,12 +115,16 @@ export function DropdownObject({
         className={listClassName}
         hidden={!isOpen}
         onClick={(e) => {
-          if (onClick) onClick(e.target as HTMLElement);
-          if (onClickFadeOutTime)
-            setTimeout(() => {
-              setMenuFocus(false);
-            }, onClickFadeOutTime);
-          else setMenuFocus(false);
+          let close: boolean;
+          if (onClick) close = onClick(e.target as HTMLElement) ?? true;
+          else close = true;
+          if (close) {
+            if (onClickFadeOutTime)
+              setTimeout(() => {
+                setMenuFocus(false);
+              }, onClickFadeOutTime);
+            else setMenuFocus(false);
+          }
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

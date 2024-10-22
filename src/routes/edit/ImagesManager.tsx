@@ -93,11 +93,17 @@ interface CompatGalleryButtonProps extends BaseObjectButtonProps {
   to: string;
 }
 export function CompatGalleryButton({
+  className,
   children,
   from,
   to,
   ...props
 }: CompatGalleryButtonProps) {
+  className = useMemo(() => {
+    const list = ["flex text-left"];
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className]);
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const { imageAlbums: albums } = useImageState();
@@ -106,6 +112,7 @@ export function CompatGalleryButton({
     <ObjectCommonButton
       title={`${from}アルバムを${to}アルバムに変更する`}
       icon={<MdDriveFileRenameOutline />}
+      className={className}
       {...props}
       beforeConfirm={`${from}アルバムを${to}アルバムに変更しますか？`}
       onClick={() => {
@@ -130,7 +137,9 @@ export function CompatGalleryButton({
         });
       }}
     >
-      {children || `アルバムを${from}から${to}に移行する`}
+      {children || (
+        <span className="pre">{`アルバムの移行\n${from}->${to}`}</span>
+      )}
     </ObjectCommonButton>
   );
 }

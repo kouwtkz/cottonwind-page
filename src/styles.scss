@@ -261,7 +261,6 @@ $miniDesktopWidth: 960px;
 $desktopWidth: 1280px;
 
 * {
-  line-height: 1.25em;
   -webkit-tap-highlight-color: var(--main-color-fluo);
   ::selection {
     background-color: var(--main-color-soft);
@@ -588,6 +587,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: transparent;
+  overflow-x: hidden;
   overflow-y: scroll;
   &.dummy {
     min-height: 5000rem;
@@ -640,6 +640,7 @@ html.loading {
 :root {
   background-color: var(--background);
   scrollbar-width: thin;
+  overflow-x: hidden;
   &,
   * {
     scrollbar-color: var(--main-color-soft) transparent;
@@ -897,6 +898,7 @@ h4 {
   vertical-align: text-bottom;
 }
 
+.pre,
 .hashtag {
   white-space: pre;
 }
@@ -976,6 +978,9 @@ h4 {
 .font-large {
   font-size: large;
 }
+.font-bold {
+  font-weight: bold;
+}
 
 .dropdown {
   position: relative;
@@ -989,7 +994,6 @@ h4 {
     text-align: left;
     width: max-content;
     background-color: var(--form-background-color);
-    font-size: medium;
     &.right {
       right: 0;
     }
@@ -998,32 +1002,40 @@ h4 {
     }
     .item,
     [tabindex] {
-      @extend %cursor-pointer;
       padding: 0.25em 0.75em;
       font-size: 1em;
       color: var(--current-text-color);
       background-color: var(--background-bw);
+      span {
+        pointer-events: none;
+      }
       .check {
-        width: 1em;
-        height: 1em;
-        vertical-align: text-bottom;
+        padding: 0 0.25em;
         display: inline-block;
+        box-sizing: content-box;
+        vertical-align: text-bottom;
+        &,
+        svg {
+          width: 1em;
+          height: 1em;
+          margin: 0;
+        }
       }
     }
+    button.item,
+    .button.item,
     [tabIndex] {
       @extend %cursor-pointer;
-      &:hover {
+      &:hover,
+      &:focus {
+        outline: none;
+        color: white;
         background-color: var(--main-color);
       }
       svg {
         margin-right: 0.5em;
       }
     }
-  }
-  button:focus {
-    outline: none;
-    color: white;
-    background-color: var(--main-color);
   }
   .menu > * {
     display: flex;
@@ -1279,6 +1291,7 @@ header {
     }
   }
   .siteMenu {
+    font-weight: 800;
     .button {
       width: 3.25rem;
       height: 3.25rem;
