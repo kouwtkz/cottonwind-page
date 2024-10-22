@@ -76,11 +76,13 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     ],
   },
   {
-    label: "すがた",
-    name: "form",
+    label: "じょうたい",
+    name: "status",
     options: [
-      { value: "darkForm", label: "😈やみのすがた" },
+      { value: "happy", label: "🎶ハッピーなすがた" },
+      { value: "sleep", label: "💤ねてるすがた" },
       { value: "foodForm", label: "🍲たべもののすがた" },
+      { value: "darkForm", label: "😈やみのすがた" },
     ],
   },
   {
