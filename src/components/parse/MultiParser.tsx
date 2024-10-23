@@ -12,14 +12,16 @@ import { parse } from "marked";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import hljs from "highlight.js";
 
+type Replacer = (substring: string, ...args: any[]) => string;
+
 export interface MultiParserOptions {
   markdown?: boolean;
   toDom?: boolean;
   detailsClosable?: boolean;
   linkPush?: boolean;
   linkSame?: boolean;
-  hashtag?: boolean | string;
-  quoteNumberReply?: boolean | ((substring: string, ...args: any[]) => string);
+  hashtag?: boolean | Replacer;
+  quoteNumberReply?: boolean | Replacer;
 }
 export interface MultiParserProps
   extends MultiParserOptions,
@@ -70,10 +72,6 @@ export function MultiParser({
     hashtag = only.hashtag ?? false;
     detailsClosable = only.detailsClosable ?? false;
   }
-  const hashtagKey = useMemo(
-    () => (hashtag ? (typeof hashtag === "string" ? hashtag : "q") : ""),
-    [hashtag]
-  );
   useEffect(() => {
     if (existCode.current) {
       (
@@ -91,6 +89,19 @@ export function MultiParser({
     [children]
   );
   childString = useMemo(() => {
+    if (childString && hashtag) {
+      return childString.replace(
+        /(^|\s?)(#[^\s#]+)/g,
+        typeof hashtag === "function"
+          ? hashtag
+          : (m, m1, m2) => {
+              const s = createSearchParams({ q: m2 });
+              return `${m1}<a href="?${s.toString()}" class="hashtag">${m2}</a>`;
+            }
+      );
+    } else return childString;
+  }, [childString, hashtag]);
+  childString = useMemo(() => {
     if (childString && quoteNumberReply) {
       return childString.replace(
         />(\d+)(\s|$)/g,
@@ -100,6 +111,7 @@ export function MultiParser({
       );
     } else return childString;
   }, [childString, quoteNumberReply]);
+
   childString = useMemo(() => {
     if (childString && markdown)
       return parse(childString, { async: false }) as string;
@@ -108,7 +120,6 @@ export function MultiParser({
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   const parsedChildren = useMemo((): React.ReactNode => {
     if (childString && toDom) {
-      let currentTag = "";
       return HTMLReactParser(childString, {
         ...ReactParserArgs,
         replace: (v) => {
@@ -121,7 +132,6 @@ export function MultiParser({
                   break;
                 case "a":
                   if (linkPush) {
-                    currentTag = v.name;
                     const url = v.attribs.href;
                     if (/^\w+:\/\//.test(url)) {
                       v.attribs.target = "_blank";
@@ -165,7 +175,6 @@ export function MultiParser({
                         e.preventDefault();
                       }) as any;
                     }
-                    currentTag = "";
                   }
                   break;
                 case "details":
@@ -188,36 +197,17 @@ export function MultiParser({
                     );
                   break;
                 default:
-                  if (
-                    typeof location === "undefined" ||
-                    !(hashtagKey || linkPush)
-                  )
-                    return;
-                  const newChildren = v.children.reduce((a, n) => {
-                    let _n: ChildNode | undefined = n;
-                    if (hashtagKey && n.type === "text") {
-                      if (!/^a$/.test(currentTag) && !/^\s*$/.test(n.data)) {
-                        const replaced = n.data.replace(
-                          /(^|\s?)(#[^\s#]+)/g,
-                          (m, m1, m2) => {
-                            const searchParams = createSearchParams({
-                              [hashtagKey]: m2,
-                            });
-                            return `${m1}<a href="?${searchParams.toString()}" class="hashtag">${m2}</a>`;
-                          }
-                        );
-                        if (n.data !== replaced) {
-                          htmlToDOM(replaced).forEach((n) => a.push(n));
-                          return a;
-                        }
+                  if (typeof location !== "undefined" && linkPush) {
+                    const newChildren = v.children.reduce((a, n) => {
+                      let _n: ChildNode | undefined = n;
+                      if (replaceFunctions) {
+                        _n = replaceFunctions({ linkPush, a, n });
                       }
-                    } else if (replaceFunctions) {
-                      _n = replaceFunctions({ linkPush, a, n });
-                    }
-                    if (_n) a.push(_n);
-                    return a;
-                  }, [] as ChildNode[]);
-                  v.children = newChildren;
+                      if (_n) a.push(_n);
+                      return a;
+                    }, [] as ChildNode[]);
+                    v.children = newChildren;
+                  }
                   break;
               }
           }
@@ -231,7 +221,6 @@ export function MultiParser({
     toDom,
     ReactParserArgs,
     linkPush,
-    hashtagKey,
     detailsOpen,
     detailsClosable,
   ]);
