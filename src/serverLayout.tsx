@@ -29,7 +29,7 @@ export function DefaultBody({
   env?: SiteConfigEnv;
 }) {
   return (
-    <body className="loading dummy">
+    <body className="dummy">
       <Loading />
       <main id="root">
         <div hidden>
@@ -135,7 +135,7 @@ export async function ServerLayout({
     if (Url.searchParams.has("postId")) posts = await getPostsData(c);
   }
   return (
-    <html lang="ja">
+    <html lang="ja" className="loading">
       <head>
         <DefaultMeta />
         <SetMeta

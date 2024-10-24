@@ -93,7 +93,6 @@ function LoadingState({ isSetList, children }: LoadingStateProps) {
     isCompleteRef.current = isComplete;
   }, [isComplete]);
   useEffect(() => {
-    document.body.classList.remove("dummy");
     setTimeout(() => {
       if (!isCompleteRef.current) {
         setIsComplete(true);
@@ -102,10 +101,12 @@ function LoadingState({ isSetList, children }: LoadingStateProps) {
     }, 5000);
   }, []);
   useEffect(() => {
+    const html = document.querySelector("html");
     if (isComplete) {
-      document.body.classList.remove("loading");
+      document.body.classList.remove("dummy");
+      html?.classList.remove("loading");
     } else {
-      document.body.classList.add("loading");
+      html?.classList.add("loading");
     }
   }, [isComplete]);
   useEffect(() => {
