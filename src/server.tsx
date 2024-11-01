@@ -10,11 +10,13 @@ import { CommonHono } from "./types/HonoCustomType";
 import { app_workers } from "./workers";
 import { LoginCheckMiddleware } from "./admin";
 import { app_api } from "./api";
+import { app_get } from "./get";
 
 export function ServerCommon(app: CommonHono) {
   app.route("/workers", app_workers);
   app.route("/api", app_api);
   app.use("/admin/*", LoginCheckMiddleware);
+  app.route("/get/latest", app_get);
   app.get("/blog/rss.xml", async (c) => {
     const db = new MeeSqlD1(c.env.DB);
     const postsData = await ServerPostsGetRssData(db, 10);
