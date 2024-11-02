@@ -45,8 +45,12 @@ app.get("/:target/:name", async (c, next) => {
           (r) => (r.ok ? r.blob() : null)
         );
         if (blob) {
+          const link = new URL(Url);
+          link.pathname = "gallery";
+          link.searchParams.set("image", image.key);
+          link.searchParams.set("album", albumName);
           return c.body(await blob.arrayBuffer(), {
-            headers: { "Content-Type": blob.type },
+            headers: { "Content-Type": blob.type, "Link-To": link.href },
           });
         }
       }
