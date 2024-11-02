@@ -3,6 +3,7 @@ import { cache } from "hono/cache";
 import { MeeSqlD1 } from "./functions/database/MeeSqlD1";
 import { ImageTableObject } from "./api/image";
 import { concatOriginUrl, getMediaOrigin } from "./functions/originUrl";
+import { ArrayEnv } from "./ArrayEnv";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 
@@ -27,7 +28,7 @@ app.get("/:target/:name", async (c, next) => {
     case "images":
       const albumName = c.req.param("name");
       if (
-        c.env.IMAGE_ALBUMS?.some(
+        ArrayEnv.IMAGE_ALBUMS?.some(
           (album) => album.name === albumName && album.latest
         )
       ) {

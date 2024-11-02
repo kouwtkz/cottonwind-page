@@ -24,9 +24,6 @@ interface SiteConfigEnv {
   CONTACT_FORM_GOOGLE?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
-  NAV?: Array<SiteMenuItemType>;
-  LINKS?: Array<SiteMyLinksItemType>;
-  IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
   DEV?: boolean;
 }
 interface ImageAlbumEnvType extends Omit<ImageAlbumType, "list"> { }
@@ -117,4 +114,10 @@ type SiteMyLinksItemType = {
   rel?: string
   hidden?: boolean
   none?: boolean
+}
+
+interface ArrayEnvType {
+  NAV?: Array<SiteMenuItemType>;
+  LINKS?: Array<SiteMyLinksItemType>;
+  IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
 }

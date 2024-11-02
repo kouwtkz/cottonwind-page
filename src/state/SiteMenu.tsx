@@ -7,6 +7,7 @@ import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useEnv, useIsLogin } from "./EnvState";
+import { ArrayEnv } from "@/ArrayEnv";
 
 export function ThemeChangeButton({
   children = "いろかえ",
@@ -82,7 +83,7 @@ export function SiteMenu() {
   const [env] = useEnv();
   const isLogin = useIsLogin()[0];
   const list = useMemo(() => {
-    const list = (env?.NAV || []).concat();
+    const list = (ArrayEnv.NAV || []).concat();
     list.push({ name: "admin", url: "admin" });
     list.push({ name: "theme", switch: "theme" });
     return list;

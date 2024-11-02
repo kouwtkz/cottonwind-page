@@ -8,6 +8,7 @@ import {
 import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { ArrayEnv } from "@/ArrayEnv";
 
 export interface SetMetaProps {
   path: string;
@@ -56,7 +57,7 @@ export function MetaValues({
         title = "ギャラリー | " + siteTitle;
         const group = list[2];
         if (group) {
-          const gallery = env?.IMAGE_ALBUMS?.find((v) => v.name === group);
+          const gallery = ArrayEnv.IMAGE_ALBUMS?.find((v) => v.name === group);
           if (gallery) {
             const generate = gallery.gallery?.generate;
             title =

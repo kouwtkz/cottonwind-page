@@ -1,4 +1,5 @@
 import ShareButton from "@/components/button/ShareButton";
+import { ArrayEnv } from "@/ArrayEnv";
 import { getYear } from "@/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {
@@ -11,7 +12,7 @@ export function Footer({ env }: { env?: SiteConfigEnv }) {
           </span>
         ) : null}
       </div>
-      <LinksList myLinks={env?.LINKS || []} />
+      <LinksList myLinks={ArrayEnv.LINKS || []} />
     </footer>
   );
 }

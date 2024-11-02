@@ -11,6 +11,7 @@ import { getCharacterMap } from "@/functions/characterFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
+import { ArrayEnv } from "./ArrayEnv";
 
 export function DefaultMeta() {
   return (
@@ -44,7 +45,7 @@ export function DefaultBody({
             </a>
           </header>
           <footer>
-            <LinksList myLinks={env?.LINKS || []} maskImage={false} />
+            <LinksList myLinks={ArrayEnv.LINKS || []} maskImage={false} />
           </footer>
         </div>
       </main>

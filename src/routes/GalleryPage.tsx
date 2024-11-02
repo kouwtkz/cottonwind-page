@@ -52,7 +52,7 @@ import {
   useNoUploadThumbnail,
   useUploadWebp,
 } from "./edit/ImageEditForm";
-import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
+import { useApiOrigin, useIsLogin } from "@/state/EnvState";
 import { imageDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
@@ -73,14 +73,14 @@ import { Modal } from "@/layout/Modal";
 import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
+import { ArrayEnv } from "@/ArrayEnv";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
-  const [env] = useEnv();
   const galleryList =
-    env?.IMAGE_ALBUMS?.map((album) => ({
+    ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
       ...album.gallery?.pages,
       ...album,
     })).filter((v) => v) ?? [];
@@ -102,13 +102,12 @@ export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
 
 function GalleryGroupPage() {
   const { group } = useParams();
-  const [env] = useEnv();
   const album = useMemo(
     () =>
-      env?.IMAGE_ALBUMS?.find(
+      ArrayEnv.IMAGE_ALBUMS?.find(
         (album) => (typeof album === "string" ? album : album.name) === group
       ),
-    [group, env]
+    [group]
   );
   const items = album ? { ...album?.gallery?.generate, ...album } : undefined;
   return (

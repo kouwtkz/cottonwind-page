@@ -5,6 +5,7 @@ import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/media/imageFunction";
 import { create } from "zustand";
 import { CreateState } from "./CreateState";
+import { ArrayEnv } from "@/ArrayEnv";
 
 type imageStateType = {
   images?: ImageType[];
@@ -37,11 +38,10 @@ export const useImageState = create<imageStateType>((set) => ({
 
 export function ImageState() {
   const imagesData = imageDataObject.useData()[0];
-  const env = useEnv()[0];
   const { set } = useImageState();
   useEffect(() => {
-    if (imagesData && env) set(imagesData, env?.IMAGE_ALBUMS);
-  }, [imagesData, env, set]);
+    if (imagesData) set(imagesData, ArrayEnv.IMAGE_ALBUMS);
+  }, [imagesData, set]);
   return <></>;
 }
 
