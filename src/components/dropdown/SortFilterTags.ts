@@ -66,13 +66,20 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     ],
   },
   {
-    label: "コミュニティ",
-    name: "community",
+    label: "創作",
+    name: "creation",
     options: [
       { value: "project", label: "🎪企画・イベント" },
       { value: "synopsis", label: "📰設定資料" },
+    ],
+  },
+  {
+    label: "コミュニティ",
+    name: "community",
+    options: [
       { value: "yosonoko", label: "🐕よその子" },
       { value: "birthday", label: "🎂誕生日" },
+      { value: "VRChat", label: "🥽VRChat" },
     ],
   },
   {
