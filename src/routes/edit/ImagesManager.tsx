@@ -7,7 +7,11 @@ import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
 import { useCharactersMap } from "@/state/CharacterState";
 import { useParams } from "react-router-dom";
 import { fileDialog } from "@/components/FileTool";
-import { ImagesUploadWithToast } from "./ImageEditForm";
+import {
+  ImagesUploadWithToast,
+  useNoUploadThumbnail,
+  useUploadWebp,
+} from "./ImageEditForm";
 import { useToastProgress } from "@/state/ToastProgress";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
@@ -20,6 +24,9 @@ import {
 import { getName } from "@/functions/doc/PathParse";
 import { corsFetch } from "@/functions/fetch";
 import { sleep } from "@/functions/Time";
+import { PiFileImage, PiFileImageFill } from "react-icons/pi";
+import { CreateState } from "@/state/CreateState";
+import { ModeSwitch } from "@/layout/edit/CommonSwitch";
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -63,6 +70,8 @@ export function GalleryUploadButton({
 }: GalleryUploadButtonProps) {
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
+  const webp = useUploadWebp()[0];
+  const thumbnail = !useNoUploadThumbnail()[0];
   const params = useParams();
   return (
     <ObjectCommonButton
@@ -78,6 +87,8 @@ export function GalleryUploadButton({
               apiOrigin,
               character: params.charaName,
               album: group,
+              webp,
+              thumbnail,
             })
           )
           .then(() => {

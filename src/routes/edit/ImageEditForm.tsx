@@ -62,6 +62,8 @@ import {
 import { fileDialog } from "@/components/FileTool";
 import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
 import { CopyWithToast } from "@/functions/toastFunction";
+import { ModeSwitch } from "@/layout/edit/CommonSwitch";
+import { PiFileImageFill, PiFileX } from "react-icons/pi";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -303,6 +305,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
   }, [charactersMap]);
+  const webp = useUploadWebp()[0];
+  const thumbnail = !useNoUploadThumbnail()[0];
 
   return (
     <>
@@ -321,6 +325,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       ImagesUploadWithToast({
                         src: { src: file, name: image.key },
                         apiOrigin,
+                        webp,
+                        thumbnail,
                       })
                     )
                     .then(() => {
@@ -686,7 +692,7 @@ export async function MakeImagesUploadList({
   albumOverwrite,
   character,
   original = true,
-  webp = true,
+  webp = false,
   thumbnail = true,
   webpOptions,
   notDraft: direct,
@@ -890,3 +896,27 @@ export const iconImagesUploadOptions: ImagesUploadOptions = {
   webpOptions: { expansion: false, size: 96 },
   notDraft: true,
 };
+
+export const useUploadWebp = CreateState(false);
+export function SwitchUploadWebp() {
+  return (
+    <ModeSwitch
+      toEnableTitle="画像をWebPファイルでアップロードする"
+      useSwitch={useUploadWebp}
+    >
+      <PiFileImageFill />
+    </ModeSwitch>
+  );
+}
+
+export const useNoUploadThumbnail = CreateState(false);
+export function SwitchNoUploadThumbnail() {
+  return (
+    <ModeSwitch
+      toEnableTitle="サムネイルのアップロードをしないに切り替える"
+      useSwitch={useNoUploadThumbnail}
+    >
+      <PiFileX />
+    </ModeSwitch>
+  );
+}

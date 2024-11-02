@@ -36,7 +36,7 @@ import {
   RiPushpin2Line,
   RiStore3Fill,
 } from "react-icons/ri";
-import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
+import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getYear } from "@/functions/DateFunction";
 import { findMee, setWhere } from "@/functions/find/findMee";
@@ -46,7 +46,11 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
+  SwitchNoUploadThumbnail,
+  SwitchUploadWebp,
   useImageEditIsEditHold,
+  useNoUploadThumbnail,
+  useUploadWebp,
 } from "./edit/ImageEditForm";
 import { useApiOrigin, useEnv, useIsLogin } from "@/state/EnvState";
 import { imageDataObject } from "@/state/DataState";
@@ -419,6 +423,9 @@ function UploadChain({
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const character = useParams().charaName;
+  const webp = useUploadWebp()[0];
+  const thumbnail = !useNoUploadThumbnail()[0];
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const now = new Date();
@@ -430,6 +437,8 @@ function UploadChain({
         src: list,
         apiOrigin,
         character,
+        webp,
+        thumbnail,
         ...(item
           ? {
               album: item.name,
@@ -578,7 +587,6 @@ function GalleryBody({
                     className="squared item text-left"
                   />
                 </DropdownButton>
-                <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
                   toEnableTitle="全てのアルバムを表示する"
                   toDisableTitle="アルバム表示を元に戻す"
@@ -613,6 +621,8 @@ function GalleryBody({
                 >
                   <AiFillEdit />
                 </ModeSwitch>
+                <SwitchNoUploadThumbnail />
+                <SwitchUploadWebp />
                 <GalleryUploadButton className="iconSwitch" group={group} />
               </div>
             ) : null}

@@ -1,7 +1,12 @@
 import { HTMLAttributes, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
-import { ImagesUploadWithToast, useImageEditIsEditHold } from "./ImageEditForm";
+import {
+  ImagesUploadWithToast,
+  useImageEditIsEditHold,
+  useNoUploadThumbnail,
+  useUploadWebp,
+} from "./ImageEditForm";
 import { useApiOrigin } from "@/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
@@ -186,6 +191,7 @@ export function LinksEdit({
                     album,
                     albumOverwrite: false,
                     notDraft: true,
+                    webp: true,
                   });
                 })
                 .then(async (r) => {
@@ -373,6 +379,8 @@ export function MyBannerEditButtons() {
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const [move, setMove] = useMoveMyBanner();
+  const webp = useUploadWebp()[0];
+  const thumbnail = !useNoUploadThumbnail()[0];
   return (
     <div className="icons">
       {move ? (
@@ -407,6 +415,8 @@ export function MyBannerEditButtons() {
                     album: myBannerName,
                     albumOverwrite: false,
                     notDraft: true,
+                    webp,
+                    thumbnail,
                   });
                 })
                 .then(async () => {
