@@ -50,6 +50,7 @@ interface ImageAlbumType {
   type?: string;
   timeFormat?: string;
   timeReplace?: string;
+  latest?: boolean;
   gallery?: {
     pages?: GalleryListPropsBase;
     generate?: GalleryListPropsBase;

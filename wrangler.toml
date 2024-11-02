@@ -159,6 +159,7 @@ max = 4
 description = "オリジナルキャラクターのイラストです！"
 name = "main"
 title = "Main art"
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "メインイラスト！"
@@ -168,6 +169,7 @@ h4 = "オリジナルキャラのイラストです！"
 description = "Blenderなどで作った3Dモデルです！"
 name = "3D"
 type = "3d"
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作った3Dモデル！"
@@ -176,6 +178,7 @@ h4 = "これから増やしたい"
 [[vars.IMAGE_ALBUMS]]
 description = "案件などのイラストです！"
 name = "works"
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "依頼で描いたイラスト！"
@@ -187,6 +190,7 @@ name = "goods"
 timeFormat = "Y.m.d"
 timeReplace = "released: $1"
 type = "goods"
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "作ったグッズなど！"
@@ -195,6 +199,7 @@ h4 = "今は販売してない場合があります"
 [[vars.IMAGE_ALBUMS]]
 description = "ファンアートとして描いたイラストです！"
 name = "parody"
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 max = 12
 [vars.IMAGE_ALBUMS.gallery.generate]
@@ -205,6 +210,7 @@ h4 = "二次創作ファンアートやパロディを掲載してます！"
 name = "picture"
 type = "picture"
 visible = {title = true, filename = false, info = true}
+latest = true
 [vars.IMAGE_ALBUMS.gallery.pages]
 max = 8
 [vars.IMAGE_ALBUMS.gallery.generate]
@@ -215,6 +221,7 @@ name = "uploads"
 [vars.IMAGE_ALBUMS.gallery.pages]
 label = "other"
 max = 4
+latest = true
 [vars.IMAGE_ALBUMS.gallery.generate]
 h2 = "その他アップロード"
 label = "other"

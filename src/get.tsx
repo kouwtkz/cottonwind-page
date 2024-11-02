@@ -26,41 +26,47 @@ app.get("/:target/:name", async (c, next) => {
   switch (c.req.param("target")) {
     case "images":
       const albumName = c.req.param("name");
-      const images = await ImageTableObject.Select({
-        db,
-        where: {
-          AND: [
-            {
-              album: albumName,
-            },
-            {
-              OR: [
-                { src: { endsWith: ".png" } },
-                { src: { endsWith: ".jp%g" } },
-              ],
-            },
-            { lastmod: { lte: new Date().toISOString() } },
-            {
-              OR: [{ draft: null }, { draft: 0 }],
-            },
-          ],
-        },
-        take: 1,
-        orderBy: [{ time: "desc" }],
-      });
-      if (images.length > 0) {
-        const image = images[0];
-        const blob = await fetch(concatOriginUrl(mediaOrigin, image.src!)).then(
-          (r) => (r.ok ? r.blob() : null)
-        );
-        if (blob) {
-          const link = new URL(Url);
-          link.pathname = "gallery";
-          link.searchParams.set("image", image.key);
-          link.searchParams.set("album", albumName);
-          return c.body(await blob.arrayBuffer(), {
-            headers: { "Content-Type": blob.type, "Link-To": link.href },
-          });
+      if (
+        c.env.IMAGE_ALBUMS?.some(
+          (album) => album.name === albumName && album.latest
+        )
+      ) {
+        const images = await ImageTableObject.Select({
+          db,
+          where: {
+            AND: [
+              {
+                album: albumName,
+              },
+              {
+                OR: [
+                  { src: { endsWith: ".png" } },
+                  { src: { endsWith: ".jp%g" } },
+                ],
+              },
+              { lastmod: { lte: new Date().toISOString() } },
+              {
+                OR: [{ draft: null }, { draft: 0 }],
+              },
+            ],
+          },
+          take: 1,
+          orderBy: [{ time: "desc" }],
+        });
+        if (images.length > 0) {
+          const image = images[0];
+          const blob = await fetch(
+            concatOriginUrl(mediaOrigin, image.src!)
+          ).then((r) => (r.ok ? r.blob() : null));
+          if (blob) {
+            const link = new URL(Url);
+            link.pathname = "gallery";
+            link.searchParams.set("image", image.key);
+            link.searchParams.set("album", albumName);
+            return c.body(await blob.arrayBuffer(), {
+              headers: { "Content-Type": blob.type, "Link-To": link.href },
+            });
+          }
         }
       }
       break;
