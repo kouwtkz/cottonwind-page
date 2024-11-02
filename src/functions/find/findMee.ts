@@ -88,6 +88,7 @@ function whereLoop<T>(value: T, where: findWhereType<T> | undefined): boolean {
                   else return cval == v;
                 case "not":
                   return cval != v;
+                case "like":
                 case "contains":
                   if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
                   else {

@@ -305,6 +305,9 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                 case "not":
                   bind.push(v);
                   return `${field} <> ?`;
+                case "like":
+                  bind.push(v);
+                  return `${field} LIKE ?`;
                 case "contains":
                   bind.push(`%${v}%`);
                   return `${field} LIKE ?`;

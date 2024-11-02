@@ -1,7 +1,7 @@
 type logicalConditionsType = "AND" | "OR";
 type logicalNotConditionsType = "NOT";
 type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not";
-type filterConditionsStringType = "contains" | "startsWith" | "endsWith";
+type filterConditionsStringType = "contains" | "like" | "startsWith" | "endsWith";
 type filterConditionsBoolType = "bool";
 type filterConditionsRegexpType = "regexp";
 type filterConditionsVariadicType = "in" | "between";
