@@ -11,7 +11,7 @@ app.get("*", async (c, next) => {
   else
     return cache({
       cacheName: "get-latest-cache",
-      cacheControl: "max-age=600",
+      cacheControl: "max-age=1800",
     })(c, next);
 });
 
