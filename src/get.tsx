@@ -29,12 +29,21 @@ app.get("/:target/:name", async (c, next) => {
       const images = await ImageTableObject.Select({
         db,
         where: {
-          album: albumName,
-          NOT: {
-            src: null,
-          },
-          OR: [{ draft: null }, { draft: 0 }],
-          lastmod: { lte: new Date().toISOString() },
+          AND: [
+            {
+              album: albumName,
+            },
+            {
+              OR: [
+                { src: { endsWith: ".png" } },
+                { src: { endsWith: ".jp%g" } },
+              ],
+            },
+            { lastmod: { lte: new Date().toISOString() } },
+            {
+              OR: [{ draft: null }, { draft: 0 }],
+            },
+          ],
         },
         take: 1,
         orderBy: [{ time: "desc" }],
