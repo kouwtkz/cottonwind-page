@@ -130,6 +130,21 @@ export function TopPageBannerLink() {
             />
           </a>
         </li>
+        <li>
+          <a
+            href="https://xfolio.jp/portfolio/kouwtkz"
+            target="_blank"
+            title="Xfolio"
+            rel="noopener"
+            className="overlay"
+          >
+            <img
+              className="banner"
+              src="/static/images/webp/Xfolioのバナー_600_200.webp"
+              alt="Xfolioのバナー"
+            />
+          </a>
+        </li>
       </ul>
     </>
   );
