@@ -50,7 +50,7 @@ RoutingList.forEach((path) => {
       styles: (
         <>
           <Style href="/css/styles.css" />
-          <Style href="/css/styles-toastify.css" />
+          <Style href="/css/styles_lib.css" />
         </>
       ),
       script: <script type="module" src="/static/js/client.js" />,

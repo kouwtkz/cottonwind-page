@@ -225,7 +225,7 @@ export function ServerSimpleLayout({
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
         <Style href="/css/styles.css" />
-        <Style href="/css/styles-toastify.css" />
+        <Style href="/css/styles_lib.css" />
         {meta}
         {style}
       </head>

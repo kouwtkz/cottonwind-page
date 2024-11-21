@@ -13,7 +13,7 @@ import { NoIndex, ServerCommon } from "./server";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
 import styles from "./styles.scss";
-import stylesToastify from "./styles-toastify.scss";
+import stylesfromLib from "./styles/styles_lib.scss";
 import mediaApp from "./media";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
@@ -25,7 +25,7 @@ app.use("*", (c, next) => {
 
 const styleList = [
   ["styles", styles],
-  ["styles-toastify", stylesToastify],
+  ["styles_lib", stylesfromLib],
 ];
 const stylePathes: string[] = [];
 for (const [name, code] of styleList) {
