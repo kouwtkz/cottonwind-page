@@ -8,6 +8,7 @@ import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/find/findMee";
 import { CreateState } from "@/state/CreateState";
 import { MeeLinks } from "./LinksPage";
+import { EmbedBluesky } from "@/components/embed/EmbedSNS";
 
 export default function Home() {
   return (
@@ -78,6 +79,7 @@ export default function Home() {
         </ul>
         <MeeLinks category="top" banner />
         <PostsView />
+        <EmbedBluesky />
       </div>
     </>
   );
