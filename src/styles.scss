@@ -734,6 +734,9 @@ button,
       background-color: var(--warm-color-hover);
     }
   }
+  img {
+    max-width: 100%;
+  }
   @media (min-width: $tabletWidth) {
     &.round {
       margin: 0.25rem;
@@ -1453,16 +1456,18 @@ footer {
     $padding-tb: 0.5rem;
     padding: #{$padding-tb} 1rem;
     max-width: 1600px;
-    @include GridList(
-      "*",
-      2,
-      $mobileWidth,
-      $tabletWidth,
-      $miniDesktopWidth,
-      $desktopWidth
-    );
-    &.banners {
-      @include GridList("*", 1, $mobileWidth, $miniDesktopWidth, $desktopWidth);
+    &.topButtons {
+      @include GridList(
+        "*",
+        2,
+        $mobileWidth,
+        $tabletWidth,
+        $miniDesktopWidth,
+        $desktopWidth
+      );
+    }
+    &.bannerArea {
+      @include GridList("li", 1, $mobileWidth, $miniDesktopWidth, $desktopWidth);
     }
     li {
       margin: 0.25rem;

@@ -7,13 +7,14 @@ import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
 import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/find/findMee";
 import { CreateState } from "@/state/CreateState";
+import { MeeLinks } from "./LinksPage";
 
 export default function Home() {
   return (
     <>
       <HomeImage />
       <div className="topPage wide">
-        <ul>
+        <ul className="topButtons">
           <li>
             <Link to="/gallery">
               <ImgSwitch
@@ -75,7 +76,7 @@ export default function Home() {
             </Link>
           </li>
         </ul>
-        <TopPageBannerLink />
+        <MeeLinks category="top" banner />
         <PostsView />
       </div>
     </>
@@ -108,45 +109,6 @@ function PostsView() {
         ))}
       </div>
     </div>
-  );
-}
-
-export function TopPageBannerLink() {
-  return (
-    <>
-      <ul className="banners">
-        <li>
-          <a
-            href="https://cottonwind.booth.pm/"
-            target="_blank"
-            title="わたかぜや (BOOTH)"
-            rel="noopener"
-            className="overlay"
-          >
-            <img
-              className="banner"
-              src="/static/images/webp/cottonwind_booth_300_100.webp"
-              alt="BOOTH"
-            />
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://xfolio.jp/portfolio/kouwtkz"
-            target="_blank"
-            title="Xfolio"
-            rel="noopener"
-            className="overlay"
-          >
-            <img
-              className="banner"
-              src="/static/images/webp/Xfolioのバナー_600_200.webp"
-              alt="Xfolioのバナー"
-            />
-          </a>
-        </li>
-      </ul>
-    </>
   );
 }
 

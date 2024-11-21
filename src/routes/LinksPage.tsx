@@ -56,6 +56,7 @@ export default function LinksPage() {
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
+      <MeeLinks title="トップリンク" category="top" />
       <MeeLinks title={topLinkTitle} category="" />
       <MeeLinks title="コミッション" category="commission" />
       <div>
@@ -289,7 +290,7 @@ function LinksContainer({
     return list.join(" ");
   }, [links, banner]);
   className = useMemo(() => {
-    const list = ["linkPage"];
+    const list = [];
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
@@ -332,7 +333,7 @@ function LinksContainer({
               defaultCategories={defaultCategories}
             />
           ) : null}
-          <h3 className="leaf">{title || "リンク集"}</h3>
+          {title ? <h3 className="leaf">{title || "リンク集"}</h3> : null}
           {isLogin ? (
             <LinksEditButtons
               setEdit={setEdit}
@@ -399,7 +400,6 @@ interface MeeLinksProps
 export function MeeLinks(props: MeeLinksProps) {
   return (
     <LinksContainer
-      title="お気に入りのサイト"
       send="links/send"
       map={useLinksMap()[0]}
       dataObject={linksDataObject}
