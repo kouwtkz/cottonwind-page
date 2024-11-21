@@ -28,9 +28,17 @@ export const DarkThemeState = new ThemeStateClass("darktheme", [
   "dark",
   "auto",
 ]);
+export const useDarkMode = CreateState(false);
 
 export function StateSet() {
   const isLogin = useIsLogin()[0];
+  const theme = DarkThemeState.use().theme;
+  const setDarkMode = useDarkMode()[1];
+  useEffect(() => {
+    if (theme === "auto")
+      setDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    else setDarkMode(theme === "dark");
+  }, [theme]);
   const isSetList = [
     Boolean(useEnv()[0]),
     Boolean(useImageState().images),
