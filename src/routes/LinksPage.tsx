@@ -56,7 +56,7 @@ export default function LinksPage() {
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
-      <MeeLinks title="トップリンク" category="top" />
+      <MeeLinks title="トップリンク" category="top" banner />
       <MeeLinks title={topLinkTitle} category="" />
       <MeeLinks title="コミッション" category="commission" />
       <div>
