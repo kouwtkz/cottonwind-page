@@ -85,7 +85,7 @@ export default function Home() {
         {enableHandle ? (
           <div>
             <h3 className="leaf">つぶやき</h3>
-            <div className="flex center mc-s wrap">
+            <div className="flex center m-c-s mb-c wrap">
               <EmbedBluesky />
               <EmbedTwitter />
             </div>

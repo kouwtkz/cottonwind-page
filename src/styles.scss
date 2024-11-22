@@ -640,7 +640,6 @@ html.loading {
 :root {
   background-color: var(--background);
   scrollbar-width: thin;
-  overflow-x: hidden;
   &,
   * {
     scrollbar-color: var(--main-color-soft) transparent;
@@ -828,8 +827,12 @@ span.label {
 .mr-s {
   margin-right: 0.5rem;
 }
-.mc-s > * {
+
+.m-c-s > * {
   margin: 0.5rem;
+}
+.mb-c > * {
+  margin-bottom: 1rem;
 }
 
 .emoji {
