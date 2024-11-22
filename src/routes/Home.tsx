@@ -86,7 +86,7 @@ export default function Home() {
           <div>
             <h3 className="leaf">つぶやき</h3>
             <div className="flex center m-c-s mb-c wrap">
-              <EmbedBluesky />
+              <EmbedBluesky pin />
               <EmbedTwitter />
             </div>
           </div>

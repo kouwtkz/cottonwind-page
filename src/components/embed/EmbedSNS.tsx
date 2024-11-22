@@ -6,8 +6,21 @@ import React, { useEffect, useState } from "react";
 interface EmbedSNSprops {
   width?: number;
   height?: number;
+  lang?: string;
 }
-export function EmbedBluesky({ width = 420, height = 500 }: EmbedSNSprops) {
+interface EmbedBlueskyProps extends EmbedSNSprops {
+  pin?: boolean;
+  q?: string;
+  id?: string;
+}
+export function EmbedBluesky({
+  width = 420,
+  height = 500,
+  lang = "ja",
+  pin,
+  q,
+  id,
+}: EmbedBlueskyProps) {
   const handle = useEnv()[0]?.BLUESKY_HANDLE;
   const isDark = useDarkMode()[0];
   return (
@@ -21,8 +34,10 @@ export function EmbedBluesky({ width = 420, height = 500 }: EmbedSNSprops) {
           style={{ width, height }}
           data-width={width}
           data-height={height}
-          data-lang="ja"
-          data-pin="0"
+          data-lang={lang}
+          data-pin={pin ? 1 : 0}
+          {...(q ? { "data-q": q } : {})}
+          {...(id ? { "data-id": id } : {})}
         />
       ) : null}
     </>
