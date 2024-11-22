@@ -41,6 +41,7 @@ export function ErrorContent({ status, statusText }: ErrorType) {
 
 export default function ErrorPage() {
   const error = useRouteError() as ErrorType;
+  console.log(error);
   return (
     <Base>
       <ErrorContent {...error} />
