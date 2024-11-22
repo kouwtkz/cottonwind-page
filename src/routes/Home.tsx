@@ -8,9 +8,12 @@ import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/find/findMee";
 import { CreateState } from "@/state/CreateState";
 import { MeeLinks } from "./LinksPage";
-import { EmbedBluesky } from "@/components/embed/EmbedSNS";
+import { EmbedBluesky, EmbedTwitter } from "@/components/embed/EmbedSNS";
+import { useEnv } from "@/state/EnvState";
 
 export default function Home() {
+  const env = useEnv()[0];
+  const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
   return (
     <>
       <HomeImage />
@@ -79,7 +82,15 @@ export default function Home() {
         </ul>
         <MeeLinks category="top" banner />
         <PostsView />
-        <EmbedBluesky />
+        {enableHandle ? (
+          <div>
+            <h3 className="leaf">つぶやき</h3>
+            <div className="flex center mc-s wrap">
+              <EmbedBluesky />
+              <EmbedTwitter />
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );

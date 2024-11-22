@@ -828,6 +828,9 @@ span.label {
 .mr-s {
   margin-right: 0.5rem;
 }
+.mc-s > * {
+  margin: 0.5rem;
+}
 
 .emoji {
   min-width: 1em;
