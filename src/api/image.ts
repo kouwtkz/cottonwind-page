@@ -165,8 +165,10 @@ app.post("/send", async (c, next) => {
       };
     }
   }
-  await fileModeUpload("src", file);
-  await fileModeUpload("thumbnail", thumbnail);
+  if (typeof file !== "string") await fileModeUpload("src", file);
+  else return c.text("fileがオブジェクトではありません", 500)
+  if (typeof thumbnail !== "string") await fileModeUpload("thumbnail", thumbnail);
+  else return c.text("thumbnailがオブジェクトではありません", 500)
   let imageBuffer: ArrayBuffer | undefined;
   function Select() {
     const where: MeeSqlFindWhereType<ImageDataType> =

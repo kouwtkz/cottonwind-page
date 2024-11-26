@@ -692,7 +692,7 @@ export async function MakeImagesUploadList({
   albumOverwrite,
   character,
   original = true,
-  webp = false,
+  webp,
   thumbnail = true,
   webpOptions,
   notDraft: direct,
@@ -741,7 +741,7 @@ export async function MakeImagesUploadList({
         default:
           const image = await imageObject(object.src);
           if (original) {
-            if (webp && ext !== "gif") {
+            if ((webpOptions || webp) && ext !== "gif") {
               formData.append(
                 "file",
                 await resizeImageCanvas({
@@ -752,7 +752,8 @@ export async function MakeImagesUploadList({
                 webpName
               );
             } else {
-              formData.append("file", object.src);
+              if (typeof image.src !== "string")
+                formData.append("file", image.src);
             }
           }
           if (thumbnail) {

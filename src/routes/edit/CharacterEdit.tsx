@@ -705,7 +705,11 @@ export function CharaImageSettingRbButtons({
             }
           },
         },
-        error: "送信に失敗しました",
+        error: {
+          render(e) {
+            return String(e.data || "送信に失敗しました");
+          },
+        },
       });
     }
     async function onClickHandler(mode: characterImageMode) {
@@ -743,6 +747,12 @@ export function CharaImageSettingRbButtons({
                   album: charaMediaKindMap.get("icon"),
                   ...iconImagesUploadOptions,
                 })
+                  .then((l) => {
+                    const errorFound = l.find((r) => r.status >= 300);
+                    if (errorFound) {
+                      throw errorFound.data || errorFound.statusText;
+                    }
+                  })
                   .then(() => {
                     setImagesLoad("no-cache");
                     return SendPostFetch({
