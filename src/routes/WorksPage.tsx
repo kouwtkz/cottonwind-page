@@ -17,7 +17,7 @@ export default function WorksPage() {
           showGalleryLabel={false}
         />
       ) : null}
-      <MeeLinks title="コミッション" category="commission" />
+      <MeeLinks title="コミッション" category="commission" className="linkPage" />
       <ContactPage />
     </div>
   );
