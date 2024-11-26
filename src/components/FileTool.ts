@@ -42,7 +42,7 @@ export function fileDownload(name: string, content: BlobPart | BlobPart[]) {
 
 export async function responseToFile(res: Response, filename: string) {
   return res
-  .blob()
+    .blob()
     .then(blob => ({
       contentType: res.headers.get("Content-Type"),
       blob: blob
@@ -50,4 +50,11 @@ export async function responseToFile(res: Response, filename: string) {
     .then(data => {
       return new File([data.blob], filename, { type: data.contentType || undefined });
     })
+}
+
+export function RenameFile(file: File, rename: string) {
+  const fileName = file.name;
+  const fileExtention = fileName.substring(fileName.lastIndexOf(".") + 1);
+  const blob = file.slice(0, file.size, file.type);
+  return new File([blob], rename + "." + fileExtention, { type: file.type });
 }

@@ -206,7 +206,6 @@ app.post("/send", async (c, next) => {
     const updateCharacters = JoinUnique(value.characters, characters);
     const nowString = new Date().toISOString();
     const entry: MeeSqlEntryType<ImageDataType> = {
-      title,
       album: album && (albumOverwrite || !value.album) ? album : (value.album ? undefined : "uploads"),
       ...pathes,
       ...metaSize,
@@ -217,6 +216,7 @@ app.post("/send", async (c, next) => {
       lastmod: value.time && value.time > nowString ? undefined : nowString,
       version: (value.version ?? 0) + 1,
     };
+    if (!value.title) entry.title = title;
     await TableObject.Update({ db, where: { key: title }, entry });
     return c.json({ ...value, ...entry });
   } else {

@@ -59,7 +59,7 @@ import {
   toastLoadingOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
-import { fileDialog } from "@/components/FileTool";
+import { fileDialog, RenameFile } from "@/components/FileTool";
 import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { ModeSwitch } from "@/layout/edit/CommonSwitch";
@@ -752,8 +752,13 @@ export async function MakeImagesUploadList({
                 webpName
               );
             } else {
-              if (typeof image.src !== "string")
-                formData.append("file", image.src);
+              if (typeof object.src !== "string") {
+                const uploadFile =
+                  object.src.name === object.name
+                    ? object.src
+                    : RenameFile(object.src, object.name);
+                formData.append("file", uploadFile);
+              }
             }
           }
           if (thumbnail) {
@@ -778,8 +783,6 @@ export async function MakeImagesUploadList({
                 }),
                 webpName
               );
-            } else {
-              formData.append("thumbnail", "");
             }
           }
           break;

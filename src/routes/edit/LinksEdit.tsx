@@ -187,6 +187,7 @@ export function LinksEdit({
                     albumOverwrite: false,
                     notDraft: true,
                     webp: true,
+                    thumbnail: false,
                   });
                 })
                 .then(async (r) => {
