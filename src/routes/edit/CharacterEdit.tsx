@@ -197,39 +197,43 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         }
       }
     });
-    if (chara?.key) data.target = chara.key;
-    else if (!data.key) data.key = formValues["key"];
-    toast
-      .promise(
-        SendPostFetch({
-          apiOrigin,
-          data,
-        }).then(async (r) => {
-          if (r.ok) return r;
-          else throw await r.text();
-        }),
-        {
-          pending: "送信中",
-          success: {
-            render(r) {
-              const res = r.data;
-              switch (res.status) {
-                case 200:
-                  return "キャラクターの更新しました";
-                case 201:
-                  return "キャラクターを新たに作成しました";
-                default:
-                  return "キャラクターデータが更新されました";
-              }
+    if (Object.values(data).length > 0) {
+      if (chara?.key) data.target = chara.key;
+      else if (!data.key) data.key = formValues["key"];
+      toast
+        .promise(
+          SendPostFetch({
+            apiOrigin,
+            data,
+          }).then(async (r) => {
+            if (r.ok) return r;
+            else throw await r.text();
+          }),
+          {
+            pending: "送信中",
+            success: {
+              render(r) {
+                const res = r.data;
+                switch (res.status) {
+                  case 200:
+                    return "キャラクターの更新しました";
+                  case 201:
+                    return "キャラクターを新たに作成しました";
+                  default:
+                    return "キャラクターデータが更新されました";
+                }
+              },
             },
-          },
-          error: "送信に失敗しました",
-        }
-      )
-      .then(() => {
-        setCharactersLoad("no-cache");
-        if (move) nav(`/character/${formValues.key}`);
-      });
+            error: "送信に失敗しました",
+          }
+        )
+        .then(() => {
+          setCharactersLoad("no-cache");
+          if (move) nav(`/character/${formValues.key}`);
+        });
+    } else {
+      reset();
+    }
   }
 
   const ImageSetter = useCallback(
