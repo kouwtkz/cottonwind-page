@@ -32,6 +32,7 @@ import {
   useMoveMyBanner,
   LinksEditButtons,
   editLinksType,
+  SendLinksDir,
 } from "./edit/LinksEdit";
 import { useImageEditIsEditHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
@@ -255,7 +256,7 @@ interface LinksContainerProps
   title?: string;
   category?: string;
   banner?: boolean;
-  send: string;
+  dir?: SendLinksDir;
   dropdown?: ReactNode;
   map?: LinksMapType;
   dataObject: StorageDataStateClass<SiteLinkData>;
@@ -266,13 +267,14 @@ function LinksContainer({
   title,
   className,
   banner,
-  send,
+  dir = "",
   map,
   dataObject,
   dropdown,
   defaultCategories,
   ...props
 }: LinksContainerProps) {
+  const send = "links" + dir + "/send";
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const links = useMemo(() => {
     return map?.get(category || "") || [];
@@ -342,6 +344,7 @@ function LinksContainer({
               move={move}
               setMove={setMove}
               dropdown={dropdown}
+              dir={dir}
             />
           ) : null}
           <ul className={ulClassName}>
@@ -400,7 +403,6 @@ interface MeeLinksProps
 export function MeeLinks(props: MeeLinksProps) {
   return (
     <LinksContainer
-      send="links/send"
       map={useLinksMap()[0]}
       dataObject={linksDataObject}
       defaultCategories={["commission"]}
@@ -414,7 +416,7 @@ export function FavoriteLinks(props: FavoriteLinksProps) {
   return (
     <LinksContainer
       title="お気に入りのサイト"
-      send="links/fav/send"
+      dir="/fav"
       map={useFavLinksMap()[0]}
       dataObject={favLinksDataObject}
       dropdown={

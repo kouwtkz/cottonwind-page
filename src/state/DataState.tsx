@@ -21,6 +21,7 @@ import {
   toastLoadingOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
+import { SendLinksDir } from "@/routes/edit/LinksEdit";
 
 export const imageDataObject = new SdsClass<ImageDataType>({
   key: "images",
@@ -519,7 +520,7 @@ export async function ImportPostJson({
 }
 
 interface ImportLinksJsonProps extends DataUploadBaseProps {
-  dir?: "" | "/fav";
+  dir?: SendLinksDir;
 }
 export async function ImportLinksJson({
   apiOrigin,

@@ -10,11 +10,7 @@ import {
 import { useApiOrigin } from "@/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
-import {
-  imageDataObject,
-  ImportLinksJson,
-  linksDataObject,
-} from "@/state/DataState";
+import { imageDataObject, ImportLinksJson } from "@/state/DataState";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { FieldValues, useForm } from "react-hook-form";
@@ -130,7 +126,6 @@ export function LinksEdit({
           withCredentials: true,
         })
         .then(() => {
-          console.log(dataObject);
           setLoad("no-cache");
           setEdit(false);
         }),
@@ -262,6 +257,7 @@ export function LinksEdit({
 
 export type editMoveLinkType = number;
 export type setEditMoveLinkType = (v: editMoveLinkType) => void;
+export type SendLinksDir = "" | "/fav";
 
 interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   setEdit: setEditLinksType;
@@ -270,6 +266,7 @@ interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   dataObject: StorageDataStateClass<SiteLinkData>;
   move: editMoveLinkType;
   setMove: setEditMoveLinkType;
+  dir?: SendLinksDir;
 }
 export function LinksEditButtons({
   setEdit,
@@ -280,10 +277,11 @@ export function LinksEditButtons({
   dataObject,
   move,
   setMove,
+  dir,
   ...props
 }: LinksEditButtonsProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setLinksLoad = linksDataObject.useLoad()[1];
+  const setLinksLoad = dataObject.useLoad()[1];
   const ImageManageButtonSearch = useMemo(
     () =>
       new URLSearchParams({
@@ -328,7 +326,7 @@ export function LinksEditButtons({
               icon={<TbDatabaseImport />}
               className="squared item text-left"
               onClick={() => {
-                ImportLinksJson({ apiOrigin }).then(() => {
+                ImportLinksJson({ apiOrigin, dir }).then(() => {
                   setLinksLoad("no-cache-reload");
                 });
               }}
