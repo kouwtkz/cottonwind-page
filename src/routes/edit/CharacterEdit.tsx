@@ -87,6 +87,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     () => ({
       key: chara?.key || "",
       name: chara?.name || "",
+      nameGuide: chara?.nameGuide || "",
       honorific: chara?.honorific || "",
       overview: chara?.overview || "",
       description: chara?.description || "",
@@ -319,7 +320,10 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           <p className="warm">{errors.key?.message?.toString()}</p>
         ) : null}
         <div className="flex">
-          <input placeholder="名前" {...register("name")} />
+          <input placeholder="名前" className="flex-1" {...register("name")} />
+          <input placeholder="ふりがな" className="flex-1" {...register("nameGuide")} />
+        </div>
+        <div className="flex center">
           <input placeholder="敬称" {...register("honorific")} />
           <input
             className="mini"

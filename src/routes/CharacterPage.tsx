@@ -235,7 +235,7 @@ function CharaListPage() {
     if (nameSort) {
       sortType = nameSort;
       const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
-        const initial = getInitialString(c.name);
+        const initial = getInitialString(c.nameGuide || c.name);
         if (a.has(initial)) a.get(initial)!.push(c);
         else a.set(initial, [c]);
         return a;

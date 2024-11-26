@@ -3,6 +3,7 @@ interface CharacterDataType {
   key: string;
   name: string;
   honorific?: string;
+  nameGuide?: string;
   defEmoji?: string;
   overview?: string;
   description?: string;
