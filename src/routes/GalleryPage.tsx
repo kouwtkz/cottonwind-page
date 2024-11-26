@@ -340,10 +340,10 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
         list.push({ time: "asc" });
         break;
       case "nameOrder":
-        list.push({ name: "asc" });
+        list.push({ title: "asc" });
         break;
       case "leastNameOrder":
-        list.push({ name: "desc" });
+        list.push({ title: "desc" });
         break;
     }
     if (hasTopImage) list.push({ topImage: "desc" });
