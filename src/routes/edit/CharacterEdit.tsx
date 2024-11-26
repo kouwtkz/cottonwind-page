@@ -30,7 +30,11 @@ import {
 import { useSounds } from "@/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { CharaBeforeAfter, useMoveCharacters } from "../CharacterPage";
+import {
+  CharaBeforeAfter,
+  useCharacterPageState,
+  useMoveCharacters,
+} from "../CharacterPage";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
@@ -515,6 +519,11 @@ export function CharaEditButton() {
   const { charaName } = useParams();
   const [move, setMove] = useMoveCharacters();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
+  const { orderBySort } = useCharacterPageState();
+  const sortMode = useMemo(
+    () => (orderBySort ? orderBySort.length > 0 : false),
+    [orderBySort]
+  );
   if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -578,7 +587,7 @@ export function CharaEditButton() {
         </>
       }
     >
-      {charaName ? null : move ? (
+      {charaName || sortMode ? null : move ? (
         <>
           <button
             type="button"

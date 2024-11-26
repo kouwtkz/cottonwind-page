@@ -45,6 +45,100 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { charactersDataObject } from "@/state/DataState";
+import { create } from "zustand";
+
+interface CharacterStateType {
+  filters?: string[];
+  showAll?: boolean;
+  where?: findWhereType<CharacterType>;
+  tagsWhere?: findWhereType<CharacterType> | null;
+  orderBySort?: OrderByItem<CharacterType>[];
+}
+interface CharacterStateTypeProps extends CharacterStateType {
+  set: (args: CharacterStateType) => void;
+}
+export const useCharacterPageState = create<CharacterStateTypeProps>(
+  (_set) => ({
+    set(args) {
+      _set(args);
+    },
+  })
+);
+function CharacterPageState() {
+  const searchParams = useSearchParams()[0];
+  const isLogin = useIsLogin()[0];
+  const tags = useMemo(
+    () => searchParams.get("tags")?.split(","),
+    [searchParams]
+  );
+  const filters = useMemo(
+    () => searchParams.get("filter")?.split(","),
+    [searchParams]
+  );
+  const showAll = useMemo(
+    () => isLogin || filters?.some((v) => v === "showAll"),
+    [filters, isLogin]
+  );
+  const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+  const whereOptions = useMemo(
+    () =>
+      setWhere<CharacterType>(text, {
+        text: {
+          key: ["name", "id", "overview", "description", "honorific"],
+        },
+        hashtag: { key: "tags" },
+      }),
+    [text]
+  );
+  const { orderBy } = whereOptions;
+  const wheres = useMemo(() => [whereOptions.where], [whereOptions.where]);
+  const tagsWhere = useMemo(() => {
+    if (tags)
+      return {
+        AND: tags.map((tag) => ({
+          tags: {
+            contains: tag,
+          },
+        })),
+      };
+    else return null;
+  }, [tags]);
+  if (tagsWhere) wheres.push(tagsWhere);
+  const filterDraft = useMemo(
+    () => filters?.some((v) => v === "draft"),
+    [filters]
+  );
+  if (filterDraft) wheres.push({ draft: true });
+  const where: findWhereType<CharacterType> = useMemo(
+    () => ({ AND: wheres }),
+    [wheres]
+  );
+  const sortParam = searchParams.get("sort");
+  const orderBySort = useMemo(() => {
+    const list: OrderByItem<CharacterType>[] = [...orderBy];
+    const searchSort = sortParam ?? "";
+    switch (searchSort) {
+      case "recently":
+        list.push({ time: "desc" });
+        break;
+      case "leastRecently":
+        list.push({ time: "asc" });
+        break;
+      case "nameOrder":
+        list.push({ name: "asc" });
+        break;
+      case "leastNameOrder":
+        list.push({ name: "desc" });
+        break;
+    }
+    return list;
+  }, [sortParam, orderBy]);
+  const { set } = useCharacterPageState();
+  useEffect(() => {
+    set({ filters, orderBySort, showAll, tagsWhere, where });
+  }, [set, filters, orderBySort, showAll, tagsWhere, where]);
+  return <></>;
+}
 
 export function CharacterPage() {
   const { charaName } = useParams();
@@ -53,6 +147,7 @@ export function CharacterPage() {
   const isLogin = useIsLogin()[0];
   return (
     <div className="characterPage">
+      <CharacterPageState />
       {isLogin && isEdit ? (
         <CharacterEdit />
       ) : (
@@ -110,78 +205,40 @@ export const CharaListItem = memo(function CharaListItem({
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const characters = useCharacters()[0];
-  const [searchParams] = useSearchParams();
+  const { filters, orderBySort, showAll, tagsWhere, where } =
+    useCharacterPageState();
   const { state } = useLocation();
-  const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
-  const isLogin = useIsLogin()[0];
-  const tags = useMemo(
-    () => searchParams.get("tags")?.split(","),
-    [searchParams]
-  );
-  const filters = useMemo(
-    () => searchParams.get("filter")?.split(","),
-    [searchParams]
-  );
-  const showAll = useMemo(
-    () => isLogin || filters?.some((v) => v === "showAll"),
-    [filters, isLogin]
-  );
-  const whereOptions = useMemo(
-    () =>
-      setWhere<CharacterType>(text, {
-        text: {
-          key: ["name", "id", "overview", "description", "honorific"],
-        },
-        hashtag: { key: "tags" },
-      }),
-    [text]
-  );
-  const { orderBy } = whereOptions;
-  const wheres = [whereOptions.where];
-  const tagsWhere = useMemo(() => {
-    if (tags)
-      return {
-        AND: tags.map((tag) => ({
-          tags: {
-            contains: tag,
-          },
-        })),
-      };
-    else return null;
-  }, [tags]);
-  if (tagsWhere) wheres.push(tagsWhere);
-  const filterDraft = useMemo(
-    () => filters?.some((v) => v === "draft"),
-    [filters]
-  );
-  if (filterDraft) wheres.push({ draft: true });
-  const where: findWhereType<CharacterType> = { AND: wheres };
-  const sortParam = searchParams.get("sort");
-  const orderBySort = useMemo(() => {
-    const list: OrderByItem<CharacterType>[] = [...orderBy];
-    const searchSort = sortParam ?? "";
-    switch (searchSort) {
-      case "recently":
-        list.push({ time: "desc" });
-        break;
-      case "leastRecently":
-        list.push({ time: "asc" });
-        break;
-      case "nameOrder":
-        list.push({ name: "asc" });
-        break;
-      case "leastNameOrder":
-        list.push({ name: "desc" });
-        break;
-    }
-    return list;
-  }, [sortParam, orderBy]);
-  const items = useMemo(() => {
-    let list = characters
+
+  const parts = useMemo(() => {
+    let items = characters
       ? findMee([...characters], { where, orderBy: orderBySort })
       : [];
-    if (!showAll) list = list.filter((chara) => chara.visible);
-    return list;
+    if (!showAll) items = items.filter((chara) => chara.visible);
+    const parts = [] as { label?: string; items: CharacterType[] }[];
+    const timeSort = orderBySort?.find((v) => v.time)?.time;
+    if (timeSort) {
+      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
+        const year =
+          (c.time?.getFullYear() || c.birthday?.getFullYear())?.toString() ||
+          "";
+        if (a.has(year)) a.get(year)!.push(c);
+        else a.set(year, [c]);
+        return a;
+      }, new Map());
+      const entries = Object.entries(Object.fromEntries(map));
+      entries.sort(([a], [b]) => {
+        if (a && b) {
+          return (a > b ? 1 : -1) * (timeSort === "asc" ? 1 : -1);
+        } else {
+          return a ? -1 : 1;
+        }
+      });
+      entries.forEach(([key, item]) => {
+        if (key) parts.push({ label: key.toString(), items: item });
+        else parts.push({ items: item });
+      });
+    } else parts.push({ items });
+    return parts;
   }, [where, characters, orderBySort, showAll]);
   const apiOrigin = useApiOrigin()[0];
   const [move, setMove] = useMoveCharacters();
@@ -197,7 +254,7 @@ function CharaListPage() {
           charaFilters: filters,
           backUrl: location.href,
         }}
-        className={move ? "" : "item"}
+        className="item"
         key={item.key}
       >
         <CharaListItem chara={item} />
@@ -208,49 +265,66 @@ function CharaListPage() {
   return (
     <>
       <CharaSearchArea />
-      <ul className="charaList">
-        {move ? (
-          <Movable
-            items={items}
-            Inner={Inner}
-            submit={move === 2}
-            onSubmit={(items) => {
-              const dirty = items
-                .map((item, i) => ({
-                  ...item,
-                  newOrder: i + 1,
-                }))
-                .filter((item, i) => item.newOrder !== item.order)
-                .map(({ key, newOrder }) => {
-                  return { target: key, order: newOrder };
-                });
-              toast.promise(
-                axios
-                  .post(concatOriginUrl(apiOrigin, "character/send"), dirty, {
-                    withCredentials: true,
-                  })
-                  .then(() => {
-                    setCharactersLoad("no-cache");
-                    setMove(0);
-                  }),
-                {
-                  pending: "送信中",
-                  success: "送信しました",
-                  error: "送信に失敗しました",
-                }
-              );
-            }}
-          />
-        ) : (
+      {parts.map(({ label, items }, i) => {
+        return (
           <>
-            {items.map((chara, i) => (
-              <li key={i}>
-                <Inner item={chara} />
-              </li>
-            ))}
+            {label ? <h2 className="color-main">{label}</h2> : null}
+            <ul className="charaList" key={i}>
+              {move ? (
+                <Movable
+                  items={items}
+                  Inner={Inner}
+                  submit={move === 2}
+                  onSubmit={(items) => {
+                    const dirty = items
+                      .map((item, i) => ({
+                        ...item,
+                        newOrder: i + 1,
+                      }))
+                      .filter((item) => {
+                        return item.newOrder !== item.order;
+                      })
+                      .map(({ key, newOrder }) => {
+                        return { target: key, order: newOrder };
+                      });
+                    if (dirty.length > 0) {
+                      toast.promise(
+                        axios
+                          .post(
+                            concatOriginUrl(apiOrigin, "character/send"),
+                            dirty,
+                            {
+                              withCredentials: true,
+                            }
+                          )
+                          .then(() => {
+                            setCharactersLoad("no-cache");
+                            setMove(0);
+                          }),
+                        {
+                          pending: "送信中",
+                          success: "送信しました",
+                          error: "送信に失敗しました",
+                        }
+                      );
+                    } else {
+                      setMove(0);
+                    }
+                  }}
+                />
+              ) : (
+                <>
+                  {items.map((chara, i) => (
+                    <li key={i}>
+                      <Inner item={chara} />
+                    </li>
+                  ))}
+                </>
+              )}
+            </ul>
           </>
-        )}
-      </ul>
+        );
+      })}
     </>
   );
 }
