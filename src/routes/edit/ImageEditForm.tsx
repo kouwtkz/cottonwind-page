@@ -244,7 +244,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         autoClose: 2000,
       });
       if (dirtyFields.rename && fields.rename) {
-        searchParams.set("image", getName(fields.rename));
+        searchParams.set("image", fields.rename);
         setSearchParams(searchParams, { replace: true });
       }
       setImagesLoad("no-cache");
