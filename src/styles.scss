@@ -1657,7 +1657,7 @@ form {
     margin: 0 auto;
     width: 95%;
     @include GridList("li", 2, $tabletWidth, $desktopWidth);
-    .item {
+    li .item {
       display: flex;
       flex-direction: column;
       font-size: 1.25rem;
@@ -1700,7 +1700,7 @@ form {
       }
     }
     @media (min-width: $tabletWidth) {
-      .item {
+      li .item {
         font-size: 1.5rem;
       }
     }
