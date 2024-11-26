@@ -11,5 +11,7 @@ export function getInitialString(str: string) {
     else if (/[ゃ-よャ-ヨ]/.test(initial)) return "や"
     else if (/[ら-ろラ-ロ]/.test(initial)) return "ら"
     else return "わ"
-  } else return initial;
+  } else if (/[a-zA-Z]/.test(initial)) return initial.toUpperCase();
+  else if (/[\d]/.test(initial)) return initial;
+  else return "＃";
 }
