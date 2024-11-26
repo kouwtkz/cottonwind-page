@@ -1811,6 +1811,7 @@ form {
     button.setter {
       display: flex;
       margin: 0.25rem;
+      margin-left: 0.5rem;
       &:not(.color) {
         background-color: transparent;
       }

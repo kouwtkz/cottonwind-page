@@ -14,6 +14,7 @@ import {
   MdEditNote,
   MdFileDownload,
   MdFileUpload,
+  MdMoreTime,
   MdOutlineImage,
   MdOutlineInsertEmoticon,
   MdOutlineLandscape,
@@ -60,6 +61,8 @@ import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "@/functions/sendFunction";
 import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
+import { useImageState } from "@/state/ImageState";
+import { findMee } from "@/functions/find/findMee";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -81,6 +84,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const nav = useNavigate();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
   const setImagesLoad = imageDataObject.useLoad()[1];
+  const { images } = useImageState();
   const characterTags = useCharacterTags()[0];
   const sounds = useSounds()[0];
   const getDefaultValues = useMemo(
@@ -321,7 +325,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         ) : null}
         <div className="flex">
           <input placeholder="名前" className="flex-1" {...register("name")} />
-          <input placeholder="ふりがな" className="flex-1" {...register("nameGuide")} />
+          <input
+            placeholder="ふりがな"
+            className="flex-1"
+            {...register("nameGuide")}
+          />
         </div>
         <div className="flex center">
           <input placeholder="敬称" {...register("honorific")} />
@@ -338,49 +346,84 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           <textarea placeholder="概要" {...register("overview")} />
         </div>
         <div className="flex column">
-          <label className="flex center cursor-pointer">
+          <div className="flex center">
+            <label className="inline-flex center flex-1">
+              <span className="label-l normal flex center around">
+                アイコン
+              </span>
+              <input
+                className="flex-1"
+                placeholder="自動設定"
+                {...register("icon")}
+              />
+            </label>
             {ImageSetter("icon", "アイコンの設定")}
-            <span className="label-l normal flex center around">アイコン</span>
-            <input
-              className="flex-1"
-              placeholder="自動設定"
-              {...register("icon")}
-            />
-          </label>
-          <label className="flex center cursor-pointer">
+          </div>
+          <div className="flex center">
+            <label className="inline-flex center flex-1">
+              <span className="label-l normal flex center around">
+                ヘッダー画像
+              </span>
+              <input
+                className="flex-1"
+                placeholder="ヘッダー画像"
+                {...register("headerImage")}
+              />
+            </label>
             {ImageSetter("headerImage", "ヘッダーの設定")}
-            <span className="label-l normal flex center around">
-              ヘッダー画像
-            </span>
-            <input
-              className="flex-1"
-              placeholder="ヘッダー画像"
-              {...register("headerImage")}
-            />
-          </label>
-          <label className="flex center cursor-pointer">
+          </div>
+          <div className="flex center">
+            <label className="inline-flex center flex-1">
+              <span className="label-l normal flex center around">
+                メイン画像
+              </span>
+              <input
+                className="flex-1"
+                placeholder="メイン画像"
+                {...register("image")}
+              />
+            </label>
             {ImageSetter("image", "メイン画像の設定")}
-            <span className="label-l normal flex center around">
-              メイン画像
-            </span>
-            <input
-              className="flex-1"
-              placeholder="メイン画像"
-              {...register("image")}
-            />
-          </label>
+          </div>
         </div>
         <div className="flex column">
-          <label className="flex center">
-            <span className="label-l">できた日</span>
-            <input
-              className="flex-1"
-              placeholder="初めてキャラクターができた日"
-              step={1}
-              type="datetime-local"
-              {...register("time")}
-            />
-          </label>
+          <div className="flex center">
+            <label className="inline-flex center flex-1">
+              <span className="label-l">できた日</span>
+              <input
+                className="flex-1"
+                placeholder="初めてキャラクターができた日"
+                step={1}
+                type="datetime-local"
+                {...register("time")}
+              />
+            </label>
+            <button
+              className="normal setter color"
+              title="最も古い投稿から自動的に設定する"
+              type="button"
+              onClick={() => {
+                if (
+                  images &&
+                  chara &&
+                  confirm("最も古い投稿から自動的に設定しますか？")
+                ) {
+                  const found = findMee(images, {
+                    take: 1,
+                    orderBy: [{ time: "asc" }],
+                    where: { characters: { contains: chara.key } },
+                  })[0];
+                  if (found) {
+                    setValue("time", ToFormTime(found.time), {
+                      shouldDirty: true,
+                    });
+                  }
+                }
+              }}
+            >
+              <MdMoreTime />
+            </button>{" "}
+          </div>
           <label className="flex center">
             <span className="label-l">お誕生日</span>
             <input
