@@ -46,6 +46,7 @@ import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { charactersDataObject } from "@/state/DataState";
 import { create } from "zustand";
+import { getInitialString } from "@/functions/InitialString";
 
 interface CharacterStateType {
   filters?: string[];
@@ -215,8 +216,11 @@ function CharaListPage() {
       : [];
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts = [] as { label?: string; items: CharacterType[] }[];
+    let sortType: OrderByType | undefined;
+    let entries: [string, CharacterType[]][] | undefined;
     const timeSort = orderBySort?.find((v) => v.time)?.time;
     if (timeSort) {
+      sortType = timeSort;
       const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
         const year =
           (c.time?.getFullYear() || c.birthday?.getFullYear())?.toString() ||
@@ -225,10 +229,23 @@ function CharaListPage() {
         else a.set(year, [c]);
         return a;
       }, new Map());
-      const entries = Object.entries(Object.fromEntries(map));
+      entries = Object.entries(Object.fromEntries(map));
+    }
+    const nameSort = orderBySort?.find((v) => v.name)?.name;
+    if (nameSort) {
+      sortType = nameSort;
+      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
+        const initial = getInitialString(c.name);
+        if (a.has(initial)) a.get(initial)!.push(c);
+        else a.set(initial, [c]);
+        return a;
+      }, new Map());
+      entries = Object.entries(Object.fromEntries(map));
+    }
+    if (sortType && entries) {
       entries.sort(([a], [b]) => {
         if (a && b) {
-          return (a > b ? 1 : -1) * (timeSort === "asc" ? 1 : -1);
+          return (a > b ? 1 : -1) * (sortType === "asc" ? 1 : -1);
         } else {
           return a ? -1 : 1;
         }
