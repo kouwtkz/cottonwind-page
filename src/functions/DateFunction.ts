@@ -1,4 +1,4 @@
-export const siteTimeZone = "+09:00";
+export const siteTimeZone = "JST";
 
 export const SiteDateOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -11,10 +11,14 @@ export const SiteDateOptions: Intl.DateTimeFormatOptions = {
 };
 
 export function getTimeZoneMinute(timeZone?: string) {
-  const timeString = new Date().toLocaleString("en-US", { timeZone, timeZoneName: "longOffset" });
-  const m = timeString.match(/GMT([\+\-])(\d{2}):(\d{2})/);
-  if (m) return (m[1] === "+" ? 1 : -1) * (Number(m[2]) * 60 + Number(m[3]));
-  else return 0;
+  try {
+    const timeString = new Date().toLocaleString("en-US", { timeZone, timeZoneName: "longOffset" });
+    const m = timeString.match(/GMT([\+\-])(\d{2}):(\d{2})/);
+    if (m) return (m[1] === "+" ? 1 : -1) * (Number(m[2]) * 60 + Number(m[3]));
+    else return 0;
+  } catch {
+    return 0;
+  }
 }
 export const siteTimeZoneMinute = getTimeZoneMinute(siteTimeZone);
 
