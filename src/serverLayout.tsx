@@ -13,11 +13,15 @@ import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
 import { ArrayEnv } from "./ArrayEnv";
 
-export function DefaultMeta() {
+export interface DefaultMetaProps {
+  favicon?: string;
+}
+export function DefaultMeta({ favicon = "/favicon.ico" }: DefaultMetaProps) {
   return (
     <>
       <meta charSet="utf-8" />
       <meta content="width=device-width, initial-scale=1" name="viewport" />
+      <link rel="icon" href={favicon} />
     </>
   );
 }
@@ -62,7 +66,7 @@ function judgeJson(r: Response) {
   );
 }
 
-export interface ServerLayoutProps {
+export interface ServerLayoutProps extends DefaultMetaProps {
   c: CommonContext<MeePagesEnv>;
   path: string;
   characters?: Map<string, CharacterType>;
@@ -80,6 +84,8 @@ export async function ServerLayout({
   script,
   noindex,
   isLogin = false,
+  path,
+  ...defaultMetaArgs
 }: ServerLayoutProps) {
   const env = AddMetaEnv(c.env);
   const url = c.req.url;
@@ -138,7 +144,7 @@ export async function ServerLayout({
   return (
     <html lang="ja" className="loading">
       <head>
-        <DefaultMeta />
+        <DefaultMeta {...defaultMetaArgs} />
         <SetMeta
           url={url}
           path={c.req.path}
@@ -196,7 +202,7 @@ export async function ReactResponse({
   );
 }
 
-export interface ServerSimpleLayoutProps {
+export interface ServerSimpleLayoutProps extends DefaultMetaProps {
   title?: string;
   noindex?: boolean;
   className?: string;
@@ -217,11 +223,12 @@ export function ServerSimpleLayout({
   script,
   env,
   logo = true,
+  ...defaultMetaArgs
 }: ServerSimpleLayoutProps) {
   return (
     <html lang="ja">
       <head>
-        <DefaultMeta />
+        <DefaultMeta {...defaultMetaArgs} />
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
         <Style href="/css/styles.css" />
