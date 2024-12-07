@@ -1,4 +1,10 @@
-export const siteTimeZone = "JST";
+const siteTimeZones = ["JST", "+09:00", "UTC"];
+export const siteTimeZone = siteTimeZones.find((timeZone) => {
+  try {
+    new Date().toLocaleString("ja", { timeZone });
+    return true;
+  } catch { }
+});
 
 export const SiteDateOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
