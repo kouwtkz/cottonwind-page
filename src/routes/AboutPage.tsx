@@ -14,7 +14,9 @@ export default function AboutPage() {
   }, [imagesMap, env?.AUTHOR_IMAGE]);
   return (
     <div className="aboutPage">
-      <h1 className="color-main en-title-font">About</h1>
+      <h1 className="color-main en-title-font">
+        <Link to="/about">About</Link>
+      </h1>
       <h2 className="color-dark">プロフィール</h2>
       {env ? (
         <div className="author">
@@ -39,9 +41,11 @@ export default function AboutPage() {
         <p>もふもふなイラストを描くのが好きです！</p>
       </div>
       <div className="container">
-        <h3 className="color-main">ガイドライン</h3>
+        <h3 className="color-main" id="guideline">
+          <Link to="#guideline">ガイドライン</Link>
+        </h3>
         <p>
-          わたかぜコウのキャラクターはファンアートを描いてくれるのを歓迎してます！
+          わたかぜコウのキャラクターは公序良俗に則っていれば、ファンアートを描いてくれるのを歓迎してます！
         </p>
         <p>
           ファンアートタグは
@@ -64,7 +68,6 @@ export default function AboutPage() {
         <ul className="sm">
           <li>ファンアートを描くことや二次創作をすること</li>
           <li>非営利目的で二次創作グッズや同人誌を作ること</li>
-          <li>擬人化や獣化、マスコット化などのアレンジをすること</li>
         </ul>
       </div>
       <div className="container">
@@ -72,13 +75,26 @@ export default function AboutPage() {
           <span className="mr-s">×</span>やってほしくないこと
         </h4>
         <ul className="sm">
+          <li>
+            キャラクターと大きく異なる改変をすること
+            <ul>
+              <li>
+                改変の内容によりますが、改変度合いが大きいほど喜ばないリスクが高くミュートなどの対応をとることがあります。
+              </li>
+              <li>OK: 絵柄の範疇のアレンジ（そういうのは歓迎してます！！）</li>
+              <li>
+                OK: 獣化、マスコット化などのかわいくなる方向のアレンジをすること
+              </li>
+              <li>OK: 擬人化でかわいくする意識を持たせてアレンジすること</li>
+              <li>
+                NG: 変身能力持ちではないのに全く異なる形態に変えること{"\n"}
+                （大きく変えても良いけど、ぼくが喜ばない可能性が高いです）
+              </li>
+            </ul>
+          </li>
+          <li>性的、嗜虐的な表現をすること（ゾーニングしてください）</li>
           <li>作品を悪用すること（転載、自作発言、機械学習など）</li>
           <li>作品やキャラクターを無断で商業利用すること</li>
-          <li>
-            性的、嗜虐的な表現をすること{"\n"}
-            （ぼくは苦手なのでゾーニングしてください）{"\n"}
-            （キャラクター性と無関係な膨張の表現も含みます）
-          </li>
           <li>他人を毀損する目的の表現をすること</li>
           <li>政治的、宗教的な目的で使用すること</li>
         </ul>

@@ -1250,12 +1250,16 @@ code {
     }
   }
 }
+$headerHeight: 3.5rem;
+html {
+  scroll-padding-top: #{$headerHeight + 1rem};
+}
 header {
+  height: #{$headerHeight};
   position: fixed;
   display: flex;
   align-items: center;
   width: 100%;
-  height: 3.5rem;
   max-width: var(--ct-width);
   z-index: 30;
   > *:not(.list) {
@@ -1402,8 +1406,12 @@ footer {
 }
 
 @media (min-width: $tabletWidth) {
+  $headerHeight: 4rem;
+  html {
+    scroll-padding-top: #{$headerHeight + 1rem};
+  }
   header {
-    height: 4rem;
+    height: #{$headerHeight};
     .title-container {
       img {
         height: 2.75rem;
@@ -1473,7 +1481,13 @@ footer {
       );
     }
     &.bannerArea {
-      @include GridList("li", 1, $mobileWidth, $miniDesktopWidth, $desktopWidth);
+      @include GridList(
+        "li",
+        1,
+        $mobileWidth,
+        $miniDesktopWidth,
+        $desktopWidth
+      );
     }
     li {
       margin: 0.25rem;

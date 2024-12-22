@@ -113,6 +113,20 @@ function LoadingState({ isSetList, children }: LoadingStateProps) {
     if (isComplete) {
       document.body.classList.remove("dummy");
       html?.classList.remove("loading");
+      if (location.hash) {
+        const elm = document.querySelector(location.hash) as HTMLElement | null;
+        if (elm) {
+          let scrollY = elm.offsetTop;
+          const html = document.querySelector("html") as HTMLElement | null;
+          if (html) {
+            const m = getComputedStyle(html)["scrollPadding"].match(/^(\d+)px/);
+            if (m) scrollY = scrollY - Number(m[1]);
+          }
+          setTimeout(() => {
+            window.scrollTo({ top: scrollY });
+          }, 0);
+        }
+      }
     } else {
       html?.classList.add("loading");
     }
