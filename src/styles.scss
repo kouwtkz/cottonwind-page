@@ -391,6 +391,12 @@ ul {
   }
   &.wrap {
     flex-wrap: wrap;
+    &.row > * {
+      min-width: 0;
+    }
+    &.column > * {
+      max-width: 100%;
+    }
   }
   &.around {
     justify-content: space-around;
