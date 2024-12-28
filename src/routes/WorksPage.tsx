@@ -4,20 +4,31 @@ import ContactPage from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
 
 export default function WorksPage() {
-  const { imageAlbums } = useImageState();
-  const work = imageAlbums?.get("works");
+  const images = useImageState().images || [];
+  const groups: GalleryItemObjectType[] = [
+    {
+      name: "works",
+      list: images.filter(
+        (image) =>
+          image.album === "works" ||
+          image.tags?.find((tag) => tag === "commission")
+      ),
+    },
+  ];
   return (
     <div className="worksPage">
       <h2 className="color-main en-title-font">Works</h2>
-      {work ? (
-        <GalleryObject
-          items={[work]}
-          showInPageMenu={false}
-          showGalleryHeader={false}
-          showGalleryLabel={false}
-        />
-      ) : null}
-      <MeeLinks title="コミッション" category="commission" className="linkPage" />
+      <GalleryObject
+        items={groups}
+        showInPageMenu={false}
+        showGalleryHeader={false}
+        showGalleryLabel={false}
+      />
+      <MeeLinks
+        title="コミッション"
+        category="commission"
+        className="linkPage"
+      />
       <ContactPage />
     </div>
   );
