@@ -158,7 +158,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ),
     [image?.tags, defaultGalleryTags, allTagsOptions]
   );
-  const defaultValues = useMemo(
+  const values = useMemo(
     () => ({
       title: image?.title || "",
       description: image?.description || "",
@@ -187,7 +187,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     control,
     formState: { isDirty, dirtyFields },
   } = useForm<FieldValues>({
-    defaultValues,
+    values,
   });
 
   useEffect(() => {
@@ -208,7 +208,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     if (deleteMode) method = "DELETE";
     else {
       Object.entries(fields).forEach(([key, value]) => {
-        if (dirtyFields[key as keyof typeof defaultValues]) {
+        if (dirtyFields[key as keyof typeof values]) {
           switch (key as keyof imageUpdateJsonDataType) {
             case "time":
               data[key] = IsoFormTime(value);
@@ -237,7 +237,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       { method }
     ).finally(() => {
       setIsBusy(false);
-      if (turnOff && isEdit) setIsEdit(false);
     });
     if (res.status === 200) {
       toast.success(deleteMode ? "削除しました" : "更新しました！", {
@@ -256,10 +255,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       return false;
     }
   }
-
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues]);
 
   const { togglePreviewMode, previewMode } = usePreviewMode();
   const TypeTagsOption = useMemo(() => {
@@ -379,7 +374,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               type="reset"
               className="color round"
               onClick={() => {
-                reset(defaultValues);
+                reset(values);
               }}
               disabled={isBusy}
             >
