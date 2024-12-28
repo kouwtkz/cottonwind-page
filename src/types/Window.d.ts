@@ -1,3 +1,3 @@
 declare interface Window {
-  EmbedTwitterCache?: HTMLElement;
+  EmbedTwitterCaches?: HTMLElement[];
 }

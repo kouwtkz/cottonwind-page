@@ -45,21 +45,26 @@ export function EmbedBluesky({
 }
 
 export function EmbedTwitter({ width = 420, height = 500 }: EmbedSNSprops) {
-  const [embedTwitterCache, setEmbedTwitterCache] =
-    useState<HTMLElement | null>();
+  const [embedTwitterCache, setEmbedTwitterCache] = useState<
+    HTMLElement[] | null
+  >();
   useEffect(() => {
-    setEmbedTwitterCache(window.EmbedTwitterCache || null);
+    setEmbedTwitterCache(window.EmbedTwitterCaches || null);
   }, [setEmbedTwitterCache]);
   const ref = React.useCallback(
     (node: HTMLDivElement | null) => {
       if (node) {
         if (embedTwitterCache) {
-          node.appendChild(embedTwitterCache);
+          embedTwitterCache.forEach((elm) => {
+            node.appendChild(elm);
+          });
         } else {
           const observer = new MutationObserver((callback) => {
             callback.some(({ removedNodes }) => {
               if (Array.from(removedNodes).some((n) => n.nodeName === "A")) {
-                window.EmbedTwitterCache = node as HTMLElement;
+                window.window.EmbedTwitterCaches = Array.from(
+                  node.children
+                ) as HTMLElement[];
                 observer.disconnect();
               }
             });
