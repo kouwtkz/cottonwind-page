@@ -41,8 +41,8 @@ MEDIA_LOCAL_ORIGIN = "/media"
 # MEDIA_LOCAL_ORIGIN = "51731"
 # MEDIA_LOCAL_ORIGIN = "https://media.cottonwind.com"
 
-CONTACT_FORM_GOOGLE = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
-CONTACT_FORM_GOOGLE_DEV = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
+CONTACT_FORM_GOOGLE = "1FAIpQLSfQDNZtAKUkp2sxtzbhVp1iJUDtDJJm9geWCWPHxg79qt3hUA"
+CONTACT_FORM_GOOGLE_DEV = "1FAIpQLSd-Ibgr2-Amoer3sl5pBqLbU-5H8tt7DVM7El14SkAFoeCa1g"
 
 UPLOAD_BRACKET = false
 UPLOAD_SERVICE = "https://f.hatena.ne.jp/kour/BlogPic/"

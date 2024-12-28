@@ -31,7 +31,7 @@ app.get("/env.json", async (c) => {
     ..._env
   } = AddMetaEnv(c.env);
   const env = _env as SiteConfigEnv;
-  if (new URL(c.req.url).hostname === "localhost")
+  if (import.meta.env?.DEV && CONTACT_FORM_GOOGLE_DEV)
     env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;
   return c.json(env);
 });
