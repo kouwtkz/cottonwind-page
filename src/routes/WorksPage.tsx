@@ -7,12 +7,13 @@ export default function WorksPage() {
   const images = useImageState().images || [];
   const groups: GalleryItemObjectType[] = [
     {
-      name: "works",
+      name: "Gallery",
       list: images.filter(
         (image) =>
           image.album === "works" ||
           image.tags?.find((tag) => tag === "commission")
       ),
+      linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks"
     },
   ];
   return (
@@ -22,7 +23,7 @@ export default function WorksPage() {
         items={groups}
         showInPageMenu={false}
         showGalleryHeader={false}
-        showGalleryLabel={false}
+        // showGalleryLabel={false}
       />
       <MeeLinks
         title="コミッション"

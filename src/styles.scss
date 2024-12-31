@@ -634,14 +634,37 @@ html.loading {
   }
 }
 
-%a-line-none {
-  a {
-    text-decoration-line: none;
-    &.underline {
-      text-decoration-line: underline;
-    }
+%line-none {
+  text-decoration-line: none;
+  &.underline {
+    text-decoration-line: underline;
   }
 }
+
+%a-line-none {
+  a {
+    @extend %line-none;
+  }
+}
+
+.line-none a,
+a.line-none {
+  @extend %line-none;
+}
+
+.p-br p, p.p-br {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+@mixin p-br-mixin($tb) {
+  .p-br-#{$tb} p, p.p-br-#{$tb} {
+    margin-top: #{$tb}px;
+    margin-bottom: #{$tb}px;
+  }
+}
+
+@include p-br-mixin(2);
 
 :root {
   background-color: var(--background);

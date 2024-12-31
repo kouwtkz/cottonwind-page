@@ -12,6 +12,7 @@ interface SiteConfigEnv {
   AUTHOR_IMAGE?: string;
   BLUESKY_HANDLE?: string;
   TWITTER_HANDLE?: string;
+  EMAIL?: string;
   SITE_IMAGE?: string;
   SINCE?: number;
   WAVEBOX?: string;
