@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useEnv } from "@/state/EnvState";
+import { RiLinksFill } from "react-icons/ri";
 
 export default function ContactPage() {
   return <GoogleForm />;
@@ -12,10 +13,13 @@ export function GoogleForm() {
   return (
     <>
       {CONTACT_FORM_GOOGLE ? (
-        <>
+        <div id="contact">
           <h3>
             <a href={FORM_GOOGLE_BASE_URL + CONTACT_FORM_GOOGLE + "/viewform"}>
               お問い合わせ（Googleフォーム）
+            </a>
+            <a href="#contact" title="フォームのリンク">
+              <RiLinksFill />
             </a>
           </h3>
           <iframe
@@ -31,7 +35,7 @@ export function GoogleForm() {
           >
             読み込んでいます…
           </iframe>
-        </>
+        </div>
       ) : null}
     </>
   );
