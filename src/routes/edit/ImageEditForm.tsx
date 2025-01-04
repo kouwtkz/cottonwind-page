@@ -163,7 +163,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     () => ({
       title: image?.title || "",
       description: image?.description || "",
-      topImage: String(image?.topImage || null),
+      topImage: String(image?.topImage ?? null),
       pickup: String(image?.pickup),
       tags: image?.tags || [],
       characters: image?.characters || [],

@@ -136,7 +136,10 @@ export function HomeImage() {
     () =>
       findMee(images, {
         where: {
-          OR: [{ topImage: { gte: 1 } }, { tags: { in: monthlyFilter?.tags } }],
+          OR: [
+            { topImage: { gte: 1 } },
+            { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
+          ],
         },
         orderBy: [{ topImage: "desc" }],
       }),
