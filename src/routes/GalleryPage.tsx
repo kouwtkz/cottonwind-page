@@ -791,7 +791,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       () => Boolean(q || tags || characters),
       [q, tags, characters]
     );
-    const { state } = useLocation();
+    const { state, key } = useLocation();
     const isModal = searchParams.get("modal") === "gallery";
     const setSelectedImage = useSelectedImage()[1];
     const imageOnClick = isModal
@@ -901,6 +901,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         step,
         showMoreButton,
         state,
+        key,
       ]
     );
     const _className = useMemo(() => {
