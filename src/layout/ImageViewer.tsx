@@ -253,7 +253,10 @@ function PreviewArea({ image }: PreviewAreaProps) {
             <div className="wh-fill">
               <a
                 title="別タブで画像を開く"
-                href={MediaOrigin(imageUrl)}
+                href={MediaOrigin(
+                  imageUrl +
+                    ((image.version || 1) > 1 ? "?v=" + image.version : "")
+                )}
                 target="_blank"
                 className="translucent-button hover-visible fullscreen"
               >
