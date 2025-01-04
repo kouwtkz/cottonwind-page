@@ -22,6 +22,7 @@ import {
   filterGalleryMonthList,
   addExtentionTagsOptions,
   defaultGalleryTags,
+  MonthToTag,
 } from "@/components/dropdown/SortFilterTags";
 import { filterPickFixed } from "@/functions/media/FilterImages";
 import { create } from "zustand";
@@ -430,10 +431,15 @@ function UploadChain({
   const searchParams = useSearchParams()[0];
   const qParam = searchParams.get("q");
   const tagsParam = searchParams.get("tags");
+  const monthParam = searchParams.get("month");
   const tags = useMemo(() => {
     let tags: string[] = [];
     if (item?.tags) tags = tags.concat(item.tags);
     if (tagsParam) tags = tags.concat(tagsParam);
+    if (monthParam) {
+      const monthTag = MonthToTag(Number(monthParam));
+      if (monthTag) tags = tags.concat(monthTag);
+    }
     const hashtags = qParam
       ?.split(" OR ")[0]
       .split(" ")

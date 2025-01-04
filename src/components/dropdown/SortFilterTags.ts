@@ -177,6 +177,12 @@ export function getTagsOptions(tags: ContentsTagsOption[]) {
   );
 }
 
+export function MonthToTag(value: number) {
+  return filterGalleryMonthList.find(
+    ({ month }) => month === value
+  )?.tags[0]
+}
+
 export function autoFixGalleryTagsOptions(tagsOptions: ContentsTagsOption[]) {
   return tagsOptions
     .filter(({ editable }) => editable !== false)
@@ -184,9 +190,7 @@ export function autoFixGalleryTagsOptions(tagsOptions: ContentsTagsOption[]) {
       const values = (item.value?.split(":", 2) || [""]).concat("");
       switch (values[0]) {
         case "month":
-          const monthTag = filterGalleryMonthList.find(
-            ({ month }) => String(month) === values[1]
-          )?.tags[0];
+          const monthTag = MonthToTag(Number(values[1]));
           if (monthTag) {
             return { ...item, value: monthTag, query: { month: values[1] } };
           } else return item;
