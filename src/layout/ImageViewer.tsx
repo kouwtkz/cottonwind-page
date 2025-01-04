@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import {
   createSearchParams,
@@ -237,10 +237,9 @@ interface PreviewAreaProps {
 }
 function PreviewArea({ image }: PreviewAreaProps) {
   const mediaOrigin = useMediaOrigin()[0];
-  const MediaOrigin = useCallback(
-    (src?: string) => concatOriginUrl(mediaOrigin, src),
-    [mediaOrigin]
-  );
+  function MediaOrigin(src?: string) {
+    return concatOriginUrl(mediaOrigin, src);
+  }
   const imageUrl = useMemo(() => image.src || "", [image]);
   return (
     <div className="preview">
@@ -447,7 +446,7 @@ export function GalleryViewerPaging({
   className,
   ...args
 }: GalleryViewerPagingProps) {
-  const searchParams = useSearchParams()[0];
+  const [searchParams, setSearchParams] = useSearchParams();
   const state = useLocation().state;
   const images = useImageViewer().images || [];
   const imageIndex = useMemo(() => {
@@ -464,14 +463,27 @@ export function GalleryViewerPaging({
     }),
     [images, imageIndex]
   );
-
-  const prevNextToHandler = useCallback(
-    (image: ImageType) => {
-      if (image.key) searchParams.set("image", image.key);
-      return new URL("?" + searchParams.toString(), location.href).href;
-    },
-    [searchParams]
-  );
+  const prevNextToHandler = function (image: ImageType) {
+    const SearchParams = new URLSearchParams(searchParams);
+    if (image.key) SearchParams.set("image", image.key);
+    return new URL("?" + SearchParams.toString(), location.href).href;
+  };
+  useHotkeys("ArrowLeft", () => {
+    if (prevNextImage.before) {
+      setSearchParams({
+        ...Object.fromEntries(searchParams),
+        image: prevNextImage.before.key,
+      });
+    }
+  });
+  useHotkeys("ArrowRight", () => {
+    if (prevNextImage.after) {
+      setSearchParams({
+        ...Object.fromEntries(searchParams),
+        image: prevNextImage.after.key,
+      });
+    }
+  });
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
       {prevNextImage?.before ? (
