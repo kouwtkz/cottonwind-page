@@ -46,9 +46,11 @@ import useWindowSize from "@/components/hook/useWindowSize";
 import { useImageViewer } from "@/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
+  SwitchNotDraftUpload,
   SwitchNoUploadThumbnail,
   SwitchUploadWebp,
   useImageEditIsEditHold,
+  useImageNotDraftUpload,
   useNoUploadThumbnail,
   useUploadWebp,
 } from "./edit/ImageEditForm";
@@ -424,6 +426,7 @@ function UploadChain({
   const character = useParams().charaName;
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
+  const notDraft = useImageNotDraftUpload()[0];
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -438,6 +441,7 @@ function UploadChain({
         character,
         webp,
         thumbnail,
+        notDraft,
         ...(item
           ? {
               album: item.name,
@@ -449,7 +453,7 @@ function UploadChain({
         setImagesLoad("no-cache");
       });
     },
-    [item, character, apiOrigin]
+    [item, character, apiOrigin, webp, thumbnail, notDraft]
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
@@ -620,6 +624,7 @@ function GalleryBody({
                 >
                   <AiFillEdit />
                 </ModeSwitch>
+                <SwitchNotDraftUpload />
                 <SwitchNoUploadThumbnail />
                 <SwitchUploadWebp />
                 <GalleryUploadButton className="iconSwitch" group={group} />

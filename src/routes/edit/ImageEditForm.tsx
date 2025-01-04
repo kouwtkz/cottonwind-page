@@ -13,6 +13,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
+  MdAssistantDirection,
   MdCleaningServices,
   MdDeleteForever,
   MdFileUpload,
@@ -916,6 +917,18 @@ export function SwitchNoUploadThumbnail() {
       useSwitch={useNoUploadThumbnail}
     >
       <PiFileX />
+    </ModeSwitch>
+  );
+}
+
+export const useImageNotDraftUpload = CreateState(false);
+export function SwitchNotDraftUpload() {
+  return (
+    <ModeSwitch
+      toEnableTitle="下書きなしでアップロードする"
+      useSwitch={useImageNotDraftUpload}
+    >
+      <MdAssistantDirection />
     </ModeSwitch>
   );
 }
