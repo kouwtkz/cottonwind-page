@@ -469,18 +469,24 @@ export function GalleryViewerPaging({
   };
   useHotkeys("ArrowLeft", () => {
     if (prevNextImage.before) {
-      setSearchParams({
-        ...Object.fromEntries(searchParams),
-        image: prevNextImage.before.key,
-      });
+      setSearchParams(
+        {
+          ...Object.fromEntries(searchParams),
+          image: prevNextImage.before.key,
+        },
+        { preventScrollReset: true }
+      );
     }
   });
   useHotkeys("ArrowRight", () => {
     if (prevNextImage.after) {
-      setSearchParams({
-        ...Object.fromEntries(searchParams),
-        image: prevNextImage.after.key,
-      });
+      setSearchParams(
+        {
+          ...Object.fromEntries(searchParams),
+          image: prevNextImage.after.key,
+        },
+        { preventScrollReset: true }
+      );
     }
   });
   return (
