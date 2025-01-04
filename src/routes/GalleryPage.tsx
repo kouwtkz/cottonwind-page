@@ -427,6 +427,21 @@ function UploadChain({
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
   const notDraft = useImageNotDraftUpload()[0];
+  const searchParams = useSearchParams()[0];
+  const qParam = searchParams.get("q");
+  const tagsParam = searchParams.get("tags");
+  const tags = useMemo(() => {
+    let tags: string[] = [];
+    if (item?.tags) tags = tags.concat(item.tags);
+    if (tagsParam) tags = tags.concat(tagsParam);
+    const hashtags = qParam
+      ?.split(" OR ")[0]
+      .split(" ")
+      .filter((v) => v.startsWith("#"))
+      .map((v) => v.slice(1));
+    if (hashtags) tags = tags.concat(hashtags);
+    return tags;
+  }, [item, tagsParam, qParam]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -442,10 +457,10 @@ function UploadChain({
         webp,
         thumbnail,
         notDraft,
+        tags,
         ...(item
           ? {
               album: item.name,
-              tags: item.tags,
               character: item.character,
             }
           : undefined),
@@ -453,7 +468,7 @@ function UploadChain({
         setImagesLoad("no-cache");
       });
     },
-    [item, character, apiOrigin, webp, thumbnail, notDraft]
+    [item, character, apiOrigin, webp, thumbnail, notDraft, tags]
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
