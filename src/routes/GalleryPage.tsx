@@ -854,6 +854,29 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       }
       return classes.join(" ");
     }, [item]);
+    const ShorMoreButton = useMemo(
+      () => (
+        <Link
+          to={location.href}
+          state={{
+            ...state,
+            ...{
+              galleryMax: {
+                ...state?.galleryMax,
+                [name]: curMax + step,
+              },
+            },
+          }}
+          preventScrollReset={true}
+          replace={true}
+          title="もっと見る"
+          className="item"
+        >
+          <MoreButton className="gallery-button-more" />
+        </Link>
+      ),
+      [state, key]
+    );
     const GalleryContent = useMemo(
       () =>
         isComplete ? (
@@ -868,26 +891,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                   key={image.key}
                 />
               ))}
-            {showMoreButton ? (
-              <Link
-                to={location.href}
-                state={{
-                  ...state,
-                  ...{
-                    galleryMax: {
-                      ...state?.galleryMax,
-                      [name]: curMax + step,
-                    },
-                  },
-                }}
-                preventScrollReset={true}
-                replace={true}
-                title="もっと見る"
-                className="item"
-              >
-                <MoreButton className="gallery-button-more" />
-              </Link>
-            ) : null}
+            {showMoreButton ? ShorMoreButton : null}
           </div>
         ) : (
           <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
@@ -900,8 +904,6 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         curMax,
         step,
         showMoreButton,
-        state,
-        key,
       ]
     );
     const _className = useMemo(() => {

@@ -454,6 +454,13 @@ export function GalleryViewerPaging({
       return images.findIndex((groupImage) => groupImage.key === key);
     } else return -1;
   }, [image, images]);
+  const { state } = useLocation();
+  const escapeState = useMemo(() => {
+    if (state) {
+      const { from, ...escapeState } = state;
+      return escapeState;
+    } else return state;
+  }, [state]);
 
   const prevNextImage = useMemo(
     () => ({
@@ -474,7 +481,7 @@ export function GalleryViewerPaging({
           ...Object.fromEntries(searchParams),
           image: prevNextImage.before.key,
         },
-        { preventScrollReset: true }
+        { preventScrollReset: true, state: escapeState }
       );
     }
   });
@@ -485,7 +492,7 @@ export function GalleryViewerPaging({
           ...Object.fromEntries(searchParams),
           image: prevNextImage.after.key,
         },
-        { preventScrollReset: true }
+        { preventScrollReset: true, state: escapeState }
       );
     }
   });
@@ -496,6 +503,7 @@ export function GalleryViewerPaging({
           className="prev"
           to={prevNextToHandler(prevNextImage.before)}
           preventScrollReset={true}
+          state={escapeState}
         >
           <div className="cursor">≪</div>
           <div>{prevNextImage.before.title}</div>
@@ -508,6 +516,7 @@ export function GalleryViewerPaging({
           className="next"
           to={prevNextToHandler(prevNextImage.after)}
           preventScrollReset={true}
+          state={escapeState}
         >
           <div>{prevNextImage.after.title}</div>
           <div className="cursor">≫</div>
