@@ -8,7 +8,10 @@ export function CompactCode(value: unknown) {
 
 export function JoinUnique(a?: string | string[] | null, b?: string | string[] | null, separator = ",") {
   if (!a && !b) return null;
-  if (!Array.isArray(a)) a = a ? a.split(separator) : [];
+  if (!Array.isArray(a)) a = a ? a.split(separator).reduce<string[]>((a, c) => {
+    if (!a.some(v => v === c)) a.push(c);
+    return a;
+  }, []) : [];
   if (!Array.isArray(b)) b = b ? b.split(separator) : [];
   return b.reduce((a, c) => {
     if (!a.some(v => v === c)) a.push(c);
