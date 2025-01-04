@@ -447,7 +447,6 @@ export function GalleryViewerPaging({
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const state = useLocation().state;
   const images = useImageViewer().images || [];
   const imageIndex = useMemo(() => {
     const key = image?.key;
@@ -490,9 +489,7 @@ export function GalleryViewerPaging({
         <Link
           className="prev"
           to={prevNextToHandler(prevNextImage.before)}
-          state={state}
           preventScrollReset={true}
-          replace={true}
         >
           <div className="cursor">≪</div>
           <div>{prevNextImage.before.title}</div>
@@ -504,9 +501,7 @@ export function GalleryViewerPaging({
         <Link
           className="next"
           to={prevNextToHandler(prevNextImage.after)}
-          state={state}
           preventScrollReset={true}
-          replace={true}
         >
           <div>{prevNextImage.after.title}</div>
           <div className="cursor">≫</div>
