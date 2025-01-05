@@ -13,6 +13,7 @@ const TableObject = new DBTableClass<CharacterDataType>({
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
     name: { type: "TEXT" },
+    enName: { type: "TEXT" },
     honorific: { type: "TEXT" },
     nameGuide: { type: "TEXT" },
     defEmoji: { type: "TEXT" },
@@ -30,7 +31,7 @@ const TableObject = new DBTableClass<CharacterDataType>({
     time: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["key", "name", "nameGuide", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
+  insertEntryKeys: ["key", "name", "enName", "nameGuide", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
   insertEntryTimes: ["time", "birthday", "lastmod"]
 });
 

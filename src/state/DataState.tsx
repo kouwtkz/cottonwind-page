@@ -34,7 +34,7 @@ export const imageDataObject = new SdsClass<ImageDataType>({
 export const charactersDataObject = new SdsClass<CharacterDataType>({
   key: "characters",
   src: "/data/characters",
-  version: "1.4.0",
+  version: "1.5.0",
   preLoad: false,
   latestField: { id: "desc" },
 });

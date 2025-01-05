@@ -496,8 +496,11 @@ function CharaDetail({ charaName }: { charaName: string }) {
                     className="charaIcon"
                   />
                 ) : null}
-                <span>{chara.name + (chara.honorific ?? "")}</span>
+                <span translate={chara.enName ? "no" : "yes"}>
+                  {chara.name + (chara.honorific ?? "")}
+                </span>
               </h1>
+              {chara.enName ? <p className="color-main">EN Name: {chara.enName}</p> : null}
               <div className="overview">{chara.overview}</div>
             </div>
             {chara.media?.headerImage ? (

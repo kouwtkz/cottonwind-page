@@ -2,6 +2,7 @@ interface CharacterDataType {
   id: number;
   key: string;
   name: string;
+  enName: string;
   honorific?: string;
   nameGuide?: string;
   defEmoji?: string;
