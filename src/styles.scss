@@ -652,13 +652,15 @@ a.line-none {
   @extend %line-none;
 }
 
-.p-br p, p.p-br {
+.p-br p,
+p.p-br {
   margin-top: 0;
   margin-bottom: 0;
 }
 
 @mixin p-br-mixin($tb) {
-  .p-br-#{$tb} p, p.p-br-#{$tb} {
+  .p-br-#{$tb} p,
+  p.p-br-#{$tb} {
     margin-top: #{$tb}px;
     margin-bottom: #{$tb}px;
   }
@@ -692,12 +694,14 @@ svg.stock {
 
 button,
 .button {
-  @extend %cursor-pointer;
   @extend %userSelectNone;
   border: 0;
   outline: none;
   text-decoration: none;
   font-weight: 700;
+  &:not(:disabled) {
+    @extend %cursor-pointer;
+  }
   &.color {
     color: white;
     background-color: var(--main-color);
@@ -722,7 +726,7 @@ button,
     display: flex;
     align-items: center;
     justify-content: center;
-    &[disabled] {
+    &:disabled {
       opacity: 0.6;
     }
     svg,
@@ -1081,8 +1085,8 @@ h4 {
   &.flex {
     display: flex;
     pointer-events: none;
-    :not(div) {
-      pointer-events: all;
+    :not(div):not(:disabled) {
+      pointer-events: auto;
     }
     .listMenu {
       position: inherit;
