@@ -2,7 +2,6 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { HeaderClient } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
 import { ReactNode, useLayoutEffect, useState } from "react";
-import { useAtom } from "jotai";
 import { MetaValues } from "./SetMeta";
 import { useCharactersMap } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
@@ -10,6 +9,7 @@ import { useImageState } from "@/state/ImageState";
 import { usePosts } from "@/state/PostState";
 import { StateSet, useDataIsComplete } from "@/state/StateSet";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
+import { LangState } from "@/state/LangState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -43,6 +43,7 @@ export function Base({ children }: { children?: ReactNode }) {
   }, []);
   return (
     <>
+      <LangState />
       <ScrollRestoration />
       <StateSet />
       <HeaderClient env={env} />
