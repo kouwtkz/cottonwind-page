@@ -103,7 +103,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       birthday: ToFormTime(chara?.birthday),
       tags: chara?.tags || [],
       playlist: chara?.playlist || [],
-      draft: chara?.draft,
+      draft: chara?.draft ?? null,
     }),
     [chara]
   );
@@ -148,29 +148,17 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     setValue,
     control,
     handleSubmit,
-    formState: {
-      isDirty,
-      defaultValues,
-      isSubmitSuccessful,
-      errors,
-      dirtyFields,
-    },
+    formState: { isDirty, errors, dirtyFields },
   } = useForm<FieldValues>({
-    defaultValues: getDefaultValues,
+    values: getDefaultValues,
     resolver: zodResolver(schema),
   });
-
-  const refIsNotFirst = useRef(false);
-  useEffect(() => {
-    if (refIsNotFirst.current) reset(getDefaultValues);
-  }, [reset, getDefaultValues]);
 
   const refIsDirty = useRef(false);
   useEffect(() => {
     refIsDirty.current = isDirty;
   }, [isDirty]);
   useEffect(() => {
-    refIsNotFirst.current = true;
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (refIsDirty.current) event.preventDefault();
     };
@@ -518,11 +506,12 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           <button
             className="color"
             disabled={!isDirty}
-            type="button"
+            type="reset"
             title="リセット"
-            onClick={() =>
-              reset({}, { keepDefaultValues: true, keepDirty: true })
-            }
+            onClick={(e) => {
+              e.preventDefault();
+              reset();
+            }}
           >
             <MdCleaningServices />
           </button>

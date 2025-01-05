@@ -171,7 +171,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       time: ToFormTime(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
-      draft: image?.draft,
+      draft: image?.draft ?? null,
       embed: image?.embed || "",
       album: image?.album || "",
       rename: image?.key || "",
@@ -374,10 +374,11 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               title="リセット"
               type="reset"
               className="color round"
-              onClick={() => {
-                reset(values);
+              onClick={(e) => {
+                e.preventDefault();
+                reset();
               }}
-              disabled={isBusy}
+              disabled={isBusy || !isDirty}
             >
               <MdCleaningServices />
             </button>

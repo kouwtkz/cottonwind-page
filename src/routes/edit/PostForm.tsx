@@ -139,16 +139,16 @@ export function PostForm() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const postIdRef = useRef<HTMLInputElement | null>(null);
 
-  const defaultValues = useMemo(
+  const values = useMemo(
     () => ({
       update: duplicationMode ? "" : postTarget?.postId || "",
-      postId: duplicationMode ? undefined : postTarget?.postId || "",
+      postId: duplicationMode ? null : postTarget?.postId || "",
       title: postTarget?.title || "",
       body: postTarget?.body || "",
-      category: postCategories,
+      category: postCategories ?? null,
       time: ToFormTime(postTarget?.time),
       pin: Number(postTarget?.pin || 0),
-      draft: postTarget?.draft,
+      draft: postTarget?.draft ?? null,
     }),
     [duplicationMode, postCategories, postTarget]
   );
@@ -162,7 +162,7 @@ export function PostForm() {
     reset,
     control,
   } = useForm<FieldValues>({
-    defaultValues,
+    values,
     resolver: zodResolver(schema),
   });
 
@@ -175,7 +175,7 @@ export function PostForm() {
   useEffect(() => {
     if (isLocalDraft) {
       reset({
-        ...defaultValues,
+        ...values,
         ...localDraft,
         time: ToFormTime(localDraft?.time),
       });
@@ -190,10 +190,8 @@ export function PostForm() {
           );
         else return c;
       });
-    } else {
-      reset(defaultValues);
     }
-  }, [reset, localDraft, defaultValues, isLocalDraft]);
+  }, [reset, localDraft, values, isLocalDraft]);
 
   function saveLocalDraft() {
     const values = getValues();
@@ -332,7 +330,7 @@ export function PostForm() {
     };
     try {
       Object.entries(values).forEach(([key, item]) => {
-        const defaultItem = (defaultValues as { [k: string]: any })[key];
+        const defaultItem = (values as { [k: string]: any })[key];
         switch (key) {
           case "postId":
             append(key, item, item !== defaultItem);
@@ -406,7 +404,7 @@ export function PostForm() {
     }
   }, [
     apiOrigin,
-    defaultValues,
+    values,
     getValues,
     postCategories,
     nav,
@@ -529,6 +527,17 @@ export function PostForm() {
           className="body"
         />
         <div className="action">
+          <button
+            className="color text"
+            type="reset"
+            disabled={!isDirty}
+            onClick={(e) => {
+              e.preventDefault();
+              reset(values);
+            }}
+          >
+            リセット
+          </button>
           <button
             type="button"
             className="color text"
