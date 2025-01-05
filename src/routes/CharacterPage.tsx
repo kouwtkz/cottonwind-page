@@ -501,17 +501,17 @@ function CharaDetail({ charaName }: { charaName: string }) {
               <div className="overview">{chara.overview}</div>
             </div>
             {chara.media?.headerImage ? (
-              <div>
+              <p>
                 <ImageMee
                   imageItem={chara.media.headerImage}
                   className="headerImage"
                   loading="eager"
                   suppressHydrationWarning={true}
                 />
-              </div>
+              </p>
             ) : null}
             {chara.media?.image ? (
-              <div>
+              <p>
                 <ImageMee
                   imageItem={chara.media.image}
                   className="mainImage"
@@ -521,13 +521,13 @@ function CharaDetail({ charaName }: { charaName: string }) {
                   style={{ objectFit: "cover" }}
                   height={340}
                 />
-              </div>
+              </p>
             ) : null}
             {chara.time ? (
-              <div>
+              <p>
                 <span>デビュー年：</span>
                 <span>{chara.time.getFullYear()}年</span>
-              </div>
+              </p>
             ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
             <GalleryObject
