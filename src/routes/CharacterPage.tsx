@@ -523,6 +523,12 @@ function CharaDetail({ charaName }: { charaName: string }) {
                 />
               </div>
             ) : null}
+            {chara.time ? (
+              <div>
+                <span>デビュー年：</span>
+                <span>{chara.time.getFullYear()}年</span>
+              </div>
+            ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
             <GalleryObject
               items={galleryList.map((item) => {
