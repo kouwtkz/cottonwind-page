@@ -173,6 +173,10 @@ export default function AboutPage() {
                 <span className="label">状態管理</span>
                 <span>zustand, jotai</span>
               </li>
+              <li>
+                <span className="label">プレイヤー</span>
+                <span>@mebtte/react-media-session</span>
+              </li>
             </ul>
           </li>
         </ul>
