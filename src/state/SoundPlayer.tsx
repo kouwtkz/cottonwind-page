@@ -239,7 +239,7 @@ export function SoundPlayer() {
         src={mediaSrc}
         {...{ autoPlay, onEnded }}
         onPause={() => {
-          if (!paused) Stop();
+          if (!audioElm!.ended && !paused) Stop();
         }}
         ref={audioRef}
       />
