@@ -170,8 +170,8 @@ export function SoundPlayer() {
     () => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin, src]
   );
-  const onPlay = useCallback(() => Play(), []);
-  const onPause = useCallback(() => Pause(), []);
+  const onPlay = useCallback(() => audioElm!.play(), [audioElm]);
+  const onPause = useCallback(() => audioElm!.pause(), [audioElm]);
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
   const onNextTrack = useCallback(() => Next(), [Next]);
   const onSeekBackward = useCallback(() => {
@@ -208,6 +208,18 @@ export function SoundPlayer() {
         break;
     }
   }, [loopMode, audioElm, Stop]);
+  const artwork = useMemo(
+    () =>
+      music.cover
+        ? [
+            {
+              src: concatOriginUrl(mediaOrigin, music.cover),
+              sizes: "512x512",
+            },
+          ]
+        : [],
+    [music]
+  );
 
   return (
     <>
@@ -215,18 +227,9 @@ export function SoundPlayer() {
       <MebtteMediaSession
         title={music.title}
         artist={music.artist}
-        artwork={
-          music.cover
-            ? [
-                {
-                  src: concatOriginUrl(mediaOrigin, music.cover),
-                  sizes: "512x512",
-                },
-              ]
-            : []
-        }
         album={music.album}
         {...{
+          artwork,
           onPlay,
           onPause,
           onPreviousTrack,
@@ -238,8 +241,11 @@ export function SoundPlayer() {
       <audio
         src={mediaSrc}
         {...{ autoPlay, onEnded }}
+        onPlay={() => {
+          if (paused) Play();
+        }}
         onPause={() => {
-          if (!audioElm!.ended && !paused) Stop();
+          if (!audioElm!.ended && !paused) Pause();
         }}
         ref={audioRef}
       />
