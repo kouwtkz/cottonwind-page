@@ -246,7 +246,7 @@ export function SoundPlayer() {
       <MebtteMediaSession
         title={music.title}
         artist={music.artist}
-        album={music.album}
+        album={playlist.title || music.album}
         {...{
           artwork,
           onPlay,
