@@ -474,7 +474,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
     [charactersMap, charaName]
   );
   useEffect(() => {
-    if (chara?.media?.playlist) {
+    if (chara?.media?.playlist && chara.media.playlist.list.length > 0) {
       RegistPlaylist({ playlist: chara?.media?.playlist });
     }
   }, [chara?.media?.playlist?.title]);
@@ -500,7 +500,9 @@ function CharaDetail({ charaName }: { charaName: string }) {
                   {chara.name + (chara.honorific ?? "")}
                 </span>
               </h1>
-              {chara.enName ? <p className="color-main">EN Name: {chara.enName}</p> : null}
+              {chara.enName ? (
+                <p className="color-main">EN Name: {chara.enName}</p>
+              ) : null}
               <div className="overview">{chara.overview}</div>
             </div>
             {chara.media?.headerImage ? (
