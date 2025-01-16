@@ -10,7 +10,6 @@ import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
-import { useSounds } from "./SoundState";
 import { CreateState } from "./CreateState";
 
 const LoopModeList: SoundLoopMode[] = [
@@ -32,6 +31,7 @@ type SoundPlayerType = {
   ended: boolean;
   playlist: SoundPlaylistType;
   current: number;
+  count: number;
   loopMode: SoundLoopMode;
   shuffle: boolean;
   special: boolean;
@@ -55,6 +55,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   ended: true,
   playlist: { list: [] },
   current: 0,
+  count: 0,
   loopMode: LoopModeList[0],
   shuffle: false,
   special: false,
@@ -89,9 +90,10 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
   Play: (args = {}) => {
     set((state) => {
-      const value: { paused: boolean; current?: number; ended?: boolean } = {
+      const value: Partial<SoundPlayerType> = {
         paused: false,
         ended: false,
+        count: 0,
       };
       if (args.playlist) state.RegistPlaylist(args);
       else if (args.current !== undefined) value.current = args.current;
@@ -106,29 +108,37 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
   Next: () => {
     set((state) => {
+      let newState: Partial<SoundPlayerType>;
       if (state.shuffle) {
         let current = Math.floor(
           Math.random() * (state.playlist.list.length - 1)
         );
         if (current >= state.current) current++;
-        return { current };
+        newState = { current };
       } else if (
         state.loopMode === "playUntilEnd" &&
         state.playlist.list.length === state.current + 1
       ) {
-        return { paused: true, ended: true };
+        newState = { paused: true, ended: true };
       } else
-        return { current: (state.current + 1) % state.playlist.list.length };
+        newState = {
+          current: (state.current + 1) % state.playlist.list.length,
+        };
+      newState.count = state.current === newState.current ? state.count + 1 : 0;
+      return newState;
     });
   },
   Prev: () => {
     set((state) => {
+      let newState: Partial<SoundPlayerType>;
       if (state.loopMode === "playUntilEnd" && state.current === 0) {
-        return { current: state.current === 0 ? 0 : state.current - 1 };
+        newState = { current: state.current === 0 ? 0 : state.current - 1 };
       } else {
         const length = state.playlist.list.length;
-        return { current: (length + state.current - 1) % length };
+        newState = { current: (length + state.current - 1) % length };
       }
+      newState.count = state.current === newState.current ? state.count + 1 : 0;
+      return newState;
     });
   },
   NextLoopMode: () => {
@@ -158,9 +168,11 @@ export function SoundPlayer() {
     Stop,
     paused,
     ended,
+    count,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
+  const listLength = useMemo(() => playlist.list.length, [playlist.list]);
   const music = useMemo(
     () => playlist.list[current] || {},
     [playlist, current]
@@ -189,25 +201,32 @@ export function SoundPlayer() {
         else audioElm.play();
       }
     }
-  }, [paused, ended]);
+  }, [paused, ended, audioElm]);
+  useEffect(() => {
+    if (audioElm && count > 0) audioElm.currentTime = 0;
+  }, [count, audioElm]);
 
   const onEnded = useCallback(() => {
+    function replay() {
+      if (audioElm) {
+        audioElm.currentTime = 0;
+        audioElm.play();
+      }
+    }
     switch (loopMode) {
       case "loop":
       case "playUntilEnd":
         Next();
+        if (listLength <= 1) replay();
         break;
       case "loopOne":
-        if (audioElm) {
-          audioElm.currentTime = 0;
-          audioElm.play();
-        }
+        replay();
         break;
       case "off":
         Stop();
         break;
     }
-  }, [loopMode, audioElm, Stop]);
+  }, [loopMode, audioElm, Stop, listLength]);
   const artwork = useMemo(
     () =>
       music.cover
