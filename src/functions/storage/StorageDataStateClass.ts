@@ -4,16 +4,6 @@ import { setPrefix, setSuffix } from "../stringFix";
 import { CreateState, CreateStateFunctionType } from "@/state/CreateState";
 import { concatOriginUrl } from "../originUrl";
 
-interface StorageDataStateClassProps<T> {
-  src: string;
-  key: string;
-  version?: string;
-  preLoad?: LoadStateType;
-  isLogin?: LoadStateType;
-  latestField?: { [k in keyof T]?: OrderByType };
-  lastmodField?: string;
-  scheduleEnable?: boolean;
-}
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
   key: string;

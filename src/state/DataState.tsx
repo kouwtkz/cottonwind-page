@@ -11,7 +11,10 @@ import {
   PromiseOrder,
   PromiseOrderOptions,
 } from "@/functions/arrayFunction";
-import { StorageDataStateClass as SdsClass } from "@/functions/storage/StorageDataStateClass";
+import {
+  StorageDataStateClass as SdsClass,
+  StorageDataStateClass,
+} from "@/functions/storage/StorageDataStateClass";
 import { CreateState } from "./CreateState";
 import {
   compat_v1_v2_ImageDataType,
@@ -22,66 +25,27 @@ import {
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
 import { SendLinksDir } from "@/routes/edit/LinksEdit";
+import {
+  charactersDataOptions,
+  favLinksDataOptions,
+  filesDataOptions,
+  ImageDataOptions,
+  linksDataOptions,
+  postsDataOptions,
+  soundAlbumsDataOptions,
+  soundsDataOptions,
+} from "@/dataDef";
 
-export const imageDataObject = new SdsClass<ImageDataType>({
-  key: "images",
-  src: "/data/images",
-  version: "3.0.2",
-  preLoad: false,
-  latestField: { time: "desc" },
-});
-
-export const charactersDataObject = new SdsClass<CharacterDataType>({
-  key: "characters",
-  src: "/data/characters",
-  version: "1.5.0",
-  preLoad: false,
-  latestField: { id: "desc" },
-});
-
-export const postsDataObject = new SdsClass<PostDataType>({
-  key: "posts",
-  src: "/data/posts",
-  version: "1.4.0",
-  preLoad: false,
-  latestField: { time: "desc" },
-});
-
-export const soundsDataObject = new SdsClass<SoundDataType>({
-  key: "sounds",
-  src: "/data/sounds",
-  version: "1.3.1",
-  preLoad: false,
-  latestField: { time: "desc" },
-});
-
-export const soundAlbumsDataObject = new SdsClass<SoundAlbumDataType>({
-  key: "soundAlbums",
-  src: "/data/soundAlbums",
-  version: "1.3.1",
-  preLoad: false,
-});
-
-export const filesDataObject = new SdsClass<FilesRecordDataType>({
-  key: "files",
-  src: "/data/files",
-  version: "1.3.0",
-  preLoad: false,
-});
-
-export const linksDataObject = new SdsClass<SiteLinkData>({
-  key: "links",
-  src: "/data/links",
-  version: "1.0.0",
-  preLoad: false,
-});
-
-export const favLinksDataObject = new SdsClass<SiteLinkData>({
-  key: "linksFav",
-  src: "/data/links/fav",
-  version: "1.0.1",
-  preLoad: false,
-});
+export const imageDataObject = new SdsClass(ImageDataOptions);
+export const charactersDataObject = new SdsClass(charactersDataOptions);
+export const postsDataObject = new StorageDataStateClass(postsDataOptions);
+export const soundsDataObject = new SdsClass(soundsDataOptions);
+export const soundAlbumsDataObject = new SdsClass(soundAlbumsDataOptions);
+export const filesDataObject = new SdsClass(filesDataOptions);
+export const linksDataObject = new SdsClass(linksDataOptions);
+export const favLinksDataObject = new SdsClass<SiteLinkData>(
+  favLinksDataOptions
+);
 
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);

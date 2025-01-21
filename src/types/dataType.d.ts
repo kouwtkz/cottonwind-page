@@ -12,3 +12,14 @@ interface importEntryDataType<T = unknown> extends dataBaseType<T> {
 }
 
 type LoadStateType = boolean | CacheParamType;
+
+interface StorageDataStateClassProps<T> {
+  src: string;
+  key: string;
+  version?: string;
+  preLoad?: LoadStateType;
+  isLogin?: LoadStateType;
+  latestField?: { [k in keyof T]?: OrderByType };
+  lastmodField?: string;
+  scheduleEnable?: boolean;
+}
