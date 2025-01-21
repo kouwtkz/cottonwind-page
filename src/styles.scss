@@ -76,6 +76,27 @@
   --dark-background-color: hsl(150, 10%, 10%);
 }
 
+:root {
+  --chakra-colors-color-palette-50: var(--main-color);
+  --chakra-colors-color-palette-100: var(--main-color);
+  --chakra-colors-color-palette-200: var(--main-color);
+  --chakra-colors-color-palette-300: var(--main-color);
+  --chakra-colors-color-palette-400: var(--main-color);
+  --chakra-colors-color-palette-500: var(--main-color);
+  --chakra-colors-color-palette-600: var(--main-color);
+  --chakra-colors-color-palette-700: var(--main-color);
+  --chakra-colors-color-palette-800: var(--main-color);
+  --chakra-colors-color-palette-900: var(--main-color);
+  --chakra-colors-color-palette-950: var(--main-color);
+  --chakra-colors-color-palette-contrast: var(--main-color);
+  --chakra-colors-color-palette-fg: var(--main-color);
+  --chakra-colors-color-palette-subtle: var(--main-color);
+  --chakra-colors-color-palette-muted: var(--main-color);
+  --chakra-colors-color-palette-emphasized: var(--main-color);
+  --chakra-colors-color-palette-solid: var(--main-color);
+  --chakra-colors-color-palette-focus-ring: var(--main-color);
+}
+
 // dark mode
 %lightMode {
   --current-text-color: var(--text-color);
@@ -2128,7 +2149,7 @@ div.banner {
   }
 }
 $soundBoxWidth: 14rem;
-$soundBoxHeight: 12rem;
+$soundBoxHeight: 13rem;
 .soundFixed {
   position: fixed;
   left: -#{$soundBoxWidth};
@@ -2164,14 +2185,17 @@ $soundBoxHeight: 12rem;
     }
     .box {
       .player {
-        margin: 0.5rem 0.25rem;
+        margin: 1rem 0.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         > div {
           display: flex;
           justify-content: space-evenly;
-          margin: 0.125rem auto;
+          margin: 0.125rem 1rem;
+          &.time {
+            margin: auto;
+          }
         }
         .text {
           height: 3rem;
@@ -2181,19 +2205,8 @@ $soundBoxHeight: 12rem;
         }
         .time {
           box-sizing: border-box;
-          padding: 0.5rem 1rem;
+          padding: 0 1rem;
           width: 100%;
-          .bar {
-            background-color: hsla(0, 0%, 50%, 0.1);
-            height: 0.3rem;
-            width: 100%;
-            display: flex;
-            justify-content: flex-start;
-            .gage {
-              height: 100%;
-              background-color: var(--main-color);
-            }
-          }
         }
       }
       button {

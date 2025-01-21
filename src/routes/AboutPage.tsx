@@ -177,6 +177,10 @@ export default function AboutPage() {
                 <span className="label">プレイヤー</span>
                 <span>@mebtte/react-media-session</span>
               </li>
+              <li>
+                <span className="label">UIライブラリ</span>
+                <span>Chakra UI</span>
+              </li>
             </ul>
           </li>
         </ul>

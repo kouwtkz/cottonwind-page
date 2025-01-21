@@ -1,11 +1,4 @@
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { create } from "zustand";
 import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
@@ -18,6 +11,7 @@ import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
 import { CreateState } from "./CreateState";
+
 import {
   MdOutlineMenu,
   MdOutlineMenuOpen,
@@ -25,6 +19,7 @@ import {
   MdPlayArrow,
   MdStop,
 } from "react-icons/md";
+import { Slider } from "@/components/ui/slider";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -52,6 +47,7 @@ type SoundPlayerType = {
   duration: number;
   currentTime: number;
   prevReplayTime: number;
+  jumpTime: number;
   Set: (args: Partial<SoundPlayerType>) => void;
   SetPaused: (paused: boolean) => void;
   SetEnded: (ended: boolean) => void;
@@ -80,6 +76,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   duration: 0,
   currentTime: 0,
   prevReplayTime: 3,
+  jumpTime: 0,
   Set(args) {
     set(args);
   },
@@ -197,6 +194,7 @@ export function SoundPlayer() {
     ended,
     count,
     Set,
+    jumpTime,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -222,6 +220,12 @@ export function SoundPlayer() {
     if (audioElm) audioElm.currentTime += 10;
   }, []);
   const autoPlay = useMemo(() => !ended, [ended]);
+  useEffect(() => {
+    if (jumpTime >= 0 && audioElm) {
+      audioElm.currentTime = jumpTime;
+      Set({ jumpTime: -1 });
+    }
+  }, [jumpTime, audioElm, Set]);
   useEffect(() => {
     if (audioElm) {
       if (audioElm.paused !== paused) {
@@ -323,6 +327,8 @@ export function SoundFixed() {
     shuffle,
     currentTime,
     duration,
+    Set,
+    jumpTime,
   } = useSoundPlayer();
   const sound = playlist.list[current];
   const title = sound?.title || null;
@@ -334,18 +340,14 @@ export function SoundFixed() {
     if (paused) Play();
     else Pause();
   }, [paused, Play, Pause]);
-  const [showBox, setShowBox] = useState(false);
+  const [showBox, setShowBox] = useState(true);
   const soundFixedClass = useMemo(() => {
     const className = ["soundFixed"];
     if (showBox) className.push("showBox");
     return className.join(" ");
   }, [showBox]);
   const currentPer = useMemo(
-    () =>
-      new Intl.NumberFormat("ja", {
-        style: "percent",
-        maximumSignificantDigits: 3,
-      }).format(currentTime / duration),
+    () => Math.round((currentTime / (duration || 1)) * 100),
     [currentTime, duration]
   );
 
@@ -421,9 +423,22 @@ export function SoundFixed() {
                   : "（たいきちゅう）"}
               </div>
               <div className="time">
-                <div className="bar">
-                  <div className="gage" style={{ width: currentPer }} />
-                </div>
+                <Slider
+                  disabled={ended}
+                  width="100%"
+                  onValueChange={({ value }) => {
+                    if (!paused) Pause();
+                  }}
+                  onValueChangeEnd={({ value }) => {
+                    const jumpTime =
+                      Math.round((duration * value[0]) / 10) / 10;
+                    Play({
+                      jumpTime,
+                      currentTime: jumpTime,
+                    });
+                  }}
+                  value={[currentPer]}
+                />
               </div>
             </div>
           </div>
