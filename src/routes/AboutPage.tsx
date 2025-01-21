@@ -179,7 +179,7 @@ export default function AboutPage() {
               </li>
               <li>
                 <span className="label">UIライブラリ</span>
-                <span>Chakra UI</span>
+                <span>React-Slider</span>
               </li>
             </ul>
           </li>
