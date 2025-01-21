@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { create } from "zustand";
 import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
@@ -11,6 +18,13 @@ import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
 import { CreateState } from "./CreateState";
+import {
+  MdOutlineMenu,
+  MdOutlineMenuOpen,
+  MdOutlinePause,
+  MdPlayArrow,
+  MdStop,
+} from "react-icons/md";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -266,7 +280,7 @@ export function SoundPlayer() {
 
   return (
     <>
-      <SoundFixed />
+      <SoundFixed ref={audioRef} />
       <MebtteMediaSession
         title={music.title}
         artist={music.artist}
@@ -290,7 +304,10 @@ export function SoundPlayer() {
   );
 }
 
-function SoundFixed() {
+export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
+  c,
+  audioRef
+) {
   const { pathname } = useLocation();
   const {
     Play,
@@ -307,44 +324,116 @@ function SoundFixed() {
     current,
     shuffle,
   } = useSoundPlayer();
-  const title = playlist.list[current]?.title || null;
+  const sound = playlist.list[current];
+  const title = sound?.title || null;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
     [pathname, paused, ended]
   );
+  const onClickPlayPause = useCallback(() => {
+    if (paused) Play();
+    else Pause();
+  }, [paused, Play, Pause]);
+  const [showBox, setShowBox] = useState(false);
+  const soundFixedClass = useMemo(() => {
+    const className = ["soundFixed"];
+    if (showBox) className.push("showBox");
+    return className.join(" ");
+  }, [showBox]);
+  const audioElm = (audioRef as React.RefObject<HTMLAudioElement>)?.current;
+  const duration = useMemo(() => audioElm?.duration || 0, [audioElm?.duration]);
+  const currentTime = useMemo(
+    () => audioElm?.currentTime || 1,
+    [audioElm?.currentTime]
+  );
+  const currentPer = useMemo(
+    () =>
+      new Intl.NumberFormat("ja", { style: "percent" }).format(
+        currentTime / duration
+      ),
+    [currentTime, duration]
+  );
+
   return (
     <>
       {show ? (
-        <div className="soundFixed">
-          <div>
-            <div>
-              <StopButton className="cursor-pointer" onClick={() => Stop()} />
-              <LoopButton
-                className="cursor-pointer"
-                loopMode={loopMode}
-                onClick={() => NextLoopMode()}
-              />
-              <ShuffleButton
-                className="cursor-pointer"
-                shuffle={shuffle}
-                onClick={() => ToggleShuffle()}
-              />
-            </div>
-            <div>
-              <PrevButton className="cursor-pointer" onClick={() => Prev()} />
-              <PlayPauseButton
-                className="cursor-pointer"
-                paused={paused}
-                onClick={() => (paused ? Play() : Pause())}
-              />
-              <NextButton className="cursor-pointer" onClick={() => Next()} />
-            </div>
-            <div className="text">
-              {title && !(paused && ended) ? "♪ " + title : "（たいきちゅう）"}
+        <div className={soundFixedClass}>
+          <div className="mini">
+            <button
+              title="停止"
+              className="color round player"
+              type="button"
+              onClick={Stop}
+            >
+              <MdStop />
+            </button>
+            <button
+              title="再生 / 一時停止"
+              className="color round player"
+              type="button"
+              onClick={onClickPlayPause}
+            >
+              {paused ? <MdPlayArrow /> : <MdOutlinePause />}
+            </button>
+            <button
+              title="展開"
+              className="color round"
+              type="button"
+              onClick={() => setShowBox(!showBox)}
+            >
+              {showBox ? <MdOutlineMenuOpen /> : <MdOutlineMenu />}
+            </button>
+          </div>
+          <div className="box">
+            <div className="player">
+              <div>
+                <button type="button" title="停止" onClick={Stop}>
+                  <StopButton />
+                </button>
+                <button
+                  type="button"
+                  title="ループモード"
+                  onClick={NextLoopMode}
+                >
+                  <LoopButton loopMode={loopMode} />
+                </button>
+                <button
+                  type="button"
+                  title="シャッフル"
+                  onClick={ToggleShuffle}
+                >
+                  <ShuffleButton shuffle={shuffle} />
+                </button>
+              </div>
+              <div>
+                <button type="button" title="前の曲" onClick={Prev}>
+                  <PrevButton />
+                </button>
+                <button
+                  type="button"
+                  title="再生 / 一時停止"
+                  onClick={onClickPlayPause}
+                >
+                  <PlayPauseButton paused={paused} />
+                </button>
+                <button type="button" title="次の曲" onClick={Next}>
+                  <NextButton />
+                </button>
+              </div>
+              <div className="text">
+                {title && !(paused && ended)
+                  ? "♪ " + title
+                  : "（たいきちゅう）"}
+              </div>
+              <div>
+                <div className="timeBar">
+                  <div className="time" style={{ width: currentPer }} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       ) : null}
     </>
   );
-}
+});

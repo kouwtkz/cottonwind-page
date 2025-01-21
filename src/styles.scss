@@ -89,7 +89,7 @@
   --main-color-soft: var(--main-color-deep);
   --main-color-pale-grayish: var(--main-color-dark-grayish);
   --background: var(--dark-background-color);
-  --background-bw: black;
+  --background-bw: rgb(10, 10, 10);
   --modal-window-background: var(--dark-background-color);
   --play-background-color: var(--dark-play-background-color);
   --form-background-color: var(--dark-form-background-color);
@@ -2127,28 +2127,78 @@ div.banner {
     align-items: center;
   }
 }
+$soundBoxWidth: 14rem;
+$soundBoxHeight: 12rem;
 .soundFixed {
   position: fixed;
-  left: 0;
+  left: -#{$soundBoxWidth};
   bottom: 0;
-  z-index: 30;
-  @extend %userSelectNone;
-  > div {
+  z-index: 40;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  transition: left 250ms;
+  .mini {
     display: flex;
-    margin: 0.5rem;
+    justify-content: flex-end;
     flex-direction: column;
-    > * {
-      display: flex;
-      svg {
-        margin: 0.25rem;
-        fill: var(--main-color-soft);
-        &:hover {
-          fill: var(--main-color-pale);
-        }
+    margin: 0.25rem;
+    svg {
+      margin: 0.25rem;
+    }
+  }
+  .box {
+    width: #{$soundBoxWidth};
+    height: #{$soundBoxHeight};
+    background-color: var(--background-bw);
+    .player {
+      display: none;
+    }
+  }
+  &.showBox {
+    left: 0;
+    .mini {
+      .player {
+        display: none;
       }
     }
-    .text {
-      margin: 0.25rem;
+    .box {
+      .player {
+        margin: 0.5rem 0.25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        > div {
+          display: flex;
+          justify-content: space-evenly;
+          margin: 0.125rem auto;
+        }
+        .text {
+          height: 3rem;
+          margin: 0.5rem auto;
+          display: inline-flex;
+          align-items: center;
+        }
+        .timeBar {
+          background-color: hsla(0, 0%, 50%, 0.1);
+          height: 0.3rem;
+          width: 100%;
+          display: flex;
+          justify-content: flex-start;
+          .time {
+            height: 100%;
+            background-color: var(--main-color);
+          }
+        }
+      }
+      button {
+        background-color: transparent;
+        svg {
+          fill: var(--main-color-soft);
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+      }
     }
   }
 }
