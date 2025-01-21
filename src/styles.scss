@@ -2171,7 +2171,7 @@ $soundBoxHeight: 12.5rem;
         > div {
           display: flex;
           justify-content: space-evenly;
-          margin: 0.125rem 1rem;
+          margin: 0.125rem 1.5rem;
           &.time {
             margin: auto;
           }
@@ -2191,7 +2191,7 @@ $soundBoxHeight: 12.5rem;
             height: 0.5rem;
             .track {
               height: 100%;
-              background-color: hsla(0, 0%, 50%, 0.25);
+              background-color: hsla(0, 0%, 65%, 0.3);
             }
             .track-0 {
               background-color: var(--main-color);

@@ -148,6 +148,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
         newState = {
           current: (state.current + 1) % state.playlist.list.length,
         };
+      if (!state.ended) newState.paused = false;
       newState.count = state.current === newState.current ? state.count + 1 : 0;
       return newState;
     });
@@ -163,6 +164,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
         const length = state.playlist.list.length;
         newState = { current: (length + state.current - 1) % length };
       }
+      if (!state.ended) newState.paused = false;
       newState.count = state.current === newState.current ? state.count + 1 : 0;
       return newState;
     });
