@@ -2142,9 +2142,9 @@ $soundBoxHeight: 12rem;
     display: flex;
     justify-content: flex-end;
     flex-direction: column;
-    margin: 0.25rem;
-    svg {
-      margin: 0.25rem;
+    margin: 0.3rem;
+    button {
+      margin: 0.2rem;
     }
   }
   .box {
@@ -2179,15 +2179,20 @@ $soundBoxHeight: 12rem;
           display: inline-flex;
           align-items: center;
         }
-        .timeBar {
-          background-color: hsla(0, 0%, 50%, 0.1);
-          height: 0.3rem;
+        .time {
+          box-sizing: border-box;
+          padding: 0.5rem 1rem;
           width: 100%;
-          display: flex;
-          justify-content: flex-start;
-          .time {
-            height: 100%;
-            background-color: var(--main-color);
+          .bar {
+            background-color: hsla(0, 0%, 50%, 0.1);
+            height: 0.3rem;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            .gage {
+              height: 100%;
+              background-color: var(--main-color);
+            }
           }
         }
       }

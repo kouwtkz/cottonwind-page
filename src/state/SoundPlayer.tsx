@@ -49,6 +49,7 @@ type SoundPlayerType = {
   loopMode: SoundLoopMode;
   shuffle: boolean;
   special: boolean;
+  duration: number;
   currentTime: number;
   prevReplayTime: number;
   Set: (args: Partial<SoundPlayerType>) => void;
@@ -65,7 +66,6 @@ type SoundPlayerType = {
   Prev: () => void;
   NextLoopMode: () => void;
   ToggleShuffle: () => void;
-  SetCurrentTime: (currentTime: number) => void;
 };
 
 export const useSoundPlayer = create<SoundPlayerType>((set) => ({
@@ -77,6 +77,7 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   loopMode: LoopModeList[0],
   shuffle: false,
   special: false,
+  duration: 0,
   currentTime: 0,
   prevReplayTime: 3,
   Set(args) {
@@ -180,9 +181,6 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   ToggleShuffle() {
     set((state) => ({ shuffle: !state.shuffle }));
   },
-  SetCurrentTime(currentTime) {
-    set({ currentTime });
-  },
 }));
 
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
@@ -198,7 +196,7 @@ export function SoundPlayer() {
     paused,
     ended,
     count,
-    SetCurrentTime,
+    Set,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -258,12 +256,15 @@ export function SoundPlayer() {
         break;
     }
   }, [loopMode, audioElm, Stop, listLength]);
-
+  useEffect(
+    () => Set({ duration: audioElm?.duration || 0 }),
+    [audioElm?.duration, Set]
+  );
   const onTimeUpdate = useCallback(() => {
     if (audioElm) {
-      SetCurrentTime(audioElm.currentTime);
+      Set({ currentTime: audioElm.currentTime });
     }
-  }, [audioElm, SetCurrentTime]);
+  }, [audioElm, Set]);
 
   const artwork = useMemo(
     () =>
@@ -280,7 +281,7 @@ export function SoundPlayer() {
 
   return (
     <>
-      <SoundFixed ref={audioRef} />
+      <SoundFixed />
       <MebtteMediaSession
         title={music.title}
         artist={music.artist}
@@ -304,10 +305,7 @@ export function SoundPlayer() {
   );
 }
 
-export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
-  c,
-  audioRef
-) {
+export function SoundFixed() {
   const { pathname } = useLocation();
   const {
     Play,
@@ -323,6 +321,8 @@ export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
     playlist,
     current,
     shuffle,
+    currentTime,
+    duration,
   } = useSoundPlayer();
   const sound = playlist.list[current];
   const title = sound?.title || null;
@@ -340,17 +340,12 @@ export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
     if (showBox) className.push("showBox");
     return className.join(" ");
   }, [showBox]);
-  const audioElm = (audioRef as React.RefObject<HTMLAudioElement>)?.current;
-  const duration = useMemo(() => audioElm?.duration || 0, [audioElm?.duration]);
-  const currentTime = useMemo(
-    () => audioElm?.currentTime || 1,
-    [audioElm?.currentTime]
-  );
   const currentPer = useMemo(
     () =>
-      new Intl.NumberFormat("ja", { style: "percent" }).format(
-        currentTime / duration
-      ),
+      new Intl.NumberFormat("ja", {
+        style: "percent",
+        maximumSignificantDigits: 3,
+      }).format(currentTime / duration),
     [currentTime, duration]
   );
 
@@ -425,9 +420,9 @@ export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
                   ? "♪ " + title
                   : "（たいきちゅう）"}
               </div>
-              <div>
-                <div className="timeBar">
-                  <div className="time" style={{ width: currentPer }} />
+              <div className="time">
+                <div className="bar">
+                  <div className="gage" style={{ width: currentPer }} />
                 </div>
               </div>
             </div>
@@ -436,4 +431,4 @@ export const SoundFixed = forwardRef<HTMLAudioElement>(function SoundFixed(
       ) : null}
     </>
   );
-});
+}
