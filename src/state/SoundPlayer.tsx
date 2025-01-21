@@ -35,19 +35,23 @@ type SoundPlayerType = {
   loopMode: SoundLoopMode;
   shuffle: boolean;
   special: boolean;
+  currentTime: number;
+  prevReplayTime: number;
+  Set: (args: Partial<SoundPlayerType>) => void;
   SetPaused: (paused: boolean) => void;
   SetEnded: (ended: boolean) => void;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   SetCurrent: (current: number) => void;
   SetLoopMode: (loopMode: SoundLoopMode, current?: number) => void;
   SetShuffle: (shuffle: boolean) => void;
-  Play: (args?: PlaylistRegistProps) => void;
+  Play: (args?: Partial<SoundPlayerType>) => void;
   Pause: () => void;
   Stop: () => void;
   Next: () => void;
   Prev: () => void;
   NextLoopMode: () => void;
   ToggleShuffle: () => void;
+  SetCurrentTime: (currentTime: number) => void;
 };
 
 export const useSoundPlayer = create<SoundPlayerType>((set) => ({
@@ -59,11 +63,16 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   loopMode: LoopModeList[0],
   shuffle: false,
   special: false,
+  currentTime: 0,
+  prevReplayTime: 3,
+  Set(args) {
+    set(args);
+  },
   SetPaused: (paused) => {
-    set(() => ({ paused }));
+    set({ paused });
   },
   SetEnded: (ended) => {
-    set(() => ({ ended }));
+    set({ ended });
   },
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
@@ -90,13 +99,16 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   },
   Play: (args = {}) => {
     set((state) => {
+      const { playlist, ...argsValue } = args;
       const value: Partial<SoundPlayerType> = {
-        paused: false,
-        ended: false,
-        count: 0,
+        ...{
+          paused: false,
+          ended: false,
+          count: 0,
+        },
+        ...argsValue,
       };
-      if (args.playlist) state.RegistPlaylist(args);
-      else if (args.current !== undefined) value.current = args.current;
+      if (playlist) state.RegistPlaylist({ playlist });
       return value;
     });
   },
@@ -131,7 +143,9 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   Prev: () => {
     set((state) => {
       let newState: Partial<SoundPlayerType>;
-      if (state.loopMode === "playUntilEnd" && state.current === 0) {
+      if (state.currentTime > state.prevReplayTime) {
+        newState = { current: state.current };
+      } else if (state.loopMode === "playUntilEnd" && state.current === 0) {
         newState = { current: state.current === 0 ? 0 : state.current - 1 };
       } else {
         const length = state.playlist.list.length;
@@ -152,6 +166,9 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   ToggleShuffle() {
     set((state) => ({ shuffle: !state.shuffle }));
   },
+  SetCurrentTime(currentTime) {
+    set({ currentTime });
+  },
 }));
 
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
@@ -160,8 +177,6 @@ export function SoundPlayer() {
   const {
     playlist,
     current,
-    Play,
-    Pause,
     loopMode,
     Prev,
     Next,
@@ -169,6 +184,7 @@ export function SoundPlayer() {
     paused,
     ended,
     count,
+    SetCurrentTime,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -182,6 +198,7 @@ export function SoundPlayer() {
     () => concatOriginUrl(mediaOrigin, src),
     [mediaOrigin, src]
   );
+
   const onPlay = useCallback(() => audioElm!.play(), [audioElm]);
   const onPause = useCallback(() => audioElm!.pause(), [audioElm]);
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
@@ -227,6 +244,13 @@ export function SoundPlayer() {
         break;
     }
   }, [loopMode, audioElm, Stop, listLength]);
+
+  const onTimeUpdate = useCallback(() => {
+    if (audioElm) {
+      SetCurrentTime(audioElm.currentTime);
+    }
+  }, [audioElm, SetCurrentTime]);
+
   const artwork = useMemo(
     () =>
       music.cover
@@ -259,13 +283,7 @@ export function SoundPlayer() {
       />
       <audio
         src={mediaSrc}
-        {...{ autoPlay, onEnded }}
-        onPlay={() => {
-          if (paused) Play();
-        }}
-        onPause={() => {
-          if (!audioElm!.ended && !paused) Pause();
-        }}
+        {...{ autoPlay, onEnded, onTimeUpdate }}
         ref={audioRef}
       />
     </>
