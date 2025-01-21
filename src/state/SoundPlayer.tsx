@@ -11,6 +11,7 @@ import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
 import { CreateState } from "./CreateState";
+import ReactSlider from "react-slider";
 
 import {
   MdOutlineMenu,
@@ -19,7 +20,6 @@ import {
   MdPlayArrow,
   MdStop,
 } from "react-icons/md";
-import { Slider } from "@/components/ui/slider";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -346,8 +346,8 @@ export function SoundFixed() {
     if (showBox) className.push("showBox");
     return className.join(" ");
   }, [showBox]);
-  const currentPer = useMemo(
-    () => Math.round((currentTime / (duration || 1)) * 100),
+  const currentPerT = useMemo(
+    () => Math.round((currentTime / (duration || 1)) * 1000),
     [currentTime, duration]
   );
 
@@ -423,21 +423,28 @@ export function SoundFixed() {
                   : "（たいきちゅう）"}
               </div>
               <div className="time">
-                <Slider
+                {" "}
+                <ReactSlider
+                  className="slider"
                   disabled={ended}
-                  width="100%"
-                  onValueChange={({ value }) => {
+                  thumbClassName="thumb"
+                  trackClassName="track"
+                  max={1000}
+                  value={[currentPerT]}
+                  onBeforeChange={() => {
                     if (!paused) Pause();
                   }}
-                  onValueChangeEnd={({ value }) => {
-                    const jumpTime =
-                      Math.round((duration * value[0]) / 10) / 10;
+                  onAfterChange={(value) => {
+                    const jump = Array.isArray(value) ? value[0] : value;
+                    const jumpTime = Math.round((duration * jump) / 100) / 10;
                     Play({
                       jumpTime,
                       currentTime: jumpTime,
                     });
                   }}
-                  value={[currentPer]}
+                  renderThumb={({ key, ...props }, state) => {
+                    return <div {...props} key="audio-slider-thumb" />;
+                  }}
                 />
               </div>
             </div>
