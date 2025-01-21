@@ -282,6 +282,7 @@ $miniDesktopWidth: 960px;
 $desktopWidth: 1280px;
 
 * {
+  margin: auto;
   -webkit-tap-highlight-color: var(--main-color-fluo);
   ::selection {
     background-color: var(--main-color-soft);
