@@ -27,7 +27,7 @@ export default function PostState() {
           time: v.time ? new Date(v.time) : undefined,
           lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
         };
-        const key = item.postId;
+        const key = item.postId || "";
         if (!postsMap.has(key)) {
           postsMap.set(key, item);
         }
