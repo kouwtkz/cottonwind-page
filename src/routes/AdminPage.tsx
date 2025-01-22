@@ -17,6 +17,8 @@ import { findMee } from "@/functions/find/findMee";
 import { useToastProgress } from "@/state/ToastProgress";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import { useSounds } from "@/state/SoundState";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -39,6 +41,7 @@ export function AdminPage() {
                 <Link to="images">画像管理ページ</Link>
                 <Link to="files">ファイル管理ページ</Link>
                 <Link to="zip">Zipアーカイブ</Link>
+                <Link to="db">データベース設定</Link>
                 <a href="/workers/logout">ログアウト</a>
               </>
             ) : null}
@@ -57,6 +60,8 @@ export function AdminDetailPage({ param }: { param: string }) {
       return <FilesManager />;
     case "zip":
       return <ZipPage />;
+    case "db":
+      return <DBPage />;
     default:
       return <></>;
   }
@@ -275,5 +280,51 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
     >
       {isAll ? `全ての${label}` : `最新の${label}${take}件`}
     </LinkButton>
+  );
+}
+
+function DBPage() {
+  const apiOrigin = useApiOrigin()[0];
+  return (
+    <>
+      <h2 className="color-main en-title-font">DB Setting</h2>
+      <h4>データベースの設定ページ</h4>
+      <div className="flex center column large">
+        <a
+          href="./"
+          onClick={(e) => {
+            e.preventDefault();
+            if (
+              confirm(
+                "互換用のプログラムです。\n" +
+                  "サーバーのデータベースに現在のテーブルの" +
+                  "バージョンを全て記録しますか？"
+              )
+            ) {
+              toast.promise(
+                axios
+                  .post(
+                    concatOriginUrl(
+                      apiOrigin,
+                      "data/update/write/table-version"
+                    ),
+                    {
+                      withCredentials: true,
+                    }
+                  )
+                  .then(() => {}),
+                {
+                  pending: "記録中",
+                  success: "記録しました",
+                  error: "送信に失敗しました",
+                }
+              );
+            }
+          }}
+        >
+          現在のテーブルのバージョンを全て記録する
+        </a>
+      </div>
+    </>
   );
 }

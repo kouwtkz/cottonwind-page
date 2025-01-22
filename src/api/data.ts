@@ -9,6 +9,17 @@ import { getDataWithoutPrefix } from "@/functions/stringFix";
 import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 import { ServerFilesGetData } from "./file";
 import { SiteFavLinkServer, SiteLinkServer } from "./links";
+import {
+  charactersDataOptions,
+  favLinksDataOptions,
+  filesDataOptions,
+  ImageDataOptions,
+  linksDataOptions,
+  postsDataOptions,
+  soundAlbumsDataOptions,
+  soundsDataOptions,
+} from "@/dataDef";
+import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -95,5 +106,33 @@ apps(
   ["links", "/links", SiteLinkServer.getData.bind(SiteLinkServer)],
   ["linksFav", "/links/fav", SiteFavLinkServer.getData.bind(SiteFavLinkServer)]
 );
+
+app.post("/update/write/table-version", async (c) => {
+  const list: StorageDataStateClassProps<unknown>[] = [
+    charactersDataOptions,
+    favLinksDataOptions,
+    filesDataOptions,
+    ImageDataOptions,
+    linksDataOptions,
+    postsDataOptions,
+    soundAlbumsDataOptions,
+    soundsDataOptions,
+  ];
+  const db = new MeeSqlD1(c.env.DB);
+  const lastmod = new Date().toISOString();
+  for (const options of list) {
+    if (options.oldServerKeys) {
+      let oldKey: string | undefined;
+      for (const table of options.oldServerKeys) {
+        if (await db.exists({ table })) { oldKey = table; break; }
+      }
+      if (oldKey) {
+        await db.renameTable({ from: oldKey, table: options.key, drop: true });
+      }
+    }
+    await UpdateTablesDataObject({ db, options, lastmod });
+  }
+  return c.body("");
+});
 
 export const app_data_api = app;

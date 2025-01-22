@@ -6,6 +6,8 @@ import { IsLogin } from "@/admin";
 import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
+import { UpdateTablesDataObject } from "./DBTablesObject";
+import { ImageDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -17,7 +19,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<ImageDataType>({
-  table: "images",
+  table: ImageDataOptions.key,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -66,7 +68,9 @@ export async function ServerImagesGetData(
     return TableObject.Select({ db, where: { AND: wheres } })
       .then(data => isLogin ? data : data.map(v => (v.draft || !v.version) ? { ...v, ...TableObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
+  return Select().catch(() => TableObject.CreateTable({ db })
+    .then(() => UpdateTablesDataObject({ db, options: ImageDataOptions }))
+    .then(() => Select()));
 }
 
 app.patch("/send", async (c, next) => {

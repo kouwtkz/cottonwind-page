@@ -13,13 +13,22 @@ interface importEntryDataType<T = unknown> extends dataBaseType<T> {
 
 type LoadStateType = boolean | CacheParamType;
 
-interface StorageDataStateClassProps<T> {
-  src: string;
+interface TableVersionProps {
   key: string;
-  version?: string;
+  version: string;
+  oldServerKeys?: string[];
+  oldClientKeys?: string[];
+}
+
+interface StorageDataStateClassProps<T> extends TableVersionProps {
+  src: string;
   preLoad?: LoadStateType;
   isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };
   lastmodField?: string;
   scheduleEnable?: boolean;
+}
+
+interface TableVersionEntryType extends TableVersionProps {
+  lastmod: string;
 }

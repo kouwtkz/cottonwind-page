@@ -54,6 +54,7 @@ export const linksDataOptions: StorageDataStateClassProps<SiteLinkData> = {
 export const favLinksDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   key: "linksFav",
   src: "/data/links/fav",
-  version: "1.0.1",
+  version: "1.0.2",
   preLoad: false,
+  oldServerKeys: ["favorite_links"]
 }

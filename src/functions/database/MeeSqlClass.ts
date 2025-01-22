@@ -261,7 +261,7 @@ export class MeeSqlClass<T> {
     return this.db.exec(MeeSqlClass.createIndexSQL<K>(args));
   }
   async dropTable({ table, viewSql }: MeeSqlBaseProps) {
-    const sql = `DROP TABLE \`${table}\``;
+    const sql = `DROP TABLE IF EXISTS \`${table}\``;
     if (viewSql) console.log("SQL: ", sql);
     return this.db.exec(sql);
   }
@@ -270,10 +270,22 @@ export class MeeSqlClass<T> {
     if (viewSql) console.log("SQL: ", sql);
     return this.db.exec(sql);
   }
-  async renameTable({ table, from, viewSql }: MeeSqlRenameTableProps) {
+  async renameTable({ table, from, drop, viewSql }: MeeSqlRenameTableProps) {
     const sql = `ALTER TABLE \`${from}\` RENAME TO \`${table}\``;
+    if (drop) await this.dropTable({ table });
     if (viewSql) console.log("SQL: ", sql);
     return this.db.exec(sql);
+  }
+  async masterSelect(args: Omit<MeeSqlSelectProps<SqliteMasterType>, "table">) {
+    const table = "sqlite_master";
+    return this.select({ table, ...args });
+  }
+  async exists({ table, viewSql }: MeeSqlBaseProps) {
+    return (await this.masterSelect({ take: 1, viewSql, where: { name: table, type: "table" } })).length > 0
+  }
+  async exec(sql: string, bind?: any[]) {
+    const stmt = this.db.prepare(sql);
+    return (bind ? stmt.bind(...bind) : stmt).all() as Promise<D1Result<any>>;
   }
 }
 

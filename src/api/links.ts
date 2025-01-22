@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
-import { PromiseOrder } from "@/functions/arrayFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
-import { getBasename } from "@/functions/doc/PathParse";
+import { UpdateTablesDataObject } from "./DBTablesObject";
+import { favLinksDataOptions, linksDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -54,7 +54,9 @@ export class SiteLinkServerClass {
       return ThisObject.Select({ db, where: { AND: wheres } })
         .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...ThisObject.getFillNullEntry, key: null } : v));
     }
-    return Select().catch(() => ThisObject.CreateTable({ db }).then(() => Select()));
+    return Select().catch(() => ThisObject.CreateTable({ db })
+      .then(() => UpdateTablesDataObject({ db, options: linksDataOptions }))
+      .then(() => Select()));
   }
   apps() {
     const app = new Hono<MeeBindings<MeeCommonEnv>>({
@@ -137,9 +139,9 @@ export class SiteLinkServerClass {
   }
 }
 
-export const SiteLinkServer = new SiteLinkServerClass("links");
+export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions.key);
 app.route("/", SiteLinkServer.apps());
-export const SiteFavLinkServer = new SiteLinkServerClass("favorite_links");
+export const SiteFavLinkServer = new SiteLinkServerClass(favLinksDataOptions.key);
 app.route("/fav", SiteFavLinkServer.apps());
 
 export const app_links_api = app;

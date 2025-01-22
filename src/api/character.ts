@@ -2,13 +2,15 @@ import { Hono } from "hono";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
+import { UpdateTablesDataObject } from "./DBTablesObject";
+import { charactersDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 
 const TableObject = new DBTableClass<CharacterDataType>({
-  table: "characters",
+  table: charactersDataOptions.key,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -52,7 +54,9 @@ export async function ServerCharactersGetData(searchParams: URLSearchParams, db:
     return TableObject.Select({ db, where: { AND: wheres } })
       .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...TableObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
+  return Select().catch(() => TableObject.CreateTable({ db })
+    .then(() => UpdateTablesDataObject({ db, options: charactersDataOptions }))
+    .then(() => Select()));
 }
 
 app.post("/send", async (c, next) => {

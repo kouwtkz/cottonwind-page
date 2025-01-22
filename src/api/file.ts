@@ -3,13 +3,15 @@ import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { getBasename } from "@/functions/doc/PathParse";
+import { UpdateTablesDataObject } from "./DBTablesObject";
+import { filesDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
 });
 
 const TableObject = new DBTableClass<FilesRecordDataType>({
-  table: "files",
+  table: filesDataOptions.key,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -40,7 +42,9 @@ export async function ServerFilesGetData(searchParams: URLSearchParams, db: MeeS
     return ThisObject.Select({ db, where: { AND: wheres } })
       .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...ThisObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => ThisObject.CreateTable({ db }).then(() => Select()));
+  return Select().catch(() => TableObject.CreateTable({ db })
+    .then(() => UpdateTablesDataObject({ db, options: filesDataOptions }))
+    .then(() => Select()));
 }
 
 app.patch("/send", async (c, next) => {

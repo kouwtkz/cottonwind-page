@@ -56,6 +56,9 @@ export class DBTableClass<T extends Object = any> {
   }: Omit<MeeSqlBaseProps, "table"> & { db: D }) {
     return db.dropTable({ table: this.table, viewSql }).catch(() => { });
   }
+  async Rename<D extends MeeSqlClass<unknown>>({ db, from, table, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D, from?: string, table: string }) {
+    return db.renameTable({ from: from ?? this.table, table, viewSql }).catch(() => { });
+  }
   getInsertEntry(
     data: { [k in keyof T]?: any },
     options?: getInsertEntryOptionsProps<T>

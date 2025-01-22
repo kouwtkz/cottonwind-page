@@ -5,7 +5,4 @@ export class MeeSqlD1 extends MeeSqlClass<D1Database> {
     const result = await super.select(args) as unknown as D1Result;
     return result.results as K[];
   }
-  async exists<K>(args: MeeSqlSelectProps<K>) {
-    return (await this.select<K>({...args, take: 1})).length > 0
-  }
 }

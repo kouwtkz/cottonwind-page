@@ -79,6 +79,7 @@ interface MeeSqlDropIndexProps extends Omit<MeeSqlBaseProps, "table"> {
 }
 interface MeeSqlRenameTableProps extends MeeSqlBaseProps {
   from: string;
+  drop?: boolean;
 }
 
 interface MeeSqlDBProps {
@@ -91,4 +92,12 @@ interface MeeSqlPrepareState {
   run(): unknown;
   all(): unknown;
   [k: string]: unknown;
+}
+
+interface SqliteMasterType {
+  type: "table" | "index",
+  name: string,
+  tbl_name: string,
+  rootpage: number,
+  sql: string | null;
 }

@@ -3,6 +3,8 @@ import { autoPostId } from "@/functions/blogFunction";
 import { IsLogin } from "@/admin";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
+import { postsDataOptions } from "@/dataDef";
+import { UpdateTablesDataObject } from "./DBTablesObject";
 
 export const app = new Hono<MeeBindings>();
 
@@ -12,7 +14,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<PostDataType>({
-  table: "posts",
+  table: postsDataOptions.key,
   createEntry: {
     id: { primary: true },
     postId: { type: "TEXT", unique: true, notNull: true },
@@ -43,7 +45,9 @@ export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeS
     return TableObject.Select({ db, where: { AND: wheres } })
       .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...TableObject.getFillNullEntry, key: null } : v));
   }
-  return Select().catch(() => TableObject.CreateTable({ db }).then(() => Select()));
+  return Select().catch(() => TableObject.CreateTable({ db })
+    .then(() => UpdateTablesDataObject({ db, options: postsDataOptions }))
+    .then(() => Select()));
 }
 
 export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
