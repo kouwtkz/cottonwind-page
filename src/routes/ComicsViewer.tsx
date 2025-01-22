@@ -3,13 +3,10 @@ import { useImageState } from "@/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
 import { GalleryObject } from "@/routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
-import ePub from "epubjs";
 import { useSearchParams } from "react-router-dom";
 import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useFilesMap } from "@/state/FileState";
-// const { default: ComicViewer } = await import("react-comic-viewer");
-// const { default: ePub } = await import("epubjs");
 
 interface ePubMetadataType {
   title?: string;
@@ -69,42 +66,45 @@ export function EPubViewer({ src }: { src: string }) {
     return file?.src ? concatOriginUrl(mediaOrigin, file.src) : undefined;
   }, [mediaOrigin, src, filesMap]);
   useEffect(() => {
-    if (!url || !backRenderElm.current) return;
-    const book = ePub(url);
-    const rendition = book.renderTo(backRenderElm.current);
-    rendition.display().then(() => {
-      setMetadata(book.packaging.metadata);
-      const resources = book.resources as any;
-      if ("assets" in resources) {
-        const assets = resources.assets as any[];
-        Promise.all(
-          assets
-            .filter(({ type }) => type !== "text/css")
-            .map(
-              (item) =>
-                new Promise<any>((resolve) => {
-                  (resources.get(item.href) as Promise<string>).then((url) => {
-                    resolve({ url, ...item });
-                  });
-                })
-            )
-        ).then((newAssets) => {
-          const pages = newAssets.map(({ type, url, href }, i) =>
-            type.startsWith("image") ? (
-              url
-            ) : (
-              <iframe
-                style={{ width: "100%", height: "100%", margin: "auto" }}
-                title={href}
-                key={i}
-                src={url}
-              />
-            )
-          );
-          setSrcList(pages);
-        });
-      }
-    });
+    (async () => {
+      if (!url || !backRenderElm.current) return;
+      const ePub = (await import("epubjs")).default;
+      const book = ePub(url);
+      const rendition = book.renderTo(backRenderElm.current);
+      rendition.display().then(() => {
+        setMetadata(book.packaging.metadata);
+        const resources = book.resources as any;
+        if ("assets" in resources) {
+          const assets = resources.assets as any[];
+          Promise.all(
+            assets
+              .filter(({ type }) => type !== "text/css")
+              .map(
+                (item) =>
+                  new Promise<any>((resolve) => {
+                    (resources.get(item.href) as Promise<string>).then((url) => {
+                      resolve({ url, ...item });
+                    });
+                  })
+              )
+          ).then((newAssets) => {
+            const pages = newAssets.map(({ type, url, href }, i) =>
+              type.startsWith("image") ? (
+                url
+              ) : (
+                <iframe
+                  style={{ width: "100%", height: "100%", margin: "auto" }}
+                  title={href}
+                  key={i}
+                  src={url}
+                />
+              )
+            );
+            setSrcList(pages);
+          });
+        }
+      });
+    })();
   }, [url]);
   return (
     <>
