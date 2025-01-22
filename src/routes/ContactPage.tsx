@@ -25,6 +25,7 @@ export default function ContactPage() {
             onClick={() => {
               CopyWithToast(env.EMAIL!);
             }}
+            className="font-larger"
           >
             {env.EMAIL.replace("@", "🐏")}
           </a>

@@ -246,19 +246,23 @@ textarea,
   font-style: normal;
 }
 
+$mobileWidth: 520px;
+$tabletWidth: 768px;
+$miniDesktopWidth: 960px;
+$desktopWidth: 1280px;
+
 :root {
   font-family: "Nunito", "Kosugi Maru", sans-serif;
+  font-size: medium;
+  @media (min-width: $tabletWidth) {
+    font-size: large;
+  }
 }
 
 .en-title-font {
   @include LexendZetta(700);
   letter-spacing: normal;
 }
-
-$mobileWidth: 520px;
-$tabletWidth: 768px;
-$miniDesktopWidth: 960px;
-$desktopWidth: 1280px;
 
 * {
   -webkit-tap-highlight-color: var(--main-color-fluo);
@@ -1012,13 +1016,16 @@ h4 {
 }
 
 .font-small {
-  font-size: small;
+  font-size: 0.75em;
 }
 .font-medium {
-  font-size: medium;
+  font-size: 1em;
 }
 .font-large {
-  font-size: large;
+  font-size: 1.25em;
+}
+.font-larger {
+  font-size: 1.5em;
 }
 .font-bold {
   font-weight: bold;
