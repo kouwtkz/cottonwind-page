@@ -248,42 +248,46 @@ export function UploadToast<T = unknown>(promise: Promise<T>) {
 }
 
 interface ImportToastOption extends Omit<PromiseOrderOptions, "sync"> {}
-export async function ImportToast(
+export function ImportToast(
   fetchList: (() => Promise<Response>)[],
   options: ImportToastOption = {}
 ) {
   const id = toast.loading("インポート中…", toastLoadingOptions);
   let max = fetchList.length;
-  return PromiseOrder(fetchList, {
-    minTime: 200,
-    ...options,
-    sync(i) {
-      if (id && i && max) {
-        toast.update(id, {
-          progress: i / max,
+  return new Promise<void>((resolve, reject) => {
+    PromiseOrder(fetchList, {
+      minTime: 200,
+      ...options,
+      sync(i) {
+        if (id && i && max) {
+          toast.update(id, {
+            progress: i / max,
+          });
+        }
+      },
+    })
+      .then(async (r) => {
+        const rs = Array.isArray(r) ? r : [r];
+        if (rs.every((r) => r.ok)) return r;
+        else throw await rs.find((r) => !r.ok)!.text();
+      })
+      .then((r) => {
+        toast.update(id!, {
+          ...toastUpdateOptions,
+          render: unknownToString(r) || "インポートしました",
+          type: "success",
         });
-      }
-    },
-  })
-    .then(async (r) => {
-      const rs = Array.isArray(r) ? r : [r];
-      if (rs.every((r) => r.ok)) return r;
-      else throw await rs.find((r) => !r.ok)!.text();
-    })
-    .then((r) => {
-      toast.update(id!, {
-        ...toastUpdateOptions,
-        render: unknownToString(r) || "インポートしました",
-        type: "success",
+        resolve();
+      })
+      .catch((e) => {
+        toast.update(id!, {
+          ...toastUpdateOptions,
+          render: "インポートに失敗しました" + (e ? `\n[${e}]` : ""),
+          type: "error",
+        });
+        reject();
       });
-    })
-    .catch((e) => {
-      toast.update(id!, {
-        ...toastUpdateOptions,
-        render: "インポートに失敗しました" + (e ? `\n[${e}]` : ""),
-        type: "error",
-      });
-    });
+  });
 }
 
 interface DataUploadBaseProps {
@@ -334,7 +338,7 @@ export async function ImportImagesJson({
   overwrite,
   json,
 }: ImportImagesJsonProps = {}) {
-  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
     let data: importEntryImageDataType[];
     const versionStr: string = json.version || "0";
@@ -428,7 +432,7 @@ export async function ImportCharacterJson({
   partition,
   json,
 }: DataUploadBaseProps = {}) {
-  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
     let data: importEntryCharacterDataType[];
     const version = json.version;
@@ -466,7 +470,7 @@ export async function ImportPostJson({
   partition,
   json,
 }: DataUploadBaseProps = {}) {
-  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryPostDataType>;
     let data: importEntryPostDataType[];
     const version = json.version;
@@ -524,7 +528,7 @@ export async function ImportLinksJson({
   dir = "",
   json,
 }: ImportLinksJsonProps = {}) {
-  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<SiteLinkData>;
     let data: SiteLinkData[];
     const { data: _data, ..._entry } = json as dataBaseType<SiteLinkData>;

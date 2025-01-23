@@ -380,8 +380,7 @@ function DBPage() {
                         );
                         return;
                     }
-                  })
-                  .filter((v) => v) as Promise<unknown>[];
+                  });
                 Promise.all(list)
                   .then(() => {
                     return toast.promise(
