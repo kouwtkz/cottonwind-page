@@ -9,6 +9,7 @@ export class StorageDataStateClass<T extends Object = {}> {
   key: string;
   src: string;
   version: string;
+  idField: string;
   useData = CreateState<T[]>();
   useLoad: CreateStateFunctionType<LoadStateType | undefined>;
   latestField?: { [k in keyof T]: OrderByType };
@@ -17,20 +18,24 @@ export class StorageDataStateClass<T extends Object = {}> {
   beforeLastmod?: Date;
   scheduleEnable: boolean;
   private _isLogin?: boolean;
+  static GetVersion(version: string, { isLogin }: { isLogin?: boolean } = {}) {
+    return setSuffix(
+      version,
+      isLogin ? "login" : ""
+    )
+  }
   get isLogin() {
     return this._isLogin;
   }
   set isLogin(isLogin) {
     this._isLogin = isLogin;
-    this.storage.Version = setSuffix(
-      this.version,
-      this._isLogin ? "login" : ""
-    );
+    this.storage.Version = StorageDataStateClass.GetVersion(this.version, { isLogin: this._isLogin });
   }
   constructor({
     src,
     key,
     version = "1",
+    idField = "id",
     preLoad,
     isLogin,
     latestField,
@@ -38,9 +43,10 @@ export class StorageDataStateClass<T extends Object = {}> {
     scheduleEnable = true
   }: StorageDataStateClassProps<T>) {
     this.version = version;
+    this.idField = idField.toString();
     this.key = key;
     this.storage = new StorageDataClass(key);
-    this.src = src;
+    this.src = "/data" + src;
     this.useLoad = CreateState(preLoad);
     this.latestField = latestField as { [k in keyof T]: OrderByType };
     this.lastmodField = lastmodField;
@@ -81,7 +87,7 @@ export class StorageDataStateClass<T extends Object = {}> {
   async setData({
     data,
     setState,
-    id = "id",
+    id = this.idField,
     lastmod = this.lastmodField,
   }: storageReadDataProps<T>) {
     if (!data) return;

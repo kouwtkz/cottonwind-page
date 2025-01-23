@@ -1,7 +1,8 @@
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass } from "./DBTableClass";
+import { TableVersionDataOptions } from "@/dataDef";
 
-export const TablesObject = new DBTableClass<TableVersionEntryType>({
+export const TableObject = new DBTableClass<TableVersionEntryType>({
   table: "tables",
   createEntry: {
     key: { primary: true, type: "TEXT" },
@@ -24,16 +25,16 @@ export async function UpdateTablesDataObject({
   ...args
 }: UpdateTablesDataObjectProps) {
   const value = (
-    await TablesObject.Select({ db, where: { key: options.key }, ...args })
+    await TableObject.Select({ db, where: { key: options.key }, ...args })
   )[0];
   if (!value) {
-    await TablesObject.Insert({
+    await TableObject.Insert({
       db,
       entry: { key: options.key, version: options.version },
       ...args,
     });
   } else if (value.version !== options.version) {
-    await TablesObject.Update({
+    await TableObject.Update({
       db,
       where: {
         key: options.key,
@@ -47,4 +48,21 @@ export async function UpdateTablesDataObject({
   }
 }
 
-export const TablesDataObject = TablesObject;
+export async function ServerTableVersionGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+  const ThisObject = TableObject;
+  const wheres: MeeSqlFindWhereType<FilesRecordDataType>[] = [];
+  const lastmod = searchParams.get("lastmod");
+  if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
+  const key = searchParams.get("key");
+  if (key) wheres.push({ key });
+  const id = searchParams.get("id");
+  if (id) wheres.push({ id: Number(id) });
+  async function Select() {
+    return ThisObject.Select({ db, where: { AND: wheres } })
+  }
+  return Select().catch(() => TableObject.CreateTable({ db })
+    .then(() => UpdateTablesDataObject({ db, options: TableVersionDataOptions }))
+    .then(() => Select()));
+}
+
+export const TablesDataObject = TableObject;

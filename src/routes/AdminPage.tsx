@@ -3,7 +3,7 @@ import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import { filesDataObject } from "@/state/DataState";
+import { allDataLoadState, filesDataObject } from "@/state/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
 import { useFiles } from "@/state/FileState";
@@ -285,6 +285,7 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
 
 function DBPage() {
   const apiOrigin = useApiOrigin()[0];
+  const setAllLoad = allDataLoadState()[1];
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -298,7 +299,7 @@ function DBPage() {
               confirm(
                 "互換用のプログラムです。\n" +
                   "サーバーのデータベースに現在のテーブルの" +
-                  "バージョンを全て記録しますか？"
+                  "バージョンを全て更新しますか？"
               )
             ) {
               toast.promise(
@@ -306,13 +307,15 @@ function DBPage() {
                   .post(
                     concatOriginUrl(
                       apiOrigin,
-                      "data/update/write/table-version"
+                      "data/tables/update"
                     ),
                     {
                       withCredentials: true,
                     }
                   )
-                  .then(() => {}),
+                  .then(() => {
+                    setAllLoad(true);
+                  }),
                 {
                   pending: "記録中",
                   success: "記録しました",
@@ -322,7 +325,7 @@ function DBPage() {
             }
           }}
         >
-          現在のテーブルのバージョンを全て記録する
+          現在のテーブルのバージョンを全て更新する
         </a>
       </div>
     </>

@@ -11,15 +11,16 @@ import { ServerFilesGetData } from "./file";
 import { SiteFavLinkServer, SiteLinkServer } from "./links";
 import {
   charactersDataOptions,
-  favLinksDataOptions,
+  linksFavDataOptions,
   filesDataOptions,
   ImageDataOptions,
   linksDataOptions,
   postsDataOptions,
   soundAlbumsDataOptions,
   soundsDataOptions,
+  TableVersionDataOptions,
 } from "@/dataDef";
-import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
+import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -54,8 +55,7 @@ app.get("*", async (c, next) => {
 
 function apps(
   ...list: [
-    key: string,
-    path: string,
+    options: StorageDataStateClassProps<any>,
     (
       searchParams: URLSearchParams,
       db: MeeSqlD1,
@@ -63,8 +63,8 @@ function apps(
     ) => Promise<any>
   ][]
 ) {
-  list.forEach(([key, path, getData]) => {
-    app.get(path, async (c) => {
+  list.forEach(([{ src }, getData]) => {
+    app.get(src, async (c) => {
       return c.json(
         await getData(
           new URL(c.req.url).searchParams,
@@ -82,7 +82,7 @@ function apps(
     return c.json(
       Object.fromEntries(
         await Promise.all(
-          list.map(async ([key, path, getData]) => [
+          list.map(async ([{ key }, getData]) => [
             key,
             await getData(
               new URLSearchParams(getDataWithoutPrefix(key, query)),
@@ -97,20 +97,21 @@ function apps(
 }
 
 apps(
-  ["images", "/images", ServerImagesGetData],
-  ["characters", "/characters", ServerCharactersGetData],
-  ["posts", "/posts", ServerPostsGetData],
-  ["sounds", "/sounds", ServerSoundsGetData],
-  ["soundAlbums", "/soundAlbums", ServerSoundAlbumsGetData],
-  ["files", "/files", ServerFilesGetData],
-  ["links", "/links", SiteLinkServer.getData.bind(SiteLinkServer)],
-  ["linksFav", "/links/fav", SiteFavLinkServer.getData.bind(SiteFavLinkServer)]
+  [ImageDataOptions, ServerImagesGetData],
+  [charactersDataOptions, ServerCharactersGetData],
+  [postsDataOptions, ServerPostsGetData],
+  [soundsDataOptions, ServerSoundsGetData],
+  [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
+  [filesDataOptions, ServerFilesGetData],
+  [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
+  [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
+  [TableVersionDataOptions, ServerTableVersionGetData],
 );
 
-app.post("/update/write/table-version", async (c) => {
-  const list: StorageDataStateClassProps<unknown>[] = [
+app.post("/tables/update", async (c) => {
+  const list: StorageDataStateClassProps<any>[] = [
     charactersDataOptions,
-    favLinksDataOptions,
+    linksFavDataOptions,
     filesDataOptions,
     ImageDataOptions,
     linksDataOptions,

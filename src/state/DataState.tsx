@@ -27,14 +27,39 @@ import {
 import { SendLinksDir } from "@/routes/edit/LinksEdit";
 import {
   charactersDataOptions,
-  favLinksDataOptions,
+  linksFavDataOptions,
   filesDataOptions,
   ImageDataOptions,
   linksDataOptions,
   postsDataOptions,
   soundAlbumsDataOptions,
   soundsDataOptions,
+  TableVersionDataOptions,
 } from "@/dataDef";
+
+export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
+
+const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
+[
+  ImageDataOptions,
+  charactersDataOptions,
+  postsDataOptions,
+  soundsDataOptions,
+  soundAlbumsDataOptions,
+  filesDataOptions,
+  linksDataOptions,
+  linksFavDataOptions,
+].forEach((options) => {
+  SdsOptionsMap.set(options.key, options);
+});
+
+// テーブルのバージョンをローカルに保存しているものに合わせる
+tableVersionDataObject.storage.data?.forEach(({ key, version }) => {
+  const options = SdsOptionsMap.get(key);
+  if (options && version) {
+    options.version = version;
+  }
+});
 
 export const imageDataObject = new SdsClass(ImageDataOptions);
 export const charactersDataObject = new SdsClass(charactersDataOptions);
@@ -44,13 +69,14 @@ export const soundAlbumsDataObject = new SdsClass(soundAlbumsDataOptions);
 export const filesDataObject = new SdsClass(filesDataOptions);
 export const linksDataObject = new SdsClass(linksDataOptions);
 export const favLinksDataObject = new SdsClass<SiteLinkData>(
-  favLinksDataOptions
+  linksFavDataOptions
 );
 
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
 
 const DataObjectList: SdsClass<any>[] = [
+  tableVersionDataObject,
   imageDataObject,
   charactersDataObject,
   postsDataObject,
@@ -61,9 +87,16 @@ const DataObjectList: SdsClass<any>[] = [
   favLinksDataObject,
 ];
 
+const DataObjectMap = new Map<string, SdsClass<any>>();
+DataObjectList.forEach((obj) => {
+  DataObjectMap.set(obj.key, obj);
+});
+const DataObjectSetMap = new Map<string, setStateFunction<any>>();
+
 export function DataState() {
   const isLogin = useIsLogin()[0];
   const [settedIsLogin, setSettedIsLogin] = useState(false);
+  const [isReload, setReload] = useState(false);
   useEffect(() => {
     if (typeof isLogin !== "undefined") {
       DataObjectList.forEach((object) => {
@@ -94,34 +127,14 @@ export function DataState() {
       }
     }, [settedIsLogin, apiOrigin, load, setLoad, setData]);
   }
-
-  SdsClassSetData(imageDataObject);
-  const setImagesData = imageDataObject.useData()[1];
-
-  SdsClassSetData(charactersDataObject);
-  const setCharactersData = charactersDataObject.useData()[1];
-
-  SdsClassSetData(postsDataObject);
-  const setPostsData = postsDataObject.useData()[1];
-
-  SdsClassSetData(soundsDataObject);
-  const setSoundsData = soundsDataObject.useData()[1];
-
-  SdsClassSetData(soundAlbumsDataObject);
-  const setSoundAlbumsData = soundAlbumsDataObject.useData()[1];
-
-  SdsClassSetData(filesDataObject);
-  const setFilesData = filesDataObject.useData()[1];
-
-  SdsClassSetData(linksDataObject);
-  const setLinksData = linksDataObject.useData()[1];
-
-  SdsClassSetData(favLinksDataObject);
-  const setFavLinksData = favLinksDataObject.useData()[1];
+  DataObjectList.forEach((obj) => {
+    SdsClassSetData(obj);
+    DataObjectSetMap.set(obj.key, obj.useData()[1]);
+  });
 
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
-    if (settedIsLogin && apiOrigin && allLoad) {
+    if (settedIsLogin && apiOrigin && (allLoad || isReload)) {
       const Url = new URL(
         concatOriginUrl(apiOrigin || location.origin, allDataSrc)
       );
@@ -135,61 +148,65 @@ export function DataState() {
           prefix: dataObject.key,
         });
       }
-      function SetData<T extends object>(
+      async function SetData<T extends object>(
         dataObject: SdsClass<T>,
         v: unknown[] | KeyValueType<unknown>,
         setState: setStateFunction<T>
       ) {
         const data = (Array.isArray(v) ? v : v[dataObject.key]) as T[];
-        return (
-          dataObject.setData({
-            data,
-            setState,
-          }),
-          dataObject.setSearchParamsOption({
-            searchParams: Url.searchParams,
-            loadValue: allLoad,
-            prefix: dataObject.key,
-          })
-        );
+        await dataObject.setData({
+          data,
+          setState,
+        });
+        return dataObject.setSearchParamsOption({
+          searchParams: Url.searchParams,
+          loadValue: allLoad,
+          prefix: dataObject.key,
+        });
       }
       DataObjectList.forEach((object) => {
         SetSearchParamsOption(object);
       });
       if (cache) Url.searchParams.set("cache", cache);
+      let enableReload = false;
       corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
       })
         .then(async (r) => (await r.json()) as KeyValueType<unknown[]>)
         .then(async (v) => {
-          return Promise.all([
-            SetData(imageDataObject, v, setImagesData),
-            SetData(charactersDataObject, v, setCharactersData),
-            SetData(postsDataObject, v, setPostsData),
-            SetData(soundsDataObject, v, setSoundsData),
-            SetData(soundAlbumsDataObject, v, setSoundAlbumsData),
-            SetData(filesDataObject, v, setFilesData),
-            SetData(linksDataObject, v, setLinksData),
-            SetData(favLinksDataObject, v, setFavLinksData),
-          ]);
+          const tablesKey = tableVersionDataObject.key;
+          const tableObject = DataObjectMap.get(tablesKey);
+          if (tableObject)
+            await SetData(tableObject, v, DataObjectSetMap.get(tablesKey)!);
+          tableVersionDataObject.storage.data?.forEach((item) => {
+            const options = SdsOptionsMap.get(item.key);
+            if (options && options.version !== item.version && !isReload) {
+              enableReload = true;
+            }
+          });
+          const SdsEntry = Object.fromEntries(DataObjectMap);
+          if (tableVersionDataObject.key in SdsEntry)
+            delete SdsEntry[tableVersionDataObject.key];
+          const SdsList = Object.values(SdsEntry);
+          const SetDataList = SdsList.map((obj) =>
+            SetData(obj, v, DataObjectSetMap.get(obj.key)!)
+          );
+          return Promise.all(SetDataList);
         })
         .then(() => {
           setAllLoad(false);
+          if (isReload) setReload(false);
+          else if (enableReload) setReload(true);
         });
     }
   }, [
     settedIsLogin,
     apiOrigin,
     allLoad,
+    isReload,
+    setReload,
     setAllLoad,
-    setImagesData,
-    setCharactersData,
-    setPostsData,
-    setSoundsData,
-    setSoundAlbumsData,
-    setFilesData,
-    setLinksData,
-    setFavLinksData,
+    DataObjectMap,
   ]);
   return <></>;
 }

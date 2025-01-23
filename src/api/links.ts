@@ -4,7 +4,7 @@ import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { favLinksDataOptions, linksDataOptions } from "@/dataDef";
+import { linksFavDataOptions, linksDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -141,7 +141,7 @@ export class SiteLinkServerClass {
 
 export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions.key);
 app.route("/", SiteLinkServer.apps());
-export const SiteFavLinkServer = new SiteLinkServerClass(favLinksDataOptions.key);
+export const SiteFavLinkServer = new SiteLinkServerClass(linksFavDataOptions.key);
 app.route("/fav", SiteFavLinkServer.apps());
 
 export const app_links_api = app;

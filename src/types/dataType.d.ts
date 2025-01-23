@@ -22,6 +22,7 @@ interface TableVersionProps {
 
 interface StorageDataStateClassProps<T> extends TableVersionProps {
   src: string;
+  idField?: keyof T | "id" | "rowid";
   preLoad?: LoadStateType;
   isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };
