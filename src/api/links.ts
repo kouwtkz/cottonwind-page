@@ -3,7 +3,7 @@ import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
-import { UpdateTablesDataObject } from "./DBTablesObject";
+import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 import { linksFavDataOptions, linksDataOptions } from "@/dataDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
@@ -15,6 +15,10 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
+interface SiteLinkServerClassProps extends StorageDataStateClassProps<SiteLinkData> {
+  table?: string;
+  album?: string;
+}
 export class SiteLinkServerClass {
   static template: DBTableClassTemplateProps<SiteLinkData> = {
     createEntry: {
@@ -34,12 +38,15 @@ export class SiteLinkServerClass {
   };
   object: DBTableClass<SiteLinkData>;
   album?: string;
-  constructor(table: string, options?: { album?: string }) {
+  options: StorageDataStateClassProps<SiteLinkData>;
+  constructor({ table, album, ...options }: SiteLinkServerClassProps) {
+    if (!table) table = options.key;
     this.object = new DBTableClass({
       table,
       ...SiteLinkServerClass.template
     });
-    this.album = options?.album;
+    this.options = options;
+    this.album = album;
   }
   async getData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
     const ThisObject = this.object;
@@ -91,6 +98,7 @@ export class SiteLinkServerClass {
     });
     app.post("/import", async (c, next) => {
       const db = new MeeSqlD1(c.env.DB);
+      const lastmod = new Date().toISOString();
       const object = await c.req.json() as importEntryDataType<CharacterDataType>;
       if (object.data) {
         if (object.overwrite && object.first) {
@@ -103,6 +111,7 @@ export class SiteLinkServerClass {
           for (const item of list) {
             await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
           }
+          await TablesDataObject.Update({ db, where: { key: this.options.key }, entry: { version: this.options.version, lastmod } });
           return c.text("インポートしました！")
         }
       }
@@ -139,9 +148,9 @@ export class SiteLinkServerClass {
   }
 }
 
-export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions.key);
+export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions);
 app.route("/", SiteLinkServer.apps());
-export const SiteFavLinkServer = new SiteLinkServerClass(linksFavDataOptions.key);
+export const SiteFavLinkServer = new SiteLinkServerClass(linksFavDataOptions);
 app.route("/fav", SiteFavLinkServer.apps());
 
 export const app_links_api = app;

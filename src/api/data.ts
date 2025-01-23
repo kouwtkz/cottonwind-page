@@ -120,8 +120,9 @@ app.post("/tables/update", async (c) => {
     soundsDataOptions,
   ];
   const db = new MeeSqlD1(c.env.DB);
-  const lastmod = new Date().toISOString();
+  const lastmodTime = new Date();
   for (const options of list) {
+    const lastmod = lastmodTime.toISOString();
     if (options.oldServerKeys) {
       let oldKey: string | undefined;
       for (const table of options.oldServerKeys) {
@@ -132,6 +133,7 @@ app.post("/tables/update", async (c) => {
       }
     }
     await UpdateTablesDataObject({ db, options, lastmod });
+    lastmodTime.setMilliseconds(lastmodTime.getMilliseconds() + 1);
   }
   return c.body("");
 });

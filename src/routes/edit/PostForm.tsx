@@ -502,7 +502,7 @@ export function PostForm() {
                   break;
                 case "download":
                   if (confirm("記事データを一括で取得しますか？")) {
-                    DownloadDataObject(postsDataObject, { key: "postId" });
+                    DownloadDataObject(postsDataObject);
                   }
                   break;
                 case "upload":

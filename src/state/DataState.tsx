@@ -39,7 +39,7 @@ import {
 
 export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
 
-const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
+export const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
 [
   ImageDataOptions,
   charactersDataOptions,
@@ -57,7 +57,10 @@ const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
 tableVersionDataObject.storage.data?.forEach(({ key, version }) => {
   const options = SdsOptionsMap.get(key);
   if (options && version) {
-    options.version = version;
+    if (options.version !== version) {
+      options.newVersion = options.version;
+      options.version = version;
+    }
   }
 });
 
@@ -75,7 +78,7 @@ export const favLinksDataObject = new SdsClass<SiteLinkData>(
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
 
-const DataObjectList: SdsClass<any>[] = [
+export const DataObjectList: SdsClass<any>[] = [
   tableVersionDataObject,
   imageDataObject,
   charactersDataObject,
@@ -87,7 +90,7 @@ const DataObjectList: SdsClass<any>[] = [
   favLinksDataObject,
 ];
 
-const DataObjectMap = new Map<string, SdsClass<any>>();
+export const DataObjectMap = new Map<string, SdsClass<any>>();
 DataObjectList.forEach((obj) => {
   DataObjectMap.set(obj.key, obj);
 });
@@ -134,17 +137,18 @@ export function DataState() {
 
   const [allLoad, setAllLoad] = allDataLoadState();
   useEffect(() => {
-    if (settedIsLogin && apiOrigin && (allLoad || isReload)) {
+    const isLoading = allLoad || isReload;
+    if (settedIsLogin && apiOrigin && isLoading) {
       const Url = new URL(
         concatOriginUrl(apiOrigin || location.origin, allDataSrc)
       );
-      const cache = SdsClass.getCacheOption(allLoad);
+      const cache = SdsClass.getCacheOption(isLoading);
       function SetSearchParamsOption<T extends object>(
         dataObject: SdsClass<T>
       ) {
         dataObject.setSearchParamsOption({
           searchParams: Url.searchParams,
-          loadValue: allLoad,
+          loadValue: isLoading,
           prefix: dataObject.key,
         });
       }
@@ -160,11 +164,16 @@ export function DataState() {
         });
         return dataObject.setSearchParamsOption({
           searchParams: Url.searchParams,
-          loadValue: allLoad,
+          loadValue: isLoading,
           prefix: dataObject.key,
         });
       }
       DataObjectList.forEach((object) => {
+        if (isReload && object.options.newVersion) {
+          const nv = object.options.newVersion;
+          object.storage.Version = SdsClass.GetVersion(nv, { isLogin });
+          delete object.options.newVersion;
+        }
         SetSearchParamsOption(object);
       });
       if (cache) Url.searchParams.set("cache", cache);
@@ -176,8 +185,9 @@ export function DataState() {
         .then(async (v) => {
           const tablesKey = tableVersionDataObject.key;
           const tableObject = DataObjectMap.get(tablesKey);
-          if (tableObject)
+          if (tableObject) {
             await SetData(tableObject, v, DataObjectSetMap.get(tablesKey)!);
+          }
           tableVersionDataObject.storage.data?.forEach((item) => {
             const options = SdsOptionsMap.get(item.key);
             if (options && options.version !== item.version && !isReload) {
@@ -200,6 +210,7 @@ export function DataState() {
         });
     }
   }, [
+    isLogin,
     settedIsLogin,
     apiOrigin,
     allLoad,
@@ -278,6 +289,7 @@ export async function ImportToast(
 interface DataUploadBaseProps {
   apiOrigin?: string;
   partition?: number;
+  json?: any;
 }
 
 interface makeImportFetchListProps<T = unknown> extends DataUploadBaseProps {
@@ -320,8 +332,9 @@ export async function ImportImagesJson({
   charactersMap,
   partition,
   overwrite,
+  json,
 }: ImportImagesJsonProps = {}) {
-  return jsonFileDialog().then(async (json) => {
+  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryImageDataType>;
     let data: importEntryImageDataType[];
     const versionStr: string = json.version || "0";
@@ -413,8 +426,9 @@ type importEntryCharacterDataType = Omit<
 export async function ImportCharacterJson({
   apiOrigin,
   partition,
+  json,
 }: DataUploadBaseProps = {}) {
-  return jsonFileDialog().then(async (json) => {
+  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryCharacterDataType>;
     let data: importEntryCharacterDataType[];
     const version = json.version;
@@ -450,8 +464,9 @@ type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
 export async function ImportPostJson({
   apiOrigin,
   partition,
+  json,
 }: DataUploadBaseProps = {}) {
-  return jsonFileDialog().then((json) => {
+  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<importEntryPostDataType>;
     let data: importEntryPostDataType[];
     const version = json.version;
@@ -507,8 +522,9 @@ export async function ImportLinksJson({
   apiOrigin,
   partition,
   dir = "",
+  json,
 }: ImportLinksJsonProps = {}) {
-  return jsonFileDialog().then((json) => {
+  (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
     let object: importEntryDataType<SiteLinkData>;
     let data: SiteLinkData[];
     const { data: _data, ..._entry } = json as dataBaseType<SiteLinkData>;

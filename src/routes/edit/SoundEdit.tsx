@@ -46,7 +46,7 @@ export function SoundEditButton() {
             title="サウンドデータのダウンロード"
             onClick={() => {
               if (confirm("音楽のJSONデータをダウンロードしますか？"))
-                DownloadDataObject(soundsDataObject, { time: null });
+                DownloadDataObject(soundsDataObject);
             }}
           >
             <MdFileDownload />

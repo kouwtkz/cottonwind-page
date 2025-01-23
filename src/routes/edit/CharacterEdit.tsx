@@ -585,7 +585,7 @@ export function CharaEditButton() {
             title="キャラデータのダウンロード"
             onClick={() => {
               if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
-                DownloadDataObject(charactersDataObject, { time: null });
+                DownloadDataObject(charactersDataObject);
             }}
           >
             <MdFileDownload />

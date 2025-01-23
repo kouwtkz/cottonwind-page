@@ -3,7 +3,15 @@ import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
-import { allDataLoadState, filesDataObject } from "@/state/DataState";
+import {
+  allDataLoadState,
+  DataObjectMap,
+  filesDataObject,
+  ImportCharacterJson,
+  ImportImagesJson,
+  ImportLinksJson,
+  ImportPostJson,
+} from "@/state/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
 import { useFiles } from "@/state/FileState";
@@ -19,6 +27,16 @@ import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import { useSounds } from "@/state/SoundState";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { JsonFromDataObject } from "@/components/button/ObjectDownloadButton";
+import {
+  charactersDataOptions,
+  ImageDataOptions,
+  linksDataOptions,
+  linksFavDataOptions,
+  postsDataOptions,
+  soundsDataOptions,
+} from "@/dataDef";
+import { useCharactersMap } from "@/state/CharacterState";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -286,6 +304,7 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
 function DBPage() {
   const apiOrigin = useApiOrigin()[0];
   const setAllLoad = allDataLoadState()[1];
+  const charactersMap = useCharactersMap()[0];
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -295,33 +314,94 @@ function DBPage() {
           href="./"
           onClick={(e) => {
             e.preventDefault();
-            if (
-              confirm(
-                "互換用のプログラムです。\n" +
-                  "サーバーのデータベースに現在のテーブルの" +
-                  "バージョンを全て更新しますか？"
-              )
-            ) {
-              toast.promise(
-                axios
-                  .post(
-                    concatOriginUrl(
-                      apiOrigin,
-                      "data/tables/update"
-                    ),
-                    {
-                      withCredentials: true,
+            const list = Object.values(Object.fromEntries(DataObjectMap));
+            const newVersions = list.filter(
+              ({ options }) => options.newVersion
+            );
+            if (newVersions.length === 0) {
+              toast("データベースは最新です");
+            } else {
+              const count = newVersions.length;
+              const strList = newVersions.map((v) => v.key).join(", ");
+              let updateString = `データベースのテーブルの更新が${count}件(${strList})あります！\n`;
+              const needAlterTableList = newVersions.filter((v) => {
+                const m = v.options.version.match(/\d+.\d+/);
+                const nm = v.options.newVersion!.match(/\d+.\d+/);
+                return m && nm && m[0] !== nm[0];
+              });
+              if (needAlterTableList.length > 0) {
+                const count = needAlterTableList.length;
+                const strList = needAlterTableList.map((v) => v.key).join(", ");
+                updateString =
+                  updateString +
+                  `そのうち${count}件(${strList})は` +
+                  `テーブルを作り直す必要があります。\n`;
+              }
+              if (
+                confirm(
+                  updateString + "データベースのテーブルを全て更新しますか？"
+                )
+              ) {
+                const list = needAlterTableList
+                  .map(async (dataObject) => {
+                    const json = JsonFromDataObject(dataObject);
+                    switch (dataObject.key) {
+                      case ImageDataOptions.key:
+                        return ImportImagesJson({
+                          apiOrigin,
+                          charactersMap,
+                          overwrite: true,
+                          json,
+                        });
+                      case charactersDataOptions.key:
+                        return ImportCharacterJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case postsDataOptions.key:
+                        return ImportPostJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case linksDataOptions.key:
+                        return ImportLinksJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case linksFavDataOptions.key:
+                        return ImportLinksJson({
+                          apiOrigin,
+                          json,
+                          dir: "/fav",
+                        });
+                      default:
+                        toast(
+                          `${dataObject.key}は現在インポートの実装待ちです…`
+                        );
+                        return;
                     }
-                  )
+                  })
+                  .filter((v) => v) as Promise<unknown>[];
+                Promise.all(list)
+                  .then(() => {
+                    return toast.promise(
+                      axios.post(
+                        concatOriginUrl(apiOrigin, "data/tables/update"),
+                        {
+                          withCredentials: true,
+                        }
+                      ),
+                      {
+                        pending: "送信中",
+                        success: "更新しました！",
+                        error: "送信に失敗しました",
+                      }
+                    );
+                  })
                   .then(() => {
                     setAllLoad(true);
-                  }),
-                {
-                  pending: "記録中",
-                  success: "記録しました",
-                  error: "送信に失敗しました",
-                }
-              );
+                  });
+              }
             }
           }}
         >

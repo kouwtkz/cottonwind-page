@@ -3,20 +3,18 @@ import { HTMLAttributes, ReactNode, Ref } from "react";
 import { MdFileDownload } from "react-icons/md";
 import { fileDownload } from "../FileTool";
 
-interface DownloadDataObjectOptions<K> {
-  id?: K;
-  key?: K | K[];
-  time?: K;
-}
-export function DownloadDataObject<T extends object>(
+export function JsonFromDataObject<T extends object>(
   dataObject: StorageDataStateClass<T>,
-  options: DownloadDataObjectOptions<keyof T | null> = {}
+  options: JsonFromDataObjectOptions<keyof T | null> = {}
 ) {
   const {
     id = "id",
     key = "key",
     time = "time",
-  } = options as DownloadDataObjectOptions<string | null>;
+  } = {
+    ...options,
+    ...dataObject.options.jsonFromDataOptions,
+  } as JsonFromDataObjectOptions<string | null>;
   let data = (dataObject.storage.data?.concat() || []) as any[];
   if (key) {
     const keys = Array.isArray(key) ? key : [key];
@@ -29,11 +27,16 @@ export function DownloadDataObject<T extends object>(
   }
   if (time)
     data.sort((a, b) => (a[time] > b[time] ? 1 : a[time] < b[time] ? -1 : 0));
-  const object = {
-    ...dataObject.storage,
-    data,
-  };
-  fileDownload(dataObject.storage.key + ".json", JSON.stringify(object));
+  return { ...dataObject.storage, data };
+}
+export function DownloadDataObject<T extends object>(
+  dataObject: StorageDataStateClass<T>,
+  options?: JsonFromDataObjectOptions<keyof T | null>
+) {
+  fileDownload(
+    dataObject.storage.key + ".json",
+    JSON.stringify(JsonFromDataObject(dataObject, options))
+  );
 }
 
 function Confirm(defaultMessage: string, beforeConfirm?: string | boolean) {
@@ -52,12 +55,12 @@ export interface BaseObjectButtonProps<E = HTMLButtonElement>
 }
 export interface ImportObjectButtonProps<E = HTMLButtonElement>
   extends BaseObjectButtonProps<E> {
-    overwrite?: boolean;
+  overwrite?: boolean;
 }
 interface ObjectDownloadButtonProps<T extends object>
   extends BaseObjectButtonProps {
   dataObject: StorageDataStateClass<T>;
-  options?: DownloadDataObjectOptions<keyof T | null>;
+  options?: JsonFromDataObjectOptions<keyof T | null>;
 }
 export function ObjectDownloadButton<T extends object>({
   beforeConfirm = true,

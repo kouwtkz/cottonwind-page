@@ -6,6 +6,7 @@ import { concatOriginUrl } from "../originUrl";
 
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
+  options: StorageDataStateClassProps<T>;
   key: string;
   src: string;
   version: string;
@@ -31,17 +32,19 @@ export class StorageDataStateClass<T extends Object = {}> {
     this._isLogin = isLogin;
     this.storage.Version = StorageDataStateClass.GetVersion(this.version, { isLogin: this._isLogin });
   }
-  constructor({
-    src,
-    key,
-    version = "1",
-    idField = "id",
-    preLoad,
-    isLogin,
-    latestField,
-    lastmodField = "lastmod",
-    scheduleEnable = true
-  }: StorageDataStateClassProps<T>) {
+  constructor(options: StorageDataStateClassProps<T>) {
+    this.options = options;
+    const {
+      src,
+      key,
+      version = "1",
+      idField = "id",
+      preLoad,
+      isLogin,
+      latestField,
+      lastmodField = "lastmod",
+      scheduleEnable = true
+    } = options;
     this.version = version;
     this.idField = idField.toString();
     this.key = key;
@@ -72,7 +75,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     const Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
     this.setSearchParamsOption({
       searchParams: Url.searchParams,
-      loadValue: loadValue,
+      loadValue,
     });
     const cache = StorageDataStateClass.getCacheOption(loadValue);
     const isCacheReload = cache !== "no-cache-reload";

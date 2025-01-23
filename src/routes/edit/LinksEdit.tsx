@@ -319,7 +319,6 @@ export function LinksEditButtons({
             <ObjectDownloadButton
               className="squared item text-left"
               dataObject={dataObject}
-              options={{ key: ["title", "url", "image"] }}
             >
               JSONデータのダウンロード
             </ObjectDownloadButton>

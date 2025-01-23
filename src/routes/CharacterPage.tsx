@@ -282,66 +282,68 @@ function CharaListPage() {
   return (
     <>
       <CharaSearchArea />
-      {parts.map(({ label, items }, i) => {
-        return (
-          <>
-            {label ? <h2 className="color-main">{label}</h2> : null}
-            <ul className="charaList" key={i}>
-              {move ? (
-                <Movable
-                  items={items}
-                  Inner={Inner}
-                  submit={move === 2}
-                  onSubmit={(items) => {
-                    const dirty = items
-                      .map((item, i) => ({
-                        ...item,
-                        newOrder: i + 1,
-                      }))
-                      .filter((item) => {
-                        return item.newOrder !== item.order;
-                      })
-                      .map(({ key, newOrder }) => {
-                        return { target: key, order: newOrder };
-                      });
-                    if (dirty.length > 0) {
-                      toast.promise(
-                        axios
-                          .post(
-                            concatOriginUrl(apiOrigin, "character/send"),
-                            dirty,
-                            {
-                              withCredentials: true,
-                            }
-                          )
-                          .then(() => {
-                            setCharactersLoad("no-cache");
-                            setMove(0);
-                          }),
-                        {
-                          pending: "送信中",
-                          success: "送信しました",
-                          error: "送信に失敗しました",
-                        }
-                      );
-                    } else {
-                      setMove(0);
-                    }
-                  }}
-                />
-              ) : (
-                <>
-                  {items.map((chara, i) => (
-                    <li key={i}>
-                      <Inner item={chara} />
-                    </li>
-                  ))}
-                </>
-              )}
-            </ul>
-          </>
-        );
-      })}
+      {parts
+        .filter(({ items }) => items.length > 0)
+        .map(({ label, items }, i) => {
+          return (
+            <div key={i}>
+              {label ? <h2 className="color-main">{label}</h2> : null}
+              <ul className="charaList">
+                {move ? (
+                  <Movable
+                    items={items}
+                    Inner={Inner}
+                    submit={move === 2}
+                    onSubmit={(items) => {
+                      const dirty = items
+                        .map((item, i) => ({
+                          ...item,
+                          newOrder: i + 1,
+                        }))
+                        .filter((item) => {
+                          return item.newOrder !== item.order;
+                        })
+                        .map(({ key, newOrder }) => {
+                          return { target: key, order: newOrder };
+                        });
+                      if (dirty.length > 0) {
+                        toast.promise(
+                          axios
+                            .post(
+                              concatOriginUrl(apiOrigin, "character/send"),
+                              dirty,
+                              {
+                                withCredentials: true,
+                              }
+                            )
+                            .then(() => {
+                              setCharactersLoad("no-cache");
+                              setMove(0);
+                            }),
+                          {
+                            pending: "送信中",
+                            success: "送信しました",
+                            error: "送信に失敗しました",
+                          }
+                        );
+                      } else {
+                        setMove(0);
+                      }
+                    }}
+                  />
+                ) : (
+                  <>
+                    {items.map((chara, i) => (
+                      <li key={i}>
+                        <Inner item={chara} />
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
+            </div>
+          );
+        })}
     </>
   );
 }

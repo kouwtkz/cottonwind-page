@@ -12,6 +12,7 @@ export const charactersDataOptions: StorageDataStateClassProps<CharacterDataType
   version: "1.5.0",
   preLoad: false,
   latestField: { id: "desc" },
+  jsonFromDataOptions: { time: null },
 }
 
 export const postsDataOptions: StorageDataStateClassProps<PostDataType> = {
@@ -20,6 +21,7 @@ export const postsDataOptions: StorageDataStateClassProps<PostDataType> = {
   version: "1.4.0",
   preLoad: false,
   latestField: { time: "desc" },
+  jsonFromDataOptions: { key: "postId" },
 }
 
 export const soundsDataOptions: StorageDataStateClassProps<SoundDataType> = {
@@ -28,6 +30,7 @@ export const soundsDataOptions: StorageDataStateClassProps<SoundDataType> = {
   version: "1.3.1",
   preLoad: false,
   latestField: { time: "desc" },
+  jsonFromDataOptions: { time: null },
 }
 
 export const soundAlbumsDataOptions: StorageDataStateClassProps<SoundAlbumDataType> = {
@@ -44,11 +47,14 @@ export const filesDataOptions: StorageDataStateClassProps<FilesRecordDataType> =
   preLoad: false,
 }
 
+const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromDataObjectOptions<keyof SiteLinkData>;
+
 export const linksDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   key: "links",
   src: "/links",
   version: "1.0.0",
   preLoad: false,
+  jsonFromDataOptions: linksJsonFromDataOptions
 }
 
 export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
@@ -56,7 +62,8 @@ export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   src: "/links/fav",
   version: "1.0.2",
   preLoad: false,
-  oldServerKeys: ["favorite_links"]
+  oldServerKeys: ["favorite_links"],
+  jsonFromDataOptions: linksJsonFromDataOptions
 }
 
 export const TableVersionDataOptions: StorageDataStateClassProps<TableVersionEntryType> = {
