@@ -8,39 +8,9 @@
       "command": "npm run dev"
     },
     {
-      "name": "dev media",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev-media"
-    },
-    {
-      "name": "dev-ssl",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev-ssl"
-    },
-    {
-      "name": "dev media-ssl",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev-media-ssl"
-    },
-    {
-      "name": "start",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm start"
-    },
-    {
       "name": "Launch Chrome",
       "type": "chrome",
       "url": "http://localhost:51730",
-      "request": "launch"
-    },
-    {
-      "name": "Launch Chrome SSL",
-      "type": "chrome",
-      "url": "https://localhost:51730",
       "request": "launch"
     },
     {
@@ -55,22 +25,6 @@
     {
       "name": "Chrome dev",
       "configurations": ["Launch Chrome", "dev"]
-    },
-    {
-      "name": "Chrome dev with media",
-      "configurations": ["Launch Chrome", "dev", "dev media"]
-    },
-    {
-      "name": "Chrome dev with media ssl-mode",
-      "configurations": ["Launch Chrome SSL", "dev-ssl", "dev media-ssl"]
-    },
-    {
-      "name": "Firefox dev with media",
-      "configurations": ["Launch Firefox", "dev", "dev media"]
-    },
-    {
-      "name": "Chrome start with media",
-      "configurations": ["Launch Chrome", "start", "dev media"]
     }
   ]
 }
