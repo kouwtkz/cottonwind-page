@@ -68,10 +68,6 @@ export const useCharacterPageState = create<CharacterStateTypeProps>(
 function CharacterPageState() {
   const searchParams = useSearchParams()[0];
   const isLogin = useIsLogin()[0];
-  const tags = useMemo(
-    () => searchParams.get("tags")?.split(","),
-    [searchParams]
-  );
   const filters = useMemo(
     () => searchParams.get("filter")?.split(","),
     [searchParams]
@@ -80,7 +76,13 @@ function CharacterPageState() {
     () => isLogin || filters?.some((v) => v === "showAll"),
     [filters, isLogin]
   );
-  const text = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+  const text = useMemo(() => {
+    const textArray: Array<string> = [];
+    if (searchParams.has("q")) textArray.push(searchParams.get("q")!);
+    if (searchParams.has("tags"))
+      textArray.push("tags:" + searchParams.get("tags")!);
+    return textArray.join(" ");
+  }, [searchParams]);
   const whereOptions = useMemo(
     () =>
       setWhere<CharacterType>(text, {
@@ -93,18 +95,6 @@ function CharacterPageState() {
   );
   const { orderBy } = whereOptions;
   const wheres = useMemo(() => [whereOptions.where], [whereOptions.where]);
-  const tagsWhere = useMemo(() => {
-    if (tags)
-      return {
-        AND: tags.map((tag) => ({
-          tags: {
-            contains: tag,
-          },
-        })),
-      };
-    else return null;
-  }, [tags]);
-  if (tagsWhere) wheres.push(tagsWhere);
   const filterDraft = useMemo(
     () => filters?.some((v) => v === "draft"),
     [filters]
@@ -136,8 +126,8 @@ function CharacterPageState() {
   }, [sortParam, orderBy]);
   const { set } = useCharacterPageState();
   useEffect(() => {
-    set({ filters, orderBySort, showAll, tagsWhere, where });
-  }, [set, filters, orderBySort, showAll, tagsWhere, where]);
+    set({ filters, orderBySort, showAll, where });
+  }, [set, filters, orderBySort, showAll, where]);
   return <></>;
 }
 
@@ -206,14 +196,14 @@ export const CharaListItem = memo(function CharaListItem({
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const characters = useCharacters()[0];
-  const { filters, orderBySort, showAll, tagsWhere, where } =
-    useCharacterPageState();
+  const { filters, orderBySort, showAll, where } = useCharacterPageState();
   const { state } = useLocation();
 
   const parts = useMemo(() => {
     let items = characters
       ? findMee([...characters], { where, orderBy: orderBySort })
       : [];
+    console.log(items, where);
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts = [] as { label?: string; items: CharacterType[] }[];
     let sortType: OrderByType | undefined;
@@ -267,7 +257,6 @@ function CharaListPage() {
         state={{
           ...(state ?? {}),
           characterSort: orderBySort,
-          charaTagsWhere: tagsWhere,
           charaFilters: filters,
           backUrl: location.href,
         }}
