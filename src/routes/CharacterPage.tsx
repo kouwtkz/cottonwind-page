@@ -47,6 +47,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { charactersDataObject } from "@/state/DataState";
 import { create } from "zustand";
 import { getInitialString } from "@/functions/InitialString";
+import { TbColumns2, TbColumns3 } from "react-icons/tb";
 
 interface CharacterStateType {
   filters?: string[];
@@ -193,11 +194,13 @@ export const CharaListItem = memo(function CharaListItem({
   );
 });
 
+const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const characters = useCharacters()[0];
   const { filters, orderBySort, showAll, where } = useCharacterPageState();
   const { state } = useLocation();
+  const extendMode = useExtendMode()[0];
 
   const parts = useMemo(() => {
     let items = characters
@@ -268,6 +271,11 @@ function CharaListPage() {
     ),
     [move]
   );
+  const charaListClassName = useMemo(() => {
+    const classList = ["charaList"];
+    if (extendMode) classList.push("extend");
+    return classList.join(" ");
+  }, [extendMode]);
   return (
     <>
       <CharaSearchArea />
@@ -277,7 +285,7 @@ function CharaListPage() {
           return (
             <div key={i}>
               {label ? <h2 className="color-main">{label}</h2> : null}
-              <ul className="charaList">
+              <ul className={charaListClassName}>
                 {move ? (
                   <Movable
                     items={items}
@@ -562,6 +570,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const { state } = useLocation();
   const isLogin = useIsLogin()[0];
   const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
+  const [extendMode, setExtendMode] = useExtendMode();
   function setConfirmUrl() {
     nav(location, {
       replace: true,
@@ -632,6 +641,16 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
 
   return (
     <div className="header">
+      <button
+        type="button"
+        title="切り替え"
+        className="iconSwitch"
+        onClick={() => {
+          setExtendMode(!extendMode);
+        }}
+      >
+        {extendMode ? <TbColumns3 /> : <TbColumns2 />}
+      </button>
       <input
         name="q"
         type="search"

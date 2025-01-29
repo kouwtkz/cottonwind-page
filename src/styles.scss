@@ -1711,6 +1711,16 @@ form {
     margin: 0 auto;
     width: 95%;
     @include GridList("li", 2, $tabletWidth, $desktopWidth);
+    &.extend {
+      @include GridList(
+        "li",
+        4,
+        $mobileWidth,
+        $tabletWidth,
+        $miniDesktopWidth,
+        $desktopWidth
+      );
+    }
     li .item {
       display: flex;
       flex-direction: column;
