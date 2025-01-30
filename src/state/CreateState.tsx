@@ -1,21 +1,22 @@
-import { atom, PrimitiveAtom, useAtom } from "jotai";
-import { SetStateAction } from "react";
+import { create } from "zustand";
 
-export type CreateStateFunctionType<T> = (() => [
-  Awaited<T>,
-  SetAtom<[SetStateAction<T>], void>
-]) & {
-  atom?: PrimitiveAtom<T>;
-};
-type SetAtom<Args extends unknown[], Result> = (...args: Args) => Result;
-
+export type CreateStateFunctionType<T> = () => [T | undefined, (t?: T) => void];
 export function CreateState<T = unknown>(): CreateStateFunctionType<
   T | undefined
 >;
 export function CreateState<T = unknown>(value: T): CreateStateFunctionType<T>;
-export function CreateState<T = unknown>(value?: T) {
-  const atomValue = atom(value);
-  const f: CreateStateFunctionType<T | undefined> = () => useAtom(atomValue);
-  f.atom = atomValue;
-  return f;
+
+export function CreateState<T = unknown>(v?: T): CreateStateFunctionType<T> {
+  const useState = create<{ v: T | undefined; Set: (v?: T) => void }>(
+    (set) => ({
+      v,
+      Set(v) {
+        set({ v });
+      },
+    })
+  );
+  return () => {
+    const state = useState();
+    return [state.v, state.Set];
+  };
 }

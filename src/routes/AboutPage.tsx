@@ -171,7 +171,7 @@ export default function AboutPage() {
               </li>
               <li>
                 <span className="label">状態管理</span>
-                <span>zustand, jotai</span>
+                <span>zustand</span>
               </li>
               <li>
                 <span className="label">プレイヤー</span>

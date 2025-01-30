@@ -4,7 +4,7 @@ import { CreateState } from "./CreateState";
 const useLang = CreateState<string>();
 
 export function LangState() {
-  const [lang, setLang] = useLang();
+  const setLang = useLang()[1];
   useLayoutEffect(() => {
     const html = document.querySelector("html")!;
     setLang(html.lang);

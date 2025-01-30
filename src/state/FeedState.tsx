@@ -1,13 +1,13 @@
-import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 import { useApiOrigin } from "./EnvState";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { CreateState } from "./CreateState";
 
-export const outFeedAtom = atom<FeedContentType>();
+export const useOutFeed = CreateState<FeedContentType>();
 
 export function FeedState() {
-  const setOutFeed = useAtom(outFeedAtom)[1];
+  const setOutFeed = useOutFeed()[1];
   const apiOrigin = useApiOrigin()[0];
   useEffect(() => {
     if (apiOrigin) {
@@ -26,7 +26,7 @@ export function FeedState() {
 }
 
 export function NoteView() {
-  const outFeed = useAtom(outFeedAtom)[0];
+  const outFeed = useOutFeed()[0];
   const { title, link, list } = outFeed ?? {};
   if (!outFeed) return <></>;
   return (

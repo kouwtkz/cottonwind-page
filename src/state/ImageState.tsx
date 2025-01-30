@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import { useAtom } from "jotai";
-import { useEnv } from "./EnvState";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/media/imageFunction";
 import { create } from "zustand";
