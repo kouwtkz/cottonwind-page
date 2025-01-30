@@ -792,6 +792,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       [q, tags, characters]
     );
     const { state, key } = useLocation();
+    const nav = useNavigate();
     const isModal = searchParams.get("modal") === "gallery";
     const setSelectedImage = useSelectedImage()[1];
     const imageOnClick = isModal
@@ -854,11 +855,11 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       }
       return classes.join(" ");
     }, [item]);
-    const ShorMoreButton = useMemo(
-      () => (
-        <Link
-          to={location.href}
-          state={{
+    const ShowMore = useCallback(() => {
+      nav(
+        {},
+        {
+          state: {
             ...state,
             ...{
               galleryMax: {
@@ -866,17 +867,12 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                 [name]: curMax + step,
               },
             },
-          }}
-          preventScrollReset={true}
-          replace={true}
-          title="もっと見る"
-          className="item"
-        >
-          <MoreButton className="gallery-button-more" />
-        </Link>
-      ),
-      [state, key]
-    );
+          },
+          replace: true,
+          preventScrollReset: true,
+        }
+      );
+    }, [state, nav]);
     const GalleryContent = useMemo(
       () =>
         isComplete ? (
@@ -891,7 +887,18 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
                   key={image.key}
                 />
               ))}
-            {showMoreButton ? ShorMoreButton : null}
+            {showMoreButton ? (
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  ShowMore();
+                }}
+                title="もっと見る"
+                className="item"
+              >
+                <MoreButton className="gallery-button-more" />
+              </a>
+            ) : null}
           </div>
         ) : (
           <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
