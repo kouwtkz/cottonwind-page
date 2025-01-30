@@ -873,9 +873,21 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
         }
       );
     }, [state, nav]);
-    const GalleryContent = useMemo(
-      () =>
-        isComplete ? (
+    const _className = useMemo(() => {
+      const list = ["galleryContainer"];
+      if (className) list.push(className);
+      return list.join(" ");
+    }, [className]);
+    return (
+      <div {...args} ref={ref} className={_className}>
+        {h2 || h4 ? (
+          <div className="galleryLabel outLabel">
+            {h2 ? <h2>{h2}</h2> : null}
+            {h4 ? <h4>{h4}</h4> : null}
+          </div>
+        ) : null}
+        {GalleryLabel}
+        {isComplete ? (
           <div className={listClassName}>
             {list
               .filter((_, i) => i < visibleMax)
@@ -902,32 +914,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
           </div>
         ) : (
           <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
-        ),
-      [
-        listClassName,
-        isComplete,
-        list,
-        visibleMax,
-        curMax,
-        step,
-        showMoreButton,
-      ]
-    );
-    const _className = useMemo(() => {
-      const list = ["galleryContainer"];
-      if (className) list.push(className);
-      return list.join(" ");
-    }, [className]);
-    return (
-      <div {...args} ref={ref} className={_className}>
-        {h2 || h4 ? (
-          <div className="galleryLabel outLabel">
-            {h2 ? <h2>{h2}</h2> : null}
-            {h4 ? <h4>{h4}</h4> : null}
-          </div>
-        ) : null}
-        {GalleryLabel}
-        {GalleryContent}
+        )}
       </div>
     );
   }
