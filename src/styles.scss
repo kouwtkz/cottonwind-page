@@ -1712,6 +1712,7 @@ form {
     width: 95%;
     @include GridList("li", 2, $tabletWidth, $desktopWidth);
     &.extend {
+      font-size: 0.625rem;
       @include GridList(
         "li",
         4,
@@ -1724,10 +1725,10 @@ form {
     li .item {
       display: flex;
       flex-direction: column;
-      font-size: 1.25rem;
+      font-size: 1.25em;
       text-decoration-line: none;
       color: var(--main-color);
-      padding: 1rem;
+      padding: 0.75em;
       .inner {
         position: relative;
         img {
@@ -1737,11 +1738,6 @@ form {
           top: 0;
           left: 0;
           object-fit: cover;
-          // display: block;
-          // margin: auto;
-          // max-width: 95%;
-          // width: 100%;
-          // border: dashed 1px silver;
           &.noimage {
             background-color: var(--main-color-pale-grayish);
           }
@@ -1759,13 +1755,11 @@ form {
       .name {
         text-align: center;
         display: block;
-        margin: 0.5rem auto;
+        margin: 0.5em auto 0;
         max-width: 90%;
       }
-    }
-    @media (min-width: $tabletWidth) {
-      li .item {
-        font-size: 1.5rem;
+      @media (min-width: $tabletWidth) {
+        font-size: 1.5em;
       }
     }
     @media (min-width: $desktopWidth) {
