@@ -206,7 +206,6 @@ function CharaListPage() {
     let items = characters
       ? findMee([...characters], { where, orderBy: orderBySort })
       : [];
-    console.log(items, where);
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts = [] as { label?: string; items: CharacterType[] }[];
     let sortType: OrderByType | undefined;
