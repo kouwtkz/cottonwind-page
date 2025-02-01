@@ -122,6 +122,15 @@
   }
 }
 
+@keyframes SimpleGageAnim {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @include CursorKeyflame(
   "default",
   "/static/images/cursor/わたかぜくんカーソル_通常_00.cur"
@@ -1633,6 +1642,15 @@ footer {
   .dummy {
     height: 100%;
     background-color: var(--main-color-grayish-fluo);
+  }
+  .gage {
+    height: 0.75rem;
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+    animation: SimpleGageAnim linear;
+    opacity: 0.25;
+    background-color: var(--background-bw);
   }
 }
 

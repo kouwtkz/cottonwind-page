@@ -126,7 +126,7 @@ function PostsView() {
 }
 
 const useTopImageFirst = CreateState(true);
-export function HomeImage() {
+export function HomeImage({ interval = 10000 }: { interval?: number }) {
   const { imageAlbums } = useImageState();
   const images = useMemo(
     () => imageAlbums?.get("main")?.list ?? [],
@@ -175,9 +175,9 @@ export function HomeImage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setRndTopImage();
-    }, 10000);
+    }, interval);
     return () => clearInterval(timer);
-  });
+  }, [setRndTopImage, interval]);
   const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();
   const toStatehandler = useCallback(
@@ -217,6 +217,12 @@ export function HomeImage() {
                 imageItem={topImage}
                 loading="eager"
                 className="image"
+              />
+              <div
+                className="gage"
+                style={{
+                  animationDuration: interval + "ms",
+                }}
               />
             </Link>
           </CSSTransition>
