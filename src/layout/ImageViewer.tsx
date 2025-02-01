@@ -154,6 +154,11 @@ function InfoArea({ image }: InfoAreaProps) {
                   const search = createSearchParams(
                     item.query ?? { tags: item.value ?? "" }
                   );
+                  switch (item.name) {
+                    case "monthly":
+                      search.set("monthMode", "tag");
+                      break;
+                  }
                   return (
                     <Link
                       to={new URL("?" + search.toString(), tagsBaseURL).href}
