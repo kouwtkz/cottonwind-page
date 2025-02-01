@@ -791,7 +791,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
       () => Boolean(q || tags || characters),
       [q, tags, characters]
     );
-    const { state, key } = useLocation();
+    const { state, search, hash } = useLocation();
     const nav = useNavigate();
     const isModal = searchParams.get("modal") === "gallery";
     const setSelectedImage = useSelectedImage()[1];
@@ -857,7 +857,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
     }, [item]);
     const ShowMore = useCallback(() => {
       nav(
-        {},
+        { search, hash },
         {
           state: {
             ...state,
@@ -872,7 +872,7 @@ const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
           preventScrollReset: true,
         }
       );
-    }, [state, nav]);
+    }, [nav, state, search, hash]);
     const _className = useMemo(() => {
       const list = ["galleryContainer"];
       if (className) list.push(className);
