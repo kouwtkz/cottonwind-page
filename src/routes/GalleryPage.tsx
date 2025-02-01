@@ -253,8 +253,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
           break;
         case "tag":
           const _monthly = filterMonthly(monthParam);
-          const monthTags = _monthly?.tags.filter((v, i) => i === 0);
-          if (monthTags) return { tags: { in: monthTags } };
+          const monthTags = _monthly?.tags.find((v, i) => i === 0);
+          if (monthTags) return { tags: { contains: monthTags } };
           break;
       }
     }
