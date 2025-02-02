@@ -86,7 +86,7 @@ function LoadingState({ isSetList, children }: LoadingStateProps) {
   const [dataIsComplete, setIsComplete] = useDataIsComplete();
   const [pageIsComplete, setPageIsComplete] = usePageIsComplete();
   const isComplete = useMemo(
-    () => dataIsComplete && pageIsComplete,
+    () => Boolean(dataIsComplete && pageIsComplete),
     [dataIsComplete, pageIsComplete]
   );
   const isCompleteRef = useRef(false);
