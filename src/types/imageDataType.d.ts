@@ -17,6 +17,7 @@ interface ImageDataType {
   order?: number | null;
   topImage?: number | null;
   pickup?: number | null;
+  position?: string | null;
   draft?: number | null;
   version?: number | null;
   time?: string;

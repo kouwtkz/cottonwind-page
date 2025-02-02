@@ -10,7 +10,7 @@ import {
   addExtentionGalleryTagsOptions,
 } from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { FieldValues, useForm } from "react-hook-form";
+import { FieldValues, useController, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdAssistantDirection,
@@ -74,6 +74,21 @@ export const useImageEditIsEdit = CreateState(false);
 export const useImageEditIsEditHold = CreateState(false);
 export const useImageEditIsDirty = CreateState(false);
 export const useImageEditIsBusy = CreateState(false);
+
+interface optionElementInterface {
+  value?: string;
+  inner?: string;
+}
+const defaultPositionList: optionElementInterface[] = [
+  { value: "center top", inner: "上" },
+  { value: "center bottom", inner: "下" },
+  { value: "left center", inner: "左" },
+  { value: "right center", inner: "右" },
+  { value: "left top", inner: "左上" },
+  { value: "right bottom", inner: "左下" },
+  { value: "right top", inner: "右上" },
+  { value: "right bottom", inner: "右下" },
+];
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
@@ -165,6 +180,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       description: image?.description || "",
       topImage: String(image?.topImage ?? null),
       pickup: String(image?.pickup),
+      position: String(image?.position),
       tags: image?.tags || [],
       characters: image?.characters || [],
       type: image?.type || "",
@@ -222,14 +238,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               break;
             default:
               value = Array.isArray(value) ? value.join(",") : value;
-              if (typeof value === "string") {
-                if (value === "") data[key] = null;
-                else {
-                  const numValue = Number(value);
-                  if (isNaN(numValue)) data[key] = value;
-                  else data[key] = numValue;
-                }
-              } else data[key] = value;
+              if (value === "") data[key] = null;
+              else data[key] = value;
               break;
           }
         }
@@ -306,6 +316,22 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }, [charactersMap]);
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
+  const { field: positionField } = useController({
+    control,
+    name: "position",
+  });
+  const positionOptionList = useMemo(() => {
+    const list: optionElementInterface[] = [
+      { value: "null", inner: "自動 (中央)" },
+      ...defaultPositionList,
+    ];
+    const value = positionField.value;
+    if (value && list.every((item) => item.value !== value)) {
+      list.push({ value, inner: value });
+    }
+    list.push({ value: "any", inner: "任意の値" });
+    return list;
+  }, [values, positionField.value, defaultPositionList]);
 
   return (
     <>
@@ -549,7 +575,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           </div>
           <div>
             <div className="label">固定設定</div>
-            <div className="flex wrap">
+            <div className="flex wrap mb-1">
               <label className="ml">
                 <span className="label-sl">トップ画像</span>
                 <select
@@ -574,6 +600,38 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   <option value="undefined">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>
+                </select>
+              </label>
+            </div>
+            <div className="flex wrap mb-1">
+              <label className="ml">
+                <span className="label-sl">画像の位置</span>
+                <select
+                  title="画像の中心"
+                  {...register("position")}
+                  disabled={isBusy}
+                  onChange={(e) => {
+                    const target = e.target as HTMLSelectElement;
+                    if (target.value === "any") {
+                      const inputValue = prompt("入力してください");
+                      if (inputValue) {
+                        setValue("position", inputValue, { shouldDirty: true });
+                        new Promise((r) => r(null)).then(() => {
+                          target.value = inputValue;
+                        });
+                      } else {
+                        setValue("position", positionField.value);
+                      }
+                    } else {
+                      positionField.onChange(e);
+                    }
+                  }}
+                >
+                  {positionOptionList.map(({ value, inner }, k) => (
+                    <option value={value} key={k}>
+                      {inner}
+                    </option>
+                  ))}
                 </select>
               </label>
             </div>

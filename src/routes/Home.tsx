@@ -202,6 +202,16 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
     },
     [searchParams, state]
   );
+  const imgStyle = useMemo(() => {
+    let style: React.CSSProperties | undefined;
+    if (topImage && topImage.position) {
+      style = {};
+      if (topImage.position) {
+        style.objectPosition = topImage.position;
+      }
+    }
+    return style;
+  }, [topImage?.position])
   return (
     <div className="HomeImage wide">
       {currentTopImage.current && topImage ? (
@@ -217,6 +227,7 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
                 imageItem={topImage}
                 loading="eager"
                 className="image"
+                style={imgStyle}
               />
               <div
                 className="gage"

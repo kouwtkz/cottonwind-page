@@ -39,6 +39,7 @@ const TableObject = new DBTableClass<ImageDataType>({
     order: { type: "INTEGER" },
     topImage: { type: "INTEGER" },
     pickup: { type: "INTEGER" },
+    position: { type: "TEXT" },
     draft: { type: "INTEGER" },
     time: { type: "TEXT", index: true },
     mtime: { type: "TEXT" },
