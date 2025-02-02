@@ -65,6 +65,7 @@ import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { PiFileImageFill, PiFileX } from "react-icons/pi";
+import { ImageMee } from "@/layout/ImageMee";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -79,7 +80,8 @@ interface optionElementInterface {
   value?: string;
   inner?: string;
 }
-const defaultPositionList: optionElementInterface[] = [
+const defPositions: optionElementInterface[] = [
+  { value: "null", inner: "自動 (中央)" },
   { value: "center top", inner: "上" },
   { value: "center bottom", inner: "下" },
   { value: "left center", inner: "左" },
@@ -320,18 +322,29 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     control,
     name: "position",
   });
+  const positionValue = useMemo(
+    () => positionField.value,
+    [positionField.value]
+  );
   const positionOptionList = useMemo(() => {
-    const list: optionElementInterface[] = [
-      { value: "null", inner: "自動 (中央)" },
-      ...defaultPositionList,
-    ];
-    const value = positionField.value;
-    if (value && list.every((item) => item.value !== value)) {
-      list.push({ value, inner: value });
+    const list: optionElementInterface[] = defPositions.concat();
+    if (positionValue && list.every((item) => item.value !== positionValue)) {
+      list.push({ value: positionValue, inner: positionValue });
     }
     list.push({ value: "any", inner: "任意の値" });
     return list;
-  }, [values, positionField.value, defaultPositionList]);
+  }, [values, positionValue, defPositions]);
+  const [isPositionPreview, SetPositionPreview] = useState(false);
+  const previewImgStyle = useMemo(() => {
+    let style: React.CSSProperties | undefined;
+    if (positionValue) {
+      style = {};
+      if (positionValue && positionValue !== "null") {
+        style.objectPosition = positionValue;
+      }
+    }
+    return style;
+  }, [positionValue]);
 
   return (
     <>
@@ -605,15 +618,24 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
             </div>
             <div className="flex wrap mb-1">
               <label className="ml">
-                <span className="label-sl">画像の位置</span>
+                <span className="label-sl">画像の中心</span>
                 <select
                   title="画像の中心"
                   {...register("position")}
                   disabled={isBusy}
                   onChange={(e) => {
+                    SetPositionPreview(true);
                     const target = e.target as HTMLSelectElement;
                     if (target.value === "any") {
-                      const inputValue = prompt("入力してください");
+                      const pv = positionField.value;
+                      let promptDefault: string | undefined = pv;
+                      if (defPositions.some((item) => item.value === pv)) {
+                        promptDefault = undefined;
+                      }
+                      const inputValue = prompt(
+                        "画像の中心を入力してください (object-position)",
+                        promptDefault
+                      );
                       if (inputValue) {
                         setValue("position", inputValue, { shouldDirty: true });
                         new Promise((r) => r(null)).then(() => {
@@ -633,6 +655,32 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     </option>
                   ))}
                 </select>
+                <div className="positionPreview">
+                  {image ? (
+                    <div hidden={!isPositionPreview} className="window">
+                      <ImageMee
+                        imageItem={image}
+                        mode="simple"
+                        className="vertical"
+                        style={previewImgStyle}
+                      />
+                      <ImageMee
+                        imageItem={image}
+                        mode="simple"
+                        className="landscape"
+                        style={previewImgStyle}
+                      />
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      SetPositionPreview(!isPositionPreview);
+                    }}
+                  >
+                    {isPositionPreview ? "▼プレビューを閉じる" : "▲プレビュー"}
+                  </button>
+                </div>
               </label>
             </div>
           </div>

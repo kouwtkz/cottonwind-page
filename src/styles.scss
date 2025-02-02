@@ -2647,6 +2647,35 @@ $soundBoxHeight: 12.5rem;
       .description {
         min-height: 8rem;
       }
+      .positionPreview {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        .window {
+          background-color: var(--background-bw);
+          position: absolute;
+          width: 10em;
+          height: 7em;
+          bottom: 1.5em;
+          padding: 0.25em;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-end;
+          justify-content: space-evenly;
+          img {
+            object-fit: cover;
+            &.vertical {
+              width: 3em;
+              height: 6em;
+            }
+            &.landscape {
+              width: 6em;
+              height: 2em;
+            }
+          }
+        }
+      }
       @media (min-width: $thisMobileWidth) {
         text-align: left;
         overflow-y: auto;
