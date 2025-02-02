@@ -222,10 +222,13 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               break;
             default:
               value = Array.isArray(value) ? value.join(",") : value;
-              if (typeof data[key] === "string") {
+              if (typeof value === "string") {
                 if (value === "") data[key] = null;
-                else if (isNaN(value)) data[key] = value;
-                else data[key] = Number(value);
+                else {
+                  const numValue = Number(value);
+                  if (isNaN(numValue)) data[key] = value;
+                  else data[key] = numValue;
+                }
               } else data[key] = value;
               break;
           }
