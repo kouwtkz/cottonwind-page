@@ -627,10 +627,15 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     SetPositionPreview(true);
                     const target = e.target as HTMLSelectElement;
                     if (target.value === "any") {
-                      const pv = positionField.value;
-                      let promptDefault: string | undefined = pv;
-                      if (defPositions.some((item) => item.value === pv)) {
-                        promptDefault = undefined;
+                      let promptDefault: string = positionField.value;
+                      if (promptDefault === "null") promptDefault = "50% 50%";
+                      else {
+                        promptDefault = promptDefault
+                          .replaceAll("center", "50%")
+                          .replace("top", "0%")
+                          .replace("bottom", "100%")
+                          .replace("left", "0%")
+                          .replace("right", "100%");
                       }
                       const inputValue = prompt(
                         "画像の中心を入力してください (object-position)",
