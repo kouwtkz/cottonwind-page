@@ -7,7 +7,6 @@ import { useSearchParams } from "react-router-dom";
 import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useFilesMap } from "@/state/FileState";
-import ePub from "epubjs";
 
 interface ePubMetadataType {
   title?: string;
@@ -71,6 +70,7 @@ export function EPubViewer({ src }: { src: string }) {
       if (!url || !backRenderElm.current) return;
       const book = ePub(url);
       const rendition = book.renderTo(backRenderElm.current);
+      console.log(book);
       rendition.display().then(() => {
         setMetadata(book.packaging.metadata);
         const resources = book.resources as any;

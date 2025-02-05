@@ -56,8 +56,8 @@ RoutingList.forEach((path) => {
       ),
       script: (
         <>
-          <script type="module" src="/static/js/client.js" />
           <DefaultImportScripts />
+          <script type="module" src="/static/js/client.js" />
         </>
       ),
       isLogin: IsLogin(c),

@@ -71,8 +71,8 @@ RoutingList.forEach((path) => {
       styles: stylePathes.map((href, i) => <Style href={href} key={i} />),
       script: (
         <>
-          <script type="module" src="/src/client.tsx" />
           <DefaultImportScripts />
+          <script type="module" src="/src/client.tsx" />
         </>
       ),
       isLogin: IsLogin(c),

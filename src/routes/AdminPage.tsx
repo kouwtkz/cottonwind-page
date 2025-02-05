@@ -18,7 +18,6 @@ import { useFiles } from "@/state/FileState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { ImagesManager } from "./edit/ImagesManager";
 import { AiFillEdit } from "react-icons/ai";
-import JSZip from "jszip";
 import { LinkButton } from "@/components/button/LinkButton";
 import { useImageState } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
