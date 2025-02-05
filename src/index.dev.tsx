@@ -15,6 +15,7 @@ import { cors } from "hono/cors";
 import styles from "./styles.scss";
 import stylesfromLib from "./styles/styles_lib.scss";
 import mediaApp from "./media";
+import { DefaultImportScripts } from "./clientScripts";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
@@ -68,7 +69,12 @@ RoutingList.forEach((path) => {
       next,
       path,
       styles: stylePathes.map((href, i) => <Style href={href} key={i} />),
-      script: <script type="module" src="/src/client.tsx" />,
+      script: (
+        <>
+          <script type="module" src="/src/client.tsx" />
+          <DefaultImportScripts />
+        </>
+      ),
       isLogin: IsLogin(c),
       noindex: NoIndex(path),
     })

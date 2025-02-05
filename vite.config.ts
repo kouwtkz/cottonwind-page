@@ -38,19 +38,15 @@ export default defineConfig(async ({ mode }) => {
   }
   if (includeModes("ssl")) defaultPlugins.push(basicSsl());
   if (includeModes("client")) {
-    return {
+    const clientInput: Array<string> = [];
+    const clientOptions = {
       ...config,
       plugins: defaultPlugins,
       build: {
         ...defaultBuild,
         emptyOutDir: modes[1] === "overwrite",
         rollupOptions: {
-          input: [
-            './src/client.tsx',
-            './src/styles.scss',
-            './src/styles/styles_lib.scss',
-            './src/workers/twix/twixClient.tsx'
-          ],
+          input: clientInput,
           output: {
             entryFileNames: `static/js/[name].js`,
             chunkFileNames: `static/js/[name].js`,
@@ -74,9 +70,20 @@ export default defineConfig(async ({ mode }) => {
           },
         },
         // manifest: true,
+        // minify: false,
         chunkSizeWarningLimit: 3000
       }
     } as UserConfig;
+    if (includeModes("twix")) {
+      clientInput.push('./src/workers/twix/twixClient.tsx');
+    } else {
+      clientInput.push(
+        './src/client.tsx',
+        './src/styles.scss',
+        './src/styles/styles_lib.scss',
+      );
+    }
+    return clientOptions;
   } else if (includeModes("ssg")) {
     const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
     const entry = "src/ssg.tsx";

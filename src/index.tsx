@@ -7,6 +7,7 @@ import { renderHtml } from "./functions/render";
 import { NoIndex, ServerCommon } from "./server";
 import { cors } from "hono/cors";
 import { cache } from "hono/cache";
+import { DefaultImportScripts } from "./clientScripts";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
@@ -53,7 +54,12 @@ RoutingList.forEach((path) => {
           <Style href="/css/styles_lib.css" />
         </>
       ),
-      script: <script type="module" src="/static/js/client.js" />,
+      script: (
+        <>
+          <script type="module" src="/static/js/client.js" />
+          <DefaultImportScripts />
+        </>
+      ),
       isLogin: IsLogin(c),
       noindex: NoIndex(path),
     });

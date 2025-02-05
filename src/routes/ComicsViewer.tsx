@@ -7,6 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useFilesMap } from "@/state/FileState";
+import ePub from "epubjs";
 
 interface ePubMetadataType {
   title?: string;
@@ -68,7 +69,6 @@ export function EPubViewer({ src }: { src: string }) {
   useEffect(() => {
     (async () => {
       if (!url || !backRenderElm.current) return;
-      const ePub = (await import("epubjs")).default;
       const book = ePub(url);
       const rendition = book.renderTo(backRenderElm.current);
       rendition.display().then(() => {
@@ -82,9 +82,11 @@ export function EPubViewer({ src }: { src: string }) {
               .map(
                 (item) =>
                   new Promise<any>((resolve) => {
-                    (resources.get(item.href) as Promise<string>).then((url) => {
-                      resolve({ url, ...item });
-                    });
+                    (resources.get(item.href) as Promise<string>).then(
+                      (url) => {
+                        resolve({ url, ...item });
+                      }
+                    );
                   })
               )
           ).then((newAssets) => {

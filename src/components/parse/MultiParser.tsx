@@ -10,7 +10,6 @@ import {
 } from "domhandler";
 import { parse } from "marked";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import hljs from "highlight.js";
 
 type Replacer = (substring: string, ...args: any[]) => string;
 
