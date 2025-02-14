@@ -12,6 +12,7 @@ import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
 import { ArrayEnv } from "./ArrayEnv";
+import { charaTableObject } from "./api/character";
 
 export interface DefaultMetaProps {
   favicon?: string;
@@ -186,14 +187,16 @@ export async function ReactResponse({
   switch (path) {
     case "character":
       const name = c.req.query("name");
+      console.log(name);
       if (name) return c.redirect("/character/" + name);
       break;
     case "character/:charaName":
-      if (characters) {
+      if (!characters) {
+        const db = new MeeSqlD1(c.env.DB);
         const req = (c as Context<MeeBindings, typeof path, any>).req;
-        const name = req.param("charaName");
-        const chara = characters.get(name);
-        if (!chara) return next();
+        const key = req.param("charaName");
+        const data = (await charaTableObject.Select({ db, where: { AND: [{ key }] } }));
+        if (data.length > 0) characters = getCharacterMap(data);
       }
       break;
   }

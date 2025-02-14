@@ -128,4 +128,5 @@ app.delete("/all", async (c, next) => {
   return next();
 });
 
+export const charaTableObject = TableObject;
 export const app_character_api = app;
