@@ -91,10 +91,10 @@ export async function ServerLayout({
   const env = AddMetaEnv(c.env);
   const url = c.req.url;
   const Url = new URL(url);
-  const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
-    c.req.header("user-agent") ?? ""
-  );
-  const params = c.req.param() as KeyValueStringType;
+  const isBot =
+    /http|bot|spider\/|facebookexternalhit/i.test(
+      c.req.header("user-agent") ?? ""
+    );
   let imagesMap = new Map<string, ImageType>();
   let posts: PostType[] = [];
   if (isBot) {
@@ -103,20 +103,12 @@ export async function ServerLayout({
       const data = await ImageSelectFromKey(db, env.SITE_IMAGE);
       if (data) imagesMap.set(data.key, toImageType(data));
     }
-    const isCharaName = Boolean(params.charaName);
     if (Url.searchParams.has("image")) {
       const key = Url.searchParams.get("image")!;
       const data = await ImageSelectFromKey(db, key);
       if (data) imagesMap.set(key, toImageType(data));
     }
-    if (isCharaName && !charactersMap) {
-      charactersMap = getCharacterMap(
-        await db.select<CharacterDataType>({
-          table: "characters",
-          where: { key: params.charaName },
-          take: 1,
-        })
-      );
+    if (charactersMap) {
       await Promise.all(
         Object.values(Object.fromEntries(charactersMap)).map(
           async (character) => {
@@ -195,7 +187,10 @@ export async function ReactResponse({
         const db = new MeeSqlD1(c.env.DB);
         const req = (c as Context<MeeBindings, typeof path, any>).req;
         const key = req.param("charaName");
-        const data = (await charaTableObject.Select({ db, where: { AND: [{ key }] } }));
+        const data = await charaTableObject.Select({
+          db,
+          where: { AND: [{ key }] },
+        });
         if (data.length > 0) characters = getCharacterMap(data);
       }
       break;
