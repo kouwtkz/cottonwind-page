@@ -26,7 +26,10 @@ import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
 import { useSounds } from "@/state/SoundState";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { JsonFromDataObject } from "@/components/button/ObjectDownloadButton";
+import {
+  DownloadDataObject,
+  JsonFromDataObject,
+} from "@/components/button/ObjectDownloadButton";
 import {
   charactersDataOptions,
   ImageDataOptions,
@@ -36,6 +39,7 @@ import {
   soundsDataOptions,
 } from "@/dataDef";
 import { useCharactersMap } from "@/state/CharacterState";
+import { FormatDate } from "@/functions/DateFunction";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -328,58 +332,60 @@ function DBPage() {
                 const nm = v.options.newVersion!.match(/\d+.\d+/);
                 return m && nm && m[0] !== nm[0];
               });
+              const currentDate = new Date();
               if (needAlterTableList.length > 0) {
                 const count = needAlterTableList.length;
                 const strList = needAlterTableList.map((v) => v.key).join(", ");
                 updateString =
                   updateString +
                   `そのうち${count}件(${strList})は` +
-                  `テーブルを作り直す必要があります。\n`;
+                  `テーブルを作り直す必要があります。\n` +
+                  "（バックアップ用のダウンロードも行います）\n";
               }
               if (
                 confirm(
                   updateString + "データベースのテーブルを全て更新しますか？"
                 )
               ) {
-                const list = needAlterTableList
-                  .map(async (dataObject) => {
-                    const json = JsonFromDataObject(dataObject);
-                    switch (dataObject.key) {
-                      case ImageDataOptions.key:
-                        return ImportImagesJson({
-                          apiOrigin,
-                          charactersMap,
-                          overwrite: true,
-                          json,
-                        });
-                      case charactersDataOptions.key:
-                        return ImportCharacterJson({
-                          apiOrigin,
-                          json,
-                        });
-                      case postsDataOptions.key:
-                        return ImportPostJson({
-                          apiOrigin,
-                          json,
-                        });
-                      case linksDataOptions.key:
-                        return ImportLinksJson({
-                          apiOrigin,
-                          json,
-                        });
-                      case linksFavDataOptions.key:
-                        return ImportLinksJson({
-                          apiOrigin,
-                          json,
-                          dir: "/fav",
-                        });
-                      default:
-                        toast(
-                          `${dataObject.key}は現在インポートの実装待ちです…`
-                        );
-                        return;
-                    }
+                const list = needAlterTableList.map(async (dataObject) => {
+                  DownloadDataObject(dataObject, {
+                    name: dataObject.key + "_" + FormatDate(currentDate, "Ymd"),
                   });
+                  const json = JsonFromDataObject(dataObject);
+                  switch (dataObject.key) {
+                    case ImageDataOptions.key:
+                      return ImportImagesJson({
+                        apiOrigin,
+                        charactersMap,
+                        overwrite: true,
+                        json,
+                      });
+                    case charactersDataOptions.key:
+                      return ImportCharacterJson({
+                        apiOrigin,
+                        json,
+                      });
+                    case postsDataOptions.key:
+                      return ImportPostJson({
+                        apiOrigin,
+                        json,
+                      });
+                    case linksDataOptions.key:
+                      return ImportLinksJson({
+                        apiOrigin,
+                        json,
+                      });
+                    case linksFavDataOptions.key:
+                      return ImportLinksJson({
+                        apiOrigin,
+                        json,
+                        dir: "/fav",
+                      });
+                    default:
+                      toast(`${dataObject.key}は現在インポートの実装待ちです…`);
+                      return;
+                  }
+                });
                 Promise.all(list)
                   .then(() => {
                     return toast.promise(

@@ -31,10 +31,13 @@ export function JsonFromDataObject<T extends object>(
 }
 export function DownloadDataObject<T extends object>(
   dataObject: StorageDataStateClass<T>,
-  options?: JsonFromDataObjectOptions<keyof T | null>
+  {
+    name,
+    ...options
+  }: JsonFromDataObjectOptions<keyof T | null> & { name?: string } = {}
 ) {
   fileDownload(
-    dataObject.storage.key + ".json",
+    (name || dataObject.storage.key) + ".json",
     JSON.stringify(JsonFromDataObject(dataObject, options))
   );
 }
