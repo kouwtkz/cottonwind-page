@@ -5,6 +5,7 @@ import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { getBasename } from "@/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { filesDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -29,7 +30,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-export async function ServerFilesGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerFilesGetData({ searchParams, db, isLogin }: GetDataProps) {
   const ThisObject = TableObject;
   const wheres: MeeSqlFindWhereType<FilesRecordDataType>[] = [];
   const lastmod = searchParams.get("lastmod");

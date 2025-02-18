@@ -21,6 +21,7 @@ import {
   TableVersionDataOptions,
 } from "@/dataDef";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -53,23 +54,22 @@ app.get("*", async (c, next) => {
     })(c, next);
 });
 
+
 function apps(
   ...list: [
     options: StorageDataStateClassProps<any>,
-    (
-      searchParams: URLSearchParams,
-      db: MeeSqlD1,
-      isLogin?: boolean
-    ) => Promise<any>
+    (arg0: GetDataProps) => Promise<any>
   ][]
 ) {
   list.forEach(([{ src }, getData]) => {
     app.get(src, async (c) => {
       return c.json(
-        await getData(
-          new URL(c.req.url).searchParams,
-          new MeeSqlD1(c.env.DB),
-          IsLogin(c)
+        await getData({
+          searchParams: new URL(c.req.url).searchParams,
+          db: new MeeSqlD1(c.env.DB),
+          isLogin: IsLogin(c),
+          req: c.req
+        }
         )
       );
     });
@@ -85,9 +85,12 @@ function apps(
           list.map(async ([{ key }, getData]) => [
             key,
             await getData(
-              new URLSearchParams(getDataWithoutPrefix(key, query)),
-              db,
-              isLogin
+              {
+                searchParams: new URLSearchParams(getDataWithoutPrefix(key, query)),
+                db,
+                isLogin,
+                req: c.req
+              }
             ),
           ])
         )

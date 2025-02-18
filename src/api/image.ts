@@ -8,6 +8,7 @@ import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { ImageDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -52,11 +53,7 @@ const TableObject = new DBTableClass<ImageDataType>({
 });
 export const ImageTableObject = TableObject;
 
-export async function ServerImagesGetData(
-  searchParams: URLSearchParams,
-  db: MeeSqlD1,
-  isLogin?: boolean
-) {
+export async function ServerImagesGetData({ searchParams, db, isLogin }: GetDataProps) {
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });

@@ -1,6 +1,7 @@
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass } from "./DBTableClass";
 import { TableVersionDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const TableObject = new DBTableClass<TableVersionEntryType>({
   table: "tables",
@@ -48,7 +49,7 @@ export async function UpdateTablesDataObject({
   }
 }
 
-export async function ServerTableVersionGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerTableVersionGetData({ searchParams, db }: GetDataProps) {
   const ThisObject = TableObject;
   const wheres: MeeSqlFindWhereType<FilesRecordDataType>[] = [];
   const lastmod = searchParams.get("lastmod");

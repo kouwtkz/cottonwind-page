@@ -4,6 +4,7 @@ import { IsLogin } from "@/admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { charactersDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -42,7 +43,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-export async function ServerCharactersGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerCharactersGetData({ searchParams, db, isLogin }: GetDataProps) {
   const wheres: MeeSqlFindWhereType<CharacterDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });

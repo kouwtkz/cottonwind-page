@@ -11,6 +11,7 @@ import { app_files_api as app_file_api } from "./file";
 import { app_links_api } from "./links";
 import { getOriginFromAPI } from "@/functions/originUrl";
 import { AddMetaEnv } from "@/serverLayout";
+import { app_like_api } from "./like";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 
@@ -31,6 +32,7 @@ app.route("/blog", app_blog_api);
 app.route("/sound", app_sound_api);
 app.route("/file", app_file_api);
 app.route("/links", app_links_api);
+app.route("/like", app_like_api);
 app.route("/data", app_data_api);
 
 app.get("/feed/get", cache({

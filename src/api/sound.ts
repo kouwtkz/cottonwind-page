@@ -6,6 +6,7 @@ import { parseBlob } from 'music-metadata';
 import { getName } from "@/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { soundAlbumsDataOptions, soundsDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -59,7 +60,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-export async function ServerSoundsGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerSoundsGetData({ searchParams, db, isLogin }: GetDataProps) {
   const ThisObject = TableObject;
   const wheres: MeeSqlFindWhereType<SoundDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
@@ -77,7 +78,7 @@ export async function ServerSoundsGetData(searchParams: URLSearchParams, db: Mee
     .then(() => Select()));
 }
 
-export async function ServerSoundAlbumsGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerSoundAlbumsGetData({ searchParams, db, isLogin }: GetDataProps) {
   const ThisObject = AlbumTableObject;
   const wheres: MeeSqlFindWhereType<SoundAlbumDataType>[] = [];
   const lastmod = searchParams.get("lastmod");

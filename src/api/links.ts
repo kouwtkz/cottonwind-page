@@ -5,6 +5,7 @@ import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 import { linksFavDataOptions, linksDataOptions } from "@/dataDef";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -48,7 +49,7 @@ export class SiteLinkServerClass {
     this.options = options;
     this.album = album;
   }
-  async getData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+  async getData({ searchParams, db, isLogin }: GetDataProps) {
     const ThisObject = this.object;
     const wheres: MeeSqlFindWhereType<SoundDataType>[] = [];
     const lastmod = searchParams.get("lastmod");

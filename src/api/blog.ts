@@ -5,6 +5,7 @@ import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { postsDataOptions } from "@/dataDef";
 import { UpdateTablesDataObject } from "./DBTablesObject";
+import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings>();
 
@@ -32,7 +33,7 @@ const TableObject = new DBTableClass<PostDataType>({
   insertEntryTimes: ["time", "lastmod"]
 });
 
-export async function ServerPostsGetData(searchParams: URLSearchParams, db: MeeSqlD1, isLogin?: boolean) {
+export async function ServerPostsGetData({ searchParams, db, isLogin }: GetDataProps) {
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
