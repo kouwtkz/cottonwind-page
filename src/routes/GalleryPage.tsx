@@ -23,6 +23,7 @@ import {
   addExtentionTagsOptions,
   defaultGalleryTags,
   MonthToTag,
+  ContentsTagsOption,
 } from "@/components/dropdown/SortFilterTags";
 import { filterPickFixed } from "@/functions/media/FilterImages";
 import { create } from "zustand";
@@ -1089,12 +1090,31 @@ const gallerySortTags = [
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
   const isLogin = useIsLogin()[0];
+  const searchParams = useSearchParams()[0];
+  const filterParam = searchParams.get("filter");
+  const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
+  const likeData = likeDataObject.useData()[0];
+  const hasLikeChecked = useMemo(
+    () =>
+      Boolean(
+        likeData?.some((v) => v.checked && v.path?.startsWith("?image="))
+      ),
+    [likeData]
+  );
   const tags = useMemo(() => {
+    const filterOptions: ContentsTagsOption[] = [];
+    if (likeWhere || hasLikeChecked)
+      filterOptions.push({ label: "♥️いいね済み", value: "filter:like" });
     return [
       ...gallerySortTags,
+      {
+        label: "フィルタ",
+        name: "filter",
+        options: filterOptions,
+      },
       ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
     ];
-  }, [isLogin]);
+  }, [isLogin, likeWhere, hasLikeChecked]);
   return <ContentsTagsSelect {...args} tags={tags} />;
 }
 export function GalleryCharactersSelect({

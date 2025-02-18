@@ -31,13 +31,6 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     ],
   },
   {
-    label: "フィルタ",
-    name: "filter",
-    options: [
-      { label: "♥️いいね済み", value: "filter:like" },
-    ],
-  },
-  {
     label: "マンスリー",
     name: "monthly",
     options: [
