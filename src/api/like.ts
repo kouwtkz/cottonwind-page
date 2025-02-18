@@ -46,13 +46,10 @@ export async function ServerLikeGetData({ searchParams, db, isLogin, req }: GetD
   const address = getIpAddress(req);
   async function Select() {
     return TableObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => {
+      .then(data => data.map(v => {
         const registedData = getRegistedData(v.registed);
-        if (registedData.some(v => v === address)) {
-          return ({ ...v, registed: "registed" })
-        } else {
-          return ({ ...v, registed: "" })
-        }
+        if (!isLogin) v.registed = "";
+        return ({ ...v, checked: registedData.some(v => v === address) });
       }));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
@@ -63,27 +60,42 @@ export async function ServerLikeGetData({ searchParams, db, isLogin, req }: GetD
 app.post("/send", async (c, next) => {
   const now = new Date();
   const db = new MeeSqlD1(c.env.DB);
-  const { path: pathData } = await c.req.json() as LikeFormType;
+  const { path: pathData, mode = "add" } = await c.req.json() as LikeFormType;
   const path = toLikePath(pathData);
   const target = (await TableObject.Select({ db, where: { path }, take: 1 }))[0];
   const address = getIpAddress(c.req);
   const registedData = getRegistedData(target?.registed);
   let count = target?.count || 0;
-  if (registedData.every(v => v !== address)) {
-    registedData.push(address);
-    count++;
+  if (mode === "add") {
+    if (registedData.every(v => v !== address)) {
+      registedData.push(address);
+      count++;
+    } else {
+      return c.json({ ...target }, 200);
+    }
+    const registed = JSON.stringify(registedData);
+    if (target) {
+      const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toISOString() });
+      await TableObject.Update({ db, entry, where: { path } });
+      return c.json({ ...target, ...entry, }, 200);
+    } else {
+      const entry = TableObject.getInsertEntry({ path, registed, count, lastmod: now.toISOString() });
+      await TableObject.Insert({ db, entry });
+      return c.json(entry, 201);
+    }
   } else {
+    if (target) {
+      const found = registedData.findIndex(v => v === address);
+      if (found >= 0) {
+        registedData.splice(found, 1);
+        count--;
+        const registed = JSON.stringify(registedData);
+        const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toISOString() });
+        await TableObject.Update({ db, entry, where: { path } });
+        return c.json({ ...target, ...entry, }, 200);
+      }
+    }
     return c.json({ ...target }, 200);
-  }
-  const registed = JSON.stringify(registedData);
-  if (target) {
-    const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toISOString() });
-    await TableObject.Update({ db, entry, where: { path } });
-    return c.json({ ...target, ...entry, }, 200);
-  } else {
-    const entry = TableObject.getInsertEntry({ path, registed, count, lastmod: now.toISOString() });
-    await TableObject.Insert({ db, entry });
-    return c.json(entry, 201);
   }
 });
 

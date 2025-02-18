@@ -34,7 +34,7 @@ export function LikeButton({
   checked = useMemo(() => {
     if (typeof checked === "boolean") return checked;
     else {
-      return Boolean(thisLikeData?.registed);
+      return Boolean(thisLikeData?.checked);
     }
   }, [checked, thisLikeData]);
   className = useMemo(() => {
@@ -48,14 +48,27 @@ export function LikeButton({
       type="button"
       className={className}
       onClick={(e) => {
-        axios
-          .post(concatOriginUrl(apiOrigin, "like/send"), {
-            path: pathKey,
-          })
-          .then(() => {
-            setLikeDataLoad("no-cache");
-            toast("いいねしました", toastLoadingOptions);
-          });
+        if (checked) {
+          axios
+            .post(concatOriginUrl(apiOrigin, "like/send"), {
+              path: pathKey,
+              mode: "remove",
+            } as LikeFormType)
+            .then(() => {
+              setLikeDataLoad("no-cache");
+              toast("いいねを解除しました", toastLoadingOptions);
+            });
+        } else {
+          axios
+            .post(concatOriginUrl(apiOrigin, "like/send"), {
+              path: pathKey,
+              mode: "add",
+            } as LikeFormType)
+            .then(() => {
+              setLikeDataLoad("no-cache");
+              toast("いいねしました", toastLoadingOptions);
+            });
+        }
         if (onClick) onClick(e);
       }}
       {...props}

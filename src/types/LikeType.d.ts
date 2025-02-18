@@ -6,9 +6,10 @@ interface LikeDataType {
 }
 
 interface LikeType extends Partial<LikeDataType> {
-  check?: boolean;
+  checked?: boolean;
 }
 
 interface LikeFormType {
   path: string;
+  mode: "add" | "remove";
 }
