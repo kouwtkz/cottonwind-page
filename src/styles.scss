@@ -2556,11 +2556,12 @@ $soundBoxHeight: 12.5rem;
 
       .right {
         color: var(--main-color-light-grayish);
-        text-align: right;
         margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: flex-end;
         & > * {
           margin-right: 1rem;
-          margin-bottom: 0.5rem;
         }
         .time {
           margin-right: 1rem;
