@@ -40,6 +40,7 @@ interface ImageType extends ImageDataType {
   update?: boolean;
   new?: boolean;
   schedule?: boolean;
+  like?: LikeType;
 }
 /** @comments ひとつのアルバムの変数 */
 interface ImageAlbumType {

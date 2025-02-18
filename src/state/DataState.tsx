@@ -50,6 +50,7 @@ export const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
   filesDataOptions,
   linksDataOptions,
   linksFavDataOptions,
+  likeDataOptions,
 ].forEach((options) => {
   SdsOptionsMap.set(options.key, options);
 });

@@ -50,12 +50,19 @@ import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "@/components/button/LikeButton";
 
+interface PartsType {
+  label?: string;
+  items: CharacterType[];
+}
+
 interface CharacterStateType {
   filters?: string[];
   showAll?: boolean;
+  liked?: boolean;
   where?: findWhereType<CharacterType>;
   tagsWhere?: findWhereType<CharacterType> | null;
   orderBySort?: OrderByItem<CharacterType>[];
+  parts?: PartsType[];
 }
 interface CharacterStateTypeProps extends CharacterStateType {
   set: (args: CharacterStateType) => void;
@@ -68,7 +75,13 @@ export const useCharacterPageState = create<CharacterStateTypeProps>(
   })
 );
 function CharacterPageState() {
-  const searchParams = useSearchParams()[0];
+  const { search } = useLocation();
+  const confirmUrl = useConfirmUrl()[0];
+  const searchParams = useMemo(() => {
+    if (confirmUrl) return new URL(confirmUrl).searchParams;
+    else return new URLSearchParams(search);
+  }, [confirmUrl, search]);
+
   const isLogin = useIsLogin()[0];
   const filters = useMemo(
     () => searchParams.get("filter")?.split(","),
@@ -78,6 +91,7 @@ function CharacterPageState() {
     () => isLogin || filters?.some((v) => v === "showAll"),
     [filters, isLogin]
   );
+  const liked = useMemo(() => filters?.some((v) => v === "like"), [filters]);
   const text = useMemo(() => {
     const textArray: Array<string> = [];
     if (searchParams.has("q")) textArray.push(searchParams.get("q")!);
@@ -126,10 +140,59 @@ function CharacterPageState() {
     }
     return list;
   }, [sortParam, orderBy]);
+  const characters = useCharacters()[0];
+  const parts = useMemo(() => {
+    let items = characters
+      ? findMee([...characters], { where, orderBy: orderBySort })
+      : [];
+    if (!showAll) items = items.filter((chara) => chara.visible);
+    if (liked) items = items.filter((chara) => chara.like?.checked)
+    const parts: PartsType[] = [];
+    let sortType: OrderByType | undefined;
+    let entries: [string, CharacterType[]][] | undefined;
+    const timeSort = orderBySort?.find((v) => v.time)?.time;
+    if (timeSort) {
+      sortType = timeSort;
+      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
+        const year =
+          (c.time?.getFullYear() || c.birthday?.getFullYear())?.toString() ||
+          "";
+        if (a.has(year)) a.get(year)!.push(c);
+        else a.set(year, [c]);
+        return a;
+      }, new Map());
+      entries = Object.entries(Object.fromEntries(map));
+    }
+    const nameSort = orderBySort?.find((v) => v.name)?.name;
+    if (nameSort) {
+      sortType = nameSort;
+      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
+        const initial = getInitialString(c.nameGuide || c.name);
+        if (a.has(initial)) a.get(initial)!.push(c);
+        else a.set(initial, [c]);
+        return a;
+      }, new Map());
+      entries = Object.entries(Object.fromEntries(map));
+    }
+    if (sortType && entries) {
+      entries.sort(([a], [b]) => {
+        if (a && b) {
+          return (a > b ? 1 : -1) * (sortType === "asc" ? 1 : -1);
+        } else {
+          return a ? -1 : 1;
+        }
+      });
+      entries.forEach(([key, item]) => {
+        if (key) parts.push({ label: key.toString(), items: item });
+        else parts.push({ items: item });
+      });
+    } else parts.push({ items });
+    return parts;
+  }, [where, characters, orderBySort, showAll, liked]);
   const { set } = useCharacterPageState();
   useEffect(() => {
-    set({ filters, orderBySort, showAll, where });
-  }, [set, filters, orderBySort, showAll, where]);
+    set({ filters, orderBySort, showAll, liked, where, parts });
+  }, [set, filters, orderBySort, showAll, liked, where, parts]);
   return <></>;
 }
 
@@ -198,58 +261,9 @@ export const CharaListItem = memo(function CharaListItem({
 const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
-  const characters = useCharacters()[0];
-  const { filters, orderBySort, showAll, where } = useCharacterPageState();
+  const { parts } = useCharacterPageState();
   const { state } = useLocation();
   const extendMode = useExtendMode()[0];
-
-  const parts = useMemo(() => {
-    let items = characters
-      ? findMee([...characters], { where, orderBy: orderBySort })
-      : [];
-    if (!showAll) items = items.filter((chara) => chara.visible);
-    const parts = [] as { label?: string; items: CharacterType[] }[];
-    let sortType: OrderByType | undefined;
-    let entries: [string, CharacterType[]][] | undefined;
-    const timeSort = orderBySort?.find((v) => v.time)?.time;
-    if (timeSort) {
-      sortType = timeSort;
-      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
-        const year =
-          (c.time?.getFullYear() || c.birthday?.getFullYear())?.toString() ||
-          "";
-        if (a.has(year)) a.get(year)!.push(c);
-        else a.set(year, [c]);
-        return a;
-      }, new Map());
-      entries = Object.entries(Object.fromEntries(map));
-    }
-    const nameSort = orderBySort?.find((v) => v.name)?.name;
-    if (nameSort) {
-      sortType = nameSort;
-      const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
-        const initial = getInitialString(c.nameGuide || c.name);
-        if (a.has(initial)) a.get(initial)!.push(c);
-        else a.set(initial, [c]);
-        return a;
-      }, new Map());
-      entries = Object.entries(Object.fromEntries(map));
-    }
-    if (sortType && entries) {
-      entries.sort(([a], [b]) => {
-        if (a && b) {
-          return (a > b ? 1 : -1) * (sortType === "asc" ? 1 : -1);
-        } else {
-          return a ? -1 : 1;
-        }
-      });
-      entries.forEach(([key, item]) => {
-        if (key) parts.push({ label: key.toString(), items: item });
-        else parts.push({ items: item });
-      });
-    } else parts.push({ items });
-    return parts;
-  }, [where, characters, orderBySort, showAll]);
   const apiOrigin = useApiOrigin()[0];
   const [move, setMove] = useMoveCharacters();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
@@ -259,8 +273,6 @@ function CharaListPage() {
         to={move ? "" : `/character/${item.key}`}
         state={{
           ...(state ?? {}),
-          characterSort: orderBySort,
-          charaFilters: filters,
           backUrl: location.href,
         }}
         className="item"
@@ -280,7 +292,7 @@ function CharaListPage() {
     <>
       <CharaSearchArea />
       {parts
-        .filter(({ items }) => items.length > 0)
+        ?.filter(({ items }) => items.length > 0)
         .map(({ label, items }, i) => {
           return (
             <div key={i}>
@@ -358,36 +370,18 @@ export function CharaBeforeAfter({
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
   );
-  const characters = useCharacters()[0];
   const { state } = useLocation();
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
-  const isLogin = useIsLogin()[0];
-  const filters: string[] | undefined = useMemo(
-    () => state?.charaFilters,
-    [state]
-  );
-  const showAll = useMemo(
-    () => isLogin || filters?.some((v) => v === "showAll"),
-    [filters, isLogin]
-  );
+  const { parts } = useCharacterPageState();
   const items = useMemo(() => {
-    let list = characters!;
-    const characterSort = state?.characterSort;
-    const charaTagsWhere: findWhereType<CharacterType> | undefined =
-      state?.charaTagsWhere;
-    if (characterSort || charaTagsWhere) {
-      list = [...list];
-      const wheres: findWhereType<CharacterType>[] = [];
-      if (charaTagsWhere) wheres.push(charaTagsWhere);
-      list = findMee(list, {
-        orderBy: state.characterSort,
-        where: { AND: wheres },
+    return (parts || []).reduce<CharacterType[]>((a, c) => {
+      c.items.forEach((item) => {
+        a.push(item);
       });
-    }
-    if (!showAll) list = list.filter((chara) => chara.visible);
-    return list;
-  }, [characters, state, showAll]);
+      return a;
+    }, []);
+  }, [parts]);
   const charaIndex = useMemo(
     () => (chara ? items.findIndex(({ key: id }) => id === chara?.key) : -1),
     [items, chara]
@@ -559,6 +553,8 @@ function CharaDetail({ charaName }: { charaName: string }) {
   );
 }
 
+const useConfirmUrl = CreateState<string>();
+
 interface CharaSearchAreaProps {}
 const characterSortTags = [
   defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
@@ -570,18 +566,11 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const isModal = searchParams.has("modal");
   const { state } = useLocation();
   const isLogin = useIsLogin()[0];
-  const confirmUrl = useMemo(() => state?.confirmUrl, [state]);
+  const [confirmUrl, setConfirmUrl] = useConfirmUrl();
   const [extendMode, setExtendMode] = useExtendMode();
-  function setConfirmUrl() {
-    nav(location, {
-      replace: true,
-      preventScrollReset: true,
-      state: { ...(state || {}), confirmUrl: location.href },
-    });
-  }
   useEffect(() => {
-    if (!confirmUrl || searchParams.size === 0) setConfirmUrl();
-  }, [confirmUrl, searchParams.size]);
+    setConfirmUrl(location.href);
+  }, [searchParams]);
   const nav = useNavigate();
   const isImeOn = useRef(false);
   useHotkeys("slash", (e) => {
@@ -624,7 +613,10 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     const charaFilterOptions: ContentsTagsOption = {
       label: "フィルタ",
       name: "filter",
-      options: [{ label: "🔬全て表示", value: "filter:showAll" }],
+      options: [
+        { label: "♥️いいね済み", value: "filter:like" },
+        { label: "🔬全て表示", value: "filter:showAll" },
+      ],
     };
     if (isLogin) {
       charaFilterOptions.options!.push({

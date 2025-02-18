@@ -29,6 +29,7 @@ interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "b
   birthday?: Date,
   lastmod?: Date,
   visible?: boolean;
+  like?: LikeType;
   media?: {
     icon?: ImageType | null,
     image?: ImageType | null,
