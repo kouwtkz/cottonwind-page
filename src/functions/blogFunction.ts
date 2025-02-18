@@ -50,13 +50,13 @@ export function getPosts({
   if (pinned) orderBy.push({ pin: "desc" });
   orderBy.push({ time: "desc" });
 
+  let postsResult: PostType[] = findMee(posts, {
+    where: {
+      AND: wheres,
+    },
+    orderBy,
+  });
   try {
-    let postsResult: PostType[] = findMee(posts, {
-      where: {
-        AND: wheres,
-      },
-      orderBy,
-    });
     const count = postsResult.length;
     postsResult = postsResult.filter((post, i) => {
       if (take !== undefined && i >= take + skip) return false;

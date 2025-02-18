@@ -68,8 +68,13 @@ export function findMee<T>(
 type WheresEntriesType = [string, unknown][];
 function SetWheres<T>(v: T): WheresEntriesType | null {
   function f(v: any, d?: any): any[] {
-    if (typeof v === "object" && v)
-      return Array.isArray(v) ? v.map(_ => f(_)) : (Object.entries(v)).map(([k, v]) => [k, f(v)]);
+    if (typeof v === "object" && v) {
+      if (Array.isArray(v)) return v.map(_ => f(_));
+      else if (/^\[object .+\]$/.test(v.toString())) {
+        return (Object.entries(v)).map(([k, v]) => [k, f(v)]);
+      }
+      else return v;
+    }
     else return d ?? v;
   }
   return f(v, null);
@@ -95,49 +100,49 @@ function wheresFilter<T>(value: T, wheres?: WheresEntriesType | null): boolean {
             const conditions: [filterConditionsAllType, any][] = fval;
             return conditions.every(([k, v]) => {
               const typeName = typeof cval;
-                switch (k) {
-                  case "equals":
-                    if (typeName === "string") return String(cval).toLocaleLowerCase() === v;
-                    else return cval == v;
-                  case "not":
-                    return cval != v;
-                  case "like":
-                  case "contains":
-                    if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
-                    else {
-                      const _v = String(cval).toLocaleLowerCase();
-                      if (/[\*\?]/.test(v)) {
-                        try { return _v.match(v) } catch { return true }
-                      } else return _v.includes(v);
-                    }
-                  case "startsWith":
-                    return String(cval).toLocaleLowerCase().startsWith(v);
-                  case "endsWith":
-                    return String(cval).toLocaleLowerCase().endsWith(v);
-                  case "gt":
-                    return cval > v;
-                  case "gte":
-                    return cval >= v;
-                  case "lt":
-                    return cval < v;
-                  case "lte":
-                    return cval <= v;
-                  case "in":
-                    const inVal = v as unknown[];
-                    return inVal.some(v => v == cval);
-                  case "between":
-                    const betweenVal = v as any[];
-                    return betweenVal[0] <= cval && cval <= betweenVal[1];
-                  case "bool":
-                    let boolVal: boolean;
-                    if (Array.isArray(cval)) boolVal = cval.length > 0;
-                    else boolVal = Boolean(cval);
-                    return v ? boolVal : !boolVal;
-                  case "regexp":
-                    return (v as RegExp).test(cval);
-                  default:
-                    return cval ? compareWheres(cval, [[k, v]]) : false;
-                }
+              switch (k) {
+                case "equals":
+                  if (typeName === "string") return String(cval).toLocaleLowerCase() === v;
+                  else return cval == v;
+                case "not":
+                  return cval != v;
+                case "like":
+                case "contains":
+                  if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
+                  else {
+                    const _v = String(cval).toLocaleLowerCase();
+                    if (/[\*\?]/.test(v)) {
+                      try { return _v.match(v) } catch { return true }
+                    } else return _v.includes(v);
+                  }
+                case "startsWith":
+                  return String(cval).toLocaleLowerCase().startsWith(v);
+                case "endsWith":
+                  return String(cval).toLocaleLowerCase().endsWith(v);
+                case "gt":
+                  return cval > v;
+                case "gte":
+                  return cval >= v;
+                case "lt":
+                  return cval < v;
+                case "lte":
+                  return cval <= v;
+                case "in":
+                  const inVal = v as unknown[];
+                  return inVal.some(v => v == cval);
+                case "between":
+                  const betweenVal = v as any[];
+                  return betweenVal[0] <= cval && cval <= betweenVal[1];
+                case "bool":
+                  let boolVal: boolean;
+                  if (Array.isArray(cval)) boolVal = cval.length > 0;
+                  else boolVal = Boolean(cval);
+                  return v ? boolVal : !boolVal;
+                case "regexp":
+                  return (v as RegExp).test(cval);
+                default:
+                  return cval ? compareWheres(cval, [[k, v]]) : false;
+              }
             });
           } else {
             return cval == fval;

@@ -106,6 +106,7 @@ function PostsView() {
       }),
     [Posts]
   );
+  console.log(posts);
   return (
     <div className="blog">
       <h3>
