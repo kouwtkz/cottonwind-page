@@ -56,7 +56,7 @@ import {
   useUploadWebp,
 } from "./edit/ImageEditForm";
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
-import { imageDataObject } from "@/state/DataState";
+import { imageDataObject, likeDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
@@ -77,6 +77,7 @@ import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/ArrayEnv";
+import { useLikeStateUpdated } from "@/state/LikeState";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -227,6 +228,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
   const typeParam = searchParams.get("type");
+  const filterParam = searchParams.get("filter");
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
   const monthModeParam = (searchParams.get("monthMode") ||
@@ -303,6 +305,8 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       })),
     [charactersParam]
   );
+  const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
+  const linkStateUpdated = useLikeStateUpdated()[0];
   const draftOnly = useMemo(
     () => searchParams.has("draftOnly"),
     [searchParams]
@@ -319,6 +323,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     if (whereMonth) wheres.push(whereMonth);
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
+    if (likeWhere) wheres.push({ like: { checked: true } });
     if (typeParam) wheres.push({ type: typeParam });
     if (draftOnly) wheres.push({ draft: true });
     return wheres;
@@ -329,6 +334,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     whereMonth,
     hasTopImage,
     hasPickup,
+    likeWhere,
     typeParam,
     draftOnly,
   ]);
@@ -396,6 +402,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     year,
     hasPickup,
     hasTopImage,
+    linkStateUpdated,
   ]);
   useLayoutEffect(() => {
     setYFList(fList, yfList);
