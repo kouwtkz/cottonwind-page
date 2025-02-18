@@ -66,6 +66,14 @@ export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   jsonFromDataOptions: linksJsonFromDataOptions
 }
 
+export const likeDataOptions: StorageDataStateClassProps<LikeDataType> = {
+  key: "likeData",
+  src: "/like",
+  version: "0.0.0",
+  preLoad: false,
+  idField: "path"
+}
+
 export const TableVersionDataOptions: StorageDataStateClassProps<TableVersionEntryType> = {
   key: "tables",
   src: "/tables",

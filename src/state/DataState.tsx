@@ -35,6 +35,7 @@ import {
   soundAlbumsDataOptions,
   soundsDataOptions,
   TableVersionDataOptions,
+  likeDataOptions,
 } from "@/dataDef";
 
 export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
@@ -74,6 +75,7 @@ export const linksDataObject = new SdsClass(linksDataOptions);
 export const favLinksDataObject = new SdsClass<SiteLinkData>(
   linksFavDataOptions
 );
+export const likeDataObject = new SdsClass(likeDataOptions);
 
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
@@ -88,6 +90,7 @@ export const DataObjectList: SdsClass<any>[] = [
   filesDataObject,
   linksDataObject,
   favLinksDataObject,
+  likeDataObject,
 ];
 
 export const DataObjectMap = new Map<string, SdsClass<any>>();

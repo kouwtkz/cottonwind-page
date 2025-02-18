@@ -48,6 +48,7 @@ import { charactersDataObject } from "@/state/DataState";
 import { create } from "zustand";
 import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
+import { LikeButton } from "@/components/button/LikeButton";
 
 interface CharacterStateType {
   filters?: string[];
@@ -533,6 +534,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
               </p>
             ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
+            <LikeButton className="large" />
             <GalleryObject
               items={galleryList.map((item) => {
                 const albumImages = albums?.get(item.name)?.list || [];

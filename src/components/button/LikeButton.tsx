@@ -1,0 +1,68 @@
+import { HTMLAttributes, useMemo } from "react";
+import { RiHeart3Fill } from "react-icons/ri";
+import { toast } from "react-toastify";
+import { toastLoadingOptions } from "../define/toastContainerDef";
+import { useLocation } from "react-router-dom";
+import { toLikePath } from "@/functions/likeFunction";
+import { likeDataObject } from "@/state/DataState";
+import axios from "axios";
+import { useApiOrigin } from "@/state/EnvState";
+import { concatOriginUrl } from "@/functions/originUrl";
+
+interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  checked?: boolean;
+}
+export function LikeButton({
+  className,
+  children,
+  onClick,
+  checked,
+  ...props
+}: LikeButtonProps) {
+  const apiOrigin = useApiOrigin()[0];
+  const { pathname, search } = useLocation();
+  const pathKey = useMemo(
+    () => toLikePath(pathname + search),
+    [pathname, search]
+  );
+  const likeData = likeDataObject.useData()[0];
+  const setLikeDataLoad = likeDataObject.useLoad()[1];
+  const thisLikeData = useMemo(
+    () => likeData?.find(({ path }) => path === pathKey),
+    [likeData, pathKey]
+  );
+  checked = useMemo(() => {
+    if (typeof checked === "boolean") return checked;
+    else {
+      return Boolean(thisLikeData?.registed);
+    }
+  }, [checked, thisLikeData]);
+  className = useMemo(() => {
+    const list = ["like"];
+    if (checked) list.push("checked");
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className, checked]);
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={(e) => {
+        axios
+          .post(concatOriginUrl(apiOrigin, "like/send"), {
+            path: pathKey,
+          })
+          .then(() => {
+            setLikeDataLoad("no-cache");
+            toast("いいねしました", toastLoadingOptions);
+          });
+        if (onClick) onClick(e);
+      }}
+      {...props}
+    >
+      <RiHeart3Fill />
+      <span className="count">{thisLikeData?.count || 0}</span>
+      {children}
+    </button>
+  );
+}

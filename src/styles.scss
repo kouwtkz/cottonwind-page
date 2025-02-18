@@ -761,6 +761,28 @@ button,
       font-size: 1.25rem;
     }
   }
+  &.like {
+    color: var(--main-color-light-grayish);
+    background-color: transparent;
+    &:hover {
+      color: var(--main-color-pale-grayish);
+    }
+    &.checked {
+      color: var(--warm-color);
+      &:hover {
+        color: var(--warm-color-hover);
+      }
+    }
+    .count {
+      font-size: 1.2em;
+      vertical-align: middle;
+      margin-left: 0.1em;
+    }
+    svg {
+      width: 1.5em;
+      height: 1.5em;
+    }
+  }
   &.iconSwitch {
     color: var(--main-color);
     &:hover {

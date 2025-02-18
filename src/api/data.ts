@@ -19,8 +19,10 @@ import {
   soundAlbumsDataOptions,
   soundsDataOptions,
   TableVersionDataOptions,
+  likeDataOptions,
 } from "@/dataDef";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
+import { ServerLikeGetData } from "./like";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
@@ -108,6 +110,7 @@ apps(
   [filesDataOptions, ServerFilesGetData],
   [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
   [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
+  [likeDataOptions, ServerLikeGetData],
   [TableVersionDataOptions, ServerTableVersionGetData],
 );
 
@@ -121,6 +124,7 @@ app.post("/tables/update", async (c) => {
     postsDataOptions,
     soundAlbumsDataOptions,
     soundsDataOptions,
+    likeDataOptions
   ];
   const db = new MeeSqlD1(c.env.DB);
   const lastmodTime = new Date();

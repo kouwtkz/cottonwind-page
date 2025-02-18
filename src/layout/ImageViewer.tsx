@@ -38,6 +38,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { EmbedNode, useFilesMap } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
+import { LikeButton } from "@/components/button/LikeButton";
 
 type ImageViewerType = {
   image: ImageType | null;
@@ -188,6 +189,7 @@ function InfoArea({ image }: InfoAreaProps) {
                 </div>
               ) : null}
               <div className="gray right">
+                <LikeButton />
                 {image.time ? (
                   <span className="time">
                     {image.draft ? (
