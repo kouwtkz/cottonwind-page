@@ -13,7 +13,6 @@ export function LikeState() {
   const [updated, setUpdated] = useLikeStateUpdated();
   useEffect(() => {
     if (updated !== lastmod && images && likeData) {
-      console.log(updated, lastmod);
       likeData
         .filter((v) => v.path?.startsWith("?image="))
         .map((like) => ({ like, key: like.path!.slice(7) }))
