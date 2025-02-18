@@ -69,7 +69,7 @@ export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
 export const likeDataOptions: StorageDataStateClassProps<LikeDataType> = {
   key: "likeData",
   src: "/like",
-  version: "0.0.0",
+  version: "1.0.0",
   preLoad: false,
   idField: "path"
 }
