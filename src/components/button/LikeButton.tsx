@@ -17,6 +17,7 @@ export function LikeButton({
   children,
   onClick,
   checked,
+  title,
   ...props
 }: LikeButtonProps) {
   const apiOrigin = useApiOrigin()[0];
@@ -43,6 +44,11 @@ export function LikeButton({
     if (className) list.push(className);
     return list.join(" ");
   }, [className, checked]);
+  title = useMemo(() => {
+    if (title) return title;
+    else if (checked) return "いいねを外す";
+    else return "いいねを付ける";
+  }, [title, checked]);
   return (
     <button
       type="button"
@@ -71,6 +77,7 @@ export function LikeButton({
         }
         if (onClick) onClick(e);
       }}
+      title={title}
       {...props}
     >
       <RiHeart3Fill />
