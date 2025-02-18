@@ -110,16 +110,16 @@ function CharacterPageState() {
     [text]
   );
   const { orderBy } = whereOptions;
-  const wheres = useMemo(() => [whereOptions.where], [whereOptions.where]);
   const filterDraft = useMemo(
     () => filters?.some((v) => v === "draft"),
     [filters]
   );
-  if (filterDraft) wheres.push({ draft: true });
-  const where: findWhereType<CharacterType> = useMemo(
-    () => ({ AND: wheres }),
-    [wheres]
-  );
+  const where: findWhereType<CharacterType> = useMemo(() => {
+    const wheres = [whereOptions.where];
+    if (filterDraft) wheres.push({ draft: true });
+    if (liked) wheres.push({ like: { checked: true } });
+    return { AND: wheres };
+  }, [whereOptions.where, filterDraft, liked]);
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
     const list: OrderByItem<CharacterType>[] = [...orderBy];
@@ -146,7 +146,6 @@ function CharacterPageState() {
       ? findMee([...characters], { where, orderBy: orderBySort })
       : [];
     if (!showAll) items = items.filter((chara) => chara.visible);
-    if (liked) items = items.filter((chara) => chara.like?.checked)
     const parts: PartsType[] = [];
     let sortType: OrderByType | undefined;
     let entries: [string, CharacterType[]][] | undefined;
@@ -188,7 +187,7 @@ function CharacterPageState() {
       });
     } else parts.push({ items });
     return parts;
-  }, [where, characters, orderBySort, showAll, liked]);
+  }, [where, characters, orderBySort, showAll]);
   const { set } = useCharacterPageState();
   useEffect(() => {
     set({ filters, orderBySort, showAll, liked, where, parts });
