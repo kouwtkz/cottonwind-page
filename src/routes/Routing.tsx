@@ -13,6 +13,7 @@ import WorksPage from "./WorksPage";
 import { BlogPage } from "./BlogPage";
 import { PostForm } from "./edit/PostForm";
 import ContactPage from "./ContactPage";
+import { SettingPage } from "./Setting";
 import { AdminPage } from "./AdminPage";
 import { ChangeLog } from "@/state/GitState";
 
@@ -63,6 +64,7 @@ export const Routing: RouteObject[] = [
       { path: "contact", element: <ContactPage /> },
       { path: "blog", element: <BlogPage /> },
       { path: "blog/post", element: <PostForm /> },
+      { path: "setting", element: <SettingPage /> },
       { path: "admin", element: <AdminPage /> },
       { path: "admin/:key", element: <AdminPage /> },
     ] as MeeRouteObject[],

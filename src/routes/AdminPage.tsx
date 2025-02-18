@@ -56,20 +56,24 @@ export function AdminPage() {
           <h2 className="color-main en-title-font">Admin room</h2>
           <h4>かんりしつ</h4>
           <div className="flex center column large">
-            {isLogin ? (
-              <>
-                <a href="/workers">Workersのページ</a>
-                <Link to="images">画像管理ページ</Link>
-                <Link to="files">ファイル管理ページ</Link>
-                <Link to="zip">Zipアーカイブ</Link>
-                <Link to="db">データベース設定</Link>
-                <a href="/workers/logout">ログアウト</a>
-              </>
-            ) : null}
+            {isLogin ? <AdminMainPage /> : null}
           </div>
         </>
       )}
     </main>
+  );
+}
+
+export function AdminMainPage() {
+  return (
+    <>
+      <a href="/workers">Workersのページ</a>
+      <Link to="/admin/images">画像管理ページ</Link>
+      <Link to="/admin/files">ファイル管理ページ</Link>
+      <Link to="/admin/zip">Zipアーカイブ</Link>
+      <Link to="/admin/db">データベース設定</Link>
+      <a href="/workers/logout">ログアウト</a>
+    </>
   );
 }
 
