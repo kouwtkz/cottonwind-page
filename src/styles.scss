@@ -1761,7 +1761,7 @@ footer {
     position: absolute;
     bottom: 0;
     z-index: 1;
-    animation: SimpleGageAnim linear forwards;
+    animation: SimpleGageAnim linear backwards;
     opacity: 0.25;
     background-color: var(--background-bw);
   }
