@@ -390,18 +390,32 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
               const keyraw = filterOptions.key || filterKey;
               const key = Array.isArray(keyraw) ? keyraw.map(v => String(v)) : String(keyraw);
               let filterEntry: filterConditionsAllKeyValue<any>;
-              switch (filterValue) {
-                case "true":
-                case "false":
-                  const bool = filterValue === "true";
-                  if (!bool && filterTake) filterTake = undefined;
-                  filterEntry = { bool };
-                  break;
-                default:
-                  filterEntry = TextToWhere(rawFilterValue, filterValue, options.forceContains);
-                  break;
+              if (typeof key === "string" && /\./.test(key)) {
+                filterEntry = {};
+                const parts = key.split(".");
+                const partsLength = parts.length - 1;
+                parts.reduce<any>((a, c, i) => {
+                  if (partsLength === i) {
+                    a[c] = filterValue;
+                  } else {
+                    a[c] = {}; return a[c];
+                  }
+                }, filterEntry);
+                whereItem = filterEntry;
+              } else {
+                switch (filterValue) {
+                  case "true":
+                  case "false":
+                    const bool = filterValue === "true";
+                    if (!bool && filterTake) filterTake = undefined;
+                    filterEntry = { bool };
+                    break;
+                  default:
+                    filterEntry = TextToWhere(rawFilterValue, filterValue, options.forceContains);
+                    break;
+                }
+                whereItem = whereFromKey(key, filterEntry);
               }
-              whereItem = whereFromKey(key, filterEntry);
             }
             break;
         }
