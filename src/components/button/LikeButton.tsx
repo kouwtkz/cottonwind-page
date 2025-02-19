@@ -10,22 +10,22 @@ import { useApiOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  url?: string;
   checked?: boolean;
 }
 export function LikeButton({
+  url,
+  checked,
   className,
   children,
   onClick,
-  checked,
   title,
   ...props
 }: LikeButtonProps) {
   const apiOrigin = useApiOrigin()[0];
   const { pathname, search } = useLocation();
-  const pathKey = useMemo(
-    () => toLikePath(pathname + search),
-    [pathname, search]
-  );
+  if (!url) url = pathname + search;
+  const pathKey = useMemo(() => toLikePath(url), [url]);
   const likeData = likeDataObject.useData()[0];
   const setLikeDataLoad = likeDataObject.useLoad()[1];
   const thisLikeData = useMemo(

@@ -197,7 +197,7 @@ function InfoArea({ image }: InfoAreaProps) {
                 </div>
               ) : null}
               <div className="gray right">
-                <LikeButton />
+                <LikeButton url={"?image=" + image.key} />
                 {image.time ? (
                   <span className="time">
                     {image.draft ? (
