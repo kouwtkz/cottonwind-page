@@ -669,12 +669,20 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                         className="vertical"
                         style={previewImgStyle}
                       />
-                      <ImageMee
-                        imageItem={image}
-                        mode="simple"
-                        className="landscape"
-                        style={previewImgStyle}
-                      />
+                      <div>
+                        <ImageMee
+                          imageItem={image}
+                          mode="simple"
+                          className="square"
+                          style={previewImgStyle}
+                        />
+                        <ImageMee
+                          imageItem={image}
+                          mode="simple"
+                          className="landscape"
+                          style={previewImgStyle}
+                        />
+                      </div>
                     </div>
                   ) : null}
                   <button

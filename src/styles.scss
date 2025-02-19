@@ -2779,15 +2779,31 @@ $soundBoxHeight: 12.5rem;
           height: 7em;
           bottom: 1.5em;
           padding: 0.25em;
-          display: flex;
-          flex-wrap: wrap;
-          align-items: flex-end;
-          justify-content: space-evenly;
+          &,
+          div {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+          }
+          & {
+            justify-content: space-evenly;
+            flex-direction: row;
+          }
+          div {
+            flex-direction: column;
+            align-items: flex-start;
+            align-content: center;
+          }
           img {
             object-fit: cover;
             &.vertical {
               width: 3em;
               height: 6em;
+            }
+            &.square {
+              width: 3.75em;
+              height: 3.75em;
+              margin-bottom: 0.25em;
             }
             &.landscape {
               width: 6em;
