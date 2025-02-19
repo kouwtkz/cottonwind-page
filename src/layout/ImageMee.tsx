@@ -106,8 +106,11 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
       }
     }, [imageItem, size, width, height]);
     const avgSize = useMemo(
-      () => (Number(width) + Number(height)) / 2,
-      [width, height]
+      () =>
+        (Number(imageItem?.width || width) +
+          Number(imageItem?.height || height)) /
+        2,
+      [imageItem, width, height]
     );
 
     const [pngURL, setPngURL] = useState<string>();
@@ -171,7 +174,7 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
       if (!mainImgSrc) list.push("blank");
       if (
         autoPixel &&
-        (typeof autoPixel === "number" ? autoPixel : 128) >= avgSize
+        (typeof autoPixel === "number" ? autoPixel : 64) >= avgSize
       )
         list.push("pixel");
       return list.length > 0 ? list.join(" ") : undefined;
