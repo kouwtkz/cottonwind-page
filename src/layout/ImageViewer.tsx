@@ -49,7 +49,12 @@ import { LikeButton } from "@/components/button/LikeButton";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { useGalleryObject } from "@/routes/GalleryPage";
 
-type ImageViewerType = {
+interface ImageViewerParamType {
+  imageParam?: string | null;
+  groupParam?: string | null;
+  albumParam?: string | null;
+}
+interface ImageViewerType extends ImageViewerParamType {
   image: ImageType | null;
   setImage: (image: ImageType | null) => void;
   images: ImageType[] | null;
@@ -57,9 +62,8 @@ type ImageViewerType = {
   isOpen: boolean;
   setOpen: () => void;
   setClose: () => void;
-  viewerSearchParams: URLSearchParams | null;
-  setViewerSearchParams: (searchParams: URLSearchParams | null) => void;
-};
+  setParam: (params?: ImageViewerParamType) => void;
+}
 export const useImageViewer = create<ImageViewerType>((set) => ({
   image: null,
   setImage(image) {
@@ -78,9 +82,8 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
     set(() => ({ isOpen: false, editMode: false }));
     scrollLock(false);
   },
-  viewerSearchParams: null,
-  setViewerSearchParams(searchParams) {
-    set({ viewerSearchParams: searchParams });
+  setParam(params) {
+    set({ ...params });
   },
 }));
 
@@ -377,8 +380,10 @@ export function ImageViewer() {
     image,
     setImage,
     setImages,
-    viewerSearchParams,
-    setViewerSearchParams,
+    setParam,
+    imageParam,
+    albumParam,
+    groupParam,
   } = useImageViewer();
   const [isDirty, setIsDirty] = useImageEditIsDirty();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -414,18 +419,16 @@ export function ImageViewer() {
   });
 
   useEffect(() => {
-    const imageSearchParam = searchParams.get("image");
-    if (imageSearchParam) {
-      setViewerSearchParams(searchParams);
+    const imageParam = searchParams.get("image");
+    if (imageParam) {
+      const albumParam = searchParams?.get("album");
+      const groupParam = searchParams?.get("group") ?? albumParam;
+      setParam({ imageParam, albumParam, groupParam });
       setOpen();
     } else {
       setClose();
     }
   }, [searchParams]);
-  const imageParam = viewerSearchParams?.get("image") || null;
-
-  const albumParam = viewerSearchParams?.get("album") || null;
-  const groupParam = (viewerSearchParams?.get("group") ?? albumParam) || null;
 
   const { items, yfList } = useGalleryObject();
   const galleryItemIndex = useMemo(
@@ -464,7 +467,7 @@ export function ImageViewer() {
       <CSSTransition
         in={isOpen}
         onExited={() => {
-          setViewerSearchParams(null);
+          setParam({ imageParam: null, albumParam: null, groupParam: null });
         }}
         timeout={timeout}
         // unmountOnExit
