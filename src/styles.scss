@@ -127,6 +127,38 @@
     transform: scale(0.975);
   }
 }
+@keyframes ZoomInAnim {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes ZoomOutAnim {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0);
+  }
+}
+@keyframes ZoomInYAnim {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes ZoomOutYAnim {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0);
+  }
+}
 
 @mixin CursorKeyframe($name, $url_or_time, $urls...) {
   $max: length($urls);
@@ -1354,6 +1386,24 @@ code {
     }
   }
 }
+
+@keyframes SiteMenuInAnim {
+  from {
+    transform: scaleX(0.9) scaleY(0);
+  }
+  to {
+    transform: scaleX(1) scaleY(1);
+  }
+}
+@keyframes SiteMenuOutAnim {
+  from {
+    transform: scaleX(1) scaleY(1);
+  }
+  to {
+    transform: scaleX(0.9) scaleY(0);
+  }
+}
+
 $headerHeight: 3.5rem;
 html {
   scroll-padding-top: #{$headerHeight + 1rem};
@@ -1423,6 +1473,14 @@ header {
         fill: var(--main-color-strong);
         outline: none;
       }
+    }
+    .enter {
+      transform-origin: right top;
+      animation: SiteMenuInAnim ease forwards;
+    }
+    .exit {
+      transform-origin: right top;
+      animation: SiteMenuOutAnim ease forwards;
     }
     .listMenu {
       margin-top: 0.125rem;
@@ -1703,7 +1761,7 @@ footer {
     position: absolute;
     bottom: 0;
     z-index: 1;
-    animation: SimpleGageAnim linear;
+    animation: SimpleGageAnim linear forwards;
     opacity: 0.25;
     background-color: var(--background-bw);
   }
@@ -2453,10 +2511,10 @@ $soundBoxHeight: 12.5rem;
   position: fixed;
   z-index: 40;
   .enter {
-    animation: FadeInAnim linear;
+    animation: FadeInAnim linear forwards;
   }
   .exit {
-    animation: FadeOutAnim linear;
+    animation: FadeOutAnim linear forwards;
   }
   .viewer {
     @extend .modal-background;

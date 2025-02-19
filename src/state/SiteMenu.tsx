@@ -93,7 +93,8 @@ export function SiteMenu() {
       <DropdownObject
         listClassName="right"
         MenuButton={SiteMenuButton}
-        onClickFadeOutTime={300}
+        cssTimeOut={100}
+        clickTimeOut={300}
       >
         {list.map((item, i) => {
           if (item.url) {

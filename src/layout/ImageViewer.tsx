@@ -427,7 +427,7 @@ export function ImageViewer() {
     }
   }, [image]);
   const timeout = 80;
-  const timeoutCss = useMemo<CSSProperties>(() => {
+  const timeoutStyle = useMemo<CSSProperties>(() => {
     return {
       animationDuration: timeout + "ms",
     };
@@ -444,7 +444,7 @@ export function ImageViewer() {
         // unmountOnExit
         nodeRef={nodeRef}
       >
-        <div ref={nodeRef} style={timeoutCss}>
+        <div ref={nodeRef} style={timeoutStyle}>
           {image ? (
             <div
               onClick={(e) => {
@@ -462,7 +462,7 @@ export function ImageViewer() {
                     e.stopPropagation();
                   }}
                 />
-                <div className="window modal" style={timeoutCss}>
+                <div className="window modal" style={timeoutStyle}>
                   <PreviewArea image={image} />
                   <InfoArea image={image} />
                 </div>

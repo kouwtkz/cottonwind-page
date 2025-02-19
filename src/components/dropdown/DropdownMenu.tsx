@@ -1,12 +1,16 @@
 import {
   CSSProperties,
+  forwardRef,
   HTMLAttributes,
   ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { CSSTransition } from "react-transition-group";
 
 export interface InsertElementProps extends HTMLAttributes<Element> {
   isOpen: boolean;
@@ -29,10 +33,12 @@ export interface DropdownObjectBaseProps {
   listClassName?: string;
 }
 
-interface DropdownObjectProps extends DropdownObjectBaseProps {
+export interface DropdownObjectProps extends DropdownObjectBaseProps {
   children?: ReactNode;
   onClick?: (e: HTMLElement) => boolean | void;
-  onClickFadeOutTime?: number;
+  cssTimeOut?: number;
+  clickTimeOut?: number;
+  classNames?: string;
 }
 
 export function DropdownObject({
@@ -47,9 +53,12 @@ export function DropdownObject({
   listClassName,
   children,
   onClick,
-  onClickFadeOutTime,
+  cssTimeOut = 0,
+  clickTimeOut = 0,
   autoClose = true,
+  classNames,
 }: DropdownObjectProps) {
+  const nodeRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [menuFocus, setMenuFocus] = useState(false);
   const [_menuFocus, _setMenuFocus] = useState(false);
@@ -75,6 +84,11 @@ export function DropdownObject({
     if (listClassName) list.push(listClassName);
     return list.join(" ");
   }, [listClassName]);
+  const timeoutStyle = useMemo<CSSProperties>(() => {
+    return {
+      animationDuration: cssTimeOut + "ms",
+    };
+  }, [cssTimeOut]);
 
   return (
     <div
@@ -111,33 +125,42 @@ export function DropdownObject({
         )}
         {MenuButtonAfter ? <div className="list">{MenuButtonAfter}</div> : null}
       </div>
-      <div
-        className={listClassName}
-        hidden={!isOpen}
-        onClick={(e) => {
-          let close: boolean;
-          if (onClick) close = onClick(e.target as HTMLElement) ?? true;
-          else close = true;
-          if (close) {
-            if (onClickFadeOutTime)
-              setTimeout(() => {
-                setMenuFocus(false);
-              }, onClickFadeOutTime);
-            else setMenuFocus(false);
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            const target = e.target as HTMLElement;
-            if (onClick && target.tagName !== "A") {
-              onClick(target);
-              e.preventDefault();
-            }
-          }
-        }}
+      <CSSTransition
+        in={isOpen}
+        classNames={classNames}
+        timeout={cssTimeOut}
+        unmountOnExit
+        nodeRef={nodeRef}
       >
-        {children}
-      </div>
+        <div
+          className={listClassName}
+          ref={nodeRef}
+          style={timeoutStyle}
+          onClick={(e) => {
+            let close: boolean;
+            if (onClick) close = onClick(e.target as HTMLElement) ?? true;
+            else close = true;
+            if (close) {
+              if (clickTimeOut)
+                setTimeout(() => {
+                  setMenuFocus(false);
+                }, clickTimeOut);
+              else setMenuFocus(false);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              const target = e.target as HTMLElement;
+              if (onClick && target.tagName !== "A") {
+                onClick(target);
+                e.preventDefault();
+              }
+            }
+          }}
+        >
+          {children}
+        </div>
+      </CSSTransition>
     </div>
   );
 }
