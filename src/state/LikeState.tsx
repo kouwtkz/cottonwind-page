@@ -45,5 +45,3 @@ export function LikeState() {
   }, [images, characters, lastmod, updated, setUpdated]);
   return <></>;
 }
-
-export const useSelectedImage = CreateState<ImageType | null>(null);
