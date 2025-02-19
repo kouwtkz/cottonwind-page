@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -61,8 +66,9 @@ import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "@/functions/sendFunction";
 import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
-import { useImageState } from "@/state/ImageState";
+import { useImageState, useSelectedImage } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
+import { RiImageAddFill } from "react-icons/ri";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -82,6 +88,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const charactersMap = useCharactersMap()[0];
   const apiOrigin = useApiOrigin()[0];
   const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  let { state } = useLocation();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const { images } = useImageState();
@@ -225,6 +233,67 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     }
   }
 
+  const selectedImage = useSelectedImage()[0];
+  const [selectedImageMode, setSelectedImageMode] =
+    useState<characterImageMode>();
+
+  useEffect(() => {
+    if (selectedImage && selectedImageMode && chara) {
+      SendPostFetch({
+        apiOrigin,
+        data: {
+          target: chara.key,
+          [selectedImageMode]:
+            selectedImageMode === "icon" && chara.key === selectedImage.key
+              ? ""
+              : selectedImage.key,
+        },
+      }).then(() => {
+        switch (selectedImageMode) {
+          case "icon":
+            toast("アイコンに設定しました");
+            break;
+          case "headerImage":
+            toast("ヘッダーに設定しました");
+            break;
+          case "image":
+            toast("メイン画像に設定しました");
+            break;
+        }
+        setCharactersLoad("no-cache");
+      });
+      console.log(selectedImage, selectedImageMode);
+    }
+  }, [selectedImage, selectedImageMode, chara]);
+
+  const ImageModalSetter = useCallback(
+    (mode: characterImageMode, title = "ギャラリーから設定する") => {
+      return (
+        <button
+          className="normal setter color"
+          title={title}
+          type="button"
+          onClick={() => {
+            if (!state) state = {};
+            state.from = location.href;
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.set("modal", "gallery");
+            newSearchParams.set("show", "all");
+            if (chara) newSearchParams.set("characters", chara.key);
+            setSearchParams(Object.fromEntries(newSearchParams), {
+              state,
+              preventScrollReset: true,
+            });
+            setSelectedImageMode(mode);
+          }}
+        >
+          <RiImageAddFill />
+        </button>
+      );
+    },
+    [searchParams, state, chara]
+  );
+
   const ImageSetter = useCallback(
     (mode: characterImageMode, title = "画像の設定") => {
       return (
@@ -362,6 +431,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("icon")}
               />
             </label>
+            {ImageModalSetter("icon", "ギャラリーからアイコンの設定")}
             {ImageSetter("icon", "アイコンの設定")}
           </div>
           <div className="flex center">
@@ -375,6 +445,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("headerImage")}
               />
             </label>
+            {ImageModalSetter("headerImage", "ギャラリーからヘッダーの設定")}
             {ImageSetter("headerImage", "ヘッダーの設定")}
           </div>
           <div className="flex center">
@@ -388,6 +459,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("image")}
               />
             </label>
+            {ImageModalSetter("image", "ギャラリーからメイン画像の設定")}
             {ImageSetter("image", "メイン画像の設定")}
           </div>
         </div>

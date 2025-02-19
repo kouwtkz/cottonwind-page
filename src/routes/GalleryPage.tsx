@@ -79,9 +79,11 @@ import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/ArrayEnv";
 import { useLikeStateUpdated } from "@/state/LikeState";
+import { CreateState } from "@/state/CreateState";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
+  showAll?: boolean;
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
   const galleryList =
@@ -1101,19 +1103,20 @@ export function GalleryCharactersSelect({
   className,
 }: SelectAreaProps) {
   const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isModal = searchParams.has("modal");
   const currentChara = params["charaName"];
+  const enableCharaFilter = Boolean(currentChara && !isModal);
   const characters = useCharacters()[0];
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
-    if (currentChara) list = list.filter((v) => v.key !== currentChara);
+    if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
     return list.map(({ name, key: id }) => ({
       label: name,
       value: id,
     }));
-  }, [characters, currentChara]);
+  }, [characters, currentChara, enableCharaFilter]);
   const { state } = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const isModal = searchParams.has("modal");
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
     return charaLabelOptions.filter(({ value }) =>
@@ -1132,7 +1135,7 @@ export function GalleryCharactersSelect({
       isSearchable={false}
       isLoading={!Boolean(characters)}
       classNamePrefix="select"
-      placeholder={(currentChara ? "他の" : "") + "キャラクター"}
+      placeholder={(enableCharaFilter ? "他の" : "") + "キャラクター"}
       instanceId="characterSelect"
       className={"characterSelect" + (className ? " " + className : "")}
       theme={callReactSelectTheme}
@@ -1184,16 +1187,22 @@ function GalleryItemRibbon({ image }: { image: ImageType }) {
 export function MiniGallery() {
   const [selectedImage, setSelectedImage] = useSelectedImage();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isLogin = useIsLogin()[0];
   const nav = useNavigate();
   const { state } = useLocation();
   const enable = searchParams.get("modal") === "gallery";
+  const showAll = isLogin && searchParams.get("show") === "all";
+  const { imageAlbums: albums } = useImageState();
+  const items = useMemo(() => {
+    return showAll ? Object.values(Object.fromEntries(albums || [])) : null;
+  }, [showAll, albums]);
   function closeHandler() {
     if (state?.from) {
       delete state.from;
       nav(-1);
     } else {
       searchParams.delete("modal");
-      setSearchParams(searchParams, { state });
+      setSearchParams(searchParams, { state, preventScrollReset: true });
     }
   }
   useEffect(() => {
@@ -1206,7 +1215,11 @@ export function MiniGallery() {
     <>
       {enable ? (
         <Modal className="window miniGallery" onClose={closeHandler}>
-          <GalleryPage showInPageMenu={false} />
+          {items ? (
+            <GalleryObject items={items} showInPageMenu={false} />
+          ) : (
+            <GalleryPage showInPageMenu={false} />
+          )}
         </Modal>
       ) : null}
     </>
