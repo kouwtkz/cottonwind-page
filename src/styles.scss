@@ -95,7 +95,40 @@
   --form-background-color: var(--dark-form-background-color);
 }
 
-@mixin CursorKeyflame($name, $url_or_time, $urls...) {
+@keyframes FadeInAnim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes SlightlyZoomInAnim {
+  from {
+    transform: scale(0.975);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes FadeOutAnim {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes SlightlyZoomOutAnim {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.975);
+  }
+}
+
+@mixin CursorKeyframe($name, $url_or_time, $urls...) {
   $max: length($urls);
   $keyname: cursor-#{$name};
   @if $max > 0 {
@@ -131,35 +164,35 @@
   }
 }
 
-@include CursorKeyflame(
+@include CursorKeyframe(
   "default",
   "/static/images/cursor/わたかぜくんカーソル_通常_00.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "pointer",
   1000ms,
   "/static/images/cursor/わたかぜくんカーソル_ポインター_00.cur",
   "/static/images/cursor/わたかぜくんカーソル_ポインター_01.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "move",
   1000ms,
   "/static/images/cursor/わたかぜくんカーソル_移動_00.cur",
   "/static/images/cursor/わたかぜくんカーソル_移動_01.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "backgorund",
   1000ms,
   "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
   "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "progress",
   1000ms,
   "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
   "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "wait",
   2000ms,
   "/static/images/cursor/わたかぜくんカーソル_待機_00.cur",
@@ -167,13 +200,13 @@
   "/static/images/cursor/わたかぜくんカーソル_待機_02.cur",
   "/static/images/cursor/わたかぜくんカーソル_待機_03.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "not-allowed",
   1000ms,
   "/static/images/cursor/わたかぜくんカーソル_禁止_00.cur",
   "/static/images/cursor/わたかぜくんカーソル_禁止_01.cur"
 );
-@include CursorKeyflame(
+@include CursorKeyframe(
   "text",
   "/static/images/cursor/わたかぜくんカーソル_テキスト選択_00.cur"
 );
@@ -2419,6 +2452,12 @@ $soundBoxHeight: 12.5rem;
   $thisMobileWidth: #{$tabletWidth};
   position: fixed;
   z-index: 40;
+  .enter {
+    animation: FadeInAnim linear;
+  }
+  .exit {
+    animation: FadeOutAnim linear;
+  }
   .viewer {
     @extend .modal-background;
     // width: 100%;

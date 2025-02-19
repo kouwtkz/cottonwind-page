@@ -1,4 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React, {
+  act,
+  CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { create } from "zustand";
 import {
   createSearchParams,
@@ -39,6 +46,7 @@ import { EmbedNode, useFilesMap } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "@/components/button/LikeButton";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 type ImageViewerType = {
   image: ImageType | null;
@@ -46,8 +54,8 @@ type ImageViewerType = {
   images: ImageType[] | null;
   setImages: (images: ImageType[] | null) => void;
   isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  setOpen: () => void;
+  setClose: () => void;
 };
 export const useImageViewer = create<ImageViewerType>((set) => ({
   image: null,
@@ -63,11 +71,11 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
     set({ images });
   },
   isOpen: false,
-  onOpen: () => {
+  setOpen: () => {
     set(() => ({ isOpen: true }));
     scrollLock(true);
   },
-  onClose: () => {
+  setClose: () => {
     set(() => ({ isOpen: false, editMode: false, imageSrc: "" }));
     scrollLock(false);
   },
@@ -78,7 +86,7 @@ interface InfoAreaProps {
 }
 function InfoArea({ image }: InfoAreaProps) {
   const [isComplete] = useDataIsComplete();
-  const { onClose } = useImageViewer();
+  const { setClose } = useImageViewer();
   const searchParams = useSearchParams()[0];
   const stateIsEdit = useImageEditIsEdit()[0];
   const [stateIsEditHold] = useImageEditIsEditHold();
@@ -128,7 +136,7 @@ function InfoArea({ image }: InfoAreaProps) {
                     <Link
                       to={"/character/" + chara.key}
                       onClick={() => {
-                        onClose();
+                        setClose();
                         return true;
                       }}
                       className="character"
@@ -359,14 +367,16 @@ function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
 
 export function ImageViewer() {
   const { imagesMap } = useImageState();
-  const { isOpen, onOpen, onClose } = useImageViewer();
+  const { isOpen, setOpen, setClose } = useImageViewer();
   const [isDirty, setIsDirty] = useImageEditIsDirty();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
   const l = useLocation();
   const state = l.state;
-  const imageParam = searchParams.get("image");
   const setIsEdit = useImageEditIsEdit()[1];
+  const nodeRef = useRef<HTMLDivElement>(null);
+
+  // あとで実装: 読み込み直したときは拡大処理を行わない
 
   function backAction() {
     if (
@@ -393,10 +403,21 @@ export function ImageViewer() {
     }
   });
 
+  const imageSearchParam = searchParams.get("image");
+  const [imageParam, setImageParam] = useState<string>();
+  useEffect(() => {
+    if (imageSearchParam) {
+      setImageParam(imageSearchParam);
+      setOpen();
+    } else {
+      setClose();
+    }
+  }, [imageSearchParam]);
+
   const image = useMemo(() => {
     if (imagesMap && imageParam) {
       return imagesMap.get(imageParam);
-    } else return;
+    } else return null;
   }, [imageParam, imagesMap]);
 
   useEffect(() => {
@@ -405,43 +426,51 @@ export function ImageViewer() {
       image.update = false;
     }
   }, [image]);
-
-  useEffect(() => {
-    if (isOpen && !image) {
-      onClose();
-    } else if (image) {
-      if (!isOpen) onOpen();
-    }
-  }, [isOpen, image]);
+  const timeout = 80;
+  const timeoutCss = useMemo<CSSProperties>(() => {
+    return {
+      animationDuration: timeout + "ms",
+    };
+  }, [timeout]);
 
   return (
     <div id="image_viewer">
-      {isOpen && image ? (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) backAction();
-          }}
-          className="viewer scrollThrough"
-        >
-          <div>
-            <CloseButton
-              className="modalClose cursor-pointer"
-              width={60}
-              height={60}
+      <CSSTransition
+        in={isOpen}
+        onExited={() => {
+          setImageParam("");
+        }}
+        timeout={timeout}
+        // unmountOnExit
+        nodeRef={nodeRef}
+      >
+        <div ref={nodeRef} style={timeoutCss}>
+          {image ? (
+            <div
               onClick={(e) => {
-                backAction();
-                e.stopPropagation();
+                if (e.target === e.currentTarget) backAction();
               }}
-            />
-            <div className="window modal">
-              <PreviewArea image={image} />
-              <InfoArea image={image} />
+              className="viewer scrollThrough"
+            >
+              <div>
+                <CloseButton
+                  className="modalClose cursor-pointer"
+                  width={60}
+                  height={60}
+                  onClick={(e) => {
+                    backAction();
+                    e.stopPropagation();
+                  }}
+                />
+                <div className="window modal" style={timeoutCss}>
+                  <PreviewArea image={image} />
+                  <InfoArea image={image} />
+                </div>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
-      ) : (
-        <></>
-      )}
+      </CSSTransition>
     </div>
   );
 }
