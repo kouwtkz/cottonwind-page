@@ -205,26 +205,6 @@ export const useGalleryObject = create<GalleryObjectType>((set) => ({
   },
 }));
 
-function GalleryObjectState() {
-  const searchParams = useSearchParams()[0];
-  const albumParam = searchParams.get("album");
-  const groupParam = searchParams.get("group") ?? albumParam;
-  const { items, yfList } = useGalleryObject();
-  const { setImages } = useImageViewer();
-  const galleryItemIndex = useMemo(
-    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
-    [items, groupParam]
-  );
-  const images = useMemo(
-    () => yfList[galleryItemIndex] || [],
-    [yfList, galleryItemIndex]
-  );
-  useEffect(() => {
-    setImages(images);
-  }, [images]);
-  return <></>;
-}
-
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
@@ -413,7 +393,6 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   }, [items]);
   return (
     <>
-      <GalleryObjectState />
       <GalleryBody items={items} yfList={yfList} {...args} />
     </>
   );

@@ -47,6 +47,7 @@ import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "@/components/button/LikeButton";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { useGalleryObject } from "@/routes/GalleryPage";
 
 type ImageViewerType = {
   image: ImageType | null;
@@ -56,15 +57,13 @@ type ImageViewerType = {
   isOpen: boolean;
   setOpen: () => void;
   setClose: () => void;
+  viewerSearchParams: URLSearchParams | null;
+  setViewerSearchParams: (searchParams: URLSearchParams | null) => void;
 };
 export const useImageViewer = create<ImageViewerType>((set) => ({
   image: null,
   setImage(image) {
-    set({
-      image,
-      isOpen: true,
-    });
-    scrollLock(true);
+    set({ image });
   },
   images: null,
   setImages(images) {
@@ -76,8 +75,12 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
     scrollLock(true);
   },
   setClose: () => {
-    set(() => ({ isOpen: false, editMode: false, imageSrc: "" }));
+    set(() => ({ isOpen: false, editMode: false }));
     scrollLock(false);
+  },
+  viewerSearchParams: null,
+  setViewerSearchParams(searchParams) {
+    set({ viewerSearchParams: searchParams });
   },
 }));
 
@@ -367,7 +370,16 @@ function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
 
 export function ImageViewer() {
   const { imagesMap } = useImageState();
-  const { isOpen, setOpen, setClose } = useImageViewer();
+  const {
+    isOpen,
+    setOpen,
+    setClose,
+    image,
+    setImage,
+    setImages,
+    viewerSearchParams,
+    setViewerSearchParams,
+  } = useImageViewer();
   const [isDirty, setIsDirty] = useImageEditIsDirty();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
@@ -375,8 +387,6 @@ export function ImageViewer() {
   const state = l.state;
   const setIsEdit = useImageEditIsEdit()[1];
   const nodeRef = useRef<HTMLDivElement>(null);
-
-  // あとで実装: 読み込み直したときは拡大処理を行わない
 
   function backAction() {
     if (
@@ -403,21 +413,37 @@ export function ImageViewer() {
     }
   });
 
-  const imageSearchParam = searchParams.get("image");
-  const [imageParam, setImageParam] = useState<string>();
   useEffect(() => {
+    const imageSearchParam = searchParams.get("image");
     if (imageSearchParam) {
-      setImageParam(imageSearchParam);
+      setViewerSearchParams(searchParams);
       setOpen();
     } else {
       setClose();
     }
-  }, [imageSearchParam]);
+  }, [searchParams]);
+  const imageParam = viewerSearchParams?.get("image") || null;
 
-  const image = useMemo(() => {
+  const albumParam = viewerSearchParams?.get("album") || null;
+  const groupParam = (viewerSearchParams?.get("group") ?? albumParam) || null;
+
+  const { items, yfList } = useGalleryObject();
+  const galleryItemIndex = useMemo(
+    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
+    [items, groupParam]
+  );
+  const images = useMemo(
+    () => yfList[galleryItemIndex] || [],
+    [yfList, galleryItemIndex]
+  );
+  useEffect(() => {
+    setImages(images);
+  }, [images]);
+
+  useEffect(() => {
     if (imagesMap && imageParam) {
-      return imagesMap.get(imageParam);
-    } else return null;
+      setImage(imagesMap.get(imageParam) || null);
+    } else setImage(null);
   }, [imageParam, imagesMap]);
 
   useEffect(() => {
@@ -438,7 +464,7 @@ export function ImageViewer() {
       <CSSTransition
         in={isOpen}
         onExited={() => {
-          setImageParam("");
+          setViewerSearchParams(null);
         }}
         timeout={timeout}
         // unmountOnExit
@@ -481,12 +507,12 @@ interface GalleryViewerPagingProps
 }
 
 export function GalleryViewerPaging({
-  image,
   className,
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const images = useImageViewer().images || [];
+  const { image, images: _images } = useImageViewer();
+  const images = _images || [];
   const imageIndex = useMemo(() => {
     const key = image?.key;
     if (key) {
