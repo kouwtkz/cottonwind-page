@@ -246,7 +246,12 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     apiOrigin,
                     album: charaMediaKindMap.get(mode),
                     albumOverwrite: false,
-                    ...(mode === "icon" ? iconImagesUploadOptions : undefined),
+                    character: chara.key,
+                    ...(mode === "icon"
+                      ? iconImagesUploadOptions
+                      : {
+                          notDraft: true,
+                        }),
                   });
                 })
                 .then(async (r) => {
@@ -256,12 +261,12 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     : null;
                 })
                 .then(async (o) => {
-                  if (o && typeof o.name === "string") {
+                  if (o && typeof o.key === "string") {
                     return SendPostFetch({
                       apiOrigin,
                       data: {
                         target: chara.key,
-                        [mode]: mode === "icon" ? "" : o.name,
+                        [mode]: mode === "icon" ? "" : o.key,
                       },
                     }).then(() => {
                       setCharactersLoad("no-cache");
