@@ -325,6 +325,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
                 <ImageMee
                   imageItem={image}
                   title={image.title || image.src || ""}
+                  autoPosition={false}
                 />
               </div>
             </div>
