@@ -44,6 +44,7 @@ interface ImageMeeProps
   v?: string | number;
   autoPixel?: boolean | number;
   showMessage?: boolean;
+  autoPosition?: boolean;
 }
 export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
   function ImageMee(
@@ -61,6 +62,7 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
       v,
       autoPixel = true,
       loadingScreen = false,
+      autoPosition = true,
       showMessage,
       style,
       onLoad,
@@ -179,6 +181,19 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
         list.push("pixel");
       return list.length > 0 ? list.join(" ") : undefined;
     }, [className, mainImgSrc, avgSize, autoPixel]);
+    const imgStyle = useMemo(() => {
+      const imgStyle: React.CSSProperties = { ...style };
+      if (loadingScreen) {
+        imgStyle.background = "var(--main-color-grayish-fluo)";
+      }
+      if (imageItem) {
+        if (autoPosition && imageItem.position) {
+          imgStyle.objectPosition = imageItem.position;
+        }
+      }
+      return imgStyle;
+    }, [imageItem, autoPosition, loadingScreen, style]);
+
     return (
       <img
         src={mainImgSrc || ""}
@@ -188,12 +203,7 @@ export const ImageMee = forwardRef<HTMLImageElement, ImageMeeProps>(
         {...{
           width,
           height,
-          style: {
-            ...style,
-            ...(loadingScreen
-              ? { background: "var(--main-color-grayish-fluo)" }
-              : {}),
-          },
+          style: imgStyle,
         }}
         className={_className}
         onLoad={(e) => {
