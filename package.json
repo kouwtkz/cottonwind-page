@@ -23,7 +23,7 @@
     "@dnd-kit/sortable": "^8.0.0",
     "@hookform/resolvers": "^3.9.0",
     "@mebtte/react-media-session": "^1.1.2",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^1.3.2",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "hono": "^4.6.3",
@@ -59,7 +59,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240925.0",
     "@hono/vite-cloudflare-pages": "^0.4.2",
-    "@hono/vite-dev-server": "^0.16.0",
+    "@hono/vite-dev-server": "^0.14.0",
     "@types/js-yaml": "^4.0.9",
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
