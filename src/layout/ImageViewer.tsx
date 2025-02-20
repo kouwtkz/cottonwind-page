@@ -19,9 +19,8 @@ import { SiteDateOptions as opt } from "@/functions/DateFunction";
 import { ImageMee } from "./ImageMee";
 import CloseButton from "@/components/svg/button/CloseButton";
 import ImageEditForm, {
-  useImageEditIsDirty,
-  useImageEditIsEdit,
-  useImageEditIsEditHold,
+  useImageEditState,
+  useImageEditSwitchHold,
 } from "@/routes/edit/ImageEditForm";
 import {
   defaultGalleryTags,
@@ -94,8 +93,8 @@ function InfoArea({ image }: InfoAreaProps) {
   const [isComplete] = useDataIsComplete();
   const { setClose } = useImageViewer();
   const searchParams = useSearchParams()[0];
-  const stateIsEdit = useImageEditIsEdit()[0];
-  const [stateIsEditHold] = useImageEditIsEditHold();
+  const { isEdit: stateIsEdit } = useImageEditState();
+  const stateIsEditHold = useImageEditSwitchHold()[0];
   const charactersMap = useCharactersMap()[0];
   const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
@@ -386,12 +385,11 @@ export function ImageViewer() {
     albumParam,
     groupParam,
   } = useImageViewer();
-  const [isDirty, setIsDirty] = useImageEditIsDirty();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
   const l = useLocation();
   const state = l.state;
-  const setIsEdit = useImageEditIsEdit()[1];
+  const { isDirty, set: setEdit } = useImageEditState();
   const nodeRef = useRef<HTMLDivElement>(null);
 
   function backAction() {
@@ -399,8 +397,7 @@ export function ImageViewer() {
       !isDirty ||
       confirm("フォームが保存されていません。\n本当に戻りますか？")
     ) {
-      setIsEdit(false);
-      setIsDirty(false);
+      setEdit({ isDirty: false, isEdit: false });
       if (state?.from) nav(-1);
       else {
         searchParams.delete("image");
@@ -516,6 +513,7 @@ export function GalleryViewerPaging({
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { image, images: _images } = useImageViewer();
+  const isEdit = useImageEditState().isEdit;
   const images = _images || [];
   const imageIndex = useMemo(() => {
     const key = image?.key;
@@ -543,28 +541,36 @@ export function GalleryViewerPaging({
     if (image.key) SearchParams.set("image", image.key);
     return new URL("?" + SearchParams.toString(), location.href).href;
   };
-  useHotkeys("ArrowLeft", () => {
-    if (prevNextImage.before) {
-      setSearchParams(
-        {
-          ...Object.fromEntries(searchParams),
-          image: prevNextImage.before.key,
-        },
-        { preventScrollReset: true, state: escapeState }
-      );
-    }
-  });
-  useHotkeys("ArrowRight", () => {
-    if (prevNextImage.after) {
-      setSearchParams(
-        {
-          ...Object.fromEntries(searchParams),
-          image: prevNextImage.after.key,
-        },
-        { preventScrollReset: true, state: escapeState }
-      );
-    }
-  });
+  useHotkeys(
+    "ArrowLeft",
+    () => {
+      if (prevNextImage.before) {
+        setSearchParams(
+          {
+            ...Object.fromEntries(searchParams),
+            image: prevNextImage.before.key,
+          },
+          { preventScrollReset: true, state: escapeState }
+        );
+      }
+    },
+    { enabled: !isEdit }
+  );
+  useHotkeys(
+    "ArrowRight",
+    () => {
+      if (prevNextImage.after) {
+        setSearchParams(
+          {
+            ...Object.fromEntries(searchParams),
+            image: prevNextImage.after.key,
+          },
+          { preventScrollReset: true, state: escapeState }
+        );
+      }
+    },
+    { enabled: !isEdit }
+  );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
       {prevNextImage?.before ? (

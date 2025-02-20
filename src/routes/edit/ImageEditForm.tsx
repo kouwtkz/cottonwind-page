@@ -53,6 +53,7 @@ import {
   PromiseOrder,
   PromiseOrderStateType,
 } from "@/functions/arrayFunction";
+import { create } from "zustand";
 import { CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -71,10 +72,23 @@ interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
 }
 
-export const useImageEditIsEdit = CreateState(false);
-export const useImageEditIsEditHold = CreateState(false);
-export const useImageEditIsDirty = CreateState(false);
-export const useImageEditIsBusy = CreateState(false);
+interface ImageEditProps {
+  isEdit: boolean;
+  isDirty: boolean;
+  isBusy: boolean;
+}
+interface ImageEditState extends ImageEditProps {
+  set: (args: Partial<ImageEditProps>) => void;
+}
+export const useImageEditState = create<ImageEditState>((s) => ({
+  isEdit: false,
+  isDirty: false,
+  isBusy: false,
+  set(args) {
+    s(args);
+  },
+}));
+export const useImageEditSwitchHold = CreateState(false);
 
 interface optionElementInterface {
   value?: string;
@@ -102,14 +116,17 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const characters = useCharacters()[0] || [];
   const apiOrigin = useApiOrigin()[0];
 
-  const [stateIsEdit, setIsEdit] = useImageEditIsEdit();
-  const [stateIsEditHold] = useImageEditIsEditHold();
+  const {
+    isEdit: stateIsEdit,
+    isDirty: stateIsDirty,
+    isBusy,
+    set,
+  } = useImageEditState();
+  const [stateIsEditHold] = useImageEditSwitchHold();
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
     [stateIsEdit, stateIsEditHold]
   );
-  const [stateIsDirty, setIsDirty] = useImageEditIsDirty();
-  const [isBusy, setIsBusy] = useImageEditIsBusy();
 
   const nav = useNavigate();
   const { state, search, pathname } = useLocation();
@@ -211,7 +228,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   useEffect(() => {
     if (stateIsDirty !== isDirty) {
-      setIsDirty(isDirty);
+      set({ isDirty });
     }
   }, [stateIsDirty, isDirty]);
 
@@ -219,7 +236,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     deleteMode,
     turnOff = true,
   }: { deleteMode?: boolean; turnOff?: boolean } = {}) {
-    setIsBusy(true);
+    set({ isBusy: true });
     const fields = getValues();
     const data = {} as KeyValueAnyType;
     let method: methodType = "PATCH";
@@ -252,7 +269,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       data,
       { method }
     ).finally(() => {
-      setIsBusy(false);
+      set({ isBusy: false });
     });
     if (res.status === 200) {
       toast.success(deleteMode ? "削除しました" : "更新しました！", {
@@ -456,7 +473,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           className="color round saveEdit"
           onClick={() => {
             if (isEdit && isDirty) SubmitImage();
-            setIsEdit(!isEdit);
+            set({ isEdit: !isEdit });
           }}
           disabled={isBusy}
         >
@@ -468,7 +485,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           {...args}
           ref={refForm}
           onSubmit={handleSubmit((e) => {
-            setIsEdit(!isEdit);
+            set({ isEdit: !isEdit });
             e.preventDefault();
           })}
           className={"edit window" + (className ? ` ${className}` : "")}
@@ -660,41 +677,45 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     </option>
                   ))}
                 </select>
-                <div className="positionPreview">
-                  {image ? (
-                    <div hidden={!isPositionPreview} className="window">
+              </label>
+              <div className="positionPreview label">
+                {image ? (
+                  <div
+                    hidden={!isPositionPreview}
+                    className="window"
+                    tabIndex={-1}
+                  >
+                    <ImageMee
+                      imageItem={image}
+                      mode="simple"
+                      className="vertical"
+                      style={previewImgStyle}
+                    />
+                    <div>
                       <ImageMee
                         imageItem={image}
                         mode="simple"
-                        className="vertical"
+                        className="square"
                         style={previewImgStyle}
                       />
-                      <div>
-                        <ImageMee
-                          imageItem={image}
-                          mode="simple"
-                          className="square"
-                          style={previewImgStyle}
-                        />
-                        <ImageMee
-                          imageItem={image}
-                          mode="simple"
-                          className="landscape"
-                          style={previewImgStyle}
-                        />
-                      </div>
+                      <ImageMee
+                        imageItem={image}
+                        mode="simple"
+                        className="landscape"
+                        style={previewImgStyle}
+                      />
                     </div>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      SetPositionPreview(!isPositionPreview);
-                    }}
-                  >
-                    {isPositionPreview ? "▼プレビューを閉じる" : "▲プレビュー"}
-                  </button>
-                </div>
-              </label>
+                  </div>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    SetPositionPreview(!isPositionPreview);
+                  }}
+                >
+                  {isPositionPreview ? "▼プレビューを閉じる" : "▲プレビュー"}
+                </button>
+              </div>
             </div>
           </div>
           <label>

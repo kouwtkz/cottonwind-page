@@ -34,7 +34,7 @@ import {
   editLinksType,
   SendLinksDir,
 } from "./edit/LinksEdit";
-import { useImageEditIsEditHold } from "./edit/ImageEditForm";
+import { useImageEditSwitchHold } from "./edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useImageViewer } from "@/layout/ImageViewer";
@@ -221,7 +221,7 @@ export function MyBanners() {
 function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
   const mediaOrigin = useMediaOrigin()[0];
   const setSearchParams = useSearchParams()[1];
-  const edit = useImageEditIsEditHold()[0];
+  const edit = useImageEditSwitchHold()[0];
   return (
     <div>
       <div>

@@ -3,7 +3,7 @@ import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
 import {
   ImagesUploadWithToast,
-  useImageEditIsEditHold,
+  useImageEditSwitchHold,
   useNoUploadThumbnail,
   useUploadWebp,
 } from "./ImageEditForm";
@@ -398,7 +398,7 @@ export function MyBannerEditButtons() {
         <>
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
-            useSwitch={useImageEditIsEditHold}
+            useSwitch={useImageEditSwitchHold}
           >
             <AiFillEdit />
           </ModeSwitch>

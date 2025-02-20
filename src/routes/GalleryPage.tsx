@@ -51,7 +51,7 @@ import {
   SwitchNotDraftUpload,
   SwitchNoUploadThumbnail,
   SwitchUploadWebp,
-  useImageEditIsEditHold,
+  useImageEditSwitchHold,
   useImageNotDraftUpload,
   useNoUploadThumbnail,
   useUploadWebp,
@@ -630,7 +630,7 @@ function GalleryBody({
                 </ModeSearchSwitch>
                 <ModeSwitch
                   toEnableTitle="常に編集モードにする"
-                  useSwitch={useImageEditIsEditHold}
+                  useSwitch={useImageEditSwitchHold}
                 >
                   <AiFillEdit />
                 </ModeSwitch>
