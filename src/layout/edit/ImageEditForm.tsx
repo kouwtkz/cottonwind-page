@@ -445,6 +445,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       movePosition({ x: -event.deltaX / 10, y: -event.deltaY / 10 });
     },
     trackMouse: true,
+    preventScrollOnSwipe: true,
+    touchEventOptions: { passive: false },
   });
   useEffect(() => {
     if (isPositionPreview) {
