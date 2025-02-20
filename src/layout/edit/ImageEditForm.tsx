@@ -735,9 +735,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   disabled={isBusy}
                 >
                   <option value="null">自動</option>
-                  <option value="1">ホームに表示する</option>
-                  <option value="2">最初に表示する</option>
+                  <option value="1">トップ表示に含める</option>
+                  <option value="2">アクセス時に表示する</option>
                   <option value="3">常に表示する</option>
+                  <option value="4">日時でトップへ含む</option>
+                  <option value="5">日時アクセス時表示</option>
+                  <option value="6">日時で常に表示する</option>
                   <option value="0">表示しない</option>
                 </select>
               </label>

@@ -1,6 +1,6 @@
 import { Link, To, useLocation, useSearchParams } from "react-router-dom";
 import { useImageState } from "@/state/ImageState";
-import { monthlyFilter } from "@/functions/media/FilterImages";
+import { getTimeframeTag, monthlyFilter } from "@/functions/media/FilterImages";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
@@ -137,8 +137,12 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
       findMee(images, {
         where: {
           OR: [
-            { topImage: { gte: 1 } },
+            { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
             { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
+            {
+              tags: { in: [getTimeframeTag()] },
+              AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
+            },
           ],
         },
         orderBy: [{ topImage: "desc" }],
@@ -167,11 +171,15 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
   useEffect(() => {
     const topImageFirstFlag = topImageFirst.current;
     const topImageFlag = topImages[0]?.topImage;
-    if (topImageFlag === 3 || (topImageFlag === 2 && topImageFirstFlag)) {
+    if (
+      topImageFlag === 3 ||
+      topImageFlag === 6 ||
+      ((topImageFlag === 2 || topImageFlag === 5) && topImageFirstFlag)
+    ) {
       setTopImage(topImages[0]);
     } else setRndTopImage();
     if (topImageFirstFlag) setTopImageFirst(false);
-  }, [topImages, setTopImageFirst]);
+  }, [topImages]);
   useEffect(() => {
     const timer = setInterval(() => {
       setRndTopImage();

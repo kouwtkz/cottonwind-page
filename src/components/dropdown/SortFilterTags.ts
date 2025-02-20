@@ -66,6 +66,19 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     ],
   },
   {
+    label: "時間帯",
+    name: "timeframe",
+    options: [
+      { value: "morning", label: "🌄朝" },      // (6:00-8:59)
+      { value: "forenoon", label: "🚃午前" },   // (9:00-11:59)
+      { value: "midday", label: "🍱真昼" },     // (12:00-13:59)
+      { value: "afternoon", label: "🏞️午後" },  // (14:00-16:59)
+      { value: "evening", label: "🌇夕方" },    // (17:00-19:59)
+      { value: "night", label: "🌃夜" },        // (20:00-23:59)
+      { value: "midnight", label: "🌌夜中" },   // (24:00-5:59)
+    ] as { value: TimeframeTagType, label: string }[],
+  },
+  {
     label: "創作",
     name: "creation",
     options: [
