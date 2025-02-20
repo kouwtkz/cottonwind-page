@@ -10,7 +10,7 @@ export function getGitLogData(args: getGitLogDataProps = {}): GitLogDataType {
   return { remote_url, list: getGitLogItemList(args) };
 }
 export function getGitLogItemList({
-  branch = execSync('git branch --contains').toString().slice(2, -1), dir
+  branch = execSync('git branch --contains').toString().match(/\*\s([^\n]+)/)?.[1] || "", dir
 }: getGitLogDataProps = {}): GitLogItemType[] {
   try {
     const execList: string[] = [];
