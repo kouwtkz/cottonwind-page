@@ -2730,6 +2730,7 @@ $soundBoxHeight: 12.5rem;
       label,
       .label {
         display: flex;
+        align-items: center;
         button {
           display: inline-block;
           margin-left: 0.5rem;
@@ -2773,6 +2774,8 @@ $soundBoxHeight: 12.5rem;
         flex-direction: column;
         justify-content: flex-end;
         .window {
+          @extend %userSelectNone;
+          @extend %cursor-move;
           background-color: var(--background-bw);
           position: absolute;
           width: 10em;
@@ -2795,6 +2798,7 @@ $soundBoxHeight: 12.5rem;
             align-content: center;
           }
           img {
+            pointer-events: none;
             object-fit: cover;
             &.vertical {
               width: 3em;

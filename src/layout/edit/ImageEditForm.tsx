@@ -1,4 +1,11 @@
-import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { GalleryViewerPaging } from "@/layout/ImageViewer";
 import { toast } from "react-toastify";
 import { useImageState } from "@/state/ImageState";
@@ -31,7 +38,7 @@ import {
   PostEditSelectInsert,
   PostEditSelectMedia,
 } from "@/components/dropdown/PostEditSelect";
-import { useHotkeys } from "react-hotkeys-hook";
+import { Options, useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { useApiOrigin } from "@/state/EnvState";
@@ -67,6 +74,8 @@ import { CopyWithToast } from "@/functions/toastFunction";
 import { ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { PiFileImageFill, PiFileX } from "react-icons/pi";
 import { ImageMee } from "@/layout/ImageMee";
+import { useSwipeable } from "react-swipeable";
+import { LimitValue } from "@/functions/MathFunction";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -363,6 +372,110 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     return style;
   }, [positionValue]);
 
+  const positionSelectRef = useRef<HTMLSelectElement>();
+  const psRefPassthrough = (el: HTMLSelectElement) => {
+    positionField.ref(el);
+    positionSelectRef.current = el;
+  };
+  const positionPreviewRef = useRef<HTMLDivElement>();
+  const ppRefPassthrough = (el: HTMLDivElement) => {
+    positionPreviewHandlers.ref(el);
+    positionPreviewRef.current = el;
+  };
+  function setPositionSelect(value: string | null) {
+    if (value) {
+      setValue("position", value, { shouldDirty: true });
+      new Promise((r) => r(null)).then(() => {
+        if (positionSelectRef.current) positionSelectRef.current.value = value;
+      });
+    } else {
+      setValue("position", positionField.value);
+    }
+  }
+  function replacePositionToPercent(value: any) {
+    let _v = String(value);
+    if (_v === "null") return "50% 50%";
+    else {
+      return _v
+        .replaceAll("center", "50%")
+        .replace("top", "0%")
+        .replace("bottom", "100%")
+        .replace("left", "0%")
+        .replace("right", "100%");
+    }
+  }
+  function movePosition({
+    x,
+    y,
+    moving = false,
+  }: {
+    x?: number;
+    y?: number;
+    moving?: boolean;
+  }) {
+    const str = replacePositionToPercent(positionField.value);
+    let [sx, sy] = str.split(" ");
+    if (x)
+      sx = sx.replace(/[\-\.\d]+/, (m) =>
+        String(LimitValue(Number(m) + Math.round(x), { min: 0, max: 100 }))
+      );
+    if (y)
+      sy = sy.replace(/[\-\.\d]+/, (m) =>
+        String(LimitValue(Number(m) + Math.round(y), { min: 0, max: 100 }))
+      );
+    const value = [sx, sy].join(" ");
+    if (moving) setValue("position", value);
+    else setPositionSelect(value);
+  }
+  const positionPreviewHandlers = useSwipeable({
+    onSwiping: (event) => {
+      movePosition({
+        x: -event.deltaX / 10,
+        y: -event.deltaY / 10,
+        moving: true,
+      });
+    },
+    onSwiped: (event) => {
+      movePosition({ x: -event.deltaX / 10, y: -event.deltaY / 10 });
+    },
+    trackMouse: true,
+  });
+  useEffect(() => {
+    if (isPositionPreview) {
+      positionPreviewRef.current?.focus();
+    }
+  }, [isPositionPreview]);
+  const enabledPP = isEdit && isPositionPreview;
+  const optionsPP: Options = { enabled: enabledPP, preventDefault: true };
+  useHotkeys(
+    "ArrowLeft",
+    () => {
+      movePosition({ x: -1 });
+    },
+    optionsPP
+  );
+  useHotkeys(
+    "ArrowRight",
+    () => {
+      movePosition({ x: 1 });
+    },
+    optionsPP
+  );
+  useHotkeys(
+    "ArrowUp",
+    () => {
+      movePosition({ y: -1 });
+    },
+    optionsPP
+  );
+  useHotkeys(
+    "ArrowDown",
+    () => {
+      movePosition({ y: 1 });
+    },
+    optionsPP
+  );
+
   return (
     <>
       <RbButtonArea
@@ -639,33 +752,19 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 <select
                   title="画像の中心"
                   {...register("position")}
+                  ref={psRefPassthrough}
                   disabled={isBusy}
                   onChange={(e) => {
                     SetPositionPreview(true);
-                    const target = e.target as HTMLSelectElement;
-                    if (target.value === "any") {
-                      let promptDefault: string = positionField.value;
-                      if (promptDefault === "null") promptDefault = "50% 50%";
-                      else {
-                        promptDefault = promptDefault
-                          .replaceAll("center", "50%")
-                          .replace("top", "0%")
-                          .replace("bottom", "100%")
-                          .replace("left", "0%")
-                          .replace("right", "100%");
-                      }
+                    if (positionSelectRef.current?.value === "any") {
+                      const promptDefault: string = replacePositionToPercent(
+                        positionField.value
+                      );
                       const inputValue = prompt(
                         "画像の中心を入力してください (object-position)",
                         promptDefault
                       );
-                      if (inputValue) {
-                        setValue("position", inputValue, { shouldDirty: true });
-                        new Promise((r) => r(null)).then(() => {
-                          target.value = inputValue;
-                        });
-                      } else {
-                        setValue("position", positionField.value);
-                      }
+                      setPositionSelect(inputValue);
                     } else {
                       positionField.onChange(e);
                     }
@@ -684,6 +783,8 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     hidden={!isPositionPreview}
                     className="window"
                     tabIndex={-1}
+                    {...positionPreviewHandlers}
+                    ref={ppRefPassthrough}
                   >
                     <ImageMee
                       imageItem={image}
