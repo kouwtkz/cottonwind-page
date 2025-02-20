@@ -265,6 +265,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               data[key] = FormToBoolean(value);
               break;
             default:
+              console.log(value);
               value = Array.isArray(value) ? value.join(",") : value;
               if (value === "") data[key] = null;
               else data[key] = value;
@@ -373,8 +374,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }, [positionValue]);
 
   const positionSelectRef = useRef<HTMLSelectElement>();
+  const { ref: setRsRef, ...registerPosition } = register("position");
   const psRefPassthrough = (el: HTMLSelectElement) => {
-    positionField.ref(el);
+    setRsRef(el);
     positionSelectRef.current = el;
   };
   const positionPreviewRef = useRef<HTMLDivElement>();
@@ -382,6 +384,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     positionPreviewHandlers.ref(el);
     positionPreviewRef.current = el;
   };
+  useEffect(() => {
+    if (isEdit && positionSelectRef.current)
+      positionSelectRef.current.value = getValues("position");
+  }, [isEdit]);
   function setPositionSelect(value: string | null) {
     if (value) {
       setValue("position", value, { shouldDirty: true });
@@ -751,7 +757,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 <span className="label-sl">画像の中心</span>
                 <select
                   title="画像の中心"
-                  {...register("position")}
+                  {...registerPosition}
                   ref={psRefPassthrough}
                   disabled={isBusy}
                   onChange={(e) => {
@@ -790,6 +796,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       imageItem={image}
                       mode="simple"
                       className="vertical"
+                      autoPosition={false}
                       style={previewImgStyle}
                     />
                     <div>
@@ -797,12 +804,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                         imageItem={image}
                         mode="simple"
                         className="square"
+                        autoPosition={false}
                         style={previewImgStyle}
                       />
                       <ImageMee
                         imageItem={image}
                         mode="simple"
                         className="landscape"
+                        autoPosition={false}
                         style={previewImgStyle}
                       />
                     </div>
