@@ -129,7 +129,8 @@ function wheresFilter<T>(value: T, wheres?: WheresEntriesType | null): boolean {
                   return cval <= v;
                 case "in":
                   const inVal = v as unknown[];
-                  return inVal.some(v => v == cval);
+                  if (Array.isArray(cval)) return inVal.some(v => cval.some(c => v == c));
+                  else return inVal.some(v => v == cval);
                 case "between":
                   const betweenVal = v as any[];
                   return betweenVal[0] <= cval && cval <= betweenVal[1];

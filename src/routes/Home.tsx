@@ -141,7 +141,7 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
             { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
             { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
             {
-              tags: { in: [timeframeTag] },
+              tags: { contains: timeframeTag },
               AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
             },
           ],
