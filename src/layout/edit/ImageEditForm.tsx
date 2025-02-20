@@ -738,9 +738,9 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   <option value="1">トップ表示に含める</option>
                   <option value="2">アクセス時に表示する</option>
                   <option value="3">常に表示する</option>
-                  <option value="4">日時でトップへ含む</option>
-                  <option value="5">日時アクセス時表示</option>
-                  <option value="6">日時で常に表示する</option>
+                  <option value="4">時間帯でトップへ含む</option>
+                  <option value="5">時間帯アクセス時表示</option>
+                  <option value="6">時間帯で常に表示する</option>
                   <option value="0">表示しない</option>
                 </select>
               </label>

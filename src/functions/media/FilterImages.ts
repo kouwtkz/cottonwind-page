@@ -31,8 +31,8 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
 
 export const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
 
-export function getTimeframeTag(date = new Date()): TimeframeTagType {
-  const hours = date.getHours();
+export function getTimeframeTag(time: Date | number = new Date()): TimeframeTagType {
+  const hours = typeof time === "number" ? time : time.getHours();
   if (6 <= hours && hours < 9) return "morning";
   if (9 <= hours && hours < 12) return "forenoon";
   if (12 <= hours && hours < 14) return "midday";

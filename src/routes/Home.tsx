@@ -128,6 +128,7 @@ function PostsView() {
 const useTopImageFirst = CreateState(true);
 export function HomeImage({ interval = 10000 }: { interval?: number }) {
   const { imageAlbums } = useImageState();
+  const timeframeTag = useMemo(() => getTimeframeTag(), []);
   const images = useMemo(
     () => imageAlbums?.get("main")?.list ?? [],
     [imageAlbums]
@@ -140,14 +141,14 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
             { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
             { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
             {
-              tags: { in: [getTimeframeTag()] },
+              tags: { in: [timeframeTag] },
               AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
             },
           ],
         },
         orderBy: [{ topImage: "desc" }],
       }),
-    [images, monthlyFilter]
+    [images, monthlyFilter, timeframeTag]
   );
   const [topImageState, setTopImage] = useState<ImageType>();
   const [topImageFirstState, setTopImageFirst] = useTopImageFirst();
