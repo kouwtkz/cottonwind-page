@@ -1,4 +1,8 @@
-import { ContentsTagsOption, getTagsOptions } from "./SortFilterTags";
+import {
+  ContentsTagsOption,
+  getTagsOptions,
+  TimeframeTagMap,
+} from "./SortFilterTags";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { HTMLAttributes, useCallback } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -83,7 +87,14 @@ export function ContentsTagsSelect({
             listObj.monthMode = [values[1]];
             break;
           default:
-            if (value) listObj.tags.push(value);
+            if (value) {
+              if (TimeframeTagMap.has(value)) {
+                listObj.tags = listObj.tags.filter(
+                  (tag) => !TimeframeTagMap.has(tag)
+                );
+                listObj.tags.push(value);
+              } else listObj.tags.push(value);
+            }
             break;
         }
       });

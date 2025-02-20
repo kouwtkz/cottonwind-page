@@ -13,7 +13,20 @@ export interface ContentsTagsOption {
 
 export type ContentsTagsOptionDispatch = React.Dispatch<
   React.SetStateAction<ContentsTagsOption[]>
->
+>;
+
+export const TimeframeTagMap = new Map<string, string>([
+  ["morning", "🌄朝"], // (6:00-8:59)
+  ["forenoon", "🚃午前"], // (9:00-11:59)
+  ["midday", "🍱真昼"], // (12:00-13:59)
+  ["afternoon", "🏞️午後"], // (14:00-16:59)
+  ["evening", "🌇夕方"], // (17:00-19:59)
+  ["night", "🌃夜"], // (20:00-23:59)
+  ["midnight", "🌌夜中"], // (24:00-5:59)
+] as [TimeframeTagType, string][]);
+export const timeframeTags = Object.keys(
+  Object.fromEntries(TimeframeTagMap)
+) as TimeframeTagType[];
 
 export const defaultGalleryTags: ContentsTagsOption[] = [
   {
@@ -68,15 +81,9 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
   {
     label: "時間帯",
     name: "timeframe",
-    options: [
-      { value: "morning", label: "🌄朝" },      // (6:00-8:59)
-      { value: "forenoon", label: "🚃午前" },   // (9:00-11:59)
-      { value: "midday", label: "🍱真昼" },     // (12:00-13:59)
-      { value: "afternoon", label: "🏞️午後" },  // (14:00-16:59)
-      { value: "evening", label: "🌇夕方" },    // (17:00-19:59)
-      { value: "night", label: "🌃夜" },        // (20:00-23:59)
-      { value: "midnight", label: "🌌夜中" },   // (24:00-5:59)
-    ] as { value: TimeframeTagType, label: string }[],
+    options: Object.entries(Object.fromEntries(TimeframeTagMap)).map(
+      ([value, label]) => ({ value, label })
+    ),
   },
   {
     label: "創作",
@@ -126,10 +133,13 @@ export function addExtentionTagsOptions(options = defaultGalleryTags) {
   const list = options.concat();
   return list.map((item) => {
     if (item.name === "type") {
-      return { ...item, options: addExtentionGalleryTagsOptions(item.options!.concat()) };
+      return {
+        ...item,
+        options: addExtentionGalleryTagsOptions(item.options!.concat()),
+      };
     }
     return item;
-  })
+  });
 }
 
 export type filterMonthType = {
@@ -151,12 +161,6 @@ export const filterGalleryMonthList: filterMonthType[] = [
   { month: 11, tags: ["november", "autumn"] },
   { month: 12, tags: ["december", "winter", "christmas", "myBirthday"] },
 ];
-
-export type defineSortTagsUnion =
-  | "recently"
-  | "leastResently"
-  | "nameOrder"
-  | "leastNameOrder";
 
 export function defineSortTags(tags: defineSortTagsUnion[]) {
   const options: ContentsTagsOption[] = [];
@@ -191,9 +195,7 @@ export function getTagsOptions(tags: ContentsTagsOption[]) {
 }
 
 export function MonthToTag(value: number) {
-  return filterGalleryMonthList.find(
-    ({ month }) => month === value
-  )?.tags[0]
+  return filterGalleryMonthList.find(({ month }) => month === value)?.tags[0];
 }
 
 export function autoFixGalleryTagsOptions(tagsOptions: ContentsTagsOption[]) {
