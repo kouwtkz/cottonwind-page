@@ -21,7 +21,7 @@ import CloseButton from "@/components/svg/button/CloseButton";
 import ImageEditForm, {
   useImageEditState,
   useImageEditSwitchHold,
-} from "@/routes/edit/ImageEditForm";
+} from "./edit/ImageEditForm";
 import {
   defaultGalleryTags,
   getTagsOptions,

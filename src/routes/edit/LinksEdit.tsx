@@ -6,7 +6,7 @@ import {
   useImageEditSwitchHold,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "./ImageEditForm";
+} from "@/layout/edit/ImageEditForm";
 import { useApiOrigin } from "@/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";

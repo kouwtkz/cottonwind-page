@@ -11,7 +11,7 @@ import {
   ImagesUploadWithToast,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "./ImageEditForm";
+} from "@/layout/edit/ImageEditForm";
 import { useToastProgress } from "@/state/ToastProgress";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";

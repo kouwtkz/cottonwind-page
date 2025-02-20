@@ -43,7 +43,7 @@ import {
   resizeImageCanvas,
   resizeImageCanvasProps,
 } from "@/components/Canvas";
-import { CharaImageSettingRbButtons } from "./CharacterEdit";
+import { CharaImageSettingRbButtons } from "@/routes/edit/CharacterEdit";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetchJSON, methodType } from "@/functions/fetch";

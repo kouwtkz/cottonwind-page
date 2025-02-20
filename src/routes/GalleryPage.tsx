@@ -55,7 +55,7 @@ import {
   useImageNotDraftUpload,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "./edit/ImageEditForm";
+} from "@/layout/edit/ImageEditForm";
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
 import { imageDataObject, likeDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";

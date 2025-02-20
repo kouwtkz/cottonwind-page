@@ -34,7 +34,7 @@ import {
   editLinksType,
   SendLinksDir,
 } from "./edit/LinksEdit";
-import { useImageEditSwitchHold } from "./edit/ImageEditForm";
+import { useImageEditSwitchHold } from "@/layout/edit/ImageEditForm";
 import { useImageState } from "@/state/ImageState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useImageViewer } from "@/layout/ImageViewer";

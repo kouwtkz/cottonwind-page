@@ -5,7 +5,7 @@ import { imageDataObject } from "@/state/DataState";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useSelectedImage } from "@/state/ImageState";
 import { fileDialog } from "../FileTool";
-import { ImagesUploadWithToast } from "@/routes/edit/ImageEditForm";
+import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea: HTMLTextAreaElement | null;
 }

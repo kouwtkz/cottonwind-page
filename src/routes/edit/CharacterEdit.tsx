@@ -57,7 +57,7 @@ import {
   ImagesUpload,
   ImagesUploadWithToast,
   srcObjectType,
-} from "./ImageEditForm";
+} from "@/layout/edit/ImageEditForm";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { getName } from "@/functions/doc/PathParse";
 import { corsFetchJSON } from "@/functions/fetch";
