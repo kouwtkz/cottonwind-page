@@ -84,7 +84,7 @@ export default function Home() {
         </ul>
         <MeeLinks category="top" banner />
         <PostsView />
-        {enableHandle ? (
+        {!import.meta.env?.DEV && enableHandle ? (
           <div>
             <h3 className="leaf">つぶやき</h3>
             <div className="flex center row wrap m-c-s mb-c">
