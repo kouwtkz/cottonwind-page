@@ -36,7 +36,7 @@ export function getTimeframeTag(time: Date | number = new Date()): TimeframeTagT
   if (6 <= hours && hours < 9) return "morning";
   if (9 <= hours && hours < 12) return "forenoon";
   if (12 <= hours && hours < 14) return "midday";
-  if (14 <= hours && hours < 16) return "afternoon";
+  if (14 <= hours && hours < 17) return "afternoon";
   if (17 <= hours && hours < 20) return "evening";
   if (20 <= hours && hours < 24) return "night";
   else return "midnight"
