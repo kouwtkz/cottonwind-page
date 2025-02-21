@@ -134,9 +134,11 @@ interface TopImageType {
   topImages: ImageType[];
   topImageIndex: number;
   alwaysImages: ImageType[];
+  alwaysIndex: number;
+  alwaysMode: boolean;
 }
 interface useTopImageType extends TopImageType {
-  Next: () => void;
+  Next: (always?: boolean) => void;
 }
 const useTopImage = CreateObjectState<useTopImageType>((set) => ({
   topImage: null,
@@ -145,23 +147,50 @@ const useTopImage = CreateObjectState<useTopImageType>((set) => ({
   topImages: [],
   topImageIndex: 0,
   alwaysImages: [],
-  Next() {
-    set(({ topImages, topImageIndex, firstQue, firstQueIndex, topImage }) => {
-      if (firstQue.length > firstQueIndex) {
-        firstQueIndex++;
-        if (firstQue.length > ++firstQueIndex) {
-          topImage = firstQue[++firstQueIndex];
-        } else {
-          topImage = topImages[0];
+  alwaysIndex: -1,
+  alwaysMode: false,
+  Next(always) {
+    set(
+      ({
+        topImages,
+        topImageIndex,
+        firstQue,
+        firstQueIndex,
+        topImage,
+        alwaysMode,
+        alwaysIndex,
+        alwaysImages,
+      }) => {
+        const value: Partial<TopImageType> = { alwaysMode };
+        if (always && alwaysImages.length > 0) {
+          value.alwaysMode = true;
         }
-        return { topImage, firstQueIndex };
-      } else if (topImages.length - 1 > topImageIndex) {
-        topImage = topImages[++topImageIndex];
-        return { topImage, topImageIndex };
-      } else {
-        return { topImageIndex: 0, topImage: topImages[0] };
+        if (firstQue.length > firstQueIndex + 1) {
+          value.firstQueIndex = ++firstQueIndex;
+          value.topImage = firstQue[firstQueIndex];
+        } else {
+          const switchTopImage = firstQue.length > firstQueIndex;
+          if (switchTopImage) value.firstQueIndex = ++firstQueIndex;
+          if (value.alwaysMode) {
+            alwaysIndex = (alwaysIndex + 1) % alwaysImages.length;
+            value.alwaysIndex = alwaysIndex;
+            value.topImage = alwaysImages[alwaysIndex];
+            value.alwaysMode = false;
+          } else {
+            if (switchTopImage) {
+              value.topImage = topImages[0];
+            } else if (topImages.length - 1 > topImageIndex) {
+              value.topImageIndex = ++topImageIndex;
+              value.topImage = topImages[topImageIndex];
+            } else {
+              value.topImageIndex = 0;
+              value.topImage = topImages[0];
+            }
+          }
+        }
+        return value;
       }
-    });
+    );
   },
 }));
 export function HomeImageState() {
@@ -213,7 +242,7 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
       Next();
     }, interval);
     return () => {
-      Next();
+      Next(true);
       return clearInterval(timer);
     };
   }, [interval]);
