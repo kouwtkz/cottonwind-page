@@ -235,17 +235,22 @@ export function HomeImageState() {
   return <></>;
 }
 export function HomeImage({ interval = 10000 }: { interval?: number }) {
-  const { topImage, Next } = useTopImage();
+  const { topImage, Next, topImages } = useTopImage();
   const nodeRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
-    const timer = setInterval(() => {
-      Next();
-    }, interval);
+    const timer =
+      topImages.length > 0
+        ? setInterval(() => {
+            Next();
+          }, interval)
+        : null;
     return () => {
-      Next(true);
-      return clearInterval(timer);
+      if (timer) {
+        Next(true);
+        return clearInterval(timer);
+      }
     };
-  }, [interval]);
+  }, [interval, topImages]);
   const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();
   const toStatehandler = useCallback((): {
