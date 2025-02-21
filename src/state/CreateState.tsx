@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, StateCreator, StoreMutatorIdentifier } from "zustand";
 
 export type CreateStateFunctionType<T> = () => [
   T | undefined,
@@ -30,20 +30,24 @@ export function CreateState<T = unknown>(v?: T): CreateStateFunctionType<T> {
   };
 }
 
-export function CreateObjectState<T>(t: T) {
-  type setType = (value: Partial<T> | ((prevState: T) => Partial<T>)) => void;
-  const useState = create<T & { set: setType }>((Set) => ({
-    ...t,
-    set(v) {
-      Set((s) => {
-        if (typeof v === "function") {
-          return (v as Function)(s);
-        } else return v;
-      });
-      return v;
-    },
-  }));
-  return () => {
-    return useState();
-  };
+type setType<T> = (value: Partial<T> | ((prevState: T) => Partial<T>)) => void;
+type createType<T, Mos extends [StoreMutatorIdentifier, unknown][] = []> =
+  | T
+  | StateCreator<T, [], Mos>;
+export function CreateObjectState<T>(t: createType<T>) {
+  const useState = create<T & { set: setType<T> }>((Set) => {
+    const _t = (typeof t === "function" ? (t as Function)(Set) : t);
+    return {
+      ..._t,
+      set(v) {
+        Set((s) => {
+          if (typeof v === "function") {
+            return (v as Function)(s);
+          } else return v;
+        });
+        return v;
+      },
+    };
+  });
+  return () => useState();
 }
