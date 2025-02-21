@@ -10,6 +10,7 @@ import { CreateState } from "@/state/CreateState";
 import { MeeLinks } from "./LinksPage";
 import { EmbedBluesky, EmbedTwitter } from "@/components/embed/EmbedSNS";
 import { useEnv } from "@/state/EnvState";
+import useSchedule from "@/components/hook/useSchedule";
 
 export default function Home() {
   const env = useEnv()[0];
@@ -127,6 +128,7 @@ function PostsView() {
 
 const useTopImageFirst = CreateState(true);
 export function HomeImage({ interval = 10000 }: { interval?: number }) {
+  const { date } = useSchedule({ minute: 0, specify: true });
   const { imageAlbums } = useImageState();
   const timeframeTag = useMemo(() => getTimeframeTag(), []);
   const images = useMemo(
@@ -148,7 +150,7 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
         },
         orderBy: [{ topImage: "desc" }],
       }),
-    [images, monthlyFilter, timeframeTag]
+    [images, monthlyFilter, timeframeTag, date]
   );
   const [topImageState, setTopImage] = useState<ImageType>();
   const [topImageFirstState, setTopImageFirst] = useTopImageFirst();
