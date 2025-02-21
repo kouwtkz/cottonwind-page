@@ -60,3 +60,14 @@ export function getCountList<T>(list: T[], field?: keyof T) {
     }, [])
     .sort((a, b) => (a.value > b.value ? 1 : -1));
 }
+
+export function shuffleArray<T>(array: T[], clone = false) {
+  const useArray = clone ? [...array] : array;
+  for (let i = useArray.length - 1; i >= 0; i--) {
+    let rand = Math.floor(Math.random() * (i + 1))
+    let tmpStorage = useArray[i]
+    useArray[i] = useArray[rand]
+    useArray[rand] = tmpStorage
+  }
+  return useArray;
+}
