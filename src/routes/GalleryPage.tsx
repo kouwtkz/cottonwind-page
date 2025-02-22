@@ -15,7 +15,6 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
 } from "react";
 import {
   defineSortTags,
@@ -58,7 +57,6 @@ import {
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
 import { imageDataObject, likeDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
-import ReactSelect, { components } from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
@@ -81,6 +79,7 @@ import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/state/LangState";
 import { setCharaLangName } from "./CharacterPage";
+import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -1123,12 +1122,8 @@ export function GalleryCharactersSelect({
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap, lang);
   }, [charactersMap, lang]);
-  const [isSearchable, setIsSearchable] = useState(false);
-  function EnableSearchable() {
-    setIsSearchable(true);
-  }
   return (
-    <ReactSelect
+    <CustomReactSelect
       options={charaLabelOptions}
       formatOptionLabel={charaFormatOptionLabel}
       isMulti
@@ -1152,17 +1147,6 @@ export function GalleryCharactersSelect({
           replace: isModal,
           state,
         });
-      }}
-      isSearchable={isSearchable}
-      components={{
-        ValueContainer: (rest) => (
-          <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
-            <components.ValueContainer {...rest} />
-          </div>
-        ),
-      }}
-      onMenuClose={() => {
-        setIsSearchable(false);
       }}
     />
   );
