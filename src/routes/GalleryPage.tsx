@@ -544,7 +544,9 @@ function GalleryBody({
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div className="galleryContainer">
-      {showInPageMenu ? <InPageMenu list={inPageList} adjust={64} /> : null}
+      {showInPageMenu && !group ? (
+        <InPageMenu list={inPageList} adjust={64} />
+      ) : null}
       <div>
         {showGalleryHeader ? (
           <div>
