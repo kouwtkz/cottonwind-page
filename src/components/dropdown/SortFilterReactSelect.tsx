@@ -4,9 +4,9 @@ import {
   TimeframeTagMap,
 } from "./SortFilterTags";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { HTMLAttributes, useCallback } from "react";
+import { HTMLAttributes, useCallback, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import ReactSelect, { MultiValue } from "react-select";
+import ReactSelect, { MultiValue, components } from "react-select";
 
 interface SelectAreaProps
   extends HTMLAttributes<HTMLDivElement>,
@@ -110,12 +110,15 @@ export function ContentsTagsSelect({
     },
     [searchParams]
   );
+  const [isSearchable, setIsSearchable] = useState(false);
+  function EnableSearchable() {
+    setIsSearchable(true);
+  }
   return (
     <ReactSelect
       options={tags}
       value={currentTags}
       isMulti
-      isSearchable={false}
       classNamePrefix="select"
       placeholder="ソート / フィルタ"
       instanceId="contentsTagSelect"
@@ -126,6 +129,17 @@ export function ContentsTagsSelect({
         menu: (style) => ({ ...style, zIndex: 9999 }),
       }}
       onChange={changeHandler}
+      isSearchable={isSearchable}
+      components={{
+        ValueContainer: (rest) => (
+          <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
+            <components.ValueContainer {...rest} />
+          </div>
+        ),
+      }}
+      onMenuClose={() => {
+        setIsSearchable(false);
+      }}
     />
   );
 }

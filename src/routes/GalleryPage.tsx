@@ -15,6 +15,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   defineSortTags,
@@ -57,7 +58,7 @@ import {
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
 import { imageDataObject, likeDataObject } from "@/state/DataState";
 import { useCharacters, useCharactersMap } from "@/state/CharacterState";
-import ReactSelect from "react-select";
+import ReactSelect, { components } from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
@@ -1122,34 +1123,50 @@ export function GalleryCharactersSelect({
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap, lang);
   }, [charactersMap, lang]);
+  const [isSearchable, setIsSearchable] = useState(false);
+  function EnableSearchable() {
+    setIsSearchable(true);
+  }
   return (
-    <ReactSelect
-      options={charaLabelOptions}
-      formatOptionLabel={charaFormatOptionLabel}
-      isMulti
-      isSearchable={false}
-      isLoading={!Boolean(characters)}
-      classNamePrefix="select"
-      placeholder={(enableCharaFilter ? "他の" : "") + "キャラクター"}
-      instanceId="characterSelect"
-      className={"characterSelect" + (className ? " " + className : "")}
-      theme={callReactSelectTheme}
-      styles={{
-        menuList: (style) => ({ ...style, minHeight: "22rem" }),
-        menu: (style) => ({ ...style, zIndex: 9999 }),
-      }}
-      value={value}
-      onChange={(v) => {
-        const value = v.map(({ value }) => value).join(",");
-        if (value) searchParams.set("characters", value);
-        else searchParams.delete("characters");
-        setSearchParams(searchParams, {
-          preventScrollReset: true,
-          replace: isModal,
-          state,
-        });
-      }}
-    />
+    <div>
+      <ReactSelect
+        options={charaLabelOptions}
+        formatOptionLabel={charaFormatOptionLabel}
+        isMulti
+        isLoading={!Boolean(characters)}
+        classNamePrefix="select"
+        placeholder={(enableCharaFilter ? "他の" : "") + "キャラクター"}
+        instanceId="characterSelect"
+        className={"characterSelect" + (className ? " " + className : "")}
+        theme={callReactSelectTheme}
+        styles={{
+          menuList: (style) => ({ ...style, minHeight: "22rem" }),
+          menu: (style) => ({ ...style, zIndex: 9999 }),
+        }}
+        value={value}
+        onChange={(v) => {
+          const value = v.map(({ value }) => value).join(",");
+          if (value) searchParams.set("characters", value);
+          else searchParams.delete("characters");
+          setSearchParams(searchParams, {
+            preventScrollReset: true,
+            replace: isModal,
+            state,
+          });
+        }}
+        isSearchable={isSearchable}
+        components={{
+          ValueContainer: (rest) => (
+            <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
+              <components.ValueContainer {...rest} />
+            </div>
+          ),
+        }}
+        onMenuClose={() => {
+          setIsSearchable(false);
+        }}
+      />
+    </div>
   );
 }
 
