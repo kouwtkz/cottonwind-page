@@ -78,6 +78,8 @@ import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/ArrayEnv";
 import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
+import { useLang } from "@/state/LangState";
+import { setCharaLangName } from "./CharacterPage";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -1094,6 +1096,7 @@ export function GalleryCharactersSelect({
   className,
 }: SelectAreaProps) {
   const params = useParams();
+  const lang = useLang()[0];
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
   const currentChara = params["charaName"];
@@ -1102,11 +1105,11 @@ export function GalleryCharactersSelect({
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
-    return list.map(({ name, key: id }) => ({
-      label: name,
-      value: id,
+    return list.map((chara) => ({
+      label: setCharaLangName(chara, lang),
+      value: chara.key,
     }));
-  }, [characters, currentChara, enableCharaFilter]);
+  }, [characters, currentChara, enableCharaFilter, lang]);
   const { state } = useLocation();
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
@@ -1116,8 +1119,8 @@ export function GalleryCharactersSelect({
   }, [searchParams, charaLabelOptions]);
   const charactersMap = useCharactersMap()[0];
   const charaFormatOptionLabel = useMemo(() => {
-    if (charactersMap) return charaTagsLabel(charactersMap);
-  }, [charactersMap]);
+    if (charactersMap) return charaTagsLabel(charactersMap, lang);
+  }, [charactersMap, lang]);
   return (
     <ReactSelect
       options={charaLabelOptions}

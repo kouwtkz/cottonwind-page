@@ -1,7 +1,7 @@
 import { useLayoutEffect } from "react";
 import { CreateState } from "./CreateState";
 
-const useLang = CreateState<string>();
+export const useLang = CreateState<string>();
 
 export function LangState() {
   const setLang = useLang()[1];

@@ -48,6 +48,7 @@ import { charactersDataObject } from "@/state/DataState";
 import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "@/components/button/LikeButton";
+import { useLang } from "@/state/LangState";
 
 interface PartsType {
   label?: string;
@@ -216,6 +217,17 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
+export function setCharaLangName(chara: CharacterType, lang = "ja") {
+  return lang !== "ja" && chara.enName ? chara.enName : chara.name;
+}
+interface CharacterName extends HTMLAttributes<HTMLSpanElement> {
+  chara: CharacterType;
+}
+export function CharacterName({ chara, ...props }: CharacterName) {
+  const lang = useLang()[0];
+  return <span {...props}>{setCharaLangName(chara, lang)}</span>;
+}
+
 export const CharaListItem = memo(function CharaListItem({
   chara,
   ...args
@@ -242,7 +254,9 @@ export const CharaListItem = memo(function CharaListItem({
           <ImageMeeQuestion alt={chara.name} />
         )}
       </div>
-      <div className="name">{chara.name}</div>
+      <div className="name">
+        <CharacterName chara={chara} />
+      </div>
     </>
   );
 });
@@ -401,7 +415,7 @@ export function CharaBeforeAfter({
                 className="charaIcon"
               />
             ) : null}
-            <span>{beforeChara.name}</span>
+            <CharacterName chara={beforeChara} />
           </Link>
         ) : null}
       </div>
@@ -418,7 +432,7 @@ export function CharaBeforeAfter({
                 className="charaIcon"
               />
             ) : null}
-            <span>{afterChara.name}</span>
+            <CharacterName chara={afterChara} />
             <span className="cursor">＞</span>
           </Link>
         ) : null}

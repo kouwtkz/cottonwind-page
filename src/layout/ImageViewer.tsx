@@ -40,6 +40,7 @@ import { LikeButton } from "@/components/button/LikeButton";
 import { CSSTransition } from "react-transition-group";
 import { useGalleryObject } from "@/routes/GalleryPage";
 import { CreateObjectState } from "@/state/CreateState";
+import { CharacterName } from "@/routes/CharacterPage";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -139,7 +140,7 @@ function InfoArea({ image }: InfoAreaProps) {
                       ) : (
                         <></>
                       )}
-                      <span className="align-middle">{chara.name}</span>
+                      <CharacterName className="align-middle" chara={chara} />
                     </Link>
                   );
                 })}
