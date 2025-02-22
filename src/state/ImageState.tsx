@@ -1,18 +1,20 @@
 import { useEffect } from "react";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/media/imageFunction";
-import { create } from "zustand";
-import { CreateState } from "./CreateState";
+import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "@/ArrayEnv";
 
 type imageStateType = {
   images?: ImageType[];
   imagesMap?: Map<string, ImageType>;
   imageAlbums?: Map<string, ImageAlbumType>;
-  set: (imagesData: ImageDataType[], albumEnv?: ImageAlbumEnvType[]) => void;
+  setImages: (
+    imagesData: ImageDataType[],
+    albumEnv?: ImageAlbumEnvType[]
+  ) => void;
 };
-export const useImageState = create<imageStateType>((set) => ({
-  set(data, albumEnv) {
+export const useImageState = CreateObjectState<imageStateType>((set) => ({
+  setImages(data, albumEnv) {
     const { imagesMap, imageAlbumMap } = getImageObjectMap(data, albumEnv);
     imagesMap.forEach((image) => {
       image.update = Boolean(
@@ -36,10 +38,10 @@ export const useImageState = create<imageStateType>((set) => ({
 
 export function ImageState() {
   const imagesData = imageDataObject.useData()[0];
-  const { set } = useImageState();
+  const { setImages } = useImageState();
   useEffect(() => {
-    if (imagesData) set(imagesData, ArrayEnv.IMAGE_ALBUMS);
-  }, [imagesData, set]);
+    if (imagesData) setImages(imagesData, ArrayEnv.IMAGE_ALBUMS);
+  }, [imagesData, setImages]);
   return <></>;
 }
 

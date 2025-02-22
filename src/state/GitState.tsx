@@ -1,13 +1,7 @@
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { create } from "zustand";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { GoTriangleDown, GoTriangleRight } from "react-icons/go";
+import { CreateObjectState } from "./CreateState";
 const defaultUrl = "/json/gitlog.json";
 
 type GitStateType = {
@@ -16,7 +10,7 @@ type GitStateType = {
   setLog: (value: GitObjectJsonType) => void;
 };
 
-export const useGitState = create<GitStateType>((set) => ({
+export const useGitState = CreateObjectState<GitStateType>((set) => ({
   isSet: false,
   setLog: (value) => {
     value.list.sort(
@@ -217,7 +211,9 @@ export function ChangeLog() {
                 {git.list.length > 0 ? (
                   <>
                     <span>最終更新:</span>
-                    <span className="date cursor-pointer">{git.lastUpdate}</span>
+                    <span className="date cursor-pointer">
+                      {git.lastUpdate}
+                    </span>
                   </>
                 ) : (
                   "(データなし)"

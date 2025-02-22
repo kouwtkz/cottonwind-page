@@ -8,7 +8,6 @@ import {
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { create } from "zustand";
 import { UrlObject } from "url";
 import { useDataIsComplete } from "@/state/StateSet";
 import {
@@ -69,6 +68,7 @@ import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 import { useImageState, useSelectedImage } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { RiImageAddFill } from "react-icons/ri";
+import { CreateObjectState } from "@/state/CreateState";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -622,19 +622,15 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   );
 }
 
-export const useEditSwitchState = create<{
+export const useEditSwitchState = CreateObjectState<{
   save: boolean;
   reset: boolean;
   sortable: boolean;
-  set: (args: { sortable?: boolean; reset?: boolean; save?: boolean }) => void;
-}>((set) => ({
+}>({
   save: false,
   reset: false,
   sortable: false,
-  set(args) {
-    set(args);
-  },
-}));
+});
 
 export function CharaEditButton() {
   const apiOrigin = useApiOrigin()[0];

@@ -39,13 +39,12 @@ import {
   defineSortTags,
 } from "@/components/dropdown/SortFilterTags";
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
-import { CreateState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { Movable } from "@/layout/edit/Movable";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { charactersDataObject } from "@/state/DataState";
-import { create } from "zustand";
 import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "@/components/button/LikeButton";
@@ -64,16 +63,7 @@ interface CharacterStateType {
   orderBySort?: OrderByItem<CharacterType>[];
   parts?: PartsType[];
 }
-interface CharacterStateTypeProps extends CharacterStateType {
-  set: (args: CharacterStateType) => void;
-}
-export const useCharacterPageState = create<CharacterStateTypeProps>(
-  (_set) => ({
-    set(args) {
-      _set(args);
-    },
-  })
-);
+export const useCharacterPageState = CreateObjectState<CharacterStateType>({});
 function CharacterPageState() {
   const { search } = useLocation();
   const confirmUrl = useConfirmUrl()[0];
@@ -188,10 +178,10 @@ function CharacterPageState() {
     } else parts.push({ items });
     return parts;
   }, [where, characters, orderBySort, showAll]);
-  const { set } = useCharacterPageState();
+  const { Set } = useCharacterPageState();
   useEffect(() => {
-    set({ filters, orderBySort, showAll, liked, where, parts });
-  }, [set, filters, orderBySort, showAll, liked, where, parts]);
+    Set({ filters, orderBySort, showAll, liked, where, parts });
+  }, [filters, orderBySort, showAll, liked, where, parts]);
   return <></>;
 }
 
@@ -638,7 +628,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
         title="切り替え"
         className="iconSwitch"
         onClick={() => {
-          setExtendMode(!extendMode);
+          setExtendMode((v) => !v);
         }}
       >
         {extendMode ? <TbColumns3 /> : <TbColumns2 />}

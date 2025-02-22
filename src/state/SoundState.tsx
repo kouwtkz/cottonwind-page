@@ -18,7 +18,7 @@ export function SoundState() {
   const setDefaultPlaylist = useSoundDefaultPlaylist()[1];
   const data = soundsDataObject.useData()[0];
   const albumData = soundAlbumsDataObject.useData()[0];
-  const RegistPlaylist = useSoundPlayer((state) => state.RegistPlaylist);
+  const { RegistPlaylist } = useSoundPlayer();
   useEffect(() => {
     if (data && albumData) {
       const soundsMap = getSoundsMap(data);

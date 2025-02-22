@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { create } from "zustand";
+import { useEffect, useRef } from "react";
 import axios from "axios";
+import { CreateObjectState } from "@/state/CreateState";
 
 type dataType = { [k: string]: string };
 
@@ -10,13 +10,15 @@ type MarkdownDataStateType = {
   isSet: boolean;
 };
 
-export const useMarkdownDataState = create<MarkdownDataStateType>((set) => ({
-  data: null,
-  setData: (value) => {
-    set({ data: value, isSet: true });
-  },
-  isSet: false,
-}));
+export const useMarkdownDataState = CreateObjectState<MarkdownDataStateType>(
+  (set) => ({
+    data: null,
+    setData: (value) => {
+      set({ data: value, isSet: true });
+    },
+    isSet: false,
+  })
+);
 
 export default function MarkdownDataState({ url }: { url: string }) {
   const { setData } = useMarkdownDataState();

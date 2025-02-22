@@ -1,12 +1,4 @@
-import React, {
-  act,
-  CSSProperties,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { create } from "zustand";
+import React, { CSSProperties, useEffect, useMemo, useRef } from "react";
 import {
   createSearchParams,
   Link,
@@ -45,8 +37,9 @@ import { EmbedNode, useFilesMap } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "@/components/button/LikeButton";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { CSSTransition } from "react-transition-group";
 import { useGalleryObject } from "@/routes/GalleryPage";
+import { CreateObjectState } from "@/state/CreateState";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -55,23 +48,14 @@ interface ImageViewerParamType {
 }
 interface ImageViewerType extends ImageViewerParamType {
   image: ImageType | null;
-  setImage: (image: ImageType | null) => void;
   images: ImageType[] | null;
-  setImages: (images: ImageType[] | null) => void;
   isOpen: boolean;
   setOpen: () => void;
   setClose: () => void;
-  setParam: (params?: ImageViewerParamType) => void;
 }
-export const useImageViewer = create<ImageViewerType>((set) => ({
+export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   image: null,
-  setImage(image) {
-    set({ image });
-  },
   images: null,
-  setImages(images) {
-    set({ images });
-  },
   isOpen: false,
   setOpen: () => {
     set(() => ({ isOpen: true }));
@@ -80,9 +64,6 @@ export const useImageViewer = create<ImageViewerType>((set) => ({
   setClose: () => {
     set(() => ({ isOpen: false, editMode: false }));
     scrollLock(false);
-  },
-  setParam(params) {
-    set({ ...params });
   },
 }));
 
@@ -378,18 +359,15 @@ export function ImageViewer() {
     setOpen,
     setClose,
     image,
-    setImage,
-    setImages,
-    setParam,
     imageParam,
-    albumParam,
     groupParam,
+    Set: setImageViewer,
   } = useImageViewer();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
   const l = useLocation();
   const state = l.state;
-  const { isDirty, set: setEdit } = useImageEditState();
+  const { isDirty, Set: setEdit } = useImageEditState();
   const nodeRef = useRef<HTMLDivElement>(null);
 
   function backAction() {
@@ -421,7 +399,7 @@ export function ImageViewer() {
     if (imageParam) {
       const albumParam = searchParams?.get("album");
       const groupParam = searchParams?.get("group") ?? albumParam;
-      setParam({ imageParam, albumParam, groupParam });
+      setImageViewer({ imageParam, albumParam, groupParam });
       setOpen();
     } else {
       setClose();
@@ -438,13 +416,13 @@ export function ImageViewer() {
     [yfList, galleryItemIndex]
   );
   useEffect(() => {
-    setImages(images);
+    setImageViewer({ images });
   }, [images]);
 
   useEffect(() => {
     if (imagesMap && imageParam) {
-      setImage(imagesMap.get(imageParam) || null);
-    } else setImage(null);
+      setImageViewer({ image: imagesMap.get(imageParam) || null });
+    } else setImageViewer({ image: null });
   }, [imageParam, imagesMap]);
 
   useEffect(() => {
@@ -465,7 +443,11 @@ export function ImageViewer() {
       <CSSTransition
         in={isOpen}
         onExited={() => {
-          setParam({ imageParam: null, albumParam: null, groupParam: null });
+          setImageViewer({
+            imageParam: null,
+            albumParam: null,
+            groupParam: null,
+          });
         }}
         timeout={timeout}
         // unmountOnExit

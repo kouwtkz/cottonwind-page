@@ -42,11 +42,6 @@ interface GalleryObjectType {
   items: GalleryItemObjectType[];
   fList: ImageType[][];
   yfList: ImageType[][];
-  setItems: (items: GalleryItemObjectType[]) => void;
-  setYFList: (
-    fList: ImageType[][],
-    yfList: ImageType[][]
-  ) => void;
 }
 
 interface GalleryBodyOptions extends SearchAreaOptionsProps {

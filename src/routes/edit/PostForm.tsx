@@ -17,7 +17,6 @@ import { usePosts } from "@/state/PostState";
 import { findMee } from "@/functions/find/findMee";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { create } from "zustand";
 import {
   MenuItem,
   PostEditSelectDecoration,
@@ -36,10 +35,11 @@ import { corsFetchJSON } from "@/functions/fetch";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { SendDelete } from "@/functions/sendFunction";
 import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
+import { CreateObjectState } from "@/state/CreateState";
 
 const backupStorageKey = "backupPostDraft";
 
-export const useLocalDraftPost = create<{
+export const useLocalDraftPost = CreateObjectState<{
   localDraft: PostFormDraftType | null;
   setLocalDraft: (post: FieldValues | PostFormDraftType | null) => void;
   getLocalDraft: () => PostFormDraftType | null;

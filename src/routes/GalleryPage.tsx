@@ -26,7 +26,6 @@ import {
   ContentsTagsOption,
 } from "@/components/dropdown/SortFilterTags";
 import { filterPickFixed } from "@/functions/media/FilterImages";
-import { create } from "zustand";
 import { InPageMenu } from "@/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
 import {
@@ -79,7 +78,7 @@ import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/ArrayEnv";
 import { useLikeStateUpdated } from "@/state/LikeState";
-import { CreateState } from "@/state/CreateState";
+import { CreateObjectState } from "@/state/CreateState";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -195,17 +194,11 @@ export function GalleryObjectConvert({
   );
 }
 
-export const useGalleryObject = create<GalleryObjectType>((set) => ({
+export const useGalleryObject = CreateObjectState<GalleryObjectType>({
   items: [],
   fList: [],
   yfList: [],
-  setItems(items) {
-    set({ items });
-  },
-  setYFList(fList, yfList) {
-    set({ fList, yfList });
-  },
-}));
+});
 
 export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const searchParams = useSearchParams()[0];
@@ -255,7 +248,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
       }));
     else return _items;
   }, [_items, showAllAlbum]);
-  const { setItems, setYFList } = useGalleryObject();
+  const { Set } = useGalleryObject();
 
   const { where, orderBy } = useMemo(
     () =>
@@ -388,10 +381,10 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     linkStateUpdated,
   ]);
   useLayoutEffect(() => {
-    setYFList(fList, yfList);
+    Set({ fList, yfList });
   }, [fList, yfList]);
   useLayoutEffect(() => {
-    setItems(items);
+    Set({ items });
   }, [items]);
   return (
     <>

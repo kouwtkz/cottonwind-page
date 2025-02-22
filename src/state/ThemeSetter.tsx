@@ -1,6 +1,7 @@
 import { HTMLAttributes, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
-import { create, StoreApi, UseBoundStore } from "zustand";
+import { StoreApi, UseBoundStore } from "zustand";
+import { CreateObjectState } from "./CreateState";
 
 export interface ThemeChangeButtonProps
   extends HTMLAttributes<HTMLDivElement> {}
@@ -15,7 +16,7 @@ type ThemeStateType = {
 };
 
 export function createThemeState(list: string[]) {
-  return create<ThemeStateType>((set) => ({
+  return CreateObjectState<ThemeStateType>((set) => ({
     index: -1,
     list,
     theme: "",

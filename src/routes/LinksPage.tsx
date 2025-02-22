@@ -150,7 +150,7 @@ export function MyBanners() {
   const isLogin = useIsLogin()[0];
   const { imageAlbums } = useImageState();
   const album = imageAlbums?.get(myBannerName);
-  const { setImages } = useImageViewer();
+  const { Set: setImageViewer } = useImageViewer();
   const apiOrigin = useApiOrigin()[0];
   const setImageDataLoad = imageDataObject.useLoad()[1];
   const myBanners = useMemo(() => {
@@ -159,8 +159,8 @@ export function MyBanners() {
     return list;
   }, [album?.list]);
   useEffect(() => {
-    setImages(album?.list || null);
-  }, [setImages, album]);
+    setImageViewer({ images: album?.list || null });
+  }, [album]);
   const className = useMemo(() => {
     const classes = ["bannerArea"];
     return classes.join(" ");

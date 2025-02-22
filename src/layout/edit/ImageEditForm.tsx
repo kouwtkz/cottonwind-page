@@ -1,11 +1,4 @@
-import {
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import { GalleryViewerPaging } from "@/layout/ImageViewer";
 import { toast } from "react-toastify";
 import { useImageState } from "@/state/ImageState";
@@ -60,8 +53,7 @@ import {
   PromiseOrder,
   PromiseOrderStateType,
 } from "@/functions/arrayFunction";
-import { create } from "zustand";
-import { CreateState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { useFiles } from "@/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import {
@@ -86,16 +78,10 @@ interface ImageEditProps {
   isDirty: boolean;
   isBusy: boolean;
 }
-interface ImageEditState extends ImageEditProps {
-  set: (args: Partial<ImageEditProps>) => void;
-}
-export const useImageEditState = create<ImageEditState>((s) => ({
+export const useImageEditState = CreateObjectState<ImageEditProps>((s) => ({
   isEdit: false,
   isDirty: false,
   isBusy: false,
-  set(args) {
-    s(args);
-  },
 }));
 export const useImageEditSwitchHold = CreateState(false);
 
@@ -129,7 +115,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     isEdit: stateIsEdit,
     isDirty: stateIsDirty,
     isBusy,
-    set,
+    Set,
   } = useImageEditState();
   const [stateIsEditHold] = useImageEditSwitchHold();
   const isEdit = useMemo(
@@ -237,7 +223,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   useEffect(() => {
     if (stateIsDirty !== isDirty) {
-      set({ isDirty });
+      Set({ isDirty });
     }
   }, [stateIsDirty, isDirty]);
 
@@ -245,7 +231,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     deleteMode,
     turnOff = true,
   }: { deleteMode?: boolean; turnOff?: boolean } = {}) {
-    set({ isBusy: true });
+    Set({ isBusy: true });
     const fields = getValues();
     const data = {} as KeyValueAnyType;
     let method: methodType = "PATCH";
@@ -279,7 +265,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       data,
       { method }
     ).finally(() => {
-      set({ isBusy: false });
+      Set({ isBusy: false });
     });
     if (res.status === 200) {
       toast.success(deleteMode ? "削除しました" : "更新しました！", {
@@ -594,7 +580,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           className="color round saveEdit"
           onClick={() => {
             if (isEdit && isDirty) SubmitImage();
-            set({ isEdit: !isEdit });
+            Set({ isEdit: !isEdit });
           }}
           disabled={isBusy}
         >
@@ -606,7 +592,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           {...args}
           ref={refForm}
           onSubmit={handleSubmit((e) => {
-            set({ isEdit: !isEdit });
+            Set({ isEdit: !isEdit });
             e.preventDefault();
           })}
           className={"edit window" + (className ? ` ${className}` : "")}

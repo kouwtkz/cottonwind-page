@@ -4,14 +4,14 @@ import {
 } from "@/components/define/toastContainerDef";
 import { useEffect } from "react";
 import { Id, toast } from "react-toastify";
-import { create } from "zustand";
+import { CreateObjectState } from "./CreateState";
 
 interface Messages {
   message?: string;
   success?: string | null;
   autoClose?: number;
 }
-export const useToastProgress = create<{
+export const useToastProgress = CreateObjectState<{
   id?: Id;
   progress?: number;
   max?: number;

@@ -1,8 +1,7 @@
-import React from "react";
 import { SetRegisterReturn } from "../hook/SetRegister";
 import { MultiParserWithMedia as MultiParser } from "./MultiParserWithMedia";
 import { useEffect, useRef } from "react";
-import { create } from "zustand";
+import { CreateObjectState } from "@/state/CreateState";
 
 type PreviewModeType = {
   previewMode: boolean;
@@ -13,20 +12,22 @@ type PreviewModeStateType = PreviewModeType & {
   togglePreviewMode: (body?: string) => void;
 };
 
-export const usePreviewMode = create<PreviewModeStateType>((set) => ({
-  previewMode: false,
-  previewBody: "",
-  setPreviewMode: (option) => {
-    set(option);
-  },
-  togglePreviewMode: (body = "") => {
-    set((state) => {
-      const newState = { previewMode: !state.previewMode } as PreviewModeType;
-      if (newState) newState.previewBody = body;
-      return newState;
-    });
-  },
-}));
+export const usePreviewMode = CreateObjectState<PreviewModeStateType>(
+  (set) => ({
+    previewMode: false,
+    previewBody: "",
+    setPreviewMode: (option) => {
+      set(option);
+    },
+    togglePreviewMode: (body = "") => {
+      set((state) => {
+        const newState = { previewMode: !state.previewMode } as PreviewModeType;
+        if (newState) newState.previewBody = body;
+        return newState;
+      });
+    },
+  })
+);
 
 type PostTextareaProps = {
   registed?: SetRegisterReturn;
