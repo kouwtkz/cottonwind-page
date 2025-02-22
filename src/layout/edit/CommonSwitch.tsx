@@ -6,7 +6,7 @@ import { TbArrowsMove } from "react-icons/tb";
 import { Link, useSearchParams } from "react-router-dom";
 
 interface ModeSwitchProps
-  extends Omit<HTMLAttributes<HTMLButtonElement>, "ref" | "onClick"> {
+  extends Omit<HTMLAttributes<HTMLButtonElement>, "onClick"> {
   toEnableTitle?: string;
   toDisableTitle?: string;
   beforeOnClick?: (
@@ -43,7 +43,7 @@ export function ModeSwitch({
 }
 
 interface ModeSearchSwitchProps
-  extends Omit<HTMLAttributes<HTMLAnchorElement>, "ref" | "onClick"> {
+  extends Omit<HTMLAttributes<HTMLAnchorElement>, "onClick"> {
   toEnableTitle?: string;
   toDisableTitle?: string;
   searchKey: string;

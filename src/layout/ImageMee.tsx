@@ -31,7 +31,7 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
 export const useImageMeeShowPng = CreateState(false);
 
 interface ImageMeeProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "ref"> {
+  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
   src?: string | null;
   imageItem?: ImageType;
   hoverImageItem?: ImageType;
