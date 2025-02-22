@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { create } from "zustand";
 import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import MebtteMediaSession from "@mebtte/react-media-session";
@@ -10,7 +9,7 @@ import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
-import { CreateState } from "./CreateState";
+import { CreateObjectState, CreateState } from "./CreateState";
 import ReactSlider from "react-slider";
 
 import {
@@ -48,13 +47,7 @@ type SoundPlayerType = {
   currentTime: number;
   prevReplayTime: number;
   jumpTime: number;
-  Set: (args: Partial<SoundPlayerType>) => void;
-  SetPaused: (paused: boolean) => void;
-  SetEnded: (ended: boolean) => void;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
-  SetCurrent: (current: number) => void;
-  SetLoopMode: (loopMode: SoundLoopMode, current?: number) => void;
-  SetShuffle: (shuffle: boolean) => void;
   Play: (args?: Partial<SoundPlayerType>) => void;
   Pause: () => void;
   Stop: () => void;
@@ -64,7 +57,7 @@ type SoundPlayerType = {
   ToggleShuffle: () => void;
 };
 
-export const useSoundPlayer = create<SoundPlayerType>((set) => ({
+export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   paused: true,
   ended: true,
   playlist: { list: [] },
@@ -77,15 +70,6 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
   currentTime: 0,
   prevReplayTime: 3,
   jumpTime: 0,
-  Set(args) {
-    set(args);
-  },
-  SetPaused: (paused) => {
-    set({ paused });
-  },
-  SetEnded: (ended) => {
-    set({ ended });
-  },
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
       playlist?: SoundPlaylistType | undefined;
@@ -99,15 +83,6 @@ export const useSoundPlayer = create<SoundPlayerType>((set) => ({
         : { list: Array.isArray(_playlist) ? _playlist : [_playlist] }
       : undefined;
     set(() => value);
-  },
-  SetCurrent: (current) => {
-    set(() => ({ current }));
-  },
-  SetLoopMode: (loopMode) => {
-    set(() => ({ loopMode }));
-  },
-  SetShuffle(shuffle) {
-    set(() => ({ shuffle }));
   },
   Play: (args = {}) => {
     set((state) => {
@@ -227,7 +202,7 @@ export function SoundPlayer() {
       audioElm.currentTime = jumpTime;
       Set({ jumpTime: -1 });
     }
-  }, [jumpTime, audioElm, Set]);
+  }, [jumpTime, audioElm]);
   useEffect(() => {
     if (audioElm) {
       if (audioElm.paused !== paused) {
@@ -264,13 +239,13 @@ export function SoundPlayer() {
   }, [loopMode, audioElm, Stop, listLength]);
   useEffect(
     () => Set({ duration: audioElm?.duration || 0 }),
-    [audioElm?.duration, Set]
+    [audioElm?.duration]
   );
   const onTimeUpdate = useCallback(() => {
     if (audioElm) {
       Set({ currentTime: audioElm.currentTime });
     }
-  }, [audioElm, Set]);
+  }, [audioElm]);
 
   const artwork = useMemo(
     () =>
@@ -329,8 +304,6 @@ export function SoundFixed() {
     shuffle,
     currentTime,
     duration,
-    Set,
-    jumpTime,
   } = useSoundPlayer();
   const sound = playlist.list[current];
   const title = sound?.title || null;
