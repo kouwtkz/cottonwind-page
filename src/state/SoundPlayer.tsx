@@ -181,10 +181,9 @@ export function SoundPlayer() {
     [playlist, current]
   );
   const src = useMemo(() => music?.src, [music, current]);
-  const mediaSrc = useMemo(
-    () => concatOriginUrl(mediaOrigin, src),
-    [mediaOrigin, src]
-  );
+  const mediaSrc = useMemo(() => {
+    if (src) return concatOriginUrl(mediaOrigin, src);
+  }, [mediaOrigin, src]);
 
   const onPlay = useCallback(() => audioElm!.play(), [audioElm]);
   const onPause = useCallback(() => audioElm!.pause(), [audioElm]);
