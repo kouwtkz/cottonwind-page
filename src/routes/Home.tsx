@@ -194,7 +194,7 @@ const useTopImage = CreateObjectState<useTopImageType>((set) => ({
   },
 }));
 export function HomeImageState() {
-  const { set: setTopImage } = useTopImage();
+  const { Set: setTopImage } = useTopImage();
   const { date } = useSchedule({ minute: 0, specify: true });
   const { imageAlbums } = useImageState();
   const timeframeTag = useMemo(() => getTimeframeTag(date), [date]);
