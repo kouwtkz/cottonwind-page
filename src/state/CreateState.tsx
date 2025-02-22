@@ -37,26 +37,28 @@ export function CreateState<T = unknown>(v?: T): CreateStateFunctionType<T> {
   };
 }
 
-type setType<T> = (value: Partial<T> | ((prevState: T) => Partial<T>)) => void;
+type setType<T> = (
+  value: Partial<T> | ((prevState: T) => Partial<T> | void)
+) => void;
 type createType<T, Mos extends [StoreMutatorIdentifier, unknown][] = []> =
   | T
   | StateCreator<T, [], Mos>;
+type WithSet<T> = T & { Set: setType<T> };
+
 export function CreateObjectState<T extends object>(
   t: createType<T> = {} as T
 ) {
-  const useState = create<T & { Set: setType<T> }>((set) => {
+  return create<WithSet<T>>((set) => {
     const _t = typeof t === "function" ? (t as Function)(set) : t;
     return {
       Set(v) {
         set((s) => {
           if (typeof v === "function") {
-            return (v as Function)(s);
+            return (v as Function)(s) || {};
           } else return v;
         });
-        return v;
       },
       ..._t,
     };
   });
-  return () => useState();
 }
