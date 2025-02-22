@@ -3,7 +3,7 @@ import { HTMLAttributes, useMemo } from "react";
 import { AiOutlinePlus, AiOutlineTool } from "react-icons/ai";
 import { MdClose, MdDoneOutline } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 interface ModeSwitchProps
   extends Omit<HTMLAttributes<HTMLButtonElement>, "onClick"> {
@@ -58,6 +58,7 @@ export function ModeSearchSwitch({
   ...props
 }: ModeSearchSwitchProps) {
   const searchParams = useSearchParams()[0];
+  const { state } = useLocation();
   const [isEnable, href] = useMemo(() => {
     const has = searchParams.has(searchKey);
     if (has) searchParams.delete(searchKey);
@@ -73,6 +74,7 @@ export function ModeSearchSwitch({
       className="button iconSwitch"
       preventScrollReset={true}
       ref={ref}
+      state={state}
       {...props}
     >
       {children}

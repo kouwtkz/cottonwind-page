@@ -278,7 +278,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             state.from = location.href;
             const newSearchParams = new URLSearchParams(searchParams);
             newSearchParams.set("modal", "gallery");
-            newSearchParams.set("show", "all");
+            newSearchParams.set("showAllAlbum", "on");
             if (chara) newSearchParams.set("characters", chara.key);
             setSearchParams(Object.fromEntries(newSearchParams), {
               state,

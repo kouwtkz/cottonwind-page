@@ -239,16 +239,17 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     }
     return null;
   }, [monthModeParam, monthParam]);
+  const isLogin = useIsLogin()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
   const items = useMemo(() => {
-    if (showAllAlbum)
+    if (isLogin && showAllAlbum)
       return _items.map((item) => ({
         ...item,
         hideWhenEmpty: false,
         hide: false,
       }));
     else return _items;
-  }, [_items, showAllAlbum]);
+  }, [_items, showAllAlbum, isLogin]);
   const { Set } = useGalleryObject();
 
   const { where, orderBy } = useMemo(
@@ -1181,15 +1182,9 @@ function GalleryItemRibbon({ image }: { image: ImageType }) {
 export function MiniGallery() {
   const [selectedImage, setSelectedImage] = useSelectedImage();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isLogin = useIsLogin()[0];
   const nav = useNavigate();
   const { state } = useLocation();
   const enable = searchParams.get("modal") === "gallery";
-  const showAll = isLogin && searchParams.get("show") === "all";
-  const { imageAlbums: albums } = useImageState();
-  const items = useMemo(() => {
-    return showAll ? Object.values(Object.fromEntries(albums || [])) : null;
-  }, [showAll, albums]);
   function closeHandler() {
     if (state?.from) {
       delete state.from;
@@ -1209,11 +1204,7 @@ export function MiniGallery() {
     <>
       {enable ? (
         <Modal className="window miniGallery" onClose={closeHandler}>
-          {items ? (
-            <GalleryObject items={items} showInPageMenu={false} />
-          ) : (
-            <GalleryPage showInPageMenu={false} />
-          )}
+          <GalleryPage showInPageMenu={false} />
         </Modal>
       ) : null}
     </>
