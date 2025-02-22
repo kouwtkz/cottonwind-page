@@ -15,7 +15,7 @@ export function getGitLogItemList({
   try {
     const execList: string[] = [];
     if (dir) execList.push('cd ' + dir);
-    execList.push(`git log --first-parent ${branch} --no-merges --pretty=format:"%ad__,%s" --date=format:"%Y/%m/%d %H:%M:%S"`);
+    execList.push(`git log ${branch} --no-merges --pretty=format:"%ad__,%s" --date=format:"%Y/%m/%d %H:%M:%S"`);
     const gitLog = execSync(execList.join(' & '));
     return gitLog.toString().split("\n").map(v => v.split("__,"))
       .map(([date, message]) => ({ date: new Date(date), message }))
