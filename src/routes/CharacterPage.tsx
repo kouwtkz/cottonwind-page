@@ -94,7 +94,7 @@ function CharacterPageState() {
     () =>
       setWhere<CharacterType>(text, {
         text: {
-          key: ["name", "id", "overview", "description", "honorific"],
+          key: ["key", "name", "enName", "overview", "description", "honorific"],
         },
         hashtag: { key: "tags" },
       }),
