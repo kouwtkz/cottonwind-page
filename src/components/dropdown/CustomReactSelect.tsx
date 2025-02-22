@@ -7,6 +7,7 @@ export function CustomReactSelect<
   Group extends GroupBase<Option> = GroupBase<Option>
 >({
   components: { ValueContainer, ...propsComponents } = {},
+  onMenuClose,
   ...props
 }: Props<Option, IsMulti, Group>) {
   const [isSearchable, setIsSearchable] = useState(false);
@@ -15,8 +16,8 @@ export function CustomReactSelect<
   }
   return (
     <ReactSelect
-      {...props}
       isSearchable={isSearchable}
+      {...props}
       components={{
         ...propsComponents,
         ValueContainer: (rest) => (
@@ -31,6 +32,7 @@ export function CustomReactSelect<
       }}
       onMenuClose={() => {
         setIsSearchable(false);
+        if (onMenuClose) onMenuClose();
       }}
     />
   );
