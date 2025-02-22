@@ -11,8 +11,14 @@ export function CustomReactSelect<
   ...props
 }: Props<Option, IsMulti, Group>) {
   const [isSearchable, setIsSearchable] = useState(false);
-  function EnableSearchable() {
-    setIsSearchable(true);
+  function EnableSearchable(e: React.UIEvent<HTMLDivElement>) {
+    function P(e: HTMLElement) {
+      if (/select/.test(e.className)) return e;
+      else if (e.parentElement) return P(e.parentElement);
+      else return e.parentElement;
+    }
+    const target = P(e.target as HTMLElement);
+    if (target && !/remove/.test(target.className)) setIsSearchable(true);
   }
   return (
     <ReactSelect
