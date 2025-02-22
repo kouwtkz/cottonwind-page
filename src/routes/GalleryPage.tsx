@@ -1128,45 +1128,43 @@ export function GalleryCharactersSelect({
     setIsSearchable(true);
   }
   return (
-    <div>
-      <ReactSelect
-        options={charaLabelOptions}
-        formatOptionLabel={charaFormatOptionLabel}
-        isMulti
-        isLoading={!Boolean(characters)}
-        classNamePrefix="select"
-        placeholder={(enableCharaFilter ? "他の" : "") + "キャラクター"}
-        instanceId="characterSelect"
-        className={"characterSelect" + (className ? " " + className : "")}
-        theme={callReactSelectTheme}
-        styles={{
-          menuList: (style) => ({ ...style, minHeight: "22rem" }),
-          menu: (style) => ({ ...style, zIndex: 9999 }),
-        }}
-        value={value}
-        onChange={(v) => {
-          const value = v.map(({ value }) => value).join(",");
-          if (value) searchParams.set("characters", value);
-          else searchParams.delete("characters");
-          setSearchParams(searchParams, {
-            preventScrollReset: true,
-            replace: isModal,
-            state,
-          });
-        }}
-        isSearchable={isSearchable}
-        components={{
-          ValueContainer: (rest) => (
-            <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
-              <components.ValueContainer {...rest} />
-            </div>
-          ),
-        }}
-        onMenuClose={() => {
-          setIsSearchable(false);
-        }}
-      />
-    </div>
+    <ReactSelect
+      options={charaLabelOptions}
+      formatOptionLabel={charaFormatOptionLabel}
+      isMulti
+      isLoading={!Boolean(characters)}
+      classNamePrefix="select"
+      placeholder={(enableCharaFilter ? "他の" : "") + "キャラクター"}
+      instanceId="characterSelect"
+      className={"characterSelect" + (className ? " " + className : "")}
+      theme={callReactSelectTheme}
+      styles={{
+        menuList: (style) => ({ ...style, minHeight: "22rem" }),
+        menu: (style) => ({ ...style, zIndex: 9999 }),
+      }}
+      value={value}
+      onChange={(v) => {
+        const value = v.map(({ value }) => value).join(",");
+        if (value) searchParams.set("characters", value);
+        else searchParams.delete("characters");
+        setSearchParams(searchParams, {
+          preventScrollReset: true,
+          replace: isModal,
+          state,
+        });
+      }}
+      isSearchable={isSearchable}
+      components={{
+        ValueContainer: (rest) => (
+          <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
+            <components.ValueContainer {...rest} />
+          </div>
+        ),
+      }}
+      onMenuClose={() => {
+        setIsSearchable(false);
+      }}
+    />
   );
 }
 
