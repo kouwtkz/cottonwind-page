@@ -1,5 +1,5 @@
 import { CreateStateFunctionType } from "@/state/CreateState";
-import { forwardRef, HTMLAttributes, ReactNode, useMemo } from "react";
+import { HTMLAttributes, useMemo } from "react";
 import { AiOutlinePlus, AiOutlineTool } from "react-icons/ai";
 import { MdClose, MdDoneOutline } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
@@ -13,57 +13,50 @@ interface ModeSwitchProps
     e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => boolean;
   useSwitch: CreateStateFunctionType<boolean>;
+  ref?: React.RefObject<HTMLButtonElement>;
 }
-export const ModeSwitch = forwardRef<HTMLButtonElement, ModeSwitchProps>(
-  function ModeSwitch(
-    {
-      toEnableTitle = "有効にする",
-      toDisableTitle = "元に戻す",
-      children = <AiOutlineTool />,
-      useSwitch,
-      beforeOnClick,
-      ...props
-    },
-    ref
-  ) {
-    const [isEnable, setIsEnable] = useSwitch();
-    return (
-      <button
-        title={isEnable ? toDisableTitle : toEnableTitle}
-        type="button"
-        className="iconSwitch"
-        onClick={(e) => {
-          if (!beforeOnClick || beforeOnClick(e)) setIsEnable(!isEnable);
-        }}
-        style={{ opacity: isEnable ? 1 : 0.4 }}
-        ref={ref}
-        {...props}
-      >
-        {children}
-      </button>
-    );
-  }
-);
+export function ModeSwitch({
+  toEnableTitle = "有効にする",
+  toDisableTitle = "元に戻す",
+  children = <AiOutlineTool />,
+  useSwitch,
+  beforeOnClick,
+  ref,
+  ...props
+}: ModeSwitchProps) {
+  const [isEnable, setIsEnable] = useSwitch();
+  return (
+    <button
+      title={isEnable ? toDisableTitle : toEnableTitle}
+      type="button"
+      className="iconSwitch"
+      onClick={(e) => {
+        if (!beforeOnClick || beforeOnClick(e)) setIsEnable(!isEnable);
+      }}
+      style={{ opacity: isEnable ? 1 : 0.4 }}
+      ref={ref}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
 
 interface ModeSearchSwitchProps
   extends Omit<HTMLAttributes<HTMLAnchorElement>, "ref" | "onClick"> {
   toEnableTitle?: string;
   toDisableTitle?: string;
   searchKey: string;
+  ref?: React.RefObject<HTMLAnchorElement>;
 }
-export const ModeSearchSwitch = forwardRef<
-  HTMLAnchorElement,
-  ModeSearchSwitchProps
->(function ModeSearchSwitch(
-  {
-    toEnableTitle = "有効にする",
-    toDisableTitle = "元に戻す",
-    children = <AiOutlineTool />,
-    searchKey,
-    ...props
-  },
-  ref
-) {
+export function ModeSearchSwitch({
+  toEnableTitle = "有効にする",
+  toDisableTitle = "元に戻す",
+  children = <AiOutlineTool />,
+  searchKey,
+  ref,
+  ...props
+}: ModeSearchSwitchProps) {
   const searchParams = useSearchParams()[0];
   const [isEnable, href] = useMemo(() => {
     const has = searchParams.has(searchKey);
@@ -85,7 +78,7 @@ export const ModeSearchSwitch = forwardRef<
       {children}
     </Link>
   );
-});
+}
 
 export function AddButton({
   addTitle = "追加する",

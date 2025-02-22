@@ -4,7 +4,7 @@ type SetStateAction<S> = S | ((prevState: S) => S);
 type Dispatch<A> = (value: A) => void;
 type SetStateActionOptional<S> = S | ((prevState?: S) => S);
 type DispatchOptional<A> = (value?: A) => void;
-type CreateStateFunctionType<T> = () => [
+export type CreateStateFunctionType<T> = () => [
   T | undefined,
   Dispatch<SetStateAction<T>>
 ];

@@ -11,7 +11,6 @@ import { useDataIsComplete } from "@/state/StateSet";
 import React, {
   ReactNode,
   createRef,
-  forwardRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -738,169 +737,166 @@ interface GalleryContentProps
     GalleryBodyOptions {
   item: GalleryItemObjectType;
   list: ImageType[];
+  ref?: React.RefObject<HTMLDivElement>;
 }
-const GalleryContent = forwardRef<HTMLDivElement, GalleryContentProps>(
-  function GalleryContent(
-    {
-      item,
-      list,
-      className,
-      showGalleryLabel,
-      showCount,
-      showGalleryHeader,
-      showInPageMenu,
-      ...args
-    },
-    ref
-  ) {
-    const [isComplete] = useDataIsComplete();
-    let {
-      name,
-      linkLabel,
-      h2,
-      h4,
-      label,
-      max: maxFromArgs = 20,
-      step = 20,
-      maxWhenSearch = 40,
-    } = item;
-    const labelString = useMemo(() => label || name, [name, label]);
-    const [searchParams] = useSearchParams();
-    const q = searchParams.get("q");
-    const tags = searchParams.get("tags");
-    const characters = searchParams.get("characters");
-    const searchMode = useMemo(
-      () => Boolean(q || tags || characters),
-      [q, tags, characters]
-    );
-    const { state, search, hash } = useLocation();
-    const nav = useNavigate();
-    const isModal = searchParams.get("modal") === "gallery";
-    const setSelectedImage = useSelectedImage()[1];
-    const imageOnClick = isModal
-      ? function (image: ImageType) {
-          setSelectedImage(image);
-        }
-      : undefined;
-    const [w] = useWindowSize();
-    const max = useMemo(
-      () => (searchMode ? maxWhenSearch : maxFromArgs),
-      [maxFromArgs, maxWhenSearch, searchMode]
-    );
-    const curMax = useMemo(() => {
-      let curMax = state?.galleryMax?.[name] ?? max;
-      if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
-      else curMax = Math.ceil(curMax / 4) * 4;
-      return curMax;
-    }, [name, max, state, w]);
-    const showMoreButton = curMax < (list.length || 0);
-    const visibleMax = showMoreButton ? curMax - 1 : curMax;
-    const HeadingElm = useCallback(
-      ({ label }: { label?: string }) =>
-        label && linkLabel ? (
-          <Link
-            to={
-              new URL(
-                typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
-                location.href
-              ).href
-            }
-          >
-            {label}
-          </Link>
-        ) : (
-          <>{label}</>
-        ),
-      [linkLabel, name]
-    );
-    const GalleryLabel = useMemo(
-      () =>
-        showGalleryLabel ? (
-          <div className="galleryLabel">
-            <h2 className="en-title-font">
-              <HeadingElm label={labelString} />
-            </h2>
-            {showCount ? <div className="count">({list.length})</div> : null}
-          </div>
-        ) : null,
-      [showGalleryLabel, labelString, list.length, showCount]
-    );
-    const listClassName = useMemo(() => {
-      const classes = ["galleryList"];
-      switch (item.type) {
-        case "banner":
-          classes.push("banner");
-          break;
-        default:
-          classes.push("grid");
-          break;
+function GalleryContent({
+  item,
+  list,
+  className,
+  showGalleryLabel,
+  showCount,
+  showGalleryHeader,
+  showInPageMenu,
+  ref,
+  ...args
+}: GalleryContentProps) {
+  const [isComplete] = useDataIsComplete();
+  let {
+    name,
+    linkLabel,
+    h2,
+    h4,
+    label,
+    max: maxFromArgs = 20,
+    step = 20,
+    maxWhenSearch = 40,
+  } = item;
+  const labelString = useMemo(() => label || name, [name, label]);
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q");
+  const tags = searchParams.get("tags");
+  const characters = searchParams.get("characters");
+  const searchMode = useMemo(
+    () => Boolean(q || tags || characters),
+    [q, tags, characters]
+  );
+  const { state, search, hash } = useLocation();
+  const nav = useNavigate();
+  const isModal = searchParams.get("modal") === "gallery";
+  const setSelectedImage = useSelectedImage()[1];
+  const imageOnClick = isModal
+    ? function (image: ImageType) {
+        setSelectedImage(image);
       }
-      return classes.join(" ");
-    }, [item]);
-    const ShowMore = useCallback(() => {
-      nav(
-        { search, hash },
-        {
-          state: {
-            ...state,
-            ...{
-              galleryMax: {
-                ...state?.galleryMax,
-                [name]: curMax + step,
-              },
+    : undefined;
+  const [w] = useWindowSize();
+  const max = useMemo(
+    () => (searchMode ? maxWhenSearch : maxFromArgs),
+    [maxFromArgs, maxWhenSearch, searchMode]
+  );
+  const curMax = useMemo(() => {
+    let curMax = state?.galleryMax?.[name] ?? max;
+    if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
+    else curMax = Math.ceil(curMax / 4) * 4;
+    return curMax;
+  }, [name, max, state, w]);
+  const showMoreButton = curMax < (list.length || 0);
+  const visibleMax = showMoreButton ? curMax - 1 : curMax;
+  const HeadingElm = useCallback(
+    ({ label }: { label?: string }) =>
+      label && linkLabel ? (
+        <Link
+          to={
+            new URL(
+              typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
+              location.href
+            ).href
+          }
+        >
+          {label}
+        </Link>
+      ) : (
+        <>{label}</>
+      ),
+    [linkLabel, name]
+  );
+  const GalleryLabel = useMemo(
+    () =>
+      showGalleryLabel ? (
+        <div className="galleryLabel">
+          <h2 className="en-title-font">
+            <HeadingElm label={labelString} />
+          </h2>
+          {showCount ? <div className="count">({list.length})</div> : null}
+        </div>
+      ) : null,
+    [showGalleryLabel, labelString, list.length, showCount]
+  );
+  const listClassName = useMemo(() => {
+    const classes = ["galleryList"];
+    switch (item.type) {
+      case "banner":
+        classes.push("banner");
+        break;
+      default:
+        classes.push("grid");
+        break;
+    }
+    return classes.join(" ");
+  }, [item]);
+  const ShowMore = useCallback(() => {
+    nav(
+      { search, hash },
+      {
+        state: {
+          ...state,
+          ...{
+            galleryMax: {
+              ...state?.galleryMax,
+              [name]: curMax + step,
             },
           },
-          replace: true,
-          preventScrollReset: true,
-        }
-      );
-    }, [nav, state, search, hash]);
-    const _className = useMemo(() => {
-      const list = ["galleryContainer"];
-      if (className) list.push(className);
-      return list.join(" ");
-    }, [className]);
-    return (
-      <div {...args} ref={ref} className={_className}>
-        {h2 || h4 ? (
-          <div className="galleryLabel outLabel">
-            {h2 ? <h2>{h2}</h2> : null}
-            {h4 ? <h4>{h4}</h4> : null}
-          </div>
-        ) : null}
-        {GalleryLabel}
-        {isComplete ? (
-          <div className={listClassName}>
-            {list
-              .filter((_, i) => i < visibleMax)
-              .map((image, i) => (
-                <GalleryImageItem
-                  image={image}
-                  galleryName={name}
-                  onClick={imageOnClick}
-                  key={image.key}
-                />
-              ))}
-            {showMoreButton ? (
-              <a
-                onClick={(e) => {
-                  e.preventDefault();
-                  ShowMore();
-                }}
-                title="もっと見る"
-                className="item"
-              >
-                <MoreButton className="gallery-button-more" />
-              </a>
-            ) : null}
-          </div>
-        ) : (
-          <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
-        )}
-      </div>
+        },
+        replace: true,
+        preventScrollReset: true,
+      }
     );
-  }
-);
+  }, [nav, state, search, hash]);
+  const _className = useMemo(() => {
+    const list = ["galleryContainer"];
+    if (className) list.push(className);
+    return list.join(" ");
+  }, [className]);
+  return (
+    <div {...args} ref={ref} className={_className}>
+      {h2 || h4 ? (
+        <div className="galleryLabel outLabel">
+          {h2 ? <h2>{h2}</h2> : null}
+          {h4 ? <h4>{h4}</h4> : null}
+        </div>
+      ) : null}
+      {GalleryLabel}
+      {isComplete ? (
+        <div className={listClassName}>
+          {list
+            .filter((_, i) => i < visibleMax)
+            .map((image, i) => (
+              <GalleryImageItem
+                image={image}
+                galleryName={name}
+                onClick={imageOnClick}
+                key={image.key}
+              />
+            ))}
+          {showMoreButton ? (
+            <a
+              onClick={(e) => {
+                e.preventDefault();
+                ShowMore();
+              }}
+              title="もっと見る"
+              className="item"
+            >
+              <MoreButton className="gallery-button-more" />
+            </a>
+          ) : null}
+        </div>
+      ) : (
+        <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
+      )}
+    </div>
+  );
+}
 
 export function GalleryYearFilter({
   submitPreventScrollReset = true,
