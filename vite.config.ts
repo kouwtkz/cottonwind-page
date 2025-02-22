@@ -139,6 +139,9 @@ export default defineConfig(async ({ mode }) => {
           ],
         }),
       ],
+      server: {
+        allowedHosts: ["dp7-test.cottonwind.com"],
+      }
     } as UserConfig;
   }
 })
