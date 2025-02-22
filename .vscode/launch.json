@@ -19,6 +19,12 @@
       "request": "launch",
       "reAttach": true,
       "url": "http://localhost:51730"
+    },
+    {
+      "name": "Launch Chrome Global",
+      "type": "chrome",
+      "url": "https://dp7-test.cottonwind.com",
+      "request": "launch"
     }
   ],
   "compounds": [
