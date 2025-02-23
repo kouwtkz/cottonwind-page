@@ -99,92 +99,106 @@ export default function AboutPage() {
           <li>政治的、宗教的な目的で使用すること</li>
         </ul>
       </div>
-      <div className="container">
-        <h3 className="color-main">
-          このサイトの構成
-          <Link
-            className="button miniIcon ml inline-flex"
-            to="/log"
-            state={{ backUrl: location.href }}
-            title="サイトの更新履歴 (Git)"
-          >
-            <BiGitBranch />
-          </Link>
-        </h3>
-        <ul className="sm">
-          <li>
-            サーバー関連
-            <ul>
-              <li>
-                <span className="label">ホスティング</span>
-                <span>Cloudflare Pages</span>
-              </li>
-              <li>
-                <span className="label">ドメイン</span>
-                <span>Cloudflare Registrar</span>
-              </li>
-              <li>
-                <span className="label">データベース</span>
-                <span>Cloudflare D1</span>
-              </li>
-              <li>
-                <span className="label">画像やファイル</span>
-                <span>Cloudflare R2</span>
-              </li>
-            </ul>
-          </li>
-          <li>
-            フレームワーク
-            <ul>
-              <li>
-                <span className="label">サーバー</span>
-                <span>Hono</span>
-              </li>
-              <li>
-                <span className="label">クライアント</span>
-                <span>React Router DOM</span>
-              </li>
-              <li>
-                <span className="label">ビルダー</span>
-                <span>Vite</span>
-              </li>
-            </ul>
-          </li>
-          <li>
-            コンポーネント
-            <ul>
-              <li>
-                <span className="label">アイコン</span>
-                <span>react-icons</span>
-              </li>
-              <li>
-                <span className="label">マークダウン</span>
-                <span>marked</span>
-              </li>
-              <li>
-                <span className="label">タグ選択</span>
-                <span>react-select</span>
-              </li>
-              <li>
-                <span className="label">トースト</span>
-                <span>react-toastify</span>
-              </li>
-              <li>
-                <span className="label">状態管理</span>
-                <span>zustand</span>
-              </li>
-              <li>
-                <span className="label">プレイヤー</span>
-                <span>@mebtte/react-media-session</span>
-              </li>
-              <li>
-                <span className="label">UIライブラリ</span>
-                <span>React-Slider</span>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+      <WebsiteFramework className="container" />
+    </div>
+  );
+}
+
+export function WebsiteFramework({
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div {...props}>
+      <h3 className="color-main">
+        このサイトの構成
+        <Link
+          className="button miniIcon ml inline-flex"
+          to="/log"
+          state={{ backUrl: location.href }}
+          title="サイトの更新履歴 (Git)"
+        >
+          <BiGitBranch />
+        </Link>
+      </h3>
+      <ul className="sm">
+        <li>
+          サーバー関連
+          <ul>
+            <li>
+              <span className="label">ホスティング</span>
+              <span>Cloudflare Pages</span>
+            </li>
+            <li>
+              <span className="label">ドメイン</span>
+              <span>Cloudflare Registrar</span>
+            </li>
+            <li>
+              <span className="label">データベース</span>
+              <span>Cloudflare D1</span>
+            </li>
+            <li>
+              <span className="label">画像やファイル</span>
+              <span>Cloudflare R2</span>
+            </li>
+          </ul>
+        </li>
+        <li>
+          フレームワーク
+          <ul>
+            <li>
+              <span className="label">サーバー</span>
+              <span>Hono</span>
+            </li>
+            <li>
+              <span className="label">クライアント</span>
+              <span>React Router DOM</span>
+            </li>
+            <li>
+              <span className="label">ビルダー</span>
+              <span>Vite</span>
+            </li>
+          </ul>
+        </li>
+        <li>
+          コンポーネント
+          <ul>
+            <li>
+              <span className="label">アイコン</span>
+              <span>react-icons</span>
+            </li>
+            <li>
+              <span className="label">マークダウン</span>
+              <span>marked</span>
+            </li>
+            <li>
+              <span className="label">タグ選択</span>
+              <span>react-select</span>
+            </li>
+            <li>
+              <span className="label">トースト</span>
+              <span>react-toastify</span>
+            </li>
+            <li>
+              <span className="label">状態管理</span>
+              <span>zustand</span>
+            </li>
+            <li>
+              <span className="label">プレイヤー</span>
+              <span>@mebtte/react-media-session</span>
+            </li>
+            <li>
+              <span className="label">UIライブラリ</span>
+              <span>React-Slider</span>
+            </li>
+            <li>
+              <span className="label">マンガ</span>
+              <span>react-comic-viewer, Epub.js</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      {children}
     </div>
   );
 }
