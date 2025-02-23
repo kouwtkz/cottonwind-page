@@ -320,6 +320,37 @@ textarea,
   font-style: normal;
 }
 
+@mixin SpacingInner($property, $size, $vector: "") {
+  $m: #{0.25 * $size}rem;
+  @if $vector == "t" {
+    #{$property}-top: #{$m};
+  } @else if $vector == "b" {
+    #{$property}-bottom: #{$m};
+  } @else if $vector == "l" {
+    #{$property}-left: #{$m};
+  } @else if $vector == "r" {
+    #{$property}-right: #{$m};
+  } @else {
+    #{$property}: #{$m};
+  }
+}
+@mixin MarginInner($size, $vector: "") {
+  @include SpacingInner("margin", $size, $vector);
+}
+@mixin Margin($size, $vector: "") {
+  .m#{$vector}-#{$size} {
+    @include MarginInner($size, $vector);
+  }
+}
+
+$m-sizes: 1, 2, 3, 4;
+$m-vectors: "", "t", "b", "l", "r";
+@each $m-vector in $m-vectors {
+  @each $m-size in $m-sizes {
+    @include Margin($m-size, $m-vector);
+  }
+}
+
 $mobileWidth: 520px;
 $tabletWidth: 768px;
 $miniDesktopWidth: 960px;
@@ -2414,15 +2445,15 @@ $soundBoxHeight: 12.5rem;
   }
 }
 
-.mb-1,
 .label,
 .label-s {
-  margin-bottom: 0.25rem;
+  @include MarginInner(1);
 }
 .label-l {
-  margin-right: 0.5rem;
+  @include MarginInner(2);
 }
 .label-sl {
+  @include MarginInner(2);
   margin-right: 0.25rem;
   > * {
     font-size: 1.25em;
@@ -3294,7 +3325,7 @@ form.blogEdit {
       text-align: center;
     }
     > * {
-      padding: 0.5rem;
+      padding: 0rem;
     }
     .banner {
       width: 100%;
