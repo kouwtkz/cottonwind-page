@@ -465,17 +465,7 @@ export function BannerInner({
         />
       ) : (
         <div className="banner">
-          <span
-            style={{
-              width: 200,
-              height: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {title || item?.title}
-          </span>
+          <span className="plane">{title || item?.title}</span>
         </div>
       )}
     </>
