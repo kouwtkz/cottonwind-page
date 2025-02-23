@@ -29,6 +29,7 @@ export default function WorksPage() {
         title="コミッション"
         category="commission"
         className="linkPage"
+        banner
       />
       <ContactPage />
     </div>

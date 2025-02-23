@@ -58,8 +58,8 @@ export default function LinksPage() {
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
       <MeeLinks title="トップリンク" category="top" banner />
-      <MeeLinks title={topLinkTitle} category="" />
-      <MeeLinks title="コミッション" category="commission" />
+      <MeeLinks title={topLinkTitle} category="" banner />
+      <MeeLinks title="コミッション" category="commission" banner />
       <div>
         <h3 className="leaf">いろいろ</h3>
         <ul className="flex center column large">
