@@ -291,7 +291,7 @@ export function LinksEditButtons({
     [album]
   );
   className = useMemo(() => {
-    const list = ["icons flex center"];
+    const list = ["icons flex center mb-1"];
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
