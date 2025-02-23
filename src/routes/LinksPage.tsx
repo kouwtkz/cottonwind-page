@@ -1,5 +1,6 @@
 import axios from "axios";
-import {
+import React, {
+  CSSProperties,
   HTMLAttributes,
   ReactNode,
   useCallback,
@@ -58,8 +59,18 @@ export default function LinksPage() {
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
       <MeeLinks title="トップリンク" category="top" banner />
-      <MeeLinks title={topLinkTitle} category="" banner />
-      <MeeLinks title="コミッション" category="commission" banner />
+      <MeeLinks
+        title={topLinkTitle}
+        category=""
+        banner
+        linkStyle={{ minHeight: "3em" }}
+      />
+      <MeeLinks
+        title="コミッション"
+        category="commission"
+        banner
+        linkStyle={{ minHeight: "3em" }}
+      />
       <div>
         <h3 className="leaf">いろいろ</h3>
         <ul className="flex center column large">
@@ -261,6 +272,7 @@ interface LinksContainerProps
   map?: LinksMapType;
   dataObject: StorageDataStateClass<SiteLinkData>;
   defaultCategories?: string[];
+  linkStyle?: CSSProperties;
 }
 function LinksContainer({
   category,
@@ -272,6 +284,7 @@ function LinksContainer({
   dataObject,
   dropdown,
   defaultCategories,
+  linkStyle,
   ...props
 }: LinksContainerProps) {
   const send = "links" + dir + "/send";
@@ -299,12 +312,18 @@ function LinksContainer({
   const LinkInner = useCallback(
     ({ item }: { item: SiteLink }) => {
       return banner ? (
-        <BannerItem item={item} isEdit={isEditable} setEditLink={setEdit} />
+        <BannerItem
+          item={item}
+          isEdit={isEditable}
+          setEditLink={setEdit}
+          style={linkStyle}
+        />
       ) : (
         <a
           href={item.url || ""}
           className="overlay"
           target="_blank"
+          style={linkStyle}
           onClick={(e) => {
             if (isEditable) {
               setEdit(item.id);
@@ -316,7 +335,7 @@ function LinksContainer({
         </a>
       );
     },
-    [isEditable, banner]
+    [isEditable, banner, linkStyle]
   );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
   return (
@@ -441,10 +460,12 @@ export function BannerInner({
   item,
   title,
   alt,
+  style,
 }: {
   item?: SiteLink | null;
   title?: string;
   alt?: string;
+  style?: CSSProperties;
 }) {
   return (
     <>
@@ -454,6 +475,7 @@ export function BannerInner({
           imageItem={item.Image}
           alt={alt || getTitleWithDsc(item)}
           autoPixel={false}
+          style={style}
         />
       ) : item?.image ? (
         <img
@@ -462,10 +484,13 @@ export function BannerInner({
           width={200}
           height={40}
           alt={item.image}
+          style={style}
         />
       ) : (
         <div className="banner">
-          <span className="plane">{title || item?.title}</span>
+          <span className="plane" style={style}>
+            {title || item?.title}
+          </span>
         </div>
       )}
     </>
@@ -476,10 +501,12 @@ export function BannerItem({
   item,
   isEdit,
   setEditLink,
+  style,
 }: {
   item: SiteLink;
   isEdit?: boolean;
   setEditLink: (v?: number | boolean) => void;
+  style?: CSSProperties;
 }) {
   const titleWithDsc = getTitleWithDsc(item);
   return (
@@ -495,7 +522,7 @@ export function BannerItem({
         }
       }}
     >
-      <BannerInner item={item} alt={titleWithDsc} />
+      <BannerInner item={item} alt={titleWithDsc} style={style} />
     </a>
   );
 }

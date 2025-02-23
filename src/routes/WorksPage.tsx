@@ -13,7 +13,7 @@ export default function WorksPage() {
           image.album === "works" ||
           image.tags?.find((tag) => tag === "commission")
       ),
-      linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks"
+      linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks",
     },
   ];
   return (
@@ -30,6 +30,7 @@ export default function WorksPage() {
         category="commission"
         className="linkPage"
         banner
+        linkStyle={{ minHeight: "3em" }}
       />
       <ContactPage />
     </div>
