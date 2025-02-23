@@ -2447,14 +2447,13 @@ $soundBoxHeight: 12.5rem;
 
 .label,
 .label-s {
-  @include MarginInner(1);
+  @include MarginInner(1, "b");
 }
 .label-l {
-  @include MarginInner(2);
+  @include MarginInner(2, "r");
 }
 .label-sl {
-  @include MarginInner(2);
-  margin-right: 0.25rem;
+  @include MarginInner(1, "r");
   > * {
     font-size: 1.25em;
   }
