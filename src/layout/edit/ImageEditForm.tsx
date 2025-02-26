@@ -287,6 +287,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }
 
   const { togglePreviewMode, previewMode } = usePreviewMode();
+  function setDescription(v: any) {
+    setValue("description", v, {
+      shouldDirty: true,
+    });
+  }
+
   const TypeTagsOption = useMemo(() => {
     const tags =
       defaultGalleryTags
@@ -614,9 +620,18 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
           <div>
             <div className="label">
               <span>説明文</span>
-              <PostEditSelectMedia textarea={textareaRef.current} />
-              <PostEditSelectDecoration textarea={textareaRef.current} />
-              <PostEditSelectInsert textarea={textareaRef.current} />
+              <PostEditSelectMedia
+                textarea={textareaRef.current}
+                setValue={setDescription}
+              />
+              <PostEditSelectDecoration
+                textarea={textareaRef.current}
+                setValue={setDescription}
+              />
+              <PostEditSelectInsert
+                textarea={textareaRef.current}
+                setValue={setDescription}
+              />
               <button
                 title="プレビューモードの切り替え"
                 type="button"

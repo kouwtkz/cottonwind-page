@@ -166,6 +166,12 @@ export function PostForm() {
     resolver: zodResolver(schema),
   });
 
+  function setBody(v: any) {
+    setValue("body", v, {
+      shouldDirty: true,
+    });
+  }
+
   const { getLocalDraft, localDraft, setLocalDraft, removeLocalDraft } =
     useLocalDraftPost();
   useEffect(() => {
@@ -484,9 +490,19 @@ export function PostForm() {
           />
         </div>
         <div className="modifier">
-          <PostEditSelectMedia textarea={textareaRef.current} album="blog" />
-          <PostEditSelectDecoration textarea={textareaRef.current} />
-          <PostEditSelectInsert textarea={textareaRef.current} />
+          <PostEditSelectMedia
+            textarea={textareaRef.current}
+            album="blog"
+            setValue={setBody}
+          />
+          <PostEditSelectDecoration
+            textarea={textareaRef.current}
+            setValue={setBody}
+          />
+          <PostEditSelectInsert
+            textarea={textareaRef.current}
+            setValue={setBody}
+          />
           <DropdownObject
             MenuButton="操作"
             onClick={(e) => {

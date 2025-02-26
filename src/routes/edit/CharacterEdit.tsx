@@ -632,34 +632,36 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             )}
           />
         </div>
-        <div className="flex around wrap modifier">
-          <ImageSetter mode="body" title="本文に差し込む画像をアップロード" />
-          <ImageModalSetter
-            mode="body"
-            title="ギャラリーから画像を本文に差し込む"
+        <div>
+          <div className="flex around wrap modifier mb-2">
+            <ImageSetter mode="body" title="本文に差し込む画像をアップロード" />
+            <ImageModalSetter
+              mode="body"
+              title="ギャラリーから画像を本文に差し込む"
+            />
+            <PostEditSelectDecoration
+              textarea={descriptionRef.current}
+              setValue={setDescription}
+            />
+            <PostEditSelectInsert
+              textarea={descriptionRef.current}
+              setValue={setDescription}
+            />
+            <button
+              type="button"
+              className="color text"
+              onClick={() => togglePreviewMode(getValues("description"))}
+            >
+              プレビュー
+            </button>
+          </div>
+          <PostTextarea
+            registed={{ ...registerDescription, ref: dscRefPassthrough }}
+            id="post_body_area"
+            placeholder="詳細"
+            className="description"
           />
-          <PostEditSelectDecoration
-            textarea={descriptionRef.current}
-            setValue={setDescription}
-          />
-          <PostEditSelectInsert
-            textarea={descriptionRef.current}
-            setValue={setDescription}
-          />
-          <button
-            type="button"
-            className="color text"
-            onClick={() => togglePreviewMode(getValues("description"))}
-          >
-            プレビュー
-          </button>
         </div>
-        <PostTextarea
-          registed={{ ...registerDescription, ref: dscRefPassthrough }}
-          id="post_body_area"
-          placeholder="詳細"
-          className="description"
-        />
         <div className="flex around wrap">
           <DropdownObject
             MenuButton={<BiBomb />}

@@ -86,6 +86,7 @@ export function MenuItem({ value, className, ...args }: MenuItemProps) {
 }
 export function PostEditSelectInsert({
   textarea,
+  setValue,
   className,
   MenuButton = "追加",
   MenuButtonTitle = "追加",
@@ -103,6 +104,7 @@ export function PostEditSelectInsert({
         setPostInsert({
           value: e.dataset.value ?? "",
           textarea,
+          setValue,
         });
       }}
     >
