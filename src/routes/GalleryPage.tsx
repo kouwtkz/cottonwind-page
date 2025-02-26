@@ -1214,7 +1214,11 @@ export function MiniGallery() {
   return (
     <>
       {enable ? (
-        <Modal className="window miniGallery" onClose={closeHandler}>
+        <Modal
+          classNameEntire="gallery"
+          className="window miniGallery"
+          onClose={closeHandler}
+        >
           <GalleryPage showInPageMenu={false} hideWhenEmpty={true} />
         </Modal>
       ) : null}

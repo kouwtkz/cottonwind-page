@@ -569,11 +569,14 @@ li {
   vertical-align: middle;
 }
 
-.icons > *:not(.tight) {
-  margin: 0 0.25rem;
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
+.icons {
+  font-size: 1rem;
+  & > *:not(.tight) {
+    margin: 0 0.25rem;
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
   }
 }
 
@@ -2515,6 +2518,9 @@ $soundBoxHeight: 12.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  &.gallery {
+    z-index: 160;
+  }
   .modal {
     background-color: var(--modal-window-background);
     padding: 1rem;
@@ -2872,6 +2878,20 @@ $soundBoxHeight: 12.5rem;
     p {
       display: none;
     }
+  }
+}
+
+.setterImage {
+  position: relative;
+  .selectGallery {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 5;
+    margin: 0;
+    width: 4em;
+    height: 4em;
+    max-height: 100%;
   }
 }
 

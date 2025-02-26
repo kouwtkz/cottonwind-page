@@ -1,4 +1,11 @@
-import { HTMLAttributes, ReactNode, useEffect, useMemo, useRef } from "react";
+import {
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
 import {
@@ -34,7 +41,9 @@ import {
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { RiImageAddFill } from "react-icons/ri";
+import { useSelectedImage } from "@/state/ImageState";
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
@@ -63,6 +72,8 @@ export function LinksEdit({
   category,
   defaultCategories,
 }: LinksEditProps) {
+  let { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const linksData = dataObject.useData()[0];
   const dataItem = useMemo(
     () => linksData?.find((v) => v.id === edit),
@@ -149,6 +160,33 @@ export function LinksEdit({
     }
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
+
+  const [isSelectedImage, setIsSelectedImage] = useState<boolean>();
+  const selectedImage = useSelectedImage()[0];
+  useEffect(() => {
+    if (selectedImage && isSelectedImage) {
+      axios
+        .post(
+          concatOriginUrl(apiOrigin, send),
+          {
+            id: dataItem?.id,
+            image: selectedImage.key,
+            category,
+          } as SiteLinkData,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((r) => {
+          if (r.status === 201) {
+            targetLastmod.current = r.data[0].entry.lastmod;
+          }
+          setLoad("no-cache");
+        });
+      setIsSelectedImage(false);
+    }
+  }, [selectedImage, isSelectedImage]);
+
   return (
     <Modal onClose={Close}>
       <form className="flex" onSubmit={handleSubmit(Submit)}>
@@ -171,7 +209,27 @@ export function LinksEdit({
         >
           <MdDeleteForever />
         </button>
-        <div>
+        <div className="setterImage">
+          <button
+            title="アルバムから画像を設定する"
+            type="button"
+            className="selectGallery translucent-button"
+            onClick={() => {
+              if (!state) state = {};
+              state.from = location.href;
+              const newSearchParams = new URLSearchParams(searchParams);
+              newSearchParams.set("modal", "gallery");
+              newSearchParams.set("showAllAlbum", "on");
+              newSearchParams.set("q", `album:${album}`);
+              setSearchParams(Object.fromEntries(newSearchParams), {
+                state,
+                preventScrollReset: true,
+              });
+              setIsSelectedImage(true);
+            }}
+          >
+            <RiImageAddFill />
+          </button>
           <button
             title="画像の設定"
             type="button"
