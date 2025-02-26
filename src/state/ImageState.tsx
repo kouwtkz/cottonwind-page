@@ -4,10 +4,17 @@ import { getImageObjectMap } from "@/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "@/ArrayEnv";
 
+const galleryList =
+  ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
+    ...album.gallery?.pages,
+    ...album,
+  })).filter((v) => v) ?? [];
+
 type imageStateType = {
   images?: ImageType[];
   imagesMap?: Map<string, ImageType>;
   imageAlbums?: Map<string, ImageAlbumType>;
+  galleryAlbums?: Array<ImageAlbumEnvType>;
   setImages: (
     imagesData: ImageDataType[],
     albumEnv?: ImageAlbumEnvType[]
@@ -15,7 +22,10 @@ type imageStateType = {
 };
 export const useImageState = CreateObjectState<imageStateType>((set) => ({
   setImages(data, albumEnv) {
-    const { imagesMap, imageAlbumMap } = getImageObjectMap(data, albumEnv);
+    const { imagesMap, imageAlbumMap: imageAlbums } = getImageObjectMap(
+      data,
+      albumEnv
+    );
     imagesMap.forEach((image) => {
       image.update = Boolean(
         image.lastmod &&
@@ -28,10 +38,27 @@ export const useImageState = CreateObjectState<imageStateType>((set) => ({
           ? image.time.toISOString() > imageDataObject.latest.time
           : false);
     });
+    const galleryAlbums = galleryList.concat();
+    if (imageAlbums) {
+      Object.entries(Object.fromEntries(imageAlbums)).forEach(([k, v]) => {
+        const found = galleryAlbums.find((item) => item.name === k);
+        if (!found) {
+          galleryAlbums.push({
+            name: k,
+            hide: true,
+            hideWhenEmpty: true,
+            list: v.list,
+          });
+        } else {
+          found.list = v.list;
+        }
+      });
+    }
     set({
       imagesMap,
       images: Object.values(Object.fromEntries(imagesMap)),
-      imageAlbums: imageAlbumMap,
+      imageAlbums,
+      galleryAlbums,
     });
   },
 }));

@@ -86,17 +86,13 @@ interface GalleryPageProps extends GalleryBodyOptions {
   showAll?: boolean;
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
-  const galleryList =
-    ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
-      ...album.gallery?.pages,
-      ...album,
-    })).filter((v) => v) ?? [];
+  const { galleryAlbums } = useImageState();
   const [isComplete] = useDataIsComplete();
   return (
     <div className="galleryPage">
       {children}
       {isComplete ? (
-        <GalleryObjectConvert items={galleryList} {...args} />
+        <GalleryObjectConvert items={galleryAlbums} {...args} />
       ) : null}
     </div>
   );
@@ -201,7 +197,11 @@ export const useGalleryObject = CreateObjectState<GalleryObjectType>({
   yfList: [],
 });
 
-export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
+export function GalleryObject({
+  items: _items,
+  hideWhenEmpty,
+  ...args
+}: GalleryObjectProps) {
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
   const typeParam = searchParams.get("type");
@@ -213,6 +213,7 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const charactersParam = searchParams.get("characters"?.toLowerCase());
+  const { imageAlbums } = useImageState();
   const searchMode = useMemo(
     () => Boolean(qParam || tagsParam || charactersParam),
     [qParam, tagsParam || charactersParam]
@@ -245,11 +246,11 @@ export function GalleryObject({ items: _items, ...args }: GalleryObjectProps) {
     if (isLogin && showAllAlbum)
       return _items.map((item) => ({
         ...item,
-        hideWhenEmpty: false,
+        hideWhenEmpty: hideWhenEmpty,
         hide: false,
       }));
     else return _items;
-  }, [_items, showAllAlbum, isLogin]);
+  }, [_items, showAllAlbum, hideWhenEmpty, isLogin, imageAlbums]);
   const { Set } = useGalleryObject();
 
   const { where, orderBy } = useMemo(
@@ -1203,7 +1204,7 @@ export function MiniGallery() {
     <>
       {enable ? (
         <Modal className="window miniGallery" onClose={closeHandler}>
-          <GalleryPage showInPageMenu={false} />
+          <GalleryPage showInPageMenu={false} hideWhenEmpty={true} />
         </Modal>
       ) : null}
     </>
