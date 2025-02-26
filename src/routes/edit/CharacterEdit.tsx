@@ -69,6 +69,14 @@ import { useImageState, useSelectedImage } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { RiImageAddFill } from "react-icons/ri";
 import { CreateObjectState } from "@/state/CreateState";
+import {
+  PostEditSelectDecoration,
+  PostEditSelectInsert,
+  PostEditSelectMedia,
+  replacePostTextareaFromImage,
+} from "@/components/dropdown/PostEditSelect";
+import { RegisterRef } from "@/components/hook/SetRef";
+import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -92,7 +100,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   let { state } = useLocation();
   const setCharactersLoad = charactersDataObject.useLoad()[1];
   const setImagesLoad = imageDataObject.useLoad()[1];
-  const { images } = useImageState();
+  const { images, imagesMap } = useImageState();
   const characterTags = useCharacterTags()[0];
   const sounds = useSounds()[0];
   const getDefaultValues = useMemo(
@@ -162,6 +170,17 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     values: getDefaultValues,
     resolver: zodResolver(schema),
   });
+  RegisterRef({
+    useRefValue: useRef<HTMLTextAreaElement>(),
+    registerValue: register("description"),
+  });
+
+  const descriptionRef = useRef<HTMLTextAreaElement>();
+  const { refPassthrough: dscRefPassthrough, registered: registerDescription } =
+    RegisterRef({
+      useRefValue: descriptionRef,
+      registerValue: register("description"),
+    });
 
   const refIsDirty = useRef(false);
   useEffect(() => {
@@ -236,41 +255,68 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const selectedImage = useSelectedImage()[0];
   const [selectedImageMode, setSelectedImageMode] =
     useState<characterImageMode>();
+  function setDescription(v: any) {
+    setValue("description", v, {
+      shouldDirty: true,
+    });
+  }
+  function setDescriptionFromImage(image: ImageType | ImageDataType) {
+    if (descriptionRef.current) {
+      replacePostTextareaFromImage({
+        image,
+        textarea: descriptionRef.current,
+        setValue: setDescription,
+      });
+    }
+  }
+
+  const { togglePreviewMode } = usePreviewMode();
 
   useEffect(() => {
     if (selectedImage && selectedImageMode && chara) {
-      SendPostFetch({
-        apiOrigin,
-        data: {
-          target: chara.key,
-          [selectedImageMode]:
-            selectedImageMode === "icon" && chara.key === selectedImage.key
-              ? ""
-              : selectedImage.key,
-        },
-      }).then(() => {
-        switch (selectedImageMode) {
-          case "icon":
-            toast("アイコンに設定しました");
-            break;
-          case "headerImage":
-            toast("ヘッダーに設定しました");
-            break;
-          case "image":
-            toast("メイン画像に設定しました");
-            break;
-        }
-        setCharactersLoad("no-cache");
-      });
-      console.log(selectedImage, selectedImageMode);
+      if (selectedImageMode === "body") {
+        setDescriptionFromImage(selectedImage);
+      } else {
+        SendPostFetch({
+          apiOrigin,
+          data: {
+            target: chara.key,
+            [selectedImageMode]:
+              selectedImageMode === "icon" && chara.key === selectedImage.key
+                ? ""
+                : selectedImage.key,
+          },
+        }).then(() => {
+          switch (selectedImageMode) {
+            case "icon":
+              toast("アイコンに設定しました");
+              break;
+            case "headerImage":
+              toast("ヘッダーに設定しました");
+              break;
+            case "image":
+              toast("メイン画像に設定しました");
+              break;
+          }
+          setCharactersLoad("no-cache");
+        });
+      }
     }
   }, [selectedImage, selectedImageMode, chara]);
 
   const ImageModalSetter = useCallback(
-    (mode: characterImageMode, title = "ギャラリーから設定する") => {
+    ({
+      mode,
+      title = "ギャラリーから設定する",
+    }: {
+      mode: characterImageMode;
+      title?: string;
+    }) => {
+      const classNames: string[] = ["color"];
+      if (mode !== "body") classNames.push("normal", "setter");
       return (
         <button
-          className="normal setter color"
+          className={classNames.join(" ")}
           title={title}
           type="button"
           onClick={() => {
@@ -295,10 +341,29 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   );
 
   const ImageSetter = useCallback(
-    (mode: characterImageMode, title = "画像の設定") => {
+    ({
+      mode,
+      title = "画像の設定",
+    }: {
+      mode: characterImageMode;
+      title?: string;
+    }) => {
+      const classNames: string[] = [];
+      if (mode) {
+        if (mode === "body") classNames.push("color");
+        else {
+          classNames.push("normal", "setter");
+          if (!chara?.media?.[mode]) classNames.push("color");
+        }
+      }
+      let album: string | undefined;
+      if (mode === "body") album = charaMediaKindMap.get("image");
+      else {
+        album = charaMediaKindMap.get(mode);
+      }
       return (
         <button
-          className={"normal setter" + (chara?.media?.[mode] ? "" : " color")}
+          className={classNames.join(" ")}
           title={title}
           type="button"
           onClick={() => {
@@ -313,7 +378,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   return ImagesUploadWithToast({
                     src,
                     apiOrigin,
-                    album: charaMediaKindMap.get(mode),
+                    album,
                     albumOverwrite: false,
                     character: chara.key,
                     ...(mode === "icon"
@@ -331,21 +396,25 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
-                    return SendPostFetch({
-                      apiOrigin,
-                      data: {
-                        target: chara.key,
-                        [mode]: mode === "icon" ? "" : o.key,
-                      },
-                    }).then(() => {
-                      setCharactersLoad("no-cache");
-                    });
+                    if (mode === "body") {
+                      setDescriptionFromImage(o as unknown as ImageDataType);
+                    } else {
+                      return SendPostFetch({
+                        apiOrigin,
+                        data: {
+                          target: chara.key,
+                          [mode]: mode === "icon" ? "" : o.key,
+                        },
+                      }).then(() => {
+                        setCharactersLoad("no-cache");
+                      });
+                    }
                   }
                 });
             }
           }}
         >
-          {chara?.media?.[mode] ? (
+          {mode !== "body" && chara?.media?.[mode] ? (
             <ImageMeeIcon className="charaIcon" imageItem={chara.media[mode]} />
           ) : (
             <MdFileUpload />
@@ -353,7 +422,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </button>
       );
     },
-    [chara]
+    [chara, imagesMap]
   );
 
   useHotkeys(
@@ -431,8 +500,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("icon")}
               />
             </label>
-            {ImageModalSetter("icon", "ギャラリーからアイコンの設定")}
-            {ImageSetter("icon", "アイコンの設定")}
+            <ImageModalSetter
+              mode="icon"
+              title="ギャラリーからアイコンの設定"
+            />
+            <ImageSetter mode="icon" title="アイコンの設定" />
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
@@ -445,8 +517,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("headerImage")}
               />
             </label>
-            {ImageModalSetter("headerImage", "ギャラリーからヘッダーの設定")}
-            {ImageSetter("headerImage", "ヘッダーの設定")}
+            <ImageModalSetter
+              mode="headerImage"
+              title="ギャラリーからヘッダーの設定"
+            />
+            <ImageSetter mode="headerImage" title="ヘッダーの設定" />
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
@@ -459,8 +534,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("image")}
               />
             </label>
-            {ImageModalSetter("image", "ギャラリーからメイン画像の設定")}
-            {ImageSetter("image", "メイン画像の設定")}
+            <ImageModalSetter
+              mode="image"
+              title="ギャラリーからメイン画像の設定"
+            />
+            <ImageSetter mode="image" title="メイン画像の設定" />
           </div>
         </div>
         <div className="flex column">
@@ -554,13 +632,34 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             )}
           />
         </div>
-        <div>
-          <textarea
-            placeholder="詳細"
-            className="description"
-            {...register("description")}
+        <div className="flex around wrap modifier">
+          <ImageSetter mode="body" title="本文に差し込む画像をアップロード" />
+          <ImageModalSetter
+            mode="body"
+            title="ギャラリーから画像を本文に差し込む"
           />
+          <PostEditSelectDecoration
+            textarea={descriptionRef.current}
+            setValue={setDescription}
+          />
+          <PostEditSelectInsert
+            textarea={descriptionRef.current}
+            setValue={setDescription}
+          />
+          <button
+            type="button"
+            className="color text"
+            onClick={() => togglePreviewMode(getValues("description"))}
+          >
+            プレビュー
+          </button>
         </div>
+        <PostTextarea
+          registed={{ ...registerDescription, ref: dscRefPassthrough }}
+          id="post_body_area"
+          placeholder="詳細"
+          className="description"
+        />
         <div className="flex around wrap">
           <DropdownObject
             MenuButton={<BiBomb />}

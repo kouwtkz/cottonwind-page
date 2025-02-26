@@ -38,4 +38,4 @@ interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "b
   },
 }
 
-type characterImageMode = "icon" | "image" | "headerImage";
+type characterImageMode = "icon" | "image" | "headerImage" | "body";

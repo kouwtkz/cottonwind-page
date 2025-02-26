@@ -7,7 +7,8 @@ import { useSelectedImage } from "@/state/ImageState";
 import { fileDialog } from "../FileTool";
 import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
-  textarea: HTMLTextAreaElement | null;
+  textarea?: HTMLTextAreaElement | null;
+  setValue?: (v: any) => void;
 }
 
 interface replacePostTextareaProps extends PostEditSelectBaseProps {
@@ -19,6 +20,7 @@ interface replacePostTextareaProps extends PostEditSelectBaseProps {
 }
 export function replacePostTextarea({
   textarea,
+  setValue,
   before = "",
   after,
   replaceSelectionRegExp: reg,
@@ -46,7 +48,23 @@ export function replacePostTextarea({
       );
     }
   }
+  if (setValue) setValue(textarea.value);
   textarea.focus();
+}
+
+interface replacePostTextareaFromImageProps extends PostEditSelectBaseProps {
+  image: ImageType | ImageDataType;
+}
+export function replacePostTextareaFromImage({
+  image,
+  ...args
+}: replacePostTextareaFromImageProps) {
+  const searchParams = new URLSearchParams({ image: image.key });
+  replacePostTextarea({
+    ...args,
+    before: `\n![${image.title}](?${searchParams})\n`,
+    after: "",
+  });
 }
 
 interface PostEditSelectProps extends PostEditSelectBaseProps {
@@ -103,44 +121,57 @@ export function PostEditSelectInsert({
 export function setPostInsert({
   value,
   textarea,
+  setValue,
 }: PostEditSelectBaseProps & {
   value: string;
 }) {
   if (!value || !textarea) return;
   switch (value) {
     case "br":
-      replacePostTextarea({ textarea, before: "\n<br/>\n\n", after: "" });
+      replacePostTextarea({
+        textarea,
+        setValue,
+        before: "\n<br/>\n\n",
+        after: "",
+      });
       break;
     case "more":
       replacePostTextarea({
         textarea,
+        setValue,
         before: "\n<details>\n<summary>もっと読む</summary>\n\n",
         after: "\n</details>",
       });
       break;
     case "h2":
-      replacePostTextarea({ textarea, before: "## ", after: "" });
+      replacePostTextarea({ textarea, setValue, before: "## ", after: "" });
       break;
     case "h3":
-      replacePostTextarea({ textarea, before: "### ", after: "" });
+      replacePostTextarea({ textarea, setValue, before: "### ", after: "" });
       break;
     case "h4":
-      replacePostTextarea({ textarea, before: "#### ", after: "" });
+      replacePostTextarea({ textarea, setValue, before: "#### ", after: "" });
       break;
     case "li":
-      replacePostTextarea({ textarea, before: "- ", after: "" });
+      replacePostTextarea({ textarea, setValue, before: "- ", after: "" });
       break;
     case "ol":
-      replacePostTextarea({ textarea, before: "+ ", after: "" });
+      replacePostTextarea({ textarea, setValue, before: "+ ", after: "" });
       break;
     case "code":
-      replacePostTextarea({ textarea, before: "```\n", after: "\n```" });
+      replacePostTextarea({
+        textarea,
+        setValue,
+        before: "```\n",
+        after: "\n```",
+      });
       break;
   }
 }
 
 export function PostEditSelectDecoration({
   textarea,
+  setValue,
   className,
   MenuButton = "装飾",
   MenuButtonTitle = "装飾",
@@ -158,7 +189,11 @@ export function PostEditSelectDecoration({
         tabIndex={-1}
         ref={colorChangerRef}
         onChange={() => {
-          setColorChange({ textarea, colorChanger: colorChangerRef.current });
+          setColorChange({
+            textarea,
+            setValue,
+            colorChanger: colorChangerRef.current,
+          });
         }}
       />
       <DropdownObject
@@ -171,6 +206,7 @@ export function PostEditSelectDecoration({
           setDecoration({
             value: e.dataset.value ?? "",
             textarea,
+            setValue,
             colorChanger: colorChangerRef.current,
           });
         }}
@@ -187,6 +223,7 @@ export function PostEditSelectDecoration({
 export function setDecoration({
   value,
   textarea,
+  setValue,
   colorChanger,
 }: PostEditSelectBaseProps & {
   value: string;
@@ -201,13 +238,13 @@ export function setDecoration({
       }
       break;
     case "italic":
-      replacePostTextarea({ textarea, before: "*" });
+      replacePostTextarea({ textarea, setValue, before: "*" });
       break;
     case "bold":
-      replacePostTextarea({ textarea, before: "**" });
+      replacePostTextarea({ textarea, setValue, before: "**" });
       break;
     case "strikethrough":
-      replacePostTextarea({ textarea, before: "~~" });
+      replacePostTextarea({ textarea, setValue, before: "~~" });
       break;
   }
 }
@@ -217,11 +254,13 @@ interface setColorChangeProps extends PostEditSelectBaseProps {
 }
 export function setColorChange({
   textarea,
+  setValue,
   colorChanger,
 }: setColorChangeProps) {
   if (colorChanger && textarea)
     replacePostTextarea({
       textarea,
+      setValue,
       before: `<span style="color:${colorChanger.value}">`,
       after: "</span>",
       replaceSelectionRegExp: /^<span style="color:[^>]+>(.*)<\/span>$/,
@@ -235,6 +274,7 @@ interface PostEditSelectMediaProps extends PostEditSelectProps {
 
 export function PostEditSelectMedia({
   textarea,
+  setValue,
   className,
   MenuButton = "メディア",
   MenuButtonTitle = "メディア",
@@ -248,16 +288,13 @@ export function PostEditSelectMedia({
   const [searchParams, setSearchParams] = useSearchParams();
   let { state } = useLocation();
   const selectedImage = useSelectedImage()[0];
-  function replacePostTextareaFromImage(image: ImageType | ImageDataType) {
-    const searchParams = new URLSearchParams({ image: image.key });
-    replacePostTextarea({
-      textarea,
-      before: `\n![${image.title}](?${searchParams})\n`,
-      after: "",
-    });
-  }
   useEffect(() => {
-    if (selectedImage) replacePostTextareaFromImage(selectedImage);
+    if (selectedImage)
+      replacePostTextareaFromImage({
+        image: selectedImage,
+        textarea,
+        setValue,
+      });
   }, [selectedImage]);
   function setMedia(value: string) {
     if (!value || !textarea || !apiOrigin) return;
@@ -281,13 +318,18 @@ export function PostEditSelectMedia({
           })
           .then((list) => {
             list?.forEach((data) => {
-              replacePostTextareaFromImage(data);
+              replacePostTextareaFromImage({ image: data, textarea, setValue });
             });
           });
         break;
       case "external":
         if (env?.UPLOAD_BRACKET)
-          replacePostTextarea({ textarea, before: "![](", after: ")" });
+          replacePostTextarea({
+            textarea,
+            setValue,
+            before: "![](",
+            after: ")",
+          });
         else textarea.focus();
         window.open(env?.UPLOAD_SERVICE, "uploadExternal");
         break;
@@ -298,7 +340,7 @@ export function PostEditSelectMedia({
         setSearchParams(searchParams, { state });
         break;
       case "link":
-        replacePostTextarea({ textarea, before: "[](", after: ")" });
+        replacePostTextarea({ textarea, setValue, before: "[](", after: ")" });
         break;
     }
   }
