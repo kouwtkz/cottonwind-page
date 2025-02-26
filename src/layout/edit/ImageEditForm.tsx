@@ -68,6 +68,7 @@ import { PiFileImageFill, PiFileX } from "react-icons/pi";
 import { ImageMee } from "@/layout/ImageMee";
 import { useSwipeable } from "react-swipeable";
 import { LimitValue } from "@/functions/MathFunction";
+import { RegisterRef } from "@/components/hook/SetRef";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -360,11 +361,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   }, [positionValue]);
 
   const positionSelectRef = useRef<HTMLSelectElement>();
-  const { ref: setRsRef, ...registerPosition } = register("position");
-  const psRefPassthrough = (el: HTMLSelectElement) => {
-    setRsRef(el);
-    positionSelectRef.current = el;
-  };
+  const { refPassthrough: psRefPassthrough, registered: registerPosition } =
+    RegisterRef({
+      useRefValue: positionSelectRef,
+      registerValue: register("position"),
+    });
+
   const positionPreviewRef = useRef<HTMLDivElement>();
   const ppRefPassthrough = (el: HTMLDivElement) => {
     positionPreviewHandlers.ref(el);
