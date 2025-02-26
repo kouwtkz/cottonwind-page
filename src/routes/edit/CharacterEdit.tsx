@@ -665,8 +665,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         <div className="flex around wrap">
           <DropdownObject
             MenuButton={<BiBomb />}
-            MenuButtonTitle="危険ゾーン"
-            MenuButtonClassName="warm"
+            title="危険ゾーン"
+            classNames={{ dropMenuButton: "warm" }}
           >
             <button
               type="button"

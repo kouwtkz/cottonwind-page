@@ -24,8 +24,8 @@ export function RbButtonArea({
       {dropdown ? (
         <DropdownObject
           addClassName="flex on right row transparent"
-          MenuButtonClassName="color round large"
-          MenuButtonTitle="メニュー"
+          classNames={{ dropMenuButton: "color round large" }}
+          title="メニュー"
           MenuButton={<MdOutlineMenu />}
           MenuButtonWhenOpen={<MdOutlineMenuOpen />}
           MenuButtonAfter={children}

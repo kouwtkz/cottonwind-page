@@ -89,17 +89,14 @@ export function PostEditSelectInsert({
   setValue,
   className,
   MenuButton = "追加",
-  MenuButtonTitle = "追加",
-  MenuButtonClassName,
-  autoClose,
+  title = "追加",
+  ...args
 }: PostEditSelectProps) {
   return (
     <DropdownObject
       className={className}
       MenuButton={MenuButton}
-      MenuButtonTitle={MenuButtonTitle}
-      MenuButtonClassName={MenuButtonClassName}
-      autoClose={autoClose}
+      title={title}
       onClick={(e) => {
         setPostInsert({
           value: e.dataset.value ?? "",
@@ -107,6 +104,7 @@ export function PostEditSelectInsert({
           setValue,
         });
       }}
+      {...args}
     >
       <MenuItem value="br">改行</MenuItem>
       <MenuItem value="more">もっと読む</MenuItem>
@@ -176,9 +174,8 @@ export function PostEditSelectDecoration({
   setValue,
   className,
   MenuButton = "装飾",
-  MenuButtonTitle = "装飾",
-  MenuButtonClassName,
-  autoClose,
+  title = "装飾",
+  ...args
 }: PostEditSelectProps) {
   const colorChangerRef = useRef<HTMLInputElement>(null);
   return (
@@ -201,9 +198,7 @@ export function PostEditSelectDecoration({
       <DropdownObject
         className={className}
         MenuButton={MenuButton}
-        MenuButtonTitle={MenuButtonTitle}
-        MenuButtonClassName={MenuButtonClassName}
-        autoClose={autoClose}
+        title={title}
         onClick={(e) => {
           setDecoration({
             value: e.dataset.value ?? "",
@@ -212,6 +207,7 @@ export function PostEditSelectDecoration({
             colorChanger: colorChangerRef.current,
           });
         }}
+        {...args}
       >
         <MenuItem value="color">色変え</MenuItem>
         <MenuItem value="bold">強調</MenuItem>
@@ -279,10 +275,9 @@ export function PostEditSelectMedia({
   setValue,
   className,
   MenuButton = "メディア",
-  MenuButtonTitle = "メディア",
-  MenuButtonClassName,
+  title = "メディア",
   album,
-  autoClose,
+  ...args
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
   const apiOrigin = useApiOrigin()[0];
@@ -350,12 +345,11 @@ export function PostEditSelectMedia({
     <DropdownObject
       className={className}
       MenuButton={MenuButton}
-      MenuButtonTitle={MenuButtonTitle}
-      MenuButtonClassName={MenuButtonClassName}
-      autoClose={autoClose}
+      title={title}
       onClick={(e) => {
         setMedia(e.dataset.value || "");
       }}
+      {...args}
     >
       <MenuItem value="link">リンク</MenuItem>
       <MenuItem value="gallery">ギャラリー</MenuItem>

@@ -91,7 +91,7 @@ export function SiteMenu() {
   return (
     <div className="siteMenu en-title-font">
       <DropdownObject
-        listClassName="right"
+        classNames={{ dropItemList: "right" }}
         MenuButton={SiteMenuButton}
         cssTimeOut={100}
         clickTimeOut={300}

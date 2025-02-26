@@ -32,6 +32,7 @@ import {
   RiChatPrivateLine,
   RiFilePdf2Fill,
   RiHomeGearLine,
+  RiMenuSearchLine,
   RiPlayLargeFill,
   RiPushpin2Line,
   RiStore3Fill,
@@ -63,7 +64,10 @@ import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { ModeSearchSwitch, ModeSwitch } from "@/layout/edit/CommonSwitch";
 import { ComicsViewer } from "@/routes/ComicsViewer";
 import { AiFillEdit } from "react-icons/ai";
-import { DropdownButton } from "@/components/dropdown/DropdownButton";
+import {
+  DropdownButton,
+  IconsFoldButton,
+} from "@/components/dropdown/DropdownButton";
 import {
   CompatGalleryButton,
   CompatMendingThumbnailButton,
@@ -568,8 +572,10 @@ function GalleryBody({
             {isLogin ? (
               <div className="icons flex center">
                 <DropdownButton
-                  MenuButtonClassName="iconSwitch"
-                  listClassName="flex column font-small"
+                  classNames={{
+                    dropMenuButton: "iconSwitch",
+                    dropItemList: "flex column font-small",
+                  }}
                 >
                   <ObjectDownloadButton
                     className="squared item text-left"
@@ -598,33 +604,38 @@ function GalleryBody({
                     className="squared item text-left"
                   />
                 </DropdownButton>
+                <IconsFoldButton
+                  title="絞り込み"
+                  MenuButton={<RiMenuSearchLine />}
+                >
+                  <ModeSearchSwitch
+                    toEnableTitle="トップ画像が有効なものを絞り込む"
+                    toDisableTitle="トップ画像から元の表示に戻す"
+                    searchKey="topImage"
+                  >
+                    <RiHomeGearLine />
+                  </ModeSearchSwitch>
+                  <ModeSearchSwitch
+                    toEnableTitle="ピックアップが有効なものを絞り込む"
+                    toDisableTitle="ピックアップから元の表示に戻す"
+                    searchKey="pickup"
+                  >
+                    <RiPushpin2Line />
+                  </ModeSearchSwitch>
+                  <ModeSearchSwitch
+                    toEnableTitle="下書きのみ表示"
+                    toDisableTitle="下書き以外も表示"
+                    searchKey="draftOnly"
+                  >
+                    <RiChatPrivateLine />
+                  </ModeSearchSwitch>
+                </IconsFoldButton>
                 <ModeSearchSwitch
                   toEnableTitle="全てのアルバムを表示する"
                   toDisableTitle="アルバム表示を元に戻す"
                   searchKey="showAllAlbum"
                 >
                   <BiPhotoAlbum />
-                </ModeSearchSwitch>
-                <ModeSearchSwitch
-                  toEnableTitle="トップ画像が有効なものを絞り込む"
-                  toDisableTitle="トップ画像から元の表示に戻す"
-                  searchKey="topImage"
-                >
-                  <RiHomeGearLine />
-                </ModeSearchSwitch>
-                <ModeSearchSwitch
-                  toEnableTitle="ピックアップが有効なものを絞り込む"
-                  toDisableTitle="ピックアップから元の表示に戻す"
-                  searchKey="pickup"
-                >
-                  <RiPushpin2Line />
-                </ModeSearchSwitch>
-                <ModeSearchSwitch
-                  toEnableTitle="下書きのみ表示"
-                  toDisableTitle="下書き以外も表示"
-                  searchKey="draftOnly"
-                >
-                  <RiChatPrivateLine />
                 </ModeSearchSwitch>
                 <ModeSwitch
                   toEnableTitle="常に編集モードにする"

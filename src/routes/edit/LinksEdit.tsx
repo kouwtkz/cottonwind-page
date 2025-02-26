@@ -313,8 +313,10 @@ export function LinksEditButtons({
       ) : (
         <>
           <DropdownButton
-            MenuButtonClassName="iconSwitch"
-            listClassName="flex column font-small"
+            classNames={{
+              dropMenuButton: "iconSwitch",
+              dropItemList: "flex column font-small",
+            }}
           >
             <ObjectDownloadButton
               className="squared item text-left"

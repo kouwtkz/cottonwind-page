@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { CSSTransition } from "react-transition-group";
+import { CSSTransitionClassNames } from "react-transition-group/CSSTransition";
 
 export interface InsertElementProps extends HTMLAttributes<Element> {
   isOpen: boolean;
@@ -18,17 +19,22 @@ export type MenuButtonType =
   | ((args: InsertElementProps) => JSX.Element)
   | ReactNode;
 
+interface ClassNamesType extends CSSTransitionClassNames {
+  dropItemList?: string;
+  dropMenuList?: string;
+  dropMenuButton?: string;
+}
+
 export interface DropdownObjectBaseProps {
   className?: string;
+  classNames?: ClassNamesType;
   addClassName?: string;
   style?: CSSProperties;
   MenuButton?: MenuButtonType;
   MenuButtonWhenOpen?: ReactNode;
-  MenuButtonTitle?: string;
-  MenuButtonClassName?: string;
+  title?: string;
   MenuButtonAfter?: ReactNode;
-  autoClose?: boolean;
-  listClassName?: string;
+  keepOpen?: boolean;
 }
 
 export interface DropdownObjectProps extends DropdownObjectBaseProps {
@@ -36,7 +42,7 @@ export interface DropdownObjectProps extends DropdownObjectBaseProps {
   onClick?: (e: HTMLElement) => boolean | void;
   cssTimeOut?: number;
   clickTimeOut?: number;
-  classNames?: string;
+  classNames?: ClassNamesType;
 }
 
 export function DropdownObject({
@@ -46,16 +52,21 @@ export function DropdownObject({
   MenuButton,
   MenuButtonWhenOpen,
   MenuButtonAfter,
-  MenuButtonTitle,
-  MenuButtonClassName = "color",
-  listClassName,
+  title,
   children,
   onClick,
   cssTimeOut = 0,
   clickTimeOut = 0,
-  autoClose = true,
-  classNames,
+  keepOpen,
+  classNames: _classNames,
 }: DropdownObjectProps) {
+  let {
+    dropMenuButton: dropMenuButtonClassName = "color",
+    dropItemList: dropItemListClassName,
+    dropMenuList: dropMenuListClassName = "menu list",
+    ...classNames
+  } = _classNames || {};
+
   const nodeRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [menuFocus, setMenuFocus] = useState(0);
@@ -67,18 +78,18 @@ export function DropdownObject({
   }, [isOpen]);
   useEffect(() => {
     if (menuFocus === 1) setMenuFocus(0);
-    else if (!menuFocus && autoClose) setIsOpen(false);
-  }, [autoClose, menuFocus]);
+    else if (!menuFocus && !keepOpen) setIsOpen(false);
+  }, [keepOpen, menuFocus]);
   className = useMemo(() => {
     const list = [className ?? "dropdown"];
     if (addClassName) list.push(addClassName);
     return list.join(" ");
   }, [className, addClassName]);
-  listClassName = useMemo(() => {
+  dropItemListClassName = useMemo(() => {
     const list = ["listMenu"];
-    if (listClassName) list.push(listClassName);
+    if (dropItemListClassName) list.push(dropItemListClassName);
     return list.join(" ");
-  }, [listClassName]);
+  }, [dropItemListClassName]);
   const timeoutStyle = useMemo<CSSProperties>(() => {
     return {
       animationDuration: cssTimeOut + "ms",
@@ -96,12 +107,12 @@ export function DropdownObject({
         setMenuFocus(1);
       }}
     >
-      <div className="menu list">
+      <div className={dropMenuListClassName}>
         {typeof MenuButton === "function" ? (
           <MenuButton
             tabIndex={0}
             isOpen={isOpen}
-            className={MenuButtonClassName}
+            className={dropMenuButtonClassName}
             onClick={toggleIsOpen}
             onKeyDown={(e) => {
               if (e.key === "Enter") toggleIsOpen();
@@ -109,9 +120,9 @@ export function DropdownObject({
           />
         ) : (
           <button
-            className={MenuButtonClassName}
+            className={dropMenuButtonClassName}
             type="button"
-            title={MenuButtonTitle}
+            title={title}
             onClick={toggleIsOpen}
           >
             {isOpen ? MenuButtonWhenOpen ?? MenuButton : MenuButton}
@@ -127,7 +138,7 @@ export function DropdownObject({
         nodeRef={nodeRef}
       >
         <div
-          className={listClassName}
+          className={dropItemListClassName}
           ref={nodeRef}
           style={timeoutStyle}
           onClick={(e) => {
