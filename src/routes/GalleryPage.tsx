@@ -23,6 +23,7 @@ import {
   defaultGalleryTags,
   MonthToTag,
   ContentsTagsOption,
+  timeframeTags,
 } from "@/components/dropdown/SortFilterTags";
 import { filterPickFixed } from "@/functions/media/FilterImages";
 import { InPageMenu } from "@/layout/InPageMenu";
@@ -30,12 +31,20 @@ import { useDropzone } from "react-dropzone";
 import {
   RiBook2Fill,
   RiChatPrivateLine,
+  RiCupFill,
   RiFilePdf2Fill,
+  RiHazeFill,
   RiHomeGearLine,
+  RiKeynoteFill,
+  RiLandscapeFill,
   RiMenuSearchLine,
+  RiMoonFill,
+  RiMoonFoggyFill,
   RiPlayLargeFill,
   RiPushpin2Line,
   RiStore3Fill,
+  RiSunFill,
+  RiTimeLine,
 } from "react-icons/ri";
 import { ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
@@ -693,6 +702,9 @@ function GalleryImageItem({
       title: image.title || undefined,
     };
   }, [searchParams, image, state]);
+  const ImageTimeFrameTag = useMemo(() => {
+    return timeframeTags.find((tt) => image.tags?.some((tag) => tt === tag));
+  }, [image]);
   return (
     <Link
       className="item"
@@ -722,23 +734,37 @@ function GalleryImageItem({
           <RiPlayLargeFill />
         </div>
       ) : image.embed ? (
-        image.type === "material" ? (
-          <div className="translucent-special-button">
+        <div className="translucent-special-button">
+          {image.type === "material" ? (
             <MdMoveToInbox />
-          </div>
-        ) : image.type === "pdf" ? (
-          <div className="translucent-special-button">
+          ) : image.type === "pdf" ? (
             <RiFilePdf2Fill />
-          </div>
-        ) : image.type === "3d" ? (
-          <div className="translucent-special-button">
+          ) : image.type === "3d" ? (
             <Md3dRotation />
-          </div>
-        ) : (
-          <div className="translucent-special-button">
+          ) : (
             <MdInsertDriveFile />
-          </div>
-        )
+          )}
+        </div>
+      ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
+        <div className="translucent-special-button">
+          {ImageTimeFrameTag === "morning" ? (
+            <RiHazeFill />
+          ) : ImageTimeFrameTag === "forenoon" ? (
+            <RiLandscapeFill />
+          ) : ImageTimeFrameTag === "midday" ? (
+            <RiSunFill />
+          ) : ImageTimeFrameTag === "afternoon" ? (
+            <RiCupFill />
+          ) : ImageTimeFrameTag === "evening" ? (
+            <RiKeynoteFill />
+          ) : ImageTimeFrameTag === "night" ? (
+            <RiMoonFill />
+          ) : ImageTimeFrameTag === "midnight" ? (
+            <RiMoonFoggyFill />
+          ) : (
+            <RiTimeLine />
+          )}
+        </div>
       ) : null}
       <ImageMeeThumbnail
         imageItem={image}
