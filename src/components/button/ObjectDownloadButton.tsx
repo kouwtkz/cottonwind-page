@@ -1,7 +1,7 @@
 import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
 import { HTMLAttributes, ReactNode, Ref } from "react";
-import { MdFileDownload } from "react-icons/md";
 import { fileDownload } from "../FileTool";
+import { RiDownloadFill } from "react-icons/ri";
 
 export function JsonFromDataObject<T extends object>(
   dataObject: StorageDataStateClass<T>,
@@ -67,7 +67,7 @@ interface ObjectDownloadButtonProps<T extends object>
 }
 export function ObjectDownloadButton<T extends object>({
   beforeConfirm = true,
-  icon = <MdFileDownload />,
+  icon = <RiDownloadFill />,
   iconClass,
   children,
   customRef,

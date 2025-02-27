@@ -578,30 +578,30 @@ function GalleryBody({
                   }}
                 >
                   <ObjectDownloadButton
-                    className="squared item text-left"
+                    className="squared item"
                     dataObject={imageDataObject}
                   >
                     ギャラリーJSONデータのダウンロード
                   </ObjectDownloadButton>
                   <GalleryImportButton
                     icon={<TbDatabaseImport />}
-                    className="squared item text-left"
+                    className="squared item"
                     overwrite={false}
                   >
                     ギャラリーJSONデータのインポート
                   </GalleryImportButton>
                   <GalleryImportButton
                     icon={<TbDatabaseImport />}
-                    className="squared item text-left"
+                    className="squared item"
                     overwrite={true}
                   >
                     ギャラリーJSONデータの上書きインポート
                   </GalleryImportButton>
-                  <CompatMendingThumbnailButton className="squared item text-left" />
+                  <CompatMendingThumbnailButton className="squared item" />
                   <CompatGalleryButton
                     from="art"
                     to="main"
-                    className="squared item text-left"
+                    className="squared item"
                   />
                 </DropdownButton>
                 <IconsFoldButton

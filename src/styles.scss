@@ -1834,6 +1834,14 @@ select {
   padding: 0.125rem 0.5rem;
 }
 
+button, .button {
+  &.squared.item {
+    text-align: left;
+    display: flex;
+    align-items: center;
+  }
+}
+
 form {
   button,
   .button {

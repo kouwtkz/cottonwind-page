@@ -13,12 +13,12 @@ import { CreateObjectState, CreateState } from "./CreateState";
 import ReactSlider from "react-slider";
 
 import {
-  MdOutlineMenu,
-  MdOutlineMenuOpen,
-  MdOutlinePause,
-  MdPlayArrow,
-  MdStop,
-} from "react-icons/md";
+  RiMenuFold4Fill,
+  RiMenuUnfold4Fill,
+  RiPauseLine,
+  RiPlayFill,
+  RiStopMiniFill,
+} from "react-icons/ri";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -336,7 +336,7 @@ export function SoundFixed() {
               type="button"
               onClick={Stop}
             >
-              <MdStop />
+              <RiStopMiniFill />
             </button>
             <button
               title="再生 / 一時停止"
@@ -344,7 +344,7 @@ export function SoundFixed() {
               type="button"
               onClick={onClickPlayPause}
             >
-              {paused ? <MdPlayArrow /> : <MdOutlinePause />}
+              {paused ? <RiPlayFill /> : <RiPauseLine strokeWidth="1px" />}
             </button>
             <button
               title="展開"
@@ -352,7 +352,7 @@ export function SoundFixed() {
               type="button"
               onClick={() => setShowBox(!showBox)}
             >
-              {showBox ? <MdOutlineMenuOpen /> : <MdOutlineMenu />}
+              {showBox ? <RiMenuUnfold4Fill /> : <RiMenuFold4Fill />}
             </button>
           </div>
           <div className="box">

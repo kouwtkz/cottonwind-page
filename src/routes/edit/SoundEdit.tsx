@@ -1,4 +1,3 @@
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog } from "@/components/FileTool";
 import {
   soundAlbumsDataObject,
@@ -7,12 +6,6 @@ import {
 } from "@/state/DataState";
 import { useApiOrigin } from "@/state/EnvState";
 import { useEffect, useMemo, useRef } from "react";
-import {
-  MdArrowBackIosNew,
-  MdEditNote,
-  MdFileDownload,
-  MdFileUpload,
-} from "react-icons/md";
 import { Link, useSearchParams } from "react-router-dom";
 import { FilesUploadProcess } from "./FilesEdit";
 import { Modal } from "@/layout/Modal";
@@ -23,7 +16,14 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
+import {
+  ImportObjectButtonProps,
+  ObjectCommonButton,
+  ObjectDownloadButton,
+} from "@/components/button/ObjectDownloadButton";
+import { DropdownButton } from "@/components/dropdown/DropdownButton";
+import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
+import { TbDatabaseImport } from "react-icons/tb";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];
@@ -37,45 +37,37 @@ export function SoundEditButton() {
   }, [isEdit]);
   const setSoundsLoad = soundsDataObject.useLoad()[1];
   return (
-    <RbButtonArea
-      dropdown={
-        <>
-          <button
-            type="button"
-            className="color round large"
-            title="サウンドデータのダウンロード"
-            onClick={() => {
-              if (confirm("音楽のJSONデータをダウンロードしますか？"))
-                DownloadDataObject(soundsDataObject);
-            }}
-          >
-            <MdFileDownload />
-          </button>
-          {/* <button
-            type="button"
-            className="color round large"
-            title="サウンドデータベースのインポート"
-            onClick={() => {
-              ImportSoundJson({ apiOrigin }).then(() => {
-                setSoundsLoad("no-cache-reload");
-              });
-            }}
-          >
-            <TbDatabaseImport />
-          </button> */}
-        </>
-      }
-    >
+    <div className="icons flex center">
+      <DropdownButton
+        classNames={{
+          dropMenuButton: "iconSwitch",
+          dropItemList: "flex column font-small",
+        }}
+        keepOpen
+      >
+        <ObjectDownloadButton
+          className="squared item"
+          dataObject={soundsDataObject}
+        >
+          サウンドJSONデータのダウンロード
+        </ObjectDownloadButton>
+        {/* <GalleryImportButton
+          className="squared item"
+          icon={<TbDatabaseImport />}
+        >
+          サウンドJSONデータのインポート
+        </GalleryImportButton> */}
+      </DropdownButton>
       <Link
         to={switchEditModeLink}
-        className="button color round large"
+        className="iconSwitch"
         title={"サウンド編集モードの切り替え"}
       >
-        {isEdit ? <MdArrowBackIosNew /> : <MdEditNote />}
+        {isEdit ? <RiArrowGoBackFill /> : <RiEditFill />}
       </Link>
       <button
         type="button"
-        className="color round large"
+        className="iconSwitch"
         title="音楽のアップロード"
         onClick={async () => {
           fileDialog("audio/*", true)
@@ -91,9 +83,27 @@ export function SoundEditButton() {
             });
         }}
       >
-        <MdFileUpload />
+        <RiUploadFill />
       </button>
-    </RbButtonArea>
+    </div>
+  );
+}
+
+export function GalleryImportButton({
+  overwrite = true,
+  ...props
+}: ImportObjectButtonProps) {
+  const apiOrigin = useApiOrigin()[0];
+  const setSoundsLoad = soundsDataObject.useLoad()[1];
+  return (
+    <ObjectCommonButton
+      {...props}
+      onClick={() => {
+        // ImportSoundJson({ apiOrigin }).then(() => {
+        //   setSoundsLoad("no-cache-reload");
+        // });
+      }}
+    />
   );
 }
 

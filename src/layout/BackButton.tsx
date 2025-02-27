@@ -1,6 +1,6 @@
 import { HTMLAttributes, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { BiLeftArrow } from "react-icons/bi";
+import { RiPlayReverseLargeLine } from "react-icons/ri";
 
 export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
   const { pathname, state } = useLocation();
@@ -22,7 +22,7 @@ export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
       title="ひとつ前に戻る"
       style={{ visibility: pathname !== "/" ? "visible" : "hidden" }}
     >
-      <BiLeftArrow />
+      <RiPlayReverseLargeLine />
     </Link>
   );
 }

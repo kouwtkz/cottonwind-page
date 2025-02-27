@@ -377,14 +377,14 @@ export function LinksEditButtons({
             }}
           >
             <ObjectDownloadButton
-              className="squared item text-left"
+              className="squared item"
               dataObject={dataObject}
             >
               JSONデータのダウンロード
             </ObjectDownloadButton>
             <ObjectCommonButton
               icon={<TbDatabaseImport />}
-              className="squared item text-left"
+              className="squared item"
               onClick={() => {
                 ImportLinksJson({ apiOrigin, dir }).then(() => {
                   setLinksLoad("no-cache-reload");
@@ -394,7 +394,7 @@ export function LinksEditButtons({
               JSONデータのインポート
             </ObjectCommonButton>
             <Link
-              className="button squared item text-left flex items-center"
+              className="button squared item flex items-center"
               title="画像の管理"
               to={{
                 pathname: "/admin/images",
