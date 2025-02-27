@@ -726,6 +726,7 @@ html.loading {
     width: 100%;
     max-width: var(--ct-width);
     height: 100vh;
+    height: 100dvh;
     background-color: var(--background);
     z-index: 1500;
     display: flex;
