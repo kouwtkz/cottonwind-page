@@ -41,6 +41,7 @@ export const useImageState = CreateObjectState<imageStateType>((set) => ({
     const galleryAlbums = galleryList.concat();
     if (imageAlbums) {
       Object.entries(Object.fromEntries(imageAlbums)).forEach(([k, v]) => {
+        if (v.name === "pickup") return;
         const found = galleryAlbums.find((item) => item.name === k);
         if (!found) {
           galleryAlbums.push({
@@ -50,6 +51,7 @@ export const useImageState = CreateObjectState<imageStateType>((set) => ({
             list: v.list,
           });
         } else {
+          if (v.gallery?.generate) found.linkLabel = true;
           found.list = v.list;
         }
       });
