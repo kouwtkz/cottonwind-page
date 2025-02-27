@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { imageDataObject } from "./DataState";
 import { getImageObjectMap } from "@/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { ArrayEnv } from "@/ArrayEnv";
+import { ArrayEnv } from "@/Env";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({

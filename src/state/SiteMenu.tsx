@@ -7,7 +7,7 @@ import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useEnv, useIsLogin } from "./EnvState";
-import { ArrayEnv } from "@/ArrayEnv";
+import { ArrayEnv } from "@/Env";
 
 export function ThemeChangeButton({
   children = "いろかえ",

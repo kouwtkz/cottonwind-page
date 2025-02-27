@@ -8,7 +8,7 @@ import {
 import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { ArrayEnv } from "@/ArrayEnv";
+import { ArrayEnv } from "@/Env";
 
 export interface SetMetaProps {
   path: string;

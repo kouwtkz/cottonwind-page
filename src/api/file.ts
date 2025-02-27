@@ -4,7 +4,7 @@ import { IsLogin } from "@/admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { getBasename } from "@/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { filesDataOptions } from "@/dataDef";
+import { filesDataOptions } from "@/Env";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({

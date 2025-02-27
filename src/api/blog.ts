@@ -3,7 +3,7 @@ import { autoPostId } from "@/functions/blogFunction";
 import { IsLogin } from "@/admin";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
-import { postsDataOptions } from "@/dataDef";
+import { postsDataOptions } from "@/Env";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { GetDataProps } from "./propsDef";
 

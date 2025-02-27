@@ -36,7 +36,7 @@ import {
   soundsDataOptions,
   TableVersionDataOptions,
   likeDataOptions,
-} from "@/dataDef";
+} from "@/Env";
 
 export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
 

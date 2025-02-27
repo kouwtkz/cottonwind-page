@@ -37,7 +37,7 @@ import {
   linksFavDataOptions,
   postsDataOptions,
   soundsDataOptions,
-} from "@/dataDef";
+} from "@/Env";
 import { useCharactersMap } from "@/state/CharacterState";
 import { FormatDate } from "@/functions/DateFunction";
 

@@ -1,6 +1,6 @@
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
 import { DBTableClass } from "./DBTableClass";
-import { TableVersionDataOptions } from "@/dataDef";
+import { TableVersionDataOptions } from "@/Env";
 import { GetDataProps } from "./propsDef";
 
 export const TableObject = new DBTableClass<TableVersionEntryType>({

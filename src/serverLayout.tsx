@@ -11,7 +11,7 @@ import { getCharacterMap } from "@/functions/characterFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
-import { ArrayEnv } from "./ArrayEnv";
+import { ArrayEnv } from "@/Env";
 import { charaTableObject } from "./api/character";
 
 export interface DefaultMetaProps {

@@ -20,7 +20,7 @@ import {
   soundsDataOptions,
   TableVersionDataOptions,
   likeDataOptions,
-} from "@/dataDef";
+} from "@/Env";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 import { ServerLikeGetData } from "./like";
 import { GetDataProps } from "./propsDef";

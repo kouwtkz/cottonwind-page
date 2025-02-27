@@ -4,7 +4,7 @@ import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
-import { linksFavDataOptions, linksDataOptions } from "@/dataDef";
+import { linksFavDataOptions, linksDataOptions } from "@/Env";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({

@@ -7,7 +7,7 @@ import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { ImageDataOptions } from "@/dataDef";
+import { ImageDataOptions } from "@/Env";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({

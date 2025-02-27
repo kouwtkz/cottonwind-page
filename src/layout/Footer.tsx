@@ -1,5 +1,5 @@
 import ShareButton from "@/components/button/ShareButton";
-import { ArrayEnv } from "@/ArrayEnv";
+import { ArrayEnv } from "@/Env";
 import { getYear } from "@/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {

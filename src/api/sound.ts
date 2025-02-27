@@ -5,7 +5,7 @@ import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { parseBlob } from 'music-metadata';
 import { getName } from "@/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { soundAlbumsDataOptions, soundsDataOptions } from "@/dataDef";
+import { soundAlbumsDataOptions, soundsDataOptions } from "@/Env";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
