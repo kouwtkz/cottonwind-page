@@ -13,7 +13,6 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useController, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
-  MdAssistantDirection,
   MdCleaningServices,
   MdDeleteForever,
   MdFileUpload,
@@ -64,11 +63,11 @@ import { fileDialog, RenameFile } from "@/components/FileTool";
 import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { ModeSwitch } from "@/layout/edit/CommonSwitch";
-import { PiFileImageFill, PiFileX } from "react-icons/pi";
 import { ImageMee } from "@/layout/ImageMee";
 import { useSwipeable } from "react-swipeable";
 import { LimitValue } from "@/functions/MathFunction";
 import { RegisterRef } from "@/components/hook/SetRef";
+import { RiArtboard2Fill, RiFileUploadLine, RiFileWordLine } from "react-icons/ri";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -1164,9 +1163,10 @@ export function SwitchUploadWebp() {
   return (
     <ModeSwitch
       toEnableTitle="画像をWebPファイルでアップロードする"
+      toDisableTitle="画像を元のファイルのままアップロードに戻す"
       useSwitch={useUploadWebp}
     >
-      <PiFileImageFill />
+      <RiFileWordLine />
     </ModeSwitch>
   );
 }
@@ -1176,9 +1176,10 @@ export function SwitchNoUploadThumbnail() {
   return (
     <ModeSwitch
       toEnableTitle="サムネイルのアップロードをしないに切り替える"
+      toDisableTitle="サムネイルをアップロードする状態に戻す"
       useSwitch={useNoUploadThumbnail}
     >
-      <PiFileX />
+      <RiArtboard2Fill />
     </ModeSwitch>
   );
 }
@@ -1190,7 +1191,7 @@ export function SwitchNotDraftUpload() {
       toEnableTitle="下書きなしでアップロードする"
       useSwitch={useImageNotDraftUpload}
     >
-      <MdAssistantDirection />
+      <RiFileUploadLine />
     </ModeSwitch>
   );
 }
