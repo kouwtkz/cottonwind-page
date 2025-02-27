@@ -61,11 +61,20 @@ export function DropdownObject({
   classNames: _classNames,
 }: DropdownObjectProps) {
   let {
-    dropMenuButton: dropMenuButtonClassName = "color",
+    dropMenuButton: dropMenuButtonClassName,
     dropItemList: dropItemListClassName,
-    dropMenuList: dropMenuListClassName = "menu list",
-    ...classNames
-  } = _classNames || {};
+    dropMenuList: dropMenuListClassName,
+    classNames,
+  } = useMemo(() => {
+    const {
+      dropMenuButton = "color",
+      dropItemList,
+      dropMenuList = "menu list",
+      ..._cns
+    } = _classNames || {};
+    const classNames = Object.keys(_cns).length > 0 ? _cns : undefined;
+    return { dropMenuButton, dropItemList, dropMenuList, classNames };
+  }, [_classNames]);
 
   const nodeRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
