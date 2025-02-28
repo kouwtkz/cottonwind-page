@@ -94,7 +94,14 @@ function CharacterPageState() {
     () =>
       setWhere<CharacterType>(text, {
         text: {
-          key: ["key", "name", "enName", "overview", "description", "honorific"],
+          key: [
+            "key",
+            "name",
+            "enName",
+            "overview",
+            "description",
+            "honorific",
+          ],
         },
         hashtag: { key: "tags" },
       }),
@@ -217,15 +224,25 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
-export function setCharaLangName(chara: CharacterType, lang = "ja") {
-  return lang !== "ja" && chara.enName ? chara.enName : chara.name;
+export function translateCharaLangName(chara: CharacterType, lang = "ja") {
+  const toEn = lang !== "ja" && chara.enName;
+  const returnValue = {
+    name: toEn ? chara.enName : chara.name,
+  } as { name?: string; lang?: string };
+  if (toEn) returnValue.lang = "en";
+  return returnValue;
 }
 interface CharacterName extends HTMLAttributes<HTMLSpanElement> {
   chara: CharacterType;
 }
 export function CharacterName({ chara, ...props }: CharacterName) {
   const lang = useLang()[0];
-  return <span {...props}>{setCharaLangName(chara, lang)}</span>;
+  const translated = translateCharaLangName(chara, lang);
+ return (
+    <span lang={translated.lang} {...props}>
+      {translated.name}
+    </span>
+  );
 }
 
 export const CharaListItem = memo(function CharaListItem({

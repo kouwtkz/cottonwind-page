@@ -1,5 +1,5 @@
 import { ImageMeeIcon } from "@/layout/ImageMee";
-import { setCharaLangName } from "@/routes/CharacterPage";
+import { CharacterName, translateCharaLangName } from "@/routes/CharacterPage";
 
 export type labelValue = { label?: string; value?: string };
 
@@ -24,7 +24,7 @@ export function charaTagsLabel(
                 <div className="charaIcon">{character?.defEmoji}</div>
               )}
             </span>
-            <span>{setCharaLangName(character, lang)}</span>
+            <CharacterName chara={character} />
           </>
         ) : null}
       </div>

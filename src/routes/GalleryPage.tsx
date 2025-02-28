@@ -91,7 +91,7 @@ import { ArrayEnv } from "@/Env";
 import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/state/LangState";
-import { setCharaLangName } from "./CharacterPage";
+import { translateCharaLangName } from "./CharacterPage";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
 
 interface GalleryPageProps extends GalleryBodyOptions {
@@ -1144,11 +1144,8 @@ export function GalleryCharactersSelect({
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
-    return list.map((chara) => ({
-      label: setCharaLangName(chara, lang),
-      value: chara.key,
-    }));
-  }, [characters, currentChara, enableCharaFilter, lang]);
+    return list.map((chara) => ({ value: chara.key }));
+  }, [characters, currentChara, enableCharaFilter]);
   const { state } = useLocation();
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
