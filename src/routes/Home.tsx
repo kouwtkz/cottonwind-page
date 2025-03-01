@@ -103,7 +103,7 @@ function PostsView() {
   const posts = useMemo(
     () =>
       findMee(Posts || [], {
-        where: { draft: false, time: { lte: new Date() } },
+        where: { draft: { not: true }, time: { lte: new Date() } },
         orderBy: [{ time: "desc" }],
       }),
     [Posts]
