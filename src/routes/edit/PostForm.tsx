@@ -156,7 +156,7 @@ export function PostForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, dirtyFields },
     getValues,
     setValue,
     reset,
@@ -180,11 +180,14 @@ export function PostForm() {
 
   useEffect(() => {
     if (isLocalDraft) {
-      reset({
-        ...values,
-        ...localDraft,
-        time: ToFormTime(localDraft?.time),
-      });
+      reset(
+        {
+          ...values,
+          ...localDraft,
+          time: ToFormTime(localDraft?.time),
+        },
+        { keepDirty: false, keepDefaultValues: true }
+      );
       setCategoryList((c) => {
         const draftOnlyCategory =
           localDraft?.category?.filter((item) =>
@@ -336,25 +339,21 @@ export function PostForm() {
     };
     try {
       Object.entries(values).forEach(([key, item]) => {
-        const defaultItem = (values as { [k: string]: any })[key];
-        switch (key) {
-          case "postId":
-            append(key, item, item !== defaultItem);
-            break;
-          case "update":
-            append(key, item, false);
-            break;
-          case "time":
-            if (item !== defaultItem) append(key, IsoFormTime(item));
-            break;
-          case "category":
-            const value = item.join(",");
-            if (postCategories?.join(",") !== value) append(key, value);
-            break;
-          default:
-            if (item !== defaultItem && !(item === "" && !defaultItem))
+        if (dirtyFields[key as keyof typeof values]) {
+          switch (key) {
+            case "update":
+              append(key, item, false);
+              break;
+            case "time":
+              append(key, IsoFormTime(item));
+              break;
+            case "category":
+              const value = item.join(",");
+              if (postCategories?.join(",") !== value) append(key, value);
+              break;
+            default:
               append(key, item);
-            break;
+          }
         }
       });
       if (sendEnable) {
@@ -539,7 +538,7 @@ export function PostForm() {
         <PostTextarea
           registed={SetRegister({ name: "body", ref: textareaRef, register })}
           id="post_body_area"
-          placeholder="今何してる？"
+          placeholder="ブログの本文"
           className="body"
         />
         <div className="action">
