@@ -73,7 +73,7 @@ type labelValues = { label: string; value: string }[];
 
 const schema = z.object({
   update: z.string(),
-  postId: z.string(),
+  postId: z.string().nullish(),
   title: z.string().nullish(),
   body: z.string().min(1, { message: "本文を入力してください" }),
   time: z.string().nullish(),
@@ -341,13 +341,16 @@ export function PostForm() {
       data[name] = value;
       if (sendCheck && !sendEnable) sendEnable = true;
     };
+    let toPage = "";
     try {
       Object.entries(values).forEach(([key, item]) => {
-        if (dirtyFields[key as keyof typeof values]) {
+        if (key === "update") {
+          if (item) {
+            toPage = item;
+            append(key, item, false);
+          }
+        } else if (dirtyFields[key as keyof typeof values]) {
           switch (key) {
-            case "update":
-              append(key, item, false);
-              break;
             case "time":
               append(key, IsoFormTime(item));
               break;
@@ -398,8 +401,9 @@ export function PostForm() {
                 removeLocalDraft();
               }
             }
-            if (data.postId) {
-              nav(`/blog?postId=${data.postId}`, { replace: true });
+            toPage = data.postId || toPage;
+            if (toPage) {
+              nav(`/blog?postId=${toPage}`, { replace: true });
             } else {
               nav(`/blog`, { replace: true });
             }
@@ -420,6 +424,7 @@ export function PostForm() {
     updateMode,
     localDraft,
     removeLocalDraft,
+    dirtyFields,
   ]);
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
