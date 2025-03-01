@@ -91,7 +91,6 @@ import { ArrayEnv } from "@/Env";
 import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/state/LangState";
-import { translateCharaLangName } from "./CharacterPage";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
 
 interface GalleryPageProps extends GalleryBodyOptions {
@@ -255,15 +254,34 @@ export function GalleryObject({
   }, [monthModeParam, monthParam]);
   const isLogin = useIsLogin()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
-  const items = useMemo(() => {
+  const topAlbum = searchParams.get("topAlbum");
+  let items = useMemo(() => {
+    const items = _items.concat();
+    if (topAlbum) {
+      topAlbum
+        .split(",")
+        .sort(() => -1)
+        .forEach((name) => {
+          const foundIndex = items.findIndex((item) => item.name === name);
+          if (foundIndex >= 0) {
+            const found = items.splice(foundIndex, 1)[0];
+            items.unshift({ ...found, hide: false });
+          } else {
+            items.unshift({ name, hide: false });
+          }
+        });
+      return items;
+    } else return items;
+  }, [_items, topAlbum]);
+  items = useMemo(() => {
     if (isLogin && showAllAlbum)
-      return _items.map((item) => ({
+      return items.map((item) => ({
         ...item,
         hideWhenEmpty: hideWhenEmpty,
         hide: false,
       }));
-    else return _items;
-  }, [_items, showAllAlbum, hideWhenEmpty, isLogin, imageAlbums]);
+    else return items;
+  }, [items, showAllAlbum, hideWhenEmpty, isLogin, imageAlbums]);
   const { Set } = useGalleryObject();
 
   const { where, orderBy } = useMemo(

@@ -220,7 +220,7 @@ export function LinksEdit({
               const newSearchParams = new URLSearchParams(searchParams);
               newSearchParams.set("modal", "gallery");
               newSearchParams.set("showAllAlbum", "on");
-              newSearchParams.set("q", `album:${album}`);
+              newSearchParams.set("topAlbum", album);
               setSearchParams(Object.fromEntries(newSearchParams), {
                 state,
                 preventScrollReset: true,

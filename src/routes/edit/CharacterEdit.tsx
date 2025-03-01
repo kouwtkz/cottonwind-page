@@ -31,6 +31,7 @@ import {
   useCharactersMap,
   useCharacterTags,
   charaMediaKindMap,
+  charaMediaKindValues,
 } from "@/state/CharacterState";
 import { useSounds } from "@/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
@@ -325,6 +326,16 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             const newSearchParams = new URLSearchParams(searchParams);
             newSearchParams.set("modal", "gallery");
             newSearchParams.set("showAllAlbum", "on");
+            switch (mode) {
+              case "icon":
+              case "image":
+              case "headerImage":
+                newSearchParams.set("topAlbum", charaMediaKindMap.get(mode)!);
+                break;
+              default:
+                newSearchParams.set("topAlbum", charaMediaKindValues.join(","));
+                break;
+            }
             if (chara) newSearchParams.set("characters", chara.key);
             setSearchParams(Object.fromEntries(newSearchParams), {
               state,

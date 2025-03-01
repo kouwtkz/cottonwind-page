@@ -17,6 +17,9 @@ export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
   ["image", "charaImages"],
   ["headerImage", "headerImage"],
 ]);
+export const charaMediaKindValues = Object.values(
+  Object.fromEntries(charaMediaKindMap)
+);
 
 export function CharacterState() {
   const characterData = charactersDataObject.useData()[0];

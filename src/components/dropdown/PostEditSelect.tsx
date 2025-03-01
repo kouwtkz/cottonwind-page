@@ -332,6 +332,7 @@ export function PostEditSelectMedia({
         break;
       case "gallery":
         searchParams.set("modal", "gallery");
+        if (album) searchParams.set("topAlbum", album);
         if (!state) state = {};
         state.from = location.href;
         setSearchParams(searchParams, { state });
