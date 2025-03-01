@@ -27,6 +27,7 @@ interface SiteConfigEnv {
   CONTACT_FORM_GOOGLE?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
+  IMAGE_ALBUM_BLOG?: string;
   DEV?: boolean;
 }
 interface ImageAlbumEnvType extends Omit<ImageAlbumType, "list"> { }

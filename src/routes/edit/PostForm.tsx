@@ -25,7 +25,7 @@ import {
   replacePostTextareaFromImage,
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useApiOrigin } from "@/state/EnvState";
+import { useApiOrigin, useEnv } from "@/state/EnvState";
 import {
   imageDataObject,
   ImportPostJson,
@@ -180,6 +180,7 @@ export function PostForm() {
   useEffect(() => {
     getLocalDraft();
   }, [getLocalDraft]);
+  const album = useEnv()[0]?.IMAGE_ALBUM_BLOG;
 
   useEffect(() => {
     if (isLocalDraft) {
@@ -420,27 +421,32 @@ export function PostForm() {
     localDraft,
     removeLocalDraft,
   ]);
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    ImagesUploadWithToast({
-      src: acceptedFiles,
-      apiOrigin,
-      album: "blog",
-      notDraft: true,
-    })
-      .then((list) => {
-        setImagesLoad("no-cache");
-        return list?.map((r) => r.data as ImageDataType).filter((data) => data);
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      ImagesUploadWithToast({
+        src: acceptedFiles,
+        apiOrigin,
+        album,
+        notDraft: true,
       })
-      .then((list) => {
-        list?.forEach((data) => {
-          replacePostTextareaFromImage({
-            image: data,
-            textarea: textareaRef.current,
-            setValue: setBody,
+        .then((list) => {
+          setImagesLoad("no-cache");
+          return list
+            ?.map((r) => r.data as ImageDataType)
+            .filter((data) => data);
+        })
+        .then((list) => {
+          list?.forEach((data) => {
+            replacePostTextareaFromImage({
+              image: data,
+              textarea: textareaRef.current,
+              setValue: setBody,
+            });
           });
         });
-      });
-  }, [apiOrigin]);
+    },
+    [apiOrigin, album]
+  );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
     accept: { "image/*": [] },
@@ -519,7 +525,7 @@ export function PostForm() {
         <div className="modifier">
           <PostEditSelectMedia
             textarea={textareaRef.current}
-            album="blog"
+            album={album}
             setValue={setBody}
           />
           <PostEditSelectDecoration
