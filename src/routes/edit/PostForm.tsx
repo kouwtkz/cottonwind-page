@@ -22,6 +22,7 @@ import {
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
+  replacePostTextareaFromImage,
 } from "@/components/dropdown/PostEditSelect";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useApiOrigin } from "@/state/EnvState";
@@ -36,6 +37,8 @@ import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { SendDelete } from "@/functions/sendFunction";
 import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "@/state/CreateState";
+import { useDropzone } from "react-dropzone";
+import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -417,7 +420,32 @@ export function PostForm() {
     localDraft,
     removeLocalDraft,
   ]);
-
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    ImagesUploadWithToast({
+      src: acceptedFiles,
+      apiOrigin,
+      album: "blog",
+      notDraft: true,
+    })
+      .then((list) => {
+        setImagesLoad("no-cache");
+        return list?.map((r) => r.data as ImageDataType).filter((data) => data);
+      })
+      .then((list) => {
+        list?.forEach((data) => {
+          replacePostTextareaFromImage({
+            image: data,
+            textarea: textareaRef.current,
+            setValue: setBody,
+          });
+        });
+      });
+  }, [apiOrigin]);
+  const { getRootProps, getInputProps, isDragAccept } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    noClick: true,
+  });
   return (
     <>
       <form
@@ -535,12 +563,15 @@ export function PostForm() {
             <MenuItem value="upload">全上書</MenuItem>
           </DropdownObject>
         </div>
-        <PostTextarea
-          registed={SetRegister({ name: "body", ref: textareaRef, register })}
-          id="post_body_area"
-          placeholder="ブログの本文"
-          className="body"
-        />
+        <input name="upload" {...getInputProps()} />
+        <div {...getRootProps()}>
+          <PostTextarea
+            registed={SetRegister({ name: "body", ref: textareaRef, register })}
+            id="post_body_area"
+            placeholder="ブログの本文"
+            className="body"
+          />
+        </div>
         <div className="action">
           <button
             className="color text"

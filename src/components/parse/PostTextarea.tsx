@@ -29,14 +29,10 @@ export const usePreviewMode = CreateObjectState<PreviewModeStateType>(
   })
 );
 
-type PostTextareaProps = {
+interface PostTextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   registed?: SetRegisterReturn;
-  disabled?: boolean;
-  id?: string;
-  title?: string;
-  placeholder?: string;
-  className?: string;
-};
+}
 export function PostTextarea({
   registed,
   disabled,
@@ -44,6 +40,7 @@ export function PostTextarea({
   title,
   placeholder,
   className = "",
+  ...props
 }: PostTextareaProps) {
   const { previewMode, previewBody, setPreviewMode } = usePreviewMode();
   const previewRef = useRef<HTMLDivElement>(null);
@@ -60,6 +57,7 @@ export function PostTextarea({
         placeholder={placeholder}
         hidden={previewMode}
         className={className}
+        {...props}
       />
       <div
         ref={previewRef}
