@@ -47,6 +47,7 @@ type SoundPlayerType = {
   currentTime: number;
   prevReplayTime: number;
   jumpTime: number;
+  jumped: boolean;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   Play: (args?: Partial<SoundPlayerType>) => void;
   Pause: () => void;
@@ -70,6 +71,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   currentTime: 0,
   prevReplayTime: 3,
   jumpTime: 0,
+  jumped: false,
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
       playlist?: SoundPlaylistType | undefined;
@@ -172,6 +174,7 @@ export function SoundPlayer() {
     count,
     Set,
     jumpTime,
+    jumped,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -199,7 +202,7 @@ export function SoundPlayer() {
   useEffect(() => {
     if (jumpTime >= 0 && audioElm) {
       audioElm.currentTime = jumpTime;
-      Set({ jumpTime: -1 });
+      Set({ jumpTime: -1, jumped: true });
     }
   }, [jumpTime, audioElm]);
   useEffect(() => {
@@ -240,11 +243,27 @@ export function SoundPlayer() {
     () => Set({ duration: audioElm?.duration || 0 }),
     [audioElm?.duration]
   );
+  const [intervalState, setIntervalState] = useState<number>(-1);
   const onTimeUpdate = useCallback(() => {
     if (audioElm) {
-      Set({ currentTime: audioElm.currentTime });
+      const currentTime = audioElm.currentTime;
+      if (jumped || !currentTime) {
+        Set({ currentTime, jumped: false });
+        setIntervalState((v) => v + 1);
+      }
     }
-  }, [audioElm]);
+  }, [audioElm, jumped]);
+  useEffect(() => {
+    if (paused) return;
+    const interval = setInterval(() => {
+      Set(({ currentTime }) => ({
+        currentTime: currentTime + 0.25,
+      }));
+    }, 250);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [intervalState, paused]);
 
   const artwork = useMemo(
     () =>
