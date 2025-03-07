@@ -2313,7 +2313,7 @@ div.banner {
   }
 }
 $soundBoxWidth: 14rem;
-$soundBoxHeight: 12.5rem;
+$soundBoxHeight: 14rem;
 .soundFixed {
   position: fixed;
   left: -#{$soundBoxWidth};
@@ -2363,7 +2363,8 @@ $soundBoxHeight: 12.5rem;
         }
         .text {
           height: 3rem;
-          margin: 0.5rem auto;
+          margin: auto;
+          margin-top: 0.5rem;
           display: inline-flex;
           align-items: center;
         }

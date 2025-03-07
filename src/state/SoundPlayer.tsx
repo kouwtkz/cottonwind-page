@@ -285,6 +285,14 @@ export function SoundPlayer() {
   );
 }
 
+function DurationToStr(duration: number, emptyToHyphen?: boolean) {
+  if (!duration && emptyToHyphen) return "-:--";
+  const floorTime = Math.floor(duration);
+  const s = floorTime % 60;
+  const m = (floorTime - s) / 60;
+  return `${m}:${("00" + s).slice(-2)}`;
+}
+
 export function SoundFixed() {
   const { pathname } = useLocation();
   const {
@@ -324,6 +332,19 @@ export function SoundFixed() {
     () => Math.round((currentTime / (duration || 1)) * 1000),
     [currentTime, duration]
   );
+  const [sliderValue, setSliderValue] = useState<number | null>(null);
+  const currentTimeWithSlider = useMemo(() => {
+    if (sliderValue !== null)
+      return Math.round((duration * sliderValue) / 100) / 10;
+    else if (duration === 0) return null;
+    else return currentTime;
+  }, [sliderValue, currentTime, duration]);
+  const currentTimeStr = useMemo(
+    () =>
+      DurationToStr(currentTimeWithSlider || 0, currentTimeWithSlider === null),
+    [currentTimeWithSlider]
+  );
+  const durationStr = useMemo(() => DurationToStr(duration, true), [duration]);
 
   return (
     <>
@@ -396,20 +417,25 @@ export function SoundFixed() {
                   ? "♪ " + title
                   : "（たいきちゅう）"}
               </div>
+              <div>
+                {currentTimeStr} / {durationStr}
+              </div>
               <div className="time">
-                {" "}
                 <ReactSlider
                   className="slider"
                   disabled={ended}
                   thumbClassName="thumb"
                   trackClassName="track"
                   max={1000}
-                  value={[currentPerT]}
+                  value={currentPerT}
+                  onChange={(value) => {
+                    setSliderValue(value);
+                  }}
                   onBeforeChange={() => {
                     if (!paused) Pause();
                   }}
-                  onAfterChange={(value) => {
-                    const jump = Array.isArray(value) ? value[0] : value;
+                  onAfterChange={(jump) => {
+                    setSliderValue(null);
                     const jumpTime = Math.round((duration * jump) / 100) / 10;
                     Play({
                       jumpTime,
