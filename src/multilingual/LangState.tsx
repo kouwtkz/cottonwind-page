@@ -1,5 +1,5 @@
 import { useLayoutEffect } from "react";
-import { CreateState } from "./CreateState";
+import { CreateState } from "@/state/CreateState";
 
 export const useLang = CreateState<string>();
 

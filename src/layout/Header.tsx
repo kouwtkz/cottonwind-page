@@ -2,13 +2,25 @@ import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
 import { SiteMenu } from "@/state/SiteMenu";
+import { useLang } from "@/multilingual/LangState";
+import {
+  defaultLang,
+  TITLE_IMAGE_PATH,
+  TITLE_IMAGE_PATH_EN,
+} from "@/multilingual/envDef";
 
-export function SiteTitle({ title }: { title: string }) {
+export function SiteTitle({ env }: { env?: SiteConfigEnv }) {
+  const lang = useLang()[0];
+  const title =
+    (lang === defaultLang ? env?.TITLE : env?.TITLE_EN) ??
+    (typeof document !== "undefined" ? document.title : "");
+
   return (
     <div className="title-container">
       <Link
         id="siteTitle"
         to="/"
+        title={title}
         onClick={(e) => {
           if (scrollY > 0) {
             scrollTo({ top: 0, behavior: "smooth" });
@@ -17,10 +29,13 @@ export function SiteTitle({ title }: { title: string }) {
         }}
       >
         <h2>
-          <img
-            src="/static/images/webp/cottonwind_logo_min.webp"
-            alt={title}
-          />
+          {lang === defaultLang && TITLE_IMAGE_PATH ? (
+            <img src={TITLE_IMAGE_PATH} alt={title} />
+          ) : TITLE_IMAGE_PATH_EN ? (
+            <img src={TITLE_IMAGE_PATH_EN} alt={title} />
+          ) : (
+            title
+          )}
         </h2>
       </Link>
     </div>
@@ -31,11 +46,7 @@ export function HeaderClient({ env }: { env?: SiteConfigEnv }) {
   return (
     <header id="header">
       <BackButton className="backButton" />
-      <SiteTitle
-        title={
-          env?.TITLE ?? typeof document !== "undefined" ? document.title : ""
-        }
-      />
+      <SiteTitle env={env} />
       <SiteMenu />
       <div className="headerBackground" />
     </header>

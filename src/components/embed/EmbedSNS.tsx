@@ -2,6 +2,7 @@ import { useEnv } from "@/state/EnvState";
 import { EmbedScript } from "./EmbedScript";
 import { useDarkMode } from "@/state/StateSet";
 import React, { useEffect, useState } from "react";
+import { defaultLang } from "@/multilingual/envDef";
 
 interface EmbedSNSprops {
   width?: number;
@@ -16,7 +17,7 @@ interface EmbedBlueskyProps extends EmbedSNSprops {
 export function EmbedBluesky({
   width = 420,
   height = 500,
-  lang = "ja",
+  lang = defaultLang,
   pin,
   q,
   id,

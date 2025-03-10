@@ -9,7 +9,7 @@ import { useImageState } from "@/state/ImageState";
 import { usePosts } from "@/state/PostState";
 import { StateSet, useDataIsComplete } from "@/state/StateSet";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
-import { LangState } from "@/state/LangState";
+import { LangState } from "@/multilingual/LangState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();

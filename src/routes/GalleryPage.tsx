@@ -90,7 +90,7 @@ import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/Env";
 import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
-import { useLang } from "@/state/LangState";
+import { useLang } from "@/multilingual/LangState";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
 
 interface GalleryPageProps extends GalleryBodyOptions {

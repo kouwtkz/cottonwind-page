@@ -5,6 +5,7 @@ import { findMee, setWhere } from "@/functions/find/findMee";
 import { MeeSqlD1 } from "./database/MeeSqlD1";
 import { concatOriginUrl, getMediaOrigin } from "./originUrl";
 import { ImageSelectFromKey } from "./media/serverDataFunction";
+import { defaultLang } from "@/multilingual/envDef";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");
@@ -122,7 +123,7 @@ export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
       description: env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
-      language: "ja",
+      language: defaultLang,
       image_url,
       pubDate: new Date(postsData.reduce((a, c) => {
         const lastmod = c.lastmod || "";

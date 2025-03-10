@@ -13,6 +13,7 @@ import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
 import { ArrayEnv } from "@/Env";
 import { charaTableObject } from "./api/character";
+import { defaultLang, TITLE_IMAGE_PATH } from "./multilingual/envDef";
 
 export interface DefaultMetaProps {
   favicon?: string;
@@ -42,10 +43,11 @@ export function DefaultBody({
           <header className="title-container">
             <a href="/">
               <h2>
-                <img
-                  src="/static/images/webp/cottonwind_logo_min.webp"
-                  alt={env?.TITLE}
-                />
+                {TITLE_IMAGE_PATH ? (
+                  <img src={TITLE_IMAGE_PATH} alt={env?.TITLE} />
+                ) : (
+                  env?.TITLE
+                )}
               </h2>
             </a>
           </header>
@@ -91,10 +93,9 @@ export async function ServerLayout({
   const env = AddMetaEnv(c.env);
   const url = c.req.url;
   const Url = new URL(url);
-  const isBot =
-    /http|bot|spider\/|facebookexternalhit/i.test(
-      c.req.header("user-agent") ?? ""
-    );
+  const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
+    c.req.header("user-agent") ?? ""
+  );
   let imagesMap = new Map<string, ImageType>();
   let posts: PostType[] = [];
   if (isBot) {
@@ -135,7 +136,7 @@ export async function ServerLayout({
     if (Url.searchParams.has("postId")) posts = await getPostsData(c);
   }
   return (
-    <html lang="ja" className="loading">
+    <html lang={defaultLang} className="loading">
       <head>
         <DefaultMeta {...defaultMetaArgs} />
         <SetMeta
@@ -224,7 +225,7 @@ export function ServerSimpleLayout({
   ...defaultMetaArgs
 }: ServerSimpleLayoutProps) {
   return (
-    <html lang="ja">
+    <html lang={defaultLang}>
       <head>
         <DefaultMeta {...defaultMetaArgs} />
         <title>{title ?? env?.TITLE}</title>
@@ -241,10 +242,13 @@ export function ServerSimpleLayout({
               <a id="siteTitle" href="/" title={env?.TITLE}>
                 <h2>
                   {logo === true ? (
-                    <img
-                      src="/static/images/webp/cottonwind_logo_min.webp"
-                      alt={env?.TITLE}
-                    />
+                    <h2>
+                      {TITLE_IMAGE_PATH ? (
+                        <img src={TITLE_IMAGE_PATH} alt={env?.TITLE} />
+                      ) : (
+                        env?.TITLE
+                      )}
+                    </h2>
                   ) : (
                     logo
                   )}

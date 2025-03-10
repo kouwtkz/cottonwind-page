@@ -48,7 +48,8 @@ import { charactersDataObject } from "@/state/DataState";
 import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "@/components/button/LikeButton";
-import { useLang } from "@/state/LangState";
+import { useLang } from "@/multilingual/LangState";
+import { defaultLang } from "@/multilingual/envDef";
 
 interface PartsType {
   label?: string;
@@ -224,8 +225,11 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
-export function translateCharaLangName(chara: CharacterType, lang = "ja") {
-  const toEn = lang !== "ja" && chara.enName;
+export function translateCharaLangName(
+  chara: CharacterType,
+  lang = defaultLang
+) {
+  const toEn = lang !== defaultLang && chara.enName;
   const returnValue = {
     name: toEn ? chara.enName : chara.name,
   } as { name?: string; lang?: string };
@@ -238,7 +242,7 @@ interface CharacterName extends HTMLAttributes<HTMLSpanElement> {
 export function CharacterName({ chara, ...props }: CharacterName) {
   const lang = useLang()[0];
   const translated = translateCharaLangName(chara, lang);
- return (
+  return (
     <span lang={translated.lang} {...props}>
       {translated.name}
     </span>

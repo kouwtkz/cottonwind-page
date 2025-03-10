@@ -2,6 +2,7 @@ interface SiteConfigEnv {
   VERSION?: string;
   ORIGIN?: string;
   TITLE?: string;
+  TITLE_EN?: string;
   DESCRIPTION?: string;
   OVERVIEW?: string;
   ALTERNATE?: string;
