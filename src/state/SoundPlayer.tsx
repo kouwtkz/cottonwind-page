@@ -365,8 +365,6 @@ export function SoundController() {
     playlist,
     current,
     shuffle,
-    currentTime,
-    duration,
     SetVolume,
     volume,
     muted,
@@ -388,24 +386,6 @@ export function SoundController() {
     if (show) className.push("show");
     return className.join(" ");
   }, [showBox, show]);
-  const currentPerT = useMemo(
-    () => Math.round((currentTime / (duration || 1)) * 1000),
-    [currentTime, duration]
-  );
-
-  const [sliderValue, setSliderValue] = useState<number | null>(null);
-  const currentTimeWithSlider = useMemo(() => {
-    if (sliderValue !== null)
-      return Math.round((duration * sliderValue) / 100) / 10;
-    else if (duration === 0) return null;
-    else return currentTime;
-  }, [sliderValue, currentTime, duration]);
-  const currentTimeStr = useMemo(
-    () =>
-      DurationToStr(currentTimeWithSlider || 0, currentTimeWithSlider === null),
-    [currentTimeWithSlider]
-  );
-  const durationStr = useMemo(() => DurationToStr(duration, true), [duration]);
 
   const onWheelVolumeSwitch = useCallback((e: WheelEvent) => {
     e.preventDefault();
@@ -547,39 +527,64 @@ export function SoundController() {
             <div className="title">
               {title && !stopped ? "♪ " + title : "（たいきちゅう）"}
             </div>
-            <div className="time">
-              <div className="status">
-                <div className="text">
-                  <span className="current">{currentTimeStr}</span>
-                  <span className="slash">/</span>
-                  <span className="duration">{durationStr}</span>
-                </div>
-              </div>
-              <ReactSlider
-                disabled={stopped}
-                thumbClassName="thumb"
-                trackClassName="track"
-                max={1000}
-                value={currentPerT}
-                onChange={(value) => {
-                  setSliderValue(value);
-                }}
-                onBeforeChange={() => {
-                  if (!paused) Pause();
-                }}
-                onAfterChange={(jump) => {
-                  setSliderValue(null);
-                  const jumpTime = Math.round((duration * jump) / 100) / 10;
-                  Play({ jumpTime });
-                }}
-                renderThumb={({ key, ...props }, state) => {
-                  return <div {...props} key="audio-slider-thumb" />;
-                }}
-              />
-            </div>
+            <SoundControllerTime />
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function SoundControllerTime() {
+  const { Play, Pause, paused, stopped, currentTime, duration } =
+    useSoundPlayer();
+  const currentPerT = useMemo(
+    () => Math.round((currentTime / (duration || 1)) * 1000),
+    [currentTime, duration]
+  );
+  const [sliderValue, setSliderValue] = useState<number | null>(null);
+  const currentTimeWithSlider = useMemo(() => {
+    if (sliderValue !== null)
+      return Math.round((duration * sliderValue) / 100) / 10;
+    else if (duration === 0) return null;
+    else return currentTime;
+  }, [sliderValue, currentTime, duration]);
+  const currentTimeStr = useMemo(
+    () =>
+      DurationToStr(currentTimeWithSlider || 0, currentTimeWithSlider === null),
+    [currentTimeWithSlider]
+  );
+  const durationStr = useMemo(() => DurationToStr(duration, true), [duration]);
+  return (
+    <div className="time">
+      <div className="status">
+        <div className="text">
+          <span className="current">{currentTimeStr}</span>
+          <span className="slash">/</span>
+          <span className="duration">{durationStr}</span>
+        </div>
+      </div>
+      <ReactSlider
+        disabled={stopped}
+        thumbClassName="thumb"
+        trackClassName="track"
+        max={1000}
+        value={currentPerT}
+        onChange={(value) => {
+          setSliderValue(value);
+        }}
+        onBeforeChange={() => {
+          if (!paused) Pause();
+        }}
+        onAfterChange={(jump) => {
+          setSliderValue(null);
+          const jumpTime = Math.round((duration * jump) / 100) / 10;
+          Play({ jumpTime });
+        }}
+        renderThumb={({ key, ...props }, state) => {
+          return <div {...props} key="audio-slider-thumb" />;
+        }}
+      />
+    </div>
   );
 }
