@@ -18,6 +18,9 @@ import {
   RiPauseLine,
   RiPlayFill,
   RiStopMiniFill,
+  RiVolumeDownFill,
+  RiVolumeMuteFill,
+  RiVolumeUpFill,
 } from "react-icons/ri";
 
 const LoopModeList: SoundLoopMode[] = [
@@ -49,6 +52,8 @@ type SoundPlayerType = {
   prevReplayTime: number;
   jumpTime: number;
   jumped: boolean;
+  volume: number;
+  muted: boolean;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   Play: (args?: setTypeProps<SoundPlayerType>) => void;
   Pause: () => void;
@@ -57,6 +62,7 @@ type SoundPlayerType = {
   Prev: () => void;
   NextLoopMode: () => void;
   ToggleShuffle: () => void;
+  SetVolume: (volume: number, delta?: boolean) => void;
 };
 
 export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
@@ -74,6 +80,8 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   prevReplayTime: 3,
   jumpTime: 0,
   jumped: false,
+  volume: 0.5,
+  muted: false,
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
       playlist?: SoundPlaylistType | undefined;
@@ -165,6 +173,14 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   ToggleShuffle() {
     set((state) => ({ shuffle: !state.shuffle }));
   },
+  SetVolume(volume, delta) {
+    set((state) => {
+      volume = delta ? volume + state.volume : volume;
+      if (volume > 1) volume = 1;
+      else if (volume < 0) volume = 0;
+      return { volume, muted: false };
+    });
+  },
 }));
 
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
@@ -185,6 +201,8 @@ export function SoundPlayer() {
     jumped,
     Play,
     Pause,
+    volume,
+    muted,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -208,8 +226,11 @@ export function SoundPlayer() {
   }, [audioElm]);
   const autoPlay = useMemo(() => !ended, [ended]);
   useEffect(() => {
-    if (audioElm) audioElm.volume = 0.5;
-  }, [audioElm]);
+    if (audioElm) audioElm.volume = volume;
+  }, [audioElm, volume]);
+  useEffect(() => {
+    if (audioElm) audioElm.muted = muted;
+  }, [audioElm, muted]);
   useEffect(() => {
     if (jumpTime >= 0 && audioElm) {
       const currentTime = jumpTime;
@@ -329,6 +350,7 @@ function DurationToStr(duration: number, emptyToHyphen?: boolean) {
 export function SoundController() {
   const { pathname } = useLocation();
   const {
+    Set,
     Play,
     Pause,
     Stop,
@@ -345,6 +367,9 @@ export function SoundController() {
     shuffle,
     currentTime,
     duration,
+    SetVolume,
+    volume,
+    muted,
   } = useSoundPlayer();
   const sound = playlist.list[current];
   const title = sound?.title || null;
@@ -360,12 +385,14 @@ export function SoundController() {
   const soundControllerClass = useMemo(() => {
     const className = ["soundController"];
     if (showBox) className.push("showBox");
+    if (show) className.push("show");
     return className.join(" ");
-  }, [showBox]);
+  }, [showBox, show]);
   const currentPerT = useMemo(
     () => Math.round((currentTime / (duration || 1)) * 1000),
     [currentTime, duration]
   );
+
   const [sliderValue, setSliderValue] = useState<number | null>(null);
   const currentTimeWithSlider = useMemo(() => {
     if (sliderValue !== null)
@@ -380,111 +407,179 @@ export function SoundController() {
   );
   const durationStr = useMemo(() => DurationToStr(duration, true), [duration]);
 
+  const onWheelVolumeSwitch = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    SetVolume(-Math.sign(e.deltaY) / 50, true);
+  }, []);
+  const volumeDivRef = useRef<HTMLDivElement>(null);
+  const volumeSliderElm = useMemo(
+    () => volumeDivRef.current?.querySelector("div.slider"),
+    [volumeDivRef.current]
+  );
+  useEffect(() => {
+    if (volumeSliderElm) {
+      const clipElm = document.createElement("div");
+      clipElm.className = "clip";
+      const items = Array.from(volumeSliderElm.children);
+      items.forEach((item) => {
+        clipElm.appendChild(item);
+      });
+      volumeSliderElm.appendChild(clipElm);
+    }
+  }, [volumeSliderElm]);
+  const currentVolume = useMemo(() => volume * 100, [volume]);
+  const [isVolumeSwitch, setVolumeSwitch] = useState(false);
+  const volumeSliderBoxClass = useMemo(() => {
+    const classNames = ["sliderBox"];
+    if (!isVolumeSwitch) classNames.push("disabled");
+    return classNames.join(" ");
+  }, [isVolumeSwitch]);
+  const VolumeIcon = useCallback(
+    () => (
+      <>
+        {muted || volume === 0 ? (
+          <RiVolumeMuteFill />
+        ) : volume < 0.6 ? (
+          <RiVolumeDownFill />
+        ) : (
+          <RiVolumeUpFill />
+        )}
+      </>
+    ),
+    [volume, muted]
+  );
+  useEffect(() => {
+    const elm = volumeDivRef.current;
+    if (elm) {
+      elm.addEventListener("wheel", onWheelVolumeSwitch, {
+        passive: false,
+      });
+      return () => {
+        elm.removeEventListener("wheel", onWheelVolumeSwitch);
+      };
+    }
+  }, [volumeDivRef]);
   return (
     <>
-      {show ? (
-        <div className={soundControllerClass}>
-          <div className="mini">
-            <button
-              title="停止"
-              className="color round"
-              type="button"
-              onClick={Stop}
-              hidden={stopped}
-            >
-              <RiStopMiniFill />
-            </button>
-            <button
-              title="再生 / 一時停止"
-              className="color round player"
-              type="button"
-              onClick={onClickPlayPause}
-            >
-              {paused ? <RiPlayFill /> : <RiPauseLine strokeWidth="1px" />}
-            </button>
-            <button
-              title="展開"
-              className="color round"
-              type="button"
-              onClick={() => setShowBox(!showBox)}
-            >
-              {showBox ? <RiMenuUnfold4Fill /> : <RiMenuFold4Fill />}
-            </button>
-          </div>
-          <div className="box">
-            <div className="player">
-              <div>
-                <button type="button" title="停止" onClick={Stop}>
-                  <StopButton />
-                </button>
-                <button
-                  type="button"
-                  title="ループモード"
-                  onClick={NextLoopMode}
-                >
-                  <LoopButton loopMode={loopMode} />
-                </button>
-                <button
-                  type="button"
-                  title="シャッフル"
-                  onClick={ToggleShuffle}
-                >
-                  <ShuffleButton shuffle={shuffle} />
-                </button>
-              </div>
-              <div>
-                <button type="button" title="前の曲" onClick={Prev}>
-                  <PrevButton />
-                </button>
-                <button
-                  type="button"
-                  title="再生 / 一時停止"
-                  onClick={onClickPlayPause}
-                >
-                  <PlayPauseButton paused={paused} />
-                </button>
-                <button type="button" title="次の曲" onClick={Next}>
-                  <NextButton />
-                </button>
-              </div>
-              <div className="title">
-                {title && !stopped ? "♪ " + title : "（たいきちゅう）"}
-              </div>
-              <div className="time">
-                <div className="status">
-                  <div className="text">
-                    <span className="current">{currentTimeStr}</span>
-                    <span className="slash">/</span>
-                    <span className="duration">{durationStr}</span>
-                  </div>
+      <div className={soundControllerClass}>
+        <div className="mini">
+          <button
+            title="停止"
+            className="color round"
+            type="button"
+            onClick={Stop}
+            hidden={stopped}
+          >
+            <RiStopMiniFill />
+          </button>
+          <button
+            title="再生 / 一時停止"
+            className="color round player"
+            type="button"
+            onClick={onClickPlayPause}
+          >
+            {paused ? <RiPlayFill /> : <RiPauseLine strokeWidth="1px" />}
+          </button>
+          <button
+            title="展開"
+            className="color round"
+            type="button"
+            onClick={() => setShowBox(!showBox)}
+          >
+            {showBox ? <RiMenuUnfold4Fill /> : <RiMenuFold4Fill />}
+          </button>
+        </div>
+        <div className="box">
+          <div className="player">
+            <div>
+              <div className="volume" ref={volumeDivRef}>
+                <div className={volumeSliderBoxClass}>
+                  <button
+                    type="button"
+                    title="ミュート切り替え"
+                    onClick={() => Set((s) => ({ muted: !s.muted }))}
+                  >
+                    <VolumeIcon />
+                  </button>
+                  <ReactSlider
+                    thumbClassName="thumb"
+                    trackClassName="track"
+                    max={100}
+                    value={currentVolume}
+                    onChange={(value) => {
+                      SetVolume(value / 100);
+                    }}
+                  />
                 </div>
-                <ReactSlider
-                  className="slider"
-                  disabled={ended}
-                  thumbClassName="thumb"
-                  trackClassName="track"
-                  max={1000}
-                  value={currentPerT}
-                  onChange={(value) => {
-                    setSliderValue(value);
+                <button
+                  type="button"
+                  className="round"
+                  title="音量を変更する"
+                  onClick={() => {
+                    setVolumeSwitch((v) => !v);
                   }}
-                  onBeforeChange={() => {
-                    if (!paused) Pause();
-                  }}
-                  onAfterChange={(jump) => {
-                    setSliderValue(null);
-                    const jumpTime = Math.round((duration * jump) / 100) / 10;
-                    Play({ jumpTime });
-                  }}
-                  renderThumb={({ key, ...props }, state) => {
-                    return <div {...props} key="audio-slider-thumb" />;
-                  }}
-                />
+                >
+                  <VolumeIcon />
+                </button>
               </div>
+              <button type="button" title="ループモード" onClick={NextLoopMode}>
+                <LoopButton loopMode={loopMode} />
+              </button>
+              <button type="button" title="シャッフル" onClick={ToggleShuffle}>
+                <ShuffleButton shuffle={shuffle} />
+              </button>
+            </div>
+            <div>
+              <button type="button" title="前の曲" onClick={Prev}>
+                <PrevButton />
+              </button>
+              <button
+                type="button"
+                title="再生 / 一時停止"
+                onClick={onClickPlayPause}
+              >
+                <PlayPauseButton paused={paused} />
+              </button>
+              <button type="button" title="次の曲" onClick={Next}>
+                <NextButton />
+              </button>
+            </div>
+            <div className="title">
+              {title && !stopped ? "♪ " + title : "（たいきちゅう）"}
+            </div>
+            <div className="time">
+              <div className="status">
+                <div className="text">
+                  <span className="current">{currentTimeStr}</span>
+                  <span className="slash">/</span>
+                  <span className="duration">{durationStr}</span>
+                </div>
+              </div>
+              <ReactSlider
+                disabled={stopped}
+                thumbClassName="thumb"
+                trackClassName="track"
+                max={1000}
+                value={currentPerT}
+                onChange={(value) => {
+                  setSliderValue(value);
+                }}
+                onBeforeChange={() => {
+                  if (!paused) Pause();
+                }}
+                onAfterChange={(jump) => {
+                  setSliderValue(null);
+                  const jumpTime = Math.round((duration * jump) / 100) / 10;
+                  Play({ jumpTime });
+                }}
+                renderThumb={({ key, ...props }, state) => {
+                  return <div {...props} key="audio-slider-thumb" />;
+                }}
+              />
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </>
   );
 }

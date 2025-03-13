@@ -2320,10 +2320,13 @@ $soundBoxHeight: 14rem;
   left: -#{$soundBoxWidth};
   bottom: 0;
   z-index: 40;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: flex-end;
   transition: left 250ms;
+  display: none;
+  &.show {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+  }
   .mini {
     display: flex;
     justify-content: flex-end;
@@ -2340,6 +2343,9 @@ $soundBoxHeight: 14rem;
     .player {
       display: none;
     }
+  }
+  .slider:not(.disabled) {
+    @extend %cursor-pointer;
   }
   &.showBox {
     left: 0;
@@ -2405,6 +2411,50 @@ $soundBoxHeight: 14rem;
             }
           }
         }
+        .volume {
+          .sliderBox {
+            $height: 3rem;
+            position: absolute;
+            background-color: var(--background-bw);
+            transform: translateY(-#{$height});
+            height: #{$height};
+            width: 8rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            button {
+              padding: 0;
+              margin-right: 0.25rem;
+              svg {
+                width: 1.75rem;
+                height: 1.75rem;
+              }
+            }
+            &.disabled {
+              display: none;
+            }
+            .slider {
+              height: 1.5rem;
+              width: 4rem;
+              .clip {
+                height: 100%;
+                width: 100%;
+                clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 0% 100%);
+              }
+              .track {
+                height: 100%;
+                background-color: hsla(0, 0%, 65%, 0.3);
+              }
+              .track-0 {
+                background-color: var(--main-color);
+              }
+              &.disabled {
+                display: none;
+              }
+            }
+          }
+        }
       }
       button {
         background-color: transparent;
@@ -2412,6 +2462,16 @@ $soundBoxHeight: 14rem;
           fill: var(--main-color-soft);
           width: 2.5rem;
           height: 2.5rem;
+        }
+        &.round {
+          background-color: var(--main-color-soft);
+          width: 2.5rem;
+          height: 2.5rem;
+          svg {
+            fill: white;
+            width: 75%;
+            height: 75%;
+          }
         }
       }
     }
