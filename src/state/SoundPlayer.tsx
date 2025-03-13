@@ -9,7 +9,7 @@ import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
-import { CreateObjectState, CreateState } from "./CreateState";
+import { CreateObjectState, CreateState, setTypeProps } from "./CreateState";
 import ReactSlider from "react-slider";
 
 import {
@@ -37,6 +37,7 @@ export type PlaylistRegistProps = {
 type SoundPlayerType = {
   paused: boolean;
   ended: boolean;
+  stopped: boolean;
   playlist: SoundPlaylistType;
   current: number;
   count: number;
@@ -49,7 +50,7 @@ type SoundPlayerType = {
   jumpTime: number;
   jumped: boolean;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
-  Play: (args?: Partial<SoundPlayerType>) => void;
+  Play: (args?: setTypeProps<SoundPlayerType>) => void;
   Pause: () => void;
   Stop: () => void;
   Next: () => void;
@@ -61,6 +62,7 @@ type SoundPlayerType = {
 export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   paused: true,
   ended: true,
+  stopped: true,
   playlist: { list: [] },
   current: 0,
   count: 0,
@@ -86,9 +88,15 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       : undefined;
     set(() => value);
   },
-  Play: (args = {}) => {
+  Play: (args) => {
     set((state) => {
-      const { playlist, ...argsValue } = args;
+      let { playlist, ...argsValue } = {} as Partial<SoundPlayerType>;
+      if (typeof args === "function") args(state);
+      else if (typeof args === "object") {
+        const { playlist: _playlist, ..._argsValue } = args;
+        playlist = _playlist;
+        argsValue = _argsValue;
+      }
       const value: Partial<SoundPlayerType> = {
         ...{
           paused: false,
@@ -175,6 +183,8 @@ export function SoundPlayer() {
     Set,
     jumpTime,
     jumped,
+    Play,
+    Pause,
   } = useSoundPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
@@ -188,23 +198,27 @@ export function SoundPlayer() {
     if (src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
 
-  const onPlay = useCallback(() => audioElm!.play(), [audioElm]);
-  const onPause = useCallback(() => audioElm!.pause(), [audioElm]);
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
   const onNextTrack = useCallback(() => Next(), [Next]);
   const onSeekBackward = useCallback(() => {
     if (audioElm) audioElm.currentTime -= 10;
-  }, []);
+  }, [audioElm]);
   const onSeekForward = useCallback(() => {
     if (audioElm) audioElm.currentTime += 10;
-  }, []);
+  }, [audioElm]);
   const autoPlay = useMemo(() => !ended, [ended]);
   useEffect(() => {
+    if (audioElm) audioElm.volume = 0.5;
+  }, [audioElm]);
+  useEffect(() => {
     if (jumpTime >= 0 && audioElm) {
-      audioElm.currentTime = jumpTime;
-      Set({ jumpTime: -1, jumped: true });
+      const currentTime = jumpTime;
+      audioElm.currentTime = currentTime;
+      Set({ jumpTime: -1, currentTime, jumped: true });
     }
   }, [jumpTime, audioElm]);
+  const stopped = useMemo(() => paused && ended, [paused, ended]);
+  useEffect(() => Set({ stopped }), [stopped]);
   useEffect(() => {
     if (audioElm) {
       if (audioElm.paused !== paused) {
@@ -240,8 +254,8 @@ export function SoundPlayer() {
     }
   }, [loopMode, audioElm, Stop, listLength]);
   useEffect(
-    () => Set({ duration: audioElm?.duration || 0 }),
-    [audioElm?.duration]
+    () => Set({ duration: !ended && audioElm ? audioElm.duration : 0 }),
+    [audioElm?.duration, ended]
   );
   const [intervalState, setIntervalState] = useState<number>(-1);
   const onTimeUpdate = useCallback(() => {
@@ -254,16 +268,16 @@ export function SoundPlayer() {
     }
   }, [audioElm, jumped]);
   useEffect(() => {
-    if (paused) return;
+    if (!audioElm || stopped) return;
     const interval = setInterval(() => {
-      Set(({ currentTime }) => ({
-        currentTime: currentTime + 0.25,
-      }));
-    }, 250);
+      Set({
+        currentTime: audioElm?.currentTime,
+      });
+    }, 100);
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [intervalState, paused]);
+  }, [intervalState, stopped, audioElm]);
 
   const artwork = useMemo(
     () =>
@@ -280,15 +294,15 @@ export function SoundPlayer() {
 
   return (
     <>
-      <SoundFixed />
+      <SoundController />
       <MebtteMediaSession
         title={music.title}
         artist={music.artist}
         album={playlist.title || music.album}
         {...{
           artwork,
-          onPlay,
-          onPause,
+          onPlay: Play,
+          onPause: Pause,
           onPreviousTrack,
           onNextTrack,
           onSeekBackward,
@@ -312,7 +326,7 @@ function DurationToStr(duration: number, emptyToHyphen?: boolean) {
   return `${m}:${("00" + s).slice(-2)}`;
 }
 
-export function SoundFixed() {
+export function SoundController() {
   const { pathname } = useLocation();
   const {
     Play,
@@ -324,6 +338,7 @@ export function SoundFixed() {
     ToggleShuffle,
     paused,
     ended,
+    stopped,
     loopMode,
     playlist,
     current,
@@ -342,8 +357,8 @@ export function SoundFixed() {
     else Pause();
   }, [paused, Play, Pause]);
   const [showBox, setShowBox] = useState(true);
-  const soundFixedClass = useMemo(() => {
-    const className = ["soundFixed"];
+  const soundControllerClass = useMemo(() => {
+    const className = ["soundController"];
     if (showBox) className.push("showBox");
     return className.join(" ");
   }, [showBox]);
@@ -368,13 +383,14 @@ export function SoundFixed() {
   return (
     <>
       {show ? (
-        <div className={soundFixedClass}>
+        <div className={soundControllerClass}>
           <div className="mini">
             <button
               title="停止"
-              className="color round player"
+              className="color round"
               type="button"
               onClick={Stop}
+              hidden={stopped}
             >
               <RiStopMiniFill />
             </button>
@@ -431,15 +447,17 @@ export function SoundFixed() {
                   <NextButton />
                 </button>
               </div>
-              <div className="text">
-                {title && !(paused && ended)
-                  ? "♪ " + title
-                  : "（たいきちゅう）"}
-              </div>
-              <div>
-                {currentTimeStr} / {durationStr}
+              <div className="title">
+                {title && !stopped ? "♪ " + title : "（たいきちゅう）"}
               </div>
               <div className="time">
+                <div className="status">
+                  <div className="text">
+                    <span className="current">{currentTimeStr}</span>
+                    <span className="slash">/</span>
+                    <span className="duration">{durationStr}</span>
+                  </div>
+                </div>
                 <ReactSlider
                   className="slider"
                   disabled={ended}
@@ -456,10 +474,7 @@ export function SoundFixed() {
                   onAfterChange={(jump) => {
                     setSliderValue(null);
                     const jumpTime = Math.round((duration * jump) / 100) / 10;
-                    Play({
-                      jumpTime,
-                      currentTime: jumpTime,
-                    });
+                    Play({ jumpTime });
                   }}
                   renderThumb={({ key, ...props }, state) => {
                     return <div {...props} key="audio-slider-thumb" />;

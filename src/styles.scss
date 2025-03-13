@@ -1834,7 +1834,8 @@ select {
   padding: 0.125rem 0.5rem;
 }
 
-button, .button {
+button,
+.button {
   &.squared.item {
     text-align: left;
     display: flex;
@@ -2314,7 +2315,7 @@ div.banner {
 }
 $soundBoxWidth: 14rem;
 $soundBoxHeight: 14rem;
-.soundFixed {
+.soundController {
   position: fixed;
   left: -#{$soundBoxWidth};
   bottom: 0;
@@ -2361,7 +2362,7 @@ $soundBoxHeight: 14rem;
             margin: auto;
           }
         }
-        .text {
+        .title {
           height: 3rem;
           margin: auto;
           margin-top: 0.5rem;
@@ -2369,9 +2370,29 @@ $soundBoxHeight: 14rem;
           align-items: center;
         }
         .time {
+          display: flex;
+          flex-direction: column;
           box-sizing: border-box;
           padding: 0 1rem;
           width: 100%;
+          .status {
+            margin-bottom: 0.5rem;
+            .text {
+              display: flex;
+              justify-content: center;
+              .duration {
+                text-align: left;
+                min-width: 3em;
+              }
+              .slash {
+                margin: 0 0.25rem;
+              }
+              .current {
+                text-align: right;
+                min-width: 3em;
+              }
+            }
+          }
           .slider {
             width: 100%;
             height: 0.5rem;

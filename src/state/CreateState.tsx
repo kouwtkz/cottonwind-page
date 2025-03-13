@@ -36,10 +36,10 @@ export function CreateState<T = unknown>(v?: T): CreateStateFunctionType<T> {
     return [state.v, state.Set];
   };
 }
-
-type setType<T> = (
-  value: Partial<T> | ((prevState: T) => Partial<T> | void)
-) => void;
+export type setTypeProps<T> =
+  | Partial<T>
+  | ((prevState: T) => Partial<T> | void);
+type setType<T> = (value: setTypeProps<T>) => void;
 type createType<T, Mos extends [StoreMutatorIdentifier, unknown][] = []> =
   | T
   | StateCreator<T, [], Mos>;
