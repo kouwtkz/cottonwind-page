@@ -16,3 +16,8 @@ interface KeyValueType<T = unknown> {
 }
 
 type OrNull<T> = T | null;
+
+interface Vector {
+  x: number;
+  y: number;
+}

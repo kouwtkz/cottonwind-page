@@ -4,12 +4,14 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { CSSTransition } from "react-transition-group";
 import { CSSTransitionClassNames } from "react-transition-group/CSSTransition";
+import { useClickEvent } from "@/components/hook/useClickEvent";
 
 export interface InsertElementProps extends HTMLAttributes<Element> {
   isOpen: boolean;
@@ -35,6 +37,9 @@ export interface DropdownObjectBaseProps {
   title?: string;
   MenuButtonAfter?: ReactNode;
   keepOpen?: boolean;
+  keepActiveOpen?: boolean;
+  hiddenClassName?: string;
+  ref?: React.RefObject<HTMLDivElement>;
 }
 
 export interface DropdownObjectProps extends DropdownObjectBaseProps {
@@ -58,8 +63,13 @@ export function DropdownObject({
   cssTimeOut = 0,
   clickTimeOut = 0,
   keepOpen,
+  keepActiveOpen,
   classNames: _classNames,
+  hiddenClassName,
+  ref,
 }: DropdownObjectProps) {
+  const inRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(ref, () => inRef.current!);
   let {
     dropMenuButton: dropMenuButtonClassName,
     dropItemList: dropItemListClassName,
@@ -82,23 +92,39 @@ export function DropdownObject({
   const toggleIsOpen = useCallback(() => setIsOpen(!isOpen), [isOpen]);
   useEffect(() => {
     if (isOpen) {
-      setMenuFocus(2);
+      setMenuFocus(keepActiveOpen ? 3 : 2);
+    } else {
+      setMenuFocus(0);
     }
   }, [isOpen]);
+  const { element: clickElm } = useClickEvent();
   useEffect(() => {
     if (menuFocus === 1) setMenuFocus(0);
-    else if (!menuFocus && !keepOpen) setIsOpen(false);
-  }, [keepOpen, menuFocus]);
+    else if (!menuFocus && !keepOpen) {
+      setIsOpen(false);
+    }
+  }, [keepOpen, keepActiveOpen, menuFocus]);
+  useEffect(() => {
+    if (menuFocus === 3) {
+      const elm = inRef?.current;
+      if (elm && clickElm) {
+        if (!elm.contains(clickElm)) {
+          setIsOpen(false);
+        }
+      }
+    }
+  }, [menuFocus, clickElm]);
   className = useMemo(() => {
     const list = [className ?? "dropdown"];
     if (addClassName) list.push(addClassName);
     return list.join(" ");
-  }, [className, addClassName]);
+  }, [className, addClassName, isOpen]);
   dropItemListClassName = useMemo(() => {
     const list = ["listMenu"];
     if (dropItemListClassName) list.push(dropItemListClassName);
+    if (hiddenClassName && !isOpen) list.push(hiddenClassName);
     return list.join(" ");
-  }, [dropItemListClassName]);
+  }, [dropItemListClassName, hiddenClassName, isOpen]);
   const timeoutStyle = useMemo<CSSProperties>(() => {
     return {
       animationDuration: cssTimeOut + "ms",
@@ -109,11 +135,12 @@ export function DropdownObject({
       className={className}
       style={style}
       tabIndex={-1}
+      ref={inRef}
       onFocus={() => {
-        setMenuFocus(2);
+        setMenuFocus(keepActiveOpen ? 3 : 2);
       }}
       onBlur={() => {
-        setMenuFocus(1);
+        if (!keepActiveOpen) setMenuFocus(1);
       }}
     >
       <div className={dropMenuListClassName}>
@@ -143,7 +170,7 @@ export function DropdownObject({
         in={isOpen}
         classNames={classNames}
         timeout={cssTimeOut}
-        unmountOnExit
+        unmountOnExit={!hiddenClassName}
         nodeRef={nodeRef}
       >
         <div
@@ -151,15 +178,17 @@ export function DropdownObject({
           ref={nodeRef}
           style={timeoutStyle}
           onClick={(e) => {
-            let close: boolean;
-            if (onClick) close = onClick(e.target as HTMLElement) ?? true;
-            else close = true;
-            if (close) {
-              if (clickTimeOut)
-                setTimeout(() => {
-                  setMenuFocus(0);
-                }, clickTimeOut);
-              else setMenuFocus(0);
+            if (!keepOpen && !keepActiveOpen) {
+              let close: boolean;
+              if (onClick) close = onClick(e.target as HTMLElement) ?? true;
+              else close = true;
+              if (close) {
+                if (clickTimeOut)
+                  setTimeout(() => {
+                    setMenuFocus(0);
+                  }, clickTimeOut);
+                else setMenuFocus(0);
+              }
             }
           }}
           onKeyDown={(e) => {
