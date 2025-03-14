@@ -22,6 +22,7 @@ import {
   RiVolumeMuteFill,
   RiVolumeUpFill,
 } from "react-icons/ri";
+import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -408,12 +409,12 @@ export function SoundController() {
     }
   }, [volumeSliderElm]);
   const currentVolume = useMemo(() => volume * 100, [volume]);
-  const [isVolumeSwitch, setVolumeSwitch] = useState(false);
-  const volumeSliderBoxClass = useMemo(() => {
-    const classNames = ["sliderBox"];
-    if (!isVolumeSwitch) classNames.push("disabled");
-    return classNames.join(" ");
-  }, [isVolumeSwitch]);
+  // const [isVolumeSwitch, setVolumeSwitch] = useState(false);
+  // const volumeSliderBoxClass = useMemo(() => {
+  //   const classNames = [];
+  //   if (!isVolumeSwitch) classNames.push("disabled");
+  //   return classNames.join(" ");
+  // }, [isVolumeSwitch]);
   const VolumeIcon = useCallback(
     () => (
       <>
@@ -472,36 +473,35 @@ export function SoundController() {
         <div className="box">
           <div className="player">
             <div>
-              <div className="volume" ref={volumeDivRef}>
-                <div className={volumeSliderBoxClass}>
-                  <button
-                    type="button"
-                    title="ミュート切り替え"
-                    onClick={() => Set((s) => ({ muted: !s.muted }))}
-                  >
-                    <VolumeIcon />
-                  </button>
-                  <ReactSlider
-                    thumbClassName="thumb"
-                    trackClassName="track"
-                    max={100}
-                    value={currentVolume}
-                    onChange={(value) => {
-                      SetVolume(value / 100);
-                    }}
-                  />
-                </div>
+              <DropdownObject
+                className="volume"
+                ref={volumeDivRef}
+                classNames={{
+                  dropMenuButton: "round",
+                  dropItemList: "sliderBox",
+                }}
+                MenuButton={<VolumeIcon />}
+                title="音量を変更する"
+                hiddenClassName="disabled"
+                keepActiveOpen
+              >
                 <button
                   type="button"
-                  className="round"
-                  title="音量を変更する"
-                  onClick={() => {
-                    setVolumeSwitch((v) => !v);
-                  }}
+                  title="ミュート切り替え"
+                  onClick={() => Set((s) => ({ muted: !s.muted }))}
                 >
                   <VolumeIcon />
                 </button>
-              </div>
+                <ReactSlider
+                  thumbClassName="thumb"
+                  trackClassName="track"
+                  max={100}
+                  value={currentVolume}
+                  onChange={(value) => {
+                    SetVolume(value / 100);
+                  }}
+                />
+              </DropdownObject>
               <button type="button" title="ループモード" onClick={NextLoopMode}>
                 <LoopButton loopMode={loopMode} />
               </button>
