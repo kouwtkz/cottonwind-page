@@ -97,7 +97,7 @@ export function DropdownObject({
       setMenuFocus(0);
     }
   }, [isOpen]);
-  const { element: clickElm } = useClickEvent();
+  const clickElm = keepActiveOpen ? useClickEvent().element : null;
   useEffect(() => {
     if (menuFocus === 1) setMenuFocus(0);
     else if (!menuFocus && !keepOpen) {
