@@ -96,7 +96,7 @@ export function DropdownObject({
     } else {
       setMenuFocus(0);
     }
-  }, [isOpen]);
+  }, [isOpen, keepActiveOpen]);
   const clickElm = keepActiveOpen ? useClickEvent().element : null;
   useEffect(() => {
     if (menuFocus === 1) setMenuFocus(0);
@@ -118,7 +118,7 @@ export function DropdownObject({
     const list = [className ?? "dropdown"];
     if (addClassName) list.push(addClassName);
     return list.join(" ");
-  }, [className, addClassName, isOpen]);
+  }, [className, addClassName]);
   dropItemListClassName = useMemo(() => {
     const list = ["listMenu"];
     if (dropItemListClassName) list.push(dropItemListClassName);
@@ -173,10 +173,10 @@ export function DropdownObject({
       ref={inRef}
       onFocus={useCallback(() => {
         setMenuFocus(keepActiveOpen ? 3 : 2);
-      }, [])}
+      }, [keepActiveOpen])}
       onBlur={useCallback(() => {
         if (!keepActiveOpen) setMenuFocus(1);
-      }, [])}
+      }, [keepActiveOpen])}
     >
       <div className={dropMenuListClassName}>
         {typeof MenuButton === "function" ? (
@@ -199,7 +199,7 @@ export function DropdownObject({
                 (isOpen
                   ? MenuButtonWhenOpen ?? MenuButton
                   : MenuButton) as ReactNode,
-              [isOpen]
+              [isOpen, MenuButtonWhenOpen, MenuButton]
             )}
           </button>
         )}
