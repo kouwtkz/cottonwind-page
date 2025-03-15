@@ -15,13 +15,7 @@ export function ThemeChangeButton({
 }: ThemeChangeButtonProps) {
   const { next } = ThemeState.use();
   return (
-    <div
-      {...args}
-      onClick={(e) => {
-        e.stopPropagation();
-        next();
-      }}
-    >
+    <div {...args} aria-label="switch" onClick={next}>
       {children}
     </div>
   );
@@ -33,13 +27,7 @@ function DarkThemeChangeButton({
 }: ThemeChangeButtonProps) {
   const { next } = DarkThemeState.use();
   return (
-    <div
-      {...args}
-      onClick={(e) => {
-        e.stopPropagation();
-        next();
-      }}
-    >
+    <div {...args} aria-label="switch" onClick={next}>
       {children}
     </div>
   );
@@ -94,7 +82,7 @@ export function SiteMenu() {
         classNames={{ dropItemList: "right" }}
         MenuButton={SiteMenuButton}
         cssTimeOut={100}
-        clickTimeOut={300}
+        keepActiveOpen
       >
         {list.map((item, i) => {
           if (item.url) {
