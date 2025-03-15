@@ -3509,3 +3509,30 @@ form.blogEdit {
     transform: translateX(-50%);
   }
 }
+
+.clickEffect {
+  z-index: 10000;
+  position: fixed;
+  pointer-events: none;
+}
+
+@keyframes simpleClickAnim {
+  from {
+    scale: 0;
+    background-color: #b6b6b6aa;
+  }
+  to {
+    scale: 1;
+    background-color: #b6b6b600;
+  }
+}
+
+.simpleClick {
+  width: 100px;
+  height: 100px;
+  transform-origin: center;
+  translate: -50% -50%;
+  clip-path: circle(50% at 50% 50%);
+  animation: simpleClickAnim linear forwards;
+  animation-duration: 500ms;
+}
