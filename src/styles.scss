@@ -1560,18 +1560,24 @@ header {
           outline: none;
         }
       }
-      .theme {
+      .switch {
         display: flex;
         .item {
           height: 2.25rem;
           padding: 0;
-          min-width: 50%;
+          min-width: 33.33%;
           display: flex;
           align-items: center;
           justify-content: center;
           svg {
             width: auto;
             height: 1.5rem;
+            margin: 0;
+          }
+          &.disabled {
+            svg {
+              opacity: 0.4;
+            }
           }
         }
       }
@@ -3525,29 +3531,29 @@ form.blogEdit {
   }
 }
 
-.clickEffect {
-  z-index: 10000;
-  position: fixed;
-  pointer-events: none;
-}
-
-@keyframes simpleClickAnim {
-  from {
-    scale: 0;
-    background-color: #b6b6b6aa;
+.clickEffects {
+  .clickEffect {
+    z-index: 10000;
+    position: fixed;
+    pointer-events: none;
   }
-  to {
-    scale: 1;
-    background-color: #b6b6b600;
+  @keyframes simpleClickAnim {
+    from {
+      scale: 0;
+      background-color: #b6b6b6aa;
+    }
+    to {
+      scale: 1;
+      background-color: #b6b6b600;
+    }
   }
-}
-
-.simpleClick {
-  width: 100px;
-  height: 100px;
-  transform-origin: center;
-  translate: -50% -50%;
-  clip-path: circle(50% at 50% 50%);
-  animation: simpleClickAnim linear forwards;
-  animation-duration: 500ms;
+  .simpleClick {
+    width: 100px;
+    height: 100px;
+    transform-origin: center;
+    translate: -50% -50%;
+    clip-path: circle(50% at 50% 50%);
+    animation: simpleClickAnim linear forwards;
+    animation-duration: 500ms;
+  }
 }

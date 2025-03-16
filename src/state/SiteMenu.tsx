@@ -1,68 +1,29 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { SiteMenuButton } from "../components/svg/button/MenuButton";
-import { ThemeChangeButtonProps } from "@/components/theme/ThemeSetter";
-import { DarkThemeState, ThemeState } from "@/components/theme/Theme";
-import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
-import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useEnv, useIsLogin } from "./EnvState";
 import { ArrayEnv } from "@/Env";
+import { ClickEffectSwitchButton } from "@/components/click/ClickEffect";
+import {
+  DarkThemeChangeButton,
+  ThemeChangeButton,
+} from "@/components/theme/Theme";
 
-export function ThemeChangeButton({
-  children = "いろかえ",
-  ...args
-}: ThemeChangeButtonProps) {
-  const { next } = ThemeState.use();
-  return (
-    <div {...args} aria-label="switch" onClick={next}>
-      {children}
-    </div>
-  );
-}
-
-function DarkThemeChangeButton({
-  children = "ダークテーマ",
-  ...args
-}: ThemeChangeButtonProps) {
-  const { next } = DarkThemeState.use();
-  return (
-    <div {...args} aria-label="switch" onClick={next}>
-      {children}
-    </div>
-  );
-}
-
-function ThemeSwitchButtons({
+function SiteMenuSwitchButtons({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { theme: colortheme } = ThemeState.use();
-  const { theme: darktheme } = DarkThemeState.use();
-  className = useMemo(
-    () => (className ? className + " " : "") + "theme",
-    [className]
-  );
+  className = useMemo(() => {
+    const classNames = ["switch"];
+    if (className) classNames.push(className);
+    return classNames.join(" ");
+  }, [className]);
   return (
     <div {...props} className={className}>
-      <ThemeChangeButton className="item">
-        {colortheme === "theme-orange" ? (
-          <PiOrangeSlice />
-        ) : colortheme === "theme-aqua" ? (
-          <PiDrop />
-        ) : (
-          <PiLeaf />
-        )}
-      </ThemeChangeButton>
-      <DarkThemeChangeButton className="item">
-        {darktheme === "auto" ? (
-          <CgDarkMode />
-        ) : darktheme === "dark" ? (
-          <CgMoon />
-        ) : (
-          <CgSun />
-        )}
-      </DarkThemeChangeButton>
+      <ClickEffectSwitchButton />
+      <ThemeChangeButton />
+      <DarkThemeChangeButton />
     </div>
   );
 }
@@ -116,7 +77,7 @@ export function SiteMenu() {
                     </DarkThemeChangeButton>
                   );
                 default:
-                  return <ThemeSwitchButtons key={i} />;
+                  return <SiteMenuSwitchButtons key={i} />;
               }
             }
           }

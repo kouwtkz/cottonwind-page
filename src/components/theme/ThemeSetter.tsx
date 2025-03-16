@@ -4,7 +4,7 @@ import { StoreApi, UseBoundStore } from "zustand";
 import { CreateObjectState } from "@/state/CreateState";
 
 export interface ThemeChangeButtonProps
-  extends HTMLAttributes<HTMLDivElement> {}
+  extends React.HTMLAttributes<HTMLButtonElement> {}
 
 type ThemeStateType = {
   index: number;
