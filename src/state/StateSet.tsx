@@ -16,8 +16,6 @@ import { MiniGallery } from "@/routes/GalleryPage";
 import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
-import { ClickEventState } from "@/components/hook/useClickEvent";
-import { FluffClick } from "@/layout/ClickEffect";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -42,8 +40,6 @@ export function StateSet() {
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />
       <HomeImageState />
-      <ClickEventState />
-      <FluffClick />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />

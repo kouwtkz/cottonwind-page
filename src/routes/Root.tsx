@@ -9,7 +9,6 @@ import { useImageState } from "@/state/ImageState";
 import { usePosts } from "@/state/PostState";
 import { StateSet, useDataIsComplete } from "@/state/StateSet";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
-import { LangState } from "@/multilingual/LangState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -43,7 +42,6 @@ export function Base({ children }: { children?: ReactNode }) {
   }, []);
   return (
     <>
-      <LangState />
       <ScrollRestoration />
       <StateSet />
       <HeaderClient env={env} />
