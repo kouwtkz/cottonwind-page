@@ -3531,29 +3531,33 @@ form.blogEdit {
   }
 }
 
+@keyframes ZoomFadeOutAnim {
+  0% {
+    scale: 0;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 0;
+  }
+}
+
 .clickEffects {
   .clickEffect {
     z-index: 10000;
     position: fixed;
     pointer-events: none;
-  }
-  @keyframes simpleClickAnim {
-    from {
-      scale: 0;
-      background-color: #b6b6b6aa;
-    }
-    to {
-      scale: 1;
-      background-color: #b6b6b600;
-    }
-  }
-  .clickEffect.simple {
-    width: 100px;
-    height: 100px;
-    transform-origin: center;
     translate: -50% -50%;
-    clip-path: circle(50% at 50% 50%);
-    animation: simpleClickAnim linear forwards;
-    animation-duration: 500ms;
+    transform-origin: center;
+    &.spread {
+      animation: ZoomFadeOutAnim linear forwards;
+      animation-duration: 500ms;
+    }
+    &.blank {
+      width: 100px;
+      height: 100px;
+      background-color: #b6b6b6aa;
+      clip-path: circle(50% at 50% 50%);
+    }
   }
 }

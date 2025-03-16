@@ -3,17 +3,22 @@ import { useClickEvent } from "@/components/click/useClickEvent";
 import { HTMLAttributes, useCallback, useMemo } from "react";
 import { CreateState } from "@/state/CreateState";
 
+export function ClickEffect() {
+  return <ClickEffectElement effectName="spread"></ClickEffectElement>;
+}
+
 const useClickEffect = CreateState(false);
-type effectNameType = "simple" | "fluff";
+type effectNameType = "spread";
 interface ClickEffectProps extends HTMLAttributes<HTMLDivElement> {
   effectName?: effectNameType;
   timeout?: number;
 }
-export function ClickEffect({
+export function ClickEffectElement({
   timeout = 500,
   className,
-  effectName = "simple",
+  effectName,
   style,
+  children,
   ...props
 }: ClickEffectProps) {
   const [enableClickEffect] = useClickEffect();
@@ -21,9 +26,10 @@ export function ClickEffect({
   className = useMemo(() => {
     const classNames = ["clickEffect"];
     if (className) classNames.push(className);
-    classNames.push(effectName);
+    if (effectName) classNames.push(effectName);
+    if (!children) classNames.push("blank");
     return classNames.join(" ");
-  }, [className, effectName]);
+  }, [className, effectName, children]);
   style = useMemo(
     () =>
       enableClickEffect
@@ -36,12 +42,14 @@ export function ClickEffect({
         : style,
     [enableClickEffect, x, y, timeout, style]
   );
-  const children = useMemo(
+  children = useMemo(
     () =>
       enableClickEffect && timeStamp ? (
-        <div key={timeStamp} className={className} style={style} {...props} />
+        <div key={timeStamp} className={className} style={style} {...props}>
+          {children}
+        </div>
       ) : null,
-    [enableClickEffect, timeStamp, className, style, props]
+    [enableClickEffect, timeStamp, className, style, children, props]
   );
   return (
     <ShortStocks className="clickEffects" timeout={timeout}>
