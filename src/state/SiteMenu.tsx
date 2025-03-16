@@ -83,6 +83,7 @@ export function SiteMenu() {
         MenuButton={SiteMenuButton}
         cssTimeOut={100}
         keepActiveOpen
+        coverZIndex={-1}
       >
         {list.map((item, i) => {
           if (item.url) {

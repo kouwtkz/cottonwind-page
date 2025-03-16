@@ -38,6 +38,7 @@ export interface DropdownObjectBaseProps {
   MenuButtonAfter?: ReactNode;
   keepOpen?: boolean;
   keepActiveOpen?: boolean;
+  coverZIndex?: number;
   hiddenClassName?: string;
   ref?: React.RefObject<HTMLDivElement>;
 }
@@ -64,6 +65,7 @@ export function DropdownObject({
   clickTimeOut = 0,
   keepOpen,
   keepActiveOpen,
+  coverZIndex,
   classNames: _classNames,
   hiddenClassName,
   ref,
@@ -104,8 +106,9 @@ export function DropdownObject({
       setIsOpen(false);
     }
   }, [keepOpen, keepActiveOpen, menuFocus]);
+  const activeOpen = useMemo(() => menuFocus === 3, [menuFocus]);
   useEffect(() => {
-    if (menuFocus === 3) {
+    if (activeOpen) {
       const elm = inRef?.current;
       if (elm && clickElm) {
         if (!elm.contains(clickElm)) {
@@ -113,7 +116,17 @@ export function DropdownObject({
         }
       }
     }
-  }, [menuFocus, clickElm]);
+  }, [activeOpen, clickElm]);
+  const FillCoverWindow = useMemo(() => {
+    if (isOpen && typeof coverZIndex === "number") {
+      return (
+        <div
+          className="fillCoverWindow enabled"
+          style={{ zIndex: coverZIndex }}
+        />
+      );
+    } else return null;
+  }, [isOpen, coverZIndex]);
   className = useMemo(() => {
     const list = [className ?? "dropdown"];
     if (addClassName) list.push(addClassName);
@@ -166,68 +179,71 @@ export function DropdownObject({
     []
   );
   return (
-    <div
-      className={className}
-      style={style}
-      tabIndex={-1}
-      ref={inRef}
-      onFocus={useCallback(() => {
-        setMenuFocus(keepActiveOpen ? 3 : 2);
-      }, [keepActiveOpen])}
-      onBlur={useCallback(() => {
-        if (!keepActiveOpen) setMenuFocus(1);
-      }, [keepActiveOpen])}
-    >
-      <div className={dropMenuListClassName}>
-        {typeof MenuButton === "function" ? (
-          <MenuButton
-            tabIndex={0}
-            isOpen={isOpen}
-            className={dropMenuButtonClassName}
-            onClick={toggleIsOpen}
-            onKeyDown={dropMenuButtonOnKeyDown}
-          />
-        ) : (
-          <button
-            className={dropMenuButtonClassName}
-            type="button"
-            title={title}
-            onClick={toggleIsOpen}
-          >
-            {useMemo(
-              () =>
-                (isOpen
-                  ? MenuButtonWhenOpen ?? MenuButton
-                  : MenuButton) as ReactNode,
-              [isOpen, MenuButtonWhenOpen, MenuButton]
-            )}
-          </button>
-        )}
-        {useMemo(
-          () =>
-            MenuButtonAfter ? (
-              <div className="list">{MenuButtonAfter}</div>
-            ) : null,
-          []
-        )}
-      </div>
-      <CSSTransition
-        in={isOpen}
-        classNames={classNames}
-        timeout={cssTimeOut}
-        unmountOnExit={!hiddenClassName}
-        nodeRef={nodeRef}
+    <>
+      <div
+        className={className}
+        style={style}
+        tabIndex={-1}
+        ref={inRef}
+        onFocus={useCallback(() => {
+          setMenuFocus(keepActiveOpen ? 3 : 2);
+        }, [keepActiveOpen])}
+        onBlur={useCallback(() => {
+          if (!keepActiveOpen) setMenuFocus(1);
+        }, [keepActiveOpen])}
       >
-        <div
-          className={dropItemListClassName}
-          ref={nodeRef}
-          style={timeoutStyle}
-          onClick={dropItemListOnClick}
-          onKeyDown={dropItemListOnKeyDown}
-        >
-          {children}
+        <div className={dropMenuListClassName}>
+          {typeof MenuButton === "function" ? (
+            <MenuButton
+              tabIndex={0}
+              isOpen={isOpen}
+              className={dropMenuButtonClassName}
+              onClick={toggleIsOpen}
+              onKeyDown={dropMenuButtonOnKeyDown}
+            />
+          ) : (
+            <button
+              className={dropMenuButtonClassName}
+              type="button"
+              title={title}
+              onClick={toggleIsOpen}
+            >
+              {useMemo(
+                () =>
+                  (isOpen
+                    ? MenuButtonWhenOpen ?? MenuButton
+                    : MenuButton) as ReactNode,
+                [isOpen, MenuButtonWhenOpen, MenuButton]
+              )}
+            </button>
+          )}
+          {useMemo(
+            () =>
+              MenuButtonAfter ? (
+                <div className="list">{MenuButtonAfter}</div>
+              ) : null,
+            []
+          )}
         </div>
-      </CSSTransition>
-    </div>
+        <CSSTransition
+          in={isOpen}
+          classNames={classNames}
+          timeout={cssTimeOut}
+          unmountOnExit={!hiddenClassName}
+          nodeRef={nodeRef}
+        >
+          <div
+            className={dropItemListClassName}
+            ref={nodeRef}
+            style={timeoutStyle}
+            onClick={dropItemListOnClick}
+            onKeyDown={dropItemListOnKeyDown}
+          >
+            {children}
+          </div>
+        </CSSTransition>
+      </div>
+      {FillCoverWindow}
+    </>
   );
 }

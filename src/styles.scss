@@ -718,15 +718,29 @@ html.loading {
   scrollbar-color: transparent transparent !important;
 }
 
+%fillCover {
+  display: block;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  top: 0;
+  left: 0;
+}
+
+.fillCoverWindow {
+  display: none;
+  &.enabled {
+    @extend %fillCover;
+  }
+}
+
 .loadingWindow {
   display: none;
   .loading & {
-    position: fixed;
-    top: 0;
+    @extend %fillCover;
     width: 100%;
     max-width: var(--ct-width);
-    height: 100vh;
-    height: 100dvh;
     background-color: var(--background);
     z-index: 1500;
     display: flex;
@@ -1501,6 +1515,7 @@ header {
   }
   .siteMenu {
     font-weight: 800;
+    z-index: 1;
     .button {
       width: 3.25rem;
       height: 3.25rem;
