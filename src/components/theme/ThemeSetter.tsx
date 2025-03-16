@@ -1,7 +1,7 @@
 import { HTMLAttributes, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { StoreApi, UseBoundStore } from "zustand";
-import { CreateObjectState } from "./CreateState";
+import { CreateObjectState } from "@/state/CreateState";
 
 export interface ThemeChangeButtonProps
   extends HTMLAttributes<HTMLDivElement> {}

@@ -3,7 +3,6 @@ import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "@/layout/ImageViewer";
 import { DataState } from "./DataState";
 import { ImageState, useImageState } from "./ImageState";
-import { ThemeStateClass } from "./ThemeSetter";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
 import { useEffect, useMemo, useRef } from "react";
 import { useCharacters, CharacterState } from "./CharacterState";
@@ -24,25 +23,7 @@ export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
 export const usePageIsComplete = CreateState(true);
 
-export const ThemeState = new ThemeStateClass("theme", [
-  "theme-orange",
-  "theme-aqua",
-]);
-export const DarkThemeState = new ThemeStateClass("darktheme", [
-  "dark",
-  "auto",
-]);
-export const useDarkMode = CreateState(false);
-
 export function StateSet() {
-  const isLogin = useIsLogin()[0];
-  const theme = DarkThemeState.use().theme;
-  const setDarkMode = useDarkMode()[1];
-  useEffect(() => {
-    if (theme === "auto")
-      setDarkMode(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    else setDarkMode(theme === "dark");
-  }, [theme]);
   const isSetList = [
     Boolean(useEnv()[0]),
     Boolean(useImageState().images),
@@ -72,8 +53,6 @@ export function StateSet() {
         <LinksState />
         <LikeState />
       </LoadingState>
-      {ThemeState.State()}
-      {DarkThemeState.State()}
     </>
   );
 }

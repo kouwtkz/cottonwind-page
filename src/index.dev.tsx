@@ -68,7 +68,8 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      styles: stylePathes.map((href, i) => <Style href={href} key={i} />),
+      beforeScript: <script type="module" src="/src/clientBefore.ts" />,
+      style: stylePathes.map((href, i) => <Style href={href} key={i} />),
       script: (
         <>
           <DefaultImportScripts />

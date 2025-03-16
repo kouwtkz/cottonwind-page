@@ -79,6 +79,7 @@ export default defineConfig(async ({ mode }) => {
     } else {
       clientInput.push(
         './src/client.tsx',
+        './src/clientBefore.ts',
         './src/styles.scss',
         './src/styles/styles_lib.scss',
       );

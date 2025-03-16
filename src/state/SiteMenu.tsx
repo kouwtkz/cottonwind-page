@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { SiteMenuButton } from "../components/svg/button/MenuButton";
-import { ThemeChangeButtonProps } from "./ThemeSetter";
-import { DarkThemeState, ThemeState } from "./StateSet";
+import { ThemeChangeButtonProps } from "@/components/theme/ThemeSetter";
+import { DarkThemeState, ThemeState } from "@/components/theme/Theme";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";

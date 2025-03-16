@@ -1,6 +1,6 @@
 import { useEnv } from "@/state/EnvState";
 import { EmbedScript } from "./EmbedScript";
-import { useDarkMode } from "@/state/StateSet";
+import { useDarkMode } from "@/components/theme/Theme";
 import React, { useEffect, useState } from "react";
 import { defaultLang } from "@/multilingual/envDef";
 

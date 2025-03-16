@@ -69,21 +69,26 @@ function judgeJson(r: Response) {
   );
 }
 
-export interface ServerLayoutProps extends DefaultMetaProps {
+interface defaultServerLayoutProps extends DefaultMetaProps {
+  beforeScript?: React.ReactNode;
+  meta?: React.ReactNode;
+  style?: React.ReactNode;
+  script?: React.ReactNode;
+  noindex?: boolean;
+}
+
+export interface ServerLayoutProps extends defaultServerLayoutProps {
   c: CommonContext<MeePagesEnv>;
   path: string;
   characters?: Map<string, CharacterType>;
-  meta?: React.ReactNode;
-  styles?: React.ReactNode;
-  script?: React.ReactNode;
-  noindex?: boolean;
   isLogin?: boolean;
 }
 export async function ServerLayout({
   c,
   characters: charactersMap,
   meta,
-  styles,
+  style,
+  beforeScript,
   script,
   noindex,
   isLogin = false,
@@ -159,7 +164,8 @@ export async function ServerLayout({
           />
         ) : null}
         {meta}
-        {styles}
+        {beforeScript}
+        {style}
       </head>
       <DefaultBody env={env}>
         {" "}
@@ -201,15 +207,11 @@ export async function ReactResponse({
   );
 }
 
-export interface ServerSimpleLayoutProps extends DefaultMetaProps {
+export interface ServerSimpleLayoutProps extends defaultServerLayoutProps {
   title?: string;
-  noindex?: boolean;
   className?: string;
   children?: React.ReactNode;
   env?: SiteConfigEnv;
-  meta?: React.ReactNode;
-  style?: React.ReactNode;
-  script?: React.ReactNode;
   logo?: React.ReactNode | boolean | null;
 }
 export function ServerSimpleLayout({
@@ -219,6 +221,7 @@ export function ServerSimpleLayout({
   children,
   meta,
   style,
+  beforeScript,
   script,
   env,
   logo = true,
@@ -230,9 +233,10 @@ export function ServerSimpleLayout({
         <DefaultMeta {...defaultMetaArgs} />
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
+        {meta}
+        {beforeScript}
         <Style href="/css/styles.css" />
         <Style href="/css/styles_lib.css" />
-        {meta}
         {style}
       </head>
       <body className={className}>

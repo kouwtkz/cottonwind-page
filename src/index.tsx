@@ -48,12 +48,13 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      styles: (
+      style: (
         <>
           <Style href="/css/styles.css" />
           <Style href="/css/styles_lib.css" />
         </>
       ),
+      beforeScript: <script type="module" src="/static/js/clientBefore.js" />,
       script: (
         <>
           <DefaultImportScripts />
