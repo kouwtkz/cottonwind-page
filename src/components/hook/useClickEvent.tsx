@@ -1,5 +1,5 @@
 import { CreateObjectState } from "@/state/CreateState";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 interface useClickVectorType extends Vector {
   element: Element | null;
@@ -16,11 +16,11 @@ export const useClickEvent = CreateObjectState<useClickVectorType>({
 
 export function ClickEventState() {
   const { Set } = useClickEvent();
-  function onClick(e: MouseEvent) {
+  const onClick = useCallback((e: MouseEvent) => {
     const { x, y, timeStamp } = e;
     const element = document.elementFromPoint(x, y);
     Set({ x, y, element, timeStamp, clicked: true });
-  }
+  }, []);
   useEffect(() => {
     window.addEventListener("click", onClick);
     return () => {
