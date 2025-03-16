@@ -1,5 +1,5 @@
 import { ShortStocks } from "@/components/hook/ShortStocks";
-import { useClickEvent } from "@/components/hook/useClickEvent";
+import { useClickEvent } from "@/components/click/useClickEvent";
 import { HTMLAttributes, useMemo } from "react";
 
 interface ClickEffectProps extends HTMLAttributes<HTMLDivElement> {
