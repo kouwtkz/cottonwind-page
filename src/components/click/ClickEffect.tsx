@@ -1,6 +1,6 @@
 import { ShortStocks } from "@/components/hook/ShortStocks";
 import { useClickEvent } from "@/components/click/useClickEvent";
-import { HTMLAttributes, useCallback, useMemo } from "react";
+import { HTMLAttributes, useCallback, useMemo, useRef, useState } from "react";
 import { CreateState } from "@/state/CreateState";
 
 export function ClickEffect() {
@@ -21,8 +21,19 @@ export function ClickEffectElement({
   children,
   ...props
 }: ClickEffectProps) {
-  const [enableClickEffect] = useClickEffect();
-  const { x, y, timeStamp } = useClickEvent();
+  const beforeTimeStamp = useRef(0);
+  const clickEvent = useClickEvent();
+  const { x, y, timeStamp } = clickEvent;
+  const [isClickEffect] = useClickEffect();
+  const isNewEvent = useMemo(() => {
+    const before = beforeTimeStamp.current;
+    beforeTimeStamp.current = timeStamp;
+    return isClickEffect && before !== timeStamp;
+  }, [timeStamp, isClickEffect]);
+  const enableClickEffect = useMemo(
+    () => isClickEffect && isNewEvent,
+    [isClickEffect, isNewEvent]
+  );
   className = useMemo(() => {
     const classNames = ["clickEffect"];
     if (className) classNames.push(className);
