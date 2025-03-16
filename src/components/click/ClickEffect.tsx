@@ -4,47 +4,48 @@ import { HTMLAttributes, useCallback, useMemo } from "react";
 import { CreateState } from "@/state/CreateState";
 
 const useClickEffect = CreateState(false);
-
-export function ClickEffect() {
-  const [enableClickEffect] = useClickEffect();
-  return (
-    <>
-      {enableClickEffect ? (
-        <ClickEffectElement className="simpleClick fluffClick" />
-      ) : null}
-    </>
-  );
-}
-
+type effectNameType = "simple" | "fluff";
 interface ClickEffectProps extends HTMLAttributes<HTMLDivElement> {
+  effectName?: effectNameType;
   timeout?: number;
 }
-export function ClickEffectElement({
+export function ClickEffect({
   timeout = 500,
   className,
+  effectName = "simple",
   style,
   ...props
 }: ClickEffectProps) {
+  const [enableClickEffect] = useClickEffect();
   const { x, y, timeStamp } = useClickEvent();
   className = useMemo(() => {
     const classNames = ["clickEffect"];
     if (className) classNames.push(className);
+    classNames.push(effectName);
     return classNames.join(" ");
-  }, [className]);
-  const _style: React.CSSProperties = useMemo(
-    () => ({
-      top: `${y}px`,
-      left: `${x}px`,
-      animationDuration: `${timeout}ms`,
-      ...style,
-    }),
-    [x, y, timeout, style]
+  }, [className, effectName]);
+  style = useMemo(
+    () =>
+      enableClickEffect
+        ? ({
+            top: `${y}px`,
+            left: `${x}px`,
+            animationDuration: `${timeout}ms`,
+            ...style,
+          } as React.CSSProperties)
+        : style,
+    [enableClickEffect, x, y, timeout, style]
+  );
+  const children = useMemo(
+    () =>
+      enableClickEffect && timeStamp ? (
+        <div key={timeStamp} className={className} style={style} {...props} />
+      ) : null,
+    [enableClickEffect, timeStamp, className, style, props]
   );
   return (
     <ShortStocks className="clickEffects" timeout={timeout}>
-      {timeStamp ? (
-        <div key={timeStamp} className={className} style={_style} {...props} />
-      ) : null}
+      {children}
     </ShortStocks>
   );
 }
