@@ -46,7 +46,7 @@ import {
   RiSunFill,
   RiTimeLine,
 } from "react-icons/ri";
-import { ImageMeeThumbnail } from "@/layout/ImageMee";
+import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
 import { getYear } from "@/functions/DateFunction";
 import { findMee, setWhere } from "@/functions/find/findMee";
@@ -657,6 +657,7 @@ function GalleryBody({
                     <RiChatPrivateLine />
                   </ModeSearchSwitch>
                 </IconsFoldButton>
+                <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
                   toEnableTitle="全てのアルバムを表示する"
                   toDisableTitle="アルバム表示を元に戻す"
