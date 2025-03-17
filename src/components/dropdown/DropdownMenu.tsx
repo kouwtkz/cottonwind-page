@@ -222,7 +222,7 @@ export function DropdownObject({
               MenuButtonAfter ? (
                 <div className="list">{MenuButtonAfter}</div>
               ) : null,
-            []
+            [MenuButtonAfter]
           )}
         </div>
         <CSSTransition
