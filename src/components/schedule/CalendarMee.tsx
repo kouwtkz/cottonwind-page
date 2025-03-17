@@ -23,13 +23,6 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 
-interface CalendarMeeProps extends React.ImgHTMLAttributes<HTMLDivElement> {
-  google?: GoogleCalendarOptionsType;
-  events?: eventsItemType[];
-  width?: number;
-  height?: number;
-}
-
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
 }
@@ -114,10 +107,20 @@ function eventClick(e: EventClickArg) {
   e.jsEvent.preventDefault();
 }
 
+export interface CalendarMeeProps
+  extends React.ImgHTMLAttributes<HTMLDivElement> {
+  google?: GoogleCalendarOptionsType;
+  events?: eventsItemType[];
+  width?: number;
+  height?: number;
+  defaultMode?: calendarModeType;
+}
+
 export default function CalendarMee({
   google,
   height,
   style = {},
+  defaultMode = "month",
   ...args
 }: CalendarMeeProps) {
   const [fullCalendar, setFullCalendar] = useState<CustomFullCalendar | null>(
@@ -137,8 +140,8 @@ export default function CalendarMee({
   const settingSearchParams = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const modeParams = useMemo(
-    () => (searchParams.get("mode") || "month") as calendarModeType,
-    [searchParams]
+    () => (searchParams.get("mode") || defaultMode) as calendarModeType,
+    [searchParams, defaultMode]
   );
   const year = useMemo(
     () => strToNumWithNull(searchParams.get("year")),
@@ -167,7 +170,7 @@ export default function CalendarMee({
       } else {
         newDate = new Date();
       }
-      const mode = modeParams || "month";
+      const mode = modeParams || defaultMode;
       const view = convertModeToView(mode);
       setTimeout(() => {
         fullCalendar.calendar.gotoDate(newDate);
@@ -180,22 +183,25 @@ export default function CalendarMee({
       settingDate.current = false;
     } else {
       settingSearchParams.current = true;
-      setSearchParams((searchParams) => {
-        const dateDiff = Math.abs(new Date().getTime() - date.getTime());
-        if (mode === "month") searchParams.delete("mode");
-        else if (mode) searchParams.set("mode", mode);
-        if (dateDiff < 600000) {
-          searchParams.delete("year");
-          searchParams.delete("month");
-          searchParams.delete("day");
-          return searchParams;
-        } else {
-          searchParams.set("year", date.getFullYear().toString());
-          searchParams.set("month", (date.getMonth() + 1).toString());
-          searchParams.set("day", date.getDate().toString());
-          return searchParams;
-        }
-      });
+      setSearchParams(
+        (searchParams) => {
+          const dateDiff = Math.abs(new Date().getTime() - date.getTime());
+          if (mode === defaultMode) searchParams.delete("mode");
+          else if (mode) searchParams.set("mode", mode);
+          if (dateDiff < 600000) {
+            searchParams.delete("year");
+            searchParams.delete("month");
+            searchParams.delete("day");
+            return searchParams;
+          } else {
+            searchParams.set("year", date.getFullYear().toString());
+            searchParams.set("month", (date.getMonth() + 1).toString());
+            searchParams.set("day", date.getDate().toString());
+            return searchParams;
+          }
+        },
+        { preventScrollReset: true }
+      );
     }
   }, [date, mode]);
   const DateJumpButtonClick = useCallback(
@@ -235,6 +241,7 @@ export default function CalendarMee({
         : null,
     [google]
   );
+  const [isLoading, setLoading] = useState(false);
   if (height !== undefined) style.height = height;
   if (!google) return <div>Googleカレンダーのプロパティがありません</div>;
   return (
@@ -282,6 +289,12 @@ export default function CalendarMee({
         views={{
           listWeek: { titleFormat },
         }}
+        loading={(v) => {
+          setLoading(v);
+        }}
+        noEventsText={
+          isLoading ? "読み込み中…" : "この週はイベントはありません"
+        }
       />
     </div>
   );

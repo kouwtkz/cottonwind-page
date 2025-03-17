@@ -1,8 +1,23 @@
-import CalendarMee from "@/components/schedule/CalendarMee";
+import CalendarMee, {
+  CalendarMeeProps,
+} from "@/components/schedule/CalendarMee";
 import { useEnv } from "@/state/EnvState";
-// import { GoogleCalendarOptionsType } from "./CalendarType";
 
 export function SchedulePage({ title = "Schedule" }: { title?: string }) {
+  return (
+    <div>
+      <h1 className="color-main en-title-font">{title}</h1>
+      <ScheduleContainer />
+    </div>
+  );
+}
+
+interface ScheduleContainerProps extends Omit<CalendarMeeProps, "google"> {}
+
+export function ScheduleContainer({
+  height = 580,
+  ...args
+}: ScheduleContainerProps) {
   const env = useEnv()[0];
   let googleCalenderOptions: GoogleCalendarOptionsType | undefined;
   if (env && env.GOOGLE_CALENDAR_API && env.GOOGLE_CALENDAR_ID) {
@@ -12,13 +27,6 @@ export function SchedulePage({ title = "Schedule" }: { title?: string }) {
     };
   }
   return (
-    <div>
-      <h1 className="color-main en-title-font">{title}</h1>
-      <CalendarMee
-        google={googleCalenderOptions}
-        height={580}
-        className="text-sm sm:text-base m-2 sm:mx-auto max-w-4xl"
-      />
-    </div>
+    <CalendarMee google={googleCalenderOptions} height={height} {...args} />
   );
 }

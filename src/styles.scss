@@ -1736,9 +1736,12 @@ footer {
       flex-direction: row;
     }
   }
+  .links {
+    margin: 1rem auto;
+  }
   .blog {
     max-width: 90rem;
-    margin: 1rem auto;
+    margin: 1.5rem auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -1790,6 +1793,12 @@ footer {
         height: auto;
       }
     }
+  }
+  .fc {
+    margin: 2rem auto;
+    width: 95%;
+    max-width: 80rem;
+    font-size: 0.7em;
   }
 }
 

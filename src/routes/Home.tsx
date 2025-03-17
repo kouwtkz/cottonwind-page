@@ -12,6 +12,7 @@ import { EmbedBluesky, EmbedTwitter } from "@/components/embed/EmbedSNS";
 import { useEnv } from "@/state/EnvState";
 import useSchedule from "@/components/hook/useSchedule";
 import { shuffleArray } from "@/functions/arrayFunction";
+import { ScheduleContainer } from "./SchedulePage";
 
 export default function Home() {
   const env = useEnv()[0];
@@ -82,7 +83,7 @@ export default function Home() {
             </Link>
           </li>
         </ul>
-        <MeeLinks category="top" banner />
+        <MeeLinks category="top" banner className="links" />
         <PostsView />
         {!import.meta.env?.DEV && enableHandle ? (
           <div>
@@ -93,6 +94,7 @@ export default function Home() {
             </div>
           </div>
         ) : null}
+        <ScheduleContainer defaultMode="agenda" />
       </div>
     </>
   );
