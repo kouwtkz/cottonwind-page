@@ -40,16 +40,20 @@ function convertModeToView(mode: calendarModeType): calendarViewType | null {
       return "listWeek";
     case "month":
       return "dayGridMonth";
+    case "day":
+      return "dayGridDay";
     default:
       return null;
   }
 }
-function convertViewToMode(mode: calendarViewType): calendarModeType | null {
-  switch (mode) {
+function convertViewToMode(view: calendarViewType): calendarModeType | null {
+  switch (view) {
     case "listWeek":
       return "agenda";
     case "dayGridMonth":
       return "month";
+    case "dayGridDay":
+      return "day";
     default:
       return null;
   }
@@ -133,7 +137,7 @@ export default function CalendarMee({
   const settingSearchParams = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const modeParams = useMemo(
-    () => searchParams.get("mode") as calendarModeType | null,
+    () => (searchParams.get("mode") || "month") as calendarModeType,
     [searchParams]
   );
   const year = useMemo(
@@ -153,19 +157,22 @@ export default function CalendarMee({
       settingSearchParams.current = false;
     } else if (fullCalendar) {
       settingDate.current = true;
+      let newDate: Date | undefined;
       if (year || month || day) {
         const date = fullCalendar.calendar.getDate();
         if (year) date.setFullYear(year);
         if (month) date.setMonth(month - 1);
         if (day) date.setDate(day);
-        fullCalendar.calendar.gotoDate(date);
+        newDate = date;
       } else {
-        fullCalendar.calendar.gotoDate(new Date());
+        newDate = new Date();
       }
-      if (modeParams) {
-        const view = convertModeToView(modeParams);
+      const mode = modeParams || "month";
+      const view = convertModeToView(mode);
+      setTimeout(() => {
+        fullCalendar.calendar.gotoDate(newDate);
         if (view) fullCalendar.calendar.changeView(view);
-      }
+      }, 0);
     }
   }, [fullCalendar, year, month, day, modeParams]);
   useEffect(() => {
@@ -177,7 +184,7 @@ export default function CalendarMee({
         const dateDiff = Math.abs(new Date().getTime() - date.getTime());
         if (mode === "month") searchParams.delete("mode");
         else if (mode) searchParams.set("mode", mode);
-        if (dateDiff < 5000) {
+        if (dateDiff < 600000) {
           searchParams.delete("year");
           searchParams.delete("month");
           searchParams.delete("day");
@@ -191,6 +198,29 @@ export default function CalendarMee({
       });
     }
   }, [date, mode]);
+  const DateJumpButtonClick = useCallback(
+    (e: MouseEvent) => {
+      if (fullCalendar) {
+        const elm = e.target as HTMLInputElement;
+        let c = elm.parentElement!.querySelector(
+          "input#dateSelector"
+        ) as HTMLInputElement | null;
+        if (!c) {
+          const nc = document.createElement("input");
+          nc.type = "datetime-local";
+          nc.id = "dateSelector";
+          nc.onchange = () => {
+            fullCalendar.calendar.gotoDate(new Date(nc.value));
+            nc.remove();
+          };
+          elm.after(nc as any);
+        } else {
+          c.remove();
+        }
+      }
+    },
+    [fullCalendar]
+  );
   const GoogleOptions = useMemo(
     () =>
       google
@@ -235,13 +265,20 @@ export default function CalendarMee({
         }}
         datesSet={onChangeHandle}
         headerToolbar={{
-          end: "dayGridMonth,listWeek prev,today,next",
+          start: "title",
+          end: "dateSet dayGridMonth,listWeek prev,today,next",
         }}
         buttonText={{
           today: "現在",
           listWeek: "予定",
         }}
         eventContent={eventContent}
+        customButtons={{
+          dateSet: {
+            text: "日時",
+            click: DateJumpButtonClick,
+          },
+        }}
         views={{
           listWeek: { titleFormat },
         }}
