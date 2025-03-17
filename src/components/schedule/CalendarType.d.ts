@@ -9,3 +9,6 @@ type eventsItemType = {
   end: string;
   constraint: string;
 }
+
+type calendarModeType = "agenda" | "month";
+type calendarViewType = "dayGridMonth" | "listWeek";
