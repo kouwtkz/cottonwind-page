@@ -1097,7 +1097,6 @@ export async function ImagesUploadWithToast({
     },
   });
   const list = await MakeImagesUploadList(args);
-  console.log(args);
   if (list.length > 0) {
     const render = "アップロード中…";
     return PromiseOrder(list, {
