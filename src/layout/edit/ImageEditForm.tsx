@@ -67,7 +67,11 @@ import { ImageMee } from "@/layout/ImageMee";
 import { useSwipeable } from "react-swipeable";
 import { LimitValue } from "@/functions/MathFunction";
 import { RegisterRef } from "@/components/hook/SetRef";
-import { RiArtboard2Fill, RiFileUploadLine, RiFileWordLine } from "react-icons/ri";
+import {
+  RiArtboard2Fill,
+  RiFileUploadLine,
+  RiFileWordLine,
+} from "react-icons/ri";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -1079,15 +1083,21 @@ export async function ImagesUploadWithToast({
   sleepTime = 10,
   ...args
 }: ImagesUploadProps) {
+  if (Array.isArray(args.src) && args.src.length === 0) return;
   const state: PromiseOrderStateType = { abort: false };
   const id = toast.loading("アップロードの準備しています", {
     ...toastLoadingOptions,
     onClose() {
       state.abort = true;
-      toast.info("アップロードが中断されました");
+      if (list.length > 0) {
+        toast.info("アップロードが中断されました");
+      } else {
+        toast.info("アップロード可能なファイルがありませんでした");
+      }
     },
   });
   const list = await MakeImagesUploadList(args);
+  console.log(args);
   if (list.length > 0) {
     const render = "アップロード中…";
     return PromiseOrder(list, {
@@ -1140,6 +1150,8 @@ export async function ImagesUploadWithToast({
           type: "error",
         });
       });
+  } else {
+    toast.dismiss(id);
   }
 }
 
