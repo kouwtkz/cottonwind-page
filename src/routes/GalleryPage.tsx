@@ -727,14 +727,15 @@ function GalleryImageItem({
     <Link
       className="item"
       {...toStatehandler()}
-      onClick={
-        onClick
-          ? (e) => {
-              e.preventDefault();
-              onClick(image);
-            }
-          : undefined
-      }
+      onClick={useCallback(
+        (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+          if (onClick) {
+            e.preventDefault();
+            onClick(image);
+          }
+        },
+        [onClick]
+      )}
     >
       <GalleryItemRibbon image={image} />
       {image.type === "ebook" || image.type === "goods" ? (

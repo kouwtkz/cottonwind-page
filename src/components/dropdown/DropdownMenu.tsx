@@ -164,7 +164,7 @@ export function DropdownObject({
         }
       }
     },
-    [keepOpen, keepActiveOpen]
+    [keepOpen, keepActiveOpen, onClick]
   );
   const dropItemListOnKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -176,7 +176,7 @@ export function DropdownObject({
         }
       }
     },
-    []
+    [onClick]
   );
   return (
     <>
