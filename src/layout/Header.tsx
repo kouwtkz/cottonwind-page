@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
-import { SiteMenu } from "@/state/SiteMenu";
+import { SiteMenu } from "@/layout/SiteMenu";
 import { useLang } from "@/multilingual/LangState";
 import {
   defaultLang,
