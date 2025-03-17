@@ -28,11 +28,16 @@ app.get("/env.json", async (c) => {
     LIFE_CHECK_VERIFIER,
     LIFE_CHECKER_URL,
     CONTACT_FORM_GOOGLE_DEV,
+    GOOGLE_CALENDAR_API_DEV,
     ..._env
   } = AddMetaEnv(c.env);
   const env = _env as SiteConfigEnv;
-  if (import.meta.env?.DEV && CONTACT_FORM_GOOGLE_DEV)
-    env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;
+  if (import.meta.env?.DEV) {
+    if (CONTACT_FORM_GOOGLE_DEV)
+      env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;
+    if (GOOGLE_CALENDAR_API_DEV)
+      env.GOOGLE_CALENDAR_API = GOOGLE_CALENDAR_API_DEV;
+  }
   return c.json(env);
 });
 

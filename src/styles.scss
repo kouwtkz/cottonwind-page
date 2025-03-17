@@ -3561,3 +3561,69 @@ form.blogEdit {
     }
   }
 }
+
+.fc {
+  line-height: 1.1em;
+  --fc-event-bg-color: var(--main-color-strong);
+  --fc-button-hover-bg-color: var(--main-color-soft);
+  --fc-event-border-color: var(--main-color-strong);
+  --fc-event-border-color: var(--main-color-strong);
+  --fc-button-bg-color: var(--main-color);
+  --fc-button-hover-border-color: var(--main-color-soft);
+  --fc-button-active-bg-color: var(--main-color-deep);
+  --fc-button-active-border-color: var(--main-color-deep);
+  --fc-button-border-color: var(--main-color-deep);
+  --fc-button-active-border-color: var(--main-color-dark);
+  --fc-neutral-bg-color: var(--main-color-pale-fluo);
+  --fc-list-event-hover-bg-color: var(--main-color-pale);
+  --fc-today-bg-color: var(--main-color-pale-fluo);
+  .fc-day-sat {
+    --fc-non-business-color: rgba(95, 146, 240, 0.132);
+  }
+  .fc-day-sun {
+    --fc-non-business-color: rgba(240, 95, 95, 0.132);
+  }
+  .fc-h-event:hover {
+    --fc-event-bg-color: var(--main-color);
+  }
+  .fc-list-empty {
+    --fc-neutral-bg-color: var(--main-color-grayish-fluo);
+  }
+  .fc-h-event {
+    color: white;
+  }
+  a:hover,
+  .fc-toolbar-title {
+    color: var(--main-color-dark);
+  }
+
+  .fc-toolbar-title,
+  .fc-col-header,
+  .fc-daygrid-day-top,
+  .fc-list-day {
+    font-family: var(--font-Mandali), Arial, sans-serif;
+  }
+  .fc-col-header {
+    line-height: 1.3em;
+  }
+  .fc-button-group button:focus {
+    box-shadow: none !important;
+  }
+  .fc-today-button:disabled {
+    opacity: 1;
+  }
+  .fc-button-primary {
+    font-size: 0.9em;
+  }
+  .fc-toolbar {
+    .fc-toolbar-title {
+      font-size: 1.2em;
+    }
+    &.fc-header-toolbar {
+      margin-bottom: 0.25em;
+      .fc-toolbar-chunk:last-child {
+        text-align: right;
+      }
+    }
+  }
+}

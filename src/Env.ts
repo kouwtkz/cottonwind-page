@@ -115,7 +115,11 @@ export const ArrayEnv: ArrayEnvType = {
     {
       name: "blog",
       url: "/blog"
-    }
+    },
+    {
+      name: "schedule",
+      url: "/schedule"
+    },
   ],
   LINKS: [
     {

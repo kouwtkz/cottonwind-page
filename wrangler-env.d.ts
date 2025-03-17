@@ -26,6 +26,8 @@ interface SiteConfigEnv {
   API_PAGES_ORIGIN?: string;
   API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
+  GOOGLE_CALENDAR_API?: string;
+  GOOGLE_CALENDAR_ID?: string;
   UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
   IMAGE_ALBUM_BLOG?: string;
@@ -41,6 +43,7 @@ interface MeeCommonEnv extends SiteConfigEnv {
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
+  GOOGLE_CALENDAR_API_DEV?: string;
   FEED_FROM?: string;
   LIFE_CHECK_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;

@@ -16,6 +16,7 @@ import ContactPage from "./ContactPage";
 import { SettingPage } from "./Setting";
 import { AdminPage } from "./AdminPage";
 import { ChangeLog } from "@/state/GitState";
+import { SchedulePage } from "./SchedulePage";
 
 export interface MeeRouteObject extends NonIndexRouteObject {
   path: RoutingUnion;
@@ -64,6 +65,7 @@ export const Routing: RouteObject[] = [
       { path: "contact", element: <ContactPage /> },
       { path: "blog", element: <BlogPage /> },
       { path: "blog/post", element: <PostForm /> },
+      { path: "schedule", element: <SchedulePage /> },
       { path: "setting", element: <SettingPage /> },
       { path: "admin", element: <AdminPage /> },
       { path: "admin/:key", element: <AdminPage /> },

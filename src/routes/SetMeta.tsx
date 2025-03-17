@@ -122,6 +122,10 @@ export function MetaValues({
           description = "わたかぜコウのサイト内ブログ";
         }
         break;
+      case "schedule":
+        title = "スケジュール | " + siteTitle;
+        description = "わたかぜコウのスケジュールページ";
+        break;
       case "admin":
         title = "かんりしつ | " + siteTitle;
         switch (list[2]) {
