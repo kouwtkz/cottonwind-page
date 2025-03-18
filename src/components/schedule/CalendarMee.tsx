@@ -126,25 +126,25 @@ export default function CalendarMee({
       settingDate.current = false;
     } else {
       settingSearchParams.current = true;
-      setSearchParams(
-        (searchParams) => {
-          const dateDiff = Math.abs(new Date().getTime() - date.getTime());
-          if (view === defaultView) searchParams.delete(FC_SP_VIEW);
-          else if (view) searchParams.set(FC_SP_VIEW, view);
-          if (dateDiff < 600000) {
-            searchParams.delete(FC_SP_YEAR);
-            searchParams.delete(FC_SP_MONTH);
-            searchParams.delete(FC_SP_DAY);
-            return searchParams;
-          } else {
-            searchParams.set(FC_SP_YEAR, date.getFullYear().toString());
-            searchParams.set(FC_SP_MONTH, (date.getMonth() + 1).toString());
-            searchParams.set(FC_SP_DAY, date.getDate().toString());
-            return searchParams;
-          }
-        },
-        { preventScrollReset: true }
-      );
+      const beforeSearch = location.search;
+      const searchParams = new URLSearchParams(beforeSearch);
+      const dateDiff = Math.abs(new Date().getTime() - date.getTime());
+      if (view === defaultView) searchParams.delete(FC_SP_VIEW);
+      else if (view) searchParams.set(FC_SP_VIEW, view);
+      if (dateDiff < 600000) {
+        searchParams.delete(FC_SP_YEAR);
+        searchParams.delete(FC_SP_MONTH);
+        searchParams.delete(FC_SP_DAY);
+      } else {
+        searchParams.set(FC_SP_YEAR, date.getFullYear().toString());
+        searchParams.set(FC_SP_MONTH, (date.getMonth() + 1).toString());
+        searchParams.set(FC_SP_DAY, date.getDate().toString());
+      }
+      const afterSearch =
+        (searchParams.size ? "?" : "") + searchParams.toString();
+      if (beforeSearch !== afterSearch) {
+        setSearchParams(searchParams, { preventScrollReset: true });
+      }
     }
   }, [date, view]);
   const DateJumpButtonClick = useCallback(
