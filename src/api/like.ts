@@ -39,10 +39,8 @@ export async function ServerLikeGetData({ searchParams, db, isLogin, req }: GetD
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
   if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
-  const id = searchParams.get("id");
-  if (id) wheres.push({ id: Number(id) });
-  const postId = searchParams.get("postId");
-  if (postId) wheres.push({ postId });
+  const path = searchParams.get("path");
+  if (path) wheres.push({ path });
   const address = getIpAddress(req);
   async function Select() {
     return TableObject.Select({ db, where: { AND: wheres } })
@@ -101,16 +99,16 @@ app.post("/send", async (c, next) => {
 
 app.delete("/send", async (c) => {
   const data = await c.req.json();
-  const postId = String(data.postId || "");
-  if (postId) {
+  const path = String(data.path || "");
+  if (path) {
     const db = new MeeSqlD1(c.env.DB);
     try {
       await TableObject.Update({
         db,
         entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
-        where: { postId }
+        where: { path }
       });
-      return c.text(postId);
+      return c.text(path);
     } catch {
       return c.text("データベースでの削除に失敗しました", { status: 500 });
     }
