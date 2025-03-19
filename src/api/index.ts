@@ -12,6 +12,8 @@ import { app_links_api } from "./links";
 import { getOriginFromAPI } from "@/functions/originUrl";
 import { AddMetaEnv } from "@/serverLayout";
 import { app_like_api } from "./like";
+import { KeyValueDBDataOptions } from "@/Env";
+import { app_kvdb_api } from "./KeyValueDB";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 
@@ -33,6 +35,7 @@ app.route("/sound", app_sound_api);
 app.route("/file", app_file_api);
 app.route("/links", app_links_api);
 app.route("/like", app_like_api);
+app.route(KeyValueDBDataOptions.src, app_kvdb_api);
 app.route("/data", app_data_api);
 
 app.get("/feed/get", cache({

@@ -74,6 +74,14 @@ export const likeDataOptions: StorageDataStateClassProps<LikeType> = {
   idField: "path"
 }
 
+export const KeyValueDBDataOptions: StorageDataStateClassProps<KeyValueDBType> = {
+  key: "KeyValueDB",
+  src: "/kvdb",
+  version: "1.0.0",
+  preLoad: false,
+  idField: "key"
+}
+
 export const TableVersionDataOptions: StorageDataStateClassProps<TableVersionEntryType> = {
   key: "tables",
   src: "/tables",

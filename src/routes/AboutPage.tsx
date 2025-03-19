@@ -5,13 +5,41 @@ import { useImageState } from "@/state/ImageState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { Link } from "react-router-dom";
 import { BiGitBranch } from "react-icons/bi";
+import { KeyValueEditable, useKeyValueDB } from "@/state/KeyValueDBState";
+import { MultiParser } from "@/components/parse/MultiParser";
+
+const key_author_name = import.meta.env!.VITE_KVDB_KEY_AUTHOR_NAME;
+const key_author_name_en = import.meta.env!.VITE_KVDB_KEY_AUTHOR_NAME_EN;
+const key_author_name_en_prop = import.meta.env!
+  .VITE_KVDB_KEY_AUTHOR_NAME_EN_PROP;
+const key_author_image = import.meta.env!.VITE_KVDB_KEY_AUTHOR_IMAGE;
+const key_author_description = import.meta.env!
+  .VITE_KVDB_KEY_AUTHOR_DESCRIPTION;
 
 export default function AboutPage() {
   const env = useEnv()[0];
   const { imagesMap } = useImageState();
+  const { kvMap } = useKeyValueDB();
+  const {
+    name: authorName,
+    image: authorImageName,
+    enName: authorEnName,
+    enProp: authorEnProp,
+    description: authorDescription,
+  } = useMemo(
+    () => ({
+      name: kvMap?.get(key_author_name)?.value || env?.AUTHOR_NAME,
+      enName: kvMap?.get(key_author_name_en)?.value || env?.AUTHOR_EN_NAME,
+      enProp: kvMap?.get(key_author_name_en_prop)?.value || env?.AUTHOR_EN_PROP,
+      image: kvMap?.get(key_author_image)?.value || env?.AUTHOR_IMAGE,
+      description:
+        kvMap?.get(key_author_description)?.value || env?.AUTHOR_DESCRIPTION,
+    }),
+    [env, kvMap]
+  );
   const authorImage = useMemo(() => {
-    if (env?.AUTHOR_IMAGE && imagesMap) return imagesMap.get(env.AUTHOR_IMAGE);
-  }, [imagesMap, env?.AUTHOR_IMAGE]);
+    if (authorImageName && imagesMap) return imagesMap.get(authorImageName);
+  }, [imagesMap, authorImageName]);
   return (
     <div className="aboutPage">
       <h1 className="color-main en-title-font">
@@ -20,26 +48,56 @@ export default function AboutPage() {
       <h2 className="color-dark">プロフィール</h2>
       {env ? (
         <div className="author">
-          <h3 className="color-main">{env.AUTHOR_NAME}</h3>
+          <h3 className="color-main">
+            {authorName}
+            <KeyValueEditable
+              editKey={key_author_name}
+              editDefault={authorName}
+            />
+          </h3>
           <div className="on-en-prop">
-            <h4 className="color-soft">{env.AUTHOR_EN_NAME}</h4>
-            {env.AUTHOR_EN_PROP ? (
-              <p className="color-soft">[{env.AUTHOR_EN_PROP}]</p>
+            <h4 className="color-soft">
+              {authorEnName}
+              <KeyValueEditable
+                editKey={key_author_name_en}
+                editDefault={authorEnName}
+              />
+            </h4>
+            {authorEnProp ? (
+              <p className="color-soft">
+                [{authorEnProp}]
+                <KeyValueEditable
+                  editKey={key_author_name_en_prop}
+                  editDefault={authorEnProp}
+                />
+              </p>
             ) : null}
           </div>
-          {authorImage ? (
-            <ImageMee
-              className="authorImage"
-              imageItem={authorImage}
-              alt="プロフィール画像"
-            />
-          ) : null}
+          <KeyValueEditable
+            editKey={key_author_image}
+            editDefault={authorImage?.key}
+            editType="image"
+          >
+            {authorImage ? (
+              <ImageMee
+                className="authorImage"
+                imageItem={authorImage}
+                alt="プロフィール画像"
+              />
+            ) : null}
+          </KeyValueEditable>
         </div>
       ) : null}
-      <div className="container">
-        <p>わたかぜコウです！</p>
-        <p>もふもふなイラストを描くのが好きです！</p>
-      </div>
+      {authorDescription ? (
+        <div className="container">
+          <MultiParser>{authorDescription}</MultiParser>
+          <KeyValueEditable
+            editKey={key_author_description}
+            editDefault={authorDescription}
+            editType="textarea"
+          />
+        </div>
+      ) : null}
       <div className="container">
         <h3 className="color-main" id="guideline">
           <Link to="#guideline">ガイドライン</Link>

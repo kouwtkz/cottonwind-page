@@ -16,6 +16,7 @@ import { MiniGallery } from "@/routes/GalleryPage";
 import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
+import { KeyValueDBState } from "./KeyValueDBState";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -48,6 +49,7 @@ export function StateSet() {
         <FileState />
         <LinksState />
         <LikeState />
+        <KeyValueDBState />
       </LoadingState>
     </>
   );

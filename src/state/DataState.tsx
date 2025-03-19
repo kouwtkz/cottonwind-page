@@ -36,6 +36,7 @@ import {
   soundsDataOptions,
   TableVersionDataOptions,
   likeDataOptions,
+  KeyValueDBDataOptions,
 } from "@/Env";
 
 export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
@@ -77,6 +78,8 @@ export const favLinksDataObject = new SdsClass<SiteLinkData>(
   linksFavDataOptions
 );
 export const likeDataObject = new SdsClass(likeDataOptions);
+export const keyValueDBDataObject = new SdsClass(KeyValueDBDataOptions);
+export const kvDBObject = keyValueDBDataObject;
 
 const allDataSrc = "/data/all";
 export const allDataLoadState = CreateState<LoadStateType>(true);
@@ -92,6 +95,7 @@ export const DataObjectList: SdsClass<any>[] = [
   linksDataObject,
   favLinksDataObject,
   likeDataObject,
+  keyValueDBDataObject,
 ];
 
 export const DataObjectMap = new Map<string, SdsClass<any>>();
