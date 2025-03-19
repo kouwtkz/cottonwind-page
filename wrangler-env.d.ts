@@ -43,7 +43,6 @@ interface MeeCommonEnv extends SiteConfigEnv {
   CORS_ORIGIN?: string[];
   ORIGIN_HOST?: string;
   CONTACT_FORM_GOOGLE_DEV?: string;
-  GOOGLE_CALENDAR_API_DEV?: string;
   FEED_FROM?: string;
   LIFE_CHECK_URL?: string;
   LIFE_CHECK_CHALLENGE?: string;

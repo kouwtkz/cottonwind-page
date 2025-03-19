@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { renderHtml } from "./functions/render";
 import {
-  AddMetaEnv,
   ServerError,
   ServerNotFound,
   ServerSimpleLayout,
@@ -11,35 +10,6 @@ import SuggestPage from "./routes/SuggestPage";
 import { GitLogObject } from "@/gitlog/GitlogObject";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
-
-app.get("/env.json", async (c) => {
-  const {
-    DB,
-    KV,
-    NOTICE_FEED_KV,
-    AUTHOR_EMAIL,
-    DISCORD_INVITE_ANSWER,
-    DISCORD_INVITE_URL,
-    FEED_DEV_FROM,
-    X_CLIENT_ID,
-    X_CLIENT_SECRET,
-    LOGIN_TOKEN,
-    LIFE_CHECK_CHALLENGE,
-    LIFE_CHECK_VERIFIER,
-    LIFE_CHECKER_URL,
-    CONTACT_FORM_GOOGLE_DEV,
-    GOOGLE_CALENDAR_API_DEV,
-    ..._env
-  } = AddMetaEnv(c.env);
-  const env = _env as SiteConfigEnv;
-  if (import.meta.env?.DEV) {
-    if (CONTACT_FORM_GOOGLE_DEV)
-      env.CONTACT_FORM_GOOGLE = CONTACT_FORM_GOOGLE_DEV;
-    if (GOOGLE_CALENDAR_API_DEV)
-      env.GOOGLE_CALENDAR_API = GOOGLE_CALENDAR_API_DEV;
-  }
-  return c.json(env);
-});
 
 app.get("/404", async (c) => {
   let rd = "";
@@ -105,7 +75,14 @@ app.get("_routes.json", (c) => {
     "/sitemap.xml",
     "/robots.txt",
   ];
-  let include = ["/get/*", "/workers/*", "/fetch/*", "/api/*", "/blog/*"];
+  let include = [
+    "/get/*",
+    "/workers/*",
+    "/fetch/*",
+    "/api/*",
+    "/blog/*",
+    "/env.json",
+  ];
   const routing = RoutingList.map((v) =>
     v.replace(/\:[^\/]+/g, "*").replace(/^([^\/])/, "/$1")
   );

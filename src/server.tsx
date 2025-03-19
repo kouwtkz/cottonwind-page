@@ -11,6 +11,7 @@ import { app_workers } from "./workers";
 import { LoginCheckMiddleware } from "./admin";
 import { app_api } from "./api";
 import { app_get } from "./get";
+import { AddMetaEnv } from "./serverLayout";
 
 export function ServerCommon(app: CommonHono) {
   app.route("/workers", app_workers);
@@ -39,6 +40,26 @@ export function ServerCommon(app: CommonHono) {
     const result = c.env.LIFE_CHECK_CHALLENGE === body;
     if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");
     else return c.text("401 Unauthorized", 401);
+  });
+  app.get("/env.json", async (c) => {
+    const {
+      DB,
+      KV,
+      NOTICE_FEED_KV,
+      AUTHOR_EMAIL,
+      DISCORD_INVITE_ANSWER,
+      DISCORD_INVITE_URL,
+      FEED_DEV_FROM,
+      X_CLIENT_ID,
+      X_CLIENT_SECRET,
+      LOGIN_TOKEN,
+      LIFE_CHECK_CHALLENGE,
+      LIFE_CHECK_VERIFIER,
+      LIFE_CHECKER_URL,
+      ..._env
+    } = AddMetaEnv(c.env);
+    const env = _env as SiteConfigEnv;
+    return c.json(env);
   });
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
