@@ -1794,12 +1794,6 @@ footer {
       }
     }
   }
-  .fc {
-    margin: 2rem auto;
-    width: 95%;
-    max-width: 72rem;
-    font-size: 0.7em;
-  }
 }
 
 .HomeImage {
@@ -3574,7 +3568,8 @@ form.blogEdit {
 }
 
 .fc {
-  line-height: 1.1em;
+  font-size: 1.2em;
+  line-height: 1.2em;
   --fc-event-bg-color: var(--main-color-strong);
   --fc-button-hover-bg-color: var(--main-color-soft);
   --fc-event-border-color: var(--main-color-strong);
@@ -3648,5 +3643,23 @@ form.blogEdit {
   }
   .fc-daygrid-event-dot {
     --fc-event-border-color: var(--fc-event-text-color);
+  }
+  .fc-toolbar-title {
+    line-height: 1.25em;    
+  }
+  .topPage & {
+    font-size: 1.2rem;
+    margin: 2rem auto;
+    width: 95%;
+    max-width: 72rem;
+  }
+  @media (max-width: #{$tabletWidth - 1}) {
+    font-size: 0.85em;
+    .fc-button-group {
+      margin: 0.1rem auto;
+    }
+    .fc-button {
+      padding: 0.25em 0.5em;
+    }
   }
 }

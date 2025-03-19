@@ -59,6 +59,7 @@ export interface CalendarMeeProps
   height?: number;
   defaultView?: Type_VIEW_FC;
   agendaDays?: number;
+  visibleDateSet?: boolean;
 }
 
 export default function CalendarMee({
@@ -67,6 +68,7 @@ export default function CalendarMee({
   style = {},
   defaultView = FC_VIEW_MONTH,
   agendaDays = 184,
+  visibleDateSet,
   ...args
 }: CalendarMeeProps) {
   const [fullCalendar, setFullCalendar] = useState<CustomFullCalendar | null>(
@@ -245,7 +247,9 @@ export default function CalendarMee({
         }}
         headerToolbar={{
           start: "title",
-          end: `dateSet ${FC_VIEW_MONTH},${FC_VIEW_WEEK},${FC_VIEW_AGENDA} prev,today,next`,
+          end: `${
+            visibleDateSet ? "dateSet " : ""
+          }${FC_VIEW_MONTH},${FC_VIEW_WEEK},${FC_VIEW_AGENDA} prev,today,next`,
         }}
         moreLinkClick={(args) => {
           args.jsEvent.preventDefault();
