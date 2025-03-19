@@ -15,11 +15,8 @@ export function getLocalOrigin(origin: string, envLocalOrigin?: string) {
 }
 
 export function getOriginFromAPI(env: SiteConfigEnv, origin: string) {
-  if (env.API_ORIGIN === origin) {
-    return env.ORIGIN;
-  } else if (env.DEV) {
-    return getLocalOrigin(origin, env.LOCAL_ORIGIN);
-  } else return env.PAGES_DEV_ORIGIN;
+  if (env.API_ORIGIN === origin) return env.ORIGIN;
+  else return origin;
 }
 
 export function getAPIOrigin(env: SiteConfigEnv, origin: string, localFullPath = false) {
@@ -28,9 +25,9 @@ export function getAPIOrigin(env: SiteConfigEnv, origin: string, localFullPath =
     result = new URL(env.API_ORIGIN, origin).href;
   } else if (env.ORIGIN === origin) {
     result = env.API_ORIGIN;
-  } else if (env.DEV) {
-    result = getLocalOrigin(origin, env.API_LOCAL_ORIGIN);
-  } else result = env.API_PAGES_ORIGIN;
+  } else {
+    result = getLocalOrigin(origin, env.API_PAGES_ORIGIN);
+  }
   if (localFullPath && result?.startsWith("/")) result = origin + result;
   return result;
 }
@@ -39,9 +36,9 @@ export function getMediaOrigin(env: SiteConfigEnv, origin: string, localFullPath
   let result: string | undefined;
   if (env.ORIGIN === origin) {
     result = env.MEDIA_ORIGIN;
-  } else if (env.DEV) {
-    result = getLocalOrigin(origin, env.MEDIA_LOCAL_ORIGIN);
-  } else result = env.MEDIA_PAGES_ORIGIN;
+  } else {
+    result = getLocalOrigin(origin, env.MEDIA_PAGES_ORIGIN);
+  }
   if (localFullPath && result?.startsWith("/")) result = origin + result;
   return result;
 }

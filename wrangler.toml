@@ -37,12 +37,7 @@ PAGES_DEV_ORIGIN = "https://cottonwind.pages.dev"
 API_ORIGIN = "/api"
 
 MEDIA_ORIGIN = "https://media.cottonwind.com"
-MEDIA_PAGES_ORIGIN = "/assets"
-
-LOCAL_ORIGIN = "51730"
-MEDIA_LOCAL_ORIGIN = "/media"
-# MEDIA_LOCAL_ORIGIN = "51731"
-# MEDIA_LOCAL_ORIGIN = "https://media.cottonwind.com"
+MEDIA_PAGES_ORIGIN = "/media"
 
 GOOGLE_CALENDAR_ID = "1a26c5b4aa8352785869e51bf3d4fbf10a71ad8e67e260fda2e0f52dcb86adc1@group.calendar.google.com"
 

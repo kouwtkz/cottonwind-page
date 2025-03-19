@@ -18,13 +18,10 @@ interface SiteConfigEnv {
   SINCE?: number;
   WAVEBOX?: string;
   PAGES_DEV_ORIGIN?: string;
-  LOCAL_ORIGIN?: string;
   MEDIA_ORIGIN?: string;
   MEDIA_PAGES_ORIGIN?: string;
-  MEDIA_LOCAL_ORIGIN?: string;
   API_ORIGIN?: string;
   API_PAGES_ORIGIN?: string;
-  API_LOCAL_ORIGIN?: string;
   CONTACT_FORM_GOOGLE?: string;
   GOOGLE_CALENDAR_API?: string;
   GOOGLE_CALENDAR_ID?: string;

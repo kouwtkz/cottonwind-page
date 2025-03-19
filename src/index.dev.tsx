@@ -14,7 +14,6 @@ import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
 import styles from "./styles.scss";
 import stylesfromLib from "./styles/styles_lib.scss";
-import mediaApp from "./media";
 import { DefaultImportScripts } from "./clientScripts";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
@@ -42,7 +41,6 @@ honoTest(app);
 ServerCommon(app);
 
 app.get("/src/*", serveStatic({ root: "./" }));
-app.route("/media/", mediaApp);
 
 app.get("/json/gitlog.json", (c) => {
   return c.json(GitLogObject());

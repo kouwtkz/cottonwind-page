@@ -64,6 +64,9 @@ app.get("/json/gitlog.json", (c) => {
 //   );
 // });
 
+const mode = import.meta.env?.MODE;
+const ssg_full = "ssg-full";
+
 app.get("_routes.json", (c) => {
   const exclude = [
     "/favicon.ico",
@@ -83,6 +86,8 @@ app.get("_routes.json", (c) => {
     "/blog/*",
     "/env.json",
   ];
+  if (mode !== ssg_full) include.push("/media/*");
+
   const routing = RoutingList.map((v) =>
     v.replace(/\:[^\/]+/g, "*").replace(/^([^\/])/, "/$1")
   );

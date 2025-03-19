@@ -12,6 +12,7 @@ import { LoginCheckMiddleware } from "./admin";
 import { app_api } from "./api";
 import { app_get } from "./get";
 import { AddMetaEnv } from "./serverLayout";
+import mediaApp from "./media";
 
 export function ServerCommon(app: CommonHono) {
   app.route("/workers", app_workers);
@@ -64,6 +65,7 @@ export function ServerCommon(app: CommonHono) {
   app.get("/fetch/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });
+  app.route("/media/", mediaApp);
 }
 
 export function NoIndex(path: RoutingUnion) {
