@@ -17,6 +17,7 @@ import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { EventImpl } from "@fullcalendar/core/internal";
 import { MultiParser } from "../parse/MultiParser";
+import { RiMapPinLine } from "react-icons/ri";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -272,6 +273,7 @@ export default function CalendarMee({
     setEventSearchParams(null);
   }, [state]);
   const EventViewer = useCallback(() => {
+    const location = eventView?.extendedProps.location;
     return (
       <>
         {eventView ? (
@@ -284,6 +286,18 @@ export default function CalendarMee({
               </h4>
             ) : null}
             <h3>{eventView.title}</h3>
+            {location ? (
+              <div>
+                <a
+                  href={`https://www.google.com/maps/search/${location}`}
+                  target="_blank"
+                  title={location}
+                >
+                  <RiMapPinLine className="mr-1" />
+                  <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
+                </a>
+              </div>
+            ) : null}
             <div>
               <MultiParser>{eventView.extendedProps.description}</MultiParser>
             </div>
