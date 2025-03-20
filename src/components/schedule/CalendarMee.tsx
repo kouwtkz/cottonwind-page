@@ -8,10 +8,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Calendar,
   EventClickArg,
+  formatDate,
   FormatterInput,
 } from "@fullcalendar/core/index.js";
 import { useSearchParams } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
+import { Modal } from "@/layout/Modal";
+import { EventImpl } from "@fullcalendar/core/internal";
+import { MultiParser } from "../parse/MultiParser";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -66,6 +70,10 @@ export interface CalendarMeeProps
   visibleDateSet?: boolean;
 }
 
+function openWindow(url: string) {
+  window.open(url, "google-calendar-event", "width=700,height=600");
+}
+
 export default function CalendarMee({
   google,
   height,
@@ -73,8 +81,14 @@ export default function CalendarMee({
   defaultView = FC_VIEW_MONTH,
   agendaDays = 184,
   visibleDateSet,
+  className,
   ...args
 }: CalendarMeeProps) {
+  className = useMemo(() => {
+    const classNames: string[] = ["fc"];
+    if (className) classNames.push(className);
+    return classNames.join();
+  }, [className]);
   const [fullCalendar, setFullCalendar] = useState<CustomFullCalendar | null>(
     null
   );
@@ -197,11 +211,10 @@ export default function CalendarMee({
       : `この${view === "week" ? "週" : "期間"}はイベントはありません`;
   }, [isLoading, view]);
   if (height !== undefined) style.height = height;
-  const clickMonthEvent = useCallback(
+  const EventToDayFunc = useCallback(
     (e: EventClickArg) => {
-      const date = e.event._instance?.range.start;
-      if (fullCalendar && date) {
-        const localDate = new Date(date.toUTCString().replace(/ GMT$/, ""));
+      if (fullCalendar && e.event.start) {
+        const localDate = new Date(e.event.start);
         fullCalendar.calendar.gotoDate(localDate);
         fullCalendar.calendar.changeView("day");
         (e.jsEvent.target as HTMLElement).blur();
@@ -210,10 +223,44 @@ export default function CalendarMee({
     },
     [fullCalendar]
   );
+  const [eventView, setEventView] = useState<EventImpl | null>(null);
+  const eventOpen = useCallback((e: EventClickArg) => {
+    setEventView(e.event);
+    e.jsEvent.preventDefault();
+  }, []);
+  const EventCloseHandler = useCallback(() => {
+    setEventView(null);
+  }, []);
+  const EventViewer = useCallback(() => {
+    return (
+      <>
+        {eventView ? (
+          <Modal onClose={EventCloseHandler}>
+            {eventView.start ? (
+              <h4>
+                <a
+                  href={eventView.url}
+                  target="meeGoogleCalendar"
+                  onClick={() => openWindow(eventView.url)}
+                >
+                  {formatDate(eventView.start, { locale: "ja" })}
+                </a>
+              </h4>
+            ) : null}
+            <h3>{eventView.title}</h3>
+            <div>
+              <MultiParser>{eventView.extendedProps.description}</MultiParser>
+            </div>
+          </Modal>
+        ) : null}
+      </>
+    );
+  }, [eventView]);
 
   if (!google) return <div>Googleカレンダーのプロパティがありません</div>;
   return (
-    <div {...{ ...args, style }}>
+    <div {...{ ...args, style, className }}>
+      <EventViewer />
       <FullCalendar
         height={height}
         ref={(e: any) => {
@@ -275,14 +322,7 @@ export default function CalendarMee({
         moreLinkClick={(args) => {
           args.jsEvent.preventDefault();
         }}
-        eventClick={(e) => {
-          window.open(
-            e.event.url,
-            "google-calendar-event",
-            "width=700,height=600"
-          );
-          e.jsEvent.preventDefault();
-        }}
+        eventClick={eventOpen}
         buttonText={{
           today: "現在",
           [FC_VIEW_MONTH]: "月",
@@ -308,7 +348,6 @@ export default function CalendarMee({
           },
           [FC_VIEW_MONTH]: {
             type: "dayGridMonth",
-            eventClick: clickMonthEvent,
           },
           listWeek: { titleFormat: weekTitleFormat },
           [FC_VIEW_WEEK]: {
