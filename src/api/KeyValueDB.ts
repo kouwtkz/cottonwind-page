@@ -70,16 +70,16 @@ app.post("/send", async (c, next) => {
 
 app.delete("/send", async (c) => {
   const data = await c.req.json();
-  const postId = String(data.postId || "");
-  if (postId) {
+  const key = String(data.key || "");
+  if (key) {
     const db = new MeeSqlD1(c.env.DB);
     try {
       await TableObject.Update({
         db,
         entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
-        where: { postId }
+        where: { key }
       });
-      return c.text(postId);
+      return c.text(key);
     } catch {
       return c.text("データベースでの削除に失敗しました", { status: 500 });
     }

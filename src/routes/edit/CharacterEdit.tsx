@@ -171,10 +171,6 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     values: getDefaultValues,
     resolver: zodResolver(schema),
   });
-  RegisterRef({
-    useRefValue: useRef<HTMLTextAreaElement>(),
-    registerValue: register("description"),
-  });
 
   const descriptionRef = useRef<HTMLTextAreaElement>();
   const { refPassthrough: dscRefPassthrough, registered: registerDescription } =

@@ -11,9 +11,11 @@ export default function SetRef<T>(
   };
 }
 
-interface registerRefProps<E extends Node, TFieldValues extends FieldValues = FieldValues> {
+export type registerValue<TFieldValues extends FieldValues = FieldValues> = UseFormRegisterReturn<FieldPath<TFieldValues>>;
+
+export interface registerRefProps<E extends Node, TFieldValues extends FieldValues = FieldValues> {
   useRefValue: React.MutableRefObject<E | undefined>;
-  registerValue: UseFormRegisterReturn<FieldPath<TFieldValues>>;
+  registerValue: registerValue<TFieldValues>;
 }
 export function RegisterRef<E extends Node, TFieldValues extends FieldValues = FieldValues>({ useRefValue, registerValue }: registerRefProps<E, TFieldValues>) {
   const { ref: setRef, ...registered } = registerValue;

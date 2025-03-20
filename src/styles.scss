@@ -2603,6 +2603,26 @@ $soundBoxHeight: 14rem;
   }
 }
 
+label,
+.label {
+  &.simple {
+    display: flex;
+    align-items: center;
+    button {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0 0.5rem;
+      color: var(--main-color-strong);
+      background-color: transparent;
+      border: none;
+      font-weight: normal;
+      &:hover {
+        color: var(--main-color-dark);
+      }
+    }
+  }
+}
+
 .modalClose {
   position: absolute;
   top: 0;
@@ -2666,6 +2686,40 @@ $soundBoxHeight: 14rem;
       }
       @media (min-width: $tabletWidth) {
         min-width: 20rem;
+      }
+    }
+    &.keyValueEdit {
+      .postTextarea {
+        width: 36rem;
+        min-height: 12rem;
+        max-width: 100%;
+        border-radius: 0.25rem;
+        padding: 0.125rem;
+        &.preview-area {
+          display: block;
+        }
+      }
+      .setterImage {
+        img {
+          height: 16rem;
+        }
+        .selectGallery {
+          margin: 0.5rem 1rem;
+        }
+      }
+      .actions {
+        display: flex;
+        justify-content: space-evenly;
+        button {
+          padding: 0.25em 1em;
+          &.color-warm {
+            color: white;
+            background-color: var(--warm-color);
+            &:hover {
+              background-color: var(--warm-color-hover);
+            }
+          }
+        }
       }
     }
   }
@@ -2895,20 +2949,7 @@ $soundBoxHeight: 14rem;
       }
       label,
       .label {
-        display: flex;
-        align-items: center;
-        button {
-          display: inline-block;
-          margin-left: 0.5rem;
-          padding: 0 0.5rem;
-          color: var(--main-color-strong);
-          background-color: transparent;
-          border: none;
-          font-weight: normal;
-          &:hover {
-            color: var(--main-color-dark);
-          }
-        }
+        @extend label, .simple;
       }
       input[type="text"] {
         padding: 0.25rem 0.5rem;
@@ -3649,7 +3690,7 @@ form.blogEdit {
     --fc-event-border-color: var(--fc-event-text-color);
   }
   .fc-toolbar-title {
-    line-height: 1.25em;    
+    line-height: 1.25em;
   }
   .topPage & {
     font-size: 1.2rem;

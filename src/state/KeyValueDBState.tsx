@@ -13,7 +13,8 @@ import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
 import { ImageMee, ImageMeeProps } from "@/layout/ImageMee";
 import { useImageState, useSelectedImage } from "./ImageState";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { MultiParser } from "@/components/parse/MultiParser";
+import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiParserWithMedia";
+import { TextareaWithPreview } from "@/components/parse/PostTextarea";
 
 export const useKeyValueDB = CreateObjectState<{
   kvData?: KeyValueDBType[];
@@ -38,6 +39,8 @@ export const useKeyValueEdit = CreateObjectState<{
   edit: string | null;
   type: EditType;
   default?: string;
+  title?: string;
+  placeholder?: string;
 }>({ edit: null, type: "text" });
 
 const send = keyValueDBDataObject.options.src + "/send";
@@ -48,12 +51,18 @@ function KeyValueEdit() {
   const apiOrigin = useApiOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const { imagesMap } = useImageState();
-  const {
+  let {
     edit,
     Set,
     default: defaultValue,
     type: editType,
+    title = "値",
+    placeholder,
   } = useKeyValueEdit();
+  placeholder = useMemo(
+    () => placeholder || edit || "設定したい値",
+    [placeholder, edit]
+  );
   const { kvMap } = useKeyValueDB();
   const setLoad = keyValueDBDataObject.useLoad()[1];
   const item = useMemo(() => (edit ? kvMap?.get(edit) : null), [kvMap, edit]);
@@ -65,12 +74,28 @@ function KeyValueEdit() {
     register,
     handleSubmit,
     getValues,
+    setValue,
+    reset,
     formState: { isDirty, dirtyFields },
   } = useForm<FieldValues>({
     defaultValues: {
       value,
     },
   });
+  const Reset = useCallback(() => {
+    reset();
+  }, []);
+  const Delete = useCallback(() => {
+    if (edit && confirm("本当に削除しますか？\n(デフォルトの設定に戻ります)")) {
+      axios
+        .delete(concatOriginUrl(apiOrigin, send), { data: { key: edit } })
+        .then(() => {
+          toast.success("削除しました");
+          setLoad("no-cache");
+          Set({ edit: null });
+        });
+    }
+  }, [edit]);
   const Submit = useCallback(() => {
     const values = getValues();
     const entry = Object.fromEntries(
@@ -121,6 +146,7 @@ function KeyValueEdit() {
   return (
     <>
       <Modal
+        className="keyValueEdit"
         onClose={() => {
           if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
             Set({ edit: null });
@@ -136,10 +162,9 @@ function KeyValueEdit() {
               {...register("value")}
             />
           ) : editType === "textarea" ? (
-            <textarea
-              title="値"
-              placeholder={edit || "設定したい値"}
-              {...register("value")}
+            <TextareaWithPreview
+              name="value"
+              {...{ title, placeholder, getValues, setValue, register }}
             />
           ) : editType === "image" ? (
             <>
@@ -166,7 +191,6 @@ function KeyValueEdit() {
                 <button
                   title="画像の設定"
                   type="button"
-                  style={{ height: "16rem" }}
                   className="overlay flex p-0 m-lr-auto"
                   onClick={() => {
                     fileDialog("image/*")
@@ -215,14 +239,27 @@ function KeyValueEdit() {
               </div>
             </>
           ) : null}
-          <button
-            type="button"
-            className="color"
-            onClick={handleSubmit(Submit)}
-            disabled={!isDirty}
-          >
-            送信
-          </button>
+          <div className="actions">
+            <button type="button" className="color-warm" onClick={Delete}>
+              削除
+            </button>
+            <button
+              type="button"
+              className="color"
+              onClick={Reset}
+              disabled={!isDirty}
+            >
+              リセット
+            </button>
+            <button
+              type="button"
+              className="color"
+              onClick={handleSubmit(Submit)}
+              disabled={!isDirty}
+            >
+              送信
+            </button>
+          </div>
         </form>
       </Modal>
     </>
@@ -234,6 +271,8 @@ export interface KeyValueEditableMainProps
   editType?: EditType;
   editKey?: string;
   editDefault?: string;
+  title?: string;
+  placeholder?: string;
 }
 export interface KeyValueEditableProps extends KeyValueEditableMainProps {
   editEnvKey?: ImportMetaKVKeyType;
@@ -253,6 +292,7 @@ export function KeyValueEditable({
   childrenOutParse,
   replaceValue,
   imageMeeProps,
+  title,
   ...props
 }: KeyValueEditableProps) {
   const env = useEnv()[0];
@@ -289,8 +329,15 @@ export function KeyValueEditable({
           return <ImageMee imageItem={editDefault} {...imageMeeProps} />;
       }
     }
-    return children;
-  }, [children, props.editType, childrenOutDefault, editDefault]);
+    return (
+      children || (
+        <>
+          <RiEdit2Fill />
+          {title}
+        </>
+      )
+    );
+  }, [children, props.editType, title, childrenOutDefault, editDefault]);
   let defaultValue: ReactNode = useMemo(
     () =>
       replaceValue && editDefault
@@ -311,13 +358,16 @@ export function KeyValueEditable({
     if (childrenOutDefault) {
       switch (props.editType || "text") {
         case "text":
-        case "textarea":
           return defaultValue;
       }
     }
     return null;
   }, [childrenOutDefault, defaultValue]);
   let defaultAfter = useMemo(() => {
+    switch (props.editType || "text") {
+      case "textarea":
+        return defaultValue;
+    }
     return null;
   }, [childrenOutDefault, defaultValue]);
 
@@ -327,11 +377,7 @@ export function KeyValueEditable({
       {defaultBefore}
       {isLogin ? (
         <>
-          <KeyValueEditableMain
-            editKey={editKey}
-            editDefault={editDefault}
-            {...props}
-          >
+          <KeyValueEditableMain {...{ editKey, editDefault, title }} {...props}>
             {children}
           </KeyValueEditableMain>
         </>
@@ -348,17 +394,25 @@ function KeyValueEditableMain({
   editType = "text",
   editKey,
   editDefault,
-  children = <RiEdit2Fill />,
+  children,
   className = "keyValueEdit",
+  title,
+  placeholder,
   ...props
 }: KeyValueEditableMainProps) {
   const { Set } = useKeyValueEdit();
   const OnClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       if (onClick) onClick(e);
-      Set({ edit: editKey, default: editDefault, type: editType });
+      Set({
+        edit: editKey,
+        default: editDefault,
+        type: editType,
+        title,
+        placeholder,
+      });
     },
-    [onClick, editKey, editDefault, editType]
+    [onClick, editKey, editDefault, editType, title, placeholder]
   );
   return (
     <button className={className} onClick={OnClick} {...props}>

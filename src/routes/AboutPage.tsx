@@ -60,6 +60,7 @@ export default function AboutPage() {
           editEnvKey="VITE_KVDB_KEY_AUTHOR_DESCRIPTION"
           editEnvDefault="AUTHOR_DESCRIPTION"
           editType="textarea"
+          title="作者の詳細の編集"
         />
       </div>
       <div className="container">
