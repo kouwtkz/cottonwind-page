@@ -88,7 +88,7 @@ export function MultiParser({
     const list: string[] = [];
     text = text.replace(/\[.*\]\(.*\)|\<.*\>/g, (m) => {
       list.push(m);
-      return `$\u009F${list.length}`;
+      return `\u001B${list.length}\u001B`;
     });
     return { text, list };
   }, [children]);
@@ -117,7 +117,7 @@ export function MultiParser({
   }, [childString, quoteNumberReply]);
   childString = useMemo(() => {
     if (list.length > 0) {
-      return childString.replace(/\$\u009F(\d+)/g, () => {
+      return childString.replace(/\u001B(\d+)\u001B/g, () => {
         return list.shift() || "";
       });
     } else return childString;
