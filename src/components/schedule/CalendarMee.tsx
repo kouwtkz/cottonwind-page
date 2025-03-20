@@ -10,6 +10,7 @@ import {
   DatesSetArg,
   EventClickArg,
   formatDate,
+  FormatDateOptions,
   FormatterInput,
 } from "@fullcalendar/core/index.js";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -17,7 +18,8 @@ import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { EventImpl } from "@fullcalendar/core/internal";
 import { MultiParser } from "../parse/MultiParser";
-import { RiMapPinLine } from "react-icons/ri";
+import { RiLink, RiMapPinLine } from "react-icons/ri";
+import { defaultLang } from "@/multilingual/envDef";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -274,28 +276,90 @@ export default function CalendarMee({
   }, [state]);
   const EventViewer = useCallback(() => {
     const location = eventView?.extendedProps.location;
+    const startDate = eventView?.start;
+    let endDate = eventView?.end;
+    const startFormat: FormatDateOptions = {
+      locale: defaultLang,
+      dateStyle: "long",
+    };
+    const endFormat: FormatDateOptions = {
+      locale: defaultLang,
+    };
+    if (eventView) {
+      if (!eventView.allDay) {
+        startFormat.timeStyle = "short";
+      }
+      if (startDate && endDate) {
+        function setEndDateFormat() {
+          if (startDate!.getFullYear() !== endDate!.getFullYear()) {
+            endFormat.year = "numeric";
+          }
+          if (startDate!.getMonth() !== endDate!.getMonth()) {
+            endFormat.month = "long";
+          }
+          if (startDate!.getDate() !== endDate!.getDate()) {
+            endFormat.day = "numeric";
+          }
+        }
+        if (eventView.allDay) {
+          const sameDate = Math.floor(
+            (endDate.getTime() - startDate.getTime()) / 86400000
+          );
+          if (sameDate < 2) {
+            endDate = null;
+          } else {
+            setEndDateFormat();
+          }
+        } else {
+          setEndDateFormat();
+          endFormat.minute = "numeric";
+          endFormat.hour = "numeric";
+        }
+      }
+    }
     return (
       <>
         {eventView ? (
           <Modal onClose={EventCloseHandler}>
-            {eventView.start ? (
+            {startDate ? (
               <h4>
-                <a href={eventView.url} target="google-calendar-event">
-                  {formatDate(eventView.start, { locale: "ja" })}
+                <a
+                  className="time"
+                  href={eventView.url}
+                  target="google-calendar-event"
+                >
+                  <span className="start">
+                    {formatDate(startDate, startFormat)}
+                  </span>
+                  {endDate ? (
+                    <>
+                      <span className="during">-</span>
+                      <span className="end">
+                        {formatDate(endDate, endFormat)}
+                      </span>
+                    </>
+                  ) : null}
                 </a>
               </h4>
             ) : null}
             <h3>{eventView.title}</h3>
             {location ? (
               <div>
-                <a
-                  href={`https://www.google.com/maps/search/${location}`}
-                  target="_blank"
-                  title={location}
-                >
-                  <RiMapPinLine className="mr-1" />
-                  <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
-                </a>
+                {/^http.?:\/\//.test(location) ? (
+                  <a href={location} target="_blank" title={location}>
+                    <RiLink className="mr-1" />
+                    <span>{location}</span>
+                  </a>
+                ) : (
+                  <a
+                    href={`https://www.google.com/maps/search/${location}`}
+                    target="_blank"
+                    title={location}
+                  >
+                    <RiMapPinLine className="mr-1" />
+                    <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
+                  </a>
+                )}
               </div>
             ) : null}
             <div>

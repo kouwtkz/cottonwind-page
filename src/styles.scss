@@ -3720,9 +3720,26 @@ form.blogEdit {
     h3 {
       margin: 1em;
     }
+    h4 {
+      margin: 1em;
+    }
     a {
       display: inline-flex;
       align-items: stretch;
+    }
+    .time {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      line-height: 1.25em;
+      .during {
+        margin: auto 0.3em;
+      }
+    }
+    @media (max-width: #{$tabletWidth - 1}) {
+      h3 {
+        margin: 1em 0.2em;
+      }
     }
   }
 }
