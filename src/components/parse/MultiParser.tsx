@@ -31,7 +31,7 @@ export interface MultiParserProps
   tag?: string;
   children?: React.ReactNode;
   parsedClassName?: string;
-  replaceFunctions?: (args: MultiParserReplaceProps) => ChildNode | undefined;
+  replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
 }
 
 export interface MultiParserReplaceProps {
@@ -58,7 +58,7 @@ export function MultiParser({
   htmlparser2,
   library,
   transform,
-  replaceFunctions,
+  replaceFunction,
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
@@ -83,10 +83,15 @@ export function MultiParser({
       existCode.current = false;
     }
   }, [children]);
-  let childString = useMemo(
-    () => (typeof children === "string" ? children : ""),
-    [children]
-  );
+  let { text: childString, list } = useMemo(() => {
+    let text = typeof children === "string" ? children : "";
+    const list: string[] = [];
+    text = text.replace(/\[.*\]\(.*\)|\<.*\>/g, (m) => {
+      list.push(m);
+      return `$\u009F${list.length}`;
+    });
+    return { text, list };
+  }, [children]);
   childString = useMemo(() => {
     if (childString && hashtag) {
       return childString.replace(
@@ -110,6 +115,13 @@ export function MultiParser({
       );
     } else return childString;
   }, [childString, quoteNumberReply]);
+  childString = useMemo(() => {
+    if (list.length > 0) {
+      return childString.replace(/\$\u009F(\d+)/g, () => {
+        return list.shift() || "";
+      });
+    } else return childString;
+  }, [childString, list]);
 
   childString = useMemo(() => {
     if (childString && markdown)
@@ -199,8 +211,8 @@ export function MultiParser({
                   if (typeof location !== "undefined" && linkPush) {
                     const newChildren = v.children.reduce((a, n) => {
                       let _n: ChildNode | undefined = n;
-                      if (replaceFunctions) {
-                        _n = replaceFunctions({ linkPush, a, n });
+                      if (replaceFunction) {
+                        _n = replaceFunction({ linkPush, a, n });
                       }
                       if (_n) a.push(_n);
                       return a;
