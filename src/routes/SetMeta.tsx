@@ -144,7 +144,7 @@ export function MetaValues({
         break;
       case "":
         isTopPage = true;
-        title = siteTitle + (env?.OVERVIEW ? " - " + env.OVERVIEW : "");
+        title = siteTitle;
         break;
       default:
         title = siteTitle;
@@ -220,7 +220,7 @@ export function MetaValues({
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
-  if (!description) description = env?.DESCRIPTION ?? "";
+  if (!description) description = env?.DESCRIPTION ?? env?.OVERVIEW ?? "";
   if (!image && env?.SITE_IMAGE && imagesMap?.has(env.SITE_IMAGE)) {
     const imageItem = imagesMap.get(env.SITE_IMAGE)!;
     image = concatOriginUrl(mediaOrigin, imageItem.src);
