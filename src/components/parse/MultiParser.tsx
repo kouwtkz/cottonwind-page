@@ -129,7 +129,7 @@ export function MultiParser({
     else return childString;
   }, [childString, markdown]);
   const ReactParserArgs = { trim, htmlparser2, library, transform };
-  const parsedChildren = useMemo((): React.ReactNode => {
+  let parsedChildren = useMemo((): React.ReactNode => {
     if (childString && toDom) {
       return HTMLReactParser(childString, {
         ...ReactParserArgs,
@@ -235,6 +235,29 @@ export function MultiParser({
     detailsOpen,
     detailsClosable,
   ]);
+  parsedChildren = useMemo(() => {
+    function setBodyInner(node: React.ReactNode) {
+      let nodes = Array.isArray(node) ? node : [node];
+      nodes = nodes.map((node) => {
+        if (node && typeof node === "object" && "props" in node) {
+          switch (node.type) {
+            case "html":
+              return setBodyInner(node.props.children);
+            case "head":
+              return null;
+            case "body":
+              return setBodyInner(node.props.children);
+            default:
+              return node;
+          }
+        } else return node;
+      });
+      return nodes.filter((v) => v);
+    }
+    const nodes = setBodyInner(parsedChildren);
+    if (nodes.length <= 1) return nodes[0];
+    else return <>{nodes}</>;
+  }, [parsedChildren]);
   className = (className ? `${className} ` : "") + parsedClassName;
   return <>{React.createElement(tag, { className, ref }, parsedChildren)}</>;
 }
