@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { CreateObjectState } from "./CreateState";
 import { imageDataObject, keyValueDBDataObject } from "./DataState";
 import { Modal } from "@/layout/Modal";
-import { useApiOrigin, useIsLogin } from "./EnvState";
+import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
 import { RiEdit2Fill, RiImageAddFill } from "react-icons/ri";
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -10,9 +10,10 @@ import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { fileDialog } from "@/components/FileTool";
 import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
-import { ImageMee } from "@/layout/ImageMee";
+import { ImageMee, ImageMeeProps } from "@/layout/ImageMee";
 import { useImageState, useSelectedImage } from "./ImageState";
 import { useLocation, useSearchParams } from "react-router-dom";
+import { MultiParser } from "@/components/parse/MultiParser";
 
 export const useKeyValueDB = CreateObjectState<{
   kvData?: KeyValueDBType[];
@@ -127,6 +128,7 @@ function KeyValueEdit() {
         }}
       >
         <form className="flex" onSubmit={handleSubmit(Submit)}>
+          <div>{edit}</div>
           {editType === "text" ? (
             <input
               title="値"
@@ -227,24 +229,116 @@ function KeyValueEdit() {
   );
 }
 
-export interface KeyValueEditableProps
+export interface KeyValueEditableMainProps
   extends React.HTMLAttributes<HTMLButtonElement> {
   editType?: EditType;
-  editKey: string;
+  editKey?: string;
   editDefault?: string;
+}
+export interface KeyValueEditableProps extends KeyValueEditableMainProps {
+  editEnvKey?: ImportMetaKVKeyType;
+  editEnvDefault?: keyof SiteConfigEnv;
+  childrenOutDefault?: boolean;
+  childrenOutParse?: boolean;
+  replaceValue?: string;
+  imageMeeProps?: ImageMeeProps;
 }
 export function KeyValueEditable({
   children,
+  editKey: ek,
+  editDefault: ed,
+  editEnvKey,
+  editEnvDefault,
+  childrenOutDefault,
+  childrenOutParse,
+  replaceValue,
+  imageMeeProps,
   ...props
 }: KeyValueEditableProps) {
+  const env = useEnv()[0];
+  const { kvMap } = useKeyValueDB();
+  const { editKey, editDefault } = useMemo(
+    (() => {
+      let editKey = ek;
+      let editDefault = ed;
+      if (env && kvMap && import.meta.env) {
+        if (editEnvKey && !editKey) {
+          editKey = import.meta.env[editEnvKey];
+        }
+        if (editEnvDefault && !editDefault && editKey) {
+          editDefault =
+            kvMap?.get(editKey)?.value || env[editEnvDefault]?.toString();
+        }
+      }
+      return { editKey, editDefault };
+    }) as () => { editKey?: string; editDefault?: string },
+    [env, kvMap, ek, ed, editEnvKey, editEnvDefault]
+  );
+  childrenOutDefault = useMemo(
+    () => childrenOutDefault ?? Boolean(editDefault),
+    [childrenOutDefault, editDefault]
+  );
+  childrenOutParse = useMemo(
+    () => childrenOutParse ?? props.editType === "textarea",
+    [childrenOutParse, props.editType]
+  );
+  children = useMemo(() => {
+    if (!children && childrenOutDefault && editDefault) {
+      switch (props.editType) {
+        case "image":
+          return <ImageMee imageItem={editDefault} {...imageMeeProps} />;
+      }
+    }
+    return children;
+  }, [children, props.editType, childrenOutDefault, editDefault]);
+  let defaultValue: ReactNode = useMemo(
+    () =>
+      replaceValue && editDefault
+        ? editDefault.replace(/^(.*)$/, replaceValue)
+        : editDefault,
+    [editDefault, replaceValue]
+  );
+  defaultValue = useMemo(
+    () =>
+      childrenOutParse ? (
+        <MultiParser>{defaultValue}</MultiParser>
+      ) : (
+        defaultValue
+      ),
+    [defaultValue, childrenOutParse]
+  );
+  let defaultBefore = useMemo(() => {
+    if (childrenOutDefault) {
+      switch (props.editType || "text") {
+        case "text":
+        case "textarea":
+          return defaultValue;
+      }
+    }
+    return null;
+  }, [childrenOutDefault, defaultValue]);
+  let defaultAfter = useMemo(() => {
+    return null;
+  }, [childrenOutDefault, defaultValue]);
+
   const [isLogin] = useIsLogin();
   return (
     <>
+      {defaultBefore}
       {isLogin ? (
-        <KeyValueEditableMain {...props}>{children}</KeyValueEditableMain>
+        <>
+          <KeyValueEditableMain
+            editKey={editKey}
+            editDefault={editDefault}
+            {...props}
+          >
+            {children}
+          </KeyValueEditableMain>
+        </>
       ) : (
         children
       )}
+      {defaultAfter}
     </>
   );
 }
@@ -255,9 +349,9 @@ function KeyValueEditableMain({
   editKey,
   editDefault,
   children = <RiEdit2Fill />,
-  className = "iconSwitch",
+  className = "keyValueEdit",
   ...props
-}: KeyValueEditableProps) {
+}: KeyValueEditableMainProps) {
   const { Set } = useKeyValueEdit();
   const OnClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

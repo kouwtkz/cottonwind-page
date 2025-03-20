@@ -17,87 +17,51 @@ const key_author_description = import.meta.env!
   .VITE_KVDB_KEY_AUTHOR_DESCRIPTION;
 
 export default function AboutPage() {
-  const env = useEnv()[0];
-  const { imagesMap } = useImageState();
-  const { kvMap } = useKeyValueDB();
-  const {
-    name: authorName,
-    image: authorImageName,
-    enName: authorEnName,
-    enProp: authorEnProp,
-    description: authorDescription,
-  } = useMemo(
-    () => ({
-      name: kvMap?.get(key_author_name)?.value || env?.AUTHOR_NAME,
-      enName: kvMap?.get(key_author_name_en)?.value || env?.AUTHOR_EN_NAME,
-      enProp: kvMap?.get(key_author_name_en_prop)?.value || env?.AUTHOR_EN_PROP,
-      image: kvMap?.get(key_author_image)?.value || env?.AUTHOR_IMAGE,
-      description:
-        kvMap?.get(key_author_description)?.value || env?.AUTHOR_DESCRIPTION,
-    }),
-    [env, kvMap]
-  );
-  const authorImage = useMemo(() => {
-    if (authorImageName && imagesMap) return imagesMap.get(authorImageName);
-  }, [imagesMap, authorImageName]);
   return (
     <div className="aboutPage">
       <h1 className="color-main en-title-font">
         <Link to="/about">About</Link>
       </h1>
       <h2 className="color-dark">プロフィール</h2>
-      {env ? (
-        <div className="author">
-          <h3 className="color-main">
-            {authorName}
-            <KeyValueEditable
-              editKey={key_author_name}
-              editDefault={authorName}
-            />
-          </h3>
-          <div className="on-en-prop">
-            <h4 className="color-soft">
-              {authorEnName}
-              <KeyValueEditable
-                editKey={key_author_name_en}
-                editDefault={authorEnName}
-              />
-            </h4>
-            {authorEnProp ? (
-              <p className="color-soft">
-                [{authorEnProp}]
-                <KeyValueEditable
-                  editKey={key_author_name_en_prop}
-                  editDefault={authorEnProp}
-                />
-              </p>
-            ) : null}
-          </div>
+      <div className="author">
+        <h3 className="color-main">
           <KeyValueEditable
-            editKey={key_author_image}
-            editDefault={authorImage?.key}
-            editType="image"
-          >
-            {authorImage ? (
-              <ImageMee
-                className="authorImage"
-                imageItem={authorImage}
-                alt="プロフィール画像"
-              />
-            ) : null}
-          </KeyValueEditable>
-        </div>
-      ) : null}
-      {authorDescription ? (
-        <div className="container">
-          <MultiParser>{authorDescription}</MultiParser>
-          <KeyValueEditable
-            editKey={key_author_description}
-            editDefault={authorDescription}
-            editType="textarea"
+            editEnvKey="VITE_KVDB_KEY_AUTHOR_NAME"
+            editEnvDefault="AUTHOR_NAME"
           />
+        </h3>
+        <div className="on-en-prop">
+          <h4 className="color-soft">
+            <KeyValueEditable
+              editEnvKey="VITE_KVDB_KEY_AUTHOR_NAME_EN"
+              editEnvDefault="AUTHOR_EN_NAME"
+            />
+          </h4>
+          <p className="color-soft">
+            <KeyValueEditable
+              editEnvKey="VITE_KVDB_KEY_AUTHOR_NAME_EN_PROP"
+              editEnvDefault="AUTHOR_EN_PROP"
+              replaceValue="[$1]"
+            />
+          </p>
         </div>
-      ) : null}
+        <KeyValueEditable
+          editEnvKey="VITE_KVDB_KEY_AUTHOR_IMAGE"
+          editEnvDefault="AUTHOR_IMAGE"
+          imageMeeProps={{
+            className: "authorImage",
+            alt: "プロフィール画像",
+          }}
+          editType="image"
+        />
+      </div>
+      <div className="container">
+        <KeyValueEditable
+          editEnvKey="VITE_KVDB_KEY_AUTHOR_DESCRIPTION"
+          editEnvDefault="AUTHOR_DESCRIPTION"
+          editType="textarea"
+        />
+      </div>
       <div className="container">
         <h3 className="color-main" id="guideline">
           <Link to="#guideline">ガイドライン</Link>

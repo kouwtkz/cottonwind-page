@@ -13,6 +13,7 @@ import { resizeImageCanvas } from "@/components/Canvas";
 import { useToastProgress } from "@/state/ToastProgress";
 import { PiFilePng } from "react-icons/pi";
 import { ModeSwitch } from "./edit/CommonSwitch";
+import { useImageState } from "@/state/ImageState";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -30,10 +31,10 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
 
 export const useImageMeeShowPng = CreateState(false);
 
-interface ImageMeeProps
+export interface ImageMeeProps
   extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
   src?: string | null;
-  imageItem?: ImageType;
+  imageItem?: ImageType | string;
   hoverImageItem?: ImageType;
   mode?: ResizeMode;
   size?: number;
@@ -45,7 +46,7 @@ interface ImageMeeProps
   ref?: React.RefObject<HTMLImageElement>;
 }
 export function ImageMee({
-  imageItem,
+  imageItem: _imageItem,
   mode = "simple",
   alt: _alt,
   src: _src,
@@ -66,6 +67,12 @@ export function ImageMee({
   ref,
   ...attributes
 }: ImageMeeProps) {
+  const { imagesMap } = useImageState();
+  const imageItem = useMemo(
+    () =>
+      typeof _imageItem === "string" ? imagesMap?.get(_imageItem) : _imageItem,
+    [_imageItem, imagesMap]
+  );
   const mediaOrigin = useMediaOrigin()[0];
   const versionString = useMemo(() => {
     if (imageItem)
