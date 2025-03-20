@@ -7,11 +7,12 @@ import listPlugin from "@fullcalendar/list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Calendar,
+  DatesSetArg,
   EventClickArg,
   formatDate,
   FormatterInput,
 } from "@fullcalendar/core/index.js";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { EventImpl } from "@fullcalendar/core/internal";
@@ -58,6 +59,7 @@ type Type_VIEW_FC =
   | typeof FC_VIEW_WEEK
   | typeof FC_VIEW_MONTH
   | typeof FC_VIEW_DAY;
+const FC_SP_EVENT_ID = "fc-event-id";
 
 export interface CalendarMeeProps
   extends React.ImgHTMLAttributes<HTMLDivElement> {
@@ -89,20 +91,25 @@ export default function CalendarMee({
     if (className) classNames.push(className);
     return classNames.join();
   }, [className]);
-  const [fullCalendar, setFullCalendar] = useState<CustomFullCalendar | null>(
-    null
+  const [calendar, setCalendar] = useState<Calendar | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const eventViewId = useMemo(
+    () => searchParams.get(FC_SP_EVENT_ID),
+    [searchParams]
   );
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<Type_VIEW_FC | null>();
-  const onChangeHandle = useCallback(() => {
-    if (fullCalendar) {
-      setDate(fullCalendar.calendar.getDate());
-      setView(fullCalendar.calendar.view.type as Type_VIEW_FC);
-    }
-  }, [fullCalendar]);
+  const onChangeHandle = useCallback(
+    (arg: DatesSetArg) => {
+      if (calendar) {
+        setDate(calendar.getDate());
+        setView(calendar.view.type as Type_VIEW_FC);
+      }
+    },
+    [calendar, eventViewId]
+  );
   const settingDate = useRef(true);
   const settingSearchParams = useRef(false);
-  const [searchParams, setSearchParams] = useSearchParams();
   const viewParams = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
     [searchParams, defaultView]
@@ -122,11 +129,11 @@ export default function CalendarMee({
   useEffect(() => {
     if (settingSearchParams.current) {
       settingSearchParams.current = false;
-    } else if (fullCalendar) {
+    } else if (calendar) {
       settingDate.current = true;
       let newDate: Date | undefined;
       if (year || month || day) {
-        const date = fullCalendar.calendar.getDate();
+        const date = calendar.getDate();
         if (year) date.setFullYear(year);
         if (month) date.setMonth(month - 1);
         if (day) date.setDate(day);
@@ -136,11 +143,11 @@ export default function CalendarMee({
       }
       const view = viewParams || defaultView;
       setTimeout(() => {
-        fullCalendar.calendar.gotoDate(newDate);
-        if (view) fullCalendar.calendar.changeView(view);
+        calendar.gotoDate(newDate);
+        if (view) calendar.changeView(view);
       }, 0);
     }
-  }, [fullCalendar, year, month, day, viewParams]);
+  }, [calendar, year, month, day, viewParams]);
   useEffect(() => {
     if (settingDate.current) {
       settingDate.current = false;
@@ -169,7 +176,7 @@ export default function CalendarMee({
   }, [date, view]);
   const DateJumpButtonClick = useCallback(
     (e: MouseEvent) => {
-      if (fullCalendar) {
+      if (calendar) {
         const elm = e.target as HTMLInputElement;
         let c = elm.parentElement!.querySelector(
           "input#dateSelector"
@@ -179,7 +186,7 @@ export default function CalendarMee({
           nc.type = "datetime-local";
           nc.id = "dateSelector";
           nc.onchange = () => {
-            fullCalendar.calendar.gotoDate(new Date(nc.value));
+            calendar.gotoDate(new Date(nc.value));
             nc.remove();
           };
           elm.after(nc as any);
@@ -188,7 +195,7 @@ export default function CalendarMee({
         }
       }
     },
-    [fullCalendar]
+    [calendar]
   );
   const GoogleOptions = useMemo(
     () =>
@@ -213,24 +220,57 @@ export default function CalendarMee({
   if (height !== undefined) style.height = height;
   const EventToDayFunc = useCallback(
     (e: EventClickArg) => {
-      if (fullCalendar && e.event.start) {
+      if (calendar && e.event.start) {
         const localDate = new Date(e.event.start);
-        fullCalendar.calendar.gotoDate(localDate);
-        fullCalendar.calendar.changeView("day");
+        calendar.gotoDate(localDate);
+        calendar.changeView("day");
         (e.jsEvent.target as HTMLElement).blur();
         e.jsEvent.preventDefault();
       }
     },
-    [fullCalendar]
+    [calendar]
   );
-  const [eventView, setEventView] = useState<EventImpl | null>(null);
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const setEventSearchParams = useCallback(
+    (e: EventImpl | null) => {
+      const searchParams = new URLSearchParams(location.search);
+      if (e) {
+        if (e) searchParams.set(FC_SP_EVENT_ID, e.id);
+        setSearchParams(searchParams, {
+          preventScrollReset: true,
+          state: { ...(state || {}), from: location.href },
+        });
+      } else {
+        if (state?.from) nav(-1);
+        else {
+          searchParams.delete(FC_SP_EVENT_ID);
+          setSearchParams(searchParams, {
+            preventScrollReset: true,
+          });
+        }
+      }
+    },
+    [state]
+  );
+  const [eventView, setEventView] = useState<EventImpl | null>();
+  const updateEventView = useCallback(() => {
+    if (calendar) {
+      if (eventViewId) {
+        const event = calendar.getEventById(eventViewId);
+        if (eventView?.id !== event?.id) setEventView(event);
+      } else if (eventView) {
+        setEventView(null);
+      }
+    }
+  }, [calendar, eventViewId, eventView]);
   const eventOpen = useCallback((e: EventClickArg) => {
-    setEventView(e.event);
+    setEventSearchParams(e.event);
     e.jsEvent.preventDefault();
   }, []);
   const EventCloseHandler = useCallback(() => {
-    setEventView(null);
-  }, []);
+    setEventSearchParams(null);
+  }, [state]);
   const EventViewer = useCallback(() => {
     return (
       <>
@@ -238,11 +278,7 @@ export default function CalendarMee({
           <Modal onClose={EventCloseHandler}>
             {eventView.start ? (
               <h4>
-                <a
-                  href={eventView.url}
-                  target="meeGoogleCalendar"
-                  onClick={() => openWindow(eventView.url)}
-                >
+                <a href={eventView.url} target="google-calendar-event">
                   {formatDate(eventView.start, { locale: "ja" })}
                 </a>
               </h4>
@@ -264,8 +300,14 @@ export default function CalendarMee({
       <FullCalendar
         height={height}
         ref={(e: any) => {
-          setFullCalendar(e);
+          const fullCalendar = e as CustomFullCalendar | null;
+          if (fullCalendar) {
+            const calendar = fullCalendar.calendar;
+            setCalendar(calendar);
+            updateEventView();
+          }
         }}
+        lazyFetching
         plugins={[
           googleCalendarPlugin,
           dayGridPlugin,
