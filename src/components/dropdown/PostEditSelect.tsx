@@ -340,6 +340,14 @@ export function PostEditSelectMedia({
       case "link":
         replacePostTextarea({ textarea, setValue, before: "[](", after: ")" });
         break;
+      case "copy":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "[](copy:",
+          after: ")",
+        });
+        break;
     }
   }
   return (
@@ -354,6 +362,7 @@ export function PostEditSelectMedia({
     >
       <MenuItem value="link">リンク</MenuItem>
       <MenuItem value="gallery">ギャラリー</MenuItem>
+      <MenuItem value="copy">コピー可能化</MenuItem>
       {album ? <MenuItem value="upload">アップロード</MenuItem> : null}
       {env?.UPLOAD_SERVICE ? (
         <MenuItem value="external">外部アップロード</MenuItem>
