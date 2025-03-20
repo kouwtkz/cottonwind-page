@@ -3692,6 +3692,12 @@ form.blogEdit {
   .fc-toolbar-title {
     line-height: 1.25em;
   }
+  .fc-day-view .fc-daygrid-day-events {
+    font-size: 1.25em;
+    .fc-event {
+      padding: 0.25em 0.5em;
+    }
+  }
   .topPage & {
     font-size: 1.2rem;
     margin: 2rem auto;

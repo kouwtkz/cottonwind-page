@@ -5,7 +5,11 @@ import allLocales from "@fullcalendar/core/locales-all";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Calendar, FormatterInput } from "@fullcalendar/core/index.js";
+import {
+  Calendar,
+  EventClickArg,
+  FormatterInput,
+} from "@fullcalendar/core/index.js";
 import { useSearchParams } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 
@@ -193,6 +197,19 @@ export default function CalendarMee({
       : `この${view === "week" ? "週" : "期間"}はイベントはありません`;
   }, [isLoading, view]);
   if (height !== undefined) style.height = height;
+  const clickMonthEvent = useCallback(
+    (e: EventClickArg) => {
+      const date = e.event._instance?.range.start;
+      if (fullCalendar && date) {
+        const localDate = new Date(date.toUTCString().replace(/ GMT$/, ""));
+        fullCalendar.calendar.gotoDate(localDate);
+        fullCalendar.calendar.changeView("day");
+        (e.jsEvent.target as HTMLElement).blur();
+        e.jsEvent.preventDefault();
+      }
+    },
+    [fullCalendar]
+  );
 
   if (!google) return <div>Googleカレンダーのプロパティがありません</div>;
   return (
@@ -222,8 +239,12 @@ export default function CalendarMee({
           let title = event._def.title;
           if (title === "undefined") title = "予定あり";
           let titleNode = <div className="fc-event-title">{title}</div>;
-          if (/^list/.test(view.type))
-            titleNode = <a href={event.url}>{titleNode}</a>;
+          switch (view.type as Type_VIEW_FC) {
+            case "agenda":
+            case "week":
+              titleNode = <a href={event.url}>{titleNode}</a>;
+              break;
+          }
           if (timeText) {
             const timeNode = <div className="fc-event-time">{timeText}</div>;
             if (/^\d+\:/.test(timeText))
@@ -287,6 +308,7 @@ export default function CalendarMee({
           },
           [FC_VIEW_MONTH]: {
             type: "dayGridMonth",
+            eventClick: clickMonthEvent,
           },
           listWeek: { titleFormat: weekTitleFormat },
           [FC_VIEW_WEEK]: {
