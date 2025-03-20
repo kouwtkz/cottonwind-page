@@ -3696,6 +3696,12 @@ form.blogEdit {
     font-size: 1.25em;
     .fc-event {
       padding: 0.25em 0.5em;
+      > * {
+        margin-right: 0.5em;
+      }
+      .fc-event-title {
+        margin-left: 0.2em;
+      }
     }
   }
   .topPage & {
