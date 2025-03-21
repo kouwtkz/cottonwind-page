@@ -1,20 +1,7 @@
-import { useMemo } from "react";
-import { ImageMee } from "@/layout/ImageMee";
-import { useEnv } from "@/state/EnvState";
-import { useImageState } from "@/state/ImageState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { Link } from "react-router-dom";
 import { BiGitBranch } from "react-icons/bi";
-import { KeyValueEditable, useKeyValueDB } from "@/state/KeyValueDBState";
-import { MultiParser } from "@/components/parse/MultiParser";
-
-const key_author_name = import.meta.env!.VITE_KVDB_KEY_AUTHOR_NAME;
-const key_author_name_en = import.meta.env!.VITE_KVDB_KEY_AUTHOR_NAME_EN;
-const key_author_name_en_prop = import.meta.env!
-  .VITE_KVDB_KEY_AUTHOR_NAME_EN_PROP;
-const key_author_image = import.meta.env!.VITE_KVDB_KEY_AUTHOR_IMAGE;
-const key_author_description = import.meta.env!
-  .VITE_KVDB_KEY_AUTHOR_DESCRIPTION;
+import { KeyValueEditable } from "@/state/KeyValueDBState";
 
 export default function AboutPage() {
   return (
