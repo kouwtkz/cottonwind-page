@@ -1,4 +1,5 @@
-import CalendarMee, {
+import {
+  CalendarMee,
   CalendarMeeProps,
 } from "@/components/schedule/CalendarMee";
 import { useEnv } from "@/state/EnvState";

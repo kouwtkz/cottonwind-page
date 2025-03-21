@@ -9,6 +9,8 @@ import {
   Calendar,
   DatesSetArg,
   EventClickArg,
+  EventInput,
+  EventSourceInput,
   formatDate,
   FormatDateOptions,
   FormatterInput,
@@ -20,6 +22,7 @@ import { EventImpl } from "@fullcalendar/core/internal";
 import { MultiParser } from "../parse/MultiParser";
 import { RiLink, RiMapPinLine } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
+import { CreateObjectState } from "@/state/CreateState";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -79,7 +82,24 @@ function openWindow(url: string) {
   window.open(url, "google-calendar-event", "width=700,height=600");
 }
 
-export default function CalendarMee({
+interface EventCacheStateProps {
+  eventsMap: Map<string, EventImpl>;
+  setEvents: (events: EventImpl[], overwrite?: boolean) => void;
+}
+const useEventCache = CreateObjectState<EventCacheStateProps>((set) => ({
+  eventsMap: new Map(),
+  setEvents(newEvents, overwrite) {
+    set(({ eventsMap }) => {
+      if (overwrite) eventsMap = new Map();
+      newEvents.forEach((newEvent) => {
+        eventsMap.set(newEvent.id, newEvent);
+      });
+      return { eventsMap };
+    });
+  },
+}));
+
+export function CalendarMee({
   google,
   height,
   style = {},
@@ -96,7 +116,7 @@ export default function CalendarMee({
   }, [className]);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const eventViewId = useMemo(
+  const eventId = useMemo(
     () => searchParams.get(FC_SP_EVENT_ID),
     [searchParams]
   );
@@ -109,7 +129,7 @@ export default function CalendarMee({
         setView(calendar.view.type as Type_VIEW_FC);
       }
     },
-    [calendar, eventViewId]
+    [calendar, eventId]
   );
   const settingDate = useRef(true);
   const settingSearchParams = useRef(false);
@@ -200,21 +220,21 @@ export default function CalendarMee({
     },
     [calendar]
   );
-  const GoogleOptions = useMemo(
-    () =>
-      google
-        ? {
-            googleCalendarApiKey: google.apiKey,
-            eventSources: [
-              {
-                googleCalendarId: google.calendarId,
-              },
-            ],
-          }
-        : null,
-    [google]
-  );
+  const { eventsMap, setEvents: setCachedEvents } = useEventCache();
+  const googleCalendarApiKey = useMemo(() => {
+    if (google) return google.apiKey;
+  }, [google]);
+  const eventSources = useMemo(() => {
+    const eventSources: EventSourceInput[] = [];
+    if (google) {
+      eventSources.push({
+        googleCalendarId: google.calendarId,
+      });
+    }
+    return eventSources;
+  }, [google]);
   const [isLoading, setLoading] = useState(false);
+  const [isLoadedAfter, setIsLoadedAfter] = useState(false);
   const noEventsText = useMemo(() => {
     return isLoading
       ? "読み込み中…"
@@ -256,17 +276,6 @@ export default function CalendarMee({
     },
     [state]
   );
-  const [eventView, setEventView] = useState<EventImpl | null>();
-  const updateEventView = useCallback(() => {
-    if (calendar) {
-      if (eventViewId) {
-        const event = calendar.getEventById(eventViewId);
-        if (eventView?.id !== event?.id) setEventView(event);
-      } else if (eventView) {
-        setEventView(null);
-      }
-    }
-  }, [calendar, eventViewId, eventView]);
   const eventOpen = useCallback((e: EventClickArg) => {
     setEventSearchParams(e.event);
     e.jsEvent.preventDefault();
@@ -275,9 +284,10 @@ export default function CalendarMee({
     setEventSearchParams(null);
   }, [state]);
   const EventViewer = useCallback(() => {
-    const location = eventView?.extendedProps.location;
-    const startDate = eventView?.start;
-    let endDate = eventView?.end;
+    const event = eventId ? eventsMap.get(eventId) : null;
+    const location = event?.extendedProps.location;
+    const startDate = event?.start;
+    let endDate = event?.end;
     const startFormat: FormatDateOptions = {
       locale: defaultLang,
       dateStyle: "long",
@@ -285,8 +295,8 @@ export default function CalendarMee({
     const endFormat: FormatDateOptions = {
       locale: defaultLang,
     };
-    if (eventView) {
-      if (!eventView.allDay) {
+    if (event) {
+      if (!event.allDay) {
         startFormat.timeStyle = "short";
       }
       if (startDate && endDate) {
@@ -301,7 +311,7 @@ export default function CalendarMee({
             endFormat.day = "numeric";
           }
         }
-        if (eventView.allDay) {
+        if (event.allDay) {
           const sameDate = Math.floor(
             (endDate.getTime() - startDate.getTime()) / 86400000
           );
@@ -319,13 +329,13 @@ export default function CalendarMee({
     }
     return (
       <>
-        {eventView ? (
+        {event ? (
           <Modal onClose={EventCloseHandler}>
             {startDate ? (
               <h4>
                 <a
                   className="time"
-                  href={eventView.url}
+                  href={event.url}
                   target="google-calendar-event"
                 >
                   <span className="start">
@@ -342,7 +352,7 @@ export default function CalendarMee({
                 </a>
               </h4>
             ) : null}
-            <h3>{eventView.title}</h3>
+            <h3>{event.title}</h3>
             {location ? (
               <div>
                 {/^http.?:\/\//.test(location) ? (
@@ -363,13 +373,13 @@ export default function CalendarMee({
               </div>
             ) : null}
             <div>
-              <MultiParser>{eventView.extendedProps.description}</MultiParser>
+              <MultiParser>{event.extendedProps.description}</MultiParser>
             </div>
           </Modal>
         ) : null}
       </>
     );
-  }, [eventView]);
+  }, [eventId, eventsMap]);
 
   if (!google) return <div>Googleカレンダーのプロパティがありません</div>;
   return (
@@ -382,7 +392,10 @@ export default function CalendarMee({
           if (fullCalendar) {
             const calendar = fullCalendar.calendar;
             setCalendar(calendar);
-            updateEventView();
+            if (isLoadedAfter) {
+              setCachedEvents(calendar.getEvents());
+              setIsLoadedAfter(false);
+            }
           }
         }}
         lazyFetching
@@ -393,7 +406,7 @@ export default function CalendarMee({
           listPlugin,
         ]}
         locales={allLocales}
-        {...GoogleOptions}
+        {...{ googleCalendarApiKey, eventSources }}
         initialView="dayGridMonth"
         locale={"ja"}
         dayCellContent={(e) => e.dayNumberText.replace("日", "")}
@@ -480,6 +493,7 @@ export default function CalendarMee({
         }}
         loading={(v) => {
           setLoading(v);
+          if (!v) setIsLoadedAfter(true);
         }}
         noEventsText={noEventsText}
       />
