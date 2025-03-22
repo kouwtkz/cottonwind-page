@@ -2724,6 +2724,12 @@ label,
     }
   }
   @extend .modal-background;
+  &.enter {
+    animation: FadeInAnim linear forwards;
+  }
+  &.exit {
+    animation: FadeOutAnim linear forwards;
+  }
 }
 
 #image_viewer {

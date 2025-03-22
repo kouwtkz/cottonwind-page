@@ -84,16 +84,20 @@ function openWindow(url: string) {
 
 interface EventCacheStateProps {
   eventId: string | null;
+  isOpenEvent: boolean;
   eventsMap: Map<string, EventImpl>;
+  stateLock: boolean;
   setEvents: (events: EventImpl[], overwrite?: boolean) => void;
   google?: GoogleCalendarOptionsType;
 }
 const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
   eventId: null,
+  isOpenEvent: false,
   eventsMap: new Map(),
+  stateLock: false,
   setEvents(newEvents, overwrite) {
     set(({ eventsMap }) => {
-      if (overwrite) eventsMap = new Map();
+      if (overwrite || eventsMap.size === 0) eventsMap = new Map();
       newEvents.forEach((newEvent) => {
         eventsMap.set(newEvent.id, newEvent);
       });
@@ -273,7 +277,7 @@ export function CalendarMee({
     [calendar]
   );
   const eventOpen = useCallback((e: EventClickArg) => {
-    Set({ eventId: e.event.id });
+    Set({ eventId: e.event.id, isOpenEvent: Boolean(e.event.id) });
     e.jsEvent.preventDefault();
   }, []);
   return (
@@ -396,8 +400,27 @@ export function CalendarMee({
 }
 
 export function CalendarMeeEventViewer() {
-  const { Set, eventsMap, eventId } = useCalendarMee();
-  const event = eventId ? eventsMap.get(eventId) : null;
+  const {
+    Set,
+    eventsMap,
+    eventId: stateEventId,
+    isOpenEvent,
+  } = useCalendarMee();
+  const keepId = useRef<string | null>(null);
+  const eventId = useMemo(() => {
+    if (stateEventId && isOpenEvent) {
+      keepId.current = stateEventId;
+    } else if (keepId.current) {
+      const id = keepId.current;
+      keepId.current = null;
+      return id;
+    }
+    return stateEventId;
+  }, [stateEventId, isOpenEvent]);
+  const event = useMemo(
+    () => (eventId ? eventsMap.get(eventId) : null),
+    [eventId, eventsMap]
+  );
   const location = event?.extendedProps.location;
   const startDate = event?.start;
   let endDate = event?.end;
@@ -440,6 +463,11 @@ export function CalendarMeeEventViewer() {
       }
     }
   }
+  const ModalCloseHandler = useCallback(() => {
+    Set({ isOpenEvent: false });
+    keepId.current = null;
+  }, []);
+
   const EventCloseHandler = useCallback(() => {
     Set({ eventId: null });
   }, []);
@@ -451,62 +479,64 @@ export function CalendarMeeEventViewer() {
   }, [event, eventId]);
   return (
     <>
-      {eventId ? (
-        <div className="fc">
-          <Modal onClose={EventCloseHandler}>
-            {event ? (
-              <>
-                {startDate ? (
-                  <h4>
-                    <a
-                      className="time"
-                      href={event.url}
-                      target="google-calendar-event"
-                    >
-                      <span className="start">
-                        {formatDate(startDate, startFormat)}
+      <Modal
+        classNameEntire="fc"
+        onClose={ModalCloseHandler}
+        onExited={EventCloseHandler}
+        isOpen={isOpenEvent}
+        timeout={60}
+      >
+        {event ? (
+          <>
+            {startDate ? (
+              <h4>
+                <a
+                  className="time"
+                  href={event.url}
+                  target="google-calendar-event"
+                >
+                  <span className="start">
+                    {formatDate(startDate, startFormat)}
+                  </span>
+                  {endDate ? (
+                    <>
+                      <span className="during">-</span>
+                      <span className="end">
+                        {formatDate(endDate, endFormat)}
                       </span>
-                      {endDate ? (
-                        <>
-                          <span className="during">-</span>
-                          <span className="end">
-                            {formatDate(endDate, endFormat)}
-                          </span>
-                        </>
-                      ) : null}
-                    </a>
-                  </h4>
-                ) : null}
-                <h3>{event.title}</h3>
-                {location ? (
-                  <div>
-                    {/^http.?:\/\//.test(location) ? (
-                      <a href={location} target="_blank" title={location}>
-                        <RiLink className="mr-1" />
-                        <span>{location}</span>
-                      </a>
-                    ) : (
-                      <a
-                        href={`https://www.google.com/maps/search/${location}`}
-                        target="_blank"
-                        title={location}
-                      >
-                        <RiMapPinLine className="mr-1" />
-                        <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
-                      </a>
-                    )}
-                  </div>
-                ) : null}
-                <div>
-                  <MultiParser>{event.extendedProps.description}</MultiParser>
-                </div>
-              </>
-            ) : (
-              <div>読み込み中…</div>
-            )}
-          </Modal>
-        </div>
-      ) : null}
+                    </>
+                  ) : null}
+                </a>
+              </h4>
+            ) : null}
+            <h3>{event.title}</h3>
+            {location ? (
+              <div>
+                {/^http.?:\/\//.test(location) ? (
+                  <a href={location} target="_blank" title={location}>
+                    <RiLink className="mr-1" />
+                    <span>{location}</span>
+                  </a>
+                ) : (
+                  <a
+                    href={`https://www.google.com/maps/search/${location}`}
+                    target="_blank"
+                    title={location}
+                  >
+                    <RiMapPinLine className="mr-1" />
+                    <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
+                  </a>
+                )}
+              </div>
+            ) : null}
+            <div>
+              <MultiParser>{event.extendedProps.description}</MultiParser>
+            </div>
+          </>
+        ) : (
+          <div>読み込み中…</div>
+        )}
+      </Modal>
       <BackgroundCalenderMee />
     </>
   );
@@ -519,7 +549,7 @@ export function CalendarMeeState() {
     [searchParams]
   );
   const env = useEnv()[0];
-  const { eventId, Set } = useCalendarMee();
+  const { eventId, Set, stateLock } = useCalendarMee();
   useEffect(() => {
     if (env && env.GOOGLE_CALENDAR_API && env.GOOGLE_CALENDAR_ID) {
       Set({
@@ -556,7 +586,9 @@ export function CalendarMeeState() {
     [state]
   );
 
-  const [stateLock, setStateLock] = useState(false);
+  const setStateLock = useCallback((value: boolean) => {
+    Set({ stateLock: value });
+  }, []);
   const beforeEventId = useRef(eventId);
   const beforeEventIdParam = useRef<string | null>(null);
   useEffect(() => {
@@ -567,7 +599,7 @@ export function CalendarMeeState() {
         setEventSearchParams(eventId);
         setStateLock(true);
       } else if (beforeEventIdParam.current !== eventIdParam) {
-        Set({ eventId: eventIdParam });
+        Set({ eventId: eventIdParam, isOpenEvent: Boolean(eventIdParam) });
         setStateLock(true);
       }
     }
