@@ -115,7 +115,7 @@ export function CalendarMee({
   className = useMemo(() => {
     const classNames: string[] = ["fc"];
     if (className) classNames.push(className);
-    return classNames.join();
+    return classNames.join(" ");
   }, [className]);
   const { Set, eventId, setEvents: setCachedEvents, google } = useCalendarMee();
   const setUsedCalenderMee = usedCalendarMee()[1];
@@ -433,7 +433,7 @@ export function CalendarMeeEventViewer() {
   const BackgroundCalenderMee = useCallback(() => {
     return (
       <>
-        {eventId && !event ? <CalendarMee style={{ display: "none" }} /> : null}
+        {eventId && !event ? <CalendarMee className="background" /> : null}
       </>
     );
   }, [event, eventId]);
