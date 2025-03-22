@@ -127,8 +127,16 @@ export function CalendarMee({
   }, []);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [date, setDate] = useState(new Date());
-  const [view, setView] = useState<Type_VIEW_FC | null>();
+  const viewParams = useMemo(
+    () => searchParams.get(FC_SP_VIEW) || defaultView,
+    [searchParams, defaultView]
+  );
+  const callbackView = useCallback(
+    () => (viewParams || defaultView) as Type_VIEW_FC,
+    [viewParams, defaultView]
+  );
+  const initialView = useMemo(() => callbackView(), []);
+  const [view, setView] = useState<Type_VIEW_FC | null>(initialView);
   const onChangeHandle = useCallback(
     (arg: DatesSetArg) => {
       if (calendar) {
@@ -140,10 +148,6 @@ export function CalendarMee({
   );
   const settingDate = useRef(true);
   const settingSearchParams = useRef(false);
-  const viewParams = useMemo(
-    () => searchParams.get(FC_SP_VIEW) || defaultView,
-    [searchParams, defaultView]
-  );
   const year = useMemo(
     () => strToNumWithNull(searchParams.get(FC_SP_YEAR)),
     [searchParams]
@@ -156,33 +160,41 @@ export function CalendarMee({
     () => strToNumWithNull(searchParams.get(FC_SP_DAY)),
     [searchParams]
   );
+  const callbackNewDate = useCallback(
+    (date = new Date()) => {
+      const newDate = new Date(date);
+      if (year) newDate.setFullYear(year);
+      if (month) newDate.setMonth(month - 1);
+      if (day) newDate.setDate(day);
+      return newDate;
+    },
+    [year, month, day]
+  );
+  const initialDate = useMemo(() => callbackNewDate(), []);
+  const [date, setDate] = useState(initialDate);
   useEffect(() => {
     if (settingSearchParams.current) {
       settingSearchParams.current = false;
     } else if (calendar) {
-      settingDate.current = true;
-      let newDate: Date | undefined;
-      if (year || month || day) {
-        const date = calendar.getDate();
-        if (year) date.setFullYear(year);
-        if (month) date.setMonth(month - 1);
-        if (day) date.setDate(day);
-        newDate = date;
-      } else {
-        newDate = new Date();
+      let newDate: Date | undefined | null;
+      const date = calendar.getDate();
+      newDate = callbackNewDate(date);
+      if (newDate.getTime() === date.getTime()) newDate = null;
+      let view: string | null = callbackView();
+      if (view === calendar.view.type) view = null;
+      if (newDate || view) {
+        settingDate.current = true;
+        setTimeout(() => {
+          if (newDate) calendar.gotoDate(newDate);
+          if (view) calendar.changeView(view);
+        }, 0);
       }
-      const view = viewParams || defaultView;
-      setTimeout(() => {
-        calendar.gotoDate(newDate);
-        if (view) calendar.changeView(view);
-      }, 0);
     }
-  }, [calendar, year, month, day, viewParams]);
+  }, [calendar, callbackNewDate, callbackView]);
   useEffect(() => {
     if (settingDate.current) {
       settingDate.current = false;
     } else {
-      settingSearchParams.current = true;
       const beforeSearch = location.search;
       const searchParams = new URLSearchParams(beforeSearch);
       const dateDiff = Math.abs(new Date().getTime() - date.getTime());
@@ -200,6 +212,7 @@ export function CalendarMee({
       const afterSearch =
         (searchParams.size ? "?" : "") + searchParams.toString();
       if (beforeSearch !== afterSearch) {
+        settingSearchParams.current = true;
         setSearchParams(searchParams, { preventScrollReset: true });
       }
     }
@@ -287,8 +300,6 @@ export function CalendarMee({
         ]}
         locales={allLocales}
         {...{ googleCalendarApiKey, eventSources }}
-        initialView="dayGridMonth"
-        locale={"ja"}
         dayCellContent={(e) => e.dayNumberText.replace("日", "")}
         dayMaxEvents={true}
         businessHours={true}
@@ -335,6 +346,9 @@ export function CalendarMee({
         moreLinkClick={(args) => {
           args.jsEvent.preventDefault();
         }}
+        initialDate={initialDate}
+        initialView={initialView}
+        locale={defaultLang}
         eventClick={eventOpen}
         buttonText={{
           today: "現在",
@@ -432,9 +446,7 @@ export function CalendarMeeEventViewer() {
 
   const BackgroundCalenderMee = useCallback(() => {
     return (
-      <>
-        {eventId && !event ? <CalendarMee className="background" /> : null}
-      </>
+      <>{eventId && !event ? <CalendarMee className="background" /> : null}</>
     );
   }, [event, eventId]);
   return (
