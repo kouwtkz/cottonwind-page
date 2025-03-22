@@ -20,10 +20,11 @@ import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { EventImpl } from "@fullcalendar/core/internal";
 import { MultiParserWithMedia as MultiParser } from "../parse/MultiParserWithMedia";
-import { RiLink, RiMapPinLine } from "react-icons/ri";
+import { RiFileCopyLine, RiLink, RiMapPinLine } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
 import { CreateObjectState, CreateState } from "@/state/CreateState";
-import { useEnv } from "@/state/EnvState";
+import { useEnv, useIsLogin } from "@/state/EnvState";
+import { CopyWithToast } from "@/functions/toastFunction";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -97,7 +98,7 @@ const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
   stateLock: false,
   setEvents(newEvents, overwrite) {
     set(({ eventsMap }) => {
-      if (overwrite || eventsMap.size === 0) eventsMap = new Map();
+      if (overwrite) eventsMap = new Map();
       newEvents.forEach((newEvent) => {
         eventsMap.set(newEvent.id, newEvent);
       });
@@ -417,10 +418,8 @@ export function CalendarMeeEventViewer() {
     }
     return stateEventId;
   }, [stateEventId, isOpenEvent]);
-  const event = useMemo(
-    () => (eventId ? eventsMap.get(eventId) : null),
-    [eventId, eventsMap]
-  );
+  const event = eventId ? eventsMap.get(eventId) : null;
+  const isLogin = useIsLogin()[0];
   const location = event?.extendedProps.location;
   const startDate = event?.start;
   let endDate = event?.end;
@@ -477,6 +476,22 @@ export function CalendarMeeEventViewer() {
       <>{eventId && !event ? <CalendarMee className="background" /> : null}</>
     );
   }, [event, eventId]);
+  const copyAction = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (eventId) {
+        const searchParams = new URLSearchParams();
+        searchParams.set(FC_SP_EVENT_ID, eventId);
+        if (startDate) {
+          searchParams.set(FC_SP_YEAR, startDate.getFullYear().toString());
+          searchParams.set(FC_SP_MONTH, (startDate.getMonth() + 1).toString());
+          searchParams.set(FC_SP_DAY, startDate.getDate().toString());
+        }
+        searchParams.set(FC_SP_VIEW, FC_VIEW_DAY);
+        CopyWithToast(`[](??${searchParams})`);
+      }
+    },
+    [eventId, startDate]
+  );
   return (
     <>
       <Modal
@@ -509,7 +524,18 @@ export function CalendarMeeEventViewer() {
                 </a>
               </h4>
             ) : null}
-            <h3>{event.title}</h3>
+            <div className="title">
+              <h3>{event.title}</h3>
+              {isLogin ? (
+                <button
+                  title="ブログ用にコピーする"
+                  type="button"
+                  onClick={copyAction}
+                >
+                  <RiFileCopyLine />
+                </button>
+              ) : null}
+            </div>
             {location ? (
               <div>
                 {/^http.?:\/\//.test(location) ? (

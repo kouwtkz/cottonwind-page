@@ -3725,9 +3725,28 @@ form.blogEdit {
   .modal {
     h3 {
       margin: 1em;
+      line-height: 1.2em;
+    }
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      button {
+        color: var(--main-color);
+        background-color: transparent;
+        margin-right: 0.5em;
+        &:hover {
+          color: var(--main-color-dark);
+        }
+        svg {
+          width: 2em;
+          height: 2em;
+          margin: 0.5em;
+        }
+      }
     }
     h4 {
-      margin: 1em;
+      margin: 1em 1em 0;
     }
     a {
       display: inline-flex;
@@ -3745,7 +3764,7 @@ form.blogEdit {
     }
     @media (max-width: #{$tabletWidth - 1}) {
       h3 {
-        margin: 1em 0.2em;
+        margin: 0.8em 0.2em;
       }
     }
   }
