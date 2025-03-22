@@ -17,6 +17,7 @@ import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
 import { KeyValueDBState } from "./KeyValueDBState";
+import { CalendarMeeState } from "@/components/schedule/CalendarMee";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -41,6 +42,7 @@ export function StateSet() {
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />
       <HomeImageState />
+      <CalendarMeeState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />

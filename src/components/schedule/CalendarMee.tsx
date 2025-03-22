@@ -19,10 +19,11 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { EventImpl } from "@fullcalendar/core/internal";
-import { MultiParser } from "../parse/MultiParser";
+import { MultiParserWithMedia as MultiParser } from "../parse/MultiParserWithMedia";
 import { RiLink, RiMapPinLine } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@/state/CreateState";
+import { useEnv } from "@/state/EnvState";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -69,7 +70,6 @@ const FC_SP_EVENT_ID = "fc-event-id";
 
 export interface CalendarMeeProps
   extends React.ImgHTMLAttributes<HTMLDivElement> {
-  google?: GoogleCalendarOptionsType;
   events?: eventsItemType[];
   width?: number;
   height?: number;
@@ -83,10 +83,13 @@ function openWindow(url: string) {
 }
 
 interface EventCacheStateProps {
+  eventId: string | null;
   eventsMap: Map<string, EventImpl>;
   setEvents: (events: EventImpl[], overwrite?: boolean) => void;
+  google?: GoogleCalendarOptionsType;
 }
-const useEventCache = CreateObjectState<EventCacheStateProps>((set) => ({
+const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
+  eventId: null,
   eventsMap: new Map(),
   setEvents(newEvents, overwrite) {
     set(({ eventsMap }) => {
@@ -99,8 +102,8 @@ const useEventCache = CreateObjectState<EventCacheStateProps>((set) => ({
   },
 }));
 
+export const usedCalendarMee = CreateState(false);
 export function CalendarMee({
-  google,
   height,
   style = {},
   defaultView = FC_VIEW_MONTH,
@@ -114,12 +117,16 @@ export function CalendarMee({
     if (className) classNames.push(className);
     return classNames.join();
   }, [className]);
+  const { Set, eventId, setEvents: setCachedEvents, google } = useCalendarMee();
+  const setUsedCalenderMee = usedCalendarMee()[1];
+  useEffect(() => {
+    setUsedCalenderMee(true);
+    return () => {
+      setUsedCalenderMee(false);
+    };
+  }, []);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const eventId = useMemo(
-    () => searchParams.get(FC_SP_EVENT_ID),
-    [searchParams]
-  );
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<Type_VIEW_FC | null>();
   const onChangeHandle = useCallback(
@@ -220,7 +227,6 @@ export function CalendarMee({
     },
     [calendar]
   );
-  const { eventsMap, setEvents: setCachedEvents } = useEventCache();
   const googleCalendarApiKey = useMemo(() => {
     if (google) return google.apiKey;
   }, [google]);
@@ -253,138 +259,12 @@ export function CalendarMee({
     },
     [calendar]
   );
-  const { state } = useLocation();
-  const nav = useNavigate();
-  const setEventSearchParams = useCallback(
-    (e: EventImpl | null) => {
-      const searchParams = new URLSearchParams(location.search);
-      if (e) {
-        if (e) searchParams.set(FC_SP_EVENT_ID, e.id);
-        setSearchParams(searchParams, {
-          preventScrollReset: true,
-          state: { ...(state || {}), from: location.href },
-        });
-      } else {
-        if (state?.from) nav(-1);
-        else {
-          searchParams.delete(FC_SP_EVENT_ID);
-          setSearchParams(searchParams, {
-            preventScrollReset: true,
-          });
-        }
-      }
-    },
-    [state]
-  );
   const eventOpen = useCallback((e: EventClickArg) => {
-    setEventSearchParams(e.event);
+    Set({ eventId: e.event.id });
     e.jsEvent.preventDefault();
   }, []);
-  const EventCloseHandler = useCallback(() => {
-    setEventSearchParams(null);
-  }, [state]);
-  const EventViewer = useCallback(() => {
-    const event = eventId ? eventsMap.get(eventId) : null;
-    const location = event?.extendedProps.location;
-    const startDate = event?.start;
-    let endDate = event?.end;
-    const startFormat: FormatDateOptions = {
-      locale: defaultLang,
-      dateStyle: "long",
-    };
-    const endFormat: FormatDateOptions = {
-      locale: defaultLang,
-    };
-    if (event) {
-      if (!event.allDay) {
-        startFormat.timeStyle = "short";
-      }
-      if (startDate && endDate) {
-        function setEndDateFormat() {
-          if (startDate!.getFullYear() !== endDate!.getFullYear()) {
-            endFormat.year = "numeric";
-          }
-          if (startDate!.getMonth() !== endDate!.getMonth()) {
-            endFormat.month = "long";
-          }
-          if (startDate!.getDate() !== endDate!.getDate()) {
-            endFormat.day = "numeric";
-          }
-        }
-        if (event.allDay) {
-          const sameDate = Math.floor(
-            (endDate.getTime() - startDate.getTime()) / 86400000
-          );
-          if (sameDate < 2) {
-            endDate = null;
-          } else {
-            setEndDateFormat();
-          }
-        } else {
-          setEndDateFormat();
-          endFormat.minute = "numeric";
-          endFormat.hour = "numeric";
-        }
-      }
-    }
-    return (
-      <>
-        {event ? (
-          <Modal onClose={EventCloseHandler}>
-            {startDate ? (
-              <h4>
-                <a
-                  className="time"
-                  href={event.url}
-                  target="google-calendar-event"
-                >
-                  <span className="start">
-                    {formatDate(startDate, startFormat)}
-                  </span>
-                  {endDate ? (
-                    <>
-                      <span className="during">-</span>
-                      <span className="end">
-                        {formatDate(endDate, endFormat)}
-                      </span>
-                    </>
-                  ) : null}
-                </a>
-              </h4>
-            ) : null}
-            <h3>{event.title}</h3>
-            {location ? (
-              <div>
-                {/^http.?:\/\//.test(location) ? (
-                  <a href={location} target="_blank" title={location}>
-                    <RiLink className="mr-1" />
-                    <span>{location}</span>
-                  </a>
-                ) : (
-                  <a
-                    href={`https://www.google.com/maps/search/${location}`}
-                    target="_blank"
-                    title={location}
-                  >
-                    <RiMapPinLine className="mr-1" />
-                    <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
-                  </a>
-                )}
-              </div>
-            ) : null}
-            <div>
-              <MultiParser>{event.extendedProps.description}</MultiParser>
-            </div>
-          </Modal>
-        ) : null}
-      </>
-    );
-  }, [eventId, eventsMap]);
-
-  if (!google) return <div>Googleカレンダーのプロパティがありません</div>;
   return (
     <div {...{ ...args, style, className }}>
-      <EventViewer />
       <FullCalendar
         height={height}
         ref={(e: any) => {
@@ -499,4 +379,189 @@ export function CalendarMee({
       />
     </div>
   );
+}
+
+export function CalendarMeeEventViewer() {
+  const { Set, eventsMap, eventId } = useCalendarMee();
+  const event = eventId ? eventsMap.get(eventId) : null;
+  const location = event?.extendedProps.location;
+  const startDate = event?.start;
+  let endDate = event?.end;
+  const startFormat: FormatDateOptions = {
+    locale: defaultLang,
+    dateStyle: "long",
+  };
+  const endFormat: FormatDateOptions = {
+    locale: defaultLang,
+  };
+  if (event) {
+    if (!event.allDay) {
+      startFormat.timeStyle = "short";
+    }
+    if (startDate && endDate) {
+      function setEndDateFormat() {
+        if (startDate!.getFullYear() !== endDate!.getFullYear()) {
+          endFormat.year = "numeric";
+        }
+        if (startDate!.getMonth() !== endDate!.getMonth()) {
+          endFormat.month = "long";
+        }
+        if (startDate!.getDate() !== endDate!.getDate()) {
+          endFormat.day = "numeric";
+        }
+      }
+      if (event.allDay) {
+        const sameDate = Math.floor(
+          (endDate.getTime() - startDate.getTime()) / 86400000
+        );
+        if (sameDate < 2) {
+          endDate = null;
+        } else {
+          setEndDateFormat();
+        }
+      } else {
+        setEndDateFormat();
+        endFormat.minute = "numeric";
+        endFormat.hour = "numeric";
+      }
+    }
+  }
+  const EventCloseHandler = useCallback(() => {
+    Set({ eventId: null });
+  }, []);
+
+  const BackgroundCalenderMee = useCallback(() => {
+    return (
+      <>
+        {eventId && !event ? <CalendarMee style={{ display: "none" }} /> : null}
+      </>
+    );
+  }, [event, eventId]);
+  return (
+    <>
+      {eventId ? (
+        <div className="fc">
+          <Modal onClose={EventCloseHandler}>
+            {event ? (
+              <>
+                {startDate ? (
+                  <h4>
+                    <a
+                      className="time"
+                      href={event.url}
+                      target="google-calendar-event"
+                    >
+                      <span className="start">
+                        {formatDate(startDate, startFormat)}
+                      </span>
+                      {endDate ? (
+                        <>
+                          <span className="during">-</span>
+                          <span className="end">
+                            {formatDate(endDate, endFormat)}
+                          </span>
+                        </>
+                      ) : null}
+                    </a>
+                  </h4>
+                ) : null}
+                <h3>{event.title}</h3>
+                {location ? (
+                  <div>
+                    {/^http.?:\/\//.test(location) ? (
+                      <a href={location} target="_blank" title={location}>
+                        <RiLink className="mr-1" />
+                        <span>{location}</span>
+                      </a>
+                    ) : (
+                      <a
+                        href={`https://www.google.com/maps/search/${location}`}
+                        target="_blank"
+                        title={location}
+                      >
+                        <RiMapPinLine className="mr-1" />
+                        <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
+                      </a>
+                    )}
+                  </div>
+                ) : null}
+                <div>
+                  <MultiParser>{event.extendedProps.description}</MultiParser>
+                </div>
+              </>
+            ) : (
+              <div>読み込み中…</div>
+            )}
+          </Modal>
+        </div>
+      ) : null}
+      <BackgroundCalenderMee />
+    </>
+  );
+}
+
+export function CalendarMeeState() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const eventIdParam = useMemo(
+    () => searchParams.get(FC_SP_EVENT_ID),
+    [searchParams]
+  );
+  const env = useEnv()[0];
+  const { eventId, Set } = useCalendarMee();
+  useEffect(() => {
+    if (env && env.GOOGLE_CALENDAR_API && env.GOOGLE_CALENDAR_ID) {
+      Set({
+        google: {
+          apiKey: env.GOOGLE_CALENDAR_API,
+          calendarId: env.GOOGLE_CALENDAR_ID,
+        },
+      });
+    }
+  }, [env]);
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const setEventSearchParams = useCallback(
+    (id: string | null) => {
+      const searchParams = new URLSearchParams(location.search);
+      if (id) {
+        if (searchParams.get(FC_SP_EVENT_ID) !== id) {
+          searchParams.set(FC_SP_EVENT_ID, id);
+          setSearchParams(searchParams, {
+            preventScrollReset: true,
+            state: { ...(state || {}), from: location.href },
+          });
+        }
+      } else {
+        if (state?.from) nav(-1);
+        else {
+          searchParams.delete(FC_SP_EVENT_ID);
+          setSearchParams(searchParams, {
+            preventScrollReset: true,
+          });
+        }
+      }
+    },
+    [state]
+  );
+
+  const [stateLock, setStateLock] = useState(false);
+  const beforeEventId = useRef(eventId);
+  const beforeEventIdParam = useRef<string | null>(null);
+  useEffect(() => {
+    if (stateLock) {
+      setStateLock(false);
+    } else {
+      if (beforeEventId.current !== eventId) {
+        setEventSearchParams(eventId);
+        setStateLock(true);
+      } else if (beforeEventIdParam.current !== eventIdParam) {
+        Set({ eventId: eventIdParam });
+        setStateLock(true);
+      }
+    }
+    beforeEventId.current = eventId;
+    beforeEventIdParam.current = eventIdParam;
+  }, [stateLock, eventId, eventIdParam]);
+
+  return <CalendarMeeEventViewer />;
 }
