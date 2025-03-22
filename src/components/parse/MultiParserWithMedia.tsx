@@ -74,5 +74,6 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   return MultiParser({
     ...args,
     replaceFunction: MultiParserReplace,
+    preventScrollResetSearches: ["fc-event-id"],
   });
 }

@@ -32,6 +32,7 @@ export interface MultiParserProps
   children?: React.ReactNode;
   parsedClassName?: string;
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
+  preventScrollResetSearches?: string[];
 }
 
 export interface MultiParserReplaceProps {
@@ -39,6 +40,8 @@ export interface MultiParserReplaceProps {
   a: ChildNode[];
   n: ChildNode;
 }
+
+const searchParamsRelative = "search-params-relative";
 
 export function MultiParser({
   markdown = true,
@@ -59,6 +62,7 @@ export function MultiParser({
   library,
   transform,
   replaceFunction,
+  preventScrollResetSearches,
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
@@ -143,7 +147,7 @@ export function MultiParser({
                   break;
                 case "a":
                   if (linkPush) {
-                    const url = v.attribs.href;
+                    let url = v.attribs.href;
                     if (/^\w+:\/\//.test(url)) {
                       v.attribs.target = "_blank";
                       if (v.childNodes.some((node) => node.type === "text"))
@@ -152,6 +156,29 @@ export function MultiParser({
                           "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
                       const baseHref = location.href;
+                      const doubleQuestion = url.startsWith("??");
+                      let searchParams: URLSearchParams | undefined;
+                      if (url.startsWith("?")) {
+                        searchParams = new URLSearchParams(
+                          doubleQuestion ? url.slice(1) : url
+                        );
+                      }
+                      if (searchParams) {
+                        let isRelative = doubleQuestion;
+                        if (searchParams.has(searchParamsRelative)) {
+                          searchParams.delete(searchParamsRelative);
+                          isRelative = true;
+                        }
+                        if (isRelative) {
+                          const BaseUrl = new URL(baseHref);
+                          searchParams.forEach((v, k) => {
+                            if (!BaseUrl.searchParams.has(k))
+                              BaseUrl.searchParams.set(k, v);
+                          });
+                          url = BaseUrl.search;
+                          v.attribs.href = url;
+                        }
+                      }
                       const Url = new URL(url, baseHref);
                       let preventScrollReset = Url.searchParams.has(
                         "prevent-scroll-reset"
@@ -160,7 +187,11 @@ export function MultiParser({
                         Url.searchParams.delete("prevent-scroll-reset");
                       } else {
                         preventScrollReset =
-                          Url.searchParams.has("modal") ||
+                          (url.startsWith("?") &&
+                            (Url.searchParams.has("modal") ||
+                              preventScrollResetSearches?.some((v) =>
+                                Url.searchParams.has(v)
+                              ))) ||
                           Boolean(Url.hash) ||
                           "prevent-scroll-reset" in v.attribs;
                       }
@@ -234,6 +265,7 @@ export function MultiParser({
     linkPush,
     detailsOpen,
     detailsClosable,
+    preventScrollResetSearches,
   ]);
   parsedChildren = useMemo(() => {
     function setBodyInner(node: React.ReactNode) {
