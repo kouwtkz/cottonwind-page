@@ -395,17 +395,24 @@ export function ImageViewer() {
     }
   });
 
+  const imageSParam = useMemo(() => searchParams.get("image"), [searchParams]);
+  const albumSParam = useMemo(() => searchParams.get("album"), [searchParams]);
+  const groupSParam = useMemo(
+    () => searchParams.get("group") ?? albumSParam,
+    [searchParams, albumSParam]
+  );
   useEffect(() => {
-    const imageParam = searchParams.get("image");
-    if (imageParam) {
-      const albumParam = searchParams?.get("album");
-      const groupParam = searchParams?.get("group") ?? albumParam;
-      setImageViewer({ imageParam, albumParam, groupParam });
+    if (imageSParam) {
+      setImageViewer({
+        imageParam: imageSParam,
+        albumParam: albumSParam,
+        groupParam: groupSParam,
+      });
       setOpen();
     } else {
       setClose();
     }
-  }, [searchParams]);
+  }, [imageSParam, albumSParam, groupSParam]);
 
   const { items, yfList } = useGalleryObject();
   const galleryItemIndex = useMemo(
