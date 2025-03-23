@@ -9,71 +9,104 @@
 
 // color
 :root {
-  --main-color: #bed440;
-  --main-color-highlight: #d1de43;
-  --main-color-soft: #ccdb74;
-  --main-color-pale: #dfec98;
-  --main-color-fluo: #c5d85840;
-  --main-color-pale-fluo: #dfec9840;
-  --main-color-strong: #aec52f;
-  --main-color-deep: #9fb427;
-  --main-color-dark: #8c9f20;
-  --main-color-text: #31332b;
-  --main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
-  --main-color-dark-grayish: #525348;
-  --main-color-grayish: #6d6e5e;
-  --main-color-light-grayish: #a9a99f;
-  --main-color-pale-grayish: #bbbcaf;
-  --sub-color: #b99f72;
-  --sub-color-soft: #d8bb8a;
-  --sub-color-strong: #96815c;
-  --text-color: #27231d;
-  --dark-text-color: white;
-  --background-color: #fdfde4;
-  --play-background-color: #ecfffe;
-  --dark-background-color: hsl(80, 10%, 14%);
-  --dark-play-background-color: hsl(0, 0%, 18%);
-  --warm-color: #f87171;
-  --warm-color-hover: #fa5757;
-  --lightbox-background: rgba(0, 0, 0, 0.3);
-  --lightbox-background-preview: rgba(146, 147, 127, 0.8);
-  --modal-window-background: rgb(246, 246, 243);
-  --light-form-background-color: white;
-  --dark-form-background-color: var(--dark-background-color);
+  --def-main-color: #bed440;
+  --def-main-color-highlight: #d1de43;
+  --def-main-color-soft: #ccdb74;
+  --def-main-color-pale: #dfec98;
+  --def-main-color-fluo: #c5d85840;
+  --def-main-color-pale-fluo: #dfec9840;
+  --def-main-color-strong: #aec52f;
+  --def-main-color-deep: #9fb427;
+  --def-main-color-dark: #677612;
+  --def-main-color-text: #31332b;
+  --def-main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
+  --def-main-color-dark-grayish: #525348;
+  --def-main-color-grayish: #6d6e5e;
+  --def-main-color-light-grayish: #a9a99f;
+  --def-main-color-pale-grayish: #bbbcaf;
+  --def-sub-color: #b99f72;
+  --def-sub-color-soft: #d8bb8a;
+  --def-sub-color-strong: #96815c;
+  --def-text-color: #27231d;
+  --def-dark-text-color: white;
+  --def-background-color: #fdfde4;
+  --def-play-background-color: #ecfffe;
+  --def-dark-background-color: hsl(80, 10%, 14%);
+  --def-dark-play-background-color: hsl(0, 0%, 18%);
+  --def-warm-color: #f87171;
+  --def-warm-color-hover: #fa5757;
+  --def-lightbox-background: rgba(0, 0, 0, 0.3);
+  --def-lightbox-background-preview: rgba(146, 147, 127, 0.8);
+  --def-modal-window-background: rgb(246, 246, 243);
+  --def-light-form-background-color: white;
 }
 
 :root.theme-orange {
-  --main-color: #ecae75;
-  --main-color-highlight: #efba79;
-  --main-color-soft: #fac798;
-  --main-color-pale: #ffd8a2;
-  --main-color-fluo: #f8b06d40;
-  --main-color-pale-fluo: #fde5c440;
-  --main-color-strong: #d88b44;
-  --main-color-deep: #b56316;
-  --main-color-dark: #a55a14;
-  --main-color-text: #2f2b27;
-  --text-color: #27231d;
-  --background-color: #fff8e3;
-  --play-background-color: #fffbdf;
-  --dark-background-color: hsl(45, 10%, 14%);
+  --def-main-color: #ecae75;
+  --def-main-color-highlight: #efba79;
+  --def-main-color-soft: #fac798;
+  --def-main-color-pale: #ffd8a2;
+  --def-main-color-fluo: #f8b06d40;
+  --def-main-color-pale-fluo: #fde5c440;
+  --def-main-color-strong: #d88b44;
+  --def-main-color-deep: #b56316;
+  --def-main-color-dark: #a55a14;
+  --def-main-color-text: #2f2b27;
+  --def-text-color: #27231d;
+  --def-background-color: #fff8e3;
+  --def-play-background-color: #fffbdf;
+  --def-dark-background-color: hsl(45, 10%, 14%);
 }
 
 :root.theme-aqua {
-  --main-color: #53c3dd;
-  --main-color-highlight: #59d6e4;
-  --main-color-soft: #6ed5ed;
-  --main-color-pale: #a9e9f7;
-  --main-color-fluo: #47b7d040;
-  --main-color-pale-fluo: #a9e9f740;
-  --main-color-strong: #43beda;
-  --main-color-deep: #32b2ce;
-  --main-color-dark: #2ea3be;
-  --main-color-text: #2e3638;
-  --text-color: #1d2227;
-  --background-color: #e5fcf6;
-  --play-background-color: #d9f8f6;
-  --dark-background-color: hsl(150, 10%, 10%);
+  --def-main-color: #53c3dd;
+  --def-main-color-highlight: #59d6e4;
+  --def-main-color-soft: #6ed5ed;
+  --def-main-color-pale: #a9e9f7;
+  --def-main-color-fluo: #47b7d040;
+  --def-main-color-pale-fluo: #a9e9f740;
+  --def-main-color-strong: #43beda;
+  --def-main-color-deep: #32b2ce;
+  --def-main-color-dark: #2ea3be;
+  --def-main-color-text: #2e3638;
+  --def-text-color: #1d2227;
+  --def-background-color: #e5fcf6;
+  --def-play-background-color: #d9f8f6;
+  --def-dark-background-color: hsl(150, 10%, 10%);
+}
+
+:root {
+  --main-color: var(--def-main-color);
+  --main-color-highlight: var(--def-main-color-highlight);
+  --main-color-soft: var(--def-main-color-soft);
+  --main-color-pale: var(--def-main-color-pale);
+  --main-color-fluo: var(--def-main-color-fluo);
+  --main-color-pale-fluo: var(--def-main-color-pale-fluo);
+  --main-color-strong: var(--def-main-color-strong);
+  --main-color-deep: var(--def-main-color-deep);
+  --main-color-dark: var(--def-main-color-dark);
+  --main-color-text: var(--def-main-color-text);
+  --main-color-grayish-fluo: var(--def-main-color-grayish-fluo);
+  --main-color-dark-grayish: var(--def-main-color-dark-grayish);
+  --main-color-grayish: var(--def-main-color-grayish);
+  --main-color-light-grayish: var(--def-main-color-light-grayish);
+  --main-color-pale-grayish: var(--def-main-color-pale-grayish);
+  --sub-color: var(--def-sub-color);
+  --sub-color-soft: var(--def-sub-color-soft);
+  --sub-color-strong: var(--def-sub-color-strong);
+  --text-color: var(--def-text-color);
+  --dark-text-color: var(--def-dark-text-color);
+  --background-color: var(--def-background-color);
+  --play-background-color: var(--def-play-background-color);
+  --dark-background-color: var(--def-dark-background-color);
+  --dark-play-background-color: var(--def-dark-play-background-color);
+  --warm-color: var(--def-warm-color);
+  --warm-color-hover: var(--def-warm-color-hover);
+  --lightbox-background: var(--def-lightbox-background);
+  --lightbox-background-preview: var(--def-lightbox-background-preview);
+  --modal-window-background: var(--def-modal-window-background);
+  --light-form-background-color: var(--def-light-form-background-color);
+  --dark-form-background-color: var(--def-dark-background-color);
 }
 
 // dark mode
@@ -84,15 +117,19 @@
   --form-background-color: var(--light-form-background-color);
 }
 @mixin darkMode() {
-  --current-text-color: var(--dark-text-color);
-  --main-color-pale: var(--main-color-dark);
-  --main-color-soft: var(--main-color-deep);
-  --main-color-pale-grayish: var(--main-color-dark-grayish);
-  --background: var(--dark-background-color);
+  --current-text-color: var(--def-dark-text-color);
+  --main-color-pale: var(--def-main-color-dark);
+  --main-color-soft: var(--def-main-color-deep);
+  --main-color-pale-grayish: var(--def-main-color-dark-grayish);
+  --main-color-light-grayish: var(--def-main-color-grayish);
+  --main-color-grayish: var(--def-main-color-light-grayish);
+  --main-color-dark-grayish: var(--def-main-color-pale-grayish);
+  --main-color-dark: var(--def-main-color-soft);
+  --background: var(--def-dark-background-color);
   --background-bw: rgb(10, 10, 10);
-  --modal-window-background: var(--dark-background-color);
-  --play-background-color: var(--dark-play-background-color);
-  --form-background-color: var(--dark-form-background-color);
+  --modal-window-background: var(--def-dark-background-color);
+  --play-background-color: var(--def-dark-play-background-color);
+  --form-background-color: var(--def-dark-form-background-color);
 }
 
 @keyframes FadeInAnim {
@@ -1288,7 +1325,7 @@ details {
     padding: 0.4em 1em;
     @extend %cursor-pointer;
     color: white;
-    background-color: var(--main-color);
+    background-color: var(--main-color-deep);
     font-weight: 700;
     border: 0;
     outline: none;
@@ -1322,7 +1359,7 @@ details {
 
 code {
   display: inline-block;
-  background-color: var(--main-color-dark-grayish);
+  background-color: var(--def-main-color-dark-grayish);
   color: white;
   border-radius: 16px;
   padding: 1em 1em;
@@ -1334,29 +1371,29 @@ code {
   min-width: unset;
   &.hljs {
     .hljs-string {
-      color: var(--main-color-strong);
+      color: var(--def-main-color-strong);
     }
     .hljs-comment {
-      color: var(--main-color-light-grayish);
+      color: var(--def-main-color-light-grayish);
     }
     .hljs-title,
     .hljs-keyword {
-      color: var(--main-color);
+      color: var(--def-main-color);
     }
     .hljs-selector-class {
-      color: var(--sub-color-soft);
+      color: var(--def-sub-color-soft);
     }
     .hljs-variable,
     .hljs-number {
-      color: var(--main-color-highlight);
+      color: var(--def-main-color-highlight);
     }
     .hljs-selector-pseudo {
-      color: var(--main-color-soft);
+      color: var(--def-main-color-soft);
     }
     &.language-css,
     &.language-scss {
       .hljs-attribute {
-        color: var(--sub-color-soft);
+        color: var(--def-sub-color-soft);
       }
     }
   }
@@ -3634,6 +3671,7 @@ form.blogEdit {
   --fc-neutral-bg-color: var(--main-color-pale-fluo);
   --fc-list-event-hover-bg-color: var(--main-color-pale);
   --fc-today-bg-color: var(--main-color-pale-fluo);
+  --fc-page-bg-color: var(--background-bw);
   .fc-day-sat {
     --fc-non-business-color: rgba(95, 146, 240, 0.132);
   }
@@ -3649,9 +3687,11 @@ form.blogEdit {
   .fc-h-event {
     color: white;
   }
-  a:hover,
-  .fc-toolbar-title {
+  a:hover {
     color: var(--main-color-dark);
+  }
+  .fc-toolbar-title {
+    color: var(--main-color-deep);
   }
 
   .fc-toolbar-title,
