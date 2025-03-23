@@ -320,14 +320,12 @@ export function PostEditSelectMedia({
           });
         break;
       case "external":
-        if (env?.UPLOAD_BRACKET)
-          replacePostTextarea({
-            textarea,
-            setValue,
-            before: "![](",
-            after: ")",
-          });
-        else textarea.focus();
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "![](",
+          after: ")",
+        });
         window.open(env?.UPLOAD_SERVICE, "uploadExternal");
         break;
       case "gallery":

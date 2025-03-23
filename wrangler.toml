@@ -27,7 +27,7 @@ TWITTER_HANDLE = "kouwtkz"
 
 EMAIL = "kouwtkz@cottonwind.com"
 
-SINCE = 2017
+SINCE = "2017"
 SITE_IMAGE = "コットンの日2023_わたかぜくん"
 
 WAVEBOX = "https://wavebox.me/wave/2l8tqqpnqjdccg85/"
@@ -42,7 +42,6 @@ MEDIA_PAGES_ORIGIN = "/media"
 
 GOOGLE_CALENDAR_ID = "1a26c5b4aa8352785869e51bf3d4fbf10a71ad8e67e260fda2e0f52dcb86adc1@group.calendar.google.com"
 
-UPLOAD_BRACKET = false
 UPLOAD_SERVICE = "https://f.hatena.ne.jp/kour/BlogPic/"
 
 IMAGE_ALBUM_BLOG = "blog"

@@ -16,7 +16,7 @@ interface SiteConfigEnv {
   TWITTER_HANDLE?: string;
   EMAIL?: string;
   SITE_IMAGE?: string;
-  SINCE?: number;
+  SINCE?: string;
   WAVEBOX?: string;
   PAGES_DEV_ORIGIN?: string;
   MEDIA_ORIGIN?: string;
@@ -26,7 +26,6 @@ interface SiteConfigEnv {
   CONTACT_FORM_GOOGLE?: string;
   GOOGLE_CALENDAR_API?: string;
   GOOGLE_CALENDAR_ID?: string;
-  UPLOAD_BRACKET?: boolean;
   UPLOAD_SERVICE?: string;
   IMAGE_ALBUM_BLOG?: string;
   DEV?: boolean;
