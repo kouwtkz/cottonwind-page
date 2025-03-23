@@ -202,6 +202,10 @@ export function WebsiteFramework({
               <span>React-Slider</span>
             </li>
             <li>
+              <span className="label">スケジュール</span>
+              <span>FullCalendar</span>
+            </li>
+            <li>
               <span className="label">マンガ</span>
               <span>react-comic-viewer, Epub.js</span>
             </li>
