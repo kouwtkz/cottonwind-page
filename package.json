@@ -9,7 +9,7 @@
     "build-ssg": "npx vite build --mode ssg",
     "build-client": "npx vite build --mode client && npx vite build --mode client-twix",
     "build-worker": "npx vite build",
-    "start": "npx wrangler pages dev --port 51730",
+    "start": "npx wrangler pages dev",
     "deploy": "npm run build && npm run deploy-only",
     "deploy-only": "npx wrangler pages deploy dist --commit-dirty true --branch master",
     "deploy-sv": "npx wrangler deploy -c wrangler-sv.toml",
