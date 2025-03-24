@@ -103,7 +103,7 @@ export async function ServerLayout({
   );
   let imagesMap = new Map<string, ImageType>();
   let posts: PostType[] = [];
-  if (isBot) {
+  if (isBot || import.meta.env!.DEV) {
     const db = new MeeSqlD1(env.DB);
     if (env.SITE_IMAGE) {
       const data = await ImageSelectFromKey(db, env.SITE_IMAGE);
@@ -152,7 +152,7 @@ export async function ServerLayout({
           imagesMap={imagesMap}
           posts={posts}
           noindex={noindex}
-          mediaOrigin={getMediaOrigin(env, Url.origin)}
+          mediaOrigin={getMediaOrigin(env, Url.origin, true)}
           env={env}
         />
         {env.RECAPTCHA_SITEKEY ? (
