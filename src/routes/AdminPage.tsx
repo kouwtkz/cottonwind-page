@@ -42,6 +42,7 @@ import {
 } from "@/Env";
 import { useCharactersMap } from "@/state/CharacterState";
 import { FormatDate } from "@/functions/DateFunction";
+import { KeyValueEditable } from "@/state/KeyValueDBState";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -74,6 +75,7 @@ export function AdminMainPage() {
       <Link to="/admin/files">ファイル管理ページ</Link>
       <Link to="/admin/zip">Zipアーカイブ</Link>
       <Link to="/admin/db">データベース設定</Link>
+      <Link to="/admin/schedule">スケジュール設定</Link>
       <a href="/workers/logout">ログアウト</a>
     </>
   );
@@ -89,6 +91,8 @@ export function AdminDetailPage({ param }: { param: string }) {
       return <ZipPage />;
     case "db":
       return <DBPage />;
+    case "schedule":
+      return <ScheduleManager />;
     default:
       return <></>;
   }
@@ -423,6 +427,15 @@ function DBPage() {
           現在のテーブルのバージョンを全て更新する
         </a>
       </div>
+    </>
+  );
+}
+
+function ScheduleManager() {
+  return (
+    <>
+      <h2 className="color-main en-title-font">Schedule Manager</h2>
+      <KeyValueEditable title="Google Calendar ID の追加設定" editKey="google-calendar-id-2" />
     </>
   );
 }

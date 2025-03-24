@@ -27,6 +27,7 @@ import { CreateObjectState } from "@/state/CreateState";
 import { useEnv, useIsLogin } from "@/state/EnvState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
+import { useKeyValueDB } from "@/state/KeyValueDBState";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -92,6 +93,7 @@ interface EventCacheStateProps {
   eventsMap: Map<string, EventsDataType>;
   eventId: string | null;
   isOpenEvent: boolean;
+  calendarList: string[];
   stateLock: boolean;
   view: Type_VIEW_FC | null;
   date: Date;
@@ -108,6 +110,7 @@ const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
   eventsMap: new Map(),
   eventId: null,
   isOpenEvent: false,
+  calendarList: [],
   stateLock: false,
   view: null,
   date: dateFromSearchParams(new URLSearchParams(document.location.search)),
@@ -205,40 +208,59 @@ export function CalendarMeeState() {
   useEffect(() => {
     if (add.length > 0) Set({ add: [] });
   }, [add]);
-  useEffect(() => {
-    if (getRange && env) setTimeRanges(getRange);
-  }, [getRange, env]);
-  useEffect(() => {
-    if (env && syncRange && env.GOOGLE_CALENDAR_ID && env.GOOGLE_CALENDAR_API) {
-      Set({ isLoading: true });
-      eventsFetch({
-        id: env.GOOGLE_CALENDAR_ID,
-        key: env.GOOGLE_CALENDAR_API,
-        start: syncRange.start,
-        end: syncRange.end,
-      })
-        .then((data) => {
-          if (data?.items && Array.isArray(data.items)) {
-            Set(({ eventsMap }) => {
-              const add: EventsDataType[] = [];
-              data.items.forEach((item) => {
-                if (!eventsMap.has(item.id)) add.push(item);
-                eventsMap.set(item.id, item);
-              });
-              return {
-                eventsMap,
-                events: Object.values(Object.fromEntries(eventsMap)),
-                add,
-              };
-            });
-          }
-        })
-        .finally(() => {
-          Set({ isLoading: false });
+  const { kvList } = useKeyValueDB();
+  const calendarList = useMemo(() => {
+    if (env && kvList) {
+      const list: string[] = [];
+      if (env.GOOGLE_CALENDAR_ID) list.push(env.GOOGLE_CALENDAR_ID);
+      kvList
+        .filter((v) => v.key.startsWith("google-calendar-id-"))
+        .forEach(({ value }) => {
+          if (value) list.push(value);
         });
-      Set({ syncRange: null });
+      return list;
     }
-  }, [env, syncRange]);
+  }, [kvList, env]);
+  useEffect(() => {
+    Set({ calendarList });
+  }, [calendarList]);
+  useEffect(() => {
+    if (getRange && calendarList) setTimeRanges(getRange);
+  }, [getRange, calendarList]);
+  const API_KEY = useMemo(() => env?.GOOGLE_CALENDAR_API, [env]);
+  useEffect(() => {
+    if (API_KEY && syncRange && calendarList) {
+      Set({ isLoading: true });
+      Promise.all(
+        calendarList.map(async (id) => {
+          return eventsFetch({
+            id,
+            key: API_KEY,
+            start: syncRange.start,
+            end: syncRange.end,
+          }).then((data) => {
+            if (data?.items && Array.isArray(data.items)) {
+              Set(({ eventsMap }) => {
+                const add: EventsDataType[] = [];
+                data.items.forEach((item) => {
+                  if (!eventsMap.has(item.id)) add.push(item);
+                  eventsMap.set(item.id, item);
+                });
+                return {
+                  eventsMap,
+                  events: Object.values(Object.fromEntries(eventsMap)),
+                  add,
+                };
+              });
+            }
+          });
+        })
+      ).finally(() => {
+        Set({ isLoading: false });
+        Set({ syncRange: null });
+      });
+    }
+  }, [API_KEY, calendarList, syncRange]);
 
   useEffect(() => {
     const newDate = dateFromSearchParams(searchParams);

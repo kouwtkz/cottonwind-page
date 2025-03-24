@@ -38,7 +38,7 @@ export function KeyValueDBState() {
       }));
       Set({
         kvList: parsedData,
-        kvMap: new Map(parsedData.map((v) => [v.key, v])),
+        kvMap: new Map(parsedData.filter((v) => v.key).map((v) => [v.key!, v])),
       });
     }
   }, [data]);
