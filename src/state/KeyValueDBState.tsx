@@ -3,7 +3,11 @@ import { CreateObjectState } from "./CreateState";
 import { imageDataObject, keyValueDBDataObject } from "./DataState";
 import { Modal } from "@/layout/Modal";
 import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
-import { RiEdit2Fill, RiImageAddFill } from "react-icons/ri";
+import {
+  RiEdit2Fill,
+  RiGitRepositoryPrivateLine,
+  RiImageAddFill,
+} from "react-icons/ri";
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -17,7 +21,7 @@ import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiPar
 import { TextareaWithPreview } from "@/components/parse/PostTextarea";
 
 export const useKeyValueDB = CreateObjectState<{
-  kvData?: KeyValueDBType[];
+  kvList?: KeyValueDBType[];
   kvMap?: Map<string, KeyValueDBType>;
 }>();
 
@@ -28,7 +32,14 @@ export function KeyValueDBState() {
   const data = keyValueDBDataObject.useData()[0];
   useEffect(() => {
     if (data) {
-      Set({ kvData: data, kvMap: new Map(data.map((v) => [v.key, v])) });
+      const parsedData = data.map(({ private: p, ...props }) => ({
+        private: Boolean(p),
+        ...props,
+      }));
+      Set({
+        kvList: parsedData,
+        kvMap: new Map(parsedData.map((v) => [v.key, v])),
+      });
     }
   }, [data]);
   const { edit } = useKeyValueEdit();
@@ -45,6 +56,13 @@ export const useKeyValueEdit = CreateObjectState<{
 
 const send = keyValueDBDataObject.options.src + "/send";
 
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  value: z.string().nullish(),
+  private: z.boolean().nullish(),
+});
 function KeyValueEdit() {
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,9 +83,15 @@ function KeyValueEdit() {
   );
   const { kvMap } = useKeyValueDB();
   const setLoad = keyValueDBDataObject.useLoad()[1];
-  const item = useMemo(() => (edit ? kvMap?.get(edit) : null), [kvMap, edit]);
-  const value = useMemo(
-    () => item?.value || defaultValue,
+  const item = useMemo(() => {
+    const data = edit ? kvMap?.get(edit) : null;
+    return data;
+  }, [kvMap, edit]);
+  const values = useMemo(
+    () => ({
+      value: item?.value || defaultValue,
+      private: item?.private ?? null,
+    }),
     [item, defaultValue]
   );
   const {
@@ -78,9 +102,8 @@ function KeyValueEdit() {
     reset,
     formState: { isDirty, dirtyFields },
   } = useForm<FieldValues>({
-    defaultValues: {
-      value,
-    },
+    defaultValues: values,
+    resolver: zodResolver(schema),
   });
   const Reset = useCallback(() => {
     reset();
@@ -154,7 +177,13 @@ function KeyValueEdit() {
         }}
       >
         <form className="flex" onSubmit={handleSubmit(Submit)}>
-          <div>{edit}</div>
+          <div className="header">
+            <span>{edit}</span>
+            <label className="private">
+              <input {...register("private")} type="checkbox" title="非公開" />
+              <RiGitRepositoryPrivateLine />
+            </label>
+          </div>
           {editType === "text" ? (
             <input
               title="値"
@@ -232,8 +261,8 @@ function KeyValueEdit() {
                       });
                   }}
                 >
-                  {value && imagesMap ? (
-                    <ImageMee imageItem={imagesMap.get(value)} />
+                  {values.value && imagesMap ? (
+                    <ImageMee imageItem={imagesMap.get(values.value)} />
                   ) : null}
                 </button>
               </div>
@@ -254,7 +283,9 @@ function KeyValueEdit() {
             <button
               type="button"
               className="color"
-              onClick={handleSubmit(Submit)}
+              onClick={handleSubmit(Submit, (e) => {
+                console.log(e);
+              })}
               disabled={!isDirty}
             >
               送信
@@ -296,6 +327,7 @@ export function KeyValueEditable({
   ...props
 }: KeyValueEditableProps) {
   const env = useEnv()[0];
+  const isLogin = useIsLogin()[0];
   const { kvMap } = useKeyValueDB();
   const { editKey, editDefault } = useMemo(
     (() => {
@@ -330,14 +362,22 @@ export function KeyValueEditable({
       }
     }
     return (
-      children || (
+      children ||
+      (isLogin ? (
         <>
           <RiEdit2Fill />
-          {title}
+          <span className="title">{title}</span>
         </>
-      )
+      ) : null)
     );
-  }, [children, props.editType, title, childrenOutDefault, editDefault]);
+  }, [
+    children,
+    props.editType,
+    title,
+    childrenOutDefault,
+    editDefault,
+    isLogin,
+  ]);
   let defaultValue: ReactNode = useMemo(
     () =>
       replaceValue && editDefault
@@ -371,7 +411,6 @@ export function KeyValueEditable({
     return null;
   }, [childrenOutDefault, defaultValue]);
 
-  const [isLogin] = useIsLogin();
   return (
     <>
       {defaultBefore}

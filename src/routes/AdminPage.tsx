@@ -9,8 +9,10 @@ import {
   filesDataObject,
   ImportCharacterJson,
   ImportImagesJson,
+  ImportKeyValueDBJson,
   ImportLinksJson,
   ImportPostJson,
+  keyValueDBDataObject,
 } from "@/state/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
@@ -384,6 +386,11 @@ function DBPage() {
                         apiOrigin,
                         json,
                         dir: "/fav",
+                      });
+                    case keyValueDBDataObject.key:
+                      return ImportKeyValueDBJson({
+                        apiOrigin,
+                        json,
                       });
                     default:
                       toast(`${dataObject.key}は現在インポートの実装待ちです…`);

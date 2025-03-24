@@ -946,7 +946,18 @@ button,
   }
   &.keyValueEdit {
     @extend .iconSwitch;
-    margin: 0 1em;
+    font-size: 1em;
+    margin: 0 0.5em;
+    display: inline-flex;
+    align-items: end;
+    svg {
+      margin: 0.25em;
+    }
+    .title {
+      line-height: 1.2em;
+      font-size: 1.2em;
+      margin: 0.1em 0.25em;
+    }
   }
   &.miniIcon {
     &:hover {
@@ -2714,6 +2725,14 @@ label,
       }
     }
     &.keyValueEdit {
+      .header {
+        display: flex;
+        justify-content: space-between;
+      }
+      .private {
+        display: flex;
+        align-items: center;
+      }
       .postTextarea {
         width: 36rem;
         min-height: 12rem;

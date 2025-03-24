@@ -21,9 +21,10 @@ const TableObject = new DBTableClass<KeyValueDBType>({
   createEntry: {
     key: { primary: true, type: "TEXT" },
     value: { type: "TEXT" },
+    private: { type: "NUMERIC" },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["key", "value"],
+  insertEntryKeys: ["key", "value", "private"],
   insertEntryTimes: ["lastmod"]
 });
 
@@ -36,6 +37,7 @@ export async function ServerKeyValueDBGetData({ searchParams, db, isLogin, req }
   if (key) wheres.push({ key });
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
+      .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...TableObject.getFillNullEntry, key: null } : v))
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: KeyValueDBDataOptions }))

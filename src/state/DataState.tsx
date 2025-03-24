@@ -52,6 +52,7 @@ export const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
   linksDataOptions,
   linksFavDataOptions,
   likeDataOptions,
+  KeyValueDBDataOptions,
 ].forEach((options) => {
   SdsOptionsMap.set(options.key, options);
 });
@@ -545,6 +546,28 @@ export async function ImportLinksJson({
     const fetchList = makeImportFetchList({
       apiOrigin,
       src: `/links${dir}/import`,
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(fetchList);
+  });
+}
+
+export async function ImportKeyValueDBJson({
+  apiOrigin,
+  partition,
+  json,
+}: DataUploadBaseProps = {}) {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+    let object: importEntryDataType<KeyValueDBDataType>;
+    let data: KeyValueDBDataType[];
+    const { data: _data, ..._entry } = json as dataBaseType<KeyValueDBDataType>;
+    object = _entry;
+    data = _data ? _data : [];
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: KeyValueDBDataOptions.src + "/import",
       partition,
       data,
       object,
