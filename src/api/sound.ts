@@ -71,7 +71,7 @@ export async function ServerSoundsGetData({ searchParams, db, isLogin }: GetData
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...ThisObject.getFillNullEntry, key: null } : v));
+      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: soundsDataOptions }))
@@ -89,7 +89,7 @@ export async function ServerSoundAlbumsGetData({ searchParams, db, isLogin }: Ge
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.draft ? { ...v, ...ThisObject.getFillNullEntry, key: null } : v));
+      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: soundAlbumsDataOptions }))

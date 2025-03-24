@@ -1,7 +1,7 @@
 export const ImageDataOptions: StorageDataStateClassProps<ImageDataType> = {
   key: "images",
   src: "/images",
-  version: "3.1.0",
+  version: "3.1.1",
   preLoad: false,
   latestField: { time: "desc" },
 }
@@ -9,7 +9,7 @@ export const ImageDataOptions: StorageDataStateClassProps<ImageDataType> = {
 export const charactersDataOptions: StorageDataStateClassProps<CharacterDataType> = {
   key: "characters",
   src: "/characters",
-  version: "1.5.0",
+  version: "1.5.1",
   preLoad: false,
   latestField: { id: "desc" },
   jsonFromDataOptions: { time: null },
@@ -18,7 +18,7 @@ export const charactersDataOptions: StorageDataStateClassProps<CharacterDataType
 export const postsDataOptions: StorageDataStateClassProps<PostDataType> = {
   key: "posts",
   src: "/posts",
-  version: "1.4.0",
+  version: "1.4.1",
   preLoad: false,
   latestField: { time: "desc" },
   jsonFromDataOptions: { key: "postId" },
@@ -27,7 +27,7 @@ export const postsDataOptions: StorageDataStateClassProps<PostDataType> = {
 export const soundsDataOptions: StorageDataStateClassProps<SoundDataType> = {
   key: "sounds",
   src: "/sounds",
-  version: "1.3.1",
+  version: "1.3.2",
   preLoad: false,
   latestField: { time: "desc" },
   jsonFromDataOptions: { time: null },
@@ -36,14 +36,14 @@ export const soundsDataOptions: StorageDataStateClassProps<SoundDataType> = {
 export const soundAlbumsDataOptions: StorageDataStateClassProps<SoundAlbumDataType> = {
   key: "soundAlbums",
   src: "/soundAlbums",
-  version: "1.3.1",
+  version: "1.3.2",
   preLoad: false,
 }
 
 export const filesDataOptions: StorageDataStateClassProps<FilesRecordDataType> = {
   key: "files",
   src: "/files",
-  version: "1.3.0",
+  version: "1.3.1",
   preLoad: false,
 }
 
@@ -52,7 +52,7 @@ const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromD
 export const linksDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   key: "links",
   src: "/links",
-  version: "1.0.0",
+  version: "1.0.1",
   preLoad: false,
   jsonFromDataOptions: linksJsonFromDataOptions
 }
@@ -60,7 +60,7 @@ export const linksDataOptions: StorageDataStateClassProps<SiteLinkData> = {
 export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
   key: "linksFav",
   src: "/links/fav",
-  version: "1.0.2",
+  version: "1.0.3",
   preLoad: false,
   oldServerKeys: ["favorite_links"],
   jsonFromDataOptions: linksJsonFromDataOptions
@@ -69,7 +69,7 @@ export const linksFavDataOptions: StorageDataStateClassProps<SiteLinkData> = {
 export const likeDataOptions: StorageDataStateClassProps<LikeType> = {
   key: "likeData",
   src: "/like",
-  version: "1.0.0",
+  version: "1.0.1",
   preLoad: false,
   idField: "path"
 }
@@ -77,7 +77,7 @@ export const likeDataOptions: StorageDataStateClassProps<LikeType> = {
 export const KeyValueDBDataOptions: StorageDataStateClassProps<KeyValueDBDataType> = {
   key: "KeyValueDB",
   src: "/kvdb",
-  version: "1.1.0",
+  version: "1.1.1",
   preLoad: false,
   idField: "key"
 }
@@ -85,7 +85,7 @@ export const KeyValueDBDataOptions: StorageDataStateClassProps<KeyValueDBDataTyp
 export const TableVersionDataOptions: StorageDataStateClassProps<TableVersionEntryType> = {
   key: "tables",
   src: "/tables",
-  version: "1.0.0",
+  version: "1.0.1",
   idField: "key",
   preLoad: false,
 }

@@ -37,7 +37,7 @@ export async function ServerKeyValueDBGetData({ searchParams, db, isLogin, req }
   if (key) wheres.push({ key });
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...TableObject.getFillNullEntry, key: null } : v))
+      .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...TableObject.getFillNullEntry, private: v.private } : v))
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: KeyValueDBDataOptions }))
