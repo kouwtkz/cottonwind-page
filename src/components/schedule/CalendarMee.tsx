@@ -3,7 +3,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import allLocales from "@fullcalendar/core/locales-all";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Calendar,
   DatesSetArg,
@@ -576,25 +576,30 @@ export function CalendarMeeEventViewer() {
   let endDate = event ? new Date(event.end) : null;
   const startFormat: FormatDateOptions = {
     locale: defaultLang,
-    dateStyle: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "narrow",
   };
   const endFormat: FormatDateOptions = {
     locale: defaultLang,
   };
   if (event) {
     if (!event.allDay) {
-      startFormat.timeStyle = "short";
+      startFormat.hour = "numeric";
+      startFormat.minute = "numeric";
     }
     if (startDate && endDate) {
       function setEndDateFormat() {
         if (startDate!.getFullYear() !== endDate!.getFullYear()) {
           endFormat.year = "numeric";
         }
-        if (startDate!.getMonth() !== endDate!.getMonth()) {
+        if (endFormat.year || startDate!.getMonth() !== endDate!.getMonth()) {
           endFormat.month = "long";
         }
-        if (startDate!.getDate() !== endDate!.getDate()) {
+        if (endFormat.month || startDate!.getDate() !== endDate!.getDate()) {
           endFormat.day = "numeric";
+          endFormat.weekday = "narrow";
         }
       }
       if (event.allDay) {
