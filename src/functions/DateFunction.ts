@@ -89,6 +89,42 @@ export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
   return rp;
 }
 
+export function FormatDateUTC(date: Date, format_str = "Y-m-d H:i:s") {
+  var d = date;
+  var rp = format_str;
+  var year = d.getUTCFullYear().toString();
+  rp = rp.replace(/Y/, year);
+  rp = rp.replace(/y/, year.slice(-2));
+  var month = (d.getUTCMonth() + 1).toString();
+  rp = rp.replace(/n/, month);
+  rp = rp.replace(/m/, ("0" + month).slice(-2));
+  var day = (d.getUTCDate()).toString();
+  rp = rp.replace(/j/, day);
+  rp = rp.replace(/d/, ("0" + day).slice(-2));
+  var week = d.getUTCDay();
+  rp = rp.replace(/w/, week.toString());
+  rp = rp.replace(/WW/, ["日", "月", "火", "水", "木", "金", "土"][week]);
+  var hour = d.getUTCHours();
+  var hour2 = hour % 12;
+  var hour2i = (hour / 12 < 1) ? 0 : 1;
+  rp = rp.replace(/G/, hour.toString());
+  rp = rp.replace(/g/, hour2.toString());
+  rp = rp.replace(/H/, ("0" + hour).slice(-2));
+  rp = rp.replace(/h/, ("0" + hour2).slice(-2));
+  rp = rp.replace(/AA/, ["午前", "午後"][hour2i]);
+  var minute = d.getUTCMinutes().toString();
+  rp = rp.replace(/I/, minute);
+  rp = rp.replace(/i/, ("0" + minute).slice(-2));
+  var second = d.getUTCSeconds().toString();
+  rp = rp.replace(/S/, second);
+  rp = rp.replace(/s/, ("0" + second).slice(-2));
+
+  rp = rp.replace(/A/, ["AM", "PM"][hour2i]);
+  rp = rp.replace(/a/, ["am", "pm"][hour2i]);
+  rp = rp.replace(/W/, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][week]);
+  return rp;
+}
+
 export function getLocalTimeOffset() {
   return timeZoneFromMinute(-(new Date().getTimezoneOffset()));
 }
