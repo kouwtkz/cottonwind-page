@@ -3677,6 +3677,10 @@ form.blogEdit {
     --link-color: var(--main-color-deep);
     --link-color-hover: var(--main-color-dark);
   }
+  .fc-list-event.fc-event-forced-url {
+    @extend %cursor-pointer;
+  }
+
   .fc-toolbar-title {
     color: var(--main-color-deep);
   }
@@ -3740,8 +3744,8 @@ form.blogEdit {
     width: 95%;
     max-width: 72rem;
   }
-  @media (max-width: #{$tabletWidth - 1}) {
-    font-size: 0.85em;
+  @media (max-width: #{$mobileWidth - 1}) {
+    font-size: 1em;
     .fc-button-group {
       margin: 0.1rem auto;
     }
@@ -3751,6 +3755,7 @@ form.blogEdit {
   }
   .modal {
     h3 {
+      font-size: 1.5em;
       margin: 1em;
       line-height: 1.2em;
     }
@@ -3774,6 +3779,10 @@ form.blogEdit {
     }
     h4 {
       margin: 1em 1em 0;
+      font-size: 1.4em;
+      a {
+        font-size: 1em;
+      }
     }
     a {
       display: inline-flex;
@@ -3789,9 +3798,13 @@ form.blogEdit {
         margin: auto 0.3em;
       }
     }
-    @media (max-width: #{$tabletWidth - 1}) {
+    @media (max-width: #{$mobileWidth - 1}) {
       h3 {
-        margin: 0.8em 0.2em;
+        margin: 0.8em 0.5em;
+      }
+      h4 {
+        margin-top: 0.5em;
+        text-align: center;
       }
     }
   }
