@@ -977,7 +977,6 @@ button,
   }
 }
 
-// 改造したい
 a,
 .link {
   font: inherit;
@@ -1703,7 +1702,6 @@ footer {
 }
 
 .topPage {
-  font-size: 2em;
   margin: 1.5rem auto;
   .topImageArea {
     height: 48rem;
@@ -3642,8 +3640,8 @@ form.blogEdit {
 }
 
 .fc {
-  font-size: 1.2em;
-  line-height: 1.2em;
+  font-size: 1.2rem;
+  line-height: 1.2rem;
   --fc-event-bg-color: var(--main-color-strong);
   --fc-button-hover-bg-color: var(--main-color-soft);
   --fc-event-border-color: var(--main-color-strong);
@@ -3674,6 +3672,7 @@ form.blogEdit {
     color: white;
   }
   a {
+    text-decoration: none;
     --link-color: var(--main-color-deep);
     --link-color-hover: var(--main-color-dark);
   }
@@ -3739,13 +3738,12 @@ form.blogEdit {
     }
   }
   .topPage & {
-    font-size: 1.2rem;
     margin: 2rem auto;
     width: 95%;
     max-width: 72rem;
   }
   @media (max-width: #{$mobileWidth - 1}) {
-    font-size: 1em;
+    font-size: 1rem;
     .fc-button-group {
       margin: 0.1rem auto;
     }
