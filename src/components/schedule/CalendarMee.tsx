@@ -21,9 +21,14 @@ import {
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { MultiParserWithMedia as MultiParser } from "../parse/MultiParserWithMedia";
-import { RiFileCopyLine, RiLink, RiMapPinLine } from "react-icons/ri";
+import {
+  RiFileCopyLine,
+  RiLink,
+  RiMapPinLine,
+  RiTimeLine,
+} from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { useEnv, useIsLogin } from "@/state/EnvState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
@@ -656,6 +661,46 @@ export function CalendarMeeEventViewer() {
     },
     [eventId, startDate]
   );
+  const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const visibleCountdownParam = useMemo(
+    () => searchParams.has("countdown"),
+    [searchParams]
+  );
+  const beforeCloseDdRef = useRef(visibleCountdownParam);
+  const keepDdRef = useRef(visibleCountdownParam);
+  const visibleCountdown = useMemo(() => {
+    let visibleCountdown: boolean;
+    if (!stateEventId && beforeCloseDdRef.current !== visibleCountdownParam) {
+      visibleCountdown = beforeCloseDdRef.current;
+    } else visibleCountdown = visibleCountdownParam;
+    beforeCloseDdRef.current = visibleCountdownParam;
+    return visibleCountdown;
+  }, [stateEventId, visibleCountdownParam]);
+  const setCountdown = useCallback(
+    (v: boolean) => {
+      const options = { state, preventScrollReset: true, replace: true };
+      if (v && !visibleCountdown) {
+        setSearchParams((searchParams) => {
+          searchParams.set("countdown", "on");
+          return searchParams;
+        }, options);
+        keepDdRef.current = true;
+      } else if (!v && visibleCountdown) {
+        setSearchParams((searchParams) => {
+          searchParams.delete("countdown");
+          return searchParams;
+        }, options);
+        keepDdRef.current = false;
+      }
+    },
+    [visibleCountdown, state]
+  );
+  useEffect(() => {
+    if (isOpenEvent && keepDdRef.current && !visibleCountdown) {
+      setCountdown(true);
+    }
+  }, [isOpenEvent]);
   return (
     <>
       <Modal
@@ -688,17 +733,34 @@ export function CalendarMeeEventViewer() {
                 </a>
               </h4>
             ) : null}
+            {visibleCountdown && startDate ? (
+              <h5>
+                <CountDown date={startDate} end={endDate} />
+              </h5>
+            ) : null}
             <div className="title">
               <h3>{event.title}</h3>
-              {isLogin ? (
+              <div>
+                {isLogin ? (
+                  <button
+                    title="ブログ用にコピーする"
+                    type="button"
+                    onClick={copyAction}
+                  >
+                    <RiFileCopyLine />
+                  </button>
+                ) : null}
                 <button
-                  title="ブログ用にコピーする"
+                  title={
+                    "カウントダウンを" +
+                    (visibleCountdown ? "しまう" : "表示する")
+                  }
                   type="button"
-                  onClick={copyAction}
+                  onClick={() => setCountdown(!visibleCountdown)}
                 >
-                  <RiFileCopyLine />
+                  <RiTimeLine />
                 </button>
-              ) : null}
+              </div>
             </div>
             {location ? (
               <div>
@@ -730,3 +792,106 @@ export function CalendarMeeEventViewer() {
     </>
   );
 }
+
+export interface countDownFormatProps {
+  time: number;
+  seconds: number;
+  totalSeconds: number;
+  minutes: number;
+  totalMinutes: number;
+  hours: number;
+  totalHours: number;
+  days: number;
+  onTheDayTime: number;
+  duringTime: number;
+}
+interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
+  date: Date;
+  end?: Date | null;
+  current?: Date;
+  format?: (options: countDownFormatProps) => string;
+}
+export const CountDown = memo(function CountDown({
+  date,
+  end,
+  current = new Date(),
+  format,
+  className,
+  ...props
+}: CountDownProps) {
+  className = useMemo(() => {
+    const classNames = ["countdown"];
+    if (className) classNames.push(className);
+    return classNames.join(" ");
+  }, [className]);
+  const startTime = useMemo(() => date.getTime(), [date]);
+  const endTime = useMemo(() => end?.getTime(), [end]);
+  const duringTime = useMemo(
+    () => (endTime || 864e5) - startTime,
+    [startTime, endTime]
+  );
+  const [time, setTime] = useState<number>(startTime - current.getTime());
+  const onTheDayTime = useMemo(
+    () =>
+      ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
+        1000 +
+      date.getMilliseconds(),
+    [date]
+  );
+  useEffect(() => {
+    const ml = time % 1000;
+    let interval: NodeJS.Timeout | undefined;
+    setTimeout(() => {
+      setTime((time) => time - ml);
+      interval = setInterval(() => {
+        setTime((time) => time - 1000);
+      }, 1000);
+    }, ml);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+  const result = useMemo(() => {
+    const totalSeconds = Math.floor(time / 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = (totalSeconds - seconds) / 60;
+    const minutes = totalMinutes % 60;
+    const totalHours = (totalMinutes - minutes) / 60;
+    const hours = totalHours % 24;
+    const days = (totalHours - hours) / 24;
+    if (format)
+      return format({
+        time,
+        seconds,
+        totalSeconds,
+        minutes,
+        totalMinutes,
+        hours,
+        totalHours,
+        days,
+        onTheDayTime,
+        duringTime,
+      });
+    else {
+      let str = "";
+      if (time < 0) {
+        const backTime = time - onTheDayTime;
+        const backDays = Math.round(backTime / 864e5);
+        if (backDays) str = Math.abs(backDays) + "日前";
+        else str = "当日";
+      } else {
+        str = "あと";
+        if (days) str = str + ` ${days}日`;
+        if (days || hours) str = str + ` ${hours}時間`;
+        if (days || hours || minutes) str = str + minutes + "分";
+        if (days || hours || minutes || seconds) str = str + seconds + "秒";
+      }
+      return str;
+    }
+  }, [time, format, onTheDayTime, duringTime]);
+  return (
+    <span className={className} {...props}>
+      {result}
+    </span>
+  );
+});
