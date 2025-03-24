@@ -206,8 +206,8 @@ export function CalendarMeeState() {
     if (add.length > 0) Set({ add: [] });
   }, [add]);
   useEffect(() => {
-    if (getRange) setTimeRanges(getRange);
-  }, [getRange]);
+    if (getRange && env) setTimeRanges(getRange);
+  }, [getRange, env]);
   useEffect(() => {
     if (env && syncRange && env.GOOGLE_CALENDAR_ID && env.GOOGLE_CALENDAR_API) {
       Set({ isLoading: true });
@@ -353,9 +353,11 @@ export function CalendarMee({
       }, 0);
     }
   }, [calendar, date]);
+  const isChangeView = useRef(false);
   useEffect(() => {
     if (calendar && view && calendar.view.type !== view) {
       setTimeout(() => {
+        isChangeView.current = true;
         calendar.changeView(view);
       }, 0);
     }
@@ -404,11 +406,15 @@ export function CalendarMee({
   );
   const onChangeHandle = useCallback(
     (arg: DatesSetArg) => {
-      if (calendar) {
-        setDateUrl(calendar.getDate(), setSearchParams);
-        setView(calendar.view.type as Type_VIEW_FC);
-      }
       Set({ getRange: { start: arg.start, end: arg.end } });
+      if (calendar) {
+        if (isChangeView.current) {
+          isChangeView.current = false;
+        } else {
+          setDateUrl(calendar.getDate(), setSearchParams);
+          setView(calendar.view.type as Type_VIEW_FC);
+        }
+      }
     },
     [calendar, eventId]
   );
