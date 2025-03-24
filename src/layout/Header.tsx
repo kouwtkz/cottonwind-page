@@ -44,7 +44,7 @@ export function SiteTitle({ env }: { env?: SiteConfigEnv }) {
 
 export function HeaderClient({ env }: { env?: SiteConfigEnv }) {
   return (
-    <header id="header">
+    <header id="header" className="siteHeader">
       <BackButton className="backButton" />
       <SiteTitle env={env} />
       <SiteMenu />

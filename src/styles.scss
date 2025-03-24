@@ -91,6 +91,7 @@
   --main-color-grayish: var(--def-main-color-grayish);
   --main-color-light-grayish: var(--def-main-color-light-grayish);
   --main-color-pale-grayish: var(--def-main-color-pale-grayish);
+  --main-color-dark-text: var(--def-main-color-dark-grayish);
   --sub-color: var(--def-sub-color);
   --sub-color-soft: var(--def-sub-color-soft);
   --sub-color-strong: var(--def-sub-color-strong);
@@ -111,13 +112,13 @@
 
 // dark mode
 %lightMode {
-  --current-text-color: var(--text-color);
   --background: var(--background-color);
   --background-bw: white;
   --form-background-color: var(--light-form-background-color);
 }
 @mixin darkMode() {
-  --current-text-color: var(--def-dark-text-color);
+  --text-color: var(--def-dark-text-color);
+  --main-color-dark-text: var(--def-dark-text-color);
   --main-color-pale: var(--def-main-color-dark);
   --main-color-soft: var(--def-main-color-deep);
   --main-color-pale-grayish: var(--def-main-color-dark-grayish);
@@ -304,7 +305,7 @@ textarea,
 }
 
 :root {
-  color: var(--current-text-color);
+  color: var(--text-color);
   @extend %windowMinWidth;
   @extend %cursor-default;
   @extend %lightMode;
@@ -1246,7 +1247,7 @@ h4 {
     [tabindex] {
       padding: 0.25em 0.75em;
       font-size: 1em;
-      color: var(--current-text-color);
+      color: var(--text-color);
       background-color: var(--background-bw);
       span {
         pointer-events: none;
@@ -1505,7 +1506,7 @@ $headerHeight: 3.5rem;
 html {
   scroll-padding-top: #{$headerHeight + 1rem};
 }
-header {
+header.siteHeader {
   height: #{$headerHeight};
   position: fixed;
   display: flex;
@@ -1676,7 +1677,7 @@ footer {
   html {
     scroll-padding-top: #{$headerHeight + 1rem};
   }
-  header {
+  header.siteHeader {
     height: #{$headerHeight};
     .title-container {
       img {
@@ -1692,9 +1693,6 @@ footer {
       .button {
         width: 3.5rem;
         height: 3.5rem;
-      }
-      .list {
-        margin-top: 0.25rem;
       }
     }
   }

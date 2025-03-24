@@ -240,7 +240,7 @@ export function ServerSimpleLayout({
         {style}
       </head>
       <body className={className}>
-        <header id="header">
+        <header id="header" className="siteHeader">
           {logo ? (
             <div className="title-container">
               <a id="siteTitle" href="/" title={env?.TITLE}>
