@@ -141,7 +141,7 @@ const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
       return { timeRanges, syncRange, getRange: null };
     });
   },
-  isLoading: true,
+  isLoading: false,
 }));
 
 function dateFromSearchParams(
@@ -233,7 +233,7 @@ export function CalendarMeeState() {
             });
           }
         })
-        .then(() => {
+        .finally(() => {
           Set({ isLoading: false });
         });
       Set({ syncRange: null });
@@ -246,15 +246,15 @@ export function CalendarMeeState() {
       Set({ date: newDate });
     }
   }, [searchParams]);
-
+  const view = useMemo(() => searchParams.get(FC_SP_VIEW), [searchParams]);
   useEffect(() => {
-    if (eventId && !eventsMap.has(eventId)) {
+    if (eventId && view === FC_VIEW_DAY && !eventsMap.has(eventId)) {
       const dateString = formatDate(date, { dateStyle: "medium" });
       const start = new Date(dateString);
       const end = new Date(dateString + " 23:59:59");
       Set({ syncRange: { start, end } });
     }
-  }, [eventId, eventsMap, date]);
+  }, [view, eventId, eventsMap, date]);
 
   const { state } = useLocation();
   const nav = useNavigate();
@@ -528,6 +528,7 @@ export function CalendarMeeEventViewer() {
     eventsMap,
     eventId: stateEventId,
     isOpenEvent,
+    isLoading,
   } = useCalendarMee();
   const keepId = useRef<string | null>(null);
   const eventId = useMemo(() => {
@@ -594,6 +595,13 @@ export function CalendarMeeEventViewer() {
     Set({ eventId: null });
   }, []);
 
+  const failEvent = useMemo(() => {
+    return eventId && !isLoading && !event;
+  }, [eventId, isLoading, event]);
+  const isOpen = useMemo(() => {
+    return isOpenEvent && !failEvent;
+  }, [isOpenEvent, failEvent]);
+
   const BackgroundCalenderMee = useCallback(() => {
     return (
       <>{eventId && !event ? <CalendarMee className="background" /> : null}</>
@@ -621,7 +629,7 @@ export function CalendarMeeEventViewer() {
         classNameEntire="fc"
         onClose={ModalCloseHandler}
         onExited={EventCloseHandler}
-        isOpen={isOpenEvent}
+        isOpen={isOpen}
         timeout={60}
       >
         {event ? (
