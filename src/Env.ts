@@ -77,7 +77,7 @@ export const likeDataOptions: StorageDataStateClassProps<LikeType> = {
 export const KeyValueDBDataOptions: StorageDataStateClassProps<KeyValueDBDataType> = {
   key: "KeyValueDB",
   src: "/kvdb",
-  version: "1.1.1",
+  version: "1.2.0",
   preLoad: false,
   idField: "key"
 }
