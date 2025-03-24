@@ -12,7 +12,12 @@ import {
   FormatDateOptions,
   FormatterInput,
 } from "@fullcalendar/core/index.js";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  SetURLSearchParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { MultiParserWithMedia as MultiParser } from "../parse/MultiParserWithMedia";
@@ -88,6 +93,7 @@ interface EventCacheStateProps {
   eventId: string | null;
   isOpenEvent: boolean;
   stateLock: boolean;
+  view: Type_VIEW_FC | null;
   date: Date;
   timeRanges: timeRangesType[];
   getRange: timeRangesType | null;
@@ -103,6 +109,7 @@ const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
   eventId: null,
   isOpenEvent: false,
   stateLock: false,
+  view: null,
   date: dateFromSearchParams(new URLSearchParams(document.location.search)),
   timeRanges: [],
   getRange: null,
@@ -155,6 +162,26 @@ function dateFromSearchParams(
     if (day) newDate.setDate(day);
   }
   return newDate;
+}
+
+function setDateUrl(date: Date, setSearchParams: SetURLSearchParams) {
+  const beforeSearch = location.search;
+  const searchParams = new URLSearchParams(beforeSearch);
+  const dateDiff = Math.abs(new Date().getTime() - date.getTime());
+  if (dateDiff < 600000) {
+    searchParams.delete(FC_SP_YEAR);
+    searchParams.delete(FC_SP_MONTH);
+    searchParams.delete(FC_SP_DAY);
+  } else {
+    searchParams.set(FC_SP_YEAR, date.getFullYear().toString());
+    searchParams.set(FC_SP_MONTH, (date.getMonth() + 1).toString());
+    searchParams.set(FC_SP_DAY, date.getDate().toString());
+  }
+  const afterSearch = (searchParams.size ? "?" : "") + searchParams.toString();
+  if (beforeSearch !== afterSearch) {
+    setSearchParams(searchParams, { preventScrollReset: true });
+  }
+  return afterSearch;
 }
 
 export function CalendarMeeState() {
@@ -213,43 +240,12 @@ export function CalendarMeeState() {
     }
   }, [env, syncRange]);
 
-  const settingDate = useRef(true);
-  const settingSearchParams = useRef(false);
   useEffect(() => {
-    if (settingSearchParams.current) {
-      settingSearchParams.current = false;
-    } else {
-      const newDate = dateFromSearchParams(searchParams);
-      if (date.toString() !== newDate.toString()) {
-        settingDate.current = true;
-        Set({ date: newDate });
-      }
+    const newDate = dateFromSearchParams(searchParams);
+    if (date.toString() !== newDate.toString()) {
+      Set({ date: newDate });
     }
   }, [searchParams]);
-  useEffect(() => {
-    if (settingDate.current) {
-      settingDate.current = false;
-    } else {
-      const beforeSearch = location.search;
-      const searchParams = new URLSearchParams(beforeSearch);
-      const dateDiff = Math.abs(new Date().getTime() - date.getTime());
-      if (dateDiff < 600000) {
-        searchParams.delete(FC_SP_YEAR);
-        searchParams.delete(FC_SP_MONTH);
-        searchParams.delete(FC_SP_DAY);
-      } else {
-        searchParams.set(FC_SP_YEAR, date.getFullYear().toString());
-        searchParams.set(FC_SP_MONTH, (date.getMonth() + 1).toString());
-        searchParams.set(FC_SP_DAY, date.getDate().toString());
-      }
-      const afterSearch =
-        (searchParams.size ? "?" : "") + searchParams.toString();
-      if (beforeSearch !== afterSearch) {
-        settingSearchParams.current = true;
-        setSearchParams(searchParams, { preventScrollReset: true });
-      }
-    }
-  }, [date]);
 
   useEffect(() => {
     if (eventId && !eventsMap.has(eventId)) {
@@ -348,6 +344,9 @@ export function CalendarMee({
     [defaultView]
   );
   useEffect(() => {
+    Set({ view });
+  }, [view]);
+  useEffect(() => {
     if (calendar && calendar.getDate().toString() !== date.toString()) {
       setTimeout(() => {
         calendar.gotoDate(date);
@@ -406,7 +405,7 @@ export function CalendarMee({
   const onChangeHandle = useCallback(
     (arg: DatesSetArg) => {
       if (calendar) {
-        Set({ date: calendar.getDate() });
+        setDateUrl(calendar.getDate(), setSearchParams);
         setView(calendar.view.type as Type_VIEW_FC);
       }
       Set({ getRange: { start: arg.start, end: arg.end } });
