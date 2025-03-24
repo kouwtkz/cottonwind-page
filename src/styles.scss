@@ -108,6 +108,8 @@
   --modal-window-background: var(--def-modal-window-background);
   --light-form-background-color: var(--def-light-form-background-color);
   --dark-form-background-color: var(--def-dark-background-color);
+  --link-color: var(--main-color-strong);
+  --link-color-hover: var(--main-color);
 }
 
 // dark mode
@@ -975,16 +977,17 @@ button,
   }
 }
 
+// 改造したい
 a,
 .link {
   font: inherit;
   text-decoration: underline;
   word-break: break-all;
-  color: var(--main-color-strong);
+  color: var(--link-color);
   &:hover {
-    color: var(--main-color);
+    color: var(--link-color-hover);
     &.external::after {
-      background-color: var(--main-color);
+      background-color: var(--link-color-hover);
     }
   }
   &.roundLink {
@@ -1533,10 +1536,8 @@ header.siteHeader {
     }
     a {
       @extend %userSelectNone;
-      color: var(--main-color-soft);
-      &:hover {
-        color: var(--main-color-pale);
-      }
+      --link-color: var(--main-color-soft);
+      --link-color-hover: var(--main-color-pale);
     }
   }
   .title-container {
@@ -1758,15 +1759,6 @@ footer {
       display: inline;
       img {
         width: 100%;
-      }
-    }
-  }
-  ul li,
-  h3 {
-    a {
-      color: var(--main-color);
-      &:hover {
-        color: var(--main-color-soft);
       }
     }
   }
@@ -2897,10 +2889,8 @@ label,
           align-items: center;
           text-decoration-line: none;
           &.other {
-            color: var(--main-color-dark);
-            &:hover {
-              color: var(--main-color-strong);
-            }
+            --link-color: var(--main-color-dark);
+            --link-color-hover: var(--main-color-strong);
           }
         }
       }
@@ -3387,10 +3377,8 @@ body.workers {
         display: inline-block;
         color: var(--main-color-dark);
         a {
-          color: var(--main-color-dark);
-          &:hover {
-            color: var(--main-color-strong);
-          }
+          --link-color: var(--main-color-dark);
+          --link-color-hover: var(--main-color-strong);
         }
         a {
           text-decoration-line: none;
@@ -3685,8 +3673,9 @@ form.blogEdit {
   .fc-h-event {
     color: white;
   }
-  a:hover {
-    color: var(--main-color-dark);
+  a {
+    --link-color: var(--main-color-deep);
+    --link-color-hover: var(--main-color-dark);
   }
   .fc-toolbar-title {
     color: var(--main-color-deep);
