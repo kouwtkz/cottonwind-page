@@ -103,7 +103,7 @@ interface EventCacheStateProps {
   eventsMap: Map<string, EventsDataType>;
   eventId: string | null;
   isOpenEvent: boolean;
-  calendarList: string[];
+  calendarList: { id: string; private?: boolean }[];
   stateLock: boolean;
   view: Type_VIEW_FC | null;
   date: Date;
@@ -223,12 +223,12 @@ export function CalendarMeeState() {
   const { kvList } = useKeyValueDB();
   const calendarList = useMemo(() => {
     if (env && kvList) {
-      const list: string[] = [];
-      if (env.GOOGLE_CALENDAR_ID) list.push(env.GOOGLE_CALENDAR_ID);
+      const list: { id: string; private?: boolean }[] = [];
+      if (env.GOOGLE_CALENDAR_ID) list.push({ id: env.GOOGLE_CALENDAR_ID });
       kvList
         .filter((v) => v.key.startsWith("google-calendar-id-"))
-        .forEach(({ value }) => {
-          if (value) list.push(value);
+        .forEach(({ value, private: p }) => {
+          if (value) list.push({ id: value, private: p });
         });
       return list;
     }
@@ -244,12 +244,13 @@ export function CalendarMeeState() {
     if (API_KEY && syncRange && calendarList) {
       Set({ isLoading: true });
       Promise.all(
-        calendarList.map(async (id) => {
+        calendarList.map(async ({ id, private: p }) => {
           return eventsFetch({
             id,
             key: API_KEY,
             start: syncRange.start,
             end: syncRange.end,
+            private: p,
           }).then((data) => {
             if (data?.items && Array.isArray(data.items)) {
               Set(({ eventsMap }) => {
@@ -715,6 +716,13 @@ export function CalendarMeeEventViewer() {
     },
     [enableCountdown, state]
   );
+  const timeClassName = useMemo(() => {
+    const classNames = ["time"];
+    if (enableCountdown) classNames.push("enableCountdown");
+    if (endDateString) classNames.push("smaller");
+    if (!(startTimeString || endTImeString)) classNames.push("single");
+      return classNames.join(" ");
+  }, [enableCountdown, startTimeString, endDateString, endTImeString]);
   return (
     <>
       <Modal
@@ -726,51 +734,53 @@ export function CalendarMeeEventViewer() {
       >
         {event ? (
           <>
-            {startDate ? (
-              <h4>
-                <a
-                  className="time"
-                  href={event.url}
-                  target="google-calendar-event"
-                >
-                  {endDateString ? (
-                    <>
-                      {startDateString}
-                      {startTimeString}
-                      {endDate ? (
-                        <>
-                          <span className="during">-</span>
-                          {endDateString}
-                          {endTImeString}
-                        </>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      {startDateString}
-                      <span>
-                        {startTimeString}
-                        {endTImeString ? (
+            <div className={timeClassName}>
+              {startDate ? (
+                <h3>
+                  <a
+                    className="time"
+                    href={event.url}
+                    target="google-calendar-event"
+                  >
+                    {endDateString ? (
+                      <>
+                        <span>{startDateString}</span>
+                        <span className="time">{startTimeString}</span>
+                        {endDate ? (
                           <>
                             <span className="during">-</span>
-                            {endTImeString}
+                            <span>{endDateString}</span>
+                            <span className="time">{endTImeString}</span>
                           </>
                         ) : null}
-                      </span>
-                    </>
-                  )}
-                </a>
-              </h4>
-            ) : null}
-            {enableCountdown && startDate ? (
-              <h5>
-                <CountDown date={startDate} end={endDate} />
-              </h5>
-            ) : null}
+                      </>
+                    ) : (
+                      <>
+                        {startDateString}
+                        <span className="time">
+                          {startTimeString}
+                          {endTImeString ? (
+                            <>
+                              <span className="during">-</span>
+                              {endTImeString}
+                            </>
+                          ) : null}
+                        </span>
+                      </>
+                    )}
+                  </a>
+                </h3>
+              ) : null}
+              {enableCountdown && startDate ? (
+                <h4>
+                  <CountDown date={startDate} end={endDate} />
+                </h4>
+              ) : null}
+            </div>
             <div className="title">
-              <h3>{event.title}</h3>
+              <h2>{event.title}</h2>
               <div>
-                {isLogin ? (
+                {isLogin && !event.private ? (
                   <button
                     title="ブログ用にコピーする"
                     type="button"
@@ -792,7 +802,7 @@ export function CalendarMeeEventViewer() {
               </div>
             </div>
             {location ? (
-              <div>
+              <h5>
                 {/^http.?:\/\//.test(location) ? (
                   <a href={location} target="_blank" title={location}>
                     <RiLink className="mr-1" />
@@ -808,9 +818,9 @@ export function CalendarMeeEventViewer() {
                     <span>{String(location).split(/, |\(|（/, 1)[0]}</span>
                   </a>
                 )}
-              </div>
+              </h5>
             ) : null}
-            <div>
+            <div className="description">
               <MultiParser>{event.description}</MultiParser>
             </div>
           </>

@@ -9,6 +9,7 @@ interface eventsFetchProps {
   end?: Date;
   max?: number;
   single?: boolean;
+  private?: boolean;
 }
 export async function eventsFetch({
   id,
@@ -17,6 +18,7 @@ export async function eventsFetch({
   end,
   max = 9999,
   single = true,
+  private: p = false
 }: eventsFetchProps) {
   const url = new URL(id + "/events", API_BASE);
   url.searchParams.set("key", key);
@@ -42,6 +44,8 @@ export async function eventsFetch({
         end,
         allDay,
         raw,
+        fetchData: data,
+        private: p
       };
     });
     return r.data as EventsFetchedDataType;

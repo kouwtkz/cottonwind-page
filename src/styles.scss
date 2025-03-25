@@ -3660,7 +3660,7 @@ form.blogEdit {
 
 .fc {
   font-size: 1.2rem;
-  line-height: 1.2rem;
+  // line-height: 1.2rem;
   --fc-event-bg-color: var(--main-color-strong);
   --fc-button-hover-bg-color: var(--main-color-soft);
   --fc-event-border-color: var(--main-color-strong);
@@ -3775,10 +3775,12 @@ form.blogEdit {
     }
   }
   .modal {
-    h3 {
+    h2 {
       font-size: 1.5em;
-      margin: 1em;
-      line-height: 1.2em;
+      min-height: 3em;
+      margin: 0 1em;
+      display: flex;
+      align-items: center;
     }
     .title {
       display: flex;
@@ -3803,18 +3805,11 @@ form.blogEdit {
         }
       }
     }
-    h4 {
-      margin: 1em 1em 0;
-      font-size: 1.4em;
-      a {
-        font-size: 1em;
-      }
-    }
     a {
       display: inline-flex;
       align-items: stretch;
     }
-    .time {
+    a.time {
       display: inline-flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -3823,23 +3818,97 @@ form.blogEdit {
         margin: auto 0.3em;
       }
     }
-    h5 {
-      margin: 1.5em 1em 0.5em;
+    h3 {
+      margin: 0.5em 1em 0;
+      display: flex;
+      align-items: center;
+      min-height: 4em;
+      > * {
+        font-size: 1.3em;
+      }
+      a {
+        > span.time {
+          margin-left: 0.25em;
+        }
+      }
+    }
+    div.time {
+      &.single h3 {
+        min-height: 2em;
+      }
+      &.enableCountdown h3 {
+        margin: 0 1em;
+        min-height: 2.8em;
+        > * {
+          font-size: 1em;
+        }
+      }
+      &.smaller {
+        h3 > * {
+          font-size: 1em;
+        }
+      }
+    }
+    h4 {
       display: flex;
       justify-content: center;
-      .countdown {
+      align-items: center;
+      margin: 0 1em;
+      min-height: 2em;
+      > * {
         font-size: 1.4em;
+      }
+      .countdown {
         color: var(--main-color-dark);
       }
     }
+    h5 {
+      margin: 0 0.5em;
+      display: flex;
+      align-items: center;
+      font-size: 1.1em;
+    }
+    .description {
+      margin: 0 1em;
+    }
     @media (max-width: #{$mobileWidth - 1}) {
+      h2 {
+        min-height: 3em;
+        > * {
+          font-size: 1.5em;
+        }
+      }
       h3 {
-        margin: 0.8em 0.5em;
+        margin: 0 1em 0;
+        text-align: center;
+        > * {
+          font-size: 1.15em;
+        }
       }
       h4 {
-        font-size: 1.5em;
-        margin-top: 0.5em;
-        text-align: center;
+        margin: 0;
+        > * {
+          font-size: 1.15em;
+        }
+      }
+      div.time {
+        &.enableCountdown h3 {
+          min-height: 2.3em;
+          > * {
+            font-size: 0.9em;
+          }
+        }
+        &.smaller {
+          h3 > * {
+            font-size: 0.9em;
+          }
+        }
+      }
+      h5 {
+        font-size: 1em;
+      }
+      .description {
+        margin: 0 0.25em;
       }
     }
   }

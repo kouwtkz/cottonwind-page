@@ -20,6 +20,8 @@ interface EventsDataType {
   allDay: boolean;
   url: string;
   raw?: EventsRawDataType;
+  fetchData?: EventsFetchedDataType;
+  private?: boolean;
 }
 
 type EventsRawDateType = { date?: string; dateTime?: string; timeZone?: string };
