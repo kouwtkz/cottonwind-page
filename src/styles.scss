@@ -3660,7 +3660,6 @@ form.blogEdit {
 
 .fc {
   font-size: 1.2rem;
-  // line-height: 1.2rem;
   --fc-event-bg-color: var(--main-color-strong);
   --fc-button-hover-bg-color: var(--main-color-soft);
   --fc-event-border-color: var(--main-color-strong);
@@ -3833,14 +3832,26 @@ form.blogEdit {
       }
     }
     div.time {
-      &.single h3 {
-        min-height: 2em;
+      &.single {
+        h3 {
+          min-height: 2em;
+          margin: 1.2em 1em 0.3em;
+        }
+        &.enableCountdown h3 {
+          min-height: 1.5em;
+          margin: 0.3em 1em;
+        }
       }
-      &.enableCountdown h3 {
-        margin: 0 1em;
-        min-height: 2.8em;
-        > * {
-          font-size: 1em;
+      &.enableCountdown {
+        h3 {
+          margin: 0 1em;
+          min-height: 2.8em;
+          > * {
+            font-size: 1em;
+          }
+        }
+        h4 {
+          min-height: 1.5em;
         }
       }
       &.smaller {
@@ -3856,7 +3867,7 @@ form.blogEdit {
       margin: 0 1em;
       min-height: 2em;
       > * {
-        font-size: 1.4em;
+        font-size: 1.3em;
       }
       .countdown {
         color: var(--main-color-dark);
