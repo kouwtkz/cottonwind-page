@@ -3675,6 +3675,10 @@ form.blogEdit {
   --fc-list-event-hover-bg-color: var(--main-color-pale);
   --fc-today-bg-color: var(--main-color-pale-fluo);
   --fc-page-bg-color: var(--background-bw);
+  &,
+  .fc-event a {
+    word-break: keep-all;
+  }
   .fc-day-sat {
     --fc-non-business-color: rgba(95, 146, 240, 0.132);
   }
@@ -3780,10 +3784,14 @@ form.blogEdit {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      > div {
+        display: flex;
+      }
       button {
         color: var(--main-color-deep);
         background-color: transparent;
-        margin-right: 0.5em;
+        margin-right: 0.25em;
+        margin-left: 0.25em;
         &:hover {
           color: var(--main-color-dark);
         }
@@ -3815,12 +3823,12 @@ form.blogEdit {
       }
     }
     h5 {
-      margin: 1em;
+      margin: 1.5em 1em 0.5em;
       display: flex;
       justify-content: center;
       .countdown {
-        font-size: 1.2em;
-        color: var(--main-color-dark)
+        font-size: 1.4em;
+        color: var(--main-color-dark);
       }
     }
     @media (max-width: #{$mobileWidth - 1}) {
@@ -3828,6 +3836,7 @@ form.blogEdit {
         margin: 0.8em 0.5em;
       }
       h4 {
+        font-size: 1.5em;
         margin-top: 0.5em;
         text-align: center;
       }
