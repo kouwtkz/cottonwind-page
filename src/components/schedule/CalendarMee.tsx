@@ -587,34 +587,47 @@ export function CalendarMeeEventViewer() {
   const location = event?.location;
   const startDate = event?.start;
   let endDate = event ? new Date(event.end) : null;
-  const startFormat: FormatDateOptions = {
-    locale: defaultLang,
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "narrow",
-  };
-  const endFormat: FormatDateOptions = {
-    locale: defaultLang,
-  };
-  if (event) {
-    if (!event.allDay) {
-      startFormat.hour = "numeric";
-      startFormat.minute = "numeric";
+  const startDateString = useMemo(
+    () =>
+      startDate
+        ? formatDate(startDate, {
+            locale: defaultLang,
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            weekday: "narrow",
+          })
+        : "",
+    [startDate]
+  );
+  const startTimeString = useMemo(
+    () =>
+      startDate && !event.allDay
+        ? formatDate(startDate, {
+            locale: defaultLang,
+            hour: "numeric",
+            minute: "numeric",
+          })
+        : "",
+    [startDate, event?.allDay]
+  );
+  const endDateString = useMemo(() => {
+    const endFormat: FormatDateOptions = {
+      locale: defaultLang,
+    };
+    function setEndDateFormat() {
+      if (startDate!.getFullYear() !== endDate!.getFullYear()) {
+        endFormat.year = "numeric";
+      }
+      if (endFormat.year || startDate!.getMonth() !== endDate!.getMonth()) {
+        endFormat.month = "long";
+      }
+      if (endFormat.month || startDate!.getDate() !== endDate!.getDate()) {
+        endFormat.day = "numeric";
+        endFormat.weekday = "narrow";
+      }
     }
     if (startDate && endDate) {
-      function setEndDateFormat() {
-        if (startDate!.getFullYear() !== endDate!.getFullYear()) {
-          endFormat.year = "numeric";
-        }
-        if (endFormat.year || startDate!.getMonth() !== endDate!.getMonth()) {
-          endFormat.month = "long";
-        }
-        if (endFormat.month || startDate!.getDate() !== endDate!.getDate()) {
-          endFormat.day = "numeric";
-          endFormat.weekday = "narrow";
-        }
-      }
       if (event.allDay) {
         const sameDate = Math.floor(
           (endDate.getTime() - startDate.getTime()) / 86400000
@@ -627,11 +640,23 @@ export function CalendarMeeEventViewer() {
         }
       } else {
         setEndDateFormat();
-        endFormat.minute = "numeric";
-        endFormat.hour = "numeric";
       }
-    }
-  }
+    } else return "";
+    return endDate && (endFormat.year || endFormat.month || endFormat.day)
+      ? formatDate(endDate, endFormat)
+      : "";
+  }, [startDate, endDate, event?.allDay]);
+  const endTImeString = useMemo(
+    () =>
+      startDate && endDate && !event.allDay
+        ? formatDate(endDate, {
+            locale: defaultLang,
+            hour: "numeric",
+            minute: "numeric",
+          })
+        : "",
+    [startDate, endDate, event?.allDay]
+  );
   const ModalCloseHandler = useCallback(() => {
     Set({ isOpenEvent: false });
     keepId.current = null;
@@ -708,17 +733,32 @@ export function CalendarMeeEventViewer() {
                   href={event.url}
                   target="google-calendar-event"
                 >
-                  <span className="start">
-                    {formatDate(startDate, startFormat)}
-                  </span>
-                  {endDate ? (
+                  {endDateString ? (
                     <>
-                      <span className="during">-</span>
-                      <span className="end">
-                        {formatDate(endDate, endFormat)}
+                      {startDateString}
+                      {startTimeString}
+                      {endDate ? (
+                        <>
+                          <span className="during">-</span>
+                          {endDateString}
+                          {endTImeString}
+                        </>
+                      ) : null}
+                    </>
+                  ) : (
+                    <>
+                      {startDateString}
+                      <span>
+                        {startTimeString}
+                        {endTImeString ? (
+                          <>
+                            <span className="during">-</span>
+                            {endTImeString}
+                          </>
+                        ) : null}
                       </span>
                     </>
-                  ) : null}
+                  )}
                 </a>
               </h4>
             ) : null}
