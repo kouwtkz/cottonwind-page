@@ -92,6 +92,11 @@ function openWindow(url: string) {
   window.open(url, "google-calendar-event", "width=700,height=600");
 }
 
+const defaultEnableCountdown = (() => {
+  const searchParams = new URLSearchParams(window.location.search);
+  return searchParams.has("countdown");
+})();
+
 interface EventCacheStateProps {
   events: EventsDataType[];
   add: EventsDataType[];
@@ -107,6 +112,7 @@ interface EventCacheStateProps {
   syncRange: timeRangesType | null;
   setTimeRanges: (range: timeRangesType) => void;
   isLoading: boolean;
+  enableCountdown: boolean;
 }
 type timeRangesType = { start: Date; end: Date };
 const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
@@ -150,6 +156,7 @@ const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
     });
   },
   isLoading: false,
+  enableCountdown: defaultEnableCountdown,
 }));
 
 function dateFromSearchParams(
@@ -562,6 +569,7 @@ export function CalendarMeeEventViewer() {
     eventId: stateEventId,
     isOpenEvent,
     isLoading,
+    enableCountdown,
   } = useCalendarMee();
   const keepId = useRef<string | null>(null);
   const eventId = useMemo(() => {
@@ -662,45 +670,26 @@ export function CalendarMeeEventViewer() {
     [eventId, startDate]
   );
   const { state } = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const visibleCountdownParam = useMemo(
-    () => searchParams.has("countdown"),
-    [searchParams]
-  );
-  const beforeCloseDdRef = useRef(visibleCountdownParam);
-  const keepDdRef = useRef(visibleCountdownParam);
-  const visibleCountdown = useMemo(() => {
-    let visibleCountdown: boolean;
-    if (!stateEventId && beforeCloseDdRef.current !== visibleCountdownParam) {
-      visibleCountdown = beforeCloseDdRef.current;
-    } else visibleCountdown = visibleCountdownParam;
-    beforeCloseDdRef.current = visibleCountdownParam;
-    return visibleCountdown;
-  }, [stateEventId, visibleCountdownParam]);
+  const setSearchParams = useSearchParams()[1];
   const setCountdown = useCallback(
     (v: boolean) => {
       const options = { state, preventScrollReset: true, replace: true };
-      if (v && !visibleCountdown) {
+      if (v && !enableCountdown) {
+        Set({ enableCountdown: true });
         setSearchParams((searchParams) => {
-          searchParams.set("countdown", "on");
+          searchParams.set("countdown", "enable");
           return searchParams;
         }, options);
-        keepDdRef.current = true;
-      } else if (!v && visibleCountdown) {
+      } else if (!v && enableCountdown) {
         setSearchParams((searchParams) => {
           searchParams.delete("countdown");
           return searchParams;
         }, options);
-        keepDdRef.current = false;
+        Set({ enableCountdown: false });
       }
     },
-    [visibleCountdown, state]
+    [enableCountdown, state]
   );
-  useEffect(() => {
-    if (isOpenEvent && keepDdRef.current && !visibleCountdown) {
-      setCountdown(true);
-    }
-  }, [isOpenEvent]);
   return (
     <>
       <Modal
@@ -733,7 +722,7 @@ export function CalendarMeeEventViewer() {
                 </a>
               </h4>
             ) : null}
-            {visibleCountdown && startDate ? (
+            {enableCountdown && startDate ? (
               <h5>
                 <CountDown date={startDate} end={endDate} />
               </h5>
@@ -753,10 +742,10 @@ export function CalendarMeeEventViewer() {
                 <button
                   title={
                     "カウントダウンを" +
-                    (visibleCountdown ? "しまう" : "表示する")
+                    (enableCountdown ? "しまう" : "表示する")
                   }
                   type="button"
-                  onClick={() => setCountdown(!visibleCountdown)}
+                  onClick={() => setCountdown(!enableCountdown)}
                 >
                   <RiTimeLine />
                 </button>
