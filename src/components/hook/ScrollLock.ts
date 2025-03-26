@@ -21,10 +21,14 @@ document.addEventListener("wheel", scrollLockHandle, pf);
 document.addEventListener("touchmove", scrollLockHandle, pf);
 
 const html = typeof window === "object" ? document.querySelector("html") : null;
+let scrollLockCount = 0;
 export function scrollLock(m: boolean) {
   if (m) {
+    scrollLockCount++;
     html?.classList.add("scrollLock");
   } else {
-    html?.classList.remove("scrollLock");
+    if (--scrollLockCount === 0) {
+      html?.classList.remove("scrollLock");
+    } else if (scrollLockCount < 0) scrollLockCount = 0;
   }
 }
