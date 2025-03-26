@@ -17,7 +17,6 @@ import {
   MdDeleteForever,
   MdFileUpload,
   MdLibraryAddCheck,
-  MdOndemandVideo,
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
@@ -33,7 +32,7 @@ import {
 import { Options, useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { useApiOrigin } from "@/state/EnvState";
+import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDataObject } from "@/state/DataState";
 import {
@@ -57,6 +56,7 @@ import { useFiles } from "@/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import {
   toastLoadingOptions,
+  toastLoadingShortOptions,
   toastUpdateOptions,
 } from "@/components/define/toastContainerDef";
 import { fileDialog, RenameFile } from "@/components/FileTool";
@@ -71,6 +71,8 @@ import {
   RiArtboard2Fill,
   RiFileUploadLine,
   RiFileWordLine,
+  RiVideoOnLine,
+  RiVideoUploadLine,
 } from "react-icons/ri";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -105,6 +107,8 @@ const defPositions: optionElementInterface[] = [
   { value: "right bottom", inner: "右下" },
 ];
 
+const IMAGE_SEND = "/image/send";
+
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
   const setImagesLoad = imageDataObject.useLoad()[1];
@@ -114,6 +118,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
   const characters = useCharacters()[0] || [];
   const apiOrigin = useApiOrigin()[0];
+  const mediaOrigin = useMediaOrigin()[0];
 
   const {
     isEdit: stateIsEdit,
@@ -265,7 +270,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       });
     }
     const res = await corsFetchJSON(
-      concatOriginUrl(apiOrigin, "/image/send"),
+      concatOriginUrl(apiOrigin, IMAGE_SEND),
       data,
       { method }
     ).finally(() => {
@@ -510,7 +515,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               <MdFileUpload />
             </button>
             <button
-              title="サムネイルをアップロードする"
+              title="サムネイルを置き換えアップロードする"
               type="button"
               className="color round rb"
               onClick={() => {
@@ -530,7 +535,27 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                     });
               }}
             >
-              <MdOndemandVideo />
+              <RiVideoUploadLine />
+            </button>
+            <button
+              title="サムネイルを設定しなおす"
+              type="button"
+              className="color round rb"
+              onClick={() => {
+                if (image && confirm("サムネイルを設定しなおしますか？")) {
+                  uploadThumbnail({ image, apiOrigin, mediaOrigin }).then(
+                    () => {
+                      setImagesLoad("no-cache");
+                      toast(
+                        "サムネイルを設定しました",
+                        toastLoadingShortOptions
+                      );
+                    }
+                  );
+                }
+              }}
+            >
+              <RiVideoOnLine />
             </button>
             <button
               title="画像名のテキストコピー"
@@ -958,7 +983,7 @@ export async function MakeImagesUploadList({
   webpOptions,
   notDraft: direct,
 }: MakeImagesUploadListProps) {
-  const url = concatOriginUrl(apiOrigin, "/image/send");
+  const url = concatOriginUrl(apiOrigin, IMAGE_SEND);
   const checkTime = new Date().getTime();
   const files = Array.isArray(src) ? src : [src];
   const targetFiles = files.filter((v) => {
@@ -974,7 +999,6 @@ export async function MakeImagesUploadList({
     return true;
   });
   if (targetFiles.length === 0) return [];
-  const thumbnailSize = typeof thumbnail === "number" ? thumbnail : 340;
   const formDataList = await Promise.all(
     targetFiles.map(async (v) => {
       const object =
@@ -985,8 +1009,8 @@ export async function MakeImagesUploadList({
           : { src: v, name: v.name };
       const filename =
         typeof object.src === "object" ? object.src.name : object.src;
-      const basename = getName(object.name);
       const ext = getExtension(filename);
+      const basename = getName(object.name);
       const webpName = basename + ".webp";
       const formData = new FormData();
       if (album) formData.append("album", album);
@@ -1023,28 +1047,15 @@ export async function MakeImagesUploadList({
             }
           }
           if (thumbnail) {
-            const resizeProps: resizeImageCanvasProps = {
-              image,
-              size: thumbnailSize,
-              type: "webp",
-              expansion: false,
-            };
-            if (imageOverSizeCheck(image, resizeProps.size!)) {
-              formData.append(
-                "thumbnail",
-                await resizeImageCanvas({ ...resizeProps, quality: 0.8 }),
-                webpName
-              );
-            } else if (ext === "gif" || !original) {
-              formData.append(
-                "thumbnail",
-                await resizeImageCanvas({
-                  ...resizeProps,
-                  imageSmoothingEnabled: false,
-                }),
-                webpName
-              );
-            }
+            await resizeThumbnail({
+              size: thumbnail,
+              src: image,
+              resizeGif: !original,
+            }).then((resized) => {
+              if (resized) {
+                formData.append("thumbnail", resized, webpName);
+              }
+            });
           }
           break;
       }
@@ -1074,6 +1085,56 @@ export async function MakeImagesUploadList({
         else return { status: 500 } as AxiosResponse;
       })
   );
+}
+
+interface resizeThumbnailProps {
+  size?: number | boolean;
+  src: string | HTMLImageElement;
+  resizeGif?: boolean;
+}
+async function resizeThumbnail({ size, src, resizeGif }: resizeThumbnailProps) {
+  const img = typeof src === "string" ? await imageObject(src) : src;
+  const ext = getExtension(img.src);
+  const thumbnailSize = typeof size === "number" ? size : 340;
+  const resizeProps: resizeImageCanvasProps = {
+    image: img,
+    size: thumbnailSize,
+    type: "webp",
+    expansion: false,
+  };
+  if (imageOverSizeCheck(img, resizeProps.size!)) {
+    return resizeImageCanvas({ ...resizeProps, quality: 0.8 });
+  } else if (ext === "gif" || resizeGif) {
+    return resizeImageCanvas({
+      ...resizeProps,
+      imageSmoothingEnabled: false,
+    });
+  }
+}
+interface uploadThumbnailProps {
+  apiOrigin?: string;
+  mediaOrigin?: string;
+  image: ImageType;
+  size?: number | boolean;
+}
+export async function uploadThumbnail({
+  image,
+  apiOrigin,
+  mediaOrigin,
+  size,
+}: uploadThumbnailProps) {
+  if (image.src) {
+    const basename = getName(image.src);
+    return ImagesUpload({
+      src: {
+        name: basename,
+        src: concatOriginUrl(mediaOrigin, image.src),
+      },
+      apiOrigin,
+      original: false,
+      thumbnail: size || true,
+    });
+  }
 }
 
 export interface ImagesUploadProps extends MakeImagesUploadListProps {

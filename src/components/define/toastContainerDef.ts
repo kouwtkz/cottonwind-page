@@ -16,6 +16,11 @@ export const toastLoadingOptions: ToastOptions = {
   closeButton: true,
 };
 
+export const toastLoadingShortOptions: ToastOptions = {
+  ...toastLoadingOptions,
+  autoClose: 1000,
+};
+
 export const toastUpdateOptions: UpdateOptions = {
   progress: 0,
   ...toastDefaultOptions,
