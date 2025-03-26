@@ -40,8 +40,9 @@ interface sortObjectType {
 
 interface GalleryObjectType {
   items: GalleryItemObjectType[];
-  fList: ImageType[][];
-  yfList: ImageType[][];
+  filteredGroups: GalleryItemObjectType[];
+  filteredYearGroups: GalleryItemObjectType[];
+  images: ImageType[];
 }
 
 interface GalleryBodyOptions extends SearchAreaOptionsProps {

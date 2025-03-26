@@ -414,14 +414,14 @@ export function ImageViewer() {
     }
   }, [imageSParam, albumSParam, groupSParam]);
 
-  const { items, yfList } = useGalleryObject();
+  const { items, filteredYearGroups } = useGalleryObject();
   const galleryItemIndex = useMemo(
     () => items?.findIndex((item) => item.name === groupParam) ?? -1,
     [items, groupParam]
   );
   const images = useMemo(
-    () => yfList[galleryItemIndex] || [],
-    [yfList, galleryItemIndex]
+    () => filteredYearGroups[galleryItemIndex]?.list || [],
+    [filteredYearGroups, galleryItemIndex]
   );
   useEffect(() => {
     setImageViewer({ images });

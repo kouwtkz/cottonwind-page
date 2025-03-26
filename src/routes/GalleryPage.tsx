@@ -59,6 +59,7 @@ import {
   SwitchNotDraftUpload,
   SwitchNoUploadThumbnail,
   SwitchUploadWebp,
+  ThumbnailResetButton,
   useImageEditSwitchHold,
   useImageNotDraftUpload,
   useNoUploadThumbnail,
@@ -78,7 +79,7 @@ import {
   IconsFoldButton,
 } from "@/components/dropdown/DropdownButton";
 import {
-  CompatGalleryButton,
+  CompatGalleryButton as CGB,
   CompatMendingThumbnailButton,
   GalleryImportButton,
   GalleryUploadButton,
@@ -205,8 +206,9 @@ export function GalleryObjectConvert({
 
 export const useGalleryObject = CreateObjectState<GalleryObjectType>({
   items: [],
-  fList: [],
-  yfList: [],
+  images: [],
+  filteredGroups: [],
+  filteredYearGroups: [],
 });
 
 export function GalleryObject({
@@ -375,17 +377,17 @@ export function GalleryObject({
     return list;
   }, [sortParam, orderBy, hasTopImage]);
 
-  const { fList, yfList } = useMemo(() => {
-    const fList = items
-      .map((item) =>
-        item.hide ||
-        (!searchMode && item.hideWhenDefault) ||
-        (item.hideWhenFilter &&
+  const filteredGroups = useMemo(() => {
+    return items.map<GalleryItemObjectType>(({ list, ...group }) => {
+      if (
+        group.hide ||
+        (!searchMode && group.hideWhenDefault) ||
+        (group.hideWhenFilter &&
           (searchMode || typeParam || monthParam || hasPickup || hasTopImage))
-          ? []
-          : item.list ?? []
-      )
-      .map((images) => {
+      ) {
+        return { list: [], ...group };
+      } else {
+        let images = list || [];
         if (monthModeParam === "time" && monthParam) {
           images = images.filter(({ time }) => {
             return time ? String(time.getMonth() + 1) === monthParam : false;
@@ -395,13 +397,9 @@ export function GalleryObject({
           where: { AND: wheres },
           orderBy: orderBySort,
         });
-        return images;
-      });
-    const yfList = fList.map((images) => {
-      if (year) images = images.filter((item) => getYear(item.time) === year);
-      return images;
+        return { list: images, ...group };
+      }
     });
-    return { fList, yfList };
   }, [
     items,
     searchMode,
@@ -409,17 +407,38 @@ export function GalleryObject({
     monthParam,
     wheres,
     orderBySort,
-    year,
     hasPickup,
     hasTopImage,
     linkStateUpdated,
   ]);
+  const filteredYearGroups = useMemo(() => {
+    return filteredGroups.map<GalleryItemObjectType>(({ list, ...item }) => {
+      if (year && list)
+        return {
+          list: list.filter((item) => getYear(item.time) === year),
+          ...item,
+        };
+      return { list, ...item };
+    });
+  }, [filteredGroups, year]);
   useLayoutEffect(() => {
-    Set({ fList, yfList });
-  }, [fList, yfList]);
+    const images = filteredYearGroups.reduce<ImageType[]>((a, c) => {
+      if (!c.notYearList) {
+        c.list?.forEach((image) => {
+          a.push(image);
+        });
+      }
+      return a;
+    }, []);
+    Set({ filteredGroups, filteredYearGroups, images });
+  }, [filteredGroups, filteredYearGroups]);
   useLayoutEffect(() => {
     Set({ items });
   }, [items]);
+  const yfList = useMemo(
+    () => filteredYearGroups.map<ImageType[]>(({ list }) => list || []),
+    [filteredYearGroups]
+  );
   return (
     <>
       <GalleryBody items={items} yfList={yfList} {...args} />
@@ -624,12 +643,9 @@ function GalleryBody({
                   >
                     ギャラリーJSONデータの上書きインポート
                   </GalleryImportButton>
+                  <ThumbnailResetButton className="squared item" />
                   <CompatMendingThumbnailButton className="squared item" />
-                  <CompatGalleryButton
-                    from="art"
-                    to="main"
-                    className="squared item"
-                  />
+                  {/* <CGB from="art" to="main" className="squared item" /> */}
                 </DropdownButton>
                 <IconsFoldButton
                   title="絞り込み"
@@ -964,7 +980,7 @@ function GalleryContent({
 export function GalleryYearFilter({
   submitPreventScrollReset = true,
 }: SearchAreaOptionsProps) {
-  const { fList, items } = useGalleryObject();
+  const { filteredGroups } = useGalleryObject();
   const [searchParams, setSearchParams] = useSearchParams();
   const year = Number(searchParams.get("year") ?? NaN);
   const isOlder = searchParams.get("sort") === "leastRecently";
@@ -972,16 +988,16 @@ export function GalleryYearFilter({
   const yearListBase = useMemo(
     () =>
       getYearObjects(
-        fList
-          .map((f, i) => (items[i].notYearList ? [] : f))
+        filteredGroups
+          .filter((item) => !item.notYearList)
           .reduce((a, c) => {
-            c.forEach(({ time }) => {
+            (c.list || []).forEach(({ time }) => {
               if (time) a.push(time);
             });
             return a;
           }, [] as Date[])
       ),
-    [fList, items]
+    [filteredGroups]
   );
   const yearListBase2 = useMemo(() => {
     const addedList =
@@ -992,7 +1008,7 @@ export function GalleryYearFilter({
       y.label = `${y.year} (${y.count})`;
       y.value = String(y.year);
     });
-    return addedList;
+    return addedList.concat();
   }, [yearListBase, year]);
   const yearList = useMemo(() => {
     const olderSign = isOlder ? 1 : -1;

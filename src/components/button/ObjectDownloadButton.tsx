@@ -55,6 +55,7 @@ export interface BaseObjectButtonProps<E = HTMLButtonElement>
   iconClass?: string;
   customRef?: Ref<E>;
   beforeConfirm?: string | boolean;
+  disabled?: boolean;
 }
 export interface ImportObjectButtonProps<E = HTMLButtonElement>
   extends BaseObjectButtonProps<E> {
