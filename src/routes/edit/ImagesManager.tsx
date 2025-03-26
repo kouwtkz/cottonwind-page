@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
-import { GalleryObject } from "../GalleryPage";
+import { GalleryObject, useGalleryObject } from "../GalleryPage";
 import { useImageState } from "@/state/ImageState";
 import { imageDataObject, ImportImagesJson } from "@/state/DataState";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
@@ -8,6 +8,7 @@ import { useCharactersMap } from "@/state/CharacterState";
 import { useParams } from "react-router-dom";
 import { fileDialog } from "@/components/FileTool";
 import {
+  ImagesUpload,
   ImagesUploadWithToast,
   useNoUploadThumbnail,
   useUploadWebp,
@@ -22,11 +23,12 @@ import {
   ObjectCommonButton,
 } from "@/components/button/ObjectDownloadButton";
 import { getName } from "@/functions/doc/PathParse";
-import { corsFetch } from "@/functions/fetch";
-import { sleep } from "@/functions/Time";
-import { PiFileImage, PiFileImageFill } from "react-icons/pi";
-import { CreateState } from "@/state/CreateState";
-import { ModeSwitch } from "@/layout/edit/CommonSwitch";
+import { toast } from "react-toastify";
+import {
+  toastLoadingOptions,
+  toastLoadingShortOptions,
+} from "@/components/define/toastContainerDef";
+import { RiVideoUploadLine } from "react-icons/ri";
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -165,6 +167,9 @@ export function CompatMendingThumbnailButton({
   const mediaOrigin = useMediaOrigin()[0];
   const setImagesLoad = imageDataObject.useLoad()[1];
   const { images } = useImageState();
+  const thumbnailOnly = imageDataObject
+    .useData()[0]
+    ?.filter((v) => v.thumbnail && !v.src);
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton
@@ -199,29 +204,129 @@ export function CompatMendingThumbnailButton({
         )
           .filter((v) => v)
           .map(({ src, image }) => ({ id: image.id, thumbnail: src }));
-        if (list.length === 0) return;
-        const doList = arrayPartition(list, 100).map(
-          (items) => () =>
-            axios
-              .patch(url, items, {
-                withCredentials: true,
-              })
-              .finally(() => {
-                addProgress();
-              })
-        );
-        setMax(doList.length, {
-          message: "サムネイルを設定しています",
-          autoClose: 1500,
-        });
-        PromiseOrder(doList, {
-          minTime: 200,
-        }).then(() => {
-          setImagesLoad("no-cache");
-        });
+        if (list.length) {
+          const doList = arrayPartition(list, 100).map(
+            (items) => () =>
+              axios
+                .patch(url, items, {
+                  withCredentials: true,
+                })
+                .finally(() => {
+                  addProgress();
+                })
+          );
+          setMax(doList.length, {
+            message: "サムネイルを設定しています",
+            autoClose: 1500,
+          });
+          await PromiseOrder(doList, {
+            minTime: 200,
+          });
+        }
+        if (thumbnailOnly?.length) {
+          await Promise.all(
+            thumbnailOnly.map((image) =>
+              axios.delete(url, { data: { id: image.id } })
+            )
+          ).then((v) => {
+            toast(
+              `使われていないサムネイルのみのファイルを${v.length}件削除しました`,
+              toastLoadingOptions
+            );
+          });
+        }
+        setImagesLoad("no-cache");
       }}
     >
       {children || "ギャラリーのサムネイルを修復する"}
+    </ObjectCommonButton>
+  );
+}
+
+interface uploadThumbnailProps {
+  apiOrigin?: string;
+  mediaOrigin?: string;
+  image: ImageType | ImageType[];
+  size?: number | boolean;
+}
+export function repostThumbnail({
+  image,
+  apiOrigin,
+  mediaOrigin,
+  size,
+}: uploadThumbnailProps) {
+  const images = Array.isArray(image) ? image : [image];
+  return Promise.all(
+    images
+      .filter((image) => image.src)
+      .map(async (image) => {
+        if (image.src) {
+          return ImagesUpload({
+            src: concatOriginUrl(mediaOrigin, image.src),
+            apiOrigin,
+            original: false,
+            thumbnail: size || true,
+          });
+        }
+      })
+  );
+}
+
+interface ThumbnailResetButtonProps extends BaseObjectButtonProps {}
+export function ThumbnailResetButton({
+  children,
+  ...props
+}: ThumbnailResetButtonProps) {
+  const apiOrigin = useApiOrigin()[0];
+  const mediaOrigin = useMediaOrigin()[0];
+  const setImagesLoad = imageDataObject.useLoad()[1];
+  const { images } = useGalleryObject();
+  const { addProgress, setMax } = useToastProgress();
+  const noThumbnailList = useMemo(
+    () => images.filter((image) => image.src && !image.thumbnail),
+    [images]
+  );
+  const onClick = useCallback(() => {
+    if (noThumbnailList.length === 0) {
+      toast("未設定のサムネイルはありません", toastLoadingShortOptions);
+    } else if (
+      confirm(
+        `未設定だったギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`
+      )
+    ) {
+      setMax(noThumbnailList.length, {
+        success: null,
+      });
+      const doList = arrayPartition(noThumbnailList, 1).map(
+        (image) => async () => {
+          return repostThumbnail({
+            image,
+            apiOrigin,
+            mediaOrigin,
+          }).finally(() => {
+            addProgress();
+          });
+        }
+      );
+      setMax(doList.length, {
+        message: "サムネイルを設定しています",
+        autoClose: 1500,
+      });
+      PromiseOrder(doList, {
+        minTime: 200,
+      }).then(() => {
+        setImagesLoad("no-cache");
+      });
+    }
+  }, [noThumbnailList, apiOrigin, mediaOrigin]);
+  return (
+    <ObjectCommonButton
+      title={"ギャラリーのサムネイルを再設定する"}
+      icon={<RiVideoUploadLine />}
+      {...props}
+      onClick={onClick}
+    >
+      {children || "ギャラリーのサムネイルを再設定する"}
     </ObjectCommonButton>
   );
 }

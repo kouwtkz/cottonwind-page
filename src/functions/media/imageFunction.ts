@@ -50,6 +50,7 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
     update: undefined,
     new: undefined,
     schedule: lastmod && lastmod.getTime() > Date.now(),
+    data
   };
 }
 

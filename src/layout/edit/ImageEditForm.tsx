@@ -1,11 +1,4 @@
-import {
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import { GalleryViewerPaging } from "@/layout/ImageViewer";
 import { toast } from "react-toastify";
 import { useImageState } from "@/state/ImageState";
@@ -54,7 +47,6 @@ import { charaTagsLabel } from "@/components/FormatOptionLabel";
 import { corsFetchJSON, methodType } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
 import {
-  arrayPartition,
   getCountList,
   PromiseOrder,
   PromiseOrderStateType,
@@ -82,12 +74,7 @@ import {
   RiVideoOnLine,
   RiVideoUploadLine,
 } from "react-icons/ri";
-import { useToastProgress } from "@/state/ToastProgress";
-import {
-  BaseObjectButtonProps,
-  ObjectCommonButton,
-} from "@/components/button/ObjectDownloadButton";
-import { useGalleryObject } from "@/routes/GalleryPage";
+import { repostThumbnail } from "@/routes/edit/ImagesManager";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -274,7 +261,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               data[key] = FormToBoolean(value);
               break;
             default:
-              console.log(value);
               value = Array.isArray(value) ? value.join(",") : value;
               if (value === "") data[key] = null;
               else data[key] = value;
@@ -557,7 +543,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               className="color round rb"
               onClick={() => {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
-                  uploadThumbnail({ image, apiOrigin, mediaOrigin }).then(
+                  repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
                     () => {
                       setImagesLoad("no-cache");
                       toast(
@@ -1124,97 +1110,6 @@ async function resizeThumbnail({ size, src, resizeGif }: resizeThumbnailProps) {
       imageSmoothingEnabled: false,
     });
   }
-}
-interface uploadThumbnailProps {
-  apiOrigin?: string;
-  mediaOrigin?: string;
-  image: ImageType | ImageType[];
-  size?: number | boolean;
-}
-export function uploadThumbnail({
-  image,
-  apiOrigin,
-  mediaOrigin,
-  size,
-}: uploadThumbnailProps) {
-  const images = Array.isArray(image) ? image : [image];
-  return Promise.all(
-    images
-      .filter((image) => image.src)
-      .map((image) => {
-        if (image.src) {
-          const basename = getName(image.src);
-          return ImagesUpload({
-            src: {
-              name: basename,
-              src: concatOriginUrl(mediaOrigin, image.src),
-            },
-            apiOrigin,
-            original: false,
-            thumbnail: size || true,
-          });
-        }
-      })
-  );
-}
-
-interface ThumbnailResetButtonProps extends BaseObjectButtonProps {}
-export function ThumbnailResetButton({
-  children,
-  ...props
-}: ThumbnailResetButtonProps) {
-  const apiOrigin = useApiOrigin()[0];
-  const mediaOrigin = useMediaOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const { images } = useGalleryObject();
-  const { addProgress, setMax } = useToastProgress();
-  const noThumbnailList = useMemo(
-    () => images.filter((image) => image.src && !image.thumbnail),
-    [images]
-  );
-  const onClick = useCallback(() => {
-    if (noThumbnailList.length === 0) {
-      toast("未設定のサムネイルはありません", toastLoadingShortOptions);
-    } else if (
-      confirm(
-        `未設定だったギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`
-      )
-    ) {
-      setMax(noThumbnailList.length, {
-        success: null,
-      });
-      const doList = arrayPartition(noThumbnailList, 1).map(
-        (image) => async () => {
-          return uploadThumbnail({
-            image,
-            apiOrigin,
-            mediaOrigin,
-          }).finally(() => {
-            addProgress();
-          });
-        }
-      );
-      setMax(doList.length, {
-        message: "サムネイルを設定しています",
-        autoClose: 1500,
-      });
-      PromiseOrder(doList, {
-        minTime: 200,
-      }).then(() => {
-        setImagesLoad("no-cache");
-      });
-    }
-  }, [noThumbnailList, apiOrigin, mediaOrigin]);
-  return (
-    <ObjectCommonButton
-      title={"ギャラリーのサムネイルを再設定する"}
-      icon={<RiVideoUploadLine />}
-      {...props}
-      onClick={onClick}
-    >
-      {children || "ギャラリーのサムネイルを再設定する"}
-    </ObjectCommonButton>
-  );
 }
 
 export interface ImagesUploadProps extends MakeImagesUploadListProps {

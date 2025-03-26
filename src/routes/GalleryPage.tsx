@@ -59,7 +59,6 @@ import {
   SwitchNotDraftUpload,
   SwitchNoUploadThumbnail,
   SwitchUploadWebp,
-  ThumbnailResetButton,
   useImageEditSwitchHold,
   useImageNotDraftUpload,
   useNoUploadThumbnail,
@@ -83,6 +82,7 @@ import {
   CompatMendingThumbnailButton,
   GalleryImportButton,
   GalleryUploadButton,
+  ThumbnailResetButton,
 } from "./edit/ImagesManager";
 import { Modal } from "@/layout/Modal";
 import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
