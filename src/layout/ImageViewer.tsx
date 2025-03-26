@@ -456,6 +456,7 @@ export function ImageViewer() {
         className="large full"
         isOpen={isOpen}
         scroll
+        switchWidth
         onClose={() => {
           if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
             backAction();

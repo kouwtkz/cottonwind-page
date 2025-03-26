@@ -721,16 +721,18 @@ export function CalendarMeeEventViewer() {
     if (enableCountdown) classNames.push("enableCountdown");
     if (endDateString) classNames.push("smaller");
     if (!(startTimeString || endTImeString)) classNames.push("single");
-      return classNames.join(" ");
+    return classNames.join(" ");
   }, [enableCountdown, startTimeString, endDateString, endTImeString]);
   return (
     <>
       <Modal
+        className="middle"
         classNameEntire="fc"
         onClose={ModalCloseHandler}
         onExited={EventCloseHandler}
         isOpen={isOpen}
         timeout={60}
+        scroll
       >
         {event ? (
           <>

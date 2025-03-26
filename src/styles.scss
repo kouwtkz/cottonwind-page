@@ -2770,10 +2770,18 @@ label,
       flex-direction: column;
       align-content: stretch;
       overflow-y: auto;
-      @media (min-width: $tabletWidth) {
-        margin-top: 4rem;
-        margin-bottom: 1.5rem;
-        flex-direction: row;
+      &.middle {
+        margin-bottom: 3.5rem;
+      }
+      &.half-middle {
+        margin-bottom: 2rem;
+      }
+      &.switch {
+        @media (min-width: $tabletWidth) {
+          margin-top: 4rem;
+          margin-bottom: 1.5rem;
+          flex-direction: row;
+        }
       }
       &.large {
         max-height: 90vh;
@@ -3779,9 +3787,6 @@ form.blogEdit {
     }
   }
   .modal {
-    max-height: 90dvh;
-    max-width: 95dvw;
-    overflow-y: auto;
     h2 {
       font-size: 1.5em;
       min-height: 3em;

@@ -22,6 +22,7 @@ interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   onExited?: ExitHandler<HTMLDivElement>;
   scroll?: boolean;
   scrollLock?: boolean;
+  switchWidth?: boolean;
 }
 export const Modal = memo(function Modal({
   children,
@@ -36,6 +37,7 @@ export const Modal = memo(function Modal({
   onExited,
   scroll,
   scrollLock: isScrollLock = true,
+  switchWidth,
   ...props
 }: ModalProps) {
   const isOpen = useMemo(() => {
@@ -49,8 +51,9 @@ export const Modal = memo(function Modal({
     const classes = ["modal"];
     if (className) classes.push(className);
     if (scroll) classes.push("window");
+    if (switchWidth) classes.push("switch");
     return classes.join(" ");
-  }, [className, scroll]);
+  }, [className, scroll, switchWidth]);
   const ClassNameEntire = useMemo(() => {
     const classes = ["modalEntire"];
     if (classNameEntire) classes.push(classNameEntire);
