@@ -552,7 +552,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
               </p>
             ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
-            <LikeButton className="large" url={"/character/" + chara.key} />
+            <LikeButton className="font-larger" url={"/character/" + chara.key} />
             <GalleryObject
               items={galleryList.map((item) => {
                 const albumImages = albums?.get(item.name)?.list || [];

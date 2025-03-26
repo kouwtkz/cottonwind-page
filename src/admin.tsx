@@ -34,7 +34,7 @@ export function LoginRoute<T extends MeeCommonEnv>() {
     return (
       <ServerSimpleLayout noindex={true} className="h1h4Page">
         <h1 className="color-main">めぇのログインページ</h1>
-        <form method="POST" className="flex center column large workers">
+        <form method="POST" className="flex center column font-larger workers">
           <input
             name="password"
             type="password"

@@ -58,7 +58,7 @@ export function AdminPage() {
         <>
           <h2 className="color-main en-title-font">Admin room</h2>
           <h4>かんりしつ</h4>
-          <div className="flex center column large">
+          <div className="flex center column font-larger">
             {isLogin ? <AdminMainPage /> : null}
           </div>
         </>
@@ -112,7 +112,7 @@ function FilesManager() {
       <RbButtonArea>
         <button
           type="button"
-          className="color round large"
+          className="color round font-larger"
           title="ファイルのアップロード"
           onClick={async () => {
             fileDialog("*", true)
@@ -168,7 +168,7 @@ function ZipPage() {
     <>
       <h2 className="color-main en-title-font">Zip archive</h2>
       <h4>アーカイブのダウンロードページ</h4>
-      <div className="flex center column large">
+      <div className="flex center column font-larger">
         <ImageFilesDownload take={100} />
         <ImageFilesDownload />
         <FilesDownload />
@@ -322,7 +322,7 @@ function DBPage() {
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
       <h4>データベースの設定ページ</h4>
-      <div className="flex center column large">
+      <div className="flex center column font-larger">
         <a
           href="./"
           onClick={(e) => {

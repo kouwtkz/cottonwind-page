@@ -553,8 +553,7 @@ ul {
   &.evenly {
     justify-content: space-evenly;
   }
-  &.large {
-    font-size: 1.5rem;
+  &.font-larger {
     > * {
       margin: 0.5rem;
     }
@@ -1236,6 +1235,20 @@ h4 {
 }
 .font-bold {
   font-weight: bold;
+}
+
+.font-large,
+.font-larger {
+  .list {
+    display: flex;
+    align-items: center;
+    &.column {
+      flex-direction: column;
+    }
+    > * {
+      margin: 0.25rem;
+    }
+  }
 }
 
 .dropdown {
@@ -2677,27 +2690,6 @@ label,
   }
 }
 
-.modal.window {
-  max-height: 92vh;
-  max-height: 92dvh;
-  margin-top: 3.5rem;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-content: stretch;
-  overflow-y: auto;
-  @media (min-width: $tabletWidth) {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin-top: 4rem;
-    margin-bottom: 1.5rem;
-    flex-direction: row;
-    overflow-y: auto;
-  }
-}
-
 .modalEntire {
   position: fixed;
   z-index: 15000;
@@ -2711,6 +2703,10 @@ label,
     background-color: var(--modal-window-background);
     padding: 1rem;
     border-radius: 1rem;
+    &.full {
+      padding: 0;
+      border-radius: 0;
+    }
     form.flex {
       max-width: 80vw;
       flex-direction: column;
@@ -2763,6 +2759,29 @@ label,
               background-color: var(--warm-color-hover);
             }
           }
+        }
+      }
+    }
+    &.window {
+      margin-top: 3.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      overflow-y: auto;
+      @media (min-width: $tabletWidth) {
+        margin-top: 4rem;
+        margin-bottom: 1.5rem;
+        flex-direction: row;
+      }
+      &.large {
+        max-height: 90vh;
+        max-height: 90dvh;
+        @media (min-width: $tabletWidth) {
+          position: absolute;
+          top: 0;
+          bottom: 0;
         }
       }
     }
@@ -3283,20 +3302,6 @@ label,
   color: var(--main-color-dark);
 }
 
-.large {
-  font-size: 1.5rem;
-  .list {
-    display: flex;
-    align-items: center;
-    &.column {
-      flex-direction: column;
-    }
-    > * {
-      margin: 0.25rem;
-    }
-  }
-}
-
 body.workers {
   margin: 2rem;
 }
@@ -3543,7 +3548,7 @@ form.blogEdit {
     max-width: 100%;
     min-width: 12rem;
     margin: auto;
-    &.large {
+    &.font-larger {
       width: max-content;
     }
     li {
@@ -3774,6 +3779,9 @@ form.blogEdit {
     }
   }
   .modal {
+    max-height: 90dvh;
+    max-width: 95dvw;
+    overflow-y: auto;
     h2 {
       font-size: 1.5em;
       min-height: 3em;
@@ -3816,6 +3824,7 @@ form.blogEdit {
       justify-content: space-around;
       min-height: 4em;
       padding-top: 0.5em;
+      margin: auto;
       &.single {
         padding: 1em 1em 0;
         h3 {
@@ -3889,16 +3898,27 @@ form.blogEdit {
     @media (max-width: #{$mobileWidth - 1}) {
       h2 {
         font-size: 1.5em;
+        margin: 0 1em;
       }
       div.time {
-        padding-top: 0;
+        padding-top: 0.5em;
+        min-height: 5em;
         &.single {
-          padding: 1em 0 0;
+          padding: 0;
+          padding-top: 0.5em;
+          margin: 0 auto;
+          &.enableCountdown {
+            padding-top: 0;
+          }
+          h3 {
+            font-size: 1.9em;
+          }
         }
         h3 {
-          margin: 0 1em 0;
+          margin: 0;
+          font-size: 1.6em;
           text-align: center;
-          font-size: 1.5em;
+          justify-content: center;
         }
         h4 {
           margin: 0;

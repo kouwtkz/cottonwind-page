@@ -762,7 +762,7 @@ export function CharaEditButton() {
         <>
           <button
             type="button"
-            className="color round large"
+            className="color round font-larger"
             title="キャラデータのダウンロード"
             onClick={() => {
               if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
@@ -773,7 +773,7 @@ export function CharaEditButton() {
           </button>
           <button
             type="button"
-            className="color round large"
+            className="color round font-larger"
             title="キャラクター用のアイコンのインポート"
             onClick={() => {
               fileDialog("image/*", true)
@@ -803,7 +803,7 @@ export function CharaEditButton() {
           </button>
           <button
             type="button"
-            className="color round large"
+            className="color round font-larger"
             title="キャラクターデータベースのインポート"
             onClick={() => {
               ImportCharacterJson({ apiOrigin }).then(() => {
@@ -838,7 +838,7 @@ export function CharaEditButton() {
       ) : (
         <button
           type="button"
-          className="color round large"
+          className="color round font-larger"
           title="ソートモードにする"
           onClick={() => setMove(1)}
         >
@@ -847,7 +847,7 @@ export function CharaEditButton() {
       )}
       <LinkMee
         to={{ query: { edit: "on" } }}
-        className="button color round large"
+        className="button color round font-larger"
         title={charaName ? "キャラクターの編集" : "キャラクターの追加"}
       >
         {charaName ? <MdEditNote /> : <MdAdd />}

@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   createSearchParams,
   Link,
@@ -9,7 +9,6 @@ import {
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { SiteDateOptions as opt } from "@/functions/DateFunction";
 import { ImageMee } from "./ImageMee";
-import CloseButton from "@/components/svg/button/CloseButton";
 import ImageEditForm, {
   useImageEditState,
   useImageEditSwitchHold,
@@ -37,10 +36,10 @@ import { EmbedNode, useFilesMap } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "@/components/button/LikeButton";
-import { CSSTransition } from "react-transition-group";
 import { useGalleryObject } from "@/routes/GalleryPage";
 import { CreateObjectState } from "@/state/CreateState";
 import { CharacterName } from "@/routes/CharacterPage";
+import { Modal } from "./Modal";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -440,16 +439,10 @@ export function ImageViewer() {
     }
   }, [image]);
   const timeout = 80;
-  const timeoutStyle = useMemo<CSSProperties>(() => {
-    return {
-      animationDuration: timeout + "ms",
-    };
-  }, [timeout]);
 
   return (
     <div id="image_viewer">
-      <CSSTransition
-        in={isOpen}
+      <Modal
         onExited={() => {
           setImageViewer({
             imageParam: null,
@@ -459,35 +452,23 @@ export function ImageViewer() {
         }}
         timeout={timeout}
         // unmountOnExit
-        nodeRef={nodeRef}
+        classNameEntire="viewer"
+        className="large full"
+        isOpen={isOpen}
+        scroll
+        onClose={() => {
+          if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
+            backAction();
+          }
+        }}
       >
-        <div ref={nodeRef} style={timeoutStyle}>
-          {image ? (
-            <div
-              onClick={(e) => {
-                if (e.target === e.currentTarget) backAction();
-              }}
-              className="viewer scrollThrough"
-            >
-              <div>
-                <CloseButton
-                  className="modalClose cursor-pointer"
-                  width={60}
-                  height={60}
-                  onClick={(e) => {
-                    backAction();
-                    e.stopPropagation();
-                  }}
-                />
-                <div className="window modal" style={timeoutStyle}>
-                  <PreviewArea image={image} />
-                  <InfoArea image={image} />
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </CSSTransition>
+        {image ? (
+          <>
+            <PreviewArea image={image} />
+            <InfoArea image={image} />
+          </>
+        ) : null}
+      </Modal>
     </div>
   );
 }

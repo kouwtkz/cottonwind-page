@@ -73,7 +73,7 @@ export default function LinksPage() {
       />
       <div>
         <h3 className="leaf">いろいろ</h3>
-        <ul className="flex center column large">
+        <ul className="flex center column font-larger">
           <li>
             <InviteDiscordLink />
           </li>
@@ -301,7 +301,7 @@ function LinksContainer({
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
     if (banner) list.push("bannerArea");
-    else list.push("large");
+    else list.push("font-larger");
     return list.join(" ");
   }, [links, banner]);
   className = useMemo(() => {

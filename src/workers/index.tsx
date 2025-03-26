@@ -43,7 +43,7 @@ app.get("/", async (c) => {
     renderHtml(
       <WorkersLayout title="めぇめぇワーカー" className="h1h4Page">
         <h1>めぇめぇワーカー</h1>
-        <div className="flex center column large">
+        <div className="flex center column font-larger">
           <a href="/workers/feed-update">フィードの更新</a>
           <a href="/workers/notice-feed">めぇめぇつうしん</a>
           <a href="/workers/twix">Twitterれんけい</a>

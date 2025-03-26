@@ -1254,8 +1254,11 @@ export function MiniGallery() {
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
   const { state } = useLocation();
-  const enable = searchParams.get("modal") === "gallery";
-  function closeHandler() {
+  const enable = useMemo(
+    () => searchParams.get("modal") === "gallery",
+    [searchParams]
+  );
+  const closeHandler = useCallback(() => {
     if (state?.from) {
       delete state.from;
       nav(-1);
@@ -1263,7 +1266,7 @@ export function MiniGallery() {
       searchParams.delete("modal");
       setSearchParams(searchParams, { state, preventScrollReset: true });
     }
-  }
+  }, [state, searchParams]);
   useEffect(() => {
     if (selectedImage) {
       setSelectedImage(null);
@@ -1272,15 +1275,16 @@ export function MiniGallery() {
   }, [selectedImage, setSelectedImage]);
   return (
     <>
-      {enable ? (
-        <Modal
-          classNameEntire="gallery"
-          className="window miniGallery"
-          onClose={closeHandler}
-        >
-          <GalleryPage showInPageMenu={false} hideWhenEmpty={true} />
-        </Modal>
-      ) : null}
+      <Modal
+        classNameEntire="gallery"
+        className="large miniGallery"
+        onClose={closeHandler}
+        isOpen={enable}
+        scroll
+        timeout={50}
+      >
+        <GalleryPage showInPageMenu={false} hideWhenEmpty={true} />
+      </Modal>
     </>
   );
 }

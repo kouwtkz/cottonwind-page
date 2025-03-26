@@ -150,7 +150,7 @@ app.get("/", async (c) => {
           </form>
         ) : null}
         {token?.access_token ? (
-          <ul className="inline-block flex center column large">
+          <ul className="inline-block flex center column font-larger">
             <li>
               <a href="?refresh">twitter連携を更新する</a>
             </li>
@@ -159,12 +159,12 @@ app.get("/", async (c) => {
             </li>
           </ul>
         ) : (
-          <div className="flex center column large">
+          <div className="flex center column font-larger">
             <a href="?authorize">twitter連携をする</a>
           </div>
         )}
         <div id="app" />
-        <div className="flex center column large">
+        <div className="flex center column font-larger">
           <a href="/workers/notice-feed">めぇめぇつうしんへもどる</a>
           <a href="/workers">ワーカーページにもどる</a>
         </div>
