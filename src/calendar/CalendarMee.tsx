@@ -20,7 +20,7 @@ import {
 } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
-import { MultiParserWithMedia as MultiParser } from "../parse/MultiParserWithMedia";
+import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiParserWithMedia";
 import {
   RiFileCopyLine,
   RiLink,

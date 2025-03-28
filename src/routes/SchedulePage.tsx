@@ -1,7 +1,7 @@
 import {
   CalendarMee,
   CalendarMeeProps,
-} from "@/components/schedule/CalendarMee";
+} from "@/calendar/CalendarMee";
 
 export function SchedulePage({ title = "Schedule" }: { title?: string }) {
   return (

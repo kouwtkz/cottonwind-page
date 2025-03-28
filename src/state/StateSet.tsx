@@ -17,7 +17,7 @@ import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
 import { KeyValueDBState } from "./KeyValueDBState";
-import { CalendarMeeState } from "@/components/schedule/CalendarMee";
+import { CalendarMeeState } from "@/calendar/CalendarMee";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
