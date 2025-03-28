@@ -1,7 +1,0 @@
-compatibility_date = "2024-10-20"
-main = "src/media.ts"
-name = "cottonwind-media"
-
-[[r2_buckets]]
-binding = "BUCKET"
-bucket_name = "cottonwind-bucket"

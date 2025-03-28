@@ -1,4 +1,4 @@
-compatibility_date = "2024-10-20"
+compatibility_date = "2025-03-10"
 main = "src/sv/index.ts"
 name = "cottonwind-sv"
 

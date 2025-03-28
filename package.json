@@ -2,9 +2,6 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite --host --port 51730",
-    "dev-media": "npx vite --host --port 51731 --mode media",
-    "dev-ssl": "npx vite --host --port 51730 --mode=ssl",
-    "dev-media-ssl": "npx vite --host --port 51731 --mode media-ssl",
     "build": "npx vite build --mode ssg-overwrite && npm run build-client && npm run build-worker",
     "build-ssg": "npx vite build --mode ssg",
     "build-client": "npx vite build --mode client && npx vite build --mode client-twix",
@@ -13,6 +10,7 @@
     "deploy": "npm run build && npm run deploy-only",
     "deploy-only": "npx wrangler pages deploy dist --commit-dirty true --branch master",
     "deploy-sv": "npx wrangler deploy -c wrangler-sv.toml",
+    "dev-sv": "npx wrangler dev --local -c wrangler-sv.toml --port 51732 --test-scheduled",
     "delete-all-image": "curl -X DELETE http://localhost:51730/api/image/all",
     "delete-all-character": "curl -X DELETE http://localhost:51730/api/character/all",
     "delete-all-blog": "curl -X DELETE http://localhost:51730/api/blog/all",
@@ -86,7 +84,7 @@
     "vite": "^5.4.10",
     "vite-plugin-sitemap": "^0.7.1",
     "vite-tsconfig-paths": "^5.0.1",
-    "wrangler": "^4.0.0",
+    "wrangler": "^4.5.1",
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
   },

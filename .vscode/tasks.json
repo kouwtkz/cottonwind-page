@@ -59,12 +59,12 @@
       "command": "npm run init-db-schema",
       "label": "db:schema.sql"
     },
-		{
-      "type": "shell",
-			"label": "dev: sv",
-			"command": "npx wrangler dev --local -c wrangler-sv.toml --port 51732 --test-scheduled",
-			"group": "build"
-		},
+    {
+      "type": "npm",
+      "script": "dev-sv",
+      "problemMatcher": [],
+      "label": "npm: dev-sv",
+    },
     {
       "type": "shell",
       "command": "curl http://localhost:51732/__scheduled?cron=${input:cron}",
