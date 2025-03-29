@@ -59,7 +59,6 @@ export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   isOpen: false,
   setOpen: () => {
     set(() => ({ isOpen: true }));
-    scrollLock(true);
   },
   setClose: () => {
     set(() => ({ isOpen: false, editMode: false }));
