@@ -14,8 +14,10 @@ type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | obj
 type findWhereWithConditionsType<T> = findWhereType<T> | filterConditionsAllType;
 
 type OrderByType = "asc" | "desc";
+type OrderByItemType<K extends Object> = OrderByItem<K> | OrderByType;
 type OrderByKeyStr = { [k: string]: OrderByType };
-type OrderByItem<T> = { [K in keyof T]?: OrderByType };
+type OrderByItem<T> = { [K in keyof T]?: OrderByType } | { [K in keyof T]?: OrderByItem<T[K]> };
+type OrderByUdType = OrderByType | undefined;
 
 type findMeeProps<T> = {
   where?: findWhereType<T>;

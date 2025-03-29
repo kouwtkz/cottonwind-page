@@ -351,7 +351,7 @@ export function GalleryObject({
     draftOnly,
   ]);
   const orderBySort = useMemo(() => {
-    const list: OrderByItem<OldMediaImageItemType>[] = [...orderBy];
+    const list: OrderByItem<ImageType>[] = [...orderBy];
     const searchSort = sortParam ?? "";
     switch (searchSort) {
       case "recently":
@@ -366,6 +366,9 @@ export function GalleryObject({
       case "leastNameOrder":
         list.push({ title: "desc" });
         break;
+      case "likeCount":
+        list.push({ like: { count: "desc" } });
+        break;
     }
     if (hasTopImage) list.push({ topImage: "desc" });
     const keys = list.reduce((a, c) => {
@@ -373,7 +376,7 @@ export function GalleryObject({
       return a;
     }, [] as string[]);
     if (keys.every((key) => key !== "time")) list.unshift({ time: "desc" });
-    if (keys.every((key) => key !== "name")) list.unshift({ name: "asc" });
+    if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
 
@@ -1135,7 +1138,7 @@ interface SelectAreaProps extends SearchAreaOptionsProps {
 }
 
 const gallerySortTags = [
-  defineSortTags(["leastResently", "nameOrder", "leastNameOrder"]),
+  defineSortTags(["leastResently", "nameOrder", "leastNameOrder", "likeCount"]),
 ];
 export function GalleryTagsSelect(args: SelectAreaProps) {
   const isLogin = useIsLogin()[0];

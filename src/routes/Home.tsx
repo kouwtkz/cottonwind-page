@@ -205,34 +205,36 @@ export function HomeImageState() {
     [imageAlbums]
   );
   useEffect(() => {
-    const topImages = findMee(images, {
-      where: {
-        OR: [
-          { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
-          { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
-          {
-            tags: { contains: timeframeTag },
-            AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
-          },
-        ],
-      },
-      orderBy: [{ topImage: "desc" }],
-    });
-    const firstQue = topImages.filter(
-      ({ topImage }) => topImage === 2 || topImage === 5
-    );
-    const alwaysImages = topImages.filter(
-      ({ topImage }) => topImage === 3 || topImage === 6
-    );
-    shuffleArray(topImages);
-    setTopImage({
-      topImage: firstQue[0] || topImages[0],
-      topImageIndex: 0,
-      topImages,
-      firstQueIndex: 0,
-      firstQue,
-      alwaysImages,
-    });
+    if (images.length > 0) {
+      const topImages = findMee(images, {
+        where: {
+          OR: [
+            { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
+            { tags: { in: monthlyFilter?.tags }, topImage: { equals: null } },
+            {
+              tags: { contains: timeframeTag },
+              AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
+            },
+          ],
+        },
+        orderBy: [{ topImage: "desc" }],
+      });
+      const firstQue = topImages.filter(
+        ({ topImage }) => topImage === 2 || topImage === 5
+      );
+      const alwaysImages = topImages.filter(
+        ({ topImage }) => topImage === 3 || topImage === 6
+      );
+      shuffleArray(topImages);
+      setTopImage({
+        topImage: firstQue[0] || topImages[0],
+        topImageIndex: 0,
+        topImages,
+        firstQueIndex: 0,
+        firstQue,
+        alwaysImages,
+      });
+    }
   }, [images, timeframeTag]);
   return <></>;
 }

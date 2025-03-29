@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useImageState } from "./ImageState";
 import { useSoundDefaultPlaylist, useSounds } from "./SoundState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
-import { charactersDataObject } from "./DataState";
+import { charactersDataObject, likeDataObject } from "./DataState";
 import { getCharacterMap as getCharactersMap } from "@/functions/characterFunction";
 import { CreateState } from "./CreateState";
 
@@ -30,10 +30,19 @@ export function CharacterState() {
   const defaultPlaylist = useSoundDefaultPlaylist()[0];
   const env = useEnv()[0];
   const setCharacterTags = useCharacterTags()[1];
+  const likeData = likeDataObject.useData()[0];
+  const charaLikeData = useMemo(() => {
+    const list = likeData
+      ?.filter((v) => v.path?.startsWith("/character/"))
+      .map<[string, LikeType]>((like) => [like.path!.slice(11), like]);
+    if (list) return new Map(list);
+  }, [likeData]);
   useEffect(() => {
-    if (imagesMap && characterData && env) {
+    if (imagesMap && characterData && env && charaLikeData) {
       const charactersMap = getCharactersMap(characterData);
       charactersMap.forEach((chara) => {
+        const currentLikeData = charaLikeData.get(chara.key);
+        if (currentLikeData) chara.like = currentLikeData;
         if (!chara.media) chara.media = {};
         const charaMedia = chara.media;
         charaMediaKindMap.forEach((name, key) => {
@@ -99,6 +108,7 @@ export function CharacterState() {
     defaultPlaylist,
     setCharacterTags,
     env,
+    charaLikeData,
   ]);
   return <></>;
 }

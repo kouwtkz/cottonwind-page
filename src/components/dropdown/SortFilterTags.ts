@@ -178,6 +178,9 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
       case "leastNameOrder":
         options.push({ value: "sort:leastNameOrder", label: "⬆️名前（降順）" });
         break;
+      case "likeCount":
+        options.push({ value: "sort:likeCount", label: "♥️いいね順" });
+        break;
     }
   });
   return {

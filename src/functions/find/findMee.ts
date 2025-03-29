@@ -7,16 +7,17 @@ export function findMee<T>(
     skip = 0,
   }: findMeeProps<T>): T[] {
   orderBy
-    ?.reduce((a, c) => {
+    ?.reduce<{ [k: string]: OrderByType }[]>((a, c) => {
       Object.entries(c).forEach(([k, v]) => {
         if (a.findIndex((f) => k in f) < 0) {
           if (c) a.push({ [k]: v as OrderByType });
         }
       });
       return a;
-    }, [] as { [k: string]: OrderByType }[])
+    }, [])
     .forEach((args) => {
-      Object.entries(args).forEach(([k, v]) => {
+      parseEntryKeys(args).forEach((_k) => {
+        const v = fromEntryKeys(args, _k);
         let sign = 0;
         switch (v) {
           case "asc":
@@ -29,24 +30,26 @@ export function findMee<T>(
         if (sign !== 0) {
           list.sort((a: any, b: any) => {
             let result = 0;
-            const judgeValue = a[k] || b[k];
+            const valueA = fromEntryKeys(a, _k);
+            const valueB = fromEntryKeys(b, _k);
+            const judgeValue = valueA || valueB;
             const typeofValue = typeof judgeValue;
             switch (typeofValue) {
               case "string":
-                if (a[k] && b[k]) result = a[k].localeCompare(b[k], 'ja');
+                if (valueA && valueB) result = valueA.localeCompare(valueB, 'ja');
                 break;
               case "number":
-                result = a[k] - b[k];
+                result = (valueA || 0) - (valueB || 0);
                 break;
               case "object":
                 if (judgeValue && "getTime" in judgeValue) {
-                  const atime = a[k]?.getTime() || 0;
-                  const btime = b[k]?.getTime() || 0;
+                  const atime = valueA?.getTime() || 0;
+                  const btime = valueB?.getTime() || 0;
                   if (atime !== btime) result = atime - btime;
                 }
                 break;
               default:
-                result = a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0;
+                result = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
                 break;
             }
             result = result * sign;
@@ -63,6 +66,32 @@ export function findMee<T>(
     if (result) i++;
     return result && i > skip;
   });
+}
+
+function parseEntryKeys(o: any) {
+  const r: string[][] = [];
+  function rdf(o: Object, ca: string[] = []) {
+    Object.entries(o).forEach(([k, v]) => {
+      if (typeof v === "object") {
+        rdf(v, [...ca, k])
+      } else {
+        r.push([...ca, k]);
+      }
+    }, []);
+  }
+  rdf(o);
+  return r;
+}
+function fromEntryKeys(o: any, keys: string[]) {
+  return keys.reduce<any>((a, c) => {
+    if (a) {
+      if (c in a) {
+        return a[c];
+      } else {
+        return;
+      }
+    } else return a;
+  }, o);
 }
 
 type WheresEntriesType = [string, unknown][];
@@ -189,6 +218,21 @@ function whereFromKey(key: string | string[], value: findWhereWithConditionsType
   }
 }
 
+function SplitPeriodKey(key: string, value: any) {
+  const parts = key.split(".");
+  const partsLength = parts.length - 1;
+  const returnValue = {};
+  parts.reduce<any>((a, c, i) => {
+    if (partsLength === i) {
+      a[c] = value;
+    } else {
+      a[c] = {};
+      return a[c];
+    }
+  }, returnValue);
+  return returnValue;
+}
+
 function TextToWhere(rawValue: string, value: string, forceContains?: boolean): filterConditionsAllKeyValue<any, unknown> {
   if (forceContains) return { contains: value };
   else {
@@ -307,15 +351,18 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             const sortKey = sortOrder
               ? filterValue.replace("!", "")
               : filterValue;
-            switch (sortKey) {
+            let sortValue: OrderByType;
+            switch (sortKey.slice(sortKey.lastIndexOf(".") + 1)) {
               case "date":
               case "update":
-                orderBy.push({ [sortKey]: sortOrder ? "asc" : "desc" });
+              case "count":
+                sortValue = sortOrder ? "asc" : "desc";
                 break;
               default:
-                orderBy.push({ [sortKey]: sortOrder ? "desc" : "asc" });
+                sortValue = sortOrder ? "desc" : "asc";
                 break;
             }
+            orderBy.push(SplitPeriodKey(sortKey, sortValue));
             break;
           case "from":
             whereItem = whereFromKey(fromKey, {
@@ -392,17 +439,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
               const key = Array.isArray(keyraw) ? keyraw.map(v => String(v)) : String(keyraw);
               let filterEntry: filterConditionsAllKeyValue<any>;
               if (typeof key === "string" && /\./.test(key)) {
-                filterEntry = {};
-                const parts = key.split(".");
-                const partsLength = parts.length - 1;
-                parts.reduce<any>((a, c, i) => {
-                  if (partsLength === i) {
-                    a[c] = filterValue;
-                  } else {
-                    a[c] = {}; return a[c];
-                  }
-                }, filterEntry);
-                whereItem = filterEntry;
+                whereItem = SplitPeriodKey(key, filterValue);
               } else {
                 switch (filterValue) {
                   case "true":

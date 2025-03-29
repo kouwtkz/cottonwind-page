@@ -136,19 +136,23 @@ function CharacterPageState() {
       case "leastNameOrder":
         list.push({ name: "desc" });
         break;
+      case "likeCount":
+        list.push({ like: { count: "desc" } });
+        break;
     }
     return list;
   }, [sortParam, orderBy]);
   const characters = useCharacters()[0];
   const parts = useMemo(() => {
-    let items = characters
-      ? findMee([...characters], { where, orderBy: orderBySort })
-      : [];
+    let items =
+      characters && characters.length
+        ? findMee([...characters], { where, orderBy: orderBySort })
+        : [];
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts: PartsType[] = [];
-    let sortType: OrderByType | undefined;
+    let sortType: OrderByItemType<any> | undefined;
     let entries: [string, CharacterType[]][] | undefined;
-    const timeSort = orderBySort?.find((v) => v.time)?.time;
+    const timeSort = orderBySort?.find((v) => v.time)?.time as OrderByUdType;
     if (timeSort) {
       sortType = timeSort;
       const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
@@ -161,7 +165,7 @@ function CharacterPageState() {
       }, new Map());
       entries = Object.entries(Object.fromEntries(map));
     }
-    const nameSort = orderBySort?.find((v) => v.name)?.name;
+    const nameSort = orderBySort?.find((v) => v.name)?.name as OrderByUdType;
     if (nameSort) {
       sortType = nameSort;
       const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
@@ -552,7 +556,10 @@ function CharaDetail({ charaName }: { charaName: string }) {
               </p>
             ) : null}
             <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
-            <LikeButton className="font-larger" url={"/character/" + chara.key} />
+            <LikeButton
+              className="font-larger"
+              url={"/character/" + chara.key}
+            />
             <GalleryObject
               items={galleryList.map((item) => {
                 const albumImages = albums?.get(item.name)?.list || [];
@@ -581,7 +588,13 @@ const useConfirmUrl = CreateState<string>();
 
 interface CharaSearchAreaProps {}
 const characterSortTags = [
-  defineSortTags(["nameOrder", "leastNameOrder", "recently", "leastResently"]),
+  defineSortTags([
+    "nameOrder",
+    "leastNameOrder",
+    "recently",
+    "leastResently",
+    "likeCount",
+  ]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
   const characterTags = useCharacterTags()[0];
