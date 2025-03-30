@@ -68,7 +68,7 @@ interface MeeSvEnv extends MeeCommonEnv {
   EXPIRATION_DAYS?: number;
 }
 
-interface MeeBindings<T extends MeeCommonEnv = MeeCommonEnv> {
+interface MeeBindings<T = MeeCommonEnv> {
   Bindings: T;
   Response: any;
 }

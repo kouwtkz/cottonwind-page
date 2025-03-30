@@ -1,20 +1,20 @@
-import { ServerPostsGetRssData } from "./api/blog";
+import { ServerPostsGetRssData } from "@/api/blog";
 import { ImageSelectFromKey } from "@/functions/media/serverDataFunction";
-import { MakeRss } from "./functions/blogFunction";
+import { MakeRss } from "@/functions/blogFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
-import { concatOriginUrl, getMediaOrigin } from "./functions/originUrl";
-import { RoutingUnion } from "./routes/RoutingList";
-import { discordInviteMatch } from "./ServerContent";
-import { CommonHono } from "./types/HonoCustomType";
-import { app_workers } from "./workers";
-import { LoginCheckMiddleware } from "./admin";
-import { app_api } from "./api";
-import { app_get } from "./get";
-import { AddMetaEnv } from "./serverLayout";
-import mediaApp from "./media";
+import { concatOriginUrl, getMediaOrigin } from "@/functions/originUrl";
+import { RoutingUnion } from "@/routes/RoutingList";
+import { discordInviteMatch } from "@/ServerContent";
+import { CommonHono } from "@/types/HonoCustomType";
+import { app_workers } from "@/workers";
+import { LoginCheckMiddleware } from "@/admin";
+import { app_api } from "@/api";
+import { app_get } from "@/get";
+import { AddMetaEnv } from "@/serverLayout";
+import mediaApp from "@/media";
 
-export function ServerCommon(app: CommonHono) {
+export function MainPageRouteIndex(app: CommonHono) {
   app.route("/workers", app_workers);
   app.route("/api", app_api);
   app.use("/admin/*", LoginCheckMiddleware);

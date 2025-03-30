@@ -19,6 +19,42 @@ const publicDirBuild: BuildOptions = {
   emptyOutDir: false,
   copyPublicDir: false,
 }
+const clientBuildOptions = ({
+  rollupOptions: {
+    output: {
+      entryFileNames: `static/js/[name].js`,
+      chunkFileNames: `static/js/[name].js`,
+      assetFileNames: (assetInfo) => {
+        const name = assetInfo?.name ?? "";
+        if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
+          return 'static/images/[name].[ext]';
+        }
+        if (/\.css$/.test(name)) {
+          return 'css/[name].[ext]';
+        }
+        return 'static/[name].[ext]';
+      }
+    },
+    onwarn(warning, warn) {
+      // Suppress "Module level directives cause errors when bundled" warnings
+      if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+        return;
+      }
+      warn(warning);
+    },
+  },
+} as BuildOptions).rollupOptions
+
+const devExclude: (string | RegExp)[] = [
+  // /.*\.css$/,
+  /.*\.ts$/,
+  /.*\.tsx$/,
+  /^\/@.+$/,
+  /\?t\=\d+$/,
+  /^\/favicon\.ico$/,
+  /^\/static\/.+/,
+  /^\/node_modules\/.*/,
+];
 
 export default defineConfig(async ({ mode }) => {
   let defaultPlugins: PluginOption[] = [tsconfigPaths()];
@@ -46,28 +82,8 @@ export default defineConfig(async ({ mode }) => {
         ...defaultBuild,
         emptyOutDir: modes[1] === "overwrite",
         rollupOptions: {
+          ...clientBuildOptions,
           input: clientInput,
-          output: {
-            entryFileNames: `static/js/[name].js`,
-            chunkFileNames: `static/js/[name].js`,
-            assetFileNames: (assetInfo) => {
-              const name = assetInfo?.name ?? "";
-              if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
-                return 'static/images/[name].[ext]';
-              }
-              if (/\.css$/.test(name)) {
-                return 'css/[name].[ext]';
-              }
-              return 'static/[name].[ext]';
-            }
-          },
-          onwarn(warning, warn) {
-            // Suppress "Module level directives cause errors when bundled" warnings
-            if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
-              return;
-            }
-            warn(warning);
-          },
         },
         // manifest: true,
         // minify: false,
@@ -99,6 +115,7 @@ export default defineConfig(async ({ mode }) => {
         ...defaultPlugins,
         buildMeeSSG_Plugins({ entry, adapter: { env, onServerClose: dispose } }),
         Sitemap({
+          outDir: defaultBuild.outDir,
           hostname: env.ORIGIN,
           generateRobotsTxt: true,
           dynamicRoutes: RoutingList.filter(v => !/:/.test(v)),
@@ -124,20 +141,14 @@ export default defineConfig(async ({ mode }) => {
       ssr: { external: ['axios', 'react', 'react-dom', 'xmldom', 'xpath', 'tsqlstring'] },
       plugins: [
         ...defaultPlugins,
-        pages(),
+        pages({
+          entry: "./src/index.production.tsx",
+          outputDir: defaultBuild.outDir
+        }),
         devServer({
           entry: 'src/index.dev.tsx',
           adapter,
-          exclude: [
-            // /.*\.css$/,
-            /.*\.ts$/,
-            /.*\.tsx$/,
-            /^\/@.+$/,
-            /\?t\=\d+$/,
-            /^\/favicon\.ico$/,
-            /^\/static\/.+/,
-            /^\/node_modules\/.*/,
-          ],
+          exclude: devExclude,
         }),
       ],
       server: {

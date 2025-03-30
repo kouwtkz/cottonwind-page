@@ -9,12 +9,13 @@ import { renderHtml } from "./functions/render";
 import { CompactCode } from "@/functions/doc/StrFunctions";
 import ssg from "./ssg";
 import { GitLogObject } from "@/gitlog/GitlogObject";
-import { NoIndex, ServerCommon } from "./server";
+import { NoIndex, MainPageRouteIndex } from "@/index.route";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
-import styles from "./styles.scss";
+import stylesMain from "./styles.scss";
 import stylesfromLib from "./styles/styles_lib.scss";
 import { DefaultImportScripts } from "./clientScripts";
+import { appFromImportStyle } from "@/indexFunctions";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 
@@ -23,22 +24,14 @@ app.use("*", (c, next) => {
   return cors({ origin })(c, next);
 });
 
-const styleList = [
-  ["styles", styles],
+const styles: [string, unknown][] = [
+  ["styles", stylesMain],
   ["styles_lib", stylesfromLib],
 ];
-const stylePathes: string[] = [];
-for (const [name, code] of styleList) {
-  const path = `/css/${name}.css`;
-  stylePathes.push(path);
-  const compactStyles = CompactCode(code);
-  app.get(path, (c) =>
-    c.body(compactStyles, { headers: { "Content-Type": "text/css" } })
-  );
-}
+const stylePathes = appFromImportStyle({ styles, app });
 
 honoTest(app);
-ServerCommon(app);
+MainPageRouteIndex(app);
 
 app.get("/src/*", serveStatic({ root: "./" }));
 
