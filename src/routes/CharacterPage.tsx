@@ -607,6 +607,15 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const [extendMode, setExtendMode] = useExtendMode();
   useEffect(() => {
     setConfirmUrl(location.href);
+    const q = searchParams.get("q") || "";
+    const search = searchRef.current;
+    if (search && search.value !== q) {
+      search.value = q;
+    }
+  }, [searchParams]);
+  const q = useMemo(() => {
+    const q = searchParams.get("q");
+    if (q) return q;
   }, [searchParams]);
   const nav = useNavigate();
   const isImeOn = useRef(false);
@@ -686,6 +695,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
         type="search"
         className="search"
         placeholder="キャラクター検索"
+        defaultValue={q}
         ref={searchRef}
         onChange={() => {
           if (searchRef.current && !isImeOn.current) {
