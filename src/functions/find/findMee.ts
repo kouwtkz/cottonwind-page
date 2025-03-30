@@ -59,30 +59,30 @@ export function findMee<T>(
       });
     });
   let i = 0;
-  const wheres = SetWheres(where);
   return list.filter((value) => {
     if (take !== undefined && i >= take + skip) return false;
-    const result = wheresFilter(value, wheres);
+    const result = wheresFilter(value, where);
     if (result) i++;
     return result && i > skip;
   });
 }
 
 function parseEntryKeys(o: any) {
-  const r: string[][] = [];
-  function rdf(o: Object, ca: string[] = []) {
-    Object.entries(o).forEach(([k, v]) => {
+  const r: (string | number)[][] = [];
+  function rdf(o: Object, ca: (string | number)[] = []) {
+    if (!o) return;
+    (Array.isArray(o) ? o.map((v, i) => [i, v]) : Object.entries(o)).forEach(([k, v]) => {
       if (typeof v === "object") {
-        rdf(v, [...ca, k])
+        rdf(v, ca.concat(k))
       } else {
-        r.push([...ca, k]);
+        r.push(ca.concat(k));
       }
     }, []);
   }
   rdf(o);
   return r;
 }
-function fromEntryKeys(o: any, keys: string[]) {
+function fromEntryKeys(object: any, keys: (string | number)[]) {
   return keys.reduce<any>((a, c) => {
     if (a) {
       if (c in a) {
@@ -91,96 +91,85 @@ function fromEntryKeys(o: any, keys: string[]) {
         return;
       }
     } else return a;
-  }, o);
+  }, object);
 }
 
-type WheresEntriesType = [string, unknown][];
-function SetWheres<T>(v: T): WheresEntriesType | null {
-  function f(v: any, d?: any): any[] {
-    if (typeof v === "object" && v) {
-      if (Array.isArray(v)) return v.map(_ => f(_));
-      else if (/^\[object .+\]$/.test(v.toString())) {
-        return (Object.entries(v)).map(([k, v]) => [k, f(v)]);
-      }
-      else return v;
-    }
-    else return d ?? v;
-  }
-  return f(v, null);
-}
-function compareWheres(obj: any, wheres: WheresEntriesType): boolean {
-  return wheres.every(([k, w]) => Array.isArray(w) ? compareWheres(obj[k], w) : obj[k] == w);
-}
-function wheresFilter<T>(value: T, wheres?: WheresEntriesType | null): boolean {
-  function wheresLoop(wheres: WheresEntriesType): boolean {
-    return wheres.every(([fkey, fval]) => {
-      const fvalWheres: findWhereType<T>[] = fval as any[];
-      switch (fkey) {
-        case "AND":
-          return fvalWheres.every((_val) => wheresLoop(_val as WheresEntriesType));
-        case "OR":
-          return fvalWheres.some((_val) => wheresLoop(_val as WheresEntriesType));
-        case "NOT":
-          return !fvalWheres.some((_val) => wheresLoop(_val as WheresEntriesType));
-        default:
-          const _value: any = value;
-          const cval = _value[fkey];
-          if (typeof fval === "object" && Array.isArray(fval)) {
-            const conditions: [filterConditionsAllType, any][] = fval;
-            return conditions.every(([k, v]) => {
-              const typeName = typeof cval;
-              switch (k) {
-                case "equals":
-                  if (typeName === "string") return String(cval).toLocaleLowerCase() === v;
-                  else return cval == v;
-                case "not":
-                  return cval != v;
-                case "like":
-                case "contains":
-                  if (Array.isArray(cval)) return cval.some((x) => x.toLocaleLowerCase() === v);
-                  else {
-                    const _v = String(cval).toLocaleLowerCase();
-                    if (/[\*\?]/.test(v)) {
-                      try { return _v.match(v) } catch { return true }
-                    } else return _v.includes(v);
-                  }
-                case "startsWith":
-                  return String(cval).toLocaleLowerCase().startsWith(v);
-                case "endsWith":
-                  return String(cval).toLocaleLowerCase().endsWith(v);
-                case "gt":
-                  return cval > v;
-                case "gte":
-                  return cval >= v;
-                case "lt":
-                  return cval < v;
-                case "lte":
-                  return cval <= v;
-                case "in":
-                  const inVal = v as unknown[];
-                  if (Array.isArray(cval)) return inVal.some(v => cval.some(c => v == c));
-                  else return inVal.some(v => v == cval);
-                case "between":
-                  const betweenVal = v as any[];
-                  return betweenVal[0] <= cval && cval <= betweenVal[1];
-                case "bool":
-                  let boolVal: boolean;
-                  if (Array.isArray(cval)) boolVal = cval.length > 0;
-                  else boolVal = Boolean(cval);
-                  return v ? boolVal : !boolVal;
-                case "regexp":
-                  return (v as RegExp).test(cval);
-                default:
-                  return cval ? compareWheres(cval, [[k, v]]) : false;
-              }
+const isObjectExp = /^\[object .+\]$/;
+function wheresFilter<T>(value: T, where?: findWhereType<T>): boolean {
+  function wheresLoop(innerValue: any, innerWhere: findWhereType<T>): boolean {
+    const wheres = Object.entries(innerWhere);
+    if (wheres.length === 0) {
+      return true;
+    } else return wheres.every(([fkey, fval]) => {
+      const innerValueType = typeof innerValue;
+      if (Array.isArray(fval) && (fkey === "AND" || fkey === "OR" || fkey === "NOT")) {
+        switch (fkey) {
+          case "AND":
+            return fval.every((_val) => {
+              return wheresLoop(innerValue, _val);
             });
-          } else {
-            return cval == fval;
-          }
+          case "OR":
+            return fval.some((_val) => wheresLoop(innerValue, _val));
+          case "NOT":
+            return !fval.some((_val) => wheresLoop(innerValue, _val));
+        }
+      }
+      if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
+        const nextInnerValue = innerValue && innerValueType === "object" ? innerValue[fkey] : innerValue;
+        return wheresLoop(nextInnerValue, fval);
+      } else {
+        let switchInnerValue = innerValue;
+        if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
+          switchInnerValue = innerValue[fkey];
+        }
+        switch (fkey) {
+          case "equals":
+            if (innerValueType === "string") return String(switchInnerValue).toLocaleLowerCase() === fval;
+            else return switchInnerValue == fval;
+          case "not":
+            return switchInnerValue != fval;
+          case "like":
+          case "contains":
+            if (Array.isArray(switchInnerValue)) return switchInnerValue.some((x) => x.toLocaleLowerCase() === fval);
+            else {
+              const _v = String(switchInnerValue).toLocaleLowerCase();
+              if (/[\*\?]/.test(fval)) {
+                try { return _v.match(fval) } catch { return true }
+              } else return _v.includes(fval);
+            }
+          case "startsWith":
+            return String(switchInnerValue).toLocaleLowerCase().startsWith(fval);
+          case "endsWith":
+            return String(switchInnerValue).toLocaleLowerCase().endsWith(fval);
+          case "gt":
+            return switchInnerValue > fval;
+          case "gte":
+            return switchInnerValue >= fval;
+          case "lt":
+            return switchInnerValue < fval;
+          case "lte":
+            return switchInnerValue <= fval;
+          case "in":
+            const inVal = fval as unknown[];
+            if (Array.isArray(switchInnerValue)) return inVal.some(v => switchInnerValue.some(c => v == c));
+            else return inVal.some(v => v == switchInnerValue);
+          case "between":
+            const betweenVal = fval as any[];
+            return betweenVal[0] <= switchInnerValue && switchInnerValue <= betweenVal[1];
+          case "bool":
+            let boolVal: boolean;
+            if (Array.isArray(switchInnerValue)) boolVal = switchInnerValue.length > 0;
+            else boolVal = Boolean(switchInnerValue);
+            return fval ? boolVal : !boolVal;
+          case "regexp":
+            return (fval as RegExp).test(switchInnerValue);
+          default:
+            return switchInnerValue == fval
+        }
       }
     });
   }
-  return wheres ? wheresLoop(wheres) : true;
+  return where ? wheresLoop(value, where) : true;
 }
 
 type CommonCondition = filterConditionsAllKeyValue<any, unknown>;
@@ -240,7 +229,14 @@ function TextToWhere(rawValue: string, value: string, forceContains?: boolean): 
     if (m) {
       return { regexp: new RegExp(m[1], m[2]) };
     } else {
-      return { contains: value };
+      switch (rawValue) {
+        case "null":
+          return { equals: null };
+        case "undefined":
+          return { equals: undefined };
+        default:
+          return { contains: value };
+      }
     }
   }
 }
@@ -438,20 +434,20 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
               const keyraw = filterOptions.key || filterKey;
               const key = Array.isArray(keyraw) ? keyraw.map(v => String(v)) : String(keyraw);
               let filterEntry: filterConditionsAllKeyValue<any>;
+              switch (filterValue) {
+                case "true":
+                case "false":
+                  const bool = filterValue === "true";
+                  if (!bool && filterTake) filterTake = undefined;
+                  filterEntry = { bool };
+                  break;
+                default:
+                  filterEntry = TextToWhere(rawFilterValue, filterValue, options.forceContains);
+                  break;
+              }
               if (typeof key === "string" && /\./.test(key)) {
-                whereItem = SplitPeriodKey(key, filterValue);
+                whereItem = SplitPeriodKey(key, filterEntry);
               } else {
-                switch (filterValue) {
-                  case "true":
-                  case "false":
-                    const bool = filterValue === "true";
-                    if (!bool && filterTake) filterTake = undefined;
-                    filterEntry = { bool };
-                    break;
-                  default:
-                    filterEntry = TextToWhere(rawFilterValue, filterValue, options.forceContains);
-                    break;
-                }
                 whereItem = whereFromKey(key, filterEntry);
               }
             }
