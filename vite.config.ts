@@ -118,9 +118,11 @@ export default defineConfig(async ({ mode }) => {
     if (includeModes("ssg")) {
       return {
         ...config,
+        publicDir: "src/calendar/public",
         build: {
           ...defaultBuild,
           emptyOutDir: true,
+          copyPublicDir: true,
           outDir: "src/calendar/dist",
           rollupOptions: {
             ...setClientBuildOptions(),

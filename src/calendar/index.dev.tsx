@@ -23,6 +23,8 @@ IndexRouteCalendar({
   script: <script type="module" src={dirBase + "/client.tsx"} />,
 });
 
+app.get("/*", serveStatic({ root: `.${dirBase}/public/` }));
+
 app.all("*", async (c, next) => {
   return c.html(renderHtml(<CalendarAppNotFound />), { status: 404 });
 });

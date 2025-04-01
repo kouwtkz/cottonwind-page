@@ -15,7 +15,7 @@ export function CalendarAppLayout({
       <head>
         <meta charSet="utf-8" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        {/* <link rel="icon" href="" /> */}
+        <link rel="icon" href="/assets/faviconCalendar.ico" />
         <title>めぇ式カレンダー</title>
         {beforeScript}
         <Style href="/assets/styles.css" />
