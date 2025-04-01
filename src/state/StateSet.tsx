@@ -16,7 +16,7 @@ import { MiniGallery } from "@/routes/GalleryPage";
 import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
-import { KeyValueDBState } from "./KeyValueDBState";
+import { KeyValueDBState, useKeyValueDB } from "./KeyValueDBState";
 import { CalendarMeeState } from "@/calendar/CalendarMee";
 
 export const useSiteIsFirst = CreateState(true);
@@ -42,7 +42,7 @@ export function StateSet() {
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />
       <HomeImageState />
-      <CalendarMeeState />
+      <CalendarState />
       <LoadingState isSetList={isSetList}>
         <ImageState />
         <CharacterState />
@@ -54,6 +54,32 @@ export function StateSet() {
         <KeyValueDBState />
       </LoadingState>
     </>
+  );
+}
+
+function CalendarState() {
+  const env = useEnv()[0];
+  const { kvList } = useKeyValueDB();
+  const isLogin = useIsLogin()[0];
+  const googleCalendarList = useMemo(() => {
+    if (env && kvList) {
+      const list: { id: string; private?: boolean }[] = [];
+      if (env.GOOGLE_CALENDAR_ID) list.push({ id: env.GOOGLE_CALENDAR_ID });
+      kvList
+        .filter((v) => v.key.startsWith("google-calendar-id-"))
+        .forEach(({ value, private: p }) => {
+          if (value) list.push({ id: value, private: p });
+        });
+      return list;
+    }
+  }, [kvList, env]);
+  const API_KEY = useMemo(() => env?.GOOGLE_CALENDAR_API, [env]);
+  return (
+    <CalendarMeeState
+      googleApiKey={API_KEY}
+      googleCalendarList={googleCalendarList}
+      enableMarkdownCopy={isLogin}
+    />
   );
 }
 

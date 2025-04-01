@@ -10,7 +10,7 @@ import {
   ThemeChangeButton,
 } from "@/components/theme/Theme";
 
-function SiteMenuSwitchButtons({
+export function SiteMenuSwitchButtons({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {

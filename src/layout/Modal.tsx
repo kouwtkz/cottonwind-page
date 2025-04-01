@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { CSSTransition } from "react-transition-group";
 import { CSSTransitionClassNames } from "react-transition-group/CSSTransition";
 import { ExitHandler } from "react-transition-group/Transition";
@@ -79,6 +80,14 @@ export const Modal = memo(function Modal({
       animationDuration: timeout + "ms",
     };
   }, [timeout]);
+  useHotkeys("escape", (e) => {
+    if (isOpen && onClose && nodeRef.current) {
+      const element = document.elementFromPoint(0, 0);
+      if (nodeRef.current.contains(element)) {
+        onClose();
+      }
+    }
+  });
   return (
     <CSSTransition
       in={isOpen}
@@ -97,11 +106,7 @@ export const Modal = memo(function Modal({
             e.stopPropagation();
           }}
         >
-          <CloseButton
-            className="modalClose"
-            width={60}
-            height={60}
-          />
+          <CloseButton className="modalClose" width={60} height={60} />
         </button>
       </div>
     </CSSTransition>

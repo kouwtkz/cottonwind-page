@@ -28,11 +28,10 @@ import {
   RiTimeLine,
 } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
-import { CreateObjectState, CreateState } from "@/state/CreateState";
-import { useEnv, useIsLogin } from "@/state/EnvState";
+import { CreateObjectState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
-import { useKeyValueDB } from "@/state/KeyValueDBState";
+import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -59,34 +58,25 @@ const weekTitleFormat: FormatterInput = ({ start, end }) => {
   );
 };
 
-const FC_SP_VIEW = "fc-view";
-const FC_SP_YEAR = "fc-year";
-const FC_SP_MONTH = "fc-month";
-const FC_SP_DAY = "fc-day";
-type Type_SP_FC =
+export const FC_SP_VIEW = "fc-view";
+export const FC_SP_YEAR = "fc-year";
+export const FC_SP_MONTH = "fc-month";
+export const FC_SP_DAY = "fc-day";
+export type Type_SP_FC =
   | typeof FC_SP_VIEW
   | typeof FC_SP_YEAR
   | typeof FC_SP_MONTH
   | typeof FC_SP_DAY;
-const FC_VIEW_AGENDA = "agenda";
-const FC_VIEW_WEEK = "week";
-const FC_VIEW_MONTH = "month";
-const FC_VIEW_DAY = "day";
-type Type_VIEW_FC =
+export const FC_VIEW_AGENDA = "agenda";
+export const FC_VIEW_WEEK = "week";
+export const FC_VIEW_MONTH = "month";
+export const FC_VIEW_DAY = "day";
+export type Type_VIEW_FC =
   | typeof FC_VIEW_AGENDA
   | typeof FC_VIEW_WEEK
   | typeof FC_VIEW_MONTH
   | typeof FC_VIEW_DAY;
 const FC_SP_EVENT_ID = "fc-event-id";
-
-export interface CalendarMeeProps
-  extends React.ImgHTMLAttributes<HTMLDivElement> {
-  events?: eventsItemType[];
-  width?: number;
-  height?: number;
-  defaultView?: Type_VIEW_FC;
-  visibleDateSet?: boolean;
-}
 
 function openWindow(url: string) {
   window.open(url, "google-calendar-event", "width=700,height=600");
@@ -97,84 +87,85 @@ const defaultEnableCountdown = (() => {
   return searchParams.has("countdown");
 })();
 
-interface EventCacheStateProps {
-  events: EventsDataType[];
-  add: EventsDataType[];
-  eventsMap: Map<string, EventsDataType>;
-  eventId: string | null;
-  isOpenEvent: boolean;
-  calendarList: { id: string; private?: boolean }[];
-  stateLock: boolean;
-  view: Type_VIEW_FC | null;
-  date: Date;
-  timeRanges: timeRangesType[];
-  getRange: timeRangesType | null;
-  syncRange: timeRangesType | null;
-  setTimeRanges: (range: timeRangesType) => void;
-  isLoading: boolean;
-  enableCountdown: boolean;
-}
-type timeRangesType = { start: Date; end: Date };
-const useCalendarMee = CreateObjectState<EventCacheStateProps>((set) => ({
-  events: [],
-  add: [],
-  eventsMap: new Map(),
-  eventId: null,
-  isOpenEvent: false,
-  calendarList: [],
-  stateLock: false,
-  view: null,
-  date: dateFromSearchParams(new URLSearchParams(document.location.search)),
-  timeRanges: [],
-  getRange: null,
-  syncRange: null,
-  setTimeRanges(range) {
-    set(({ timeRanges, syncRange }) => {
-      syncRange = null;
-      const startTime = range.start.getTime();
-      const endTime = range.end.getTime();
-      const exist = timeRanges.some((v) => {
-        return v.start.getTime() <= startTime && endTime <= v.end.getTime();
+export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
+  (set) => ({
+    events: [],
+    add: [],
+    eventsMap: new Map(),
+    eventId: null,
+    isOpenEvent: false,
+    calendarList: [],
+    stateLock: false,
+    view: null,
+    date: dateFromSearchParams(new URLSearchParams(document.location.search)),
+    dateLock: false,
+    timeRanges: [],
+    getRange: null,
+    syncRange: null,
+    syncOverwrite: true,
+    eventsOverwrite: false,
+    reload({ start, end, eventClose, ...props }) {
+      set((state) => {
+        const value: Partial<CalendarMeeStateType> = props;
+        value.syncRange = state.timeRanges[0] || {
+          start: state.date,
+          end: state.date,
+        };
+        if (start) value.syncRange.start = start;
+        if (end) value.syncRange.end = end;
+        if (eventClose) value.eventId = null;
+        return value;
       });
-      if (!exist) syncRange = range;
-      timeRanges.push(range);
-      timeRanges.sort((a, b) => a.start.getTime() - b.start.getTime());
-      timeRanges = timeRanges.reduce<timeRangesType[]>((a, c) => {
-        if (a.length === 0) a.push(c);
-        else {
-          const p = a[a.length - 1];
-          const pEndTime = p.end.getTime();
-          if (pEndTime >= c.start.getTime()) {
-            if (pEndTime < c.end.getTime()) p.end = c.end;
-          } else {
-            a.push(c);
+    },
+    setTimeRanges(range) {
+      set(({ timeRanges, syncRange, syncOverwrite }) => {
+        if (syncOverwrite) timeRanges = [];
+        syncRange = null;
+        const startTime = range.start.getTime();
+        const endTime = range.end.getTime();
+        const exist = timeRanges.some((v) => {
+          return v.start.getTime() <= startTime && endTime <= v.end.getTime();
+        });
+        if (!exist) syncRange = range;
+        timeRanges.push(range);
+        timeRanges.sort((a, b) => a.start.getTime() - b.start.getTime());
+        timeRanges = timeRanges.reduce<timeRangesType[]>((a, c) => {
+          if (a.length === 0) a.push(c);
+          else {
+            const p = a[a.length - 1];
+            const pEndTime = p.end.getTime();
+            if (pEndTime >= c.start.getTime()) {
+              if (pEndTime < c.end.getTime()) p.end = c.end;
+            } else {
+              a.push(c);
+            }
           }
-        }
-        return a;
-      }, []);
-      return { timeRanges, syncRange, getRange: null };
-    });
-  },
-  isLoading: false,
-  enableCountdown: defaultEnableCountdown,
-}));
+          return a;
+        }, []);
+        return { timeRanges, syncRange, getRange: null };
+      });
+    },
+    isLoading: false,
+    enableCountdown: defaultEnableCountdown,
+  })
+);
 
 function dateFromSearchParams(
   searchParams: URLSearchParams,
   date = new Date()
 ) {
   const newDate = new Date(date);
-  if (searchParams.has(FC_SP_YEAR)) {
-    const year = strToNumWithNull(searchParams.get(FC_SP_YEAR));
-    if (year) newDate.setFullYear(year);
+  if (searchParams.has(FC_SP_DAY)) {
+    const day = strToNumWithNull(searchParams.get(FC_SP_DAY));
+    if (day) newDate.setDate(day);
   }
   if (searchParams.has(FC_SP_MONTH)) {
     const month = strToNumWithNull(searchParams.get(FC_SP_MONTH));
     if (month) newDate.setMonth(month - 1);
   }
-  if (searchParams.has(FC_SP_DAY)) {
-    const day = strToNumWithNull(searchParams.get(FC_SP_DAY));
-    if (day) newDate.setDate(day);
+  if (searchParams.has(FC_SP_YEAR)) {
+    const year = strToNumWithNull(searchParams.get(FC_SP_YEAR));
+    if (year) newDate.setFullYear(year);
   }
   return newDate;
 }
@@ -199,13 +190,24 @@ function setDateUrl(date: Date, setSearchParams: SetURLSearchParams) {
   return afterSearch;
 }
 
-export function CalendarMeeState() {
+interface CalendarMeeStateProps extends CalendarMeeEventViewerProps {
+  googleApiKey?: string | null;
+  googleCalendarList?: (string | CalendarIdListType)[];
+  events?: EventsDataType[];
+  calendarList?: CalendarListType[];
+}
+export function CalendarMeeState({
+  googleApiKey,
+  googleCalendarList: propsGoogleCalendarList,
+  events: propsEvents,
+  calendarList: propsCalendarList,
+  ...viewerProps
+}: CalendarMeeStateProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const eventIdParam = useMemo(
     () => searchParams.get(FC_SP_EVENT_ID),
     [searchParams]
   );
-  const env = useEnv()[0];
   const {
     add,
     eventId,
@@ -216,46 +218,63 @@ export function CalendarMeeState() {
     getRange,
     syncRange,
     setTimeRanges,
+    dateLock,
+    calendarList,
   } = useCalendarMee();
   useEffect(() => {
     if (add.length > 0) Set({ add: [] });
   }, [add]);
-  const { kvList } = useKeyValueDB();
-  const calendarList = useMemo(() => {
-    if (env && kvList) {
-      const list: { id: string; private?: boolean }[] = [];
-      if (env.GOOGLE_CALENDAR_ID) list.push({ id: env.GOOGLE_CALENDAR_ID });
-      kvList
-        .filter((v) => v.key.startsWith("google-calendar-id-"))
-        .forEach(({ value, private: p }) => {
-          if (value) list.push({ id: value, private: p });
-        });
-      return list;
-    }
-  }, [kvList, env]);
+  const calendarDataList = useMemo(() => {
+    const list: CalendarListType[] = [];
+    propsCalendarList?.forEach((item) => {
+      list.push(item);
+    });
+    propsGoogleCalendarList?.forEach((v) => {
+      list.push(typeof v === "string" ? { id: v } : v);
+    });
+    if (propsEvents) list.push({ list: propsEvents });
+    return list;
+  }, [propsCalendarList, propsGoogleCalendarList, propsEvents]);
   useEffect(() => {
-    Set({ calendarList });
-  }, [calendarList]);
+    Set({
+      calendarList: calendarDataList,
+    });
+  }, [calendarDataList]);
   useEffect(() => {
     if (getRange && calendarList) setTimeRanges(getRange);
   }, [getRange, calendarList]);
-  const API_KEY = useMemo(() => env?.GOOGLE_CALENDAR_API, [env]);
   useEffect(() => {
-    if (API_KEY && syncRange && calendarList) {
+    if (
+      (googleApiKey || googleApiKey === null) &&
+      syncRange &&
+      calendarList.length > 0
+    ) {
       Set({ isLoading: true });
       Promise.all(
-        calendarList.map(async ({ id, private: p }) => {
-          return eventsFetch({
-            id,
-            key: API_KEY,
-            start: syncRange.start,
-            end: syncRange.end,
-            private: p,
-          }).then((data) => {
-            if (data?.items && Array.isArray(data.items)) {
-              Set(({ eventsMap }) => {
+        calendarList.map(async ({ id, private: p, list }) => {
+          return (
+            id && googleApiKey
+              ? eventsFetch({
+                  id,
+                  key: googleApiKey,
+                  start: syncRange.start,
+                  end: syncRange.end,
+                  private: p,
+                }).then((data) => data.items)
+              : (async () => list || [])()
+          ).then((items) => {
+            if (items && Array.isArray(items)) {
+              Set(({ eventsMap, syncOverwrite, eventsOverwrite }) => {
+                if (syncOverwrite && eventsOverwrite) {
+                  eventsMap.clear();
+                } else if (syncOverwrite || eventsOverwrite) {
+                  eventsMap.forEach((event, key) => {
+                    if (syncOverwrite ? event.raw : !event.raw)
+                      eventsMap.delete(key);
+                  });
+                }
                 const add: EventsDataType[] = [];
-                data.items.forEach((item) => {
+                items.forEach((item) => {
                   if (!eventsMap.has(item.id)) add.push(item);
                   eventsMap.set(item.id, item);
                 });
@@ -269,18 +288,30 @@ export function CalendarMeeState() {
           });
         })
       ).finally(() => {
-        Set({ isLoading: false });
-        Set({ syncRange: null });
+        Set({
+          isLoading: false,
+          syncRange: null,
+          syncOverwrite: false,
+          eventsOverwrite: false,
+        });
       });
     }
-  }, [API_KEY, calendarList, syncRange]);
+  }, [googleApiKey, calendarList, syncRange, Set]);
 
   useEffect(() => {
-    const newDate = dateFromSearchParams(searchParams);
-    if (date.toString() !== newDate.toString()) {
-      Set({ date: newDate });
-    }
+    Set(({ date, dateLock }) => {
+      if (!dateLock) {
+        const newDate = dateFromSearchParams(searchParams);
+        if (DateNotEqual(date, newDate)) {
+          return { date: newDate, dateLock: true };
+        }
+      }
+      return {};
+    });
   }, [searchParams]);
+  useEffect(() => {
+    Set({ dateLock: false });
+  }, [dateLock]);
   const view = useMemo(() => searchParams.get(FC_SP_VIEW), [searchParams]);
   useEffect(() => {
     if (eventId && view === FC_VIEW_DAY && !eventsMap.has(eventId)) {
@@ -338,7 +369,18 @@ export function CalendarMeeState() {
     beforeEventIdParam.current = eventIdParam;
   }, [stateLock, eventId, eventIdParam]);
 
-  return <CalendarMeeEventViewer />;
+  return <CalendarMeeEventViewer {...viewerProps} />;
+}
+
+export interface CalendarMeeProps
+  extends React.ImgHTMLAttributes<HTMLDivElement> {
+  width?: number;
+  height?: number;
+  defaultView?: Type_VIEW_FC;
+  visibleDateSet?: boolean;
+  eventOpen?: (e: EventClickArg) => void | boolean;
+  openAddEvents?: (ev: MouseEvent, element: HTMLElement) => void;
+  openSetting?: (ev: MouseEvent, element: HTMLElement) => void;
 }
 
 export function CalendarMee({
@@ -347,6 +389,9 @@ export function CalendarMee({
   defaultView = FC_VIEW_MONTH,
   visibleDateSet,
   className,
+  eventOpen: eventOpenProps,
+  openAddEvents,
+  openSetting,
   ...args
 }: CalendarMeeProps) {
   className = useMemo(() => {
@@ -354,8 +399,8 @@ export function CalendarMee({
     if (className) classNames.push(className);
     return classNames.join(" ");
   }, [className]);
-  const { Set, eventId, events, date, isLoading } = useCalendarMee();
   const [calendar, setCalendar] = useState<Calendar | null>(null);
+  const { Set, eventId, events, date, isLoading } = useCalendarMee();
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
@@ -382,7 +427,7 @@ export function CalendarMee({
     Set({ view });
   }, [view]);
   useEffect(() => {
-    if (calendar && calendar.getDate().toString() !== date.toString()) {
+    if (calendar) {
       setTimeout(() => {
         calendar.gotoDate(date);
       }, 0);
@@ -453,10 +498,24 @@ export function CalendarMee({
     },
     [calendar, eventId]
   );
-  const eventOpen = useCallback((e: EventClickArg) => {
-    Set({ eventId: e.event.id, isOpenEvent: Boolean(e.event.id) });
-    e.jsEvent.preventDefault();
-  }, []);
+  const eventOpen = useCallback(
+    (e: EventClickArg) => {
+      if (!eventOpenProps || eventOpenProps(e)) {
+        Set({ eventId: e.event.id, isOpenEvent: Boolean(e.event.id) });
+      }
+      e.jsEvent.preventDefault();
+    },
+    [eventOpenProps]
+  );
+  const headerToolbarEnd = useMemo(() => {
+    const list: string[] = [];
+    if (openSetting) list.push("openSetting");
+    if (openAddEvents) list.push("openAddEvents");
+    if (visibleDateSet) list.push("dateSet");
+    list.push(`${FC_VIEW_MONTH},${FC_VIEW_WEEK},${FC_VIEW_AGENDA}`);
+    list.push("prev,today,next");
+    return list.join(" ");
+  }, [visibleDateSet, openAddEvents, openSetting]);
   return (
     <div {...{ ...args, style, className }}>
       <FullCalendar
@@ -511,9 +570,7 @@ export function CalendarMee({
         }}
         headerToolbar={{
           start: "title",
-          end: `${
-            visibleDateSet ? "dateSet " : ""
-          }${FC_VIEW_MONTH},${FC_VIEW_WEEK},${FC_VIEW_AGENDA} prev,today,next`,
+          end: headerToolbarEnd,
         }}
         moreLinkClick={(args) => {
           args.jsEvent.preventDefault();
@@ -532,6 +589,14 @@ export function CalendarMee({
           dateSet: {
             text: "日時",
             click: DateJumpButtonClick,
+          },
+          openAddEvents: {
+            text: "追加",
+            click: openAddEvents,
+          },
+          openSetting: {
+            text: "設定",
+            click: openSetting,
           },
         }}
         views={{
@@ -563,7 +628,11 @@ export function CalendarMee({
   );
 }
 
-export function CalendarMeeEventViewer() {
+export function CalendarMeeEventViewer({
+  enableMarkdownCopy,
+  SubComponent,
+  viewerClassName,
+}: CalendarMeeEventViewerProps = {}) {
   const {
     Set,
     eventsMap,
@@ -584,7 +653,6 @@ export function CalendarMeeEventViewer() {
     return stateEventId;
   }, [stateEventId, isOpenEvent]);
   const event = eventId ? eventsMap.get(eventId) : null;
-  const isLogin = useIsLogin()[0];
   const location = event?.location;
   const startDate = event?.start;
   let endDate = event ? new Date(event.end) : null;
@@ -647,7 +715,7 @@ export function CalendarMeeEventViewer() {
       ? formatDate(endDate, endFormat)
       : "";
   }, [startDate, endDate, event?.allDay]);
-  const endTImeString = useMemo(
+  const endTimeString = useMemo(
     () =>
       startDate && endDate && !event.allDay
         ? formatDate(endDate, {
@@ -720,13 +788,46 @@ export function CalendarMeeEventViewer() {
     const classNames = ["time"];
     if (enableCountdown) classNames.push("enableCountdown");
     if (endDateString) classNames.push("smaller");
-    if (!(startTimeString || endTImeString)) classNames.push("single");
+    if (!(startTimeString || endTimeString)) classNames.push("single");
     return classNames.join(" ");
-  }, [enableCountdown, startTimeString, endDateString, endTImeString]);
+  }, [enableCountdown, startTimeString, endDateString, endTimeString]);
+  const TitleTime = useMemo(() => {
+    return endDateString ? (
+      <>
+        <span>{startDateString}</span>
+        <span className="time">{startTimeString}</span>
+        {endDate ? (
+          <>
+            <span className="during">-</span>
+            <span>{endDateString}</span>
+            <span className="time">{endTimeString}</span>
+          </>
+        ) : null}
+      </>
+    ) : (
+      <>
+        {startDateString}
+        <span className="time">
+          {startTimeString}
+          {endTimeString ? (
+            <>
+              <span className="during">-</span>
+              {endTimeString}
+            </>
+          ) : null}
+        </span>
+      </>
+    );
+  }, [startDateString, startTimeString, endDate, endDateString, endTimeString]);
+  viewerClassName = useMemo(() => {
+    const classList = ["middle"];
+    if (viewerClassName) classList.push(viewerClassName);
+    return classList.join(" ");
+  }, [viewerClassName]);
   return (
     <>
       <Modal
-        className="middle"
+        className={viewerClassName}
         classNameEntire="fc"
         onClose={ModalCloseHandler}
         onExited={EventCloseHandler}
@@ -736,53 +837,37 @@ export function CalendarMeeEventViewer() {
       >
         {event ? (
           <>
+            {SubComponent ? <SubComponent event={event} /> : null}
             <div className={timeClassName}>
               {startDate ? (
                 <h3>
-                  <a
-                    className="time"
-                    href={event.url}
-                    target="google-calendar-event"
-                  >
-                    {endDateString ? (
-                      <>
-                        <span>{startDateString}</span>
-                        <span className="time">{startTimeString}</span>
-                        {endDate ? (
-                          <>
-                            <span className="during">-</span>
-                            <span>{endDateString}</span>
-                            <span className="time">{endTImeString}</span>
-                          </>
-                        ) : null}
-                      </>
-                    ) : (
-                      <>
-                        {startDateString}
-                        <span className="time">
-                          {startTimeString}
-                          {endTImeString ? (
-                            <>
-                              <span className="during">-</span>
-                              {endTImeString}
-                            </>
-                          ) : null}
-                        </span>
-                      </>
-                    )}
-                  </a>
+                  {event.url ? (
+                    <a
+                      className="time"
+                      href={event.url}
+                      target="google-calendar-event"
+                    >
+                      {TitleTime}
+                    </a>
+                  ) : (
+                    <span className="time">{TitleTime}</span>
+                  )}
                 </h3>
               ) : null}
               {enableCountdown && startDate ? (
                 <h4>
-                  <CountDown date={startDate} end={endDate} />
+                  <CountDown
+                    date={startDate}
+                    end={endDate}
+                    allDay={event.allDay}
+                  />
                 </h4>
               ) : null}
             </div>
             <div className="title">
               <h2>{event.title}</h2>
               <div>
-                {isLogin && !event.private ? (
+                {enableMarkdownCopy && !event.private ? (
                   <button
                     title="ブログ用にコピーする"
                     type="button"
@@ -850,6 +935,7 @@ interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
   date: Date;
   end?: Date | null;
   current?: Date;
+  allDay?: boolean;
   format?: (options: countDownFormatProps) => string;
 }
 export const CountDown = memo(function CountDown({
@@ -858,6 +944,7 @@ export const CountDown = memo(function CountDown({
   current = new Date(),
   format,
   className,
+  allDay,
   ...props
 }: CountDownProps) {
   className = useMemo(() => {
@@ -865,13 +952,29 @@ export const CountDown = memo(function CountDown({
     if (className) classNames.push(className);
     return classNames.join(" ");
   }, [className]);
-  const startTime = useMemo(() => date.getTime(), [date]);
-  const endTime = useMemo(() => end?.getTime(), [end]);
+  const startTime = useMemo(() => {
+    const d = new Date(date);
+    if (allDay) toDayStart(d);
+    let time = d.getTime();
+    return time;
+  }, [date, allDay]);
+  const endTime = useMemo(() => {
+    const d = new Date(end || date);
+    if (allDay) {
+      toDayStart(d);
+      d.setDate(d.getDate() + 1);
+    }
+    return d.getTime();
+  }, [end, date, allDay]);
   const duringTime = useMemo(
     () => (endTime || 864e5) - startTime,
     [startTime, endTime]
   );
-  const [time, setTime] = useState<number>(startTime - current.getTime());
+  const firstTime = useMemo(() => startTime - current.getTime(), [startTime]);
+  const [time, setTime] = useState<number>(firstTime);
+  useEffect(() => {
+    setTime(firstTime);
+  }, [firstTime]);
   const onTheDayTime = useMemo(
     () =>
       ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
@@ -880,7 +983,7 @@ export const CountDown = memo(function CountDown({
     [date]
   );
   useEffect(() => {
-    const ml = time % 1000;
+    const ml = firstTime % 1000;
     let interval: NodeJS.Timeout | undefined;
     setTimeout(() => {
       setTime((time) => time - ml);
@@ -891,7 +994,7 @@ export const CountDown = memo(function CountDown({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, []);
+  }, [firstTime]);
   const result = useMemo(() => {
     const totalSeconds = Math.floor(time / 1000);
     const seconds = totalSeconds % 60;
@@ -925,7 +1028,7 @@ export const CountDown = memo(function CountDown({
         if (days) str = str + ` ${days}日`;
         if (days || hours) str = str + ` ${hours}時間`;
         if (days || hours || minutes) str = str + minutes + "分";
-        if (days || hours || minutes || seconds) str = str + seconds + "秒";
+        str = str + seconds + "秒";
       }
       return str;
     }

@@ -19,31 +19,39 @@ const publicDirBuild: BuildOptions = {
   emptyOutDir: false,
   copyPublicDir: false,
 }
-const clientBuildOptions = ({
-  rollupOptions: {
-    output: {
-      entryFileNames: `static/js/[name].js`,
-      chunkFileNames: `static/js/[name].js`,
-      assetFileNames: (assetInfo) => {
-        const name = assetInfo?.name ?? "";
-        if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
-          return 'static/images/[name].[ext]';
+interface setClientBuildOptionsProps {
+  dir_assets?: string;
+  dir_js?: string;
+  dir_css?: string;
+  dir_images?: string;
+}
+function setClientBuildOptions({ dir_assets = "assets", dir_js, dir_css, dir_images }: setClientBuildOptionsProps = {}) {
+  return ({
+    rollupOptions: {
+      output: {
+        entryFileNames: `${dir_js || dir_assets}/[name].js`,
+        chunkFileNames: `${dir_js || dir_assets}/[name].js`,
+        assetFileNames: (assetInfo) => {
+          const name = assetInfo?.name ?? "";
+          if (/\.(gif|jpeg|jpg|png|svg|webp)$/.test(name)) {
+            return `${dir_images || dir_assets}/[name].[ext]`;
+          }
+          if (/\.css$/.test(name)) {
+            return `${dir_css || dir_assets}/[name].[ext]`;
+          }
+          return `${dir_assets}/[name].[ext]`;
         }
-        if (/\.css$/.test(name)) {
-          return 'css/[name].[ext]';
+      },
+      onwarn(warning, warn) {
+        // Suppress "Module level directives cause errors when bundled" warnings
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+          return;
         }
-        return 'static/[name].[ext]';
-      }
+        warn(warning);
+      },
     },
-    onwarn(warning, warn) {
-      // Suppress "Module level directives cause errors when bundled" warnings
-      if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
-        return;
-      }
-      warn(warning);
-    },
-  },
-} as BuildOptions).rollupOptions
+  } as BuildOptions).rollupOptions;
+}
 
 const devExclude: (string | RegExp)[] = [
   // /.*\.css$/,
@@ -82,7 +90,12 @@ export default defineConfig(async ({ mode }) => {
         ...defaultBuild,
         emptyOutDir: modes[1] === "overwrite",
         rollupOptions: {
-          ...clientBuildOptions,
+          ...setClientBuildOptions({
+            dir_assets: "static",
+            dir_js: "static/js",
+            dir_css: "css",
+            dir_images: "static/images"
+          }),
           input: clientInput,
         },
         // manifest: true,
@@ -101,6 +114,48 @@ export default defineConfig(async ({ mode }) => {
       );
     }
     return clientOptions;
+  } else if (includeModes("calendar")) {
+    if (includeModes("ssg")) {
+      return {
+        ...config,
+        build: {
+          ...defaultBuild,
+          emptyOutDir: true,
+          outDir: "src/calendar/dist",
+          rollupOptions: {
+            ...setClientBuildOptions(),
+            input: [
+              './src/calendar/client.tsx',
+              './src/clientBefore.ts',
+              './src/styles.scss',
+              './src/styles/styles_lib.scss',
+            ]
+          },
+          chunkSizeWarningLimit: 1000
+        },
+        plugins: [
+          ...defaultPlugins,
+          buildMeeSSG_Plugins({ entry: "src/calendar/index.production.tsx" }),
+        ],
+      } as UserConfig;
+    } else {
+      return {
+        ...config,
+        build: defaultBuild,
+        plugins: [
+          ...defaultPlugins,
+          pages(),
+          devServer({
+            entry: 'src/calendar/index.dev.tsx',
+            adapter,
+            exclude: devExclude,
+          }),
+        ],
+        server: {
+          allowedHosts: ["dp7-test.cottonwind.com"],
+        }
+      } as UserConfig;
+    }
   } else if (includeModes("ssg")) {
     const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
     const entry = "src/ssg.tsx";

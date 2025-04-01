@@ -25,12 +25,22 @@
       "type": "chrome",
       "url": "https://dp7-test.cottonwind.com",
       "request": "launch"
-    }
+    },
+    {
+      "name": "dev-calendar",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev-calendar"
+    },
   ],
   "compounds": [
     {
       "name": "Chrome dev",
       "configurations": ["Launch Chrome", "dev"]
+    },
+    {
+      "name": "Chrome dev-calendar",
+      "configurations": ["Launch Chrome", "dev-calendar"]
     }
   ]
 }

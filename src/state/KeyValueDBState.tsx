@@ -177,7 +177,7 @@ function KeyValueEdit() {
         }}
       >
         <form className="flex" onSubmit={handleSubmit(Submit)}>
-          <div className="header">
+          <div className="header flex justify-between">
             <span>{edit}</span>
             <label className="private">
               <input {...register("private")} type="checkbox" title="非公開" />
@@ -272,17 +272,11 @@ function KeyValueEdit() {
             <button type="button" className="color-warm" onClick={Delete}>
               削除
             </button>
-            <button
-              type="button"
-              className="color"
-              onClick={Reset}
-              disabled={!isDirty}
-            >
+            <button type="button" onClick={Reset} disabled={!isDirty}>
               リセット
             </button>
             <button
               type="button"
-              className="color"
               onClick={handleSubmit(Submit, (e) => {
                 console.log(e);
               })}

@@ -15,8 +15,8 @@
   --def-main-color-pale: #dfec98;
   --def-main-color-fluo: #c5d85840;
   --def-main-color-pale-fluo: #dfec9840;
-  --def-main-color-strong: #aec52f;
-  --def-main-color-deep: #9fb427;
+  --def-main-color-strong: #a8be28;
+  --def-main-color-deep: #87991f;
   --def-main-color-dark: #677612;
   --def-main-color-text: #31332b;
   --def-main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
@@ -115,11 +115,14 @@
 // dark mode
 %lightMode {
   --background: var(--background-color);
+  --background-input: white;
   --background-bw: white;
   --form-background-color: var(--light-form-background-color);
 }
 @mixin darkMode() {
   --text-color: var(--def-dark-text-color);
+  --main-color: var(--def-main-color-strong);
+  --main-color-strong: var(--def-main-color);
   --main-color-dark-text: var(--def-dark-text-color);
   --main-color-pale: var(--def-main-color-dark);
   --main-color-soft: var(--def-main-color-deep);
@@ -129,10 +132,15 @@
   --main-color-dark-grayish: var(--def-main-color-pale-grayish);
   --main-color-dark: var(--def-main-color-soft);
   --background: var(--def-dark-background-color);
+  --background-input: var(--def-dark-background-color);
   --background-bw: rgb(10, 10, 10);
   --modal-window-background: var(--def-dark-background-color);
   --play-background-color: var(--def-dark-play-background-color);
   --form-background-color: var(--def-dark-form-background-color);
+}
+
+:root {
+  accent-color: var(--main-color-deep);
 }
 
 @keyframes FadeInAnim {
@@ -324,10 +332,12 @@ textarea,
   transition: background-color 1s;
 }
 
-:root,
-.headerBackground,
-.InPageMenu .background {
-  @extend %backgroundTransition;
+:root:not(.loading) {
+  &,
+  .headerBackground,
+  .InPageMenu .background {
+    @extend %backgroundTransition;
+  }
 }
 :root.audio_play {
   &,
@@ -532,6 +542,9 @@ ul {
   &.justify-end {
     justify-content: flex-end;
   }
+  &.justify-between {
+    justify-content: space-between;
+  }
   &.row {
     flex-direction: row;
   }
@@ -583,6 +596,23 @@ ul {
 }
 .container {
   margin: 1rem 0.5rem 2.5rem;
+}
+
+.absoluteCorner {
+  position: absolute;
+  z-index: 50;
+  &.top {
+    top: 0;
+  }
+  &.bottom {
+    bottom: 0;
+  }
+  &.right {
+    right: 0;
+  }
+  &.left {
+    left: 0;
+  }
 }
 
 label {
@@ -1532,6 +1562,34 @@ $headerHeight: 3.5rem;
 html {
   scroll-padding-top: #{$headerHeight + 1rem};
 }
+%headerSwitch {
+  display: flex;
+  .item {
+    height: 2.25rem;
+    padding: 0;
+    min-width: 33.33%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--main-color-strong);
+    &:hover,
+    &:focus {
+      color: white;
+      background-color: var(--main-color-soft);
+      outline: none;
+    }
+    svg {
+      width: auto;
+      height: 1.5rem;
+      margin: 0;
+    }
+    &.disabled {
+      svg {
+        opacity: 0.4;
+      }
+    }
+  }
+}
 header.siteHeader {
   height: #{$headerHeight};
   position: fixed;
@@ -1627,25 +1685,7 @@ header.siteHeader {
         }
       }
       .switch {
-        display: flex;
-        .item {
-          height: 2.25rem;
-          padding: 0;
-          min-width: 33.33%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          svg {
-            width: auto;
-            height: 1.5rem;
-            margin: 0;
-          }
-          &.disabled {
-            svg {
-              opacity: 0.4;
-            }
-          }
-        }
+        @extend %headerSwitch;
       }
       @extend %a-line-none;
     }
@@ -1904,18 +1944,19 @@ footer {
   }
 }
 
-input:not(:disabled):hover {
-  border-color: var(--main-color);
-}
-
 input,
 textarea,
 .preview-area,
 select {
-  border: solid 1px var(--main-color-deep);
   border-radius: 0.5em;
   box-sizing: border-box;
   padding: 0.125rem 0.5rem;
+  color: var(--text-color);
+  background: var(--background-input);
+  border: solid 1px var(--main-color-grayish);
+  &:not(:disabled):hover {
+    border-color: var(--main-color-deep);
+  }
 }
 
 button,
@@ -2717,20 +2758,23 @@ label,
       max-width: 80vw;
       flex-direction: column;
       & > * {
-        margin: 0.25rem;
+        margin: 0.25rem 0;
+        @media (min-width: $mobileWidth) {
+          margin: 0.25rem;
+        }
       }
       * {
-        font-size: large;
+        font-size: 1.05em;
+        line-height: 1.1em;
+      }
+      h2 {
+        margin: 1em 0.5em 0.5em;
       }
       @media (min-width: $tabletWidth) {
         min-width: 20rem;
       }
     }
     &.keyValueEdit {
-      .header {
-        display: flex;
-        justify-content: space-between;
-      }
       .private {
         display: flex;
         align-items: center;
@@ -2753,17 +2797,23 @@ label,
           margin: 0.5rem 1rem;
         }
       }
-      .actions {
-        display: flex;
-        justify-content: space-evenly;
-        button {
-          padding: 0.25em 1em;
-          &.color-warm {
-            color: white;
-            background-color: var(--warm-color);
-            &:hover {
-              background-color: var(--warm-color-hover);
-            }
+    }
+    .actions {
+      display: flex;
+      justify-content: space-evenly;
+      button {
+        line-height: 1em;
+        padding: 0.5em 1em;
+        color: white;
+        background-color: var(--main-color);
+        &:hover, &:disabled {
+          background-color: var(--main-color-soft);
+        }
+        &.color-warm {
+          color: white;
+          background-color: var(--warm-color);
+          &:hover {
+            background-color: var(--warm-color-hover);
           }
         }
       }
@@ -2800,7 +2850,6 @@ label,
       }
     }
   }
-  @extend .modal-background;
   &.enter {
     animation: FadeInAnim linear forwards;
   }
@@ -3659,7 +3708,7 @@ form.blogEdit {
 
 .clickEffects {
   .clickEffect {
-    z-index: 10000;
+    z-index: 99999;
     position: fixed;
     pointer-events: none;
     translate: -50% -50%;
@@ -3679,11 +3728,11 @@ form.blogEdit {
 
 .fc {
   font-size: 1.2rem;
-  --fc-event-bg-color: var(--main-color-strong);
-  --fc-button-hover-bg-color: var(--main-color-soft);
+  --fc-event-bg-color: var(--def-main-color-strong);
+  --fc-event-hover-color: var(--def-main-color);
   --fc-event-border-color: var(--main-color-strong);
-  --fc-event-border-color: var(--main-color-strong);
-  --fc-button-bg-color: var(--main-color);
+  --fc-button-bg-color: var(--def-main-color-strong);
+  --fc-button-hover-bg-color: var(--def-main-color);
   --fc-button-hover-border-color: var(--main-color-soft);
   --fc-button-active-bg-color: var(--main-color-deep);
   --fc-button-active-border-color: var(--main-color-deep);
@@ -3693,7 +3742,6 @@ form.blogEdit {
   --fc-list-event-hover-bg-color: var(--main-color-pale);
   --fc-today-bg-color: var(--main-color-pale-fluo);
   --fc-page-bg-color: var(--background-bw);
-  &,
   .fc-event a {
     word-break: keep-all;
   }
@@ -3704,7 +3752,7 @@ form.blogEdit {
     --fc-non-business-color: rgba(240, 95, 95, 0.132);
   }
   .fc-h-event:hover {
-    --fc-event-bg-color: var(--main-color);
+    --fc-event-bg-color: var(--fc-event-hover-color);
   }
   .fc-list-empty {
     --fc-neutral-bg-color: var(--main-color-grayish-fluo);
@@ -3734,8 +3782,10 @@ form.blogEdit {
   .fc-col-header {
     line-height: 1.3em;
   }
-  .fc-button-group button:focus {
-    box-shadow: none !important;
+  .fc-button-group {
+    button:focus {
+      box-shadow: none !important;
+    }
   }
   .fc-today-button:disabled {
     opacity: 1;
@@ -3745,12 +3795,27 @@ form.blogEdit {
   }
   .fc-toolbar {
     .fc-toolbar-title {
+      word-break: keep-all;
       font-size: 1.2em;
     }
     &.fc-header-toolbar {
-      margin-bottom: 0.25em;
+      margin-bottom: 0.3rem;
       .fc-toolbar-chunk:last-child {
         text-align: right;
+      }
+    }
+  }
+  .fc-direction-ltr .fc-toolbar > * {
+    & > * {
+      margin-bottom: 0.1em;
+      @media (min-width: #{$mobileWidth}) {
+        margin-bottom: 0.2em;
+      }
+    }
+    & > :not(:first-child) {
+      margin-left: 0.3em;
+      @media (min-width: #{$mobileWidth}) {
+        margin-left: 0.5em;
       }
     }
   }
@@ -3759,12 +3824,19 @@ form.blogEdit {
     border: 1px solid var(--fc-event-border-color);
     color: var(--fc-event-text-color);
     &:hover {
-      --fc-event-bg-color: var(--main-color);
+      --fc-event-bg-color: var(--fc-event-hover-color);
       color: var(--fc-event-text-color);
     }
+    .fc-daygrid-event-dot {
+      --fc-event-border-color: var(--fc-event-text-color);
+    }
+    .fc-event-time {
+      margin-right: 0.3em;
+    }
   }
-  .fc-daygrid-event-dot {
-    --fc-event-border-color: var(--fc-event-text-color);
+  .fc-list-event-time {
+    min-width: 7.5em;
+    text-align: center;
   }
   .fc-toolbar-title {
     line-height: 1.25em;
@@ -3777,6 +3849,11 @@ form.blogEdit {
         margin-right: 0.5em;
       }
     }
+  }
+  .fc-event-main,
+  .fc-event-main-frame {
+    display: flex;
+    align-items: center;
   }
   .topPage & {
     margin: 2rem auto;
@@ -3793,6 +3870,8 @@ form.blogEdit {
     }
   }
   .modal {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
     h2 {
       font-size: 1.5em;
       min-height: 3em;
@@ -3808,24 +3887,31 @@ form.blogEdit {
       > div {
         display: flex;
       }
-      button {
-        color: var(--main-color-deep);
-        background-color: transparent;
-        margin-right: 0.25em;
-        margin-left: 0.25em;
-        &:hover {
-          color: var(--main-color-dark);
-        }
-        svg {
-          width: 2em;
-          height: 2em;
-          margin: 0.5em;
-        }
-      }
     }
     a {
       display: inline-flex;
       align-items: stretch;
+    }
+    button {
+      color: var(--main-color-deep);
+      background-color: transparent;
+      margin-right: 0.25em;
+      margin-left: 0.25em;
+      &:hover {
+        color: var(--main-color-dark);
+      }
+      svg {
+        width: 2em;
+        height: 2em;
+        margin: 0.5em;
+      }
+      &.large {
+        svg {
+          width: 2.5em;
+          height: 2.5em;
+          margin: 1em;
+        }
+      }
     }
     div.time {
       width: 90vw;
@@ -3877,14 +3963,21 @@ form.blogEdit {
           font-size: 1.5em;
         }
       }
-      a.time {
+      h3 > .time {
+        color: var(--link-color);
         display: inline-flex;
         flex-wrap: wrap;
         justify-content: center;
         line-height: 1.25em;
+        > .time {
+          margin-left: 0.25em;
+        }
         .during {
           margin: auto 0.3em;
         }
+      }
+      h3 a:hover {
+        color: var(--link-color-hover);
       }
     }
     h4 {
@@ -3964,5 +4057,39 @@ form.blogEdit {
   }
   &.background {
     display: none;
+  }
+}
+
+.calendar-app {
+  margin: 1rem auto 1rem;
+  padding: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1280px;
+  .calendarAppEdit {
+    font-size: 1.1em;
+    textarea,
+    .preview-area {
+      border-radius: 0.5rem;
+      padding: 0.2rem 0.5em;
+      min-width: 100%;
+      max-width: 100%;
+      min-height: 6em;
+      max-height: 65vh;
+      @media (min-width: #{$mobileWidth}) {
+        min-width: 19.5rem;
+        max-width: 75vw;
+      }
+    }
+    label > span:first-child {
+      min-width: 6em;
+    }
+    .switch {
+      @extend %headerSwitch;
+      .item {
+        background-color: var(--background-bw);
+        border-radius: 0;
+      }
+    }
   }
 }

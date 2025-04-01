@@ -128,3 +128,18 @@ export function FormatDateUTC(date: Date, format_str = "Y-m-d H:i:s") {
 export function getLocalTimeOffset() {
   return timeZoneFromMinute(-(new Date().getTimezoneOffset()));
 }
+
+export function DateNotEqual(date1: Date, date2: Date) {
+  return (
+    date1.getFullYear() !== date2.getFullYear() ||
+    date1.getMonth() !== date2.getMonth() ||
+    date1.getDate() !== date2.getDate()
+  );
+}
+
+export function toDayStart(date: Date) {
+  date.setMilliseconds(0);
+  date.setSeconds(0);
+  date.setMinutes(0);
+  date.setHours(0);
+}
