@@ -252,49 +252,53 @@ export function CalendarMeeState({
       Set({ isLoading: true });
       Promise.all(
         calendarList.map(async ({ id, private: p, list }) => {
-          return (
-            id && googleApiKey
-              ? eventsFetch({
-                  id,
-                  key: googleApiKey,
-                  start: syncRange.start,
-                  end: syncRange.end,
-                  private: p,
-                }).then((data) => data.items)
-              : (async () => list || [])()
-          ).then((items) => {
-            if (items && Array.isArray(items)) {
-              Set(({ eventsMap, syncOverwrite, eventsOverwrite }) => {
-                if (syncOverwrite && eventsOverwrite) {
-                  eventsMap.clear();
-                } else if (syncOverwrite || eventsOverwrite) {
-                  eventsMap.forEach((event, key) => {
-                    if (syncOverwrite ? event.raw : !event.raw)
-                      eventsMap.delete(key);
-                  });
-                }
-                const add: EventsDataType[] = [];
+          return id && googleApiKey
+            ? eventsFetch({
+                id,
+                key: googleApiKey,
+                start: syncRange.start,
+                end: syncRange.end,
+                private: p,
+              }).then((data) => {
+                return data.items;
+              })
+            : (async () => list || [])();
+        })
+      )
+        .then((events) => {
+          Set(({ eventsMap, syncOverwrite, eventsOverwrite }) => {
+            if (syncOverwrite && eventsOverwrite) {
+              eventsMap.clear();
+            } else if (syncOverwrite || eventsOverwrite) {
+              eventsMap.forEach((event, key) => {
+                if (syncOverwrite ? event.raw : !event.raw)
+                  eventsMap.delete(key);
+              });
+            }
+            const add: EventsDataType[] = [];
+            events.forEach((items) => {
+              if (items && Array.isArray(items)) {
                 items.forEach((item) => {
                   if (!eventsMap.has(item.id)) add.push(item);
                   eventsMap.set(item.id, item);
                 });
-                return {
-                  eventsMap,
-                  events: Object.values(Object.fromEntries(eventsMap)),
-                  add,
-                };
-              });
-            }
+              }
+            });
+            return {
+              eventsMap,
+              events: Object.values(Object.fromEntries(eventsMap)),
+              add,
+            };
           });
         })
-      ).finally(() => {
-        Set({
-          isLoading: false,
-          syncRange: null,
-          syncOverwrite: false,
-          eventsOverwrite: false,
+        .finally(() => {
+          Set({
+            isLoading: false,
+            syncRange: null,
+            syncOverwrite: false,
+            eventsOverwrite: false,
+          });
         });
-      });
     }
   }, [googleApiKey, calendarList, syncRange, Set]);
 
