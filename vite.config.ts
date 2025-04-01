@@ -118,7 +118,7 @@ export default defineConfig(async ({ mode }) => {
     if (includeModes("ssg")) {
       return {
         ...config,
-        publicDir: "src/calendar/public",
+        publicDir: "public",
         build: {
           ...defaultBuild,
           emptyOutDir: true,
