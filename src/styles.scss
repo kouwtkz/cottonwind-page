@@ -2173,13 +2173,18 @@ iframe {
   }
 }
 
-.modal-background {
-  background-color: var(--lightbox-background);
+.fixedCenter {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.modal-background {
+  background-color: var(--lightbox-background);
+  z-index: -1;
+  @extend .fixedCenter;
 }
 
 $translucent-button-default-color: rgba(255, 255, 255, 0.7);
@@ -2703,6 +2708,7 @@ label,
     background-color: var(--modal-window-background);
     padding: 1rem;
     border-radius: 1rem;
+    position: relative;
     &.full {
       padding: 0;
       border-radius: 0;

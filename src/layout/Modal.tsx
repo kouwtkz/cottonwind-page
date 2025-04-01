@@ -55,7 +55,7 @@ export const Modal = memo(function Modal({
     return classes.join(" ");
   }, [className, scroll, switchWidth]);
   const ClassNameEntire = useMemo(() => {
-    const classes = ["modalEntire"];
+    const classes = ["modalEntire fixedCenter"];
     if (classNameEntire) classes.push(classNameEntire);
     if (scroll) classes.push("scrollThrough");
     return classes.join(" ");
@@ -84,26 +84,25 @@ export const Modal = memo(function Modal({
       in={isOpen}
       {...{ classNames, timeout, unmountOnExit, nodeRef, onExited }}
     >
-      <div
-        ref={nodeRef}
-        className={ClassNameEntire}
-        style={timeoutStyle}
-        onClick={(e) => {
-          if (onClose && e.target === e.currentTarget) onClose();
-        }}
-      >
-        <CloseButton
-          className="modalClose cursor-pointer"
-          width={60}
-          height={60}
+      <div ref={nodeRef} className={ClassNameEntire} style={timeoutStyle}>
+        <div className={ClassName} {...props} onClick={onClick}>
+          {children}
+        </div>
+        <button
+          type="button"
+          className="modal-background"
+          title="閉じる"
           onClick={(e) => {
             if (onClose) onClose();
             e.stopPropagation();
           }}
-        />
-        <div className={ClassName} {...props} onClick={onClick}>
-          {children}
-        </div>
+        >
+          <CloseButton
+            className="modalClose"
+            width={60}
+            height={60}
+          />
+        </button>
       </div>
     </CSSTransition>
   );
