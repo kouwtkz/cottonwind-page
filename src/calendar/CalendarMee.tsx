@@ -430,13 +430,6 @@ export function CalendarMee({
   useEffect(() => {
     Set({ view });
   }, [view]);
-  useEffect(() => {
-    if (calendar) {
-      setTimeout(() => {
-        calendar.gotoDate(date);
-      }, 0);
-    }
-  }, [calendar, date]);
   const isChangeView = useRef(false);
   useEffect(() => {
     if (calendar && view && calendar.view.type !== view) {
@@ -527,8 +520,8 @@ export function CalendarMee({
         ref={(e: any) => {
           const fullCalendar = e as CustomFullCalendar | null;
           if (fullCalendar) {
-            const calendar = fullCalendar.calendar;
-            setCalendar(calendar);
+            if (calendar !== fullCalendar.calendar)
+              setCalendar(fullCalendar.calendar);
           }
         }}
         lazyFetching
