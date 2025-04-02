@@ -100,7 +100,7 @@ export const Modal = memo(function Modal({
         <button
           type="button"
           className="modal-background"
-          title="閉じる"
+          title={""}
           onClick={(e) => {
             if (onClose) onClose();
             e.stopPropagation();

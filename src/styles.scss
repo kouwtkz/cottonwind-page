@@ -2224,6 +2224,7 @@ iframe {
 
 .modal-background {
   background-color: var(--lightbox-background);
+  -webkit-tap-highlight-color: transparent;
   z-index: -1;
   @extend .fixedCenter;
 }
