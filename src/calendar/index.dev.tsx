@@ -8,7 +8,7 @@ import { appFromImportStyle } from "@/indexFunctions";
 import { renderHtml } from "@/functions/render";
 import { CalendarAppNotFound } from "./CalendarAppLayout";
 
-const app = new Hono<MeeBindings<MeeCalendarEnv>>({ strict: true });
+const app = new Hono<MeeBindings<Object>>({ strict: true });
 
 const dirBase = "/src/calendar";
 const styles: [string, unknown][] = [

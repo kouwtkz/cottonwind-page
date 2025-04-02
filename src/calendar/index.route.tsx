@@ -45,6 +45,11 @@ export function IndexRouteCalendar({ app, ...props }: IndexRouteCalendarProps) {
           sizes: "150x150",
           type: "image/png",
         },
+        {
+          src: "/static/images/png/faviconCalendar_512px.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
       ],
       share_target: {
         action: "/",
