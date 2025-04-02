@@ -3,7 +3,7 @@ import { CommonHono } from "@/types/HonoCustomType";
 import { CalendarAppLayout, CalendarAppNotFound } from "./CalendarAppLayout";
 
 interface IndexRouteCalendarProps extends CalendarAppLayoutProps {
-  app: CommonHono<MeeCalendarEnv>;
+  app: CommonHono<Object>;
 }
 export function IndexRouteCalendar({ app, ...props }: IndexRouteCalendarProps) {
   app.get("/", async (c) => {

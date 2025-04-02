@@ -496,7 +496,7 @@ function CalendarSettingForm() {
         <SetDefaultView />
         <h2>テーマの設定</h2>
         <SiteMenuSwitchButtons />
-        <h2>Googleカレンダーの設定</h2>
+        <h2>GoogleAPIの設定（読取専用で任意です）</h2>
         <label>
           <span className="label-l">Google API</span>
           <input
