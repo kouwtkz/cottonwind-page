@@ -2,10 +2,8 @@ import { renderHtml } from "@/functions/render";
 import { CommonHono } from "@/types/HonoCustomType";
 import { CalendarAppLayout, CalendarAppNotFound } from "./CalendarAppLayout";
 
-interface IndexRouteCalendarProps {
+interface IndexRouteCalendarProps extends CalendarAppLayoutProps {
   app: CommonHono<MeeCalendarEnv>;
-  script?: React.ReactNode;
-  beforeScript?: React.ReactNode;
 }
 export function IndexRouteCalendar({ app, ...props }: IndexRouteCalendarProps) {
   app.get("/", async (c) => {
@@ -33,5 +31,29 @@ export function IndexRouteCalendar({ app, ...props }: IndexRouteCalendarProps) {
       exclude,
     };
     return c.json(json);
+  });
+
+  app.get("manifest.json", async (c) => {
+    return c.json({
+      name: "めぇ式カレンダー",
+      display: "standalone",
+      scope: "/",
+      start_url: "/",
+      icons: [
+        {
+          src: "/static/images/png/faviconCalendar_150px.png",
+          sizes: "150x150",
+          type: "image/png",
+        },
+      ],
+      share_target: {
+        action: "/",
+        params: {
+          title: "name",
+          text: "description",
+          url: "link",
+        },
+      },
+    } as webManifestType);
   });
 }

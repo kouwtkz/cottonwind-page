@@ -34,7 +34,9 @@
       {
         "valid-lang": "off"
       }
-    ]
+    ],
+    "manifest-file-extension": "off",
+    "apple-touch-icons": "off"
   },
   "browserslist": [
     "defaults",

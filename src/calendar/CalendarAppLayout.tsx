@@ -1,15 +1,14 @@
 import { Style } from "@/serverLayout";
 
-interface CalendarLayoutProps {
-  script?: React.ReactNode;
-  beforeScript?: React.ReactNode;
+interface LayoutPropsWithChildren extends CalendarAppLayoutProps {
   children?: React.ReactNode;
 }
 export function CalendarAppLayout({
   children,
   script,
   beforeScript,
-}: CalendarLayoutProps) {
+  meta,
+}: LayoutPropsWithChildren) {
   return (
     <html lang="ja" className="loading">
       <head>
@@ -20,6 +19,12 @@ export function CalendarAppLayout({
         {beforeScript}
         <Style href="/assets/styles.css" />
         <Style href="/assets/styles_lib.css" />
+        {meta}
+        <link
+          rel="manifest"
+          href="/manifest.json"
+          crossOrigin="use-credentials"
+        />
       </head>
       <body>
         {children}

@@ -131,6 +131,8 @@ export default defineConfig(async ({ mode }) => {
               './src/clientBefore.ts',
               './src/styles.scss',
               './src/styles/styles_lib.scss',
+              './src/calendar/setSw.ts',
+              './src/calendar/sw.ts',
             ]
           },
           chunkSizeWarningLimit: 1000

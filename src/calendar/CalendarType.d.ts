@@ -130,3 +130,9 @@ interface CalendarAppStateType extends CalendarAppClassType {
   removeEvent: (id: string) => void;
   addEventsEdit: (date?: Date) => void;
 }
+
+interface CalendarAppLayoutProps {
+  script?: React.ReactNode;
+  beforeScript?: React.ReactNode;
+  meta?: React.ReactNode;
+}

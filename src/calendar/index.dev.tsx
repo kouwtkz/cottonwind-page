@@ -21,8 +21,14 @@ IndexRouteCalendar({
   app,
   beforeScript: <script type="module" src="/src/clientBefore.ts" />,
   script: <script type="module" src={dirBase + "/client.tsx"} />,
+  meta: (
+    <>
+      <script type="module" src={dirBase + "/setSw.ts"} />
+    </>
+  ),
 });
 
+const rootDir = "." + dirBase + "/";
 app.get("/*", serveStatic({ root: `./public/` }));
 
 app.all("*", async (c, next) => {
