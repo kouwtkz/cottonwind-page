@@ -1280,7 +1280,7 @@ export function MiniGallery() {
     <>
       <Modal
         classNameEntire="gallery"
-        className="large miniGallery"
+        className="large"
         onClose={closeHandler}
         isOpen={enable}
         scroll

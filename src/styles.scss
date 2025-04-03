@@ -2792,7 +2792,7 @@ label,
   justify-content: center;
   align-items: center;
   &.gallery {
-    z-index: 160;
+    z-index: 20000;
   }
   .modal {
     background-color: var(--modal-window-background);
