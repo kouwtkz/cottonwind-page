@@ -28,12 +28,12 @@ import {
 } from "@/components/define/toastContainerDef";
 import { ToastProgressState } from "@/state/ToastProgress";
 import {
-  RiEdit2Line,
+  RiEdit2Fill,
   RiNotification2Fill,
   RiNotification2Line,
 } from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
-import { useNotification } from "@/state/NotificationState";
+import { useNotification } from "@/components/notification/NotificationState";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -50,16 +50,18 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <>
-    <ClickEffect />
-    <ClickEventState />
-    <Theme />
-    <ToastContainer {...defaultToastContainerOptions} />
-    <ToastProgressState />
-    <RouterProvider router={router} />
-  </>
-);
+document.addEventListener("DOMContentLoaded", () => {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <>
+      <ClickEffect />
+      <ClickEventState />
+      <Theme />
+      <ToastContainer {...defaultToastContainerOptions} />
+      <ToastProgressState />
+      <RouterProvider router={router} />
+    </>
+  );
+});
 
 export const CalendarAppClass = new LocalStorageClass<CalendarAppClassType>(
   "calendarAppData"
@@ -189,18 +191,15 @@ function Root() {
       if (event.raw) return null;
       else
         return (
-          <div className="absoluteCorner bottom right">
-            <button
-              type="button"
-              className="large"
-              title="編集"
-              onClick={() => {
-                Set({ edit: event });
-              }}
-            >
-              <RiEdit2Line />
-            </button>
-          </div>
+          <button
+            type="button"
+            title="編集"
+            onClick={() => {
+              Set({ edit: event });
+            }}
+          >
+            <RiEdit2Fill />
+          </button>
         );
     },
     []
@@ -212,7 +211,7 @@ function Root() {
           events={events}
           googleApiKey={googleApiKey}
           googleCalendarList={googleCalendarId}
-          SubComponent={EditButton}
+          RightBottomComponent={EditButton}
         />
         <Outlet />
       </div>
@@ -522,7 +521,6 @@ function CalendarSettingForm() {
                 <span>カウントダウンの</span>
                 <span>通知を</span>
                 <span>解除する</span>
-                <span>(PCのみ)</span>
               </div>
             </>
           ) : (
@@ -532,7 +530,6 @@ function CalendarSettingForm() {
                 <span>カウントダウンの</span>
                 <span>通知を</span>
                 <span>有効にする</span>
-                <span>(PCのみ)</span>
               </div>
             </>
           )}

@@ -70,6 +70,7 @@ interface CalendarMeeEventSubComponentProps {
 interface CalendarMeeEventViewerProps {
   enableMarkdownCopy?: boolean;
   SubComponent?: (props: CalendarMeeEventSubComponentProps) => React.ReactNode;
+  RightBottomComponent?: (props: CalendarMeeEventSubComponentProps) => React.ReactNode;
   viewerClassName?: string;
 }
 
@@ -132,7 +133,7 @@ interface CalendarAppStateType extends CalendarAppClassType {
 }
 
 interface CalendarAppLayoutProps {
-  script?: React.ReactNode;
-  beforeScript?: React.ReactNode;
+  headScript?: React.ReactNode;
+  bodyScript?: React.ReactNode;
   meta?: React.ReactNode;
 }

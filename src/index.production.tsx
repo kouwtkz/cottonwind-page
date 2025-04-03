@@ -54,9 +54,9 @@ RoutingList.forEach((path) => {
           <Style href="/css/styles_lib.css" />
         </>
       ),
-      beforeScript: <script type="module" src="/static/js/clientBefore.js" />,
-      script: (
+      headScript: (
         <>
+          <script type="module" src="/static/js/clientBefore.js" />
           <DefaultImportScripts />
           <script type="module" src="/static/js/client.js" />
         </>

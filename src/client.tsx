@@ -9,12 +9,14 @@ import { Theme } from "@/components/theme/Theme";
 
 const router = createBrowserRouter(Routing);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <>
-    <ClickEffect />
-    <ClickEventState />
-    <LangState />
-    <Theme />
-    <RouterProvider router={router} />
-  </>
-);
+document.addEventListener("DOMContentLoaded", () => {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <>
+      <ClickEffect />
+      <ClickEventState />
+      <LangState />
+      <Theme />
+      <RouterProvider router={router} />
+    </>
+  );
+});

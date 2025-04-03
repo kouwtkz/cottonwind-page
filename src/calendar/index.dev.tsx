@@ -19,11 +19,10 @@ appFromImportStyle({ styles, app, dir: "/assets" });
 
 IndexRouteCalendar({
   app,
-  beforeScript: <script type="module" src="/src/clientBefore.ts" />,
-  script: <script type="module" src={dirBase + "/client.tsx"} />,
-  meta: (
+  headScript: (
     <>
-      <script type="module" src={dirBase + "/setSw.ts"} />
+      <script type="module" src="/src/clientBefore.ts" />
+      <script type="module" src={dirBase + "/client.tsx"} />
     </>
   ),
 });

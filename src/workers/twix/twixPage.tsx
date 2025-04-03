@@ -99,7 +99,7 @@ app.get("/", async (c) => {
     renderHtml(
       <WorkersLayout
         title="めぇめぇTwitterれんけい"
-        script={
+        bodyScript={
           <script
             type="module"
             src={

@@ -5,11 +5,10 @@ const app = new Hono<MeeBindings<Object>>({ strict: true });
 
 IndexRouteCalendar({
   app,
-  beforeScript: <script type="module" src="/assets/clientBefore.js" />,
-  script: <script type="module" src="/assets/client.js" />,
-  meta: (
+  headScript: (
     <>
-      <script type="module" src="/assets/setSw.js" />
+      <script type="module" src="/assets/clientBefore.js" />
+      <script type="module" src="/assets/client.js" />
     </>
   ),
 });

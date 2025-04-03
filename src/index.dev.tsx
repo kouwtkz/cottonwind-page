@@ -59,14 +59,14 @@ RoutingList.forEach((path) => {
       c,
       next,
       path,
-      beforeScript: <script type="module" src="/src/clientBefore.ts" />,
-      style: stylePathes.map((href, i) => <Style href={href} key={i} />),
-      script: (
+      headScript: (
         <>
+          <script type="module" src="/src/clientBefore.ts" />
           <DefaultImportScripts />
           <script type="module" src="/src/client.tsx" />
         </>
       ),
+      style: stylePathes.map((href, i) => <Style href={href} key={i} />),
       isLogin: IsLogin(c),
       noindex: NoIndex(path),
     })

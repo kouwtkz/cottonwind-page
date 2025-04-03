@@ -25,14 +25,17 @@ import {
   RiFileCopyLine,
   RiLink,
   RiMapPinLine,
-  RiTimeLine,
+  RiNotification4Fill,
+  RiNotificationOffFill,
+  RiTimerFill,
 } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
 import { CreateObjectState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/state/NotificationState";
+import { useNotification } from "@/components/notification/NotificationState";
+import { sendNotification } from "@/components/notification/notificationFunction";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -631,6 +634,7 @@ export function CalendarMee({
 export function CalendarMeeEventViewer({
   enableMarkdownCopy,
   SubComponent,
+  RightBottomComponent,
   viewerClassName,
 }: CalendarMeeEventViewerProps = {}) {
   const {
@@ -824,10 +828,47 @@ export function CalendarMeeEventViewer({
     if (viewerClassName) classList.push(viewerClassName);
     return classList.join(" ");
   }, [viewerClassName]);
-  const { isEnable: _iENC, keyValues } = useNotification();
+  const { isEnable: _iENC, keyValues, setNotification } = useNotification();
   const countdownNotification = useMemo(
     () => _iENC && Boolean(keyValues?.[NOTICE_KEY_COUNTDOWN]),
     [_iENC, keyValues]
+  );
+  const CountDownButton = useCallback(
+    () => (
+      <button
+        title={"カウントダウンを" + (enableCountdown ? "しまう" : "表示する")}
+        type="button"
+        onClick={(e) => {
+          setCountdown(!enableCountdown);
+          e.preventDefault();
+        }}
+      >
+        <RiTimerFill />
+      </button>
+    ),
+    [enableCountdown]
+  );
+  const SwitchNotificationButton = useCallback(
+    () => (
+      <button
+        type="button"
+        title={
+          "カウントダウンの通知を" +
+          (countdownNotification ? "解除する" : "有効にする")
+        }
+        className="fill"
+        onClick={() => {
+          setNotification(NOTICE_KEY_COUNTDOWN, !countdownNotification);
+        }}
+      >
+        {countdownNotification ? (
+          <RiNotification4Fill />
+        ) : (
+          <RiNotificationOffFill />
+        )}
+      </button>
+    ),
+    [countdownNotification]
   );
   return (
     <>
@@ -883,16 +924,7 @@ export function CalendarMeeEventViewer({
                     <RiFileCopyLine />
                   </button>
                 ) : null}
-                <button
-                  title={
-                    "カウントダウンを" +
-                    (enableCountdown ? "しまう" : "表示する")
-                  }
-                  type="button"
-                  onClick={() => setCountdown(!enableCountdown)}
-                >
-                  <RiTimeLine />
-                </button>
+                <CountDownButton />
               </div>
             </div>
             {location ? (
@@ -916,6 +948,12 @@ export function CalendarMeeEventViewer({
             ) : null}
             <div className="description">
               <MultiParser>{event.description}</MultiParser>
+            </div>
+            <div className="absoluteCorner bottom right">
+              <SwitchNotificationButton />
+              {RightBottomComponent ? (
+                <RightBottomComponent event={event} />
+              ) : null}
             </div>
           </>
         ) : (
@@ -1019,7 +1057,7 @@ export const CountDown = memo(function CountDown({
         let noticeText = "時間になりました！";
         if (title) noticeText = title + "\n" + noticeText;
         try {
-          new Notification(noticeText);
+          sendNotification(noticeText);
         } catch (e) {
           console.error(e);
         }

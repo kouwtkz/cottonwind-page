@@ -5,8 +5,8 @@ interface LayoutPropsWithChildren extends CalendarAppLayoutProps {
 }
 export function CalendarAppLayout({
   children,
-  script,
-  beforeScript,
+  headScript,
+  bodyScript,
   meta,
 }: LayoutPropsWithChildren) {
   return (
@@ -16,10 +16,10 @@ export function CalendarAppLayout({
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link rel="icon" href="/faviconCalendar.ico" />
         <title>めぇ式カレンダー</title>
-        {beforeScript}
+        {meta}
+        {headScript}
         <Style href="/assets/styles.css" />
         <Style href="/assets/styles_lib.css" />
-        {meta}
         <link
           rel="manifest"
           href="/manifest.json"
@@ -28,7 +28,7 @@ export function CalendarAppLayout({
       </head>
       <body>
         {children}
-        {script}
+        {bodyScript}
       </body>
     </html>
   );

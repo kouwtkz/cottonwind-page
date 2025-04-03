@@ -70,10 +70,10 @@ function judgeJson(r: Response) {
 }
 
 interface defaultServerLayoutProps extends DefaultMetaProps {
-  beforeScript?: React.ReactNode;
   meta?: React.ReactNode;
   style?: React.ReactNode;
-  script?: React.ReactNode;
+  headScript?: React.ReactNode;
+  bodyScript?: React.ReactNode;
   noindex?: boolean;
 }
 
@@ -88,8 +88,8 @@ export async function ServerLayout({
   characters: charactersMap,
   meta,
   style,
-  beforeScript,
-  script,
+  headScript,
+  bodyScript,
   noindex,
   isLogin = false,
   path,
@@ -164,13 +164,13 @@ export async function ServerLayout({
           />
         ) : null}
         {meta}
-        {beforeScript}
+        {headScript}
         {style}
       </head>
       <DefaultBody env={env}>
         {" "}
         <script id="server-data" data-is-login={isLogin} />
-        {script}
+        {bodyScript}
       </DefaultBody>
     </html>
   );
@@ -221,8 +221,8 @@ export function ServerSimpleLayout({
   children,
   meta,
   style,
-  beforeScript,
-  script,
+  headScript,
+  bodyScript,
   env,
   logo = true,
   ...defaultMetaArgs
@@ -234,7 +234,7 @@ export function ServerSimpleLayout({
         <title>{title ?? env?.TITLE}</title>
         {noindex ? <meta name="robots" content="noindex" /> : null}
         {meta}
-        {beforeScript}
+        {headScript}
         <Style href="/css/styles.css" />
         <Style href="/css/styles_lib.css" />
         {style}
@@ -266,7 +266,7 @@ export function ServerSimpleLayout({
           <Footer env={env} />
         </div>
         <SvgMaskSns />
-        {script}
+        {bodyScript}
       </body>
     </html>
   );

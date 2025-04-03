@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { CreateObjectState } from "./CreateState";
+import { CreateObjectState } from "@/state/CreateState";
 import { LocalStorageClass } from "@/functions/storage/LocalStorageClass";
 
 interface noticeClassKVType {
