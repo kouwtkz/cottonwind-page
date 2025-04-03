@@ -2768,19 +2768,27 @@ label,
     form.flex {
       max-width: 80vw;
       flex-direction: column;
+      &,
+      input,
+      button,
+      textarea {
+        font-size: 1em;
+        line-height: 1.2em;
+      }
+      svg {
+        font-size: 1.1em;
+      }
+      h2 {
+        font-size: 1.25em;
+        line-height: 1.25em;
+        margin: 1em 0.5em 0.5em;
+        word-break: keep-all;
+      }
       & > * {
         margin: 0.25rem 0;
         @media (min-width: $mobileWidth) {
           margin: 0.25rem;
         }
-      }
-      * {
-        font-size: 1.05em;
-        line-height: 1.1em;
-      }
-      h2 {
-        margin: 1em 0.5em 0.5em;
-        word-break: keep-all;
       }
       @media (min-width: $tabletWidth) {
         min-width: 20rem;
@@ -3889,11 +3897,13 @@ form.blogEdit {
     padding-top: 1.5rem;
     padding-bottom: 2rem;
     h2 {
-      font-size: 1.5em;
-      min-height: 3em;
+      font-size: 1.75em;
+      min-height: 3.5em;
       margin: 0 1em;
+      flex: 1;
       display: flex;
       align-items: center;
+      justify-content: center;
     }
     .title {
       display: flex;
@@ -4017,7 +4027,6 @@ form.blogEdit {
     }
     @media (max-width: #{$mobileWidth - 1}) {
       h2 {
-        font-size: 1.5em;
         margin: 0 1em;
       }
       div.time {

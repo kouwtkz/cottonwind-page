@@ -32,6 +32,7 @@ import { CreateObjectState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
+import { useNotification } from "@/state/NotificationState";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -77,6 +78,8 @@ export type Type_VIEW_FC =
   | typeof FC_VIEW_MONTH
   | typeof FC_VIEW_DAY;
 const FC_SP_EVENT_ID = "fc-event-id";
+export const NOTICE_KEY_CALENDAR = "calendar";
+export const NOTICE_KEY_COUNTDOWN = "countdown";
 
 function openWindow(url: string) {
   window.open(url, "google-calendar-event", "width=700,height=600");
@@ -821,6 +824,11 @@ export function CalendarMeeEventViewer({
     if (viewerClassName) classList.push(viewerClassName);
     return classList.join(" ");
   }, [viewerClassName]);
+  const { isEnable: _iENC, keyValues } = useNotification();
+  const countdownNotification = useMemo(
+    () => _iENC && Boolean(keyValues?.[NOTICE_KEY_COUNTDOWN]),
+    [_iENC, keyValues]
+  );
   return (
     <>
       <Modal
@@ -857,6 +865,8 @@ export function CalendarMeeEventViewer({
                     date={startDate}
                     end={endDate}
                     allDay={event.allDay}
+                    title={event.title}
+                    notification={countdownNotification}
                   />
                 </h4>
               ) : null}
@@ -934,6 +944,8 @@ interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
   current?: Date;
   allDay?: boolean;
   format?: (options: countDownFormatProps) => string;
+  notification?: boolean;
+  title?: string;
 }
 export const CountDown = memo(function CountDown({
   date,
@@ -942,6 +954,8 @@ export const CountDown = memo(function CountDown({
   format,
   className,
   allDay,
+  notification,
+  title,
   ...props
 }: CountDownProps) {
   className = useMemo(() => {
@@ -968,10 +982,6 @@ export const CountDown = memo(function CountDown({
     [startTime, endTime]
   );
   const firstTime = useMemo(() => startTime - current.getTime(), [startTime]);
-  const [time, setTime] = useState<number>(firstTime);
-  useEffect(() => {
-    setTime(firstTime);
-  }, [firstTime]);
   const onTheDayTime = useMemo(
     () =>
       ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
@@ -992,6 +1002,26 @@ export const CountDown = memo(function CountDown({
       if (interval) clearInterval(interval);
     };
   }, [firstTime]);
+  const [time, setTime] = useState<number>(firstTime);
+  const [firstTimeover, setFirstTimeover] = useState(firstTime <= 0);
+  useEffect(() => {
+    setTime(firstTime);
+    setFirstTimeover(firstTime <= 0);
+  }, [firstTime]);
+  const currentTimeover = useMemo(() => time <= 0, [time]);
+  const timeOver = useMemo(
+    () => currentTimeover && !firstTimeover,
+    [currentTimeover, firstTimeover]
+  );
+  useEffect(() => {
+    if (timeOver) {
+      if (notification) {
+        let noticeText = "時間になりました！";
+        if (title) noticeText = title + "\n" + noticeText;
+        new Notification(noticeText);
+      }
+    }
+  }, [timeOver, notification]);
   const result = useMemo(() => {
     const totalSeconds = Math.floor(time / 1000);
     const seconds = totalSeconds % 60;
@@ -1016,12 +1046,12 @@ export const CountDown = memo(function CountDown({
     else {
       let str = "";
       if (time < 0) {
-        const backTime = time - onTheDayTime;
+        const backTime = 864e5 + time - onTheDayTime;
         const backDays = Math.round(backTime / 864e5);
         if (backDays) str = Math.abs(backDays) + "日前";
         else str = "当日";
       } else {
-        str = "あと";
+        str = "あと ";
         if (days) str = str + ` ${days}日`;
         if (days || hours) str = str + ` ${hours}時間`;
         if (days || hours || minutes) str = str + minutes + "分";

@@ -8,6 +8,7 @@ import {
   CalendarMee,
   CalendarMeeState,
   FC_VIEW_MONTH,
+  NOTICE_KEY_COUNTDOWN,
   Type_VIEW_FC,
   useCalendarMee,
 } from "./CalendarMee";
@@ -26,8 +27,13 @@ import {
   toastLoadingShortOptions,
 } from "@/components/define/toastContainerDef";
 import { ToastProgressState } from "@/state/ToastProgress";
-import { RiEdit2Line } from "react-icons/ri";
+import {
+  RiEdit2Line,
+  RiNotification2Fill,
+  RiNotification2Line,
+} from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
+import { useNotification } from "@/state/NotificationState";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -251,7 +257,7 @@ function CalendarAppEventEdit() {
   });
   useEffect(() => {
     if (!isOpenForm) reset();
-  }, [isOpenForm])
+  }, [isOpenForm]);
   const foundIndex = useMemo(
     () =>
       edit && events ? events.findIndex((event) => event.id === edit.id) : -1,
@@ -480,6 +486,37 @@ function CalendarSettingForm() {
       </div>
     );
   }, [defaultView, view]);
+  const { isEnable: _iENC, keyValues, setNotification } = useNotification();
+  const countdownNotification = useMemo(
+    () => _iENC && Boolean(keyValues?.[NOTICE_KEY_COUNTDOWN]),
+    [_iENC, keyValues]
+  );
+  const SetNotification = useCallback(() => {
+    return (
+      <div className="actions">
+        <button
+          type="button"
+          onClick={() => {
+            setNotification(NOTICE_KEY_COUNTDOWN, !countdownNotification);
+          }}
+        >
+          <span className="flex center">
+            {countdownNotification ? (
+              <>
+                <RiNotification2Fill className="label-l" />
+                <span>カウントダウンの通知を解除する</span>
+              </>
+            ) : (
+              <>
+                <RiNotification2Line className="label-l" />
+                <span>カウントダウンの通知を有効にする</span>
+              </>
+            )}
+          </span>
+        </button>
+      </div>
+    );
+  }, [countdownNotification]);
   return (
     <Modal
       className="calendarAppEdit"
@@ -494,6 +531,7 @@ function CalendarSettingForm() {
       <form className="flex" onSubmit={handleSubmit(Submit)}>
         <h2>カレンダーの設定</h2>
         <SetDefaultView />
+        <SetNotification />
         <h2>テーマの設定</h2>
         <SiteMenuSwitchButtons />
         <h2>GoogleAPIの設定（読取専用で任意です）</h2>
