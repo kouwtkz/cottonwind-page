@@ -1969,12 +1969,50 @@ select {
   }
 }
 
+.button-general {
+  line-height: 1em;
+  padding: 0.5em 1em;
+  color: white;
+  background-color: var(--main-color);
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: auto;
+  &:hover {
+    background-color: var(--main-color-strong);
+  }
+  &:disabled {
+    background-color: var(--main-color-light-grayish);
+  }
+  &.color-warm {
+    color: white;
+    background-color: var(--warm-color);
+    &:hover {
+      background-color: var(--warm-color-hover);
+    }
+  }
+}
+
 button,
 .button {
   &.squared.item {
     text-align: left;
     display: flex;
     align-items: center;
+  }
+  &.labels {
+    @extend .button-general;
+    padding: 0.5em;
+    text-align: left;
+    > svg:first-child {
+      margin-left: 0.1em;
+      margin-right: 0.5em;
+      flex: none;
+    }
+    div {
+      display: flex;
+      flex-wrap: wrap;
+    }
   }
 }
 
@@ -2765,8 +2803,9 @@ label,
       padding: 0;
       border-radius: 0;
     }
-    form.flex {
+    form {
       max-width: 80vw;
+      display: flex;
       flex-direction: column;
       &,
       input,
@@ -2785,13 +2824,18 @@ label,
         word-break: keep-all;
       }
       & > * {
-        margin: 0.25rem 0;
-        @media (min-width: $mobileWidth) {
-          margin: 0.25rem;
-        }
+        margin: 0.25rem;
+      }
+      button.labels {
+        margin: 0.25rem auto;
       }
       @media (min-width: $tabletWidth) {
         min-width: 20rem;
+        button.labels {
+          svg {
+            font-size: 1.25em;
+          }
+        }
       }
     }
     &.keyValueEdit {
@@ -2822,23 +2866,7 @@ label,
       display: flex;
       justify-content: space-evenly;
       button {
-        line-height: 1em;
-        padding: 0.5em 1em;
-        color: white;
-        background-color: var(--main-color);
-        &:hover {
-          background-color: var(--main-color-strong);
-        }
-        &:disabled {
-          background-color: var(--main-color-light-grayish);
-        }
-        &.color-warm {
-          color: white;
-          background-color: var(--warm-color);
-          &:hover {
-            background-color: var(--warm-color-hover);
-          }
-        }
+        @extend .button-general;
       }
     }
     &.window {
@@ -3097,8 +3125,10 @@ label,
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        margin-top: 1rem;
         margin-bottom: 1rem;
+        &:first-child {
+          margin-top: 1rem;
+        }
       }
       label,
       .label {
@@ -3844,6 +3874,7 @@ form.blogEdit {
     }
   }
   .fc-daygrid-event {
+    overflow: hidden;
     background-color: var(--fc-event-bg-color);
     border: 1px solid var(--fc-event-border-color);
     color: var(--fc-event-text-color);

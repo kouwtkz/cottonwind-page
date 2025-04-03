@@ -1018,7 +1018,11 @@ export const CountDown = memo(function CountDown({
       if (notification) {
         let noticeText = "時間になりました！";
         if (title) noticeText = title + "\n" + noticeText;
-        new Notification(noticeText);
+        try {
+          new Notification(noticeText);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   }, [timeOver, notification]);
@@ -1047,7 +1051,7 @@ export const CountDown = memo(function CountDown({
       let str = "";
       if (time < 0) {
         const backTime = 864e5 + time - onTheDayTime;
-        const backDays = Math.round(backTime / 864e5);
+        const backDays = Math.floor(backTime / 864e5);
         if (backDays) str = Math.abs(backDays) + "日前";
         else str = "当日";
       } else {

@@ -166,7 +166,13 @@ export const useCalendarAppState = CreateObjectState<CalendarAppStateType>(
       const end = new Date(start);
       end.setHours(end.getHours() + 1);
       set({
-        edit: { id: window.crypto.randomUUID(), start, end },
+        edit: {
+          id: window.crypto.randomUUID
+            ? window.crypto.randomUUID()
+            : new Date().getTime().toString(16),
+          start,
+          end,
+        },
       });
     },
     isEdit: false,
@@ -479,9 +485,17 @@ function CalendarSettingForm() {
             location.reload();
           }}
         >
-          {isDefault
-            ? "現在のビューはデフォルトです"
-            : "現在のビューをデフォルトにする"}
+          {isDefault ? (
+            <div>
+              <span>現在のビューは</span>
+              <span>デフォルトです</span>
+            </div>
+          ) : (
+            <div>
+              <span>現在のビューを</span>
+              <span>デフォルトにする</span>
+            </div>
+          )}
         </button>
       </div>
     );
@@ -493,28 +507,37 @@ function CalendarSettingForm() {
   );
   const SetNotification = useCallback(() => {
     return (
-      <div className="actions">
+      <>
         <button
           type="button"
+          className="labels"
           onClick={() => {
             setNotification(NOTICE_KEY_COUNTDOWN, !countdownNotification);
           }}
         >
-          <span className="flex center">
-            {countdownNotification ? (
-              <>
-                <RiNotification2Fill className="label-l" />
-                <span>カウントダウンの通知を解除する</span>
-              </>
-            ) : (
-              <>
-                <RiNotification2Line className="label-l" />
-                <span>カウントダウンの通知を有効にする</span>
-              </>
-            )}
-          </span>
+          {countdownNotification ? (
+            <>
+              <RiNotification2Fill />
+              <div>
+                <span>カウントダウンの</span>
+                <span>通知を</span>
+                <span>解除する</span>
+                <span>(PCのみ)</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <RiNotification2Line />
+              <div>
+                <span>カウントダウンの</span>
+                <span>通知を</span>
+                <span>有効にする</span>
+                <span>(PCのみ)</span>
+              </div>
+            </>
+          )}
         </button>
-      </div>
+      </>
     );
   }, [countdownNotification]);
   return (
@@ -528,7 +551,7 @@ function CalendarSettingForm() {
       }}
       timeout={60}
     >
-      <form className="flex" onSubmit={handleSubmit(Submit)}>
+      <form onSubmit={handleSubmit(Submit)}>
         <h2>カレンダーの設定</h2>
         <SetDefaultView />
         <SetNotification />

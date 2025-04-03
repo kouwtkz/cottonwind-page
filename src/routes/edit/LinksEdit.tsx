@@ -301,14 +301,16 @@ export function LinksEdit({
             ))}
           </select>
         ) : null}
-        <button
-          type="button"
-          className="color"
-          onClick={handleSubmit(Submit)}
-          disabled={!isDirty}
-        >
-          送信
-        </button>
+        <div className="actions">
+          <button
+            type="button"
+            className="color"
+            onClick={handleSubmit(Submit)}
+            disabled={!isDirty}
+          >
+            送信
+          </button>
+        </div>
       </form>
     </Modal>
   );
