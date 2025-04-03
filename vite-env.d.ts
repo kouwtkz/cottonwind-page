@@ -12,6 +12,8 @@ type ImportMetaKVKeyType = keyof ImportMetaKVKeyEnv;
 interface ImportMetaEnv extends ImportMetaKVKeyEnv {
   readonly VITE_THEME_COLOR_KEY: string;
   readonly VITE_THEME_DARK_KEY: string;
+  readonly VITE_LOCAL_TEST_DOMAIN?: string;
+  readonly VITE_LOCAL_TEST_DOMAIN_2?: string;
 }
 
 interface ImportMeta {

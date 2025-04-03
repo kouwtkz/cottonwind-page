@@ -1,7 +1,7 @@
 import pages from '@hono/vite-cloudflare-pages';
 import devServer from '@hono/vite-dev-server';
 import adapter from '@hono/vite-dev-server/cloudflare';
-import { BuildOptions, PluginOption, UserConfig, defineConfig } from 'vite';
+import { BuildOptions, PluginOption, UserConfig, defineConfig, loadEnv } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import Sitemap from "vite-plugin-sitemap";
 import { RoutingList } from './src/routes/RoutingList';
@@ -25,6 +25,12 @@ interface setClientBuildOptionsProps {
   dir_css?: string;
   dir_images?: string;
 }
+
+const env = loadEnv("", process.cwd()) as ImportMetaEnv;
+const allowedHosts: string[] = [];
+if (env.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(env.VITE_LOCAL_TEST_DOMAIN);
+if (env.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(env.VITE_LOCAL_TEST_DOMAIN_2);
+
 function setClientBuildOptions({ dir_assets = "assets", dir_js, dir_css, dir_images }: setClientBuildOptionsProps = {}) {
   return ({
     rollupOptions: {
@@ -155,9 +161,7 @@ export default defineConfig(async ({ mode }) => {
             exclude: devExclude,
           }),
         ],
-        server: {
-          allowedHosts: ["dp7-test.cottonwind.com"],
-        }
+        server: { allowedHosts }
       } as UserConfig;
     }
   } else if (includeModes("ssg")) {
@@ -210,9 +214,7 @@ export default defineConfig(async ({ mode }) => {
           exclude: devExclude,
         }),
       ],
-      server: {
-        allowedHosts: ["dp7-test.cottonwind.com"],
-      }
+      server: { allowedHosts }
     } as UserConfig;
   }
 })

@@ -21,12 +21,6 @@
       "url": "http://localhost:51730"
     },
     {
-      "name": "Launch Chrome Global",
-      "type": "chrome",
-      "url": "https://dp7-test.cottonwind.com",
-      "request": "launch"
-    },
-    {
       "name": "Launch Chrome 2",
       "type": "chrome",
       "url": "http://localhost:51740",
