@@ -1,5 +1,11 @@
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register(import.meta.env?.DEV ? "/src/calendar/sw.ts" : "/assets/sw.js").then((reg) => {
-    console.log("SW registered.", reg);
-  });
+  const registPath = import.meta.env?.DEV ? "/src/calendar/sw.ts" : "/assets/sw.js";
+  navigator.serviceWorker.getRegistration(registPath).then(reg => {
+    reg?.unregister();
+  })
+  // navigator.serviceWorker.register(registPath).then((reg) => {
+  //   console.log("SW registered.", reg);
+  // });
 }
+
+export { };

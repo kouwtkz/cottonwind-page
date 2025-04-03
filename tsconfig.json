@@ -2,7 +2,7 @@
   "include": ["src", "**/*.d.ts", "./*.ts"],
   "compilerOptions": {
     "target": "es2017",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "WebWorker"],
     "types": ["@cloudflare/workers-types", "vite/client"],
     "module": "ESNext",
     "moduleResolution": "Bundler",

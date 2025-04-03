@@ -27,6 +27,12 @@
       "request": "launch"
     },
     {
+      "name": "Launch Chrome 2",
+      "type": "chrome",
+      "url": "http://localhost:51740",
+      "request": "launch"
+    },
+    {
       "name": "dev-calendar",
       "type": "node-terminal",
       "request": "launch",
@@ -40,7 +46,7 @@
     },
     {
       "name": "Chrome dev-calendar",
-      "configurations": ["Launch Chrome", "dev-calendar"]
+      "configurations": ["Launch Chrome 2", "dev-calendar"]
     }
   ]
 }

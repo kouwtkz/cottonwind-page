@@ -11,7 +11,7 @@
     "deploy-only": "npx wrangler pages deploy dist --commit-dirty true --branch master",
     "deploy-sv": "npx wrangler deploy -c wrangler-sv.toml",
     "dev-sv": "npx wrangler dev --local -c wrangler-sv.toml --port 51732 --test-scheduled",
-    "dev-calendar": "npx vite --mode calendar-dev --host --port 51730",
+    "dev-calendar": "npx vite --mode calendar-dev --host --port 51740",
     "build-calendar": "npx vite build --mode ssg-calendar",
     "start-calendar": "npx wrangler pages dev --cwd src/calendar",
     "deploy-calendar": "npm run build-calendar && npm run deploy-only-calendar",
