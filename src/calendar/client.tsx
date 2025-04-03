@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Modal } from "@/layout/Modal";
-import { ToFormTime } from "@/functions/DateFunction";
+import { FormatDate, ToFormTime } from "@/functions/DateFunction";
 import { EventClickArg } from "@fullcalendar/core/index.js";
 import { toast, ToastContainer } from "react-toastify";
 import {
@@ -34,6 +34,7 @@ import {
 } from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
 import { useNotification } from "@/components/notification/NotificationState";
+import { fileDialog, fileDownload } from "@/components/FileTool";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -63,8 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 });
 
+const storageKey = "calendarAppData";
 export const CalendarAppClass = new LocalStorageClass<CalendarAppClassType>(
-  "calendarAppData"
+  storageKey
 );
 function ToEventMap(events: EventsDataType[]) {
   return new Map(events.map<[string, EventsDataType]>((v) => [v.id, v]));
@@ -436,9 +438,9 @@ const googleCalendarSchema = z.object({
 });
 const useCalendarSettingForm = CreateState(false);
 function CalendarSettingForm() {
-  const { googleApiKey, googleCalendarId, events, save, defaultView } =
+  const { googleApiKey, googleCalendarId, events, save, defaultView, Set } =
     useCalendarAppState();
-  const { reload, view } = useCalendarMee();
+  const { reload, view, date } = useCalendarMee();
   const {
     register,
     handleSubmit,
@@ -549,11 +551,56 @@ function CalendarSettingForm() {
       timeout={60}
     >
       <form onSubmit={handleSubmit(Submit)}>
+        <h2>テーマの設定</h2>
+        <SiteMenuSwitchButtons />
         <h2>カレンダーの設定</h2>
         <SetDefaultView />
         <SetNotification />
-        <h2>テーマの設定</h2>
-        <SiteMenuSwitchButtons />
+        <h2>データ管理</h2>
+        <div className="actions">
+          <button
+            type="submit"
+            onClick={() => {
+              if (confirm("JSONファイルでエクスポートしますか？")) {
+                fileDownload(
+                  `calendar_${FormatDate(new Date(), "Ymd_his")}.json`,
+                  localStorage.getItem(storageKey) || ""
+                );
+              }
+            }}
+          >
+            エクスポート
+          </button>
+          <button
+            type="submit"
+            onClick={() => {
+              fileDialog("application/json")
+                .then((e) => {
+                  return e.item(0)?.text();
+                })
+                .then((text) => {
+                  if (text && Boolean(JSON.parse(text))) {
+                    localStorage.setItem(storageKey, text);
+                    const data = getFromJsonData();
+                    Set(data);
+                    reload({
+                      start: date,
+                      end: date,
+                      eventsOverwrite: true,
+                    });
+                    const eventCount = data.events?.length || 0;
+                    toast(
+                      (eventCount ? `${eventCount}件` : "") +
+                        "上書きインポートしました",
+                      toastLoadingShortOptions
+                    );
+                  }
+                });
+            }}
+          >
+            インポート
+          </button>
+        </div>
         <h2>GoogleAPIの設定（読取専用で任意です）</h2>
         <label>
           <span className="label-l">Google API</span>
