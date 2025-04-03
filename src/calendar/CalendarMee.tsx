@@ -772,19 +772,15 @@ export function CalendarMeeEventViewer({
   const setCountdown = useCallback(
     (v: boolean) => {
       const options = { state, preventScrollReset: true, replace: true };
+      const searchParams = new URLSearchParams(window.location.search);
       if (v && !enableCountdown) {
+        searchParams.set("countdown", "enable");
         Set({ enableCountdown: true });
-        setSearchParams((searchParams) => {
-          searchParams.set("countdown", "enable");
-          return searchParams;
-        }, options);
       } else if (!v && enableCountdown) {
-        setSearchParams((searchParams) => {
-          searchParams.delete("countdown");
-          return searchParams;
-        }, options);
+        searchParams.delete("countdown");
         Set({ enableCountdown: false });
       }
+      setSearchParams(searchParams, options);
     },
     [enableCountdown, state]
   );
@@ -838,9 +834,8 @@ export function CalendarMeeEventViewer({
       <button
         title={"カウントダウンを" + (enableCountdown ? "しまう" : "表示する")}
         type="button"
-        onClick={(e) => {
+        onClick={() => {
           setCountdown(!enableCountdown);
-          e.preventDefault();
         }}
       >
         <RiTimerFill />
