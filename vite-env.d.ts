@@ -10,6 +10,9 @@ interface ImportMetaKVKeyEnv {
 type ImportMetaKVKeyType = keyof ImportMetaKVKeyEnv;
 
 interface ImportMetaEnv extends ImportMetaKVKeyEnv {
+  readonly VITE_CLIENT_SCRIPT: string;
+  readonly VITE_CLIENT_BEFORE_SCRIPT?: string;
+  readonly VITE_PATH_SW_NOTIFICATION: string;
   readonly VITE_THEME_COLOR_KEY: string;
   readonly VITE_THEME_DARK_KEY: string;
   readonly VITE_LOCAL_TEST_DOMAIN?: string;

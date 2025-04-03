@@ -1,11 +1,11 @@
 import { connectServiceWorker } from "../serviceWorker/setFunction";
-const path = import.meta.env?.DEV
-  ? "/src/components/serviceWorker/swNotification.ts"
-  : "/assets/swNotification.js";
+const path = import.meta.env?.VITE_PATH_SW_NOTIFICATION;
 let sw: ServiceWorker | null = null;
-connectServiceWorker({ path }).then((e) => {
-  sw = e?.active || null;
-});
+if (path) {
+  connectServiceWorker({ path }).then((e) => {
+    sw = e?.active || null;
+  });
+}
 
 export function sendNotification(message: string) {
   sw?.postMessage(JSON.stringify({ notification: message }));

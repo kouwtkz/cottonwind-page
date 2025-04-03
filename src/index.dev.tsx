@@ -2,11 +2,10 @@ import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "./routes/RoutingList";
-import { ReactResponse, ServerNotFound, Style } from "./serverLayout";
+import { DefaultReactResponse, ServerNotFound, Style } from "./serverLayout";
 import { IsLogin } from "./admin";
 import { honoTest } from "./functions";
 import { renderHtml } from "./functions/render";
-import { CompactCode } from "@/functions/doc/StrFunctions";
 import ssg from "./ssg";
 import { GitLogObject } from "@/gitlog/GitlogObject";
 import { NoIndex, MainPageRouteIndex } from "@/index.route";
@@ -14,7 +13,6 @@ import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
 import stylesMain from "./styles.scss";
 import stylesfromLib from "./styles/styles_lib.scss";
-import { DefaultImportScripts } from "./clientScripts";
 import { appFromImportStyle } from "@/indexFunctions";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
@@ -55,17 +53,10 @@ app.post("/", async (c) => {
 
 RoutingList.forEach((path) => {
   app.get(path, (c, next) =>
-    ReactResponse({
+    DefaultReactResponse({
       c,
       next,
       path,
-      headScript: (
-        <>
-          <script type="module" src="/src/clientBefore.ts" />
-          <DefaultImportScripts />
-          <script type="module" src="/src/client.tsx" />
-        </>
-      ),
       style: stylePathes.map((href, i) => <Style href={href} key={i} />),
       isLogin: IsLogin(c),
       noindex: NoIndex(path),

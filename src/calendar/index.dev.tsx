@@ -17,15 +17,7 @@ const styles: [string, unknown][] = [
 ];
 appFromImportStyle({ styles, app, dir: "/assets" });
 
-IndexRouteCalendar({
-  app,
-  headScript: (
-    <>
-      <script type="module" src="/src/clientBefore.ts" />
-      <script type="module" src={dirBase + "/client.tsx"} />
-    </>
-  ),
-});
+IndexRouteCalendar({ app });
 
 const rootDir = "." + dirBase + "/";
 app.get("/*", serveStatic({ root: `./public/` }));

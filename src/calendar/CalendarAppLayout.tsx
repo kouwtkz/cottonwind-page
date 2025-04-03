@@ -17,7 +17,12 @@ export function CalendarAppLayout({
         <link rel="icon" href="/faviconCalendar.ico" />
         <title>めぇ式カレンダー</title>
         {meta}
+        <script
+          type="module"
+          src={import.meta.env?.VITE_CLIENT_BEFORE_SCRIPT}
+        />
         {headScript}
+        <script type="module" src={import.meta.env?.VITE_CLIENT_SCRIPT} />
         <Style href="/assets/styles.css" />
         <Style href="/assets/styles_lib.css" />
         <link

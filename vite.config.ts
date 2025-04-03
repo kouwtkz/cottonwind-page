@@ -26,10 +26,10 @@ interface setClientBuildOptionsProps {
   dir_images?: string;
 }
 
-const env = loadEnv("", process.cwd()) as ImportMetaEnv;
+const envDev = loadEnv("development", process.cwd()) as ImportMetaEnv;
 const allowedHosts: string[] = [];
-if (env.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(env.VITE_LOCAL_TEST_DOMAIN);
-if (env.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(env.VITE_LOCAL_TEST_DOMAIN_2);
+if (envDev.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN);
+if (envDev.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN_2);
 
 function setClientBuildOptions({ dir_assets = "assets", dir_js, dir_css, dir_images }: setClientBuildOptionsProps = {}) {
   return ({
@@ -117,7 +117,7 @@ export default defineConfig(async ({ mode }) => {
         './src/clientBefore.ts',
         './src/styles.scss',
         './src/styles/styles_lib.scss',
-        './src/components/serviceWorker/swNotification.ts',
+        `.${envDev.VITE_PATH_SW_NOTIFICATION}`,
       );
     }
     return clientOptions;
@@ -138,14 +138,14 @@ export default defineConfig(async ({ mode }) => {
               './src/clientBefore.ts',
               './src/styles.scss',
               './src/styles/styles_lib.scss',
-              './src/components/serviceWorker/swNotification.ts',
+              `.${envDev.VITE_PATH_SW_NOTIFICATION}`,
             ]
           },
           chunkSizeWarningLimit: 1000
         },
         plugins: [
           ...defaultPlugins,
-          buildMeeSSG_Plugins({ entry: "src/calendar/index.production.tsx" }),
+          buildMeeSSG_Plugins({ entry: "src/calendar/index.production.tsx", mode }),
         ],
       } as UserConfig;
     } else {
@@ -166,6 +166,7 @@ export default defineConfig(async ({ mode }) => {
     }
   } else if (includeModes("ssg")) {
     const { env, dispose } = await getPlatformProxy<MeeCommonEnv>();
+    dispose();
     const entry = "src/ssg.tsx";
     return {
       ...config,
@@ -176,7 +177,7 @@ export default defineConfig(async ({ mode }) => {
       },
       plugins: [
         ...defaultPlugins,
-        buildMeeSSG_Plugins({ entry, adapter: { env, onServerClose: dispose } }),
+        buildMeeSSG_Plugins({ entry, adapter: { env }, mode }),
         Sitemap({
           outDir: defaultBuild.outDir,
           hostname: env.ORIGIN,

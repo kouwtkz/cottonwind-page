@@ -6,9 +6,10 @@ import { buildMeeSSG, getStaticParamsFromModule } from "./buildMeeSSG";
 interface buildMeeSsgPluginsProps {
   entry?: string;
   adapter?: Adapter
+  mode?: string;
 }
 
-export function buildMeeSSG_Plugins({ entry = "./src/index.tsx", adapter }: buildMeeSsgPluginsProps = {}) {
+export function buildMeeSSG_Plugins({ entry = "./src/index.tsx", adapter, mode }: buildMeeSsgPluginsProps = {}) {
   const virtualId = "virtual:mee-ssg-void-entry";
   const resolvedVirtualId = "\0" + virtualId;
   let config: any;
@@ -40,7 +41,8 @@ export function buildMeeSSG_Plugins({ entry = "./src/index.tsx", adapter }: buil
     async generateBundle(_outputOptions, bundle) {
       const server = await createServer({
         plugins: [],
-        build: { ssr: true }
+        build: { ssr: true },
+        mode
       });
       const m = await server.ssrLoadModule(entry);
       server.close();

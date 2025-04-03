@@ -14,6 +14,7 @@ import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
 import { ArrayEnv } from "@/Env";
 import { charaTableObject } from "./api/character";
 import { defaultLang, TITLE_IMAGE_PATH } from "./multilingual/envDef";
+import { DefaultImportScripts } from "./clientScripts";
 
 export interface DefaultMetaProps {
   favicon?: string;
@@ -176,13 +177,37 @@ export async function ServerLayout({
   );
 }
 
+interface ReactResponseProps extends ServerLayoutProps {
+  next: Next;
+}
+
+export async function DefaultReactResponse({
+  headScript,
+  ...props
+}: ReactResponseProps) {
+  return ReactResponse({
+    ...props,
+    headScript: (
+      <>
+        <script
+          type="module"
+          src={import.meta.env?.VITE_CLIENT_BEFORE_SCRIPT}
+        />
+        <DefaultImportScripts />
+        <script type="module" src={import.meta.env?.VITE_CLIENT_SCRIPT} />
+        {headScript}
+      </>
+    ),
+  });
+}
+
 export async function ReactResponse({
   c,
   next,
   path,
   characters,
   ...args
-}: ServerLayoutProps & { next: Next }) {
+}: ReactResponseProps) {
   switch (path) {
     case "character":
       const name = c.req.query("name");

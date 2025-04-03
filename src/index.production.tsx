@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { RoutingList } from "@/routes/RoutingList";
-import { ReactResponse, ServerNotFound, Style } from "@/serverLayout";
+import { DefaultReactResponse, ServerNotFound, Style } from "@/serverLayout";
 import { IsLogin } from "@/admin";
 import { renderHtml } from "@/functions/render";
 import { NoIndex, MainPageRouteIndex } from "@/index.route";
@@ -44,7 +44,7 @@ RoutingList.forEach((path) => {
     return next();
   });
   app.get(path, (c, next) => {
-    return ReactResponse({
+    return DefaultReactResponse({
       c,
       next,
       path,
@@ -52,13 +52,6 @@ RoutingList.forEach((path) => {
         <>
           <Style href="/css/styles.css" />
           <Style href="/css/styles_lib.css" />
-        </>
-      ),
-      headScript: (
-        <>
-          <script type="module" src="/static/js/clientBefore.js" />
-          <DefaultImportScripts />
-          <script type="module" src="/static/js/client.js" />
         </>
       ),
       isLogin: IsLogin(c),
