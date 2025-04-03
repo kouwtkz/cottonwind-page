@@ -19,11 +19,11 @@
   --def-main-color-deep: #87991f;
   --def-main-color-dark: #677612;
   --def-main-color-text: #31332b;
-  --def-main-color-grayish-fluo: rgba(146, 147, 127, 0.15);
-  --def-main-color-dark-grayish: #525348;
-  --def-main-color-grayish: #6d6e5e;
-  --def-main-color-light-grayish: #a9a99f;
-  --def-main-color-pale-grayish: #bbbcaf;
+  --def-main-color-grayish-fluo: hsla(68, 8%, 54%, 0.15);
+  --def-main-color-dark-grayish: hsl(68, 7%, 30%);
+  --def-main-color-grayish: hsl(68, 9%, 48%);
+  --def-main-color-light-grayish: hsl(68, 27%, 77%);
+  --def-main-color-pale-grayish: hsl(68, 48%, 87%);
   --def-sub-color: #b99f72;
   --def-sub-color-soft: #d8bb8a;
   --def-sub-color-strong: #96815c;
@@ -53,6 +53,11 @@
   --def-main-color-dark: #a55a14;
   --def-main-color-text: #2f2b27;
   --def-text-color: #27231d;
+  --def-main-color-grayish-fluo: hsla(29, 8%, 54%, 0.15);
+  --def-main-color-dark-grayish: hsl(29, 7%, 30%);
+  --def-main-color-grayish: hsl(29, 9%, 48%);
+  --def-main-color-light-grayish: hsl(29, 27%, 77%);
+  --def-main-color-pale-grayish: hsl(29, 48%, 87%);
   --def-background-color: #fff8e3;
   --def-play-background-color: #fffbdf;
   --def-dark-background-color: hsl(45, 10%, 14%);
@@ -70,6 +75,11 @@
   --def-main-color-dark: #2ea3be;
   --def-main-color-text: #2e3638;
   --def-text-color: #1d2227;
+  --def-main-color-grayish-fluo: hsla(191, 8%, 54%, 0.15);
+  --def-main-color-dark-grayish: hsl(191, 7%, 30%);
+  --def-main-color-grayish: hsl(191, 9%, 48%);
+  --def-main-color-light-grayish: hsl(191, 27%, 77%);
+  --def-main-color-pale-grayish: hsl(191, 48%, 87%);
   --def-background-color: #e5fcf6;
   --def-play-background-color: #d9f8f6;
   --def-dark-background-color: hsl(150, 10%, 10%);
@@ -872,7 +882,7 @@ p.p-br {
     scrollbar-color: var(--main-color-soft) transparent;
   }
   &.scrollLock {
-    scrollbar-color: var(--main-color-pale-grayish) transparent;
+    scrollbar-color: var(--main-color-light-grayish) transparent;
   }
   .window {
     overflow-y: auto;
@@ -2808,9 +2818,11 @@ label,
         padding: 0.5em 1em;
         color: white;
         background-color: var(--main-color);
-        &:hover,
+        &:hover {
+          background-color: var(--main-color-strong);
+        }
         &:disabled {
-          background-color: var(--main-color-soft);
+          background-color: var(--main-color-light-grayish);
         }
         &.color-warm {
           color: white;
@@ -3732,6 +3744,7 @@ form.blogEdit {
 .fc {
   font-size: 1.2rem;
   --fc-event-bg-color: var(--def-main-color-strong);
+  --fc-border-color: var(--main-color-light-grayish);
   --fc-event-hover-color: var(--def-main-color);
   --fc-event-border-color: var(--main-color-strong);
   --fc-button-bg-color: var(--def-main-color-strong);
