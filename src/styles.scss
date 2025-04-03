@@ -19,11 +19,12 @@
   --def-main-color-deep: #87991f;
   --def-main-color-dark: #677612;
   --def-main-color-text: #31332b;
-  --def-main-color-grayish-fluo: hsla(68, 8%, 54%, 0.15);
+  --def-main-color-grayish-fluo: hsla(68, 15%, 65%, 0.15);
   --def-main-color-dark-grayish: hsl(68, 7%, 30%);
-  --def-main-color-grayish: hsl(68, 9%, 48%);
-  --def-main-color-light-grayish: hsl(68, 27%, 77%);
-  --def-main-color-pale-grayish: hsl(68, 48%, 87%);
+  --def-main-color-very-grayish: hsl(68, 9%, 48%);
+  --def-main-color-grayish: hsl(68, 15%, 65%);
+  --def-main-color-light-grayish: hsl(68, 28%, 75%);
+  --def-main-color-pearl-grayish: hsl(68, 48%, 87%);
   --def-sub-color: #b99f72;
   --def-sub-color-soft: #d8bb8a;
   --def-sub-color-strong: #96815c;
@@ -55,9 +56,10 @@
   --def-text-color: #27231d;
   --def-main-color-grayish-fluo: hsla(29, 8%, 54%, 0.15);
   --def-main-color-dark-grayish: hsl(29, 7%, 30%);
-  --def-main-color-grayish: hsl(29, 9%, 48%);
-  --def-main-color-light-grayish: hsl(29, 27%, 77%);
-  --def-main-color-pale-grayish: hsl(29, 48%, 87%);
+  --def-main-color-very-grayish: hsl(29, 9%, 48%);
+  --def-main-color-grayish: hsl(29, 15%, 65%);
+  --def-main-color-light-grayish: hsl(29, 28%, 75%);
+  --def-main-color-pearl-grayish: hsl(29, 48%, 87%);
   --def-background-color: #fff8e3;
   --def-play-background-color: #fffbdf;
   --def-dark-background-color: hsl(45, 10%, 14%);
@@ -77,9 +79,10 @@
   --def-text-color: #1d2227;
   --def-main-color-grayish-fluo: hsla(191, 8%, 54%, 0.15);
   --def-main-color-dark-grayish: hsl(191, 7%, 30%);
-  --def-main-color-grayish: hsl(191, 9%, 48%);
-  --def-main-color-light-grayish: hsl(191, 27%, 77%);
-  --def-main-color-pale-grayish: hsl(191, 48%, 87%);
+  --def-main-color-very-grayish: hsl(191, 9%, 48%);
+  --def-main-color-grayish: hsl(191, 15%, 65%);
+  --def-main-color-light-grayish: hsl(191, 28%, 75%);
+  --def-main-color-pearl-grayish: hsl(191, 48%, 87%);
   --def-background-color: #e5fcf6;
   --def-play-background-color: #d9f8f6;
   --def-dark-background-color: hsl(150, 10%, 10%);
@@ -98,9 +101,10 @@
   --main-color-text: var(--def-main-color-text);
   --main-color-grayish-fluo: var(--def-main-color-grayish-fluo);
   --main-color-dark-grayish: var(--def-main-color-dark-grayish);
+  --main-color-very-grayish: var(--def-main-color-very-grayish);
   --main-color-grayish: var(--def-main-color-grayish);
   --main-color-light-grayish: var(--def-main-color-light-grayish);
-  --main-color-pale-grayish: var(--def-main-color-pale-grayish);
+  --main-color-pearl-grayish: var(--def-main-color-pearl-grayish);
   --main-color-dark-text: var(--def-main-color-dark-grayish);
   --sub-color: var(--def-sub-color);
   --sub-color-soft: var(--def-sub-color-soft);
@@ -136,10 +140,10 @@
   --main-color-dark-text: var(--def-dark-text-color);
   --main-color-pale: var(--def-main-color-dark);
   --main-color-soft: var(--def-main-color-deep);
-  --main-color-pale-grayish: var(--def-main-color-dark-grayish);
-  --main-color-light-grayish: var(--def-main-color-grayish);
-  --main-color-grayish: var(--def-main-color-light-grayish);
-  --main-color-dark-grayish: var(--def-main-color-pale-grayish);
+  --main-color-pearl-grayish: var(--def-main-color-dark-grayish);
+  --main-color-light-grayish: var(--def-main-color-very-grayish);
+  --main-color-very-grayish: var(--def-main-color-light-grayish);
+  --main-color-dark-grayish: var(--def-main-color-pearl-grayish);
   --main-color-dark: var(--def-main-color-soft);
   --background: var(--def-dark-background-color);
   --background-input: var(--def-dark-background-color);
@@ -147,6 +151,7 @@
   --modal-window-background: var(--def-dark-background-color);
   --play-background-color: var(--def-dark-play-background-color);
   --form-background-color: var(--def-dark-form-background-color);
+  --lightbox-background-preview: rgba(103, 103, 94, 0.8);
 }
 
 :root {
@@ -882,7 +887,7 @@ p.p-br {
     scrollbar-color: var(--main-color-soft) transparent;
   }
   &.scrollLock {
-    scrollbar-color: var(--main-color-light-grayish) transparent;
+    scrollbar-color: var(--main-color-grayish) transparent;
   }
   .window {
     overflow-y: auto;
@@ -956,10 +961,10 @@ button,
     }
   }
   &.like {
-    color: var(--main-color-light-grayish);
+    color: var(--main-color-grayish);
     background-color: transparent;
     &:hover {
-      color: var(--main-color-pale-grayish);
+      color: var(--main-color-light-grayish);
     }
     &.checked {
       color: var(--warm-color);
@@ -1416,7 +1421,7 @@ details {
     color: white;
     background-color: var(--main-color-light-grayish);
     &:hover {
-      background-color: var(--main-color-pale-grayish);
+      background-color: var(--main-color-pearl-grayish);
     }
   }
   details {
@@ -2087,7 +2092,7 @@ form {
           left: 0;
           object-fit: cover;
           &.noimage {
-            background-color: var(--main-color-pale-grayish);
+            background-color: var(--main-color-pearl-grayish);
           }
         }
         &::before {
@@ -2899,6 +2904,9 @@ label,
           bottom: 0;
         }
       }
+      .absoluteCorner {
+        margin: 0.5em;
+      }
     }
   }
   &.enter {
@@ -2940,6 +2948,7 @@ label,
   }
   .modal {
     width: 100%;
+    background-color: transparent;
   }
   .preview {
     width: 100%;
@@ -3053,7 +3062,7 @@ label,
       }
 
       .right {
-        color: var(--main-color-light-grayish);
+        color: var(--main-color-grayish);
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         display: flex;
@@ -3950,17 +3959,21 @@ form.blogEdit {
       align-items: stretch;
     }
     button {
-      color: var(--main-color-deep);
-      background-color: transparent;
       margin-right: 0.25em;
       margin-left: 0.25em;
+      background-color: transparent;
+      color: var(--main-color-strong);
       &:hover {
-        color: var(--main-color-dark);
+        color: var(--main-color-deep);
       }
       svg {
-        width: 2em;
-        height: 2em;
-        margin: 0.5em;
+        font-size: 2.325em;
+        margin: 0.125em;
+        opacity: 0.9;
+        @media (min-width: #{$mobileWidth}) {
+          font-size: 2.5em;
+          margin: 0.25em;
+        }
       }
       &.large {
         svg {
