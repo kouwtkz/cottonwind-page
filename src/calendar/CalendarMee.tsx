@@ -260,14 +260,14 @@ export function CalendarMeeState({
         calendarList.map(async ({ id, private: p, list }) => {
           return id && googleApiKey
             ? eventsFetch({
-                id,
-                key: googleApiKey,
-                start: syncRange.start,
-                end: syncRange.end,
-                private: p,
-              }).then((data) => {
-                return data.items;
-              })
+              id,
+              key: googleApiKey,
+              start: syncRange.start,
+              end: syncRange.end,
+              private: p,
+            }).then((data) => {
+              return data.items;
+            })
             : (async () => list || [])();
         })
       )
@@ -664,12 +664,12 @@ export function CalendarMeeEventViewer({
     () =>
       startDate
         ? formatDate(startDate, {
-            locale: defaultLang,
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            weekday: "narrow",
-          })
+          locale: defaultLang,
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "narrow",
+        })
         : "",
     [startDate]
   );
@@ -677,10 +677,10 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && !event.allDay
         ? formatDate(startDate, {
-            locale: defaultLang,
-            hour: "numeric",
-            minute: "numeric",
-          })
+          locale: defaultLang,
+          hour: "numeric",
+          minute: "numeric",
+        })
         : "",
     [startDate, event?.allDay]
   );
@@ -723,10 +723,10 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && endDate && !event.allDay
         ? formatDate(endDate, {
-            locale: defaultLang,
-            hour: "numeric",
-            minute: "numeric",
-          })
+          locale: defaultLang,
+          hour: "numeric",
+          minute: "numeric",
+        })
         : "",
     [startDate, endDate, event?.allDay]
   );
@@ -945,7 +945,9 @@ export function CalendarMeeEventViewer({
               <MultiParser>{event.description}</MultiParser>
             </div>
             <div className="absoluteCorner bottom right">
-              <SwitchNotificationButton />
+              {enableCountdown ?
+                <SwitchNotificationButton /> : null
+              }
               {RightBottomComponent ? (
                 <RightBottomComponent event={event} />
               ) : null}
@@ -1018,7 +1020,7 @@ export const CountDown = memo(function CountDown({
   const onTheDayTime = useMemo(
     () =>
       ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
-        1000 +
+      1000 +
       date.getMilliseconds(),
     [date]
   );
