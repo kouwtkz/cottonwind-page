@@ -1,16 +1,15 @@
 import { fileDialog } from "@/components/FileTool";
 import {
-  soundAlbumsDataObject,
-  soundsDataObject,
+  soundAlbumsDataIndexed,
+  soundsDataIndexed,
   UploadToast,
-} from "@/state/DataState";
+} from "@/data/DataState";
 import { useApiOrigin } from "@/state/EnvState";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FilesUploadProcess } from "./FilesEdit";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
-import { useSoundAlbumsMap, useSoundsMap } from "@/state/SoundState";
 import { FieldValues, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
@@ -19,11 +18,12 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import {
   ImportObjectButtonProps,
   ObjectCommonButton,
-  ObjectDownloadButton,
+  ObjectIndexedDBDownloadButton,
 } from "@/components/button/ObjectDownloadButton";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
 import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
+import { useSounds } from "@/state/SoundState";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];
@@ -35,7 +35,6 @@ export function SoundEditButton() {
     else Url.searchParams.set("edit", "on");
     return Url.href;
   }, [isEdit]);
-  const setSoundsLoad = soundsDataObject.useLoad()[1];
   return (
     <div className="icons flex center">
       <DropdownButton
@@ -45,12 +44,12 @@ export function SoundEditButton() {
         }}
         keepOpen
       >
-        <ObjectDownloadButton
+        <ObjectIndexedDBDownloadButton
           className="squared item"
-          dataObject={soundsDataObject}
+          indexedDB={soundsDataIndexed}
         >
           サウンドJSONデータのダウンロード
-        </ObjectDownloadButton>
+        </ObjectIndexedDBDownloadButton>
         {/* <GalleryImportButton
           className="squared item"
           icon={<TbDatabaseImport />}
@@ -79,7 +78,7 @@ export function SoundEditButton() {
               })
             )
             .then(() => {
-              setSoundsLoad("no-cache");
+              soundsDataIndexed.load("no-cache");
             });
         }}
       >
@@ -94,13 +93,12 @@ export function GalleryImportButton({
   ...props
 }: ImportObjectButtonProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setSoundsLoad = soundsDataObject.useLoad()[1];
   return (
     <ObjectCommonButton
       {...props}
       onClick={() => {
         // ImportSoundJson({ apiOrigin }).then(() => {
-        //   setSoundsLoad("no-cache-reload");
+        //   soundsDataIndexed.load("no-cache-reload");
         // });
       }}
     />
@@ -118,27 +116,14 @@ export async function SoundsUpload(args: UploadBaseProps) {
 export const useEditSoundKey = CreateState<string | null>(null);
 export function SoundEdit() {
   const [edit, setEdit] = useEditSoundKey();
-  const soundsMap = useSoundsMap()[0];
-  const soundsData = soundsDataObject.useData()[0];
-  const setLoad = soundsDataObject.useLoad()[1];
-  const dataItem = useMemo(
-    () => soundsData?.find((v) => v.key === edit),
-    [soundsData, edit]
-  );
-  const item = useMemo(
-    () => (edit ? soundsMap?.get(edit) : false) || null,
-    [soundsMap, edit]
-  );
-  const targetLastmod = useRef<string | null>(null);
+  const { soundsData } = useSounds();
+  const [dataItem, setDataItem] = useState<SoundItemType>();
   useEffect(() => {
-    if (targetLastmod.current) {
-      const found = soundsData?.find(
-        (v) => v.lastmod === targetLastmod.current
-      );
-      if (found) setEdit(found.key);
-      targetLastmod.current = null;
-    }
-  }, [soundsData]);
+    if (edit)
+      soundsData?.get({ index: "key", query: edit }).then((item) => {
+        setDataItem(item);
+      });
+  }, [soundsData, edit]);
   const apiOrigin = useApiOrigin()[0];
   const {
     register,
@@ -172,7 +157,7 @@ export function SoundEdit() {
             withCredentials: true,
           })
           .then(() => {
-            setLoad("no-cache");
+            soundAlbumsDataIndexed.load("no-cache");
             setEdit(null);
           }),
         {
@@ -213,27 +198,14 @@ export function SoundEdit() {
 export const useEditSoundAlbumKey = CreateState<string | null>(null);
 export function SoundAlbumEdit() {
   const [edit, setEdit] = useEditSoundAlbumKey();
-  const soundAlbumsMap = useSoundAlbumsMap()[0];
-  const soundAlbumsData = soundAlbumsDataObject.useData()[0];
-  const setLoad = soundAlbumsDataObject.useLoad()[1];
-  const dataItem = useMemo(
-    () => soundAlbumsData?.find((v) => v.key === edit),
-    [soundAlbumsData, edit]
-  );
-  const item = useMemo(
-    () => (edit ? soundAlbumsMap?.get(edit) : false) || null,
-    [soundAlbumsMap, edit]
-  );
-  const targetLastmod = useRef<string | null>(null);
+  const { soundAlbumsData } = useSounds();
+  const [item, setDataItem] = useState<SoundAlbumType>();
   useEffect(() => {
-    if (targetLastmod.current) {
-      const found = soundAlbumsData?.find(
-        (v) => v.lastmod === targetLastmod.current
-      );
-      if (found) setEdit(found.key);
-      targetLastmod.current = null;
-    }
-  }, [soundAlbumsData]);
+    if (edit)
+      soundAlbumsData?.get({ index: "key", query: edit }).then((item) => {
+        setDataItem(item);
+      });
+  }, [soundAlbumsData, edit]);
   const apiOrigin = useApiOrigin()[0];
   const {
     register,
@@ -267,7 +239,7 @@ export function SoundAlbumEdit() {
             withCredentials: true,
           })
           .then(() => {
-            setLoad("no-cache");
+            soundAlbumsDataIndexed.load("no-cache");
             setEdit(null);
           }),
         {

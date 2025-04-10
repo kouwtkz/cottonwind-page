@@ -9,3 +9,5 @@ function cookieToClass(cookieName: string, element = html) {
 }
 cookieToClass(import.meta.env!.VITE_THEME_COLOR_KEY);
 cookieToClass(import.meta.env!.VITE_THEME_DARK_KEY);
+
+import "@/test"

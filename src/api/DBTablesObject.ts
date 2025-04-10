@@ -1,9 +1,9 @@
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { DBTableClass } from "./DBTableClass";
-import { TableVersionDataOptions } from "@/Env";
+import { TableVersionDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 
-export const TableObject = new DBTableClass<TableVersionEntryType>({
+export const TableObject = new DBTableClass<TableVersionEntryDataType>({
   table: "tables",
   createEntry: {
     key: { primary: true, type: "TEXT" },
@@ -15,7 +15,7 @@ export const TableObject = new DBTableClass<TableVersionEntryType>({
 });
 interface UpdateTablesDataObjectProps {
   db: MeeSqlD1;
-  options: TableVersionProps;
+  options: DataClassTableVersionProps;
   lastmod?: string;
   viewSql?: boolean;
 }

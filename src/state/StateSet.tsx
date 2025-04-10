@@ -1,11 +1,11 @@
 import { ToastContainer } from "react-toastify";
 import { SoundPlayer } from "./SoundPlayer";
 import { ImageViewer } from "@/layout/ImageViewer";
-import { DataState } from "./DataState";
+import { DataState } from "@/data/DataState";
 import { ImageState, useImageState } from "./ImageState";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
 import { useEffect, useMemo, useRef } from "react";
-import { useCharacters, CharacterState } from "./CharacterState";
+import { CharacterState, useCharacters } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
 import { CreateState } from "./CreateState";
@@ -24,14 +24,6 @@ export const useDataIsComplete = CreateState(false);
 export const usePageIsComplete = CreateState(true);
 
 export function StateSet() {
-  const isSetList = [
-    Boolean(useEnv()[0]),
-    Boolean(useImageState().images),
-    Boolean(useCharacters()[0]),
-    Boolean(usePosts()[0]),
-    Boolean(useSounds()[0]),
-    Boolean(useLinks()[0]),
-  ];
   return (
     <>
       <EnvState />
@@ -43,16 +35,7 @@ export function StateSet() {
       <ToastProgressState />
       <HomeImageState />
       <CalendarState />
-      <LoadingState isSetList={isSetList}>
-        <ImageState />
-        <CharacterState />
-        <PostState />
-        <SoundState />
-        <FileState />
-        <LinksState />
-        <LikeState />
-        <KeyValueDBState />
-      </LoadingState>
+      <LoadingStateWrapper />
     </>
   );
 }
@@ -89,6 +72,28 @@ const reloadFunction =
     ? `setTimeout(() => {if (document.getElementById("${loadingCheckID}")) location.reload()}, 5000)`
     : "";
 
+function LoadingStateWrapper() {
+  const isSetList = [
+    Boolean(useEnv()[0]),
+    Boolean(useImageState().images),
+    Boolean(useCharacters().characters),
+    Boolean(usePosts().posts),
+    Boolean(useSounds().sounds),
+    Boolean(useLinks().links),
+  ];
+  return (
+    <LoadingState isSetList={isSetList}>
+      <ImageState />
+      <CharacterState />
+      <PostState />
+      <SoundState />
+      <FileState />
+      <LinksState />
+      <LikeState />
+      <KeyValueDBState />
+    </LoadingState>
+  );
+}
 interface LoadingStateProps {
   children?: React.ReactNode;
   isSetList?: boolean[];

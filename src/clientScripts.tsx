@@ -23,3 +23,13 @@ export function DefaultImportScripts({
     </>
   );
 }
+
+export function DOMContentLoaded(call: Function) {
+  if (document.readyState !== "loading") {
+    call();
+  } else {
+    document.addEventListener("DOMContentLoaded", () => {
+      call();
+    });
+  }
+}

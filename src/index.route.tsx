@@ -2,7 +2,7 @@ import { ServerPostsGetRssData } from "@/api/blog";
 import { ImageSelectFromKey } from "@/functions/media/serverDataFunction";
 import { MakeRss } from "@/functions/blogFunction";
 import { toImageType } from "@/functions/media/imageFunction";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { concatOriginUrl, getMediaOrigin } from "@/functions/originUrl";
 import { RoutingUnion } from "@/routes/RoutingList";
 import { discordInviteMatch } from "@/ServerContent";

@@ -12,7 +12,7 @@ import {
   Type_VIEW_FC,
   useCalendarMee,
 } from "./CalendarMee";
-import { LocalStorageClass } from "@/functions/storage/LocalStorageClass";
+import { LocalStorageClass } from "@/data/localStorage/LocalStorageClass";
 import { CreateObjectState, CreateState } from "@/state/CreateState";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,7 @@ import {
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
 import { useNotification } from "@/components/notification/NotificationState";
 import { fileDialog, fileDownload } from "@/components/FileTool";
+import { getUUID } from "@/functions/clientFunction";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -171,9 +172,7 @@ export const useCalendarAppState = CreateObjectState<CalendarAppStateType>(
       end.setHours(end.getHours() + 1);
       set({
         edit: {
-          id: window.crypto.randomUUID
-            ? window.crypto.randomUUID()
-            : new Date().getTime().toString(16),
+          id: getUUID(),
           start,
           end,
         },

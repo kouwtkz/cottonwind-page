@@ -12,7 +12,7 @@ import { app_links_api } from "./links";
 import { getOriginFromAPI } from "@/functions/originUrl";
 import { AddMetaEnv } from "@/serverLayout";
 import { app_like_api } from "./like";
-import { KeyValueDBDataOptions } from "@/Env";
+import { KeyValueDBDataOptions } from "@/data/DataEnv";
 import { app_kvdb_api } from "./KeyValueDB";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();

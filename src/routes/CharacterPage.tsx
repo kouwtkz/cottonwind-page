@@ -12,11 +12,7 @@ import {
   ImageMeeQuestion,
   ImageMeeThumbnail,
 } from "@/layout/ImageMee";
-import {
-  useCharacters,
-  useCharactersMap,
-  useCharacterTags,
-} from "@/state/CharacterState";
+import { useCharacters } from "@/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import {
   HTMLAttributes,
@@ -25,6 +21,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
@@ -44,7 +41,7 @@ import { Movable } from "@/layout/edit/Movable";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { charactersDataObject } from "@/state/DataState";
+import { charactersDataIndexed } from "@/data/DataState";
 import { getInitialString } from "@/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "@/components/button/LikeButton";
@@ -142,12 +139,10 @@ function CharacterPageState() {
     }
     return list;
   }, [sortParam, orderBy]);
-  const characters = useCharacters()[0];
-  const parts = useMemo(() => {
-    let items =
-      characters && characters.length
-        ? findMee([...characters], { where, orderBy: orderBySort })
-        : [];
+  const { characters } = useCharacters();
+  const [parts, setParts] = useState<PartsType[]>();
+  useEffect(() => {
+    let items = findMee(characters, { where, orderBy: orderBySort });
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts: PartsType[] = [];
     let sortType: OrderByItemType<any> | undefined;
@@ -189,8 +184,8 @@ function CharacterPageState() {
         else parts.push({ items: item });
       });
     } else parts.push({ items });
-    return parts;
-  }, [where, characters, orderBySort, showAll]);
+    setParts(parts);
+  }, [characters, orderBySort, showAll, liked, where]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
     Set({ filters, orderBySort, showAll, liked, where, parts });
@@ -294,7 +289,6 @@ function CharaListPage() {
   const extendMode = useExtendMode()[0];
   const apiOrigin = useApiOrigin()[0];
   const [move, setMove] = useMoveCharacters();
-  const setCharactersLoad = charactersDataObject.useLoad()[1];
   const Inner = useCallback(
     ({ item }: { item: CharacterType }) => (
       <Link
@@ -354,7 +348,7 @@ function CharaListPage() {
                               }
                             )
                             .then(() => {
-                              setCharactersLoad("no-cache");
+                              charactersDataIndexed.load("no-cache");
                               setMove(0);
                             }),
                           {
@@ -393,7 +387,7 @@ export function CharaBeforeAfter({
   className,
   ...props
 }: CharaBeforeAfterProps) {
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
@@ -475,7 +469,7 @@ const defaultGalleryList = [
   { name: "given", label: "Fanart", max: 40 },
 ] as GalleryItemType[];
 function CharaDetail({ charaName }: { charaName: string }) {
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const { imageAlbums: albums } = useImageState();
   const searchParams = useSearchParams()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
@@ -597,7 +591,7 @@ const characterSortTags = [
   ]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
-  const characterTags = useCharacterTags()[0];
+  const { characterTags } = useCharacters();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");

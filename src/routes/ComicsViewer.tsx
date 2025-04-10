@@ -7,6 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { useFilesMap } from "@/state/FileState";
+import { findMee } from "@/functions/find/findMee";
 
 interface ePubMetadataType {
   title?: string;
@@ -38,17 +39,17 @@ export function ComicsViewer() {
 
 function EBookGallery() {
   const { images } = useImageState();
-  const list = useMemo(
-    () => (images || []).filter((image) => image.type === "ebook"),
-    [images]
-  );
+  const [ebooks, setebooks] = useState<ImageType[]>([]);
+  useEffect(() => {
+    if (images) setebooks(findMee(images, { index: "type", query: "ebook" }));
+  }, [images]);
   return (
     <GalleryObject
       items={[
         {
           name: "comics",
           label: "comics",
-          list,
+          list: ebooks,
         },
       ]}
     />

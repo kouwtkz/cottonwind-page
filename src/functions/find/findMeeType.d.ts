@@ -2,7 +2,7 @@ type logicalConditionsType = "AND" | "OR";
 type logicalNotConditionsType = "NOT";
 type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not";
 type filterConditionsStringType = "contains" | "like" | "startsWith" | "endsWith";
-type filterConditionsBoolType = "bool";
+type filterConditionsBoolType = "bool" | "has";
 type filterConditionsRegexpType = "regexp";
 type filterConditionsVariadicType = "in" | "between";
 type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType | filterConditionsRegexpType;
@@ -24,7 +24,9 @@ type findMeeProps<T> = {
   take?: number,
   skip?: number,
   orderBy?: OrderByItem<T>[],
-  include?: any
+  index?: keyof T;
+  query?: IDBValidKey | IDBKeyRange | null;
+  direction?: IDBCursorDirection;
 }
 
 type findWhereFunction<T> = (v: string) => findWhereType<T>;
@@ -58,3 +60,8 @@ type WhereOptionsKvType<T> = {
 } & {
   [k in WhereOptionsKeyUnion]?: WhereOptionsValueType<T>;
 };
+
+interface findMeeSortProps<T> {
+  orderBy: OrderByItem<T>[];
+  list: T[];
+}

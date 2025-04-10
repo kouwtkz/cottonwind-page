@@ -101,14 +101,16 @@ export default function Home() {
 }
 
 function PostsView() {
-  const Posts = usePosts()[0];
-  const posts = useMemo(
+  let { posts } = usePosts();
+  posts = useMemo(
     () =>
-      findMee(Posts || [], {
+      findMee(posts || [], {
         where: { draft: { not: true }, time: { lte: new Date() } },
-        orderBy: [{ time: "desc" }],
+        index: "time",
+        direction: "prev",
+        take: 3,
       }),
-    [Posts]
+    [posts]
   );
   return (
     <div className="blog">
@@ -200,10 +202,9 @@ export function HomeImageState() {
   const { date } = useSchedule({ minute: 0, specify: true });
   const { imageAlbums } = useImageState();
   const timeframeTag = useMemo(() => getTimeframeTag(date), [date]);
-  const images = useMemo(
-    () => imageAlbums?.get("main")?.list ?? [],
-    [imageAlbums]
-  );
+  const images = useMemo(() => {
+    return imageAlbums?.get("main")?.list ?? [];
+  }, [imageAlbums]);
   useEffect(() => {
     if (images.length > 0) {
       const topImages = findMee(images, {

@@ -1,4 +1,4 @@
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { HonoRequest } from "hono";
 
 export interface GetDataProps {

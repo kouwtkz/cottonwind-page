@@ -1,13 +1,14 @@
-import { HTMLAttributes, useMemo } from "react";
+import { HTMLAttributes, useEffect, useMemo, useState } from "react";
 import { RiHeart3Fill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { toastLoadingOptions } from "../define/toastContainerDef";
 import { useLocation } from "react-router-dom";
 import { toLikePath } from "@/functions/likeFunction";
-import { likeDataObject } from "@/state/DataState";
+import { likeDataIndexed } from "@/data/DataState";
 import axios from "axios";
 import { useApiOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { useLikeState } from "@/state/LikeState";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;
@@ -26,12 +27,8 @@ export function LikeButton({
   const { pathname, search } = useLocation();
   if (!url) url = pathname + search;
   const pathKey = useMemo(() => toLikePath(url), [url]);
-  const likeData = likeDataObject.useData()[0];
-  const setLikeDataLoad = likeDataObject.useLoad()[1];
-  const thisLikeData = useMemo(
-    () => likeData?.find(({ path }) => path === pathKey),
-    [likeData, pathKey]
-  );
+  const { likeMap } = useLikeState();
+  const thisLikeData = useMemo(() => likeMap?.get(pathKey), [likeMap, pathKey]);
   checked = useMemo(() => {
     if (typeof checked === "boolean") return checked;
     else {
@@ -61,7 +58,7 @@ export function LikeButton({
               mode: "remove",
             } as LikeFormType)
             .then(() => {
-              setLikeDataLoad("no-cache");
+              likeDataIndexed.load("no-cache");
               toast("いいねを解除しました", toastLoadingOptions);
             });
         } else {
@@ -71,7 +68,7 @@ export function LikeButton({
               mode: "add",
             } as LikeFormType)
             .then(() => {
-              setLikeDataLoad("no-cache");
+              likeDataIndexed.load("no-cache");
               toast("いいねしました", toastLoadingOptions);
             });
         }

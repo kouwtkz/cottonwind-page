@@ -24,7 +24,7 @@ interface ImageDataType {
   mtime?: string;
   lastmod: string;
 }
-interface ImageType extends ImageDataType {
+interface ImageType extends ImageDataType, WithRawDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];

@@ -1,5 +1,5 @@
 import { CreateObjectState } from "@/state/CreateState";
-import { LocalStorageClass } from "@/functions/storage/LocalStorageClass";
+import { LocalStorageClass } from "@/data/localStorage/LocalStorageClass";
 
 interface noticeClassKVType {
   [k: string]: boolean;

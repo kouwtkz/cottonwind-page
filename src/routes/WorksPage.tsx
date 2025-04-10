@@ -2,17 +2,24 @@ import { useImageState } from "@/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
+import { useMemo, useState } from "react";
+import { findMee } from "@/functions/find/findMee";
 
 export default function WorksPage() {
-  const images = useImageState().images || [];
+  const { images } = useImageState();
+  const list = useMemo(() => {
+    if (images) {
+      return findMee(images, {
+        where: {
+          OR: [{ album: "works" }, { tags: { contains: "comission" } }],
+        },
+      });
+    } else return [];
+  }, [images]);
   const groups: GalleryItemObjectType[] = [
     {
       name: "Gallery",
-      list: images.filter(
-        (image) =>
-          image.album === "works" ||
-          image.tags?.find((tag) => tag === "commission")
-      ),
+      list,
       linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks",
     },
   ];
@@ -23,7 +30,7 @@ export default function WorksPage() {
         items={groups}
         showInPageMenu={false}
         showGalleryHeader={false}
-        // showGalleryLabel={false}
+        showGalleryLabel={false}
       />
       <MeeLinks
         title="コミッション"

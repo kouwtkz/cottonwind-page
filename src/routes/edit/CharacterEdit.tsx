@@ -28,8 +28,7 @@ import { LinkMee } from "@/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import {
-  useCharactersMap,
-  useCharacterTags,
+  useCharacters,
   charaMediaKindMap,
   charaMediaKindValues,
 } from "@/state/CharacterState";
@@ -48,10 +47,10 @@ import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog } from "@/components/FileTool";
 import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import {
-  charactersDataObject,
+  charactersDataIndexed,
   ImportCharacterJson,
-  imageDataObject,
-} from "@/state/DataState";
+  imageDataIndexed,
+} from "@/data/DataState";
 import {
   iconImagesUploadOptions,
   ImagesUpload,
@@ -81,7 +80,7 @@ import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
@@ -94,16 +93,13 @@ export function CharacterEdit() {
 }
 
 function CharacterEditForm({ chara }: { chara?: CharacterType }) {
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap, charactersTags } = useCharacters();
   const apiOrigin = useApiOrigin()[0];
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   let { state } = useLocation();
-  const setCharactersLoad = charactersDataObject.useLoad()[1];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const { images, imagesMap } = useImageState();
-  const characterTags = useCharacterTags()[0];
-  const sounds = useSounds()[0];
+  const { images } = useImageState();
+  const { sounds } = useSounds();
   const getDefaultValues = useMemo(
     () => ({
       key: chara?.key || "",
@@ -139,8 +135,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
 
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
   useEffect(() => {
-    if (characterTags) setTagsOptions(characterTags);
-  }, [characterTags]);
+    if (charactersTags) setTagsOptions(charactersTags);
+  }, [charactersTags]);
 
   const schema = z.object({
     key: z
@@ -241,7 +237,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           }
         )
         .then(() => {
-          setCharactersLoad("no-cache");
+          charactersDataIndexed.load("no-cache");
           if (move) nav(`/character/${formValues.key}`);
         });
     } else {
@@ -295,7 +291,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               toast("メイン画像に設定しました");
               break;
           }
-          setCharactersLoad("no-cache");
+          charactersDataIndexed.load("no-cache");
         });
       }
     }
@@ -396,7 +392,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   });
                 })
                 .then(async (r) => {
-                  setImagesLoad("no-cache");
+                  imageDataIndexed.load("no-cache");
                   return r
                     ? ((await r[0].data) as KeyValueType<unknown>)
                     : null;
@@ -413,7 +409,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                           [mode]: mode === "icon" ? "" : o.key,
                         },
                       }).then(() => {
-                        setCharactersLoad("no-cache");
+                        charactersDataIndexed.load("no-cache");
                       });
                     }
                   }
@@ -429,7 +425,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </button>
       );
     },
-    [chara, imagesMap]
+    [chara]
   );
 
   useHotkeys(
@@ -570,16 +566,16 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   chara &&
                   confirm("最も古い投稿から自動的に設定しますか？")
                 ) {
-                  const found = findMee(images, {
+                  findMee(images, {
+                    index: "time",
                     take: 1,
-                    orderBy: [{ time: "asc" }],
+                    direction: "next",
                     where: { characters: { contains: chara.key } },
-                  })[0];
-                  if (found) {
+                  }).forEach((found) => {
                     setValue("time", ToFormTime(found.time), {
                       shouldDirty: true,
                     });
-                  }
+                  });
                 }
               }}
             >
@@ -686,7 +682,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     data: { target: chara.key },
                   }).then((r) => {
                     if (r.ok) {
-                      setCharactersLoad("no-cache");
+                      charactersDataIndexed.load("no-cache");
                       nav("/character", { replace: true });
                     }
                   });
@@ -743,11 +739,9 @@ export const useEditSwitchState = CreateObjectState<{
 export function CharaEditButton() {
   const apiOrigin = useApiOrigin()[0];
   const isComplete = useDataIsComplete()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const { charaName } = useParams();
   const [move, setMove] = useMoveCharacters();
-  const setCharactersLoad = charactersDataObject.useLoad()[1];
   const { orderBySort } = useCharacterPageState();
   const sortMode = useMemo(
     () => (orderBySort ? orderBySort.length > 0 : false),
@@ -765,8 +759,8 @@ export function CharaEditButton() {
             className="color round font-larger"
             title="キャラデータのダウンロード"
             onClick={() => {
-              if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
-                DownloadDataObject(charactersDataObject);
+              // if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
+              //   DownloadDataObject(charactersDataIndexed);
             }}
           >
             <MdFileDownload />
@@ -795,7 +789,7 @@ export function CharaEditButton() {
                   })
                 )
                 .then(() => {
-                  setImagesLoad("no-cache");
+                  imageDataIndexed.load("no-cache");
                 });
             }}
           >
@@ -807,7 +801,7 @@ export function CharaEditButton() {
             title="キャラクターデータベースのインポート"
             onClick={() => {
               ImportCharacterJson({ apiOrigin }).then(() => {
-                setCharactersLoad("no-cache-reload");
+                charactersDataIndexed.load("no-cache-reload");
               });
             }}
           >
@@ -863,12 +857,10 @@ export function CharaImageSettingRbButtons({
   image,
 }: CharaImageRbButtonsProps) {
   const params = useParams();
+  const charaName = params.charaName;
+  const apiOrigin = useApiOrigin()[0];
+  const mediaOrigin = useMediaOrigin()[0];
   if (params.charaName) {
-    const charaName = params.charaName;
-    const apiOrigin = useApiOrigin()[0];
-    const mediaOrigin = useMediaOrigin()[0];
-    const setImagesLoad = imageDataObject.useLoad()[1];
-    const setCharactersLoad = charactersDataObject.useLoad()[1];
     async function toastPromise(
       promise: Promise<unknown>,
       mode: characterImageMode
@@ -906,7 +898,7 @@ export function CharaImageSettingRbButtons({
           }),
           mode
         );
-        setCharactersLoad("no-cache");
+        charactersDataIndexed.load("no-cache");
       }
     }
 
@@ -936,14 +928,14 @@ export function CharaImageSettingRbButtons({
                     }
                   })
                   .then(() => {
-                    setImagesLoad("no-cache");
+                    imageDataIndexed.load("no-cache");
                     return SendPostFetch({
                       apiOrigin,
                       data: { target: charaName, icon: "" },
                     });
                   })
                   .then(() => {
-                    setCharactersLoad("no-cache");
+                    charactersDataIndexed.load("no-cache");
                   }),
                 "icon"
               );
@@ -975,8 +967,8 @@ export function CharaImageSettingRbButtons({
       </>
     );
   } else {
-    return <></>;
   }
+  return <></>;
 }
 
 interface SendPostFetchProps {

@@ -1,17 +1,27 @@
-import { useCallback, useEffect } from "react";
-import { CreateState } from "./CreateState";
-import { favLinksDataObject, linksDataObject } from "./DataState";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { CreateObjectState, CreateState } from "./CreateState";
+import { favLinksDataIndexed, linksDataIndexed } from "@/data/DataState";
 import { useImageState } from "./ImageState";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
 
+export type LinksIndexedDBType = IndexedDataStateClass<
+  SiteLink,
+  SiteLinkData,
+  MeeIndexedDBTable<SiteLink>
+>;
 export type LinksMapType = Map<string, SiteLink[]>;
-export const useLinks = CreateState<SiteLink[]>();
-export const useLinksMap = CreateState<LinksMapType>();
-export const useFavLinks = CreateState<SiteLink[]>();
-export const useFavLinksMap = CreateState<LinksMapType>();
+export interface LinksStateType {
+  links?: SiteLink[];
+  linksMap?: LinksMapType;
+  linksData?: MeeIndexedDBTable<SiteLink>;
+}
+export const useLinks = CreateObjectState<LinksStateType>({});
+export const useFavLinks = CreateObjectState<LinksStateType>({});
 type imageMapType = Map<string, ImageType>;
 
 function convertSiteLink(
-  data: SiteLinkData,
+  data: SiteLink | SiteLinkData,
   imagesMap?: Map<string, ImageType>
 ): SiteLink {
   const { url, draft, lastmod, ...other } = data;
@@ -27,54 +37,59 @@ function convertSiteLink(
   };
 }
 
-function callSetLinks({
+async function callSetLinks({
   linksData,
-  setLinks,
-  setLinkMaps,
   imagesMap,
 }: {
-  linksData?: SiteLinkData[];
-  setLinks(v?: SiteLink[]): void;
-  setLinkMaps(v?: LinksMapType): void;
-  imagesMap?: imageMapType;
+  linksData: MeeIndexedDBTable<SiteLink>;
+  imagesMap: imageMapType;
 }) {
-  if (linksData && imagesMap) {
-    const list = linksData
-      .filter((data) => data.url || data.title || data.image)
-      .map((data) => convertSiteLink(data, imagesMap));
-    list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
-    const map = new Map<string, SiteLink[]>();
-    list.forEach((item) => {
-      const category = item.category || "";
-      let links = map.get(category);
-      if (!links) {
-        links = [];
-        map.set(category, links);
-      }
-      links.push(item);
-    });
-    setLinkMaps(map);
-    setLinks(list);
-  }
+  const links = await linksData
+    .getAll()
+    .then((list) =>
+      list
+        .filter((data) => data.url || data.title || data.image)
+        .map((data) => convertSiteLink(data, imagesMap))
+    );
+  const linksMap = links
+    .filter((v) => v.url || v.title || v.image)
+    .reduce<LinksMapType>((a, c) => {
+      const category = c.category || "";
+      if (a.has(category)) a.get(category)!.push(c);
+      else a.set(category, [c]);
+      return a;
+    }, new Map());
+  return {
+    linksData,
+    links,
+    linksMap,
+  };
 }
 export function LinksState() {
   const { imagesMap } = useImageState();
-  const linksData = linksDataObject.useData()[0];
-  const setLinks = useLinks()[1];
-  const setLinkMaps = useLinksMap()[1];
+  const linksData = useSyncExternalStore(
+    linksDataIndexed.subscribe,
+    () => linksDataIndexed.table
+  );
+  const favLinksData = useSyncExternalStore(
+    favLinksDataIndexed.subscribe,
+    () => favLinksDataIndexed.table
+  );
+  const { Set: setLinks } = useLinks();
   useEffect(() => {
-    callSetLinks({ linksData, setLinks, setLinkMaps, imagesMap });
-  }, [linksData, setLinks, setLinkMaps, imagesMap]);
-  const favLinksData = favLinksDataObject.useData()[0];
-  const setFavLinks = useFavLinks()[1];
-  const setFavLinkMaps = useFavLinksMap()[1];
+    if (linksData.db && imagesMap) {
+      callSetLinks({ imagesMap, linksData }).then((result) => {
+        setLinks(result);
+      });
+    }
+  }, [linksData, imagesMap]);
+  const { Set: setFavLinks } = useFavLinks();
   useEffect(() => {
-    callSetLinks({
-      linksData: favLinksData,
-      setLinks: setFavLinks,
-      setLinkMaps: setFavLinkMaps,
-      imagesMap,
-    });
-  }, [favLinksData, setFavLinks, setFavLinkMaps, imagesMap]);
+    if (favLinksData.db && imagesMap) {
+      callSetLinks({ imagesMap, linksData: favLinksData }).then((result) => {
+        setFavLinks(result);
+      });
+    }
+  }, [favLinksData, imagesMap]);
   return <></>;
 }

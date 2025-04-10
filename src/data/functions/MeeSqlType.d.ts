@@ -14,14 +14,17 @@ type SelectParamsType<T> = "*" | T_SelectKeyofType<T>;
 type MeeSqlFindWhereType<T> = findWhereType<T_SelectType<T>>;
 type MeeSqlOrderByType<T> = OrderByItem<T_SelectType<T>>;
 
-interface MeeSqlSelectProps<T = any> extends MeeSqlBaseProps {
+interface MeeSqlSelectBaseProps<T = any> {
   /** @comment {"key": "as name"} */
   params?: SelectParamsType<T> | SelectParamsType<T>[];
   where?: MeeSqlFindWhereType<MeeSqlCreateTableEntryType<T>>;
   orderBy?: MeeSqlOrderByType<T> | MeeSqlOrderByType<T>[];
   take?: number,
   skip?: number,
-};
+}
+
+interface MeeSqlSelectProps<T = any>
+  extends MeeSqlBaseProps, MeeSqlSelectBaseProps<T> { };
 
 type MeeSqlEntryType<T> = T | { [k: string]: unknown };
 interface MeeSqlInsertProps<T = any> extends MeeSqlBaseProps {

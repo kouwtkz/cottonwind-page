@@ -5,7 +5,7 @@ interface LikeDataType {
   lastmod: string;
 }
 
-interface LikeType extends Partial<LikeDataType> {
+interface LikeType extends Partial<LikeDataType>, WithRawDataType<LikeDataType> {
   checked?: boolean;
 }
 

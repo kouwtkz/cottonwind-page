@@ -1,8 +1,14 @@
-import { useEffect, useMemo } from "react";
-import { imageDataObject, likeDataObject } from "./DataState";
-import { getImageObjectMap } from "@/functions/media/imageFunction";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { imageDataIndexed, likeDataIndexed } from "@/data/DataState";
+import {
+  getImageAlbumMap,
+  getImageObjectMap,
+} from "@/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "@/Env";
+import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/CustomMeeIndexedDB";
+import { findMee } from "@/functions/find/findMee";
+import { useLikeState } from "./LikeState";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -10,47 +16,47 @@ const galleryList =
     ...album,
   })).filter((v) => v) ?? [];
 
-type imageStateType = {
-  images?: ImageType[];
+interface imageStateType {
+  images?: Array<ImageType>;
   imagesMap?: Map<string, ImageType>;
+  imagesData?: ImageMeeIndexedDBTable;
   imageAlbums?: Map<string, ImageAlbumType>;
   galleryAlbums?: Array<ImageAlbumEnvType>;
-};
+  imagesLikeData?: Map<string, LikeType>;
+}
 export const useImageState = CreateObjectState<imageStateType>();
 
 export function ImageState() {
-  const imagesData = imageDataObject.useData()[0];
   const { Set } = useImageState();
-  const likeData = likeDataObject.useData()[0];
-  const imageLikeData = useMemo(() => {
-    const list = likeData
-      ?.filter((v) => v.path?.startsWith("?image="))
-      .map<[string, LikeType]>((like) => [like.path!.slice(7), like]);
-    if (list) return new Map(list);
-  }, [likeData]);
+  const { likeCategoryMap } = useLikeState();
+  const imagesData = useSyncExternalStore(
+    imageDataIndexed.subscribe,
+    () => imageDataIndexed.table
+  );
   useEffect(() => {
-    if (imagesData && imageLikeData) {
-      const albumEnv = ArrayEnv.IMAGE_ALBUMS;
-      const { imagesMap, imageAlbumMap: imageAlbums } = getImageObjectMap(
-        imagesData,
-        albumEnv
-      );
-      imagesMap.forEach((image) => {
-        const like = imageLikeData.get(image.key);
-        if (like) image.like = like;
-        image.update = Boolean(
-          image.lastmod &&
-            imageDataObject.beforeLastmod &&
-            image.lastmod.getTime() > imageDataObject.beforeLastmod.getTime()
-        );
-        image.new =
-          image.update &&
-          (image.time && imageDataObject.latest?.time
-            ? image.time.toISOString() > imageDataObject.latest.time
-            : false);
-      });
-      const galleryAlbums = galleryList.concat();
-      if (imageAlbums) {
+    if (imagesData.db && !imageDataIndexed.isLoading && likeCategoryMap) {
+      imagesData.getAll().then((images) => {
+        const imagesLikeData = likeCategoryMap.get("character");
+        images.forEach((image) => {
+          if (imagesLikeData?.has(image.key))
+            image.like = imagesLikeData.get(image.key)!;
+        });
+        const imagesMap = new Map(images.map((image) => [image.key, image]));
+        const albums = findMee(images, {
+          direction: "prevunique",
+          index: "album",
+        })
+          .filter((image) => image.album)
+          .map((image) => image.album!);
+        const galleryAlbums = galleryList.concat();
+        const imageAlbums = getImageAlbumMap(ArrayEnv.IMAGE_ALBUMS, albums);
+        Array.from(imageAlbums.values()).forEach((album) => {
+          album.list = findMee(images, {
+            index: "album",
+            query: album.name,
+            where: { src: { has: true } },
+          });
+        });
         Object.entries(Object.fromEntries(imageAlbums)).forEach(([k, v]) => {
           if (v.name === "pickup") return;
           const found = galleryAlbums.find((item) => item.name === k);
@@ -66,15 +72,17 @@ export function ImageState() {
             found.list = v.list;
           }
         });
-      }
-      Set({
-        imagesMap,
-        images: Object.values(Object.fromEntries(imagesMap)),
-        imageAlbums,
-        galleryAlbums,
+        Set({
+          images,
+          imagesMap,
+          galleryAlbums,
+          imageAlbums,
+          imagesData,
+          imagesLikeData,
+        });
       });
     }
-  }, [imagesData, imageLikeData]);
+  }, [imagesData, likeCategoryMap]);
   return <></>;
 }
 

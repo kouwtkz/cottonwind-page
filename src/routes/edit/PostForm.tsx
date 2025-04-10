@@ -27,15 +27,15 @@ import {
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { useApiOrigin, useEnv } from "@/state/EnvState";
 import {
-  imageDataObject,
+  imageDataIndexed,
   ImportPostJson,
-  postsDataObject,
-} from "@/state/DataState";
+  postsDataIndexed,
+} from "@/data/DataState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { corsFetchJSON } from "@/functions/fetch";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import { SendDelete } from "@/functions/sendFunction";
-import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
+import { DownloadIndexedDBObject } from "@/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "@/state/CreateState";
 import { useDropzone } from "react-dropzone";
 import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
@@ -84,8 +84,7 @@ const schema = z.object({
 
 export function PostForm() {
   const [searchParams] = useSearchParams();
-  const posts = usePosts()[0];
-  const setPostsLoad = postsDataObject.useLoad()[1];
+  const { posts, postsMap } = usePosts();
   const apiOrigin = useApiOrigin()[0];
 
   const nav = useNavigate();
@@ -94,37 +93,35 @@ export function PostForm() {
   const targetPostId = searchParams.get("target") || base;
   const draft = searchParams.get("draft");
   const isLocalDraft = draft === "local";
-  const postTarget = useMemo(
-    () =>
-      targetPostId && posts
-        ? findMee(posts, { where: { postId: targetPostId }, take: 1 })[0]
-        : null,
-    [posts, targetPostId]
-  );
+  const postTarget = useMemo(() => {
+    if (postsMap && targetPostId) {
+      return postsMap.get(targetPostId);
+    }
+  }, [postsMap, targetPostId]);
   const updateMode = postTarget && !duplicationMode;
-
-  const categoryCount = useMemo(
-    () =>
-      posts
-        ? posts.reduce((prev, cur) => {
-            const categories = cur.category;
-            categories?.forEach((category) => {
-              if (category) prev[category] = (prev[category] || 0) + 1;
-            });
-            return prev;
-          }, {} as { [K: string]: number })
-        : 0,
-    [posts]
-  );
+  const categoryCount: Map<string, number> = useMemo(() => {
+    if (posts) {
+      const categoryCount = new Map<string, number>();
+      posts.forEach(({ category: categories }) => {
+        categories?.forEach((category) => {
+          if (category) {
+            categoryCount.set(category, (categoryCount.get(category) || 0) + 1);
+          }
+        });
+      });
+      return categoryCount;
+    } else return new Map();
+  }, [posts]);
   const getCategoryLabelValues = useCallback(() => {
-    return Object.entries(categoryCount).map(([name, count]) => ({
+    return Array.from(categoryCount.entries()).map(([name, count]) => ({
       label: `${name} (${count})`,
       value: name,
     }));
   }, [categoryCount]);
-  const [categoryList, setCategoryList] = useState<labelValues>(
-    getCategoryLabelValues()
-  );
+  const [categoryList, setCategoryList] = useState<labelValues>([]);
+  useEffect(() => {
+    setCategoryList(getCategoryLabelValues());
+  }, [categoryCount]);
 
   const postCategories = useMemo(
     () =>
@@ -250,7 +247,7 @@ export function PostForm() {
         data: { postId: getValues("postId") },
       }).then((r) => {
         if (r.ok) {
-          setPostsLoad("no-cache");
+          postsDataIndexed.load("no-cache");
           nav("/blog", { replace: true });
         }
       });
@@ -266,7 +263,6 @@ export function PostForm() {
       );
     }
   });
-  const setImagesLoad = imageDataObject.useLoad()[1];
 
   useHotkeys("b", () => nav(-1));
 
@@ -388,8 +384,8 @@ export function PostForm() {
           )
           .then(async (r) => {
             refIsSubmitted.current = true;
-            setPostsLoad("no-cache");
-            if (attached) setImagesLoad("no-cache");
+            postsDataIndexed.load("no-cache");
+            if (attached) imageDataIndexed.load("no-cache");
             return (await r.json()) as KeyValueType<string>;
           })
           .then((data) => {
@@ -435,7 +431,7 @@ export function PostForm() {
         notDraft: true,
       })
         .then((list) => {
-          setImagesLoad("no-cache");
+          imageDataIndexed.load("no-cache");
           return list
             ?.map((r) => r.data as ImageDataType)
             .filter((data) => data);
@@ -556,14 +552,14 @@ export function PostForm() {
                   break;
                 case "download":
                   if (confirm("記事データを一括で取得しますか？")) {
-                    DownloadDataObject(postsDataObject);
+                    DownloadIndexedDBObject({ indexedDB: postsDataIndexed });
                   }
                   break;
                 case "upload":
-                  ImportPostJson({ apiOrigin }).then(() => {
-                    setPostsLoad("no-cache-reload");
-                    nav(`/blog`, { replace: true });
-                  });
+                // ImportPostJson({ apiOrigin }).then(() => {
+                //   postsDataIndexed.load("no-cache-reload");
+                //   nav(`/blog`, { replace: true });
+                // });
               }
             }}
           >

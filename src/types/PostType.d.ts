@@ -12,11 +12,11 @@ interface PostDataType {
   lastmod?: string;
 }
 
-interface PostType extends PostDataType {
+interface PostType extends PostDataType, WithRawDataType<PostDataType> {
   category?: string[];
   noindex?: boolean;
   draft?: boolean;
-  schedule?: boolean;
+  // schedule?: boolean;
   localDraft?: boolean;
   time?: Date,
   lastmod?: Date,

@@ -1,9 +1,15 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { HeaderClient } from "@/layout/Header";
 import { Footer } from "@/layout/Footer";
-import { ReactNode, useLayoutEffect, useState } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { MetaValues } from "./SetMeta";
-import { useCharactersMap } from "@/state/CharacterState";
+import { useCharacters } from "@/state/CharacterState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "@/state/ImageState";
 import { usePosts } from "@/state/PostState";
@@ -12,11 +18,21 @@ import { useEnv, useMediaOrigin } from "@/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
-  const charactersMap = useCharactersMap()[0];
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const { charactersMap } = useCharacters();
   const { imagesMap } = useImageState();
+  const imageItem = useMemo(() => {
+    if (imagesMap && searchParams.has("image")) {
+      return imagesMap.get(searchParams.get("image")!);
+    }
+  }, [imagesMap, searchParams]);
   const [isComplete] = useDataIsComplete();
   const [notFirst, setNotFirst] = useState(false);
-  const posts = usePosts()[0];
+  const { postsMap } = usePosts();
+  const post = useMemo(() => {
+    const postId = searchParams.get("postId") || "";
+    return postsMap?.get(postId);
+  }, [postsMap, searchParams]);
   const mediaOrigin = useMediaOrigin()[0];
   const [env] = useEnv();
   if (notFirst) {
@@ -24,8 +40,8 @@ function SetTitle() {
       path: pathname,
       query: search,
       charactersMap,
-      imagesMap,
-      posts,
+      imageItem,
+      post,
       mediaOrigin,
       env: env ?? { TITLE: document.title },
     })!.title;

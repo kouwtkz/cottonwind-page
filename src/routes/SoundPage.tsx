@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { useSoundPlayer } from "@/state/SoundPlayer";
-import { useSoundAlbums, useSounds } from "@/state/SoundState";
+import { useSounds } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 import { useSearchParams } from "react-router-dom";
@@ -17,8 +17,7 @@ export function SoundPage() {
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useIsLogin()[0];
-  const sounds = useSounds()[0];
-  const soundAlbums = useSoundAlbums()[0];
+  const { sounds, soundAlbums } = useSounds();
   const [editSoundKey, setSoundKey] = useEditSoundKey();
   const [editSoundAlbumKey, setSoundAlbumKey] = useEditSoundAlbumKey();
   const {

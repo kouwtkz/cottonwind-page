@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   createSearchParams,
   Link,
@@ -25,7 +25,7 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { useCharactersMap } from "@/state/CharacterState";
+import { useCharacters } from "@/state/CharacterState";
 import { useImageState } from "@/state/ImageState";
 import { useDataIsComplete } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -70,12 +70,14 @@ interface InfoAreaProps {
   image: ImageType;
 }
 function InfoArea({ image }: InfoAreaProps) {
-  const [isComplete] = useDataIsComplete();
+  const { imageAlbums } = useImageState();
+  const albumObject = image.album ? imageAlbums.get(image.album) : null;
+  // const [isComplete] = useDataIsComplete();
   const { setClose } = useImageViewer();
   const searchParams = useSearchParams()[0];
   const { isEdit: stateIsEdit } = useImageEditState();
   const stateIsEditHold = useImageEditSwitchHold()[0];
-  const charactersMap = useCharactersMap()[0];
+  const { charactersData } = useCharacters();
   const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
@@ -84,13 +86,24 @@ function InfoArea({ image }: InfoAreaProps) {
   const tagsOptions = autoFixGalleryTagsOptions(
     getTagsOptions(defaultGalleryTags)
   );
-  if (searchParams.has("pic") || !image?.albumObject) return <></>;
   const tags = image.tags ?? [];
-  const charaTags = useMemo(
-    () =>
-      image.characters?.map((tag) => charactersMap?.get(tag)!).filter((v) => v),
-    [image.characters, charactersMap]
-  );
+  const [charaTags, setCharaTags] = useState<CharacterType[]>();
+  useEffect(() => {
+    if (image.characters && charactersData) {
+      charactersData.usingStore({
+        callback: async (store) => {
+          await Promise.all(
+            image.characters!.map((tag) =>
+              charactersData.get({ index: "key", query: tag, store })
+            )
+          ).then((tags) => {
+            const charaTags = tags.filter((v) => v) as CharacterType[];
+            setCharaTags(charaTags);
+          });
+        },
+      });
+    }
+  }, [image.characters, charactersData]);
   const registeredTags = tags.filter((tag) =>
     tagsOptions.some(({ value }) => value === tag)
   );
@@ -98,136 +111,125 @@ function InfoArea({ image }: InfoAreaProps) {
     registeredTags.every((rt) => rt !== tag)
   );
   const tagsBaseURL = location.origin + "/gallery";
-
   return (
     <div className="infoArea">
-      {isComplete ? (
-        <>
-          {isEdit ? null : (
-            <div className="info window">
-              {(
-                image.albumObject.visible
-                  ? image.albumObject.visible.title
-                  : true
-              ) ? (
-                <h2 className="title">{image.title || image.key}</h2>
-              ) : null}
-              <div className="description">
-                <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
-              </div>
-              <div className="tagList">
-                {charaTags?.map((chara, i) => {
-                  return (
-                    <Link
-                      to={"/character/" + chara.key}
-                      onClick={() => {
-                        setClose();
-                        return true;
-                      }}
-                      className="character"
-                      key={i}
-                    >
-                      {chara?.media?.icon ? (
-                        <ImageMee
-                          imageItem={chara.media.icon}
-                          mode="icon"
-                          width={40}
-                          height={40}
-                          className="charaIcon"
-                        />
-                      ) : (
-                        <></>
-                      )}
-                      <CharacterName className="align-middle" chara={chara} />
-                    </Link>
-                  );
-                })}
-                {registeredTags.map((tag, i) => {
-                  const item = tagsOptions.find(({ value }) => value === tag);
-                  if (!item) return item;
-                  const search = createSearchParams(
-                    item.query ?? { tags: item.value ?? "" }
-                  );
-                  switch (item.name) {
-                    case "monthly":
-                      search.set("monthMode", "tag");
-                      break;
-                  }
-                  return (
-                    <Link
-                      to={new URL("?" + search.toString(), tagsBaseURL).href}
-                      className="other"
-                      preventScrollReset={false}
-                      key={i}
-                    >
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-                {othertags.map((tag, i) => (
+      {isEdit ? null : (
+        <div className="info window">
+          {(albumObject?.visible ? albumObject.visible.title : true) ? (
+            <h2 className="title">{image.title || image.key}</h2>
+          ) : null}
+          <div className="description">
+            <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
+          </div>
+          <div className="tagList">
+            {charaTags?.map((chara, i) => {
+              return (
+                <Link
+                  to={"/character/" + chara.key}
+                  onClick={() => {
+                    setClose();
+                    return true;
+                  }}
+                  className="character"
+                  key={i}
+                >
+                  {chara?.media?.icon ? (
+                    <ImageMee
+                      imageItem={chara.media.icon}
+                      mode="icon"
+                      width={40}
+                      height={40}
+                      className="charaIcon"
+                    />
+                  ) : (
+                    <></>
+                  )}
+                  <CharacterName className="align-middle" chara={chara} />
+                </Link>
+              );
+            })}
+            {registeredTags.map((tag, i) => {
+              const item = tagsOptions.find(({ value }) => value === tag);
+              if (!item) return item;
+              const search = createSearchParams(
+                item.query ?? { tags: item.value ?? "" }
+              );
+              switch (item.name) {
+                case "monthly":
+                  search.set("monthMode", "tag");
+                  break;
+              }
+              return (
+                <Link
+                  to={new URL("?" + search.toString(), tagsBaseURL).href}
+                  className="other"
+                  preventScrollReset={false}
+                  key={i}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+            {othertags.map((tag, i) => (
+              <Link
+                className="unregistered"
+                to={new URL("?q=%23" + tag, tagsBaseURL).href}
+                key={i}
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+          {image.link ? (
+            <div className="link">
+              <Link target="_blank" to={image.link}>
+                {image.link}
+              </Link>
+            </div>
+          ) : null}
+          <div className="gray right">
+            <LikeButton url={"?image=" + image.key} />
+            {image.time ? (
+              <span className="time">
+                {image.draft ? <span className="mr">（下書き）</span> : null}
+                <span>{image.time.toLocaleString("ja", opt)}</span>
+              </span>
+            ) : null}
+            {image.embed && image.type === "ebook" ? (
+              <span>本のマークから読むことができる作品です！</span>
+            ) : null}
+            <ShareButton />
+          </div>
+          {image.copyright ? (
+            <div className="gray right">
+              <div className="copyright">
+                <span>版権元:</span>
+                {image.copyright.map((value, i) => (
                   <Link
-                    className="unregistered"
-                    to={new URL("?q=%23" + tag, tagsBaseURL).href}
+                    to={
+                      new URL(
+                        "?" +
+                          createSearchParams({
+                            q: `"${value}"`,
+                          }),
+                        tagsBaseURL
+                      ).href
+                    }
                     key={i}
                   >
-                    #{tag}
+                    {value}
                   </Link>
                 ))}
               </div>
-              {image.link ? (
-                <div className="link">
-                  <Link target="_blank" to={image.link}>
-                    {image.link}
-                  </Link>
-                </div>
-              ) : null}
-              <div className="gray right">
-                <LikeButton url={"?image=" + image.key} />
-                {image.time ? (
-                  <span className="time">
-                    {image.draft ? (
-                      <span className="mr">（下書き）</span>
-                    ) : null}
-                    <span>{image.time.toLocaleString("ja", opt)}</span>
-                  </span>
-                ) : null}
-                {image.embed && image.type === "ebook" ? (
-                  <span>本のマークから読むことができる作品です！</span>
-                ) : null}
-                <ShareButton />
-              </div>
-              {image.copyright ? (
-                <div className="gray right">
-                  <div className="copyright">
-                    <span>版権元:</span>
-                    {image.copyright.map((value, i) => (
-                      <Link
-                        to={
-                          new URL(
-                            "?" +
-                              createSearchParams({
-                                q: `"${value}"`,
-                              }),
-                            tagsBaseURL
-                          ).href
-                        }
-                        key={i}
-                      >
-                        {value}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
             </div>
-          )}
-          {isLogin ? (
-            <ImageEditForm image={image} />
-          ) : (
-            <GalleryViewerPaging image={image} />
-          )}
-        </>
-      ) : null}
+          ) : null}
+        </div>
+      )}
+      {isLogin ? (
+        <ImageEditForm image={image} />
+      ) : (
+        <GalleryViewerPaging image={image} />
+      )}
     </div>
   );
 }

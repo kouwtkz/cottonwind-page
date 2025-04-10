@@ -1,45 +1,81 @@
-import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
+import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
 import { HTMLAttributes, ReactNode, Ref } from "react";
 import { fileDownload } from "../FileTool";
 import { RiDownloadFill } from "react-icons/ri";
+import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 
-export function JsonFromDataObject<T extends object>(
-  dataObject: StorageDataStateClass<T>,
-  options: JsonFromDataObjectOptions<keyof T | null> = {}
-) {
+export function JsonFromDataObject<T>({
+  data: TData,
+  key,
+  lastmod,
+  version,
+  fields = {},
+}: JsonFromDataObjectOptions<T>) {
+  const body = {} as any;
+  if (key) body.key = key;
+  if (lastmod)
+    body.lastmod =
+      typeof lastmod === "object" ? lastmod.toISOString() : lastmod;
+  if (version) body.version = version.toString();
+  let data = TData as any[];
   const {
-    id = "id",
-    key = "key",
-    time = "time",
-  } = {
-    ...options,
-    ...dataObject.options.jsonFromDataOptions,
-  } as JsonFromDataObjectOptions<string | null>;
-  let data = (dataObject.storage.data?.concat() || []) as any[];
-  if (key) {
-    const keys = Array.isArray(key) ? key : [key];
+    id: fieldsId = "id",
+    key: fieldsKey = "key",
+    time: fieldsTime = "time",
+  } = fields;
+  if (fieldsKey) {
+    const keys = Array.isArray(fieldsKey) ? fieldsKey : [fieldsKey];
     data = data.filter((v) => keys.some((key) => key && v[key]));
   }
-  if (id) {
-    data = data.map(({ [id]: _id, ...v }) => {
+  if (fieldsId) {
+    data = data.map(({ [fieldsId]: _id, ...v }) => {
       return v;
     });
   }
-  if (time)
-    data.sort((a, b) => (a[time] > b[time] ? 1 : a[time] < b[time] ? -1 : 0));
-  return { ...dataObject.storage, data };
+  if (fieldsTime)
+    data.sort((a, b) =>
+      a[fieldsTime] > b[fieldsTime] ? 1 : a[fieldsTime] < b[fieldsTime] ? -1 : 0
+    );
+  body.data = data;
+  return body;
 }
-export function DownloadDataObject<T extends object>(
-  dataObject: StorageDataStateClass<T>,
-  {
-    name,
-    ...options
-  }: JsonFromDataObjectOptions<keyof T | null> & { name?: string } = {}
-) {
+interface DownloadDataObjectProps<T> extends JsonFromDataObjectOptions<T> {
+  name?: string;
+}
+export function DownloadDataObject<T>({
+  name,
+  ...props
+}: DownloadDataObjectProps<T>) {
   fileDownload(
-    (name || dataObject.storage.key) + ".json",
-    JSON.stringify(JsonFromDataObject(dataObject, options))
+    (name || props.key.toString()) + ".json",
+    JSON.stringify(JsonFromDataObject(props))
   );
+}
+
+async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
+  indexedDB: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>
+) {
+  const data = (await indexedDB.table.getAll()).map((v) =>
+    v.rawdata ? v.rawdata : v
+  );
+  return {
+    data,
+    key: indexedDB.key,
+    lastmod: indexedDB.beforeLastmod,
+    version: indexedDB.version,
+  } as JsonFromDataObjectOptions<any>;
+}
+export function DownloadIndexedDBObject<T extends WithRawDataType<any>>({
+  indexedDB,
+  name,
+}: {
+  name?: string;
+  indexedDB: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>;
+}) {
+  getIndexedDBJsonOptions(indexedDB).then((data) => {
+    DownloadDataObject({ ...data, name });
+  });
 }
 
 function Confirm(defaultMessage: string, beforeConfirm?: string | boolean) {
@@ -61,19 +97,18 @@ export interface ImportObjectButtonProps<E = HTMLButtonElement>
   extends BaseObjectButtonProps<E> {
   overwrite?: boolean;
 }
-interface ObjectDownloadButtonProps<T extends object>
-  extends BaseObjectButtonProps {
-  dataObject: StorageDataStateClass<T>;
-  options?: JsonFromDataObjectOptions<keyof T | null>;
+interface ObjectDownloadButtonProps<T> extends BaseObjectButtonProps {
+  options?: JsonFromDataObjectOptions<T>;
+  onClick?: () => Promise<JsonFromDataObjectOptions<T> | void>;
 }
-export function ObjectDownloadButton<T extends object>({
+export function ObjectDownloadButton<T extends WithRawDataType<any>>({
   beforeConfirm = true,
   icon = <RiDownloadFill />,
   iconClass,
   children,
   customRef,
-  dataObject,
   options,
+  onClick,
   ...props
 }: ObjectDownloadButtonProps<T>) {
   return (
@@ -83,14 +118,41 @@ export function ObjectDownloadButton<T extends object>({
       {...props}
       ref={customRef}
       onClick={async () => {
-        if (Confirm("JSONデータをダウンロードしますか？", beforeConfirm)) {
-          DownloadDataObject(dataObject, options);
+        if (
+          (options || onClick) &&
+          Confirm("JSONデータをダウンロードしますか？", beforeConfirm)
+        ) {
+          if (options) {
+            DownloadDataObject(options);
+          } else if (onClick) {
+            onClick().then((options) => {
+              if (options) DownloadDataObject(options);
+            });
+          }
         }
       }}
     >
       {icon ? <span className={iconClass}>{icon}</span> : null}
       {children ? <span className="text-bottom">{children}</span> : null}
     </button>
+  );
+}
+
+interface ObjectIndexedDBDownloadButtonProps<T>
+  extends Omit<ObjectDownloadButtonProps<T>, "onClick" | "options"> {
+  indexedDB?: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>;
+}
+export function ObjectIndexedDBDownloadButton<T extends WithRawDataType<any>>({
+  indexedDB,
+  ...props
+}: ObjectIndexedDBDownloadButtonProps<T>) {
+  return (
+    <ObjectDownloadButton
+      {...props}
+      onClick={async () => {
+        if (indexedDB) getIndexedDBJsonOptions(indexedDB);
+      }}
+    />
   );
 }
 

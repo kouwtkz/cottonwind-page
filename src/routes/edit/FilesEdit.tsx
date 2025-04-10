@@ -1,10 +1,10 @@
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
+import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
-import { UploadToast } from "@/state/DataState";
+import { filesDataIndexed, UploadToast } from "@/data/DataState";
 import { useApiOrigin } from "@/state/EnvState";
 import { useFiles } from "@/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { MdDeleteForever } from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
 
 const SEND_FILES = "/file/send";
 
@@ -77,32 +79,30 @@ const schema = z.object({
 });
 
 export function FilesEdit({
-  dataObject,
   send = SEND_FILES,
   edit,
   setEdit,
 }: {
-  dataObject: StorageDataStateClass<FilesRecordDataType>;
   send?: string;
   edit?: number;
   setEdit(v?: number): void;
 }) {
-  const files = useFiles()[0];
-  const filesData = dataObject.useData()[0];
+  const { files } = useFiles();
   const dataItem = useMemo(
-    () => filesData?.find((v) => v.id === edit),
-    [filesData, edit]
+    () => files?.find((v) => v.id === edit),
+    [files, edit]
   );
   const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
-      setEdit(filesData?.find((v) => v.lastmod === targetLastmod.current)?.id);
+      setEdit(
+        files?.find((v) => v.rawdata?.lastmod === targetLastmod.current)?.id
+      );
       targetLastmod.current = null;
     }
-  }, [filesData]);
+  }, [files]);
   const apiOrigin = useApiOrigin()[0];
-  const setLoad = dataObject.useLoad()[1];
   const {
     register,
     handleSubmit,
@@ -134,7 +134,7 @@ export function FilesEdit({
           withCredentials: true,
         })
         .then(() => {
-          setLoad("no-cache");
+          filesDataIndexed.load("no-cache");
           setEdit();
         }),
       {
@@ -170,7 +170,7 @@ export function FilesEdit({
               axios
                 .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
                 .then(() => {
-                  setLoad("no-cache");
+                  filesDataIndexed.load("no-cache");
                   setEdit();
                 });
             }

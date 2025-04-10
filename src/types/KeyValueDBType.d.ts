@@ -5,7 +5,7 @@ interface KeyValueDBDataType {
   lastmod: string;
 }
 
-interface KeyValueDBType extends KeyValueDBDataType {
+interface KeyValueDBType extends KeyValueDBDataType, WithRawDataType<KeyValueDBDataType> {
   private?: boolean;
 }
 

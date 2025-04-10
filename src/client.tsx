@@ -6,10 +6,14 @@ import { ClickEffect } from "@/components/click/ClickEffect";
 import { ClickEventState } from "@/components/click/useClickEvent";
 import { LangState } from "./multilingual/LangState";
 import { Theme } from "@/components/theme/Theme";
+import { useEffect, useSyncExternalStore } from "react";
+import { getUUID } from "./functions/clientFunction";
+import { SubscribeEventsClass } from "./components/hook/SubscribeEvents";
+import { DOMContentLoaded } from "./clientScripts";
 
 const router = createBrowserRouter(Routing);
 
-document.addEventListener("DOMContentLoaded", () => {
+function LoadedFunction() {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <>
       <ClickEffect />
@@ -19,4 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <RouterProvider router={router} />
     </>
   );
-});
+}
+
+DOMContentLoaded(LoadedFunction)

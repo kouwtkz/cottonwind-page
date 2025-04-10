@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cache } from "hono/cache";
 import { ServerImagesGetData } from "./image";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { ServerCharactersGetData } from "./character";
 import { IsLogin } from "@/admin";
 import { ServerPostsGetData } from "./blog";
@@ -21,7 +21,7 @@ import {
   TableVersionDataOptions,
   likeDataOptions,
   KeyValueDBDataOptions,
-} from "@/Env";
+} from "@/data/DataEnv";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 import { ServerLikeGetData } from "./like";
 import { GetDataProps } from "./propsDef";
@@ -61,7 +61,7 @@ app.get("*", async (c, next) => {
 
 function apps(
   ...list: [
-    options: StorageDataStateClassProps<any>,
+    options: DataClassProps<any>,
     (arg0: GetDataProps) => Promise<any>
   ][]
 ) {
@@ -118,7 +118,7 @@ apps(
 );
 
 app.post("/tables/update", async (c) => {
-  const list: StorageDataStateClassProps<any>[] = [
+  const list: DataClassProps<any>[] = [
     charactersDataOptions,
     linksFavDataOptions,
     filesDataOptions,

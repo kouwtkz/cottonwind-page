@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import { GalleryObject, useGalleryObject } from "../GalleryPage";
 import { useImageState } from "@/state/ImageState";
-import { imageDataObject, ImportImagesJson } from "@/state/DataState";
+import { imageDataIndexed, ImportImagesJson } from "@/data/DataState";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
-import { useCharactersMap } from "@/state/CharacterState";
+import { useCharacters } from "@/state/CharacterState";
 import { useParams } from "react-router-dom";
 import { fileDialog } from "@/components/FileTool";
 import {
@@ -48,15 +48,14 @@ export function GalleryImportButton({
   ...props
 }: ImportObjectButtonProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   return (
     <ObjectCommonButton
       {...props}
       title="ギャラリーのデータベースへインポート"
       onClick={() => {
         ImportImagesJson({ apiOrigin, charactersMap, overwrite }).then(() => {
-          setImagesLoad(overwrite ? "no-cache-reload" : "no-cache");
+          imageDataIndexed.load(overwrite ? "no-cache-reload" : "no-cache");
         });
       }}
     />
@@ -71,7 +70,6 @@ export function GalleryUploadButton({
   ...props
 }: GalleryUploadButtonProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
   const params = useParams();
@@ -94,7 +92,7 @@ export function GalleryUploadButton({
             })
           )
           .then(() => {
-            setImagesLoad("no-cache");
+            imageDataIndexed.load("no-cache");
           });
       }}
     />
@@ -118,7 +116,6 @@ export function CompatGalleryButton({
     return list.join(" ");
   }, [className]);
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const { imageAlbums: albums } = useImageState();
   const { addProgress, setMax } = useToastProgress();
   return (
@@ -146,7 +143,7 @@ export function CompatGalleryButton({
         );
         setMax(doList.length);
         PromiseOrder(doList, { minTime: 200 }).then(() => {
-          setImagesLoad("no-cache");
+          imageDataIndexed.load("no-cache");
         });
       }}
     >
@@ -165,11 +162,6 @@ export function CompatMendingThumbnailButton({
   const apiOrigin = useApiOrigin()[0];
   const url = concatOriginUrl(apiOrigin, "/image/send");
   const mediaOrigin = useMediaOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const { images } = useImageState();
-  const thumbnailOnly = imageDataObject
-    .useData()[0]
-    ?.filter((v) => v.thumbnail && !v.src);
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton
@@ -178,9 +170,12 @@ export function CompatMendingThumbnailButton({
       {...props}
       beforeConfirm={"ギャラリーのサムネイルを修復しますか？"}
       onClick={async () => {
-        const noThumbnailList = (images || []).filter(
-          (image) => image.src && !image.thumbnail
-        );
+        const noThumbnailList =
+          (await imageDataIndexed.table.find({
+            where: {
+              AND: [{ thumbnail: { has: false } }, { src: { has: true } }],
+            },
+          })) || [];
         setMax(noThumbnailList.length, {
           message: "画像サーバーのみにあるサムネイルを取得しています…",
           success: null,
@@ -223,6 +218,11 @@ export function CompatMendingThumbnailButton({
             minTime: 200,
           });
         }
+        const thumbnailOnly = await imageDataIndexed.table.find({
+          where: {
+            AND: [{ thumbnail: { has: true } }, { src: { has: false } }],
+          },
+        });
         if (thumbnailOnly?.length) {
           await Promise.all(
             thumbnailOnly.map((image) =>
@@ -235,7 +235,7 @@ export function CompatMendingThumbnailButton({
             );
           });
         }
-        setImagesLoad("no-cache");
+        imageDataIndexed.load("no-cache");
       }}
     >
       {children || "ギャラリーのサムネイルを修復する"}
@@ -279,7 +279,6 @@ export function ThumbnailResetButton({
 }: ThumbnailResetButtonProps) {
   const apiOrigin = useApiOrigin()[0];
   const mediaOrigin = useMediaOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const { images } = useGalleryObject();
   const { addProgress, setMax } = useToastProgress();
   const noThumbnailList = useMemo(
@@ -315,7 +314,7 @@ export function ThumbnailResetButton({
       PromiseOrder(doList, {
         minTime: 200,
       }).then(() => {
-        setImagesLoad("no-cache");
+        imageDataIndexed.load("no-cache");
       });
     }
   }, [noThumbnailList, apiOrigin, mediaOrigin]);

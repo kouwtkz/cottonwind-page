@@ -19,6 +19,7 @@ interface ImportMetaEnv extends ImportMetaKVKeyEnv {
   readonly VITE_LOCAL_TEST_DOMAIN_2?: string;
   readonly VITE_STORAGE_KEY_SW?: string;
   readonly VITE_VERSION_SW_CALENDAR?: string;
+  readonly VITE_INDEXEDDB_NAME: string;
 }
 
 interface ImportMeta {

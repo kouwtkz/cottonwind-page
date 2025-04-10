@@ -11,7 +11,7 @@ interface SiteLinkData {
   lastmod?: string;
 }
 
-interface SiteLink extends SiteLinkData {
+interface SiteLink extends SiteLinkData, WithRawDataType<SiteLinkData> {
   draft?: boolean;
   Image?: ImageType;
   lastmod?: Date;

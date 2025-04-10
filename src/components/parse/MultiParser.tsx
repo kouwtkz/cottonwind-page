@@ -32,6 +32,7 @@ export interface MultiParserProps
   children?: React.ReactNode;
   parsedClassName?: string;
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
+  useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
 }
 
@@ -62,6 +63,7 @@ export function MultiParser({
   library,
   transform,
   replaceFunction,
+  useEffectFunction,
   preventScrollResetSearches,
   children,
 }: MultiParserProps) {
@@ -86,6 +88,7 @@ export function MultiParser({
       });
       existCode.current = false;
     }
+    if (useEffectFunction) useEffectFunction();
   }, [children]);
   let { text: childString, list } = useMemo(() => {
     let text = typeof children === "string" ? children : "";

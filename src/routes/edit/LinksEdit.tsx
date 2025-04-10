@@ -17,7 +17,7 @@ import {
 import { useApiOrigin } from "@/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "@/components/FileTool";
-import { imageDataObject, ImportLinksJson } from "@/state/DataState";
+import { imageDataIndexed, ImportLinksJson } from "@/data/DataState";
 import axios from "axios";
 import { concatOriginUrl } from "@/functions/originUrl";
 import { FieldValues, useForm } from "react-hook-form";
@@ -31,19 +31,32 @@ import {
   MoveButton,
 } from "@/layout/edit/CommonSwitch";
 import { AiFillEdit } from "react-icons/ai";
-import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
 import { MdDeleteForever, MdOutlineImage } from "react-icons/md";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DropdownButton } from "@/components/dropdown/DropdownButton";
 import {
-  ObjectDownloadButton,
   ObjectCommonButton,
+  ObjectIndexedDBDownloadButton,
 } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { RiImageAddFill } from "react-icons/ri";
 import { useSelectedImage } from "@/state/ImageState";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import {
+  LinksIndexedDBType,
+  LinksStateType,
+  useLinks,
+} from "@/state/LinksState";
+import { findMee } from "@/functions/find/findMee";
+
+type fileIndexedDBType = IndexedDataStateClass<
+  FilesRecordType,
+  FilesRecordDataType,
+  MeeIndexedDBTable<FilesRecordType>
+>;
 
 const schema = z.object({
   title: z.string().min(1, { message: "サイト名を入力してください" }),
@@ -53,8 +66,8 @@ export type editLinksType = number | boolean | undefined;
 export type setEditLinksType = (v: editLinksType) => void;
 
 interface LinksEditProps {
-  links?: SiteLink[];
-  dataObject: StorageDataStateClass<SiteLinkData>;
+  state: LinksStateType;
+  indexedDB: LinksIndexedDBType;
   send: string;
   edit?: number | boolean;
   setEdit: setEditLinksType;
@@ -63,8 +76,8 @@ interface LinksEditProps {
   defaultCategories?: string[];
 }
 export function LinksEdit({
-  links,
-  dataObject,
+  state: linksState,
+  indexedDB,
   send,
   edit,
   setEdit,
@@ -72,14 +85,18 @@ export function LinksEdit({
   category,
   defaultCategories,
 }: LinksEditProps) {
+  const { links } = linksState;
+  console.log(links);
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const linksData = dataObject.useData()[0];
-  const dataItem = useMemo(
-    () => linksData?.find((v) => v.id === edit),
-    [linksData, edit]
-  );
-  const item = useMemo(() => links?.find((v) => v.id === edit), [links, edit]);
+  const targetLastmod = useRef<string | null>(null);
+  const item = useMemo(() => {
+    let item: SiteLink | undefined;
+    if (links && typeof edit === "number")
+      item = findMee(links, { where: { id: edit } })[0];
+    if (item?.rawdata?.lastmod) targetLastmod.current = item.rawdata.lastmod;
+    return item;
+  }, [edit, links]);
   const categories = useMemo(() => {
     const list = [""];
     if (category && list.every((v) => v !== category)) list.push(category);
@@ -88,16 +105,7 @@ export function LinksEdit({
     });
     return list;
   }, [links, category, defaultCategories]);
-  const targetLastmod = useRef<string | null>(null);
-  useEffect(() => {
-    if (targetLastmod.current) {
-      setEdit(linksData?.find((v) => v.lastmod === targetLastmod.current)?.id);
-      targetLastmod.current = null;
-    }
-  }, [linksData]);
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const setLoad = dataObject.useLoad()[1];
   const {
     register,
     handleSubmit,
@@ -105,10 +113,10 @@ export function LinksEdit({
     formState: { isDirty, dirtyFields, errors },
   } = useForm<FieldValues>({
     defaultValues: {
-      title: dataItem?.title,
-      description: dataItem?.description,
-      url: dataItem?.url,
-      category: dataItem?.category ?? category,
+      title: item?.title,
+      description: item?.description,
+      url: item?.url,
+      category: item?.category ?? category,
     },
     resolver: zodResolver(schema),
   });
@@ -124,8 +132,8 @@ export function LinksEdit({
         .filter((v) => v[1])
         .map((v) => [v[0], values[v[0]]])
     ) as SiteLink;
-    entry.id = dataItem?.id;
-    if (typeof dataItem?.category === "undefined") {
+    entry.id = item?.id;
+    if (typeof item?.category === "undefined") {
       entry.category = category;
     }
     if (typeof entry.category !== "undefined" && !entry.category) {
@@ -137,7 +145,7 @@ export function LinksEdit({
           withCredentials: true,
         })
         .then(() => {
-          setLoad("no-cache");
+          indexedDB.load("no-cache");
           setEdit(false);
         }),
       {
@@ -169,7 +177,7 @@ export function LinksEdit({
         .post(
           concatOriginUrl(apiOrigin, send),
           {
-            id: dataItem?.id,
+            id: item?.id,
             image: selectedImage.key,
             category,
           } as SiteLinkData,
@@ -181,7 +189,7 @@ export function LinksEdit({
           if (r.status === 201) {
             targetLastmod.current = r.data[0].entry.lastmod;
           }
-          setLoad("no-cache");
+          indexedDB.load("no-cache");
         });
       setIsSelectedImage(false);
     }
@@ -201,7 +209,7 @@ export function LinksEdit({
                 .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
                 .then(() => {
                   toast.success("削除しました");
-                  setLoad("no-cache");
+                  indexedDB.load("no-cache");
                   setEdit(false);
                 });
             }
@@ -249,7 +257,7 @@ export function LinksEdit({
                   });
                 })
                 .then(async (r) => {
-                  setImagesLoad("no-cache");
+                  imageDataIndexed.load("no-cache");
                   return r
                     ? ((await r[0].data) as KeyValueType<unknown>)
                     : null;
@@ -260,7 +268,7 @@ export function LinksEdit({
                       .post(
                         concatOriginUrl(apiOrigin, send),
                         {
-                          id: dataItem?.id,
+                          id: item?.id,
                           image: o.key,
                           category,
                         } as SiteLinkData,
@@ -272,7 +280,7 @@ export function LinksEdit({
                         if (r.status === 201) {
                           targetLastmod.current = r.data[0].entry.lastmod;
                         }
-                        setLoad("no-cache");
+                        indexedDB.load("no-cache");
                       });
                   }
                 });
@@ -324,7 +332,8 @@ interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   setEdit: setEditLinksType;
   album: string;
   dropdown?: ReactNode;
-  dataObject: StorageDataStateClass<SiteLinkData>;
+  state: LinksStateType;
+  indexedDB: LinksIndexedDBType;
   move: editMoveLinkType;
   setMove: setEditMoveLinkType;
   dir?: SendLinksDir;
@@ -335,14 +344,14 @@ export function LinksEditButtons({
   dropdown,
   children,
   className,
-  dataObject,
+  state,
+  indexedDB,
   move,
   setMove,
   dir,
   ...props
 }: LinksEditButtonsProps) {
   const apiOrigin = useApiOrigin()[0];
-  const setLinksLoad = dataObject.useLoad()[1];
   const ImageManageButtonSearch = useMemo(
     () =>
       new URLSearchParams({
@@ -378,18 +387,18 @@ export function LinksEditButtons({
               dropItemList: "flex column font-small",
             }}
           >
-            <ObjectDownloadButton
+            <ObjectIndexedDBDownloadButton
               className="squared item"
-              dataObject={dataObject}
+              indexedDB={indexedDB}
             >
               JSONデータのダウンロード
-            </ObjectDownloadButton>
+            </ObjectIndexedDBDownloadButton>
             <ObjectCommonButton
               icon={<TbDatabaseImport />}
               className="squared item"
               onClick={() => {
                 ImportLinksJson({ apiOrigin, dir }).then(() => {
-                  setLinksLoad("no-cache-reload");
+                  indexedDB.load("no-cache-reload");
                 });
               }}
             >
@@ -437,7 +446,6 @@ export function LinksEditButtons({
 export const useMoveMyBanner = CreateState(0);
 export function MyBannerEditButtons() {
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const [move, setMove] = useMoveMyBanner();
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
@@ -480,7 +488,7 @@ export function MyBannerEditButtons() {
                   });
                 })
                 .then(async () => {
-                  setImagesLoad("no-cache");
+                  imageDataIndexed.load("no-cache");
                 });
             }}
           />

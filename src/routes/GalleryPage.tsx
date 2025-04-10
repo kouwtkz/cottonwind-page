@@ -15,6 +15,8 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useState,
+  useSyncExternalStore,
 } from "react";
 import {
   defineSortTags,
@@ -65,8 +67,8 @@ import {
   useUploadWebp,
 } from "@/layout/edit/ImageEditForm";
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
-import { imageDataObject, likeDataObject } from "@/state/DataState";
-import { useCharacters, useCharactersMap } from "@/state/CharacterState";
+import { imageDataIndexed, likeDataIndexed } from "@/data/DataState";
+import { useCharacters } from "@/state/CharacterState";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
 import { charaTagsLabel } from "@/components/FormatOptionLabel";
@@ -85,7 +87,7 @@ import {
   ThumbnailResetButton,
 } from "./edit/ImagesManager";
 import { Modal } from "@/layout/Modal";
-import { ObjectDownloadButton } from "@/components/button/ObjectDownloadButton";
+import { ObjectIndexedDBDownloadButton } from "@/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/Env";
@@ -93,6 +95,7 @@ import { useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/multilingual/LangState";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
+import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -100,6 +103,7 @@ interface GalleryPageProps extends GalleryBodyOptions {
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
   const { galleryAlbums } = useImageState();
+
   const [isComplete] = useDataIsComplete();
   return (
     <div className="galleryPage">
@@ -145,6 +149,14 @@ export function GalleryObjectConvert({
   ...args
 }: GalleryObjectConvertProps) {
   const { images, imageAlbums } = useImageState();
+  const [pickupList, setPickupList] = useState<ImageType[]>([]);
+  const [topImageList, setTopImageList] = useState<ImageType[]>([]);
+  useEffect(() => {
+    if (images) {
+      setPickupList(filterPickFixed({ images, name: "pickup" }));
+      setTopImageList(filterPickFixed({ images, name: "topImage" }));
+    }
+  }, [images]);
   const convertItemArrayType = useCallback(
     (items?: GalleryItemsType) =>
       items ? (Array.isArray(items) ? items : [items]) : [],
@@ -167,7 +179,7 @@ export function GalleryObjectConvert({
               case "topImage":
                 return {
                   ...item,
-                  list: filterPickFixed({ images: images || [], name }),
+                  list: name === "pickup" ? pickupList : topImageList,
                   label: item.label ?? item.name,
                   max: item.max ?? 20,
                   linkLabel: item.linkLabel ?? false,
@@ -192,7 +204,7 @@ export function GalleryObjectConvert({
           }
           return item;
         }),
-    [items, images, imageAlbums]
+    [items, pickupList, topImageList, imageAlbums]
   );
 
   return (
@@ -461,7 +473,6 @@ function UploadChain({
   enableOnClick?: boolean;
 }) {
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const character = useParams().charaName;
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
@@ -509,7 +520,7 @@ function UploadChain({
             }
           : undefined),
       }).then(() => {
-        setImagesLoad("no-cache");
+        imageDataIndexed.load("no-cache");
       });
     },
     [item, character, apiOrigin, webp, thumbnail, notDraft, tags]
@@ -626,12 +637,12 @@ function GalleryBody({
                     dropItemList: "flex column font-small",
                   }}
                 >
-                  <ObjectDownloadButton
+                  <ObjectIndexedDBDownloadButton
                     className="squared item"
-                    dataObject={imageDataObject}
+                    indexedDB={imageDataIndexed}
                   >
                     ギャラリーJSONデータのダウンロード
-                  </ObjectDownloadButton>
+                  </ObjectIndexedDBDownloadButton>
                   <GalleryImportButton
                     icon={<TbDatabaseImport />}
                     className="squared item"
@@ -1145,14 +1156,21 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
   const searchParams = useSearchParams()[0];
   const filterParam = searchParams.get("filter");
   const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
-  const likeData = likeDataObject.useData()[0];
-  const hasLikeChecked = useMemo(
-    () =>
-      Boolean(
-        likeData?.some((v) => v.checked && v.path?.startsWith("?image="))
-      ),
-    [likeData]
+  const likeData = useSyncExternalStore(
+    likeDataIndexed.subscribe,
+    () => likeDataIndexed.table
   );
+  const [hasLikeChecked, setHasLikeChecked] = useState(false);
+  useEffect(() => {
+    likeData
+      .find({
+        where: { AND: [{ checked: true, path: { startsWith: "?image=" } }] },
+        take: 1,
+      })
+      .then((result) => {
+        setHasLikeChecked(result.length > 0);
+      });
+  }, [likeData]);
   const tags = useMemo(() => {
     const filterOptions: ContentsTagsOption[] = [];
     if (likeWhere || hasLikeChecked)
@@ -1179,7 +1197,7 @@ export function GalleryCharactersSelect({
   const isModal = searchParams.has("modal");
   const currentChara = params["charaName"];
   const enableCharaFilter = Boolean(currentChara && !isModal);
-  const characters = useCharacters()[0];
+  const { characters } = useCharacters();
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
@@ -1192,7 +1210,7 @@ export function GalleryCharactersSelect({
       list?.some((item) => item === value)
     );
   }, [searchParams, charaLabelOptions]);
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap, lang);
   }, [charactersMap, lang]);

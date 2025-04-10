@@ -1,39 +1,53 @@
-import { HTMLAttributes, useEffect, useState } from "react";
+import {
+  HTMLAttributes,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useEnv, useMediaOrigin } from "@/state/EnvState";
-import { filesDataObject } from "./DataState";
-import { CreateState } from "./CreateState";
+import { filesDataIndexed } from "@/data/DataState";
+import { CreateObjectState, CreateState } from "./CreateState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "@/functions/originUrl";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 
-export const useFiles = CreateState<FilesRecordType[]>();
+interface FilesState {
+  files?: FilesRecordType[];
+  filesMap?: Map<string, FilesRecordType>;
+  filesData?: MeeIndexedDBTable<FilesRecordType>;
+}
+export const useFiles = CreateObjectState<FilesState>();
 export const useFilesMap = CreateState<Map<string, FilesRecordType>>();
 
 export default function FileState() {
-  const postsData = filesDataObject.useData()[0];
-  const setFiles = useFiles()[1];
-  const setFilesMap = useFilesMap()[1];
+  const filesData = useSyncExternalStore(
+    filesDataIndexed.subscribe,
+    () => filesDataIndexed.table
+  );
+  const { Set } = useFiles();
   const env = useEnv()[0];
   useEffect(() => {
-    if (postsData && env) {
+    if (filesData.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
-      postsData.forEach((v) => {
-        if (!v.src) return;
-        const item: FilesRecordType = {
-          ...v,
-          private:
-            typeof v.private === "number" ? Boolean(v.private) : undefined,
-          mtime: v.mtime ? new Date(v.mtime) : undefined,
-          lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
-        };
-        const key = item.key;
-        if (!filesMap.has(key)) {
-          filesMap.set(key, item);
-        }
+      filesData.getAll().then((items) => {
+        items.forEach((v) => {
+          if (!v.src) return;
+          const item: FilesRecordType = {
+            ...v,
+            private:
+              typeof v.private === "number" ? Boolean(v.private) : undefined,
+            mtime: v.mtime ? new Date(v.mtime) : undefined,
+            lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
+          };
+          const key = item.key;
+          if (!filesMap.has(key)) {
+            filesMap.set(key, item);
+          }
+        });
+        Set({ filesData, filesMap, files: Array.from(filesMap.values()) });
       });
-      setFilesMap(filesMap);
-      setFiles(Object.values(Object.fromEntries(filesMap)));
     }
-  }, [postsData, env, setFiles, setFilesMap]);
+  }, [filesData, env]);
   return <></>;
 }
 

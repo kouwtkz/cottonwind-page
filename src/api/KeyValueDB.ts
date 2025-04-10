@@ -1,8 +1,8 @@
 import { Hono, HonoRequest } from "hono";
 import { IsLogin } from "@/admin";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
-import { KeyValueDBDataOptions, likeDataOptions } from "@/Env";
+import { KeyValueDBDataOptions, likeDataOptions } from "@/data/DataEnv";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { GetDataProps } from "./propsDef";
 

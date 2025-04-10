@@ -5,16 +5,65 @@ export function findMee<T>(
     take,
     orderBy,
     skip = 0,
+    direction,
+    index,
+    query
   }: findMeeProps<T>): T[] {
-  orderBy
-    ?.reduce<{ [k: string]: OrderByType }[]>((a, c) => {
-      Object.entries(c).forEach(([k, v]) => {
-        if (a.findIndex((f) => k in f) < 0) {
-          if (c) a.push({ [k]: v as OrderByType });
+  let unique: keyof T | undefined;
+  if (index) {
+    if (query) {
+      const AND: findWhereType<T>[] = [];
+      if (where) AND.push(where);
+      where = { AND };
+      if (typeof query === "object" && "lowerOpen" in query) {
+        if (query.lower === query.upper) {
+          AND.push({ [index]: query })
+        } else {
+          if (typeof query.lower !== "undefined") {
+            AND.push({ [index]: { [query.lowerOpen ? "lt" : "lte"]: query } });
+          }
+          if (typeof query.upper !== "undefined") {
+            AND.push({ [index]: { [query.upperOpen ? "gt" : "gte"]: query } });
+          }
         }
-      });
-      return a;
-    }, [])
+      } else {
+        AND.push({ [index]: query })
+      }
+    }
+    if (direction) {
+      if (!orderBy) orderBy = [];
+      orderBy.unshift({ [index]: (direction.startsWith("next") ? "asc" : "desc") } as OrderByItem<T>)
+      if (direction.endsWith("unique")) {
+        unique = index;
+      }
+    }
+  }
+  if (orderBy) findMeeSort({ orderBy, list });
+  let i = 0;
+  const uniqueMap = new Map<any, void>();
+  return list.filter((value) => {
+    if (take !== undefined && i >= take + skip) return false;
+    const notUnique = unique ? !uniqueMap.has(value[unique]) : true;
+    const result = notUnique && findMeeWheresFilter(value, where);
+    if (result) {
+      i++;
+      if (unique && result) {
+        uniqueMap.set(value[unique]);
+      }
+    }
+    return result && i > skip;
+  });
+}
+
+export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
+  orderBy.reduce<{ [k: string]: OrderByType }[]>((a, c) => {
+    Object.entries(c).forEach(([k, v]) => {
+      if (a.findIndex((f) => k in f) < 0) {
+        if (c) a.push({ [k]: v as OrderByType });
+      }
+    });
+    return a;
+  }, [])
     .forEach((args) => {
       parseEntryKeys(args).forEach((_k) => {
         const v = fromEntryKeys(args, _k);
@@ -58,13 +107,6 @@ export function findMee<T>(
         }
       });
     });
-  let i = 0;
-  return list.filter((value) => {
-    if (take !== undefined && i >= take + skip) return false;
-    const result = wheresFilter(value, where);
-    if (result) i++;
-    return result && i > skip;
-  });
 }
 
 function parseEntryKeys(o: any) {
@@ -95,13 +137,12 @@ function fromEntryKeys(object: any, keys: (string | number)[]) {
 }
 
 const isObjectExp = /^\[object .+\]$/;
-function wheresFilter<T>(value: T, where?: findWhereType<T>): boolean {
+export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): boolean {
   function wheresLoop(innerValue: any, innerWhere: findWhereType<T>): boolean {
     const wheres = Object.entries(innerWhere);
     if (wheres.length === 0) {
       return true;
     } else return wheres.every(([fkey, fval]) => {
-      const innerValueType = typeof innerValue;
       if (Array.isArray(fval) && (fkey === "AND" || fkey === "OR" || fkey === "NOT")) {
         switch (fkey) {
           case "AND":
@@ -115,61 +156,68 @@ function wheresFilter<T>(value: T, where?: findWhereType<T>): boolean {
         }
       }
       if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
-        const nextInnerValue = innerValue && innerValueType === "object" ? innerValue[fkey] : innerValue;
+        const nextInnerValue = innerValue && typeof innerValue === "object" ? innerValue[fkey] : innerValue;
         return wheresLoop(nextInnerValue, fval);
       } else {
-        let switchInnerValue = innerValue;
-        if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
-          switchInnerValue = innerValue[fkey];
-        }
-        switch (fkey) {
-          case "equals":
-            if (innerValueType === "string") return String(switchInnerValue).toLocaleLowerCase() === fval;
-            else return switchInnerValue == fval;
-          case "not":
-            return switchInnerValue != fval;
-          case "like":
-          case "contains":
-            if (Array.isArray(switchInnerValue)) return switchInnerValue.some((x) => x.toLocaleLowerCase() === fval);
-            else {
-              const _v = String(switchInnerValue).toLocaleLowerCase();
-              if (/[\*\?]/.test(fval)) {
-                try { return _v.match(fval) } catch { return true }
-              } else return _v.includes(fval);
-            }
-          case "startsWith":
-            return String(switchInnerValue).toLocaleLowerCase().startsWith(fval);
-          case "endsWith":
-            return String(switchInnerValue).toLocaleLowerCase().endsWith(fval);
-          case "gt":
-            return switchInnerValue > fval;
-          case "gte":
-            return switchInnerValue >= fval;
-          case "lt":
-            return switchInnerValue < fval;
-          case "lte":
-            return switchInnerValue <= fval;
-          case "in":
-            const inVal = fval as unknown[];
-            if (Array.isArray(switchInnerValue)) return inVal.some(v => switchInnerValue.some(c => v == c));
-            else return inVal.some(v => v == switchInnerValue);
-          case "between":
-            const betweenVal = fval as any[];
-            return betweenVal[0] <= switchInnerValue && switchInnerValue <= betweenVal[1];
-          case "bool":
-            let boolVal: boolean;
-            if (Array.isArray(switchInnerValue)) boolVal = switchInnerValue.length > 0;
-            else boolVal = Boolean(switchInnerValue);
-            return fval ? boolVal : !boolVal;
-          case "regexp":
-            return (fval as RegExp).test(switchInnerValue);
-          default:
-            return switchInnerValue == fval
-        }
+        return findMeeWheresInnerSwitch(innerValue, fkey, fval);
       }
     });
   }
   return where ? wheresLoop(value, where) : true;
+}
+
+export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any) {
+  const innerValueType = typeof innerValue;
+  let switchInnerValue = innerValue;
+  if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
+    switchInnerValue = innerValue[fkey];
+  }
+  switch (fkey) {
+    case "equals":
+      if (innerValueType === "string") return String(switchInnerValue).toLocaleLowerCase() === fval;
+      else return switchInnerValue == fval;
+    case "has":
+      return Boolean(switchInnerValue) === fval;
+    case "not":
+      return switchInnerValue != fval;
+    case "like":
+    case "contains":
+      if (Array.isArray(switchInnerValue)) return switchInnerValue.some((x) => x.toLocaleLowerCase() === fval);
+      else {
+        const _v = String(switchInnerValue).toLocaleLowerCase();
+        if (/[\*\?]/.test(fval)) {
+          try { return _v.match(fval) } catch { return true }
+        } else return _v.includes(fval);
+      }
+    case "startsWith":
+      return String(switchInnerValue).toLocaleLowerCase().startsWith(fval);
+    case "endsWith":
+      return String(switchInnerValue).toLocaleLowerCase().endsWith(fval);
+    case "gt":
+      return switchInnerValue > fval;
+    case "gte":
+      return switchInnerValue >= fval;
+    case "lt":
+      return switchInnerValue < fval;
+    case "lte":
+      return switchInnerValue <= fval;
+    case "in":
+      const inVal = fval as unknown[];
+      if (Array.isArray(switchInnerValue)) return inVal.some(v => switchInnerValue.some(c => v == c));
+      else return inVal.some(v => v == switchInnerValue);
+    case "between":
+      const betweenVal = fval as any[];
+      return betweenVal[0] <= switchInnerValue && switchInnerValue <= betweenVal[1];
+    case "bool":
+      let boolVal: boolean;
+      if (Array.isArray(switchInnerValue)) boolVal = switchInnerValue.length > 0;
+      else boolVal = Boolean(switchInnerValue);
+      return fval ? boolVal : !boolVal;
+    case "regexp":
+      return (fval as RegExp).test(switchInnerValue);
+    default:
+      return switchInnerValue == fval
+  }
 }
 
 type CommonCondition = filterConditionsAllKeyValue<any, unknown>;

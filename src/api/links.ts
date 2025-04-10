@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
-import { linksFavDataOptions, linksDataOptions } from "@/Env";
+import { linksFavDataOptions, linksDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
@@ -16,7 +16,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-interface SiteLinkServerClassProps extends StorageDataStateClassProps<SiteLinkData> {
+interface SiteLinkServerClassProps extends DataClassProps<SiteLinkData> {
   table?: string;
   album?: string;
 }
@@ -39,7 +39,7 @@ export class SiteLinkServerClass {
   };
   object: DBTableClass<SiteLinkData>;
   album?: string;
-  options: StorageDataStateClassProps<SiteLinkData>;
+  options: DataClassProps<SiteLinkData>;
   constructor({ table, album, ...options }: SiteLinkServerClassProps) {
     if (!table) table = options.key;
     this.object = new DBTableClass({

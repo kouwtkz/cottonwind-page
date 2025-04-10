@@ -15,8 +15,8 @@ export interface SetMetaProps {
   query?: QueryType;
   url?: string;
   charactersMap?: Map<string, CharacterType>;
-  imagesMap?: Map<string, ImageType>;
-  posts?: PostType[];
+  imageItem?: ImageType;
+  post?: PostType | PostDataType | null;
   noindex?: boolean;
   mediaOrigin?: string;
   env?: SiteConfigEnv;
@@ -33,19 +33,33 @@ export function MetaValues({
   path,
   query,
   charactersMap,
-  imagesMap,
-  posts,
+  imageItem,
+  post,
   noindex,
   mediaOrigin,
   env,
 }: SetMetaProps): MetaValuesReturnType {
+  const queryParams = QueryToParams(query) ?? {};
+  if (queryParams.p) noindex = true;
+  const imageParam = queryParams.image;
+  if (imageParam) noindex = true;
+
+  let image = "";
+  let imageSize = { w: 1000, h: 1000 };
+  if (imageItem) {
+    image = concatOriginUrl(mediaOrigin, imageItem.src);
+    if (imageItem.width && imageItem.height) {
+      imageSize = {
+        w: imageItem.width,
+        h: imageItem.height,
+      };
+    }
+  }
   const siteTitle = env?.TITLE;
   let title: string | undefined;
   let description: string | undefined;
-  let image: string | undefined | null;
-  let imageSize = { w: 1000, h: 1000 };
   const list = path.split("/");
-  const queryParams = QueryToParams(query) ?? {};
+
   let isTopPage = false;
   if (queryParams.invite) {
     title = `招待 - ${toUpperFirstCase(queryParams.invite)} | ${siteTitle}`;
@@ -108,11 +122,9 @@ export function MetaValues({
       case "blog":
         noindex = true;
         title = "ブログ | " + siteTitle;
-        const postId = queryParams.postId;
-        const postItem = posts?.find((item) => item.postId === postId);
-        if (postItem) {
-          title = postItem.title + " - " + title;
-          const parsed = String(parse(postItem.body || "", { async: false }))
+        if (post) {
+          title = post.title + " - " + title;
+          const parsed = String(parse(post.body || "", { async: false }))
             .replace(/\<.+\>/g, "")
             .replace(/\s+/g, " ");
           let sliced = parsed.slice(0, 300);
@@ -150,25 +162,12 @@ export function MetaValues({
         title = siteTitle;
         break;
     }
-  if (queryParams.p) noindex = true;
-  const imageParam = queryParams.image;
-  if (imageParam) noindex = true;
   if (imageParam) {
-    const foundImage = imagesMap?.get(imageParam);
-    if (foundImage) {
+    if (imageItem) {
       title =
-        (foundImage.title || foundImage.key) +
-        " | " +
-        (isTopPage ? siteTitle : title);
-      image = concatOriginUrl(mediaOrigin, foundImage.src);
-      if (foundImage.width && foundImage.height) {
-        imageSize = {
-          w: foundImage.width,
-          h: foundImage.height,
-        };
-      }
+        (imageItem.title || imageItem.key) + " | " + (isTopPage ? siteTitle : title);
       const charaListFound = charactersMap
-        ? ((foundImage.tags ?? [])
+        ? ((imageItem.tags ?? [])
             .map((tag) => charactersMap.get(tag))
             .filter((v) => v) as CharacterType[])
         : [];
@@ -178,7 +177,7 @@ export function MetaValues({
       const tagsOptions = autoFixGalleryTagsOptions(
         getTagsOptions(defaultGalleryTags)
       );
-      const content = (foundImage.tags ?? []).find((tag) =>
+      const content = (imageItem.tags ?? []).find((tag) =>
         tagsOptions.some(({ value }) => value === tag)
       );
       let picDescription =
@@ -192,7 +191,7 @@ export function MetaValues({
           tagsOptions.find(({ value }) => value === content)!.label;
       }
       if (picDescription) {
-        switch (foundImage.type?.toLocaleLowerCase()) {
+        switch (imageItem.type?.toLocaleLowerCase()) {
           case "illust":
             picDescription = picDescription + "のイラスト";
             break;
@@ -213,18 +212,14 @@ export function MetaValues({
             break;
         }
       }
-      if (foundImage.description)
+      if (imageItem.description)
         picDescription = picDescription
-          ? foundImage.description + "\n(" + picDescription + ")"
-          : foundImage.description;
+          ? imageItem.description + "\n(" + picDescription + ")"
+          : imageItem.description;
       description = picDescription ? picDescription : title + "の画像詳細";
     }
   }
   if (!description) description = env?.DESCRIPTION ?? env?.OVERVIEW ?? "";
-  if (!image && env?.SITE_IMAGE && imagesMap?.has(env.SITE_IMAGE)) {
-    const imageItem = imagesMap.get(env.SITE_IMAGE)!;
-    image = concatOriginUrl(mediaOrigin, imageItem.src);
-  }
   return {
     title: title || "",
     description,

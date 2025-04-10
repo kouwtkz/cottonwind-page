@@ -32,7 +32,7 @@ export class MeeSqlClass<T> {
         (Array.isArray(orderBy) ? orderBy : [orderBy])
           ?.reduce((a, c) => {
             Object.entries(c).forEach(([k, v]) => {
-              if (a.findIndex((f) => k in f) < 0) {
+              if (a.findIndex((f: any) => k in f) < 0) {
                 if (c) a.push({ [k]: v as OrderByType });
               }
             });
@@ -40,9 +40,9 @@ export class MeeSqlClass<T> {
           }, [] as { [k: string]: OrderByType }[]);
       if (orderByList.length) {
         sql = sql + " ORDER BY "
-          + orderByList.map(e => {
+          + orderByList.map((e: any) => {
             const [k, v] = Object.entries(e)[0];
-            return `\`${k}\` ` + v.toUpperCase();
+            return `\`${k}\` ` + (v as string).toUpperCase();
           }).join(", ");
       }
     }
@@ -317,6 +317,12 @@ function whereToSql<T = any>(where: findWhereType<T>) {
                 case "not":
                   bind.push(v);
                   return `${field} <> ?`;
+                case "has":
+                  if (v) {
+                    return `(${field} IS NOT NULL AND ${field} <> 0 AND ${field} <> '')`;
+                  } else {
+                    return `(${field} IS NULL OR ${field} = 0 OR ${field} = '')`;
+                  }
                 case "like":
                   bind.push(v);
                   return `${field} LIKE ?`;

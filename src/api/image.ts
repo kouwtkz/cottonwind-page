@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromData } from "image-dimensions";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { IsLogin } from "@/admin";
 import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
 import { JoinUnique } from "@/functions/doc/StrFunctions";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { ImageDataOptions } from "@/Env";
+import { ImageDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({

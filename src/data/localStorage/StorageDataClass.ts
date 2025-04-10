@@ -41,7 +41,7 @@ export class StorageDataClass<T extends Object = {}> {
     this.lastmod = lastmod;
     return localStorage.setItem(
       this.key,
-      JSON.stringify({ lastmod, version: this.version, data })
+      JSON.stringify({ lastmod, version: this.version, data } as StorageDataStateJSONProps<T>)
     );
   }
   removeItem() {

@@ -1,6 +1,6 @@
 import { getCountList } from "../arrayFunction";
 
-export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: ImageAlbumEnvType[]) {
+export function getImageAlbumMap(imageAlbumEnv?: ImageAlbumEnvType[], albums?: string[]) {
   const imageAlbumMap = new Map<string, ImageAlbumType>();
   imageAlbumEnv?.forEach((album) => {
     if (album.name && !imageAlbumMap.has(album.name)) {
@@ -11,6 +11,14 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
       });
     }
   });
+  if (albums) albums.forEach(album => {
+    if (!imageAlbumMap.has(album)) imageAlbumMap.set(album, { name: album, list: [] });
+  })
+  return imageAlbumMap;
+}
+
+export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: ImageAlbumEnvType[]) {
+  const imageAlbumMap = getImageAlbumMap(imageAlbumEnv);
   const imagesMap = new Map<string, ImageType>();
   imagesData
     .filter((v) => v.version && v.src)

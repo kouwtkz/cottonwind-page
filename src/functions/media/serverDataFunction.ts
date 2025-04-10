@@ -1,5 +1,5 @@
 import { ImageTableObject } from "@/api/image";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 
 export async function ImageSelectFromKey(db: MeeSqlD1, key: string) {
   return (await ImageTableObject.Select({ db, where: { key }, take: 1 }))[0]

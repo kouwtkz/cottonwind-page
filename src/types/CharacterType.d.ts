@@ -21,7 +21,7 @@ interface CharacterDataType {
   lastmod: string;
 }
 
-interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod"> {
+interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod">, WithRawDataType<CharacterDataType> {
   tags?: string[],
   playlist?: string[],
   draft?: boolean,
@@ -38,4 +38,5 @@ interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "b
   },
 }
 
-type characterImageMode = "icon" | "image" | "headerImage" | "body";
+type characterImageMediaMode = "icon" | "image" | "headerImage";
+type characterImageMode = characterImageMediaMode | "body";

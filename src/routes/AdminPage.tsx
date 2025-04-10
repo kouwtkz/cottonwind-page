@@ -4,16 +4,15 @@ import { Link, useParams } from "react-router-dom";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import {
-  allDataLoadState,
-  DataObjectMap,
-  filesDataObject,
+  useDataState,
+  filesDataIndexed,
   ImportCharacterJson,
   ImportImagesJson,
   ImportKeyValueDBJson,
   ImportLinksJson,
   ImportPostJson,
-  keyValueDBDataObject,
-} from "@/state/DataState";
+  keyValueDBDataIndexed,
+} from "@/data/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
 import { useFiles } from "@/state/FileState";
@@ -39,8 +38,8 @@ import {
   linksFavDataOptions,
   postsDataOptions,
   soundsDataOptions,
-} from "@/Env";
-import { useCharactersMap } from "@/state/CharacterState";
+} from "@/data/DataEnv";
+import { useCharacters } from "@/state/CharacterState";
 import { FormatDate } from "@/functions/DateFunction";
 import { KeyValueEditable } from "@/state/KeyValueDBState";
 
@@ -101,14 +100,11 @@ export function AdminDetailPage({ param }: { param: string }) {
 function FilesManager() {
   const apiOrigin = useApiOrigin()[0];
   const mediaOrigin = useMediaOrigin()[0];
-  const setFilesLoad = filesDataObject.useLoad()[1];
   const [edit, setEdit] = useEditFileID();
-  const files = useFiles()[0];
+  const { files } = useFiles();
   return (
     <>
-      {edit ? (
-        <FilesEdit edit={edit} setEdit={setEdit} dataObject={filesDataObject} />
-      ) : null}
+      {edit ? <FilesEdit edit={edit} setEdit={setEdit} /> : null}
       <RbButtonArea>
         <button
           type="button"
@@ -121,7 +117,7 @@ function FilesManager() {
                 FilesUpload({ send: "/file/send", files, apiOrigin })
               )
               .then(() => {
-                setFilesLoad("no-cache");
+                filesDataIndexed.load("no-cache");
               });
           }}
         >
@@ -188,22 +184,22 @@ interface MediaDownloadProps extends DownloadBaseProps {
 }
 
 function ImageFilesDownload({ take, ...props }: DownloadBaseProps) {
-  const { images } = useImageState();
-  const list = useMemo(
-    () =>
-      findMee(images || [], {
-        orderBy: [{ time: "desc" }],
-        take,
-      }).reduce<string[]>((a, item) => {
-        if (item.src) a.push(item.src);
-        if (item.thumbnail) a.push(item.thumbnail);
-        return a;
-      }, []),
-    [images, take]
-  );
+  // const { imagesData } = useImageState();
+  // const list = useMemo(
+  //   () =>
+  //     findMee(images || [], {
+  //       orderBy: [{ time: "desc" }],
+  //       take,
+  //     }).reduce<string[]>((a, item) => {
+  //       if (item.src) a.push(item.src);
+  //       if (item.thumbnail) a.push(item.thumbnail);
+  //       return a;
+  //     }, []),
+  //   [images, take]
+  // );
   return (
     <MediaDownload
-      list={list}
+      list={[]}
       label="画像"
       name="images"
       take={take}
@@ -213,7 +209,7 @@ function ImageFilesDownload({ take, ...props }: DownloadBaseProps) {
 }
 
 function FilesDownload({ take, ...props }: DownloadBaseProps) {
-  const files = useFiles()[0];
+  const { files } = useFiles();
   const list = useMemo(
     () =>
       findMee(files || [], {
@@ -237,7 +233,7 @@ function FilesDownload({ take, ...props }: DownloadBaseProps) {
 }
 
 function SoundFilesDownload({ take, ...props }: DownloadBaseProps) {
-  const sounds = useSounds()[0];
+  const { sounds } = useSounds();
   const list = useMemo(
     () =>
       findMee(sounds || [], {
@@ -316,8 +312,8 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
 
 function DBPage() {
   const apiOrigin = useApiOrigin()[0];
-  const setAllLoad = allDataLoadState()[1];
-  const charactersMap = useCharactersMap()[0];
+  const { allLoad } = useDataState();
+  const { charactersMap } = useCharacters();
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -327,7 +323,8 @@ function DBPage() {
           href="./"
           onClick={(e) => {
             e.preventDefault();
-            const list = Object.values(Object.fromEntries(DataObjectMap));
+            // const list = Object.values(Object.fromEntries(DataObjectMap));
+            const list = [] as any[];
             const newVersions = list.filter(
               ({ options }) => options.newVersion
             );
@@ -391,7 +388,7 @@ function DBPage() {
                         json,
                         dir: "/fav",
                       });
-                    case keyValueDBDataObject.key:
+                    case keyValueDBDataIndexed.key:
                       return ImportKeyValueDBJson({
                         apiOrigin,
                         json,
@@ -418,7 +415,7 @@ function DBPage() {
                     );
                   })
                   .then(() => {
-                    setAllLoad(true);
+                    allLoad(true);
                   });
               }
             }
@@ -435,7 +432,10 @@ function ScheduleManager() {
   return (
     <>
       <h2 className="color-main en-title-font">Schedule Manager</h2>
-      <KeyValueEditable title="Google Calendar ID の追加設定" editKey="google-calendar-id-2" />
+      <KeyValueEditable
+        title="Google Calendar ID の追加設定"
+        editKey="google-calendar-id-2"
+      />
     </>
   );
 }

@@ -14,10 +14,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useDataIsComplete } from "@/state/StateSet";
 import { MakeRelativeURL } from "@/functions/doc/MakeURL";
 import {
+  useLinks,
   LinksMapType,
+  LinksStateType,
   useFavLinks,
-  useFavLinksMap,
-  useLinksMap,
+  LinksIndexedDBType,
 } from "@/state/LinksState";
 import {
   useApiOrigin,
@@ -41,12 +42,13 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { useImageViewer } from "@/layout/ImageViewer";
 import { Movable } from "@/layout/edit/Movable";
 import {
-  favLinksDataObject,
-  imageDataObject,
-  linksDataObject,
-} from "@/state/DataState";
+  imageDataIndexed,
+  linksDataIndexed,
+  favLinksDataIndexed,
+} from "@/data/DataState";
 import { CompatGalleryButton } from "./edit/ImagesManager";
-import { StorageDataStateClass } from "@/functions/storage/StorageDataStateClass";
+import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
+import { findMee } from "@/functions/find/findMee";
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -163,7 +165,6 @@ export function MyBanners() {
   const album = imageAlbums?.get(myBannerName);
   const { Set: setImageViewer } = useImageViewer();
   const apiOrigin = useApiOrigin()[0];
-  const setImageDataLoad = imageDataObject.useLoad()[1];
   const myBanners = useMemo(() => {
     const list = album?.list.concat() || [];
     list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
@@ -203,7 +204,7 @@ export function MyBanners() {
                       withCredentials: true,
                     })
                     .then(() => {
-                      setImageDataLoad("no-cache");
+                      imageDataIndexed.load("no-cache");
                       setMove(0);
                     }),
                   {
@@ -269,8 +270,8 @@ interface LinksContainerProps
   banner?: boolean;
   dir?: SendLinksDir;
   dropdown?: ReactNode;
-  map?: LinksMapType;
-  dataObject: StorageDataStateClass<SiteLinkData>;
+  state: LinksStateType;
+  indexedDB: LinksIndexedDBType;
   defaultCategories?: string[];
   linkStyle?: CSSProperties;
 }
@@ -280,8 +281,8 @@ function LinksContainer({
   className,
   banner,
   dir = "",
-  map,
-  dataObject,
+  state,
+  indexedDB,
   dropdown,
   defaultCategories,
   linkStyle,
@@ -289,15 +290,21 @@ function LinksContainer({
 }: LinksContainerProps) {
   const send = "links" + dir + "/send";
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
-  const links = useMemo(() => {
-    return map?.get(category || "") || [];
-  }, [map, category]);
+  const links = useMemo(
+    () =>
+      state.links
+        ? findMee(state.links, {
+            where: { category },
+            orderBy: [{ id: "asc", order: "asc" }],
+          })
+        : [],
+    [category, state.links]
+  );
   const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useState(0);
   const isLogin = useIsLogin()[0];
   const apiOrigin = useApiOrigin()[0];
   const isEditable = useLinksEditMode()[0];
-  const setLoad = linksDataObject.useLoad()[1];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
     if (banner) list.push("bannerArea");
@@ -344,9 +351,9 @@ function LinksContainer({
         <div className={className} {...props}>
           {edit ? (
             <LinksEdit
+              state={state}
+              indexedDB={indexedDB}
               send={send}
-              links={links}
-              dataObject={dataObject}
               edit={edit}
               setEdit={setEdit}
               album={album}
@@ -357,9 +364,10 @@ function LinksContainer({
           {title ? <h3 className="leaf">{title || "リンク集"}</h3> : null}
           {isLogin ? (
             <LinksEditButtons
+              state={state}
+              indexedDB={indexedDB}
               setEdit={setEdit}
               album={album}
-              dataObject={dataObject}
               move={move}
               setMove={setMove}
               dropdown={dropdown}
@@ -389,7 +397,7 @@ function LinksContainer({
                           withCredentials: true,
                         })
                         .then(() => {
-                          setLoad("no-cache");
+                          indexedDB.load("no-cache");
                           setMove(0);
                         }),
                       {
@@ -418,26 +426,28 @@ function LinksContainer({
 }
 
 interface MeeLinksProps
-  extends Omit<LinksContainerProps, "send" | "dataObject"> {}
+  extends Omit<
+    LinksContainerProps,
+    "send" | "dataObject" | "state" | "indexedDB"
+  > {}
 export function MeeLinks(props: MeeLinksProps) {
+  const state = useLinks();
   return (
     <LinksContainer
-      map={useLinksMap()[0]}
-      dataObject={linksDataObject}
+      state={state}
+      indexedDB={linksDataIndexed}
       defaultCategories={["commission"]}
       {...props}
     />
   );
 }
-interface FavoriteLinksProps
-  extends Omit<LinksContainerProps, "send" | "dataObject"> {}
-export function FavoriteLinks(props: FavoriteLinksProps) {
+export function FavoriteLinks(props: MeeLinksProps) {
   return (
     <LinksContainer
       title="お気に入りのサイト"
       dir="/fav"
-      map={useFavLinksMap()[0]}
-      dataObject={favLinksDataObject}
+      state={useFavLinks()}
+      indexedDB={favLinksDataIndexed}
       dropdown={
         <CompatGalleryButton
           className="item"

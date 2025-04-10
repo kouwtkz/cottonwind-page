@@ -1,6 +1,13 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { CreateObjectState } from "./CreateState";
-import { imageDataObject, keyValueDBDataObject } from "./DataState";
+import { imageDataIndexed, keyValueDBDataIndexed } from "@/data/DataState";
 import { Modal } from "@/layout/Modal";
 import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
 import {
@@ -15,7 +22,7 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { fileDialog } from "@/components/FileTool";
 import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
 import { ImageMee, ImageMeeProps } from "@/layout/ImageMee";
-import { useImageState, useSelectedImage } from "./ImageState";
+import { useSelectedImage } from "./ImageState";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiParserWithMedia";
 import { TextareaWithPreview } from "@/components/parse/PostTextarea";
@@ -29,16 +36,24 @@ type EditType = "text" | "textarea" | "image";
 
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
-  const data = keyValueDBDataObject.useData()[0];
+  const data = useSyncExternalStore(
+    keyValueDBDataIndexed.subscribe,
+    () => keyValueDBDataIndexed.table
+  );
+
   useEffect(() => {
-    if (data) {
-      const parsedData = data.map(({ private: p, ...props }) => ({
-        private: Boolean(p),
-        ...props,
-      }));
-      Set({
-        kvList: parsedData,
-        kvMap: new Map(parsedData.filter((v) => v.key).map((v) => [v.key!, v])),
+    if (data.db) {
+      data.getAll().then((items) => {
+        const parsedData = items.map(({ private: p, ...props }) => ({
+          private: Boolean(p),
+          ...props,
+        }));
+        Set({
+          kvList: parsedData,
+          kvMap: new Map(
+            parsedData.filter((v) => v.key).map((v) => [v.key!, v])
+          ),
+        });
       });
     }
   }, [data]);
@@ -54,7 +69,7 @@ export const useKeyValueEdit = CreateObjectState<{
   placeholder?: string;
 }>({ edit: null, type: "text" });
 
-const send = keyValueDBDataObject.options.src + "/send";
+const send = keyValueDBDataIndexed.options.src + "/send";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,8 +82,6 @@ function KeyValueEdit() {
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const { imagesMap } = useImageState();
   let {
     edit,
     Set,
@@ -82,7 +95,6 @@ function KeyValueEdit() {
     [placeholder, edit]
   );
   const { kvMap } = useKeyValueDB();
-  const setLoad = keyValueDBDataObject.useLoad()[1];
   const item = useMemo(() => {
     const data = edit ? kvMap?.get(edit) : null;
     return data;
@@ -114,7 +126,7 @@ function KeyValueEdit() {
         .delete(concatOriginUrl(apiOrigin, send), { data: { key: edit } })
         .then(() => {
           toast.success("削除しました");
-          setLoad("no-cache");
+          keyValueDBDataIndexed.load("no-cache");
           Set({ edit: null });
         });
     }
@@ -133,7 +145,7 @@ function KeyValueEdit() {
           withCredentials: true,
         })
         .then(() => {
-          setLoad("no-cache");
+          keyValueDBDataIndexed.load("no-cache");
           Set({ edit: null });
         }),
       {
@@ -160,7 +172,7 @@ function KeyValueEdit() {
           }
         )
         .then((r) => {
-          setLoad("no-cache");
+          keyValueDBDataIndexed.load("no-cache");
         });
       setIsSelectedImage(false);
     }
@@ -236,7 +248,7 @@ function KeyValueEdit() {
                         });
                       })
                       .then(async (r) => {
-                        setImagesLoad("no-cache");
+                        imageDataIndexed.load("no-cache");
                         return r
                           ? ((await r[0].data) as KeyValueType<unknown>)
                           : null;
@@ -255,15 +267,13 @@ function KeyValueEdit() {
                               }
                             )
                             .then((r) => {
-                              setLoad("no-cache");
+                              keyValueDBDataIndexed.load("no-cache");
                             });
                         }
                       });
                   }}
                 >
-                  {values.value && imagesMap ? (
-                    <ImageMee imageItem={imagesMap.get(values.value)} />
-                  ) : null}
+                  <ImageMee imageItem={values.value} />
                 </button>
               </div>
             </>

@@ -68,11 +68,13 @@ export function ImageMee({
   ...attributes
 }: ImageMeeProps) {
   const { imagesMap } = useImageState();
-  const imageItem = useMemo(
-    () =>
-      typeof _imageItem === "string" ? imagesMap?.get(_imageItem) : _imageItem,
-    [_imageItem, imagesMap]
-  );
+  const imageItem = useMemo(() => {
+    if (typeof _imageItem === "string") {
+      return imagesMap?.get(_imageItem) || null;
+    } else {
+      return _imageItem || null;
+    }
+  }, [_imageItem, imagesMap]);
   const mediaOrigin = useMediaOrigin()[0];
   const versionString = useMemo(() => {
     if (imageItem)
@@ -146,8 +148,10 @@ export function ImageMee({
         ? src
         : mode === "thumbnail" && thumbnail
         ? thumbnail
-        : MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
-          src,
+        : imageItem && mode
+        ? MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
+          src
+        : src,
     [imageItem, mode, src, thumbnail, showPng, pngURL]
   );
   const enableTempThumbnail = useMemo(

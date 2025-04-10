@@ -6,7 +6,7 @@ import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
 import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
-import { MeeSqlD1 } from "@/functions/database/MeeSqlD1";
+import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { getCharacterMap } from "@/functions/characterFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
@@ -15,6 +15,7 @@ import { ArrayEnv } from "@/Env";
 import { charaTableObject } from "./api/character";
 import { defaultLang, TITLE_IMAGE_PATH } from "./multilingual/envDef";
 import { DefaultImportScripts } from "./clientScripts";
+import { postsDataOptions } from "./data/DataEnv";
 
 export interface DefaultMetaProps {
   favicon?: string;
@@ -102,18 +103,14 @@ export async function ServerLayout({
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
     c.req.header("user-agent") ?? ""
   );
-  let imagesMap = new Map<string, ImageType>();
-  let posts: PostType[] = [];
+  let image: ImageType | undefined;
+  let post: PostDataType | undefined;
   if (isBot || import.meta.env!.DEV) {
     const db = new MeeSqlD1(env.DB);
-    if (env.SITE_IMAGE) {
-      const data = await ImageSelectFromKey(db, env.SITE_IMAGE);
-      if (data) imagesMap.set(data.key, toImageType(data));
-    }
     if (Url.searchParams.has("image")) {
       const key = Url.searchParams.get("image")!;
       const data = await ImageSelectFromKey(db, key);
-      if (data) imagesMap.set(key, toImageType(data));
+      if (data) image = toImageType(data);
     }
     if (charactersMap) {
       await Promise.all(
@@ -139,7 +136,17 @@ export async function ServerLayout({
         )
       );
     }
-    if (Url.searchParams.has("postId")) posts = await getPostsData(c);
+    if (!image && env.SITE_IMAGE) {
+      const data = await ImageSelectFromKey(db, env.SITE_IMAGE);
+      if (data) image = toImageType(data);
+    }
+    if (Url.searchParams.has("postId"))
+      post = (
+        await db.select<PostDataType>({
+          table: postsDataOptions.key,
+          where: { postId: Url.searchParams.get("postId")! },
+        })
+      )[0];
   }
   return (
     <html lang={defaultLang} className="loading">
@@ -150,8 +157,8 @@ export async function ServerLayout({
           path={c.req.path}
           query={c.req.query()}
           charactersMap={charactersMap}
-          imagesMap={imagesMap}
-          posts={posts}
+          imageItem={image}
+          post={post}
           noindex={noindex}
           mediaOrigin={getMediaOrigin(env, Url.origin, true)}
           env={env}

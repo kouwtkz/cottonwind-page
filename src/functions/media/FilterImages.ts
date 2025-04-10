@@ -42,17 +42,27 @@ export function getTimeframeTag(time: Date | number = new Date()): TimeframeTagT
   else return "midnight"
 }
 
-interface filterPickFixedProps {
-  images: ImageType[];
+interface filterPickFixedBaseProps {
   name: "topImage" | "pickup";
   monthly?: boolean;
 }
 
-export function filterPickFixed({ images, name: kind, monthly = true }: filterPickFixedProps) {
+interface innerFilterPickFixedProps extends filterPickFixedBaseProps {
+  image: ImageType;
+}
+
+export function innerFilterPickFixed({ image, name, monthly = true }: innerFilterPickFixedProps) {
+  return image[name] ||
+    (monthly && monthlyFilter && image[name] !== false
+      && filterTags({ image, tags: monthlyFilter.tags, every: false }))
+}
+
+interface filterPickFixedProps extends filterPickFixedBaseProps {
+  images: ImageType[];
+}
+
+export function filterPickFixed({ images, ...props }: filterPickFixedProps) {
   return images.filter(
-    (image) =>
-      image[kind] ||
-      (monthly && monthlyFilter && image[kind] !== false
-        && filterTags({ image, tags: monthlyFilter.tags, every: false }))
+    (image) => innerFilterPickFixed({ image, ...props })
   )
 }

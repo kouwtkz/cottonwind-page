@@ -1,7 +1,7 @@
 import { HTMLAttributes, useEffect, useMemo, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
 import { useApiOrigin, useEnv } from "@/state/EnvState";
-import { imageDataObject } from "@/state/DataState";
+import { imageDataIndexed } from "@/data/DataState";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useSelectedImage } from "@/state/ImageState";
 import { fileDialog } from "../FileTool";
@@ -281,7 +281,6 @@ export function PostEditSelectMedia({
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
   const apiOrigin = useApiOrigin()[0];
-  const setImagesLoad = imageDataObject.useLoad()[1];
   const [searchParams, setSearchParams] = useSearchParams();
   let { state } = useLocation();
   const selectedImage = useSelectedImage()[0];
@@ -308,7 +307,7 @@ export function PostEditSelectMedia({
             })
           )
           .then((list) => {
-            setImagesLoad("no-cache");
+            imageDataIndexed.load("no-cache");
             return list
               ?.map((r) => r.data as ImageDataType)
               .filter((data) => data);

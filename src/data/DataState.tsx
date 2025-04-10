@@ -1,5 +1,10 @@
-import { useApiOrigin, useIsLogin } from "./EnvState";
-import { useEffect, useState } from "react";
+import { useApiOrigin } from "@/state/EnvState";
+import React, {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 import { jsonFileDialog } from "@/components/FileTool";
 import { toast } from "react-toastify";
 import { getBasename, getName } from "@/functions/doc/PathParse";
@@ -11,15 +16,7 @@ import {
   PromiseOrder,
   PromiseOrderOptions,
 } from "@/functions/arrayFunction";
-import {
-  StorageDataStateClass as SdsClass,
-  StorageDataStateClass,
-} from "@/functions/storage/StorageDataStateClass";
-import { CreateState } from "./CreateState";
-import {
-  compat_v1_v2_ImageDataType,
-  CompatSrcMerge,
-} from "@/routes/edit/compat/SrcMerge";
+import { CreateObjectState } from "@/state/CreateState";
 import {
   toastLoadingOptions,
   toastUpdateOptions,
@@ -37,199 +34,176 @@ import {
   TableVersionDataOptions,
   likeDataOptions,
   KeyValueDBDataOptions,
-} from "@/Env";
+  INDEXEDDB_VERSION,
+  INDEXEDDB_NAME,
+} from "@/data/DataEnv";
+import { MeeIndexedDB, MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
+import { IndexedDataStateClass } from "./IndexedDB/IndexedDataStateClass";
+import { ImageMeeIndexedDBTable } from "./IndexedDB/CustomMeeIndexedDB";
+import { ImageIndexedDataStateClass } from "./IndexedDB/CustomIndexedDataStateClass";
 
-export const tableVersionDataObject = new SdsClass(TableVersionDataOptions);
+export const tableVersionDataObject = new IndexedDataStateClass(
+  TableVersionDataOptions
+);
 
-export const SdsOptionsMap = new Map<string, StorageDataStateClassProps<any>>();
-[
+export const imageDataIndexed = new ImageIndexedDataStateClass(
   ImageDataOptions,
-  charactersDataOptions,
-  postsDataOptions,
-  soundsDataOptions,
-  soundAlbumsDataOptions,
-  filesDataOptions,
-  linksDataOptions,
-  linksFavDataOptions,
-  likeDataOptions,
-  KeyValueDBDataOptions,
-].forEach((options) => {
-  SdsOptionsMap.set(options.key, options);
-});
-
-// テーブルのバージョンをローカルに保存しているものに合わせる
-tableVersionDataObject.storage.data?.forEach(({ key, version }) => {
-  const options = SdsOptionsMap.get(key);
-  if (options && version) {
-    if (options.version !== version) {
-      options.newVersion = options.version;
-      options.version = version;
-    }
-  }
-});
-
-export const imageDataObject = new SdsClass(ImageDataOptions);
-export const charactersDataObject = new SdsClass(charactersDataOptions);
-export const postsDataObject = new StorageDataStateClass(postsDataOptions);
-export const soundsDataObject = new SdsClass(soundsDataOptions);
-export const soundAlbumsDataObject = new SdsClass(soundAlbumsDataOptions);
-export const filesDataObject = new SdsClass(filesDataOptions);
-export const linksDataObject = new SdsClass(linksDataOptions);
-export const favLinksDataObject = new SdsClass<SiteLinkData>(
+  new ImageMeeIndexedDBTable({ options: ImageDataOptions })
+);
+export const charactersDataIndexed = new IndexedDataStateClass(
+  charactersDataOptions
+);
+export const postsDataIndexed = new IndexedDataStateClass(postsDataOptions);
+export const soundsDataIndexed = new IndexedDataStateClass(soundsDataOptions);
+export const soundAlbumsDataIndexed = new IndexedDataStateClass(
+  soundAlbumsDataOptions
+);
+export const filesDataIndexed = new IndexedDataStateClass(filesDataOptions);
+export const linksDataIndexed = new IndexedDataStateClass(linksDataOptions);
+export const favLinksDataIndexed = new IndexedDataStateClass(
   linksFavDataOptions
 );
-export const likeDataObject = new SdsClass(likeDataOptions);
-export const keyValueDBDataObject = new SdsClass(KeyValueDBDataOptions);
-export const kvDBObject = keyValueDBDataObject;
+export const likeDataIndexed = new IndexedDataStateClass(likeDataOptions);
+export const keyValueDBDataIndexed = new IndexedDataStateClass(
+  KeyValueDBDataOptions
+);
+export const KVDataIndexed = keyValueDBDataIndexed;
+
+type anyIdbStateClass = IndexedDataStateClass<any, any, MeeIndexedDBTable<any>>;
+export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
+(
+  [
+    tableVersionDataObject,
+    imageDataIndexed,
+    charactersDataIndexed,
+    postsDataIndexed,
+    soundsDataIndexed,
+    soundAlbumsDataIndexed,
+    filesDataIndexed,
+    linksDataIndexed,
+    favLinksDataIndexed,
+    likeDataIndexed,
+    keyValueDBDataIndexed,
+  ] as anyIdbStateClass[]
+).forEach((item) => {
+  IdbStateClassMap.set(item.options.key, item);
+});
+export const IdbStateClassList = Array.from(IdbStateClassMap.values());
+
+let dbClass: MeeIndexedDB | undefined;
+
+MeeIndexedDB.create({
+  version: INDEXEDDB_VERSION,
+  dbName: INDEXEDDB_NAME,
+  onupgradeneeded(e, db) {
+    IdbStateClassList.map(({ table }) => {
+      table.dbUpgradeneeded(db);
+    });
+  },
+  async onsuccess(db) {
+    await Promise.all(
+      IdbStateClassList.map(async (props) => {
+        await props.dbSuccess(db);
+        await props.setBeforeLastmod();
+      })
+    );
+  },
+}).then((db) => {
+  dbClass = db;
+});
 
 const allDataSrc = "/data/all";
-export const allDataLoadState = CreateState<LoadStateType>(true);
+interface DataStateType {
+  isAllLoad: LoadStateType;
+  allLoad(load?: LoadStateType): void;
+}
+export const useDataState = CreateObjectState<DataStateType>((set) => ({
+  isAllLoad: true,
+  allLoad(load = true) {
+    set({ isAllLoad: load });
+  },
+}));
 
-export const DataObjectList: SdsClass<any>[] = [
-  tableVersionDataObject,
-  imageDataObject,
-  charactersDataObject,
-  postsDataObject,
-  soundsDataObject,
-  soundAlbumsDataObject,
-  filesDataObject,
-  linksDataObject,
-  favLinksDataObject,
-  likeDataObject,
-  keyValueDBDataObject,
-];
-
-export const DataObjectMap = new Map<string, SdsClass<any>>();
-DataObjectList.forEach((obj) => {
-  DataObjectMap.set(obj.key, obj);
-});
-const DataObjectSetMap = new Map<string, setStateFunction<any>>();
-
-export function DataState() {
-  const isLogin = useIsLogin()[0];
-  const [settedIsLogin, setSettedIsLogin] = useState(false);
-  const [isReload, setReload] = useState(false);
-  useEffect(() => {
-    if (typeof isLogin !== "undefined") {
-      DataObjectList.forEach((object) => {
-        object.isLogin = isLogin;
-      });
-      setSettedIsLogin(true);
-    }
-  }, [isLogin]);
-
+export const DataState = React.memo(function DataState() {
   const apiOrigin = useApiOrigin()[0];
-  function SdsClassSetData<T extends object>(dataObject: SdsClass<T>) {
-    const [load, setLoad] = dataObject.useLoad();
-    const setData = dataObject.useData()[1];
-    useEffect(() => {
-      if (settedIsLogin && load && apiOrigin) {
-        dataObject
-          .fetchData({
-            apiOrigin,
-            loadValue: load,
-          })
-          .then(async (data) => {
-            await dataObject.setData({
-              data,
-              setState: setData,
-            });
-          });
-        setLoad(false);
+  const setSearchParamsOptionUrl = useCallback(
+    async (Url: URL, isLoading?: LoadStateType, idb?: anyIdbStateClass) => {
+      function set(obj: anyIdbStateClass) {
+        let prefix: string | undefined;
+        if (!idb) prefix = obj.key;
+        return obj.setSearchParamsOption({
+          searchParams: Url.searchParams,
+          loadValue: isLoading,
+          prefix,
+        });
       }
-    }, [settedIsLogin, apiOrigin, load, setLoad, setData]);
+      if (idb) await set(idb);
+      else await Promise.all(IdbStateClassList.map((obj) => set(obj)));
+      return Url;
+    },
+    []
+  );
+  const getDataFromApi = useCallback(
+    async function <T = any>(
+      src: string,
+      isLoading?: LoadStateType,
+      idb?: anyIdbStateClass
+    ) {
+      let Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
+      Url = await setSearchParamsOptionUrl(Url, isLoading, idb);
+      const cache = IndexedDataStateClass.getCacheOption(isLoading);
+      return await corsFetch(Url.href, {
+        cache: cache !== "no-cache-reload" ? cache : undefined,
+      }).then(async (r) => (await r.json()) as T);
+    },
+    [apiOrigin]
+  );
+  function setEffect(
+    obj: IndexedDataStateClass<any, any, MeeIndexedDBTable<any>>
+  ) {
+    const isSoloLoad = useSyncExternalStore(
+      obj.subscribeToLoad,
+      () => obj.isSoloLoad
+    );
+    useEffect(() => {
+      if (isSoloLoad) {
+        getDataFromApi<any[]>(obj.src, isSoloLoad, obj).then((items) => {
+          obj.setData(items);
+        });
+      }
+    }, [isSoloLoad]);
+    const data = useSyncExternalStore(obj.subscribe, () => obj.table);
+    useEffect(() => {
+      obj.load(false);
+    }, [data]);
   }
-  DataObjectList.forEach((obj) => {
-    SdsClassSetData(obj);
-    DataObjectSetMap.set(obj.key, obj.useData()[1]);
+
+  IdbStateClassList.forEach((obj) => {
+    setEffect(obj);
   });
 
-  const [allLoad, setAllLoad] = allDataLoadState();
+  const { isAllLoad, allLoad } = useDataState();
   useEffect(() => {
-    const isLoading = allLoad || isReload;
-    if (settedIsLogin && apiOrigin && isLoading) {
-      const Url = new URL(
-        concatOriginUrl(apiOrigin || location.origin, allDataSrc)
-      );
-      const cache = SdsClass.getCacheOption(isLoading);
-      function SetSearchParamsOption<T extends object>(
-        dataObject: SdsClass<T>
-      ) {
-        dataObject.setSearchParamsOption({
-          searchParams: Url.searchParams,
-          loadValue: isLoading,
-          prefix: dataObject.key,
-        });
-      }
-      async function SetData<T extends object>(
-        dataObject: SdsClass<T>,
-        v: unknown[] | KeyValueType<unknown>,
-        setState: setStateFunction<T>
-      ) {
-        const data = (Array.isArray(v) ? v : v[dataObject.key]) as T[];
-        await dataObject.setData({
-          data,
-          setState,
-        });
-        return dataObject.setSearchParamsOption({
-          searchParams: Url.searchParams,
-          loadValue: isLoading,
-          prefix: dataObject.key,
-        });
-      }
-      DataObjectList.forEach((object) => {
-        if (isReload && object.options.newVersion) {
-          const nv = object.options.newVersion;
-          object.storage.Version = SdsClass.GetVersion(nv, { isLogin });
-          delete object.options.newVersion;
-        }
-        SetSearchParamsOption(object);
+    if (isAllLoad && apiOrigin) {
+      (async () => {
+        return getDataFromApi<KeyValueType<unknown[]>>(
+          allDataSrc,
+          isAllLoad
+        ).then((items) =>
+          Promise.all(
+            IdbStateClassList.map(async (obj) => {
+              const data = items[obj.key];
+              await obj.setData(data);
+            })
+          )
+        );
+      })().finally(() => {
+        allLoad(false);
       });
-      if (cache) Url.searchParams.set("cache", cache);
-      let enableReload = false;
-      corsFetch(Url.href, {
-        cache: cache !== "no-cache-reload" ? cache : undefined,
-      })
-        .then(async (r) => (await r.json()) as KeyValueType<unknown[]>)
-        .then(async (v) => {
-          const tablesKey = tableVersionDataObject.key;
-          const tableObject = DataObjectMap.get(tablesKey);
-          if (tableObject) {
-            await SetData(tableObject, v, DataObjectSetMap.get(tablesKey)!);
-          }
-          tableVersionDataObject.storage.data?.forEach((item) => {
-            const options = SdsOptionsMap.get(item.key);
-            if (options && options.version !== item.version && !isReload) {
-              enableReload = true;
-            }
-          });
-          const SdsEntry = Object.fromEntries(DataObjectMap);
-          if (tableVersionDataObject.key in SdsEntry)
-            delete SdsEntry[tableVersionDataObject.key];
-          const SdsList = Object.values(SdsEntry);
-          const SetDataList = SdsList.map((obj) =>
-            SetData(obj, v, DataObjectSetMap.get(obj.key)!)
-          );
-          return Promise.all(SetDataList);
-        })
-        .then(() => {
-          setAllLoad(false);
-          if (isReload) setReload(false);
-          else if (enableReload) setReload(true);
-        });
     }
-  }, [
-    isLogin,
-    settedIsLogin,
-    apiOrigin,
-    allLoad,
-    isReload,
-    setReload,
-    setAllLoad,
-    DataObjectMap,
-  ]);
+  }, [isAllLoad, apiOrigin]);
   return <></>;
-}
+});
 
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
@@ -395,24 +369,6 @@ export async function ImportImagesJson({
       });
       object = { version: "0" };
       data = Object.values(Object.fromEntries(dataMap));
-    } else if (version <= 2) {
-      const _json: dataBaseType<compat_v1_v2_ImageDataType> = json;
-      if (version === 1) {
-        await CompatSrcMerge({
-          apiOrigin,
-          data: _json.data,
-          doneClose: 1000,
-        });
-        _json.data?.forEach((v) => {
-          const webpPath = v.webp || v.icon;
-          if (webpPath) v.src = "image/" + getBasename(webpPath);
-          delete v.webp;
-          delete v.icon;
-        });
-      }
-      const { data: _data, ..._entry } = _json;
-      object = _entry;
-      data = _data ? _data.map((d) => ({ title: d.name, ...d })) : [];
     } else {
       const { data: _data, ..._entry } = json as dataBaseType<ImageDataType>;
       object = _entry;

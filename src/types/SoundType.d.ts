@@ -16,7 +16,7 @@ interface SoundDataType {
   lastmod?: string;
 }
 
-interface SoundItemType extends SoundDataType {
+interface SoundItemType extends SoundDataType, WithRawDataType<SoundDataType> {
   genre?: string[];
   grouping?: string[];
   draft?: boolean;
@@ -44,7 +44,7 @@ interface SoundAlbumDataType {
   lastmod?: string;
 }
 
-interface SoundAlbumType extends SoundAlbumDataType {
+interface SoundAlbumType extends SoundAlbumDataType, WithRawDataType<SoundAlbumDataType> {
   playlist?: SoundPlaylistType;
   setup?: boolean;
   draft?: boolean;

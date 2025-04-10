@@ -1,12 +1,21 @@
 import { StorageDataClass } from "./StorageDataClass";
-import { corsFetch } from "../fetch";
-import { setPrefix, setSuffix } from "../stringFix";
+import { corsFetch } from "@/functions/fetch";
+import { setPrefix, setSuffix } from "@/functions/stringFix";
 import { CreateState, CreateStateFunctionType } from "@/state/CreateState";
-import { concatOriginUrl } from "../originUrl";
+import { concatOriginUrl } from "@/functions/originUrl";
+import { SetStateAction } from "react";
+
+type setStateFunction<T> = (args_0: SetStateAction<T[] | undefined>) => void;
+interface storageReadDataProps<T> {
+  data?: T[];
+  setState: setStateFunction<T>;
+  id?: string;
+  lastmod?: string;
+}
 
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
-  options: StorageDataStateClassProps<T>;
+  options: DataClassProps<T>;
   key: string;
   src: string;
   version: string;
@@ -32,13 +41,13 @@ export class StorageDataStateClass<T extends Object = {}> {
     this._isLogin = isLogin;
     this.storage.Version = StorageDataStateClass.GetVersion(this.version, { isLogin: this._isLogin });
   }
-  constructor(options: StorageDataStateClassProps<T>) {
+  constructor(options: DataClassProps<T>) {
     this.options = options;
     const {
       src,
       key,
       version = "1",
-      idField = "id",
+      primary: idField = "id",
       preLoad,
       isLogin,
       latestField,
@@ -60,7 +69,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     searchParams,
     loadValue,
     prefix,
-  }: storageSetSearchParamsOptionProps<T>) {
+  }: DataClassTableSetSearchParamsOptionProps<T>) {
     const { lastmod, data } = this.storage;
     if (!data) loadValue === "no-cache-reload";
     if (loadValue === "no-cache-reload") this.storage.removeItem();
@@ -71,7 +80,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     src = this.src,
     apiOrigin,
     loadValue,
-  }: storageFetchDataProps<T>) {
+  }: DataClassTableFetchDataProps<T>) {
     const Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
     this.setSearchParamsOption({
       searchParams: Url.searchParams,

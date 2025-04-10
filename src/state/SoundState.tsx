@@ -1,63 +1,75 @@
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useSoundPlayer } from "./SoundPlayer";
-import { CreateState } from "./CreateState";
-import { soundAlbumsDataObject, soundsDataObject } from "./DataState";
+import { CreateObjectState, CreateState } from "./CreateState";
+import { soundsDataIndexed, soundAlbumsDataIndexed } from "@/data/DataState";
 import { getSoundAlbumsMap, getSoundsMap } from "@/functions/soundFunction";
+import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 
-export const useSounds = CreateState<SoundItemType[]>();
-export const useSoundsMap = CreateState<Map<string, SoundItemType>>();
-export const useSoundAlbums = CreateState<SoundAlbumType[]>();
-export const useSoundAlbumsMap = CreateState<Map<string, SoundAlbumType>>();
-export const useSoundDefaultPlaylist = CreateState<SoundPlaylistType>();
+interface SoundsStateType {
+  sounds: SoundItemType[];
+  soundsMap: Map<string, SoundItemType>;
+  soundAlbums: SoundAlbumType[];
+  soundAlbumsMap: Map<string, SoundAlbumType>;
+  defaultPlaylist?: SoundPlaylistType;
+  soundsData?: MeeIndexedDBTable<SoundItemType>;
+  soundAlbumsData?: MeeIndexedDBTable<SoundAlbumType>;
+}
+export const useSounds = CreateObjectState<SoundsStateType>({
+  sounds: [],
+  soundsMap: new Map(),
+  soundAlbums: [],
+  soundAlbumsMap: new Map(),
+});
 
 export function SoundState() {
-  const setSounds = useSounds()[1];
-  const setSoundsMap = useSoundsMap()[1];
-  const setSoundAlbums = useSoundAlbums()[1];
-  const setSoundAlbumsMap = useSoundAlbumsMap()[1];
-  const setDefaultPlaylist = useSoundDefaultPlaylist()[1];
-  const data = soundsDataObject.useData()[0];
-  const albumData = soundAlbumsDataObject.useData()[0];
+  const { Set } = useSounds();
+  const soundsData = useSyncExternalStore(
+    soundsDataIndexed.subscribe,
+    () => soundsDataIndexed.table
+  );
+  const soundAlbumsData = useSyncExternalStore(
+    soundAlbumsDataIndexed.subscribe,
+    () => soundAlbumsDataIndexed.table
+  );
   const { RegistPlaylist } = useSoundPlayer();
   useEffect(() => {
-    if (data && albumData) {
-      const soundsMap = getSoundsMap(data);
-      const sounds = Object.values(Object.fromEntries(soundsMap));
-      const soundAlbumsMap = getSoundAlbumsMap(albumData);
-      sounds.forEach((sound) => {
-        if (sound.album) {
-          if (!soundAlbumsMap.has(sound.album)) {
-            soundAlbumsMap.set(sound.album, { key: sound.album });
+    if (soundsData.db && soundAlbumsData) {
+      (async () => {
+        const sounds = await soundsData.getAll();
+        const soundsMap = new Map(sounds.map((v) => [v.key, v]));
+        const soundAlbums = await soundAlbumsData.getAll();
+        const soundAlbumsMap = new Map(soundAlbums.map((v) => [v.key, v]));
+        sounds.forEach((sound) => {
+          if (sound.album) {
+            if (!soundAlbumsMap.has(sound.album)) {
+              soundAlbumsMap.set(sound.album, { key: sound.album });
+            }
+            const album = soundAlbumsMap.get(sound.album)!;
+            if (!album.playlist)
+              album.playlist = { list: [], title: album.title || album.key };
+            album.playlist.list.push(sound);
           }
-          const album = soundAlbumsMap.get(sound.album)!;
-          if (!album.playlist)
-            album.playlist = { list: [], title: album.title || album.key };
-          album.playlist.list.push(sound);
+        });
+        const albums = Object.values(Object.fromEntries(soundAlbumsMap));
+        const defaultPlaylist =
+          albums.find((album) => album.setup && false)?.playlist ||
+          albums[0]?.playlist;
+        Set({
+          soundsData,
+          sounds,
+          soundsMap,
+          soundAlbumsData,
+          soundAlbums,
+          soundAlbumsMap,
+        });
+        if (defaultPlaylist) {
+          Set({ defaultPlaylist });
+          RegistPlaylist({ playlist: defaultPlaylist });
         }
-      });
-      const albums = Object.values(Object.fromEntries(soundAlbumsMap));
-      const defaultPlaylist =
-        albums.find((album) => album.setup && false)?.playlist ||
-        albums[0]?.playlist;
-      setSounds(sounds);
-      setSoundsMap(soundsMap);
-      setSoundAlbums(albums);
-      setSoundAlbumsMap(soundAlbumsMap);
-      if (defaultPlaylist) {
-        setDefaultPlaylist(defaultPlaylist);
-        RegistPlaylist({ playlist: defaultPlaylist });
-      }
+      })();
     }
-  }, [
-    data,
-    albumData,
-    setSounds,
-    setSoundsMap,
-    setSoundAlbums,
-    setSoundAlbumsMap,
-    setDefaultPlaylist,
-    RegistPlaylist,
-  ]);
+  }, [soundsData, soundAlbumsData, RegistPlaylist]);
+  // useEffect(() => {
   //   if (load) {
   //     fetch(url)
   //       .then((r) => r.json())
@@ -77,7 +89,6 @@ export function SoundState() {
   //         ) || { list: [] };
   //         if (setupPlaylist?.list.length > 0) {
   //           const defaultPlaylist = setupPlaylist;
-  //           setDefaultPlaylist(defaultPlaylist);
   //           if (defaultPlaylist) {
   //             const setupSoundIndex = defaultPlaylist?.list.findIndex(
   //               (item) => item.setup

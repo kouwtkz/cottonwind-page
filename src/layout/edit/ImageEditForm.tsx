@@ -20,7 +20,7 @@ import {
   MdOutlineContentCopy,
 } from "react-icons/md";
 import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
-import { useCharacters, useCharactersMap } from "@/state/CharacterState";
+import { useCharacters } from "@/state/CharacterState";
 import { AutoImageItemType } from "@/functions/media/imageFunction";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
 import SetRegister from "@/components/hook/SetRegister";
@@ -34,7 +34,7 @@ import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
 import { getExtension, getName } from "@/functions/doc/PathParse";
-import { imageDataObject } from "@/state/DataState";
+import { imageDataIndexed } from "@/data/DataState";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -112,12 +112,24 @@ const IMAGE_SEND = "/image/send";
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
   const { images, imageAlbums: albums } = useImageState();
-  const setImagesLoad = imageDataObject.useLoad()[1];
-  const copyrightList = useMemo(
-    () => getCountList(images || [], "copyright"),
-    [images]
+  const [copyrightList, setCopyrightList] = useState<ValueCountType[]>([]);
+  const [allTagsOptions, setAllTagsOptions] = useState<ContentsTagsOption[]>(
+    []
   );
-  const characters = useCharacters()[0] || [];
+  useEffect(() => {
+    setCopyrightList(getCountList(images || [], "copyright"));
+    setAllTagsOptions(
+      getCountList(images || [], "tags").map(
+        (v) =>
+          ({
+            label: `${v.value} (${v.count})`,
+            value: v.value,
+          } as ContentsTagsOption)
+      )
+    );
+  }, [images]);
+
+  const { charactersData } = useCharacters();
   const apiOrigin = useApiOrigin()[0];
   const mediaOrigin = useMediaOrigin()[0];
 
@@ -138,7 +150,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const files = useFiles()[0];
+  const { files } = useFiles();
   const embedList = useMemo(() => {
     const list = (files || []).concat();
     list.sort(
@@ -165,26 +177,22 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     { enableOnFormTags: true }
   );
 
-  const charaLabelTags = useMemo(() => {
-    return characters.map(({ name, key: id }) => ({
-      label: name,
-      value: id,
-    }));
-  }, [characters]);
+  const [charaLabelTags, setCharaLabelTags] = useState<ContentsTagsOption[]>(
+    []
+  );
+  useEffect(() => {
+    charactersData?.getAll().then((characters) => {
+      setCharaLabelTags(
+        characters.map(({ name, key: id }) => ({
+          label: name,
+          value: id,
+        }))
+      );
+    });
+  }, [charactersData]);
   const simpleDefaultTags = useMemo(
     () => autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
     [defaultGalleryTags]
-  );
-  const allTagsOptions = useMemo(
-    () =>
-      getCountList(images || [], "tags").map(
-        (v) =>
-          ({
-            label: `${v.value} (${v.count})`,
-            value: v.value,
-          } as ContentsTagsOption)
-      ),
-    [images]
   );
   const unregisteredTagsOptions = useMemo(
     () =>
@@ -284,7 +292,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         searchParams.set("image", fields.rename);
         setSearchParams(searchParams, { replace: true });
       }
-      setImagesLoad("no-cache");
+      imageDataIndexed.load("no-cache");
       return true;
     } else {
       toast.error(res.statusText, {
@@ -340,7 +348,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ({ value }) => ({ label: value, value } as ContentsTagsOption)
     )
   );
-  const charactersMap = useCharactersMap()[0];
+  const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
   }, [charactersMap]);
@@ -508,7 +516,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      setImagesLoad("no-cache");
+                      imageDataIndexed.load("no-cache");
                     });
               }}
             >
@@ -531,7 +539,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      setImagesLoad("no-cache");
+                      imageDataIndexed.load("no-cache");
                     });
               }}
             >
@@ -545,7 +553,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
                   repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
                     () => {
-                      setImagesLoad("no-cache");
+                      imageDataIndexed.load("no-cache");
                       toast(
                         "サムネイルを設定しました",
                         toastLoadingShortOptions

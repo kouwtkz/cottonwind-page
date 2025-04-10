@@ -1,8 +1,15 @@
 import { usePosts } from "@/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { findMee } from "@/functions/find/findMee";
+import { findMee, setWhere } from "@/functions/find/findMee";
 import { useLocalDraftPost } from "@/routes/edit/PostForm";
-import { HTMLAttributes, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "@/functions/doc/MakeURL";
@@ -65,7 +72,6 @@ export function PostsPage({
   postId?: string;
 }) {
   const page = Number(p);
-  const posts = usePosts()[0];
   const take = postId ? undefined : 10;
   const { localDraft, getLocalDraft } = useLocalDraftPost();
   const isLogin = useIsLogin()[0];
@@ -74,6 +80,12 @@ export function PostsPage({
     getLocalDraft();
   }, [isLogin, getLocalDraft]);
 
+  let { posts } = usePosts();
+  posts = useMemo(() => {
+    if (posts) {
+      return findMee(posts, setWhere(q, { text: { key: "body" } }));
+    }
+  }, [posts, q]);
   const {
     posts: postsResult,
     max,
@@ -82,7 +94,6 @@ export function PostsPage({
     const result = getPosts({
       posts: posts || [],
       page,
-      q,
       take,
       common: !isLogin,
     });
