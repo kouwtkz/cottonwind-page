@@ -91,7 +91,7 @@ import { ObjectIndexedDBDownloadButton } from "@/components/button/ObjectDownloa
 import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "@/Env";
-import { useLikeStateUpdated } from "@/state/LikeState";
+import { useLikeState, useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/multilingual/LangState";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
@@ -1156,21 +1156,15 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
   const searchParams = useSearchParams()[0];
   const filterParam = searchParams.get("filter");
   const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
-  const likeData = useSyncExternalStore(
-    likeDataIndexed.subscribe,
-    () => likeDataIndexed.table
-  );
-  const [hasLikeChecked, setHasLikeChecked] = useState(false);
-  useEffect(() => {
-    likeData
-      .find({
-        where: { AND: [{ checked: true, path: { startsWith: "?image=" } }] },
-        take: 1,
-      })
-      .then((result) => {
-        setHasLikeChecked(result.length > 0);
-      });
-  }, [likeData]);
+  const { likeCategoryMap } = useLikeState();
+  const hasLikeChecked = useMemo(() => {
+    const imageLikeMap = likeCategoryMap?.get("image");
+    return imageLikeMap
+      ? findMee(Array.from(imageLikeMap.values()), { where: { checked: true } })
+          .length > 0
+      : false;
+  }, [likeCategoryMap]);
+
   const tags = useMemo(() => {
     const filterOptions: ContentsTagsOption[] = [];
     if (likeWhere || hasLikeChecked)

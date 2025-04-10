@@ -36,7 +36,7 @@ export function ImageState() {
   useEffect(() => {
     if (imagesData.db && !imageDataIndexed.isLoading && likeCategoryMap) {
       imagesData.getAll().then((images) => {
-        const imagesLikeData = likeCategoryMap.get("character");
+        const imagesLikeData = likeCategoryMap.get("image");
         images.forEach((image) => {
           if (imagesLikeData?.has(image.key))
             image.like = imagesLikeData.get(image.key)!;
