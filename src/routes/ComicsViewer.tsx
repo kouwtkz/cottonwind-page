@@ -6,7 +6,7 @@ import ComicViewer from "react-comic-viewer";
 import { useSearchParams } from "react-router-dom";
 import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { useFilesMap } from "@/state/FileState";
+import { useFiles } from "@/state/FileState";
 import { findMee } from "@/functions/find/findMee";
 
 interface ePubMetadataType {
@@ -61,7 +61,7 @@ export function EPubViewer({ src }: { src: string }) {
   const [metadata, setMetadata] = useState<ePubMetadataType | null>(null);
   const backRenderElm = useRef<HTMLDivElement>(null);
   const mediaOrigin = useMediaOrigin()[0];
-  const filesMap = useFilesMap()[0];
+  const { filesMap } = useFiles();
   const url = useMemo(() => {
     const file = filesMap?.get(src);
     return file?.src ? concatOriginUrl(mediaOrigin, file.src) : undefined;

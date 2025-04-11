@@ -17,7 +17,6 @@ interface FilesState {
   filesData?: MeeIndexedDBTable<FilesRecordType>;
 }
 export const useFiles = CreateObjectState<FilesState>();
-export const useFilesMap = CreateState<Map<string, FilesRecordType>>();
 
 export default function FileState() {
   const filesData = useSyncExternalStore(
@@ -58,13 +57,14 @@ interface EmbedNodeProps extends HTMLAttributes<HTMLDivElement> {
 export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
   const [element, setElement] = useState<string>();
   const mediaOrigin = useMediaOrigin()[0];
-  const filesMap = useFilesMap()[0];
+  const { filesMap } = useFiles();
   useEffect(() => {
     if (embed && mediaOrigin) {
       if (embed.includes("</")) {
         setElement(embed);
       } else {
         const file = filesMap?.get(embed);
+        console.log(file, filesMap, embed);
         if (file) {
           const url = concatOriginUrl(mediaOrigin, file.src);
           fetch(url)

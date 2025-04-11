@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   createSearchParams,
   Link,
@@ -27,12 +27,11 @@ import {
 } from "react-icons/ri";
 import { useCharacters } from "@/state/CharacterState";
 import { useImageState } from "@/state/ImageState";
-import { useDataIsComplete } from "@/state/StateSet";
 import { useHotkeys } from "react-hotkeys-hook";
 import { scrollLock } from "@/components/hook/ScrollLock";
 import { useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { EmbedNode, useFilesMap } from "@/state/FileState";
+import { EmbedNode, useFiles } from "@/state/FileState";
 import ShareButton from "@/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "@/components/button/LikeButton";
@@ -71,13 +70,11 @@ interface InfoAreaProps {
 }
 function InfoArea({ image }: InfoAreaProps) {
   const { imageAlbums } = useImageState();
-  const albumObject = image.album ? imageAlbums.get(image.album) : null;
-  // const [isComplete] = useDataIsComplete();
+  const albumObject = image.album ? imageAlbums?.get(image.album) : null;
   const { setClose } = useImageViewer();
-  const searchParams = useSearchParams()[0];
   const { isEdit: stateIsEdit } = useImageEditState();
   const stateIsEditHold = useImageEditSwitchHold()[0];
-  const { charactersData } = useCharacters();
+  const { charactersMap } = useCharacters();
   const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
@@ -87,23 +84,13 @@ function InfoArea({ image }: InfoAreaProps) {
     getTagsOptions(defaultGalleryTags)
   );
   const tags = image.tags ?? [];
-  const [charaTags, setCharaTags] = useState<CharacterType[]>();
-  useEffect(() => {
-    if (image.characters && charactersData) {
-      charactersData.usingStore({
-        callback: async (store) => {
-          await Promise.all(
-            image.characters!.map((tag) =>
-              charactersData.get({ index: "key", query: tag, store })
-            )
-          ).then((tags) => {
-            const charaTags = tags.filter((v) => v) as CharacterType[];
-            setCharaTags(charaTags);
-          });
-        },
-      });
+  const charaTags = useMemo(() => {
+    if (image.characters && charactersMap) {
+      return image
+        .characters!.map((tag) => charactersMap.get(tag)!)
+        .filter((v) => v);
     }
-  }, [image.characters, charactersData]);
+  }, [image.characters, charactersMap]);
   const registeredTags = tags.filter((tag) =>
     tagsOptions.some(({ value }) => value === tag)
   );
@@ -242,6 +229,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
   function MediaOrigin(src?: string) {
     return concatOriginUrl(mediaOrigin, src);
   }
+  console.log(image);
   const imageUrl = useMemo(() => image.src || "", [image]);
   return (
     <div className="preview">
@@ -329,7 +317,7 @@ function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
     else title = "ダウンロードする";
   }
   const mediaOrigin = useMediaOrigin()[0];
-  const filesMap = useFilesMap()[0];
+  const { filesMap } = useFiles();
   const url = useMemo(() => {
     const src = embed ? filesMap?.get(embed)?.src : undefined;
     if (src !== undefined) return concatOriginUrl(mediaOrigin, src);
