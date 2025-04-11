@@ -95,7 +95,7 @@ import { useLikeState, useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/multilingual/LangState";
 import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
-import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;

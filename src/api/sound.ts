@@ -13,7 +13,7 @@ export const app = new Hono<MeeBindings<MeeCommonEnv>>({
 });
 
 const TableObject = new DBTableClass<SoundDataType>({
-  table: soundsDataOptions.key,
+  table: soundsDataOptions.name,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -36,7 +36,7 @@ const TableObject = new DBTableClass<SoundDataType>({
 });
 
 const AlbumTableObject = new DBTableClass<SoundAlbumDataType>({
-  table: soundAlbumsDataOptions.key,
+  table: soundAlbumsDataOptions.name,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },

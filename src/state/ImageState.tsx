@@ -6,9 +6,9 @@ import {
 } from "@/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "@/Env";
-import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/CustomMeeIndexedDB";
 import { findMee } from "@/functions/find/findMee";
 import { useLikeState } from "./LikeState";
+import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/IndexedDataLastmodMH";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -34,7 +34,7 @@ export function ImageState() {
     () => imageDataIndexed.table
   );
   useEffect(() => {
-    if (imagesData.db && !imageDataIndexed.isLoading && likeCategoryMap) {
+    if (imagesData.db && !imageDataIndexed.isBusy && likeCategoryMap) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
         images.forEach((image) => {

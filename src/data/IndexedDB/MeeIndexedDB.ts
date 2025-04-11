@@ -9,7 +9,7 @@ export class MeeIndexedDB implements Props_MeeIndexedDB {
   onsuccess?: onsuccessFunction;
   static asyncRequest<R>(request: IDBRequest<R>) {
     return new Promise<R>((res, rej) => {
-      request.onerror = () => {
+      request.onerror = (e) => {
         rej(e);
       };
       request.onsuccess = (e) => {
@@ -70,11 +70,15 @@ export class MeeIndexedDB implements Props_MeeIndexedDB {
   }
 }
 
-export class MeeIndexedDBTable<T> implements Props_MeeIndexedDBTable<T> {
-  db; options; tableName;
-  props: Props_MeeIndexedDBTable_Constructor<T>;
+export class MeeIndexedDBTable<T> {
+  db?: IDBDatabase;
+  options: Props_MeeIndexedDBTable_Options<T>;
+  constructor(options: Props_MeeIndexedDBTable_Options<T>, db?: IDBDatabase) {
+    this.db = db;
+    this.options = options;
+  }
   dbUpgradeneeded(db: IDBDatabase) {
-    const objectStore = db.createObjectStore(this.tableName, { keyPath: this.options.primary?.toString() || "id" });
+    const objectStore = db.createObjectStore(this.options.name, { keyPath: this.options.primary?.toString() || "id" });
     this.options.secondary?.forEach((secondary) => {
       const name = secondary.toString();
       objectStore.createIndex(name, name, { unique: false });
@@ -83,17 +87,11 @@ export class MeeIndexedDBTable<T> implements Props_MeeIndexedDBTable<T> {
   dbSuccess(db: IDBDatabase) {
     this.db = db;
   }
-  constructor(props: Props_MeeIndexedDBTable_Constructor<T>) {
-    this.props = props;
-    this.db = props.db;
-    this.options = props.options;
-    this.tableName = props.tableName || props.options.key;
-  }
   async clone() {
-    return new MeeIndexedDBTable({ ...this.props, db: this.db });
+    return new MeeIndexedDBTable(this.options, this.db);
   }
   async usingTransaction({ mode = "readonly", callback }: Props_MeeIndexedDB_UsingTransaction) {
-    const transaction = this.db?.transaction(this.tableName, mode)
+    const transaction = this.db?.transaction(this.options.name, mode)
     if (transaction) {
       try {
         await callback(transaction);
@@ -104,7 +102,7 @@ export class MeeIndexedDBTable<T> implements Props_MeeIndexedDBTable<T> {
     }
   }
   getStore(transaction: IDBTransaction) {
-    return transaction.objectStore(this.tableName);
+    return transaction.objectStore(this.options.name);
   }
   async usingStore<C>({ callback, mode, store }: Props_MeeIndexedDB_UsingStore<C>) {
     let result: C | undefined;
@@ -121,7 +119,7 @@ export class MeeIndexedDBTable<T> implements Props_MeeIndexedDBTable<T> {
   }
   static asyncRequest<R>(request: IDBRequest<R>) {
     return new Promise<R>((res, rej) => {
-      request.onerror = () => {
+      request.onerror = (e) => {
         rej(e);
       };
       request.onsuccess = (e) => {

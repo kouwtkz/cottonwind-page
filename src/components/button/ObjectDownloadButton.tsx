@@ -2,7 +2,7 @@ import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass
 import { HTMLAttributes, ReactNode, Ref } from "react";
 import { fileDownload } from "../FileTool";
 import { RiDownloadFill } from "react-icons/ri";
-import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 
 export function JsonFromDataObject<T>({
@@ -54,7 +54,7 @@ export function DownloadDataObject<T>({
 }
 
 export async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
-  indexedDB: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>
+  indexedDB: IndexedDataLastmodMH<T, any, MeeIndexedDBTable<T>>
 ) {
   const data = (await indexedDB.table.getAll()).map((v) =>
     v.rawdata ? v.rawdata : v
@@ -71,7 +71,7 @@ export function DownloadIndexedDBObject<T extends WithRawDataType<any>>({
   name,
 }: {
   name?: string;
-  indexedDB: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>;
+  indexedDB: IndexedDataLastmodMH<T, any, MeeIndexedDBTable<T>>;
 }) {
   getIndexedDBJsonOptions(indexedDB).then((data) => {
     DownloadDataObject({ ...data, name });
@@ -140,7 +140,7 @@ export function ObjectDownloadButton<T extends WithRawDataType<any>>({
 
 interface ObjectIndexedDBDownloadButtonProps<T>
   extends Omit<ObjectDownloadButtonProps<T>, "onClick" | "options"> {
-  indexedDB?: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>;
+  indexedDB?: IndexedDataLastmodMH<T, any, MeeIndexedDBTable<T>>;
 }
 export function ObjectIndexedDBDownloadButton<T extends WithRawDataType<any>>({
   indexedDB,

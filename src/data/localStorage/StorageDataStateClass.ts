@@ -15,7 +15,7 @@ interface storageReadDataProps<T> {
 
 export class StorageDataStateClass<T extends Object = {}> {
   storage: StorageDataClass<T[]>;
-  options: DataClassProps<T>;
+  options: Props_LastmodMHClass<T>;
   key: string;
   src: string;
   version: string;
@@ -41,7 +41,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     this._isLogin = isLogin;
     this.storage.Version = StorageDataStateClass.GetVersion(this.version, { isLogin: this._isLogin });
   }
-  constructor(options: DataClassProps<T>) {
+  constructor(options: Props_LastmodMHClass<T>) {
     this.options = options;
     const {
       src,
@@ -69,7 +69,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     searchParams,
     loadValue,
     prefix,
-  }: DataClassTableSetSearchParamsOptionProps<T>) {
+  }: Props_LastmodMH_SetSearchParamsOption<T>) {
     const { lastmod, data } = this.storage;
     if (!data) loadValue === "no-cache-reload";
     if (loadValue === "no-cache-reload") this.storage.removeItem();
@@ -80,7 +80,7 @@ export class StorageDataStateClass<T extends Object = {}> {
     src = this.src,
     apiOrigin,
     loadValue,
-  }: DataClassTableFetchDataProps<T>) {
+  }: Props_LastmodMH_FetchData<T>) {
     const Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
     this.setSearchParamsOption({
       searchParams: Url.searchParams,

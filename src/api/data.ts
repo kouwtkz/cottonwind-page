@@ -61,7 +61,7 @@ app.get("*", async (c, next) => {
 
 function apps(
   ...list: [
-    options: DataClassProps<any>,
+    options: Props_LastmodMHClass_Options<any>,
     (arg0: GetDataProps) => Promise<any>
   ][]
 ) {
@@ -86,11 +86,11 @@ function apps(
     return c.json(
       Object.fromEntries(
         await Promise.all(
-          list.map(async ([{ key }, getData]) => [
-            key,
+          list.map(async ([{ name }, getData]) => [
+            name,
             await getData(
               {
-                searchParams: new URLSearchParams(getDataWithoutPrefix(key, query)),
+                searchParams: new URLSearchParams(getDataWithoutPrefix(name, query)),
                 db,
                 isLogin,
                 req: c.req
@@ -118,7 +118,7 @@ apps(
 );
 
 app.post("/tables/update", async (c) => {
-  const list: DataClassProps<any>[] = [
+  const list: Props_LastmodMHClass_Options<any>[] = [
     charactersDataOptions,
     linksFavDataOptions,
     filesDataOptions,
@@ -140,7 +140,7 @@ app.post("/tables/update", async (c) => {
         if (await db.exists({ table })) { oldKey = table; break; }
       }
       if (oldKey) {
-        await db.renameTable({ from: oldKey, table: options.key, drop: true });
+        await db.renameTable({ from: oldKey, table: options.name, drop: true });
       }
     }
     await UpdateTablesDataObject({ db, options, lastmod });

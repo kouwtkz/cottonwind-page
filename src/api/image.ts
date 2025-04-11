@@ -20,7 +20,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<ImageDataType>({
-  table: ImageDataOptions.key,
+  table: ImageDataOptions.name,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },

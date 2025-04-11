@@ -19,7 +19,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<LikeDataType>({
-  table: likeDataOptions.key,
+  table: likeDataOptions.name,
   createEntry: {
     path: { primary: true, type: "TEXT" },
     count: { default: 0, notNull: true },

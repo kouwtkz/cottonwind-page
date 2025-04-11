@@ -17,7 +17,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<KeyValueDBType>({
-  table: KeyValueDBDataOptions.key,
+  table: KeyValueDBDataOptions.name,
   createEntry: {
     key: { primary: true, type: "TEXT" },
     value: { type: "TEXT" },

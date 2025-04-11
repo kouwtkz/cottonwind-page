@@ -1,8 +1,8 @@
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
 export const INDEXEDDB_VERSION: number = 1;
 
-export const ImageDataOptions: DataClassProps<ImageType, ImageDataType> = {
-  key: "images",
+export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
+  name: "images",
   src: "/images",
   version: "3.2.0",
   preLoad: false,
@@ -12,8 +12,8 @@ export const ImageDataOptions: DataClassProps<ImageType, ImageDataType> = {
   convert: { date: ["time", "lastmod", "mtime"], array: ["tags", "copyright", "characters"], boolean: ["draft"] }
 }
 
-export const charactersDataOptions: DataClassProps<CharacterType, CharacterDataType> = {
-  key: "characters",
+export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, CharacterDataType> = {
+  name: "characters",
   src: "/characters",
   version: "1.5.1",
   preLoad: false,
@@ -23,8 +23,8 @@ export const charactersDataOptions: DataClassProps<CharacterType, CharacterDataT
   convert: { date: ["lastmod", "time", "birthday"], array: ["tags", "playlist"], boolean: ["draft"] }
 }
 
-export const postsDataOptions: DataClassProps<PostType, PostDataType> = {
-  key: "posts",
+export const postsDataOptions: Props_LastmodMHClass_Options<PostType, PostDataType> = {
+  name: "posts",
   src: "/posts",
   version: "1.4.1",
   preLoad: false,
@@ -35,8 +35,8 @@ export const postsDataOptions: DataClassProps<PostType, PostDataType> = {
   convert: { date: ["time", "lastmod"], array: ["category"], boolean: ["draft", "noindex"] }
 }
 
-export const soundsDataOptions: DataClassProps<SoundItemType, SoundDataType> = {
-  key: "sounds",
+export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, SoundDataType> = {
+  name: "sounds",
   src: "/sounds",
   version: "1.3.2",
   preLoad: false,
@@ -46,8 +46,8 @@ export const soundsDataOptions: DataClassProps<SoundItemType, SoundDataType> = {
   convert: { date: ["lastmod"], array: ["genre", "grouping"], boolean: ["draft"] }
 }
 
-export const soundAlbumsDataOptions: DataClassProps<SoundAlbumType, SoundAlbumDataType> = {
-  key: "soundAlbums",
+export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType, SoundAlbumDataType> = {
+  name: "soundAlbums",
   src: "/soundAlbums",
   version: "1.3.2",
   preLoad: false,
@@ -55,8 +55,8 @@ export const soundAlbumsDataOptions: DataClassProps<SoundAlbumType, SoundAlbumDa
   convert: { date: ["lastmod"], boolean: ["draft"] }
 }
 
-export const filesDataOptions: DataClassProps<FilesRecordType, FilesRecordDataType> = {
-  key: "files",
+export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordType, FilesRecordDataType> = {
+  name: "files",
   src: "/files",
   version: "1.3.1",
   preLoad: false,
@@ -66,8 +66,8 @@ export const filesDataOptions: DataClassProps<FilesRecordType, FilesRecordDataTy
 
 const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromDataObjectOptionFields<keyof SiteLinkData>;
 
-export const linksDataOptions: DataClassProps<SiteLink, SiteLinkData> = {
-  key: "links",
+export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
+  name: "links",
   src: "/links",
   version: "1.0.1",
   preLoad: false,
@@ -77,8 +77,8 @@ export const linksDataOptions: DataClassProps<SiteLink, SiteLinkData> = {
   convert: { date: ["lastmod"], boolean: ["draft"] }
 }
 
-export const linksFavDataOptions: DataClassProps<SiteLink, SiteLinkData> = {
-  key: "linksFav",
+export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
+  name: "linksFav",
   src: "/links/fav",
   version: "1.0.3",
   preLoad: false,
@@ -90,8 +90,8 @@ export const linksFavDataOptions: DataClassProps<SiteLink, SiteLinkData> = {
 
 }
 
-export const likeDataOptions: DataClassProps<LikeType, LikeDataType> = {
-  key: "likeData",
+export const likeDataOptions: Props_LastmodMHClass_Options<LikeType, LikeDataType> = {
+  name: "likeData",
   src: "/like",
   version: "1.0.1",
   preLoad: false,
@@ -101,8 +101,8 @@ export const likeDataOptions: DataClassProps<LikeType, LikeDataType> = {
 
 }
 
-export const KeyValueDBDataOptions: DataClassProps<KeyValueDBType, KeyValueDBDataType> = {
-  key: "KeyValueDB",
+export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBType, KeyValueDBDataType> = {
+  name: "KeyValueDB",
   src: "/kvdb",
   version: "1.2.0",
   preLoad: false,
@@ -111,8 +111,8 @@ export const KeyValueDBDataOptions: DataClassProps<KeyValueDBType, KeyValueDBDat
   convert: { date: ["lastmod"], boolean: ["private"] }
 }
 
-export const TableVersionDataOptions: DataClassProps<TableVersionEntryType, TableVersionEntryDataType> = {
-  key: "tables",
+export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data> = {
+  name: "tables",
   src: "/tables",
   version: "1.0.1",
   primary: "key",

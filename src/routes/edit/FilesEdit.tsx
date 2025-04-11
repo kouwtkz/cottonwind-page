@@ -16,7 +16,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
 
 const SEND_FILES = "/file/send";
 

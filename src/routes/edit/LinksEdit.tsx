@@ -44,7 +44,7 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { RiImageAddFill } from "react-icons/ri";
 import { useSelectedImage } from "@/state/ImageState";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
 import {
   LinksIndexedDBType,
   LinksStateType,
@@ -52,7 +52,7 @@ import {
 } from "@/state/LinksState";
 import { findMee } from "@/functions/find/findMee";
 
-type fileIndexedDBType = IndexedDataStateClass<
+type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
   FilesRecordDataType,
   MeeIndexedDBTable<FilesRecordType>

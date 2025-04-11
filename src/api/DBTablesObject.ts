@@ -3,7 +3,7 @@ import { DBTableClass } from "./DBTableClass";
 import { TableVersionDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 
-export const TableObject = new DBTableClass<TableVersionEntryDataType>({
+export const TableObject = new DBTableClass<Props_LastmodMH_Tables_Data>({
   table: "tables",
   createEntry: {
     key: { primary: true, type: "TEXT" },
@@ -15,7 +15,7 @@ export const TableObject = new DBTableClass<TableVersionEntryDataType>({
 });
 interface UpdateTablesDataObjectProps {
   db: MeeSqlD1;
-  options: DataClassTableVersionProps;
+  options: Props_LastmodMH_TableVersion;
   lastmod?: string;
   viewSql?: boolean;
 }
@@ -26,19 +26,19 @@ export async function UpdateTablesDataObject({
   ...args
 }: UpdateTablesDataObjectProps) {
   const value = (
-    await TableObject.Select({ db, where: { key: options.key }, ...args })
+    await TableObject.Select({ db, where: { name: options.name }, ...args })
   )[0];
   if (!value) {
     await TableObject.Insert({
       db,
-      entry: { key: options.key, version: options.version },
+      entry: { name: options.name, version: options.version },
       ...args,
     });
   } else if (value.version !== options.version) {
     await TableObject.Update({
       db,
       where: {
-        key: options.key,
+        name: options.name,
       },
       entry: {
         version: options.version,

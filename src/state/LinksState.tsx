@@ -3,9 +3,9 @@ import { CreateObjectState, CreateState } from "./CreateState";
 import { favLinksDataIndexed, linksDataIndexed } from "@/data/DataState";
 import { useImageState } from "./ImageState";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataStateClass } from "@/data/IndexedDB/IndexedDataStateClass";
+import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
 
-export type LinksIndexedDBType = IndexedDataStateClass<
+export type LinksIndexedDBType = IndexedDataLastmodMH<
   SiteLink,
   SiteLinkData,
   MeeIndexedDBTable<SiteLink>

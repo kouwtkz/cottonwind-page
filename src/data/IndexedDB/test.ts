@@ -1,8 +1,7 @@
 import { MeeIndexedDB } from "./MeeIndexedDB";
 import { importfromStorageData } from "./ConvertToMeeIndexedData";
 import { ImageDataOptions, INDEXEDDB_NAME, INDEXEDDB_VERSION } from "../DataEnv";
-import { ImageMeeIndexedDBTable } from "./CustomMeeIndexedDB";
-import { ImageIndexedDataStateClass } from "./CustomIndexedDataStateClass";
+import { ImageMeeIndexedDBTable, ImageIndexedDataStateClass } from "./IndexedDataLastmodMH";
 
 export const imageDataIndexed = new ImageIndexedDataStateClass(
   ImageDataOptions,

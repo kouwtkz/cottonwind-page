@@ -11,7 +11,7 @@ export const app = new Hono<MeeBindings<MeeCommonEnv>>({
 });
 
 const TableObject = new DBTableClass<CharacterDataType>({
-  table: charactersDataOptions.key,
+  table: charactersDataOptions.name,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },

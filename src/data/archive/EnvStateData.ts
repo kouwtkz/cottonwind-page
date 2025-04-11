@@ -76,7 +76,7 @@ export const KeyValueDBDataOptions: Props_DataStateOptions<KeyValueDBDataType> =
   versionOnServer: 1,
 }
 
-export const TableVersionDataOptions: Props_DataStateOptions<TableVersionEntryDataType> = {
+export const TableVersionDataOptions: Props_DataStateOptions<Props_LastmodMH_Tables_Data> = {
   key: "tables",
   src: "/tables",
   version: 1,

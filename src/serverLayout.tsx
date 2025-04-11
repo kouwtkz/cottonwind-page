@@ -143,7 +143,7 @@ export async function ServerLayout({
     if (Url.searchParams.has("postId"))
       post = (
         await db.select<PostDataType>({
-          table: postsDataOptions.key,
+          table: postsDataOptions.name,
           where: { postId: Url.searchParams.get("postId")! },
         })
       )[0];

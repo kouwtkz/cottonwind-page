@@ -49,9 +49,9 @@ export async function convertToMeeIndexedData<T, D = T>({ item: v, convert }: Pr
 
 interface Props_importfromStorageData<T, D = T> extends Omit<Props_SaveConvertMeeIndexedFromData<T, D>, "data"> { }
 export function importfromStorageData<T, D = T>(props: Props_importfromStorageData<T, D>) {
-  const storageString = localStorage.getItem(props.table.options.key);
+  const storageString = localStorage.getItem(props.table.options.name);
   if (storageString) {
-    const storageJson = JSON.parse(storageString) as StorageDataStateJSONProps<T[]>;
+    const storageJson = JSON.parse(storageString) as Props_StorageDataState_JSON<T[]>;
     if (storageJson) return saveConvertMeeIndexedFromData({ ...props, data: storageJson.data });
   }
 }

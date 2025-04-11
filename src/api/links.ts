@@ -16,7 +16,7 @@ app.use("*", async (c, next) => {
   else return c.text("403 Forbidden", 403)
 });
 
-interface SiteLinkServerClassProps extends DataClassProps<SiteLinkData> {
+interface SiteLinkServerClassProps extends Props_LastmodMHClass_Options<SiteLink, SiteLinkData> {
   table?: string;
   album?: string;
 }
@@ -39,9 +39,9 @@ export class SiteLinkServerClass {
   };
   object: DBTableClass<SiteLinkData>;
   album?: string;
-  options: DataClassProps<SiteLinkData>;
+  options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>;
   constructor({ table, album, ...options }: SiteLinkServerClassProps) {
-    if (!table) table = options.key;
+    if (!table) table = options.name;
     this.object = new DBTableClass({
       table,
       ...SiteLinkServerClass.template
@@ -60,7 +60,7 @@ export class SiteLinkServerClass {
     if (id) wheres.push({ id: Number(id) });
     async function Select() {
       return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...ThisObject.getFillNullEntry, draft: v.draft } : v));
+        .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...ThisObject.getFillNullEntry, draft: v.draft } : v));
     }
     return Select().catch(() => ThisObject.CreateTable({ db })
       .then(() => UpdateTablesDataObject({ db, options: linksDataOptions }))
@@ -112,7 +112,7 @@ export class SiteLinkServerClass {
           for (const item of list) {
             await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
           }
-          await TablesDataObject.Update({ db, where: { key: this.options.key }, entry: { version: this.options.version, lastmod } });
+          await TablesDataObject.Update({ db, where: { name: this.options.name }, entry: { version: this.options.version, lastmod } });
           return c.text("インポートしました！")
         }
       }

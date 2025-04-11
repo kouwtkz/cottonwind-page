@@ -12,7 +12,7 @@ export const app = new Hono<MeeBindings<MeeCommonEnv>>({
 });
 
 const TableObject = new DBTableClass<FilesRecordDataType>({
-  table: filesDataOptions.key,
+  table: filesDataOptions.name,
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },

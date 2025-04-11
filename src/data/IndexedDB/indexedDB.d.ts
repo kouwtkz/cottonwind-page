@@ -1,3 +1,5 @@
+type Type_MeeIndexedDB_Event = "update";
+
 interface Props_DataStateOptions<T> {
   key: string;
   src?: string;
@@ -24,13 +26,18 @@ interface Props_MeeIndexedDB_Using extends Props_MeeIndexedDB {
   callback(indexdedClass: MeeIndexedDB, db: IDBDatabase): void | Promise<void>;
 }
 
-interface Props_MeeIndexedDBTable<T, T = D> {
-  db?: IDBDatabase;
-  tableName: string;
-  options: DataClassProps<T, D>
+interface Props_MeeIndexedDBTable_Options<T> {
+  name: string;
+  primary?: keyof T | "id" | "rowid";
+  secondary?: Array<keyof T>;
 }
 
-interface Props_MeeIndexedDBTable_Constructor<T>
-  extends Omit<Props_MeeIndexedDBTable<T>, "tableName"> {
-  tableName?: string;
+interface Props_MeeIndexedDBTable_Options_WithArg<T> extends Props_MeeIndexedDBTable_Options<T> {
+  defaultBusy?: boolean;
+}
+
+interface Props_IndexedDataClass_Save<T = any> {
+  data: T[];
+  callback?(item: T): any | Promise<any>;
+  store?: IDBObjectStore;
 }

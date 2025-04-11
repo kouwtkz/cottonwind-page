@@ -38,38 +38,40 @@ import {
   INDEXEDDB_NAME,
 } from "@/data/DataEnv";
 import { MeeIndexedDB, MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
-import { IndexedDataStateClass } from "./IndexedDB/IndexedDataStateClass";
-import { ImageMeeIndexedDBTable } from "./IndexedDB/CustomMeeIndexedDB";
-import { ImageIndexedDataStateClass } from "./IndexedDB/CustomIndexedDataStateClass";
+import {
+  ImageIndexedDataStateClass,
+  ImageMeeIndexedDBTable,
+  IndexedDataLastmodMH,
+} from "@/data/IndexedDB/IndexedDataLastmodMH";
 
-export const tableVersionDataIndexed = new IndexedDataStateClass(
+export const tableVersionDataIndexed = new IndexedDataLastmodMH(
   TableVersionDataOptions
 );
 
 export const imageDataIndexed = new ImageIndexedDataStateClass(
   ImageDataOptions,
-  new ImageMeeIndexedDBTable({ options: ImageDataOptions })
+  new ImageMeeIndexedDBTable(ImageDataOptions)
 );
-export const charactersDataIndexed = new IndexedDataStateClass(
+export const charactersDataIndexed = new IndexedDataLastmodMH(
   charactersDataOptions
 );
-export const postsDataIndexed = new IndexedDataStateClass(postsDataOptions);
-export const soundsDataIndexed = new IndexedDataStateClass(soundsDataOptions);
-export const soundAlbumsDataIndexed = new IndexedDataStateClass(
+export const postsDataIndexed = new IndexedDataLastmodMH(postsDataOptions);
+export const soundsDataIndexed = new IndexedDataLastmodMH(soundsDataOptions);
+export const soundAlbumsDataIndexed = new IndexedDataLastmodMH(
   soundAlbumsDataOptions
 );
-export const filesDataIndexed = new IndexedDataStateClass(filesDataOptions);
-export const linksDataIndexed = new IndexedDataStateClass(linksDataOptions);
-export const favLinksDataIndexed = new IndexedDataStateClass(
+export const filesDataIndexed = new IndexedDataLastmodMH(filesDataOptions);
+export const linksDataIndexed = new IndexedDataLastmodMH(linksDataOptions);
+export const favLinksDataIndexed = new IndexedDataLastmodMH(
   linksFavDataOptions
 );
-export const likeDataIndexed = new IndexedDataStateClass(likeDataOptions);
-export const keyValueDBDataIndexed = new IndexedDataStateClass(
+export const likeDataIndexed = new IndexedDataLastmodMH(likeDataOptions);
+export const keyValueDBDataIndexed = new IndexedDataLastmodMH(
   KeyValueDBDataOptions
 );
 export const KVDataIndexed = keyValueDBDataIndexed;
 
-type anyIdbStateClass = IndexedDataStateClass<any, any, MeeIndexedDBTable<any>>;
+type anyIdbStateClass = IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>;
 export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
 (
   [
@@ -86,7 +88,7 @@ export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
     keyValueDBDataIndexed,
   ] as anyIdbStateClass[]
 ).forEach((item) => {
-  IdbStateClassMap.set(item.options.key, item);
+  IdbStateClassMap.set(item.options.name, item);
 });
 export const IdbStateClassList = Array.from(IdbStateClassMap.values());
 
@@ -151,7 +153,7 @@ export const DataState = React.memo(function DataState() {
     ) {
       let Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
       Url = await setSearchParamsOptionUrl(Url, isLoading, idb);
-      const cache = IndexedDataStateClass.getCacheOption(isLoading);
+      const cache = IndexedDataLastmodMH.getCacheOption(isLoading);
       return await corsFetch(Url.href, {
         cache: cache !== "no-cache-reload" ? cache : undefined,
       }).then(async (r) => (await r.json()) as T);
@@ -159,16 +161,16 @@ export const DataState = React.memo(function DataState() {
     [apiOrigin]
   );
   function setEffect(
-    obj: IndexedDataStateClass<any, any, MeeIndexedDBTable<any>>
+    obj: IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>
   ) {
     const isSoloLoad = useSyncExternalStore(
       obj.subscribeToLoad,
-      () => obj.isSoloLoad
+      () => obj.isLoad
     );
     useEffect(() => {
       if (isSoloLoad) {
         getDataFromApi<any[]>(obj.src, isSoloLoad, obj).then((items) => {
-          obj.setData(items);
+          obj.save({ data: items });
         });
       }
     }, [isSoloLoad]);
@@ -193,7 +195,7 @@ export const DataState = React.memo(function DataState() {
           Promise.all(
             IdbStateClassList.map(async (obj) => {
               const data = items[obj.key];
-              await obj.setData(data);
+              await obj.save({ data });
             })
           )
         );
@@ -279,7 +281,7 @@ interface DataUploadBaseProps {
   json?: any;
 }
 interface DataUploadCommonProps extends DataUploadBaseProps {
-  options: DataClassProps<any>;
+  options: Props_LastmodMHClass_Options<any>;
 }
 export async function ImportCommonJson({
   options,

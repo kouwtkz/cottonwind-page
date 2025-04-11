@@ -332,8 +332,8 @@ function DBPage() {
             (async function () {
               const currentVersionMap = new Map(
                 (
-                  await tableIndexed.find({ where: { key: { not: "tables" } } })
-                ).map((v) => [v.key, v])
+                  await tableIndexed.find({ where: { name: { not: "tables" } } })
+                ).map((v) => [v.name, v])
               );
               const newVersions = findMee(IdbStateClassList, {
                 where: { key: { not: "tables" } },
@@ -375,29 +375,29 @@ function DBPage() {
                       name: object.key + "_" + FormatDate(currentDate, "Ymd"),
                     });
                     switch (object.key) {
-                      case ImageDataOptions.key:
+                      case ImageDataOptions.name:
                         return ImportImagesJson({
                           apiOrigin,
                           charactersMap,
                           overwrite: true,
                           json,
                         });
-                      case charactersDataOptions.key:
+                      case charactersDataOptions.name:
                         return ImportCharacterJson({
                           apiOrigin,
                           json,
                         });
-                      case postsDataOptions.key:
+                      case postsDataOptions.name:
                         return ImportPostJson({
                           apiOrigin,
                           json,
                         });
-                      case linksDataOptions.key:
+                      case linksDataOptions.name:
                         return ImportLinksJson({
                           apiOrigin,
                           json,
                         });
-                      case linksFavDataOptions.key:
+                      case linksFavDataOptions.name:
                         return ImportLinksJson({
                           apiOrigin,
                           json,

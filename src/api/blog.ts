@@ -15,7 +15,7 @@ app.use("*", async (c, next) => {
 });
 
 const TableObject = new DBTableClass<PostDataType>({
-  table: postsDataOptions.key,
+  table: postsDataOptions.name,
   createEntry: {
     id: { primary: true },
     postId: { type: "TEXT", unique: true, notNull: true },
