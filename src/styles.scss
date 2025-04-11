@@ -845,6 +845,11 @@ html.loading {
   }
 }
 
+%auto-phrase {
+  word-break: normal;
+  word-break: auto-phrase;
+}
+
 %line-none {
   text-decoration-line: none;
   &.underline {
@@ -2826,7 +2831,7 @@ label,
         font-size: 1.25em;
         line-height: 1.25em;
         margin: 1em 0.5em 0.5em;
-        word-break: keep-all;
+        @extend %auto-phrase;
       }
       & > * {
         margin: 0.25rem;
@@ -3806,7 +3811,7 @@ form.blogEdit {
   --fc-today-bg-color: var(--main-color-pale-fluo);
   --fc-page-bg-color: var(--background-bw);
   .fc-event a {
-    word-break: keep-all;
+    @extend %auto-phrase;
   }
   .fc-day-sat {
     --fc-non-business-color: rgba(95, 146, 240, 0.132);
@@ -3858,7 +3863,7 @@ form.blogEdit {
   }
   .fc-toolbar {
     .fc-toolbar-title {
-      word-break: keep-all;
+      @extend %auto-phrase;
       font-size: 1.2em;
     }
     &.fc-header-toolbar {
@@ -3937,6 +3942,7 @@ form.blogEdit {
     padding-top: 1.5rem;
     padding-bottom: 2rem;
     h2 {
+      @extend %auto-phrase;
       font-size: 1.75em;
       min-height: 3.5em;
       margin: 0 1em;
@@ -3949,7 +3955,7 @@ form.blogEdit {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      word-break: keep-all;
+      @extend %auto-phrase;
       > div {
         display: flex;
       }
@@ -4071,7 +4077,8 @@ form.blogEdit {
     }
     @media (max-width: #{$mobileWidth - 1}) {
       h2 {
-        margin: 0 1em;
+        margin: 0;
+        text-align: center;
       }
       div.time {
         padding-top: 0.5em;
