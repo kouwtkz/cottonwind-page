@@ -8,7 +8,7 @@ import {
   filesDataIndexed,
   ImportCharacterJson,
   ImportImagesJson,
-  ImportKeyValueDBJson,
+  ImportCommonJson,
   ImportLinksJson,
   ImportPostJson,
   keyValueDBDataIndexed,
@@ -35,6 +35,7 @@ import {
 import {
   charactersDataOptions,
   ImageDataOptions,
+  KeyValueDBDataOptions,
   linksDataOptions,
   linksFavDataOptions,
   postsDataOptions,
@@ -403,7 +404,8 @@ function DBPage() {
                           dir: "/fav",
                         });
                       case keyValueDBDataIndexed.key:
-                        return ImportKeyValueDBJson({
+                        return ImportCommonJson({
+                          options: KeyValueDBDataOptions,
                           apiOrigin,
                           json,
                         });

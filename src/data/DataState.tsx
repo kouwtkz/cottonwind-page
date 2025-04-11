@@ -278,6 +278,31 @@ interface DataUploadBaseProps {
   partition?: number;
   json?: any;
 }
+interface DataUploadCommonProps extends DataUploadBaseProps {
+  options: DataClassProps<any>;
+}
+export async function ImportCommonJson({
+  options,
+  apiOrigin,
+  partition,
+  json,
+}: DataUploadCommonProps) {
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+    let object: importEntryDataType<KeyValueDBDataType>;
+    let data: KeyValueDBDataType[];
+    const { data: _data, ..._entry } = json as dataBaseType<KeyValueDBDataType>;
+    object = _entry;
+    data = _data ? _data : [];
+    const fetchList = makeImportFetchList({
+      apiOrigin,
+      src: options.src + "/import",
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(fetchList);
+  });
+}
 
 interface makeImportFetchListProps<T = unknown> extends DataUploadBaseProps {
   src: string;
@@ -502,28 +527,6 @@ export async function ImportLinksJson({
     const fetchList = makeImportFetchList({
       apiOrigin,
       src: `/links${dir}/import`,
-      partition,
-      data,
-      object,
-    });
-    return ImportToast(fetchList);
-  });
-}
-
-export async function ImportKeyValueDBJson({
-  apiOrigin,
-  partition,
-  json,
-}: DataUploadBaseProps = {}) {
-  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
-    let object: importEntryDataType<KeyValueDBDataType>;
-    let data: KeyValueDBDataType[];
-    const { data: _data, ..._entry } = json as dataBaseType<KeyValueDBDataType>;
-    object = _entry;
-    data = _data ? _data : [];
-    const fetchList = makeImportFetchList({
-      apiOrigin,
-      src: KeyValueDBDataOptions.src + "/import",
       partition,
       data,
       object,

@@ -1,5 +1,6 @@
 import { fileDialog } from "@/components/FileTool";
 import {
+  ImportCommonJson,
   soundAlbumsDataIndexed,
   soundsDataIndexed,
   UploadToast,
@@ -24,6 +25,7 @@ import { DropdownButton } from "@/components/dropdown/DropdownButton";
 import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
 import { useSounds } from "@/state/SoundState";
+import { soundsDataOptions } from "@/data/DataEnv";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];
@@ -50,12 +52,12 @@ export function SoundEditButton() {
         >
           サウンドJSONデータのダウンロード
         </ObjectIndexedDBDownloadButton>
-        {/* <GalleryImportButton
+        <SoundsImportButton
           className="squared item"
           icon={<TbDatabaseImport />}
         >
           サウンドJSONデータのインポート
-        </GalleryImportButton> */}
+        </SoundsImportButton>
       </DropdownButton>
       <Link
         to={switchEditModeLink}
@@ -88,7 +90,7 @@ export function SoundEditButton() {
   );
 }
 
-export function GalleryImportButton({
+export function SoundsImportButton({
   overwrite = true,
   ...props
 }: ImportObjectButtonProps) {
@@ -97,9 +99,9 @@ export function GalleryImportButton({
     <ObjectCommonButton
       {...props}
       onClick={() => {
-        // ImportSoundJson({ apiOrigin }).then(() => {
-        //   soundsDataIndexed.load("no-cache-reload");
-        // });
+        ImportCommonJson({ options: soundsDataOptions, apiOrigin }).then(() => {
+          soundsDataIndexed.load("no-cache-reload");
+        });
       }}
     />
   );
@@ -116,14 +118,10 @@ export async function SoundsUpload(args: UploadBaseProps) {
 export const useEditSoundKey = CreateState<string | null>(null);
 export function SoundEdit() {
   const [edit, setEdit] = useEditSoundKey();
-  const { soundsData } = useSounds();
-  const [dataItem, setDataItem] = useState<SoundItemType>();
-  useEffect(() => {
-    if (edit)
-      soundsData?.get({ index: "key", query: edit }).then((item) => {
-        setDataItem(item);
-      });
-  }, [soundsData, edit]);
+  const { soundsMap } = useSounds();
+  const dataItem = useMemo(() => {
+    if (edit) return soundsMap.get(edit);
+  }, [soundsMap, edit]);
   const apiOrigin = useApiOrigin()[0];
   const {
     register,
@@ -198,14 +196,10 @@ export function SoundEdit() {
 export const useEditSoundAlbumKey = CreateState<string | null>(null);
 export function SoundAlbumEdit() {
   const [edit, setEdit] = useEditSoundAlbumKey();
-  const { soundAlbumsData } = useSounds();
-  const [item, setDataItem] = useState<SoundAlbumType>();
-  useEffect(() => {
-    if (edit)
-      soundAlbumsData?.get({ index: "key", query: edit }).then((item) => {
-        setDataItem(item);
-      });
-  }, [soundAlbumsData, edit]);
+  const { soundAlbumsMap } = useSounds();
+  const item = useMemo(() => {
+    if (edit) return soundAlbumsMap.get(edit);
+  }, [soundAlbumsMap, edit]);
   const apiOrigin = useApiOrigin()[0];
   const {
     register,
