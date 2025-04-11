@@ -20,7 +20,7 @@ import {
 } from "react-router-dom";
 import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
-import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiParserWithMedia";
+import { MultiParser } from "@/components/parse/MultiParser";
 import {
   RiFileCopyLine,
   RiLink,
@@ -260,14 +260,14 @@ export function CalendarMeeState({
         calendarList.map(async ({ id, private: p, list }) => {
           return id && googleApiKey
             ? eventsFetch({
-              id,
-              key: googleApiKey,
-              start: syncRange.start,
-              end: syncRange.end,
-              private: p,
-            }).then((data) => {
-              return data.items;
-            })
+                id,
+                key: googleApiKey,
+                start: syncRange.start,
+                end: syncRange.end,
+                private: p,
+              }).then((data) => {
+                return data.items;
+              })
             : (async () => list || [])();
         })
       )
@@ -664,12 +664,12 @@ export function CalendarMeeEventViewer({
     () =>
       startDate
         ? formatDate(startDate, {
-          locale: defaultLang,
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          weekday: "narrow",
-        })
+            locale: defaultLang,
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            weekday: "narrow",
+          })
         : "",
     [startDate]
   );
@@ -677,10 +677,10 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && !event.allDay
         ? formatDate(startDate, {
-          locale: defaultLang,
-          hour: "numeric",
-          minute: "numeric",
-        })
+            locale: defaultLang,
+            hour: "numeric",
+            minute: "numeric",
+          })
         : "",
     [startDate, event?.allDay]
   );
@@ -723,10 +723,10 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && endDate && !event.allDay
         ? formatDate(endDate, {
-          locale: defaultLang,
-          hour: "numeric",
-          minute: "numeric",
-        })
+            locale: defaultLang,
+            hour: "numeric",
+            minute: "numeric",
+          })
         : "",
     [startDate, endDate, event?.allDay]
   );
@@ -942,12 +942,12 @@ export function CalendarMeeEventViewer({
               </h5>
             ) : null}
             <div className="description">
-              <MultiParser>{event.description}</MultiParser>
+              <MultiParser only={{ toDom: true }}>
+                {event.description}
+              </MultiParser>
             </div>
             <div className="absoluteCorner bottom right">
-              {enableCountdown ?
-                <SwitchNotificationButton /> : null
-              }
+              {enableCountdown ? <SwitchNotificationButton /> : null}
               {RightBottomComponent ? (
                 <RightBottomComponent event={event} />
               ) : null}
@@ -1020,7 +1020,7 @@ export const CountDown = memo(function CountDown({
   const onTheDayTime = useMemo(
     () =>
       ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
-      1000 +
+        1000 +
       date.getMilliseconds(),
     [date]
   );
