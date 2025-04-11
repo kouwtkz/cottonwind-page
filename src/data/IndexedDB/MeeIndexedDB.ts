@@ -158,57 +158,50 @@ export class MeeIndexedDBTable<T> implements Props_MeeIndexedDBTable<T> {
     }) || [];
   }
   async find({ store, where, index, orderBy, query = null, direction, take, skip, callback }: Props_MeeIndexedDB_Find<T> = {}): Promise<T[]> {
-    const base = this;
-    const primary = base.options.primary?.toString() || "id";
     const enableSkip = typeof skip === "number";
     const surfaceWhereMap = new Map<string, findWhereType<T>>(Object.entries(where || {}));
-    if (surfaceWhereMap.size === 1 && surfaceWhereMap.has(primary)) {
-      const result = await this.get({ store, query: surfaceWhereMap.get(primary) as string, index });
-      return (result ? (Array.isArray(result) ? result : [result]) : []);
-    } else {
-      if (!direction && orderBy && index) {
-        if ((index in orderBy[0])) {
-          const value = orderBy.shift()!;
-          const order: OrderByType = (value as any)[index];
-          if (order === "desc") direction = "prev";
-        }
+    if (!direction && orderBy && index) {
+      if ((index in orderBy[0])) {
+        const value = orderBy.shift()!;
+        const order: OrderByType = (value as any)[index];
+        if (order === "desc") direction = "prev";
       }
-      return await this.usingStore({
-        store,
-        async callback(store) {
-          const indexed = MeeIndexedDBTable.storeIndex(store, index);
-          return await new Promise((res, rej) => {
-            const values: T[] = [];
-            const request = indexed.openCursor(query, direction);
-            let i = 0;
-            request.onsuccess = (e) => {
-              const cursor = request.result;
-              if (cursor) {
-                const value: T = cursor.value;
-                if (surfaceWhereMap.size === 0 || (findMeeWheresFilter(value, where) && (callback ? callback(value) : true))) {
-                  i++;
-                  if (enableSkip && skip >= i) {
-                    cursor.continue();
-                  } else {
-                    values.push(value);
-                    if (take && values.length >= take) {
-                      res(values);
-                    } else cursor.continue();
-                  }
-                } else cursor.continue();
-              } else {
-                res(values);
-              }
-            };
-            request.onerror = (e) => { rej(e) }
-          })
-        },
-      }).then((v) => {
-        const list = v as T[];
-        if (orderBy) findMeeSort({ orderBy, list })
-        return list;
-      }) || [];
     }
+    return await this.usingStore({
+      store,
+      async callback(store) {
+        const indexed = MeeIndexedDBTable.storeIndex(store, index);
+        return await new Promise((res, rej) => {
+          const values: T[] = [];
+          const request = indexed.openCursor(query, direction);
+          let i = 0;
+          request.onsuccess = (e) => {
+            const cursor = request.result;
+            if (cursor) {
+              const value: T = cursor.value;
+              if (surfaceWhereMap.size === 0 || (findMeeWheresFilter(value, where) && (callback ? callback(value) : true))) {
+                i++;
+                if (enableSkip && skip >= i) {
+                  cursor.continue();
+                } else {
+                  values.push(value);
+                  if (take && values.length >= take) {
+                    res(values);
+                  } else cursor.continue();
+                }
+              } else cursor.continue();
+            } else {
+              res(values);
+            }
+          };
+          request.onerror = (e) => { rej(e) }
+        })
+      },
+    }).then((v) => {
+      const list = v as T[];
+      if (orderBy) findMeeSort({ orderBy, list })
+      return list;
+    }) || [];
   }
   async put({ value, store }: Props_MeeIndexedDB_Put) {
     return this.usingAsyncRequest({

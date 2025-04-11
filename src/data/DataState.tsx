@@ -42,7 +42,7 @@ import { IndexedDataStateClass } from "./IndexedDB/IndexedDataStateClass";
 import { ImageMeeIndexedDBTable } from "./IndexedDB/CustomMeeIndexedDB";
 import { ImageIndexedDataStateClass } from "./IndexedDB/CustomIndexedDataStateClass";
 
-export const tableVersionDataObject = new IndexedDataStateClass(
+export const tableVersionDataIndexed = new IndexedDataStateClass(
   TableVersionDataOptions
 );
 
@@ -73,7 +73,7 @@ type anyIdbStateClass = IndexedDataStateClass<any, any, MeeIndexedDBTable<any>>;
 export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
 (
   [
-    tableVersionDataObject,
+    tableVersionDataIndexed,
     imageDataIndexed,
     charactersDataIndexed,
     postsDataIndexed,

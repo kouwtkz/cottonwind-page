@@ -53,7 +53,7 @@ export function DownloadDataObject<T>({
   );
 }
 
-async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
+export async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
   indexedDB: IndexedDataStateClass<T, any, MeeIndexedDBTable<T>>
 ) {
   const data = (await indexedDB.table.getAll()).map((v) =>

@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
 import { Link, useParams } from "react-router-dom";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
@@ -12,6 +12,8 @@ import {
   ImportLinksJson,
   ImportPostJson,
   keyValueDBDataIndexed,
+  tableVersionDataIndexed,
+  IdbStateClassList,
 } from "@/data/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
@@ -20,7 +22,6 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { ImagesManager } from "./edit/ImagesManager";
 import { AiFillEdit } from "react-icons/ai";
 import { LinkButton } from "@/components/button/LinkButton";
-import { useImageState } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { useToastProgress } from "@/state/ToastProgress";
 import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
@@ -29,7 +30,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import {
   DownloadDataObject,
-  JsonFromDataObject,
+  getIndexedDBJsonOptions,
 } from "@/components/button/ObjectDownloadButton";
 import {
   charactersDataOptions,
@@ -37,11 +38,11 @@ import {
   linksDataOptions,
   linksFavDataOptions,
   postsDataOptions,
-  soundsDataOptions,
 } from "@/data/DataEnv";
 import { useCharacters } from "@/state/CharacterState";
 import { FormatDate } from "@/functions/DateFunction";
 import { KeyValueEditable } from "@/state/KeyValueDBState";
+import { useImageState } from "@/state/ImageState";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -184,22 +185,22 @@ interface MediaDownloadProps extends DownloadBaseProps {
 }
 
 function ImageFilesDownload({ take, ...props }: DownloadBaseProps) {
-  // const { imagesData } = useImageState();
-  // const list = useMemo(
-  //   () =>
-  //     findMee(images || [], {
-  //       orderBy: [{ time: "desc" }],
-  //       take,
-  //     }).reduce<string[]>((a, item) => {
-  //       if (item.src) a.push(item.src);
-  //       if (item.thumbnail) a.push(item.thumbnail);
-  //       return a;
-  //     }, []),
-  //   [images, take]
-  // );
+  const { images } = useImageState();
+  const list = useMemo(
+    () =>
+      findMee(images || [], {
+        orderBy: [{ time: "desc" }],
+        take,
+      }).reduce<string[]>((a, item) => {
+        if (item.src) a.push(item.src);
+        if (item.thumbnail) a.push(item.thumbnail);
+        return a;
+      }, []),
+    [images, take]
+  );
   return (
     <MediaDownload
-      list={[]}
+      list={list}
       label="画像"
       name="images"
       take={take}
@@ -314,6 +315,10 @@ function DBPage() {
   const apiOrigin = useApiOrigin()[0];
   const { allLoad } = useDataState();
   const { charactersMap } = useCharacters();
+  const tableIndexed = useSyncExternalStore(
+    tableVersionDataIndexed.subscribe,
+    () => tableVersionDataIndexed.table
+  );
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -323,102 +328,112 @@ function DBPage() {
           href="./"
           onClick={(e) => {
             e.preventDefault();
-            // const list = Object.values(Object.fromEntries(DataObjectMap));
-            const list = [] as any[];
-            const newVersions = list.filter(
-              ({ options }) => options.newVersion
-            );
-            if (newVersions.length === 0) {
-              toast("データベースは最新です");
-            } else {
-              const count = newVersions.length;
-              const strList = newVersions.map((v) => v.key).join(", ");
-              let updateString = `データベースのテーブルの更新が${count}件(${strList})あります！\n`;
-              const needAlterTableList = newVersions.filter((v) => {
-                const m = v.options.version.match(/\d+.\d+/);
-                const nm = v.options.newVersion!.match(/\d+.\d+/);
-                return m && nm && m[0] !== nm[0];
-              });
-              const currentDate = new Date();
-              if (needAlterTableList.length > 0) {
-                const count = needAlterTableList.length;
-                const strList = needAlterTableList.map((v) => v.key).join(", ");
-                updateString =
-                  updateString +
-                  `そのうち${count}件(${strList})は` +
-                  `テーブルを作り直す必要があります。\n` +
-                  "（バックアップ用のダウンロードも行います）\n";
-              }
-              if (
-                confirm(
-                  updateString + "データベースのテーブルを全て更新しますか？"
-                )
-              ) {
-                const list = needAlterTableList.map(async (dataObject) => {
-                  DownloadDataObject(dataObject, {
-                    name: dataObject.key + "_" + FormatDate(currentDate, "Ymd"),
-                  });
-                  const json = JsonFromDataObject(dataObject);
-                  switch (dataObject.key) {
-                    case ImageDataOptions.key:
-                      return ImportImagesJson({
-                        apiOrigin,
-                        charactersMap,
-                        overwrite: true,
-                        json,
-                      });
-                    case charactersDataOptions.key:
-                      return ImportCharacterJson({
-                        apiOrigin,
-                        json,
-                      });
-                    case postsDataOptions.key:
-                      return ImportPostJson({
-                        apiOrigin,
-                        json,
-                      });
-                    case linksDataOptions.key:
-                      return ImportLinksJson({
-                        apiOrigin,
-                        json,
-                      });
-                    case linksFavDataOptions.key:
-                      return ImportLinksJson({
-                        apiOrigin,
-                        json,
-                        dir: "/fav",
-                      });
-                    case keyValueDBDataIndexed.key:
-                      return ImportKeyValueDBJson({
-                        apiOrigin,
-                        json,
-                      });
-                    default:
-                      toast(`${dataObject.key}は現在インポートの実装待ちです…`);
-                      return;
-                  }
+            (async function () {
+              const currentVersionMap = new Map(
+                (
+                  await tableIndexed.find({ where: { key: { not: "tables" } } })
+                ).map((v) => [v.key, v])
+              );
+              const newVersions = findMee(IdbStateClassList, {
+                where: { key: { not: "tables" } },
+              }).filter(
+                (v) => v.version !== currentVersionMap.get(v.key)?.version
+              );
+              if (newVersions.length === 0) {
+                toast("データベースは最新です");
+              } else {
+                const count = newVersions.length;
+                const strList = newVersions.map((v) => v.key).join(", ");
+                let updateString = `データベースのテーブルの更新が${count}件(${strList})あります！\n`;
+                const needAlterTableList = newVersions.filter((v) => {
+                  const m = v.options.version.match(/\d+.\d+/);
+                  const nm = v.version.match(/\d+.\d+/);
+                  return m && nm && m[0] !== nm[0];
                 });
-                Promise.all(list)
-                  .then(() => {
-                    return toast.promise(
-                      axios.post(
-                        concatOriginUrl(apiOrigin, "data/tables/update"),
-                        {
-                          withCredentials: true,
-                        }
-                      ),
-                      {
-                        pending: "送信中",
-                        success: "更新しました！",
-                        error: "送信に失敗しました",
-                      }
-                    );
-                  })
-                  .then(() => {
-                    allLoad(true);
+                const currentDate = new Date();
+                if (needAlterTableList.length > 0) {
+                  const count = needAlterTableList.length;
+                  const strList = needAlterTableList
+                    .map((v) => v.key)
+                    .join(", ");
+                  updateString =
+                    updateString +
+                    `そのうち${count}件(${strList})は` +
+                    `テーブルを作り直す必要があります。\n` +
+                    "（バックアップ用のダウンロードも行います）\n";
+                }
+                if (
+                  confirm(
+                    updateString + "データベースのテーブルを全て更新しますか？"
+                  )
+                ) {
+                  const list = needAlterTableList.map(async (object) => {
+                    const json = await getIndexedDBJsonOptions(object);
+                    DownloadDataObject({
+                      ...json,
+                      name: object.key + "_" + FormatDate(currentDate, "Ymd"),
+                    });
+                    switch (object.key) {
+                      case ImageDataOptions.key:
+                        return ImportImagesJson({
+                          apiOrigin,
+                          charactersMap,
+                          overwrite: true,
+                          json,
+                        });
+                      case charactersDataOptions.key:
+                        return ImportCharacterJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case postsDataOptions.key:
+                        return ImportPostJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case linksDataOptions.key:
+                        return ImportLinksJson({
+                          apiOrigin,
+                          json,
+                        });
+                      case linksFavDataOptions.key:
+                        return ImportLinksJson({
+                          apiOrigin,
+                          json,
+                          dir: "/fav",
+                        });
+                      case keyValueDBDataIndexed.key:
+                        return ImportKeyValueDBJson({
+                          apiOrigin,
+                          json,
+                        });
+                      default:
+                        toast(`${object.key}は現在インポートの実装待ちです…`);
+                        return;
+                    }
                   });
+                  Promise.all(list)
+                    .then(() => {
+                      return toast.promise(
+                        axios.post(
+                          concatOriginUrl(apiOrigin, "data/tables/update"),
+                          {
+                            withCredentials: true,
+                          }
+                        ),
+                        {
+                          pending: "送信中",
+                          success: "更新しました！",
+                          error: "送信に失敗しました",
+                        }
+                      );
+                    })
+                    .then(() => {
+                      allLoad(true);
+                    });
+                }
               }
-            }
+            })();
           }}
         >
           現在のテーブルのバージョンを全て更新する
