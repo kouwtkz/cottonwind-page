@@ -26,19 +26,19 @@ export async function UpdateTablesDataObject({
   ...args
 }: UpdateTablesDataObjectProps) {
   const value = (
-    await TableObject.Select({ db, where: { name: options.name }, ...args })
+    await TableObject.Select({ db, where: { key: options.name }, ...args })
   )[0];
   if (!value) {
     await TableObject.Insert({
       db,
-      entry: { name: options.name, version: options.version },
+      entry: { key: options.name, version: options.version },
       ...args,
     });
   } else if (value.version !== options.version) {
     await TableObject.Update({
       db,
       where: {
-        name: options.name,
+        key: options.name,
       },
       entry: {
         version: options.version,

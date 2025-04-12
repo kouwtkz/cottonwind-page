@@ -332,8 +332,8 @@ function DBPage() {
             (async function () {
               const currentVersionMap = new Map(
                 (
-                  await tableIndexed.find({ where: { name: { not: "tables" } } })
-                ).map((v) => [v.name, v])
+                  await tableIndexed.find({ where: { key: { not: "tables" } } })
+                ).map((v) => [v.key, v])
               );
               const newVersions = findMee(IdbStateClassList, {
                 where: { key: { not: "tables" } },
