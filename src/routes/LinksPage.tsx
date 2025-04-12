@@ -63,7 +63,7 @@ export default function LinksPage() {
       <MeeLinks title="トップリンク" category="top" banner />
       <MeeLinks
         title={topLinkTitle}
-        category=""
+        category={null}
         banner
         linkStyle={{ minHeight: "3em" }}
       />
@@ -266,7 +266,7 @@ export const useLinksEditMode = CreateState(false);
 interface LinksContainerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: string;
-  category?: string;
+  category?: string | null;
   banner?: boolean;
   dir?: SendLinksDir;
   dropdown?: ReactNode;
@@ -276,7 +276,7 @@ interface LinksContainerProps
   linkStyle?: CSSProperties;
 }
 function LinksContainer({
-  category,
+  category = null,
   title,
   className,
   banner,
