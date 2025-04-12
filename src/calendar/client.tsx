@@ -51,6 +51,7 @@ import {
   IndexedDataClass,
   IndexedKVClass,
 } from "@/data/IndexedDB/MeeIndexedDataClass";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -523,6 +524,7 @@ function CalendarAppEventEdit() {
       Done({ eventClose: true, eventsOverwrite: true });
     }
   }, [events, deletable]);
+  useHotkeys("ctrl+enter", Submit, { enableOnFormTags: true });
   return (
     <Modal
       className="calendarAppEdit"
