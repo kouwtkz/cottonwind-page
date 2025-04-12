@@ -39,29 +39,23 @@ export class IndexedDataClass<
   override emitSwitchEvents(name: EVENT, arg1: any): void {
     switch (name) {
       case "update":
-        this.updateData();
         break;
     }
   }
-  async updateData() {
+  async updateData(): Promise<any> {
   }
-  async save({ store, data, callback }: Props_IndexedDataClass_Save<T>) {
+  async save({ store, data, callback, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
     if (data.length > 0) {
       this.isBusy = true;
-      const primary = this.table.options.primary as keyof T;
       return await Promise.all(
-        data.map(async (value) => {
-          return this.table.usingUpdate({
-            store,
-            query: value[primary] as any,
-            callback: async (callbackItem) => {
-              let item = callbackItem ? { ...callbackItem, ...value } : value;
-              if (callback) item = await callback(item);
-              return item;
-            },
-          });
+        data.map(async (value, i) => {
+          if (callback) value = await callback(value, i);
+          return await this.table.put({ value, store })
         })
-      ).then((v) => {
+      ).then(async v => {
+        if (onsuccess) await onsuccess(v);
+        return v;
+      }).then((v) => {
         this.table.clone().then((table) => {
           this.table = table as TABLE_CLASS;
           this.emit("update");
@@ -96,6 +90,7 @@ export class IndexedKVClass<V = string | null, K = string> extends IndexedDataCl
       (Array.isArray(data) ? data : Array.from(data.entries()))
     ) as Array<[K, V]>).map(([key, value]) => ({ key, value }));
     const result = await super.save({ store, data: items });
+    await this.updateData();
     this.table = (await this.table.clone()) as MeeIndexedDBTable<IndexedKVClassType<V, K>>;
     this.emit("update");
     return result;

@@ -1,5 +1,5 @@
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
-export const INDEXEDDB_VERSION: number = 1;
+export const INDEXEDDB_VERSION: number = 2;
 
 export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
   name: "images",

@@ -34,10 +34,20 @@ export function ImageState() {
     () => imageDataIndexed.table
   );
   useEffect(() => {
-    if (!imageDataIndexed.isFirst && likeCategoryMap) {
+    if (!imageDataIndexed.isUpgrade && likeCategoryMap) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
+        const lastmod = imageDataIndexed.beforeLastmod;
+        const latest = imageDataIndexed.latest;
         images.forEach((image) => {
+          if (lastmod)
+            image.update = Boolean(
+              image.lastmod!.getTime() > lastmod.getTime()
+            );
+          image.new =
+            image.update &&
+            (image.time && latest ? image.time > latest : false);
+
           if (imagesLikeData?.has(image.key))
             image.like = imagesLikeData.get(image.key)!;
         });

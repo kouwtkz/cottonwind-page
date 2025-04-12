@@ -47,6 +47,7 @@ interface Props_IndexedDataClass_DataStore<T = any> {
 
 interface Props_IndexedDataClass_Save<T = any> extends Props_IndexedDataClass_DataStore<any[]> {
   callback?(item: T, index?: number): any | Promise<any>;
+  onsuccess?(item: any): any | Promise<any>;
 }
 
 interface Props_Indexed_KV_Save<T = any> extends Props_IndexedDataClass_DataStore<Map<string, T> | Array<[string, T]>> { }

@@ -27,6 +27,7 @@ export class IndexedDataLastmodMH<
   isLoad: LoadStateType;
   subscribeToLoad: EventCallback;
   isFirst: boolean;
+  isUpgrade: boolean;
   private _isLogin?: boolean;
   constructor(options: Props_LastmodMHClass_Options<T, D>, table?: TABLE_CLASS) {
     const tableOptions: Props_MeeIndexedDBTable_Options_WithArg<T> = {
@@ -57,10 +58,16 @@ export class IndexedDataLastmodMH<
     this.scheduleEnable = scheduleEnable;
     this.isLoad = false;
     this.isFirst = false;
+    this.isUpgrade = false;
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
   }
   override async dbUpgradeneeded(e: IDBVersionChangeEvent, db: IDBDatabase) {
-    if (!e.oldVersion) this.isFirst = true;
+    this.isUpgrade = true;
+    if (e.oldVersion) {
+      const request = e.target as IDBOpenDBRequest;
+      const store = this.table.getStore(request.transaction!);
+      await new Promise((s, j) => { const r = store.clear(); r.onsuccess = s; r.onerror = j });
+    } else { this.isFirst = true; }
     return super.dbUpgradeneeded(e, db);
   }
   static GetVersion(version: string, { isLogin }: { isLogin?: boolean } = {}) {
@@ -94,6 +101,7 @@ export class IndexedDataLastmodMH<
   async dbSuccess(db: IDBDatabase) {
     this.table.dbSuccess(db);
     await this.setBeforeLastmod();
+    this.emit("update");
   }
   async setSearchParamsOption({
     searchParams,
@@ -140,9 +148,10 @@ export class IndexedDataLastmodMH<
     if (this.options.convert) callback = (async (item) => {
       return await convertToMeeIndexedData<T, D>({ item, convert: this.options.convert! });
     })
-    if (this.isFirst) this.isFirst = false;
+    if (this.isUpgrade) this.isUpgrade = false;
     return super.save({
-      store, data, callback
+      store, data, callback,
+      onsuccess: () => this.updateData(),
     });
   }
   static getCacheOption(loadAtomValue?: LoadStateType) {
@@ -152,7 +161,7 @@ export class IndexedDataLastmodMH<
 
 export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, ImageDataType, ImageMeeIndexedDBTable> {
   override async updateData() {
-    return this.table.updateData({ lastmod: this.beforeLastmod, latest: this.latest });
+    return this.table.updateData({ lastmod: this.beforeLastmod });
   }
   override async dbSuccess(db: IDBDatabase) {
     await super.dbSuccess(db);
@@ -173,29 +182,16 @@ export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageType> {
       (images) => images.filter(image => image.album).map((image) => image.album!)
     );
   }
-  async updateData({ lastmod, latest }: { lastmod?: Date, latest?: Date }) {
-    return await this.usingStore({
-      mode: "readwrite", callback: async (store) => {
-        let lastmodQuery: IDBKeyRange | undefined;
-        if (lastmod) lastmodQuery = IDBKeyRange.lowerBound(lastmod, true);
-        await this.getAll({ index: "lastmod", query: lastmodQuery, store })
-          .then(async (images) => {
-            images.forEach(image => {
-              if (lastmod) image.update = Boolean(image.lastmod!.getTime() > lastmod.getTime())
-              image.new =
-                image.update &&
-                (image.time && latest
-                  ? image.time > latest
-                  : false);
-
-              const album = image.album ? this.imageAlbums.get(image.album) : null;
-              image.type = image.type ? image.type : AutoImageItemType(image.embed, album?.type);
-              return image;
-            });
-            return Promise.all(images.map(image =>
-              this.put({ value: image, store })
-            ))
-          })
+  async updateData({ lastmod }: { lastmod?: Date }) {
+    let lastmodQuery: IDBKeyRange | IDBValidKey;
+    lastmodQuery = IDBKeyRange.lowerBound(lastmod ?? new Date(0), true);
+    return await this.usingUpdate<ImageType>({
+      index: "lastmod", query: lastmodQuery, callback: (image) => {
+        if (image) {
+          const album = image.album ? this.imageAlbums.get(image.album) : null;
+          image.type = image.type ? image.type : AutoImageItemType(image.embed, album?.type);
+          return image;
+        }
       }
     })
   }

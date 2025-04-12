@@ -164,28 +164,31 @@ export class MeeIndexedDBTable<T> {
       },
     });
   }
-  async usingUpdate<C = T>({ callback, value: propsValue, ...props }: Props_MeeIndexedDB_UsingUpdate<C>) {
+  async usingUpdate<C = T>({ callback, store, transaction, index, query, direction }: Props_MeeIndexedDB_UsingUpdate<C>) {
     const mode: IDBTransactionMode = "readwrite";
-    return await this.usingCursor({
-      ...props, mode, callback: async (cursor) => {
-        if (cursor) {
-          let value: C = typeof propsValue !== "undefined" ? propsValue : cursor.value;
-          if (propsValue) value = propsValue;
-          if (callback) value = await callback(value);
-          cursor.update(value);
-          return value;
-        } else {
-          return this.usingStore<C, C>({
-            ...props, mode, callback: async (store) => {
-              let value = typeof propsValue !== "undefined" ? propsValue as C : null;
-              if (callback) value = await callback(value);
-              store.put(value);
-              return value || {} as C;
-            },
-          })
-        }
+    return await this.usingStore({
+      store, mode, transaction,
+      callback: async (store) => {
+        const indexed = MeeIndexedDBTable.storeIndex(store, index);
+        return await new Promise<void>((res, rej) => {
+          const request = indexed.openCursor(query, direction);
+          request.onsuccess = async (e) => {
+            const cursor = request.result;
+            if (cursor) {
+              let value: C | null = cursor.value;
+              if (callback) {
+                value = await callback(value) || null;
+              }
+              if (value) cursor.update(value);
+              cursor.continue();
+            } else {
+              res();
+            }
+          };
+          request.onerror = (e) => { rej(e) }
+        });
       },
-    });
+    })
   }
   private static storeIndex<T>(store: IDBObjectStore, index?: keyof T): IDBObjectStore | IDBIndex {
     if (index) return store.index(index.toString());
@@ -308,9 +311,9 @@ interface Props_MeeIndexedDB_UsingCursor<T> extends Props_MeeIndexedDB_Key<T>, P
   callback(cursor: IDBCursorWithValue | null): T | Promise<T>;
 }
 
-interface Props_MeeIndexedDB_UsingUpdate<T> extends Omit<Props_MeeIndexedDB_UsingCursor<T>, "callback" | "mode"> {
-  callback?(value: T | null): T | Promise<T>;
-  value?: T;
+interface Props_MeeIndexedDB_UsingUpdate<T> extends Omit<Props_MeeIndexedDB_UsingCursor<T>, "callback" | "mode" | "query"> {
+  callback?(value: T | null): T | Promise<T> | void;
+  query?: IDBValidKey | IDBKeyRange;
 }
 
 interface Props_MeeIndexedDB_UsingAsyncRequest<C>
