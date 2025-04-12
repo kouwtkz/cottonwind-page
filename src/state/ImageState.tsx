@@ -34,7 +34,7 @@ export function ImageState() {
     () => imageDataIndexed.table
   );
   useEffect(() => {
-    if (imagesData.db && !imageDataIndexed.isBusy && likeCategoryMap) {
+    if (!imageDataIndexed.isFirst && likeCategoryMap) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
         images.forEach((image) => {

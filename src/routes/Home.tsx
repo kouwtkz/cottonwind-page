@@ -243,18 +243,17 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
   const { topImage, Next, topImages } = useTopImage();
   const nodeRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
-    const timer =
-      topImages.length > 0
-        ? setInterval(() => {
-            Next();
-          }, interval)
-        : null;
-    return () => {
-      if (timer) {
-        Next(true);
-        return clearInterval(timer);
-      }
-    };
+    if (topImages.length > 0) {
+      const timer = setInterval(() => {
+        Next();
+      }, interval);
+      return () => {
+        if (timer) {
+          Next(true);
+          return clearInterval(timer);
+        }
+      };
+    }
   }, [interval, topImages]);
   const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();

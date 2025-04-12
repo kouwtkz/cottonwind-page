@@ -26,13 +26,14 @@ export class IndexedDataLastmodMH<
   scheduleEnable: boolean;
   isLoad: LoadStateType;
   subscribeToLoad: EventCallback;
+  isFirst: boolean;
   private _isLogin?: boolean;
   constructor(options: Props_LastmodMHClass_Options<T, D>, table?: TABLE_CLASS) {
     const tableOptions: Props_MeeIndexedDBTable_Options_WithArg<T> = {
       name: options.name,
       primary: options.primary,
       secondary: options.secondary,
-      defaultBusy: true
+      defaultBusy: false
     }
     super(tableOptions, table);
     this.subscribeToLoad = this.getSubscribe("load");
@@ -55,7 +56,12 @@ export class IndexedDataLastmodMH<
     this.lastmodField = lastmodField;
     this.scheduleEnable = scheduleEnable;
     this.isLoad = false;
+    this.isFirst = false;
     if (typeof isLogin === "boolean") this.isLogin = isLogin;
+  }
+  override async dbUpgradeneeded(e: IDBVersionChangeEvent, db: IDBDatabase) {
+    if (!e.oldVersion) this.isFirst = true;
+    return super.dbUpgradeneeded(e, db);
   }
   static GetVersion(version: string, { isLogin }: { isLogin?: boolean } = {}) {
     return setSuffix(version, isLogin ? "login" : "");
@@ -130,18 +136,14 @@ export class IndexedDataLastmodMH<
     this.emit("load", load);
   }
   override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<T>) {
-    this.isBusy = true;
     let callback: ((item: any) => Promise<T>) | undefined;
     if (this.options.convert) callback = (async (item) => {
       return await convertToMeeIndexedData<T, D>({ item, convert: this.options.convert! });
     })
-    const result = await super.save({
+    if (this.isFirst) this.isFirst = false;
+    return super.save({
       store, data, callback
     });
-    this.table = (await this.table.clone()) as TABLE_CLASS;
-    this.emit("update");
-    this.isBusy = false;
-    return result;
   }
   static getCacheOption(loadAtomValue?: LoadStateType) {
     return typeof loadAtomValue === "string" ? loadAtomValue : undefined;
