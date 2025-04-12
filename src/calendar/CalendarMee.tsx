@@ -196,17 +196,17 @@ function setDateUrl(date: Date, setSearchParams: SetURLSearchParams) {
   return afterSearch;
 }
 
+const SyncedMap = new Map<string, timeRangesType | null>();
+
 interface CalendarMeeStateProps extends CalendarMeeEventViewerProps {
   googleApiKey?: string | null;
-  googleCalendarList?: (string | CalendarIdListType)[];
-  events?: EventsDataType[];
-  calendarList?: CalendarListType[];
+  defaultEvents?: EventsDataType[];
+  defaultCalendarList?: CalendarListType[];
 }
 export function CalendarMeeState({
   googleApiKey,
-  googleCalendarList: propsGoogleCalendarList,
-  events: propsEvents,
-  calendarList: propsCalendarList,
+  defaultEvents,
+  defaultCalendarList,
   ...viewerProps
 }: CalendarMeeStateProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -232,15 +232,12 @@ export function CalendarMeeState({
   }, [add]);
   const calendarDataList = useMemo(() => {
     const list: CalendarListType[] = [];
-    propsCalendarList?.forEach((item) => {
+    defaultCalendarList?.forEach((item) => {
       list.push(item);
     });
-    propsGoogleCalendarList?.forEach((v) => {
-      list.push(typeof v === "string" ? { id: v } : v);
-    });
-    if (propsEvents) list.push({ list: propsEvents });
+    if (defaultEvents) list.push({ list: defaultEvents });
     return list;
-  }, [propsCalendarList, propsGoogleCalendarList, propsEvents]);
+  }, [defaultCalendarList, defaultEvents]);
   useEffect(() => {
     Set({
       calendarList: calendarDataList,
@@ -250,25 +247,36 @@ export function CalendarMeeState({
     if (getRange && calendarList) setTimeRanges(getRange);
   }, [getRange, calendarList]);
   useEffect(() => {
-    if (
-      (googleApiKey || googleApiKey === null) &&
-      syncRange &&
-      calendarList.length > 0
-    ) {
+    if (syncRange) {
       Set({ isLoading: true });
       Promise.all(
-        calendarList.map(async ({ id, private: p, list }) => {
-          return id && googleApiKey
-            ? eventsFetch({
-                id,
-                key: googleApiKey,
-                start: syncRange.start,
-                end: syncRange.end,
-                private: p,
-              }).then((data) => {
-                return data.items;
-              })
-            : (async () => list || [])();
+        calendarList.map(async ({ id, private: p, list, callback }) => {
+          if (id) {
+            const synced = SyncedMap.get(id);
+            if (
+              synced &&
+              synced.start <= syncRange.start &&
+              syncRange.end <= synced.end &&
+              synced.end < syncRange.start
+            ) {
+              return [];
+            } else if (googleApiKey || callback || list)
+              SyncedMap.set(id, syncRange);
+          }
+          if (callback) {
+            return callback({ id, ...syncRange });
+          } else if (id && googleApiKey) {
+            return eventsFetch({
+              id,
+              key: googleApiKey,
+              start: syncRange.start,
+              end: syncRange.end,
+              private: p,
+            }).then((data) => {
+              return data.items;
+            });
+          } else if (list) return list;
+          return [];
         })
       )
         .then((events) => {
@@ -300,13 +308,12 @@ export function CalendarMeeState({
         .finally(() => {
           Set({
             isLoading: false,
-            syncRange: null,
             syncOverwrite: false,
             eventsOverwrite: false,
           });
         });
     }
-  }, [googleApiKey, calendarList, syncRange, Set]);
+  }, [googleApiKey, calendarList, syncRange]);
 
   useEffect(() => {
     Set(({ date, dateLock }) => {

@@ -10,19 +10,22 @@ import { useEffect, useSyncExternalStore } from "react";
 import { getUUID } from "./functions/clientFunction";
 import { SubscribeEventsClass } from "./components/hook/SubscribeEvents";
 import { DOMContentLoaded } from "./clientScripts";
+import { MeeIndexedDBCreate } from "./data/DataState";
 
 const router = createBrowserRouter(Routing);
 
 function LoadedFunction() {
-  ReactDOM.createRoot(document.getElementById("root")!).render(
-    <>
-      <ClickEffect />
-      <ClickEventState />
-      <LangState />
-      <Theme />
-      <RouterProvider router={router} />
-    </>
-  );
+  MeeIndexedDBCreate().finally(() => {
+    ReactDOM.createRoot(document.getElementById("root")!).render(
+      <>
+        <ClickEffect />
+        <ClickEventState />
+        <LangState />
+        <Theme />
+        <RouterProvider router={router} />
+      </>
+    );
+  });
 }
 
-DOMContentLoaded(LoadedFunction)
+DOMContentLoaded(LoadedFunction);

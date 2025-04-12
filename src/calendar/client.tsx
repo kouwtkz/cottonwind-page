@@ -1,5 +1,10 @@
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  useSearchParams,
+} from "react-router-dom";
 import "@/components/hook/ScrollLock";
 import { ClickEffect } from "@/components/click/ClickEffect";
 import { ClickEventState } from "@/components/click/useClickEvent";
@@ -12,12 +17,17 @@ import {
   Type_VIEW_FC,
   useCalendarMee,
 } from "./CalendarMee";
-import { LocalStorageClass } from "@/data/localStorage/LocalStorageClass";
 import { CreateObjectState, CreateState } from "@/state/CreateState";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { Modal } from "@/layout/Modal";
 import { FormatDate, ToFormTime } from "@/functions/DateFunction";
 import { EventClickArg } from "@fullcalendar/core/index.js";
@@ -36,8 +46,92 @@ import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
 import { useNotification } from "@/components/notification/NotificationState";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { getUUID } from "@/functions/clientFunction";
+import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
+import {
+  IndexedDataClass,
+  IndexedKVClass,
+} from "@/data/IndexedDB/MeeIndexedDataClass";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
+
+const tableName = "calendarAppData";
+
+const DEFAULT_VIEW_KVKEY = "defaultView";
+const GOOGLE_API_KEY_KVKEY = "googleApiKey";
+type CALENDAR_APP_KVKEYS =
+  | typeof DEFAULT_VIEW_KVKEY
+  | typeof GOOGLE_API_KEY_KVKEY;
+
+class IndexedCalendarMHEvents extends IndexedDataClass<EventsDataType> {
+  saveFromJSON(props: Props_IndexedDataClass_NoCallback_Save<EventsDataType>) {
+    return super.save({
+      ...props,
+      callback(item) {
+        item.start = new Date(item.start);
+        item.end = new Date(item.end);
+        return item;
+      },
+    });
+  }
+}
+const INDEXED_EVENTS_NAME = "local-events";
+const indexedCalendarEvents = new IndexedCalendarMHEvents({
+  name: INDEXED_EVENTS_NAME,
+  primary: "id",
+  secondary: ["start"],
+});
+class IndexedCalendarMH_KV extends IndexedKVClass<
+  string | null,
+  CALENDAR_APP_KVKEYS
+> {
+  saveFromJSON({
+    data,
+    store,
+  }: Props_IndexedDataClass_DataStore<CalendarAppClassType>) {
+    const kvMap = new Map();
+    if (data.defaultView) kvMap.set(DEFAULT_VIEW_KVKEY, data.defaultView);
+    if (data.googleApiKey) kvMap.set(GOOGLE_API_KEY_KVKEY, data.googleApiKey);
+    return super.save({ store, data: kvMap });
+  }
+}
+const INDEXED_KV_NAME = "kv";
+const indexedCalendarKV = new IndexedCalendarMH_KV({ name: INDEXED_KV_NAME });
+const INDEXED_CID_NAME = "calendarID";
+const indexedCalendarID = new IndexedDataClass<CalendarIdListType>({
+  name: INDEXED_CID_NAME,
+  primary: "key",
+});
+
+async function ExportData() {
+  const exportData: CalendarAppClassType = {};
+  exportData.events = await indexedCalendarEvents.table.getAll();
+  const kv = await indexedCalendarKV.getAllMap();
+  if (kv.has("defaultView")) exportData.defaultView = kv.get("defaultView");
+  if (kv.has("googleApiKey")) exportData.googleApiKey = kv.get("googleApiKey");
+  exportData.googleCalendarId = await indexedCalendarID.table.getAll();
+  return exportData;
+}
+async function ImportData(json: string) {
+  const data: CalendarAppClassType = JSON.parse(json);
+  if (data.events)
+    await indexedCalendarEvents.saveFromJSON({ data: data.events });
+  await indexedCalendarKV.saveFromJSON({ data });
+  if (data.googleCalendarId) {
+    const list = data.googleCalendarId.map((item, i) => {
+      if (typeof item === "string") return { key: i + 1, id: item };
+      else return item;
+    });
+    await indexedCalendarID.save({ data: list });
+  }
+  localStorage.removeItem("calendarAppData");
+}
+
+type INDEXED_NAME_UNION =
+  | typeof INDEXED_EVENTS_NAME
+  | typeof INDEXED_KV_NAME
+  | typeof INDEXED_CID_NAME;
+
+let dbClass: MeeIndexedDB | undefined;
 
 const router = createBrowserRouter([
   {
@@ -53,106 +147,113 @@ const router = createBrowserRouter([
 ]);
 
 document.addEventListener("DOMContentLoaded", () => {
-  ReactDOM.createRoot(document.getElementById("root")!).render(
-    <>
-      <ClickEffect />
-      <ClickEventState />
-      <Theme />
-      <ToastContainer {...defaultToastContainerOptions} />
-      <ToastProgressState />
-      <RouterProvider router={router} />
-    </>
-  );
+  MeeIndexedDB.create({
+    version: 1,
+    dbName: "cottonwind-data-calendar",
+    async onupgradeneeded(e, db) {
+      await indexedCalendarEvents.dbUpgradeneeded(e, db);
+      await indexedCalendarID.dbUpgradeneeded(e, db);
+      await indexedCalendarKV.dbUpgradeneeded(e, db);
+    },
+    async onsuccess(db) {
+      await indexedCalendarEvents.dbSuccess(db);
+      await indexedCalendarID.dbSuccess(db);
+      await indexedCalendarKV.dbSuccess(db);
+    },
+  })
+    .then(async (db) => {
+      dbClass = db;
+      {
+        const localItem = localStorage.getItem("calendarAppData");
+        if (localItem) {
+          await ImportData(localItem);
+          localStorage.removeItem("calendarAppData");
+        }
+      }
+    })
+    .finally(() => {
+      ReactDOM.createRoot(document.getElementById("root")!).render(
+        <>
+          <ClickEffect />
+          <ClickEventState />
+          <Theme />
+          <ToastContainer {...defaultToastContainerOptions} />
+          <ToastProgressState />
+          <RouterProvider router={router} />
+        </>
+      );
+    });
 });
 
-const storageKey = "calendarAppData";
-export const CalendarAppClass = new LocalStorageClass<CalendarAppClassType>(
-  storageKey
-);
 function ToEventMap(events: EventsDataType[]) {
   return new Map(events.map<[string, EventsDataType]>((v) => [v.id, v]));
 }
-function getFromJsonData(): CalendarAppClassTypeWithMap {
-  const data = CalendarAppClass.getItem();
-  data?.events?.forEach((item) => {
-    item.start = new Date(item.start);
-    item.end = new Date(item.end);
-  });
-  const eventsMap = ToEventMap(data?.events || []);
-  return { ...data, eventsMap };
-}
 
-export const useCalendarAppState = CreateObjectState<CalendarAppStateType>(
+interface CalendarAppState extends CalendarAppStateType {
+  IndexedSetupMap: Map<INDEXED_NAME_UNION, boolean>;
+}
+export const useCalendarAppState = CreateObjectState<CalendarAppState>(
   (set) => ({
     googleApiKey: null,
     defaultView: DEFAULT_VIEW,
-    ...getFromJsonData(),
-    save({
+    eventsMap: new Map(),
+    isLoading: true,
+    IndexedSetupMap: new Map(
+      [INDEXED_EVENTS_NAME, INDEXED_KV_NAME, INDEXED_CID_NAME].map((name) => [
+        name as INDEXED_NAME_UNION,
+        false,
+      ])
+    ),
+    async save({
       event,
-      events,
+      events: _events,
       googleApiKey,
-      googleCalendarId: _id,
+      googleCalendarId,
       overwrite,
-      eventsMap,
       defaultView,
     }: CalendarAppStateSaveProps = {}) {
-      set((state) => {
-        const options: Partial<CalendarAppClassTypeWithMap> = {};
-        if (event || events) {
-          options.eventsMap = state.eventsMap;
-          if (events && overwrite) {
-            options.eventsMap = ToEventMap(events);
-          } else {
-            const eventsMap = options.eventsMap;
-            if (event && event.id) {
-              let entry: EventsDataType | undefined;
-              if (eventsMap.has(event.id)) {
-                entry = { ...eventsMap.get(event.id)!, ...event };
+      if (overwrite) {
+        await indexedCalendarKV.table.clear();
+        await indexedCalendarEvents.table.clear();
+        await indexedCalendarID.table.clear();
+      }
+      let indexedCalendarKVMap = new Map<CALENDAR_APP_KVKEYS, any>();
+      if (typeof googleApiKey !== "undefined") {
+        indexedCalendarKVMap.set("googleApiKey", googleApiKey);
+      }
+      if (typeof defaultView !== "undefined") {
+        indexedCalendarKVMap.set("defaultView", defaultView);
+        set({ defaultView });
+      }
+      if (indexedCalendarKVMap.size) {
+        await indexedCalendarKV.save({ data: indexedCalendarKVMap });
+      }
+      const events: Array<Partial<EventsDataType>> = _events || [];
+      if (event) events.unshift(event);
+      if (events.length) {
+        await indexedCalendarEvents.save({ data: events });
+      }
+      await Promise.all(
+        events.map(async (event) => {
+          return indexedCalendarEvents.table.usingUpdate({
+            query: event.id!,
+            callback(item) {
+              if (item) {
+                return { ...item, ...event };
               } else {
-                if (event.start && event.end) entry = event as EventsDataType;
+                return event as EventsDataType;
               }
-              if (entry) {
-                eventsMap.set(entry.id, entry);
-              }
-            }
-          }
-        }
-        if (eventsMap) {
-          options.eventsMap = eventsMap;
-        }
-        if (options.eventsMap) {
-          options.events = Array.from(options.eventsMap.values());
-        }
-        if (typeof googleApiKey !== "undefined") {
-          options.googleApiKey = googleApiKey;
-        }
-        if (typeof _id !== "undefined") {
-          const googleCalendarId = Array.isArray(_id) ? _id : [_id];
-          if (overwrite) {
-            options.googleCalendarId = googleCalendarId;
-          } else {
-            if (options.googleCalendarId) options.googleCalendarId = [];
-            googleCalendarId.forEach((item) => {
-              if (options.googleCalendarId!.every((v) => v.id !== item.id)) {
-                options.googleCalendarId!.push(item);
-              }
-            });
-          }
-        }
-        if (defaultView) {
-          options.defaultView = defaultView;
-        }
-        CalendarAppClass.setItem({
-          ...{
-            events: state.events,
-            googleApiKey: state.googleApiKey,
-            googleCalendarId: state.googleCalendarId,
-            defaultView: state.defaultView,
-          },
-          ...options,
+            },
+          });
+        })
+      );
+      if (googleCalendarId) {
+        await indexedCalendarID.save({
+          data: Array.isArray(googleCalendarId)
+            ? googleCalendarId
+            : [googleCalendarId],
         });
-        return options;
-      });
+      }
     },
     removeEvent(id) {
       set((state) => {
@@ -182,8 +283,71 @@ export const useCalendarAppState = CreateObjectState<CalendarAppStateType>(
     edit: null,
   })
 );
+
+function checkIndexedMap(
+  IndexedSetupMap: Map<INDEXED_NAME_UNION, boolean>,
+  name: INDEXED_NAME_UNION
+) {
+  if (!IndexedSetupMap.get(name)) {
+    IndexedSetupMap.set(name, true);
+    IndexedSetupMap = new Map(IndexedSetupMap);
+  }
+  return IndexedSetupMap;
+}
+
 function Root() {
   const { events, googleApiKey, googleCalendarId, Set } = useCalendarAppState();
+  const indexedEvents = useSyncExternalStore(
+    indexedCalendarEvents.subscribe,
+    () => indexedCalendarEvents.table
+  );
+  const indexedKV = useSyncExternalStore(
+    indexedCalendarKV.subscribe,
+    () => indexedCalendarKV.table
+  );
+  const indexedGgID = useSyncExternalStore(
+    indexedCalendarID.subscribe,
+    () => indexedCalendarID.table
+  );
+
+  useEffect(() => {
+    indexedEvents.getAll().then((events) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedEvents.options.name as INDEXED_NAME_UNION
+        );
+        return { events, IndexedSetupMap };
+      });
+    });
+  }, [indexedEvents]);
+  useEffect(() => {
+    indexedKV.getAllMap<CALENDAR_APP_KVKEYS>().then((kv) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedKV.options.name as INDEXED_NAME_UNION
+        );
+        return {
+          googleApiKey: kv.get("googleApiKey")?.value,
+          defaultView: kv.get("defaultView")?.value,
+          IndexedSetupMap,
+        };
+      });
+    });
+  }, [indexedKV]);
+  useEffect(() => {
+    indexedGgID.getAll().then((googleCalendarId) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedGgID.options.name as INDEXED_NAME_UNION
+        );
+        return { googleCalendarId, IndexedSetupMap };
+      });
+    });
+  }, [indexedGgID]);
+
   useEffect(() => {
     document.querySelector("html")?.classList.remove("loading");
   }, []);
@@ -209,9 +373,9 @@ function Root() {
     <>
       <div className="calendar-app">
         <CalendarMeeState
-          events={events}
+          defaultEvents={events}
           googleApiKey={googleApiKey}
-          googleCalendarList={googleCalendarId}
+          defaultCalendarList={googleCalendarId}
           RightBottomComponent={EditButton}
         />
         <Outlet />
@@ -440,6 +604,7 @@ function CalendarSettingForm() {
   const { googleApiKey, googleCalendarId, events, save, defaultView, Set } =
     useCalendarAppState();
   const { reload, view, date } = useCalendarMee();
+  const setSearchParams = useSearchParams()[1];
   const {
     register,
     handleSubmit,
@@ -449,7 +614,7 @@ function CalendarSettingForm() {
   } = useForm<FieldValues>({
     values: {
       googleApiKey: googleApiKey || "",
-      googleCalendarId_1: googleCalendarId?.[0] || "",
+      googleCalendarId_1: googleCalendarId?.[0]?.id || "",
     },
     resolver: zodResolver(googleCalendarSchema),
   });
@@ -460,9 +625,12 @@ function CalendarSettingForm() {
       if ("googleApiKey" in values)
         options.googleApiKey = values.googleApiKey || null;
       if ("googleCalendarId_1" in values) {
-        options.googleCalendarId = [];
-        if (values.googleCalendarId_1)
-          options.googleCalendarId.push(values.googleCalendarId_1);
+        if (typeof values.googleCalendarId_1 !== "undefined") {
+          options.googleCalendarId = {
+            key: 1,
+            id: values.googleCalendarId_1,
+          } as any;
+        }
       }
       save(options);
       reload({ syncOverwrite: true });
@@ -481,8 +649,15 @@ function CalendarSettingForm() {
           type="button"
           disabled={isDefault}
           onClick={() => {
-            save({ defaultView: view });
-            location.reload();
+            save({ defaultView: view }).then(() => {
+              setSearchParams((search) => {
+                search.delete("fc-view");
+                return search;
+              });
+              setTimeout(() => {
+                location.reload();
+              }, 0);
+            });
           }}
         >
           {isDefault ? (
@@ -560,11 +735,14 @@ function CalendarSettingForm() {
           <button
             type="submit"
             onClick={() => {
+              ExportData();
               if (confirm("JSONファイルでエクスポートしますか？")) {
-                fileDownload(
-                  `calendar_${FormatDate(new Date(), "Ymd_his")}.json`,
-                  localStorage.getItem(storageKey) || ""
-                );
+                ExportData().then((data) => {
+                  fileDownload(
+                    `calendar_${FormatDate(new Date(), "Ymd_his")}.json`,
+                    JSON.stringify(data)
+                  );
+                });
               }
             }}
           >
@@ -578,16 +756,16 @@ function CalendarSettingForm() {
                   return e.item(0)?.text();
                 })
                 .then((text) => {
-                  if (text && Boolean(JSON.parse(text))) {
-                    localStorage.setItem(storageKey, text);
-                    const data = getFromJsonData();
+                  if (text) {
+                    ImportData(text);
+                    const data = {};
                     Set(data);
                     reload({
                       start: date,
                       end: date,
                       eventsOverwrite: true,
                     });
-                    const eventCount = data.events?.length || 0;
+                    const eventCount = 0;
                     toast(
                       (eventCount ? `${eventCount}件` : "") +
                         "上書きインポートしました",
@@ -634,7 +812,7 @@ function CalendarSettingForm() {
 }
 
 function Home() {
-  const { isEdit, events, Set, addEventsEdit, defaultView } =
+  const { isEdit, events, Set, addEventsEdit, defaultView, IndexedSetupMap } =
     useCalendarAppState();
   const openSettingForm = useCalendarSettingForm()[1];
   const date = useCalendarMee(({ date }) => date);
@@ -655,17 +833,20 @@ function Home() {
     },
     [isEdit]
   );
+  const isVisible = useMemo(() => IndexedSetupMap.get("kv"), [IndexedSetupMap]);
   return (
     <>
       <CalendarSettingForm />
       <CalendarAppEventEdit />
-      <CalendarMee
-        eventOpen={eventOpen}
-        openAddEvents={() => addEventsEdit(date)}
-        openSetting={() => openSettingForm(true)}
-        height={800}
-        defaultView={defaultView as Type_VIEW_FC}
-      />
+      {isVisible ? (
+        <CalendarMee
+          eventOpen={eventOpen}
+          openAddEvents={() => addEventsEdit(date)}
+          openSetting={() => openSettingForm(true)}
+          height={800}
+          defaultView={defaultView as Type_VIEW_FC}
+        />
+      ) : null}
     </>
   );
 }

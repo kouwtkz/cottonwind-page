@@ -60,7 +60,7 @@ function CalendarState() {
   return (
     <CalendarMeeState
       googleApiKey={API_KEY}
-      googleCalendarList={googleCalendarList}
+      defaultCalendarList={googleCalendarList}
       enableMarkdownCopy={isLogin}
     />
   );

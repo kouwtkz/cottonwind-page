@@ -72,16 +72,27 @@ export class MeeIndexedDB implements Props_MeeIndexedDB {
 
 export class MeeIndexedDBTable<T> {
   db?: IDBDatabase;
-  options: Props_MeeIndexedDBTable_Options<T>;
-  constructor(options: Props_MeeIndexedDBTable_Options<T>, db?: IDBDatabase) {
+  options: Props_MeeIndexedDBTable_Options_Defined<T>;
+  constructor({ primary = "id", ...options }: Props_MeeIndexedDBTable_Options<T>, db?: IDBDatabase) {
     this.db = db;
-    this.options = options;
+    this.options = { primary, ...options };
   }
-  dbUpgradeneeded(db: IDBDatabase) {
-    const objectStore = db.createObjectStore(this.options.name, { keyPath: this.options.primary?.toString() || "id" });
-    this.options.secondary?.forEach((secondary) => {
-      const name = secondary.toString();
-      objectStore.createIndex(name, name, { unique: false });
+  async dbUpgradeneeded(e: IDBVersionChangeEvent, db: IDBDatabase) {
+    let store: IDBObjectStore;
+    if (e.oldVersion) {
+      const request = e.target as IDBOpenDBRequest;
+      store = this.getStore(request.transaction!);
+    } else {
+      store = db.createObjectStore(this.options.name, { keyPath: this.options.primary.toString() });
+    }
+    const secondary = (this.options.secondary || []) as Array<string>;
+    const added = secondary.filter(name => !store.indexNames.contains(name));
+    const removed = Array.from(store.indexNames).filter((name) => secondary.every((sn) => sn !== name));
+    added.forEach((name) => {
+      store.createIndex(name, name, { unique: false });
+    })
+    removed.forEach(name => {
+      store.deleteIndex(name);
     })
   }
   dbSuccess(db: IDBDatabase) {
@@ -96,7 +107,8 @@ export class MeeIndexedDBTable<T> {
       try {
         await callback(transaction);
         transaction.commit();
-      } catch {
+      } catch (e) {
+        console.error(e);
         transaction.abort();
       }
     }
@@ -104,9 +116,10 @@ export class MeeIndexedDBTable<T> {
   getStore(transaction: IDBTransaction) {
     return transaction.objectStore(this.options.name);
   }
-  async usingStore<C>({ callback, mode, store }: Props_MeeIndexedDB_UsingStore<C>) {
-    let result: C | undefined;
+  async usingStore<C, R = C | undefined>({ callback, mode, store, transaction }: Props_MeeIndexedDB_UsingStore<C>) {
+    let result: any;
     if (store) result = await callback(store);
+    else if (transaction) result = await callback(this.getStore(transaction));
     else {
       await this.usingTransaction({
         mode,
@@ -115,7 +128,7 @@ export class MeeIndexedDBTable<T> {
         }
       })
     }
-    return result;
+    return result as R;
   }
   static asyncRequest<R>(request: IDBRequest<R>) {
     return new Promise<R>((res, rej) => {
@@ -127,7 +140,7 @@ export class MeeIndexedDBTable<T> {
       };
     });
   }
-  usingAsyncRequest<C>({ callback, ...props }: Props_MeeIndexedDB_UsingAsyncRequest<C>) {
+  usingAsyncRequest<C = T>({ callback, ...props }: Props_MeeIndexedDB_UsingAsyncRequest<C>) {
     return this.usingStore({
       callback: (store) => {
         const request = callback(store);
@@ -135,11 +148,51 @@ export class MeeIndexedDBTable<T> {
       }, ...props
     });
   }
+  async usingCursor<C = T>({ query, index, direction, callback, ...props }: Props_MeeIndexedDB_UsingCursor<C>) {
+    return await this.usingStore({
+      ...props,
+      async callback(store) {
+        return await new Promise<C | Promise<C>>((res, rej) => {
+          const request = MeeIndexedDBTable.storeIndex(store, index).openCursor(query, direction);
+          request.onsuccess = async () => {
+            res(await callback(request.result));
+          }
+          request.onerror = (e) => {
+            rej(e);
+          }
+        })
+      },
+    });
+  }
+  async usingUpdate<C = T>({ callback, value: propsValue, ...props }: Props_MeeIndexedDB_UsingUpdate<C>) {
+    const mode: IDBTransactionMode = "readwrite";
+    return await this.usingCursor({
+      ...props, mode, callback: async (cursor) => {
+        if (cursor) {
+          let value: C = typeof propsValue !== "undefined" ? propsValue : cursor.value;
+          if (propsValue) value = propsValue;
+          if (callback) value = await callback(value);
+          cursor.update(value);
+          return value;
+        } else {
+          return this.usingStore<C, C>({
+            ...props, mode, callback: async (store) => {
+              let value = typeof propsValue !== "undefined" ? propsValue as C : null;
+              if (callback) value = await callback(value);
+              store.put(value);
+              return value || {} as C;
+            },
+          })
+        }
+      },
+    });
+  }
   private static storeIndex<T>(store: IDBObjectStore, index?: keyof T): IDBObjectStore | IDBIndex {
     if (index) return store.index(index.toString());
     else return store;
   }
-  async get({ store, query, index }: Props_MeeIndexedDB_Request_Get<T>): Promise<T | undefined> {
+  async get(props: Props_MeeIndexedDB_Key<T> | string): Promise<T | undefined> {
+    const { store, query, index } = typeof props === "string" ? { query: props } : props;
     return this.usingAsyncRequest({
       store,
       callback(store) {
@@ -154,6 +207,16 @@ export class MeeIndexedDBTable<T> {
         return MeeIndexedDBTable.storeIndex(store, index).getAll(query, count);
       },
     }) || [];
+  }
+  async getAllMap<K = IDBValidKey>(props: Props_MeeIndexedDB_Request_GetAll<T> = {}) {
+    return this.getAll(props).then((items) => {
+      const key = (props.index || this.options.primary) as keyof T;
+      const map = new Map<K, T>();
+      items.forEach(item => {
+        map.set(item[key] as K, item);
+      });
+      return map;
+    })
   }
   async find({ store, where, index, orderBy, query = null, direction, take, skip, callback }: Props_MeeIndexedDB_Find<T> = {}): Promise<T[]> {
     const enableSkip = typeof skip === "number";
@@ -201,7 +264,7 @@ export class MeeIndexedDBTable<T> {
       return list;
     }) || [];
   }
-  async put({ value, store }: Props_MeeIndexedDB_Put) {
+  async put({ value, store }: Props_MeeIndexedDB_Value) {
     return this.usingAsyncRequest({
       store,
       mode: "readwrite",
@@ -219,45 +282,38 @@ export class MeeIndexedDBTable<T> {
       },
     });
   }
+  async delete({ store, query }: Props_MeeIndexedDB_Query) {
+    return this.usingAsyncRequest({
+      store,
+      mode: "readwrite",
+      callback(store) {
+        return store.delete(query);
+      },
+    });
+  }
 }
-
 
 interface Props_MeeIndexedDB_UsingTransaction {
   mode?: IDBTransactionMode;
   callback(transaction: IDBTransaction): void | Promise<void>;
 }
-
-interface Props_MeeIndexedDB_UsingStore<C> {
-  callback(store: IDBObjectStore): C | Promise<C>;
-  store?: IDBObjectStore;
+interface Props_MeeIndexedDB_UsingStore<C> extends Props_MeeIndexedDB_Request_Base {
   mode?: IDBTransactionMode
+  callback(store: IDBObjectStore): C | Promise<C>;
+}
+
+interface Props_MeeIndexedDB_UsingCursor<T> extends Props_MeeIndexedDB_Key<T>, Props_MeeIndexedDB_Request_Base {
+  direction?: IDBCursorDirection;
+  mode?: IDBTransactionMode
+  callback(cursor: IDBCursorWithValue | null): T | Promise<T>;
+}
+
+interface Props_MeeIndexedDB_UsingUpdate<T> extends Omit<Props_MeeIndexedDB_UsingCursor<T>, "callback" | "mode"> {
+  callback?(value: T | null): T | Promise<T>;
+  value?: T;
 }
 
 interface Props_MeeIndexedDB_UsingAsyncRequest<C>
   extends Omit<Props_MeeIndexedDB_UsingStore<C>, "callback"> {
   callback(store: IDBObjectStore): IDBRequest<C> | undefined;
-}
-
-interface Props_MeeIndexedDB_Request_Base {
-  store?: IDBObjectStore;
-}
-
-interface Props_MeeIndexedDB_Request_Get<T> extends Props_MeeIndexedDB_Request_Base {
-  query: IDBValidKey | IDBKeyRange;
-  index?: keyof T;
-}
-
-interface Props_MeeIndexedDB_Request_GetAll<T> extends Props_MeeIndexedDB_Request_Base {
-  query?: IDBValidKey | IDBKeyRange | null;
-  count?: number;
-  index?: keyof T;
-}
-
-interface Props_MeeIndexedDB_Find<T>
-  extends Props_MeeIndexedDB_Request_Base, findMeeProps<T> {
-  callback?: (value: T) => boolean;
-}
-
-interface Props_MeeIndexedDB_Put extends Props_MeeIndexedDB_Request_Base {
-  value: any;
 }

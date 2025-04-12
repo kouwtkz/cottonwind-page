@@ -1,6 +1,3 @@
-export type EventFunction = (...arg: any) => void;
-export type EventCallback = (callback: () => void) => () => void;
-
 export class SubscribeEventsClass<N = string> {
   events: { name: N; event: EventFunction }[];
   emitSwitchEvents(name: N, ...arg: any[]) { }

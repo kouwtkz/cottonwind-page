@@ -5,7 +5,6 @@ import { concatOriginUrl } from "@/functions/originUrl";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 import { SetStateAction } from "react";
 import { convertToMeeIndexedData, saveConvertMeeIndexedFromData } from "@/data/IndexedDB/ConvertToMeeIndexedData";
-import { EventCallback, SubscribeEventsClass } from "@/components/hook/SubscribeEvents";
 import { IndexedDataClass } from "./MeeIndexedDataClass";
 import { AutoImageItemType, getImageAlbumMap } from "@/functions/media/imageFunction";
 import { ArrayEnv } from "@/Env";
@@ -130,7 +129,7 @@ export class IndexedDataLastmodMH<
   load(load?: LoadStateType) {
     this.emit("load", load);
   }
-  override async save({ store, data }: Omit<Props_IndexedDataClass_Save<T>, "callback">): Promise<Promise<T>[] | undefined> {
+  override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<T>) {
     this.isBusy = true;
     let callback: ((item: any) => Promise<T>) | undefined;
     if (this.options.convert) callback = (async (item) => {
@@ -154,8 +153,7 @@ export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, 
     return this.table.updateData({ lastmod: this.beforeLastmod, latest: this.latest });
   }
   override async dbSuccess(db: IDBDatabase) {
-    await super.dbSuccess(db)
-    await this.updateData();
+    await super.dbSuccess(db);
   }
 }
 

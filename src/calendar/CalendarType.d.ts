@@ -4,11 +4,20 @@ type GoogleCalendarOptionsType = {
 }
 
 interface CalendarIdListType {
+  key: number;
   id: string;
   private?: boolean;
 }
 
-interface CalendarListType extends Partial<CalendarIdListType> {
+interface CalendarFetchCallbackProps extends timeRangesType {
+  id?: string;
+}
+
+interface CalendarFetchListType extends Partial<CalendarIdListType> {
+  callback?(options: CalendarFetchCallbackProps): Promise<EventsDataType[]>;
+}
+
+interface CalendarListType extends Partial<CalendarFetchListType> {
   list?: EventsDataType[];
 }
 
@@ -127,7 +136,7 @@ interface CalendarAppStateType extends CalendarAppClassType {
   isEdit: boolean;
   edit: EventsDataType | null;
   eventsMap: Map<string, EventsDataType>;
-  save: (props?: CalendarAppStateSaveProps) => void;
+  save: (props?: CalendarAppStateSaveProps) => Promise<void>;
   removeEvent: (id: string) => void;
   addEventsEdit: (date?: Date) => void;
 }
