@@ -591,7 +591,7 @@ const characterSortTags = [
   ]),
 ];
 export function CharaSearchArea({}: CharaSearchAreaProps) {
-  const { characterTags } = useCharacters();
+  const { charactersTags } = useCharacters();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
@@ -650,6 +650,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     }
   }
   const tags = useMemo(() => {
+    const tags = characterSortTags.concat();
     const charaFilterOptions: ContentsTagsOption = {
       label: "フィルタ",
       name: "filter",
@@ -664,13 +665,17 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
         label: "📝下書き",
       });
     }
-    const charaTagsOptions: ContentsTagsOption = {
-      label: "タグ",
-      name: "tags",
-      options: characterTags,
-    };
-    return characterSortTags.concat(charaFilterOptions, charaTagsOptions);
-  }, [characterTags, isLogin]);
+    tags.push(charaFilterOptions);
+    if (charactersTags) {
+      const charaTagsOptions: ContentsTagsOption = {
+        label: "タグ",
+        name: "tags",
+        options: charactersTags,
+      };
+      tags.push(charaTagsOptions);
+    }
+    return tags;
+  }, [charactersTags, isLogin]);
 
   return (
     <div className="header">

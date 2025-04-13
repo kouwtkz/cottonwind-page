@@ -24,7 +24,6 @@ interface characterStateType {
   charactersTags?: ContentsTagsOption[];
   charactersLikeData?: Map<string, LikeType>;
   charactersLabelOptions?: ContentsTagsOption[];
-  characterTags?: ContentsTagsOption[];
   charaFormatOptionLabel?: JSX.Element;
   characters: CharacterType[];
   charactersMap: Map<string, CharacterType>;
