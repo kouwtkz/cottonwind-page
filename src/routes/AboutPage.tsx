@@ -157,6 +157,10 @@ export function WebsiteFramework({
           フレームワーク
           <ul>
             <li>
+              <span className="label">使用言語</span>
+              <span>TypeScript, SCSS</span>
+            </li>
+            <li>
               <span className="label">サーバー</span>
               <span>Hono</span>
             </li>
