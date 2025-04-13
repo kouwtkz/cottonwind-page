@@ -2568,6 +2568,8 @@ $soundBoxHeight: 14rem;
           margin-top: 0.5rem;
           display: inline-flex;
           align-items: center;
+          text-align: center;
+          @extend %auto-phrase;
         }
         .time {
           display: flex;
@@ -2696,6 +2698,7 @@ $soundBoxHeight: 14rem;
           background-color: var(--main-color-pale-fluo);
         }
         .cursor {
+          width: 2rem;
           flex: 1;
           color: var(--main-color-soft);
           svg {
@@ -2708,7 +2711,6 @@ $soundBoxHeight: 14rem;
         }
         .name {
           flex: 10;
-          padding-right: 0.25rem;
           font-size: 1.25rem;
           color: var(--main-color-deep);
           text-align: left;
@@ -2716,6 +2718,7 @@ $soundBoxHeight: 14rem;
           vertical-align: middle;
           display: flex;
           align-items: center;
+          @extend %auto-phrase;
         }
         .play {
           flex: 2;
