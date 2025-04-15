@@ -16,6 +16,7 @@ export function CalendarAppLayout({
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link rel="icon" href="/faviconCalendar.ico" />
         <title>めぇ式カレンダー</title>
+        <meta name="description" content="こっとんうぃんどによるカレンダーアプリです！" />
         {meta}
         <script
           type="module"
