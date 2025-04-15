@@ -142,7 +142,7 @@ function CharacterPageState() {
   const { characters } = useCharacters();
   const [parts, setParts] = useState<PartsType[]>();
   useEffect(() => {
-    let items = findMee(characters, { where, orderBy: orderBySort });
+    let items = findMee(characters.concat(), { where, orderBy: orderBySort });
     if (!showAll) items = items.filter((chara) => chara.visible);
     const parts: PartsType[] = [];
     let sortType: OrderByItemType<any> | undefined;
@@ -160,6 +160,7 @@ function CharacterPageState() {
       }, new Map());
       entries = Object.entries(Object.fromEntries(map));
     }
+    console.log(entries);
     const nameSort = orderBySort?.find((v) => v.name)?.name as OrderByUdType;
     if (nameSort) {
       sortType = nameSort;
