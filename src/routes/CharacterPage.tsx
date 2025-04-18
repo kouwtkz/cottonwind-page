@@ -160,7 +160,6 @@ function CharacterPageState() {
       }, new Map());
       entries = Object.entries(Object.fromEntries(map));
     }
-    console.log(entries);
     const nameSort = orderBySort?.find((v) => v.name)?.name as OrderByUdType;
     if (nameSort) {
       sortType = nameSort;

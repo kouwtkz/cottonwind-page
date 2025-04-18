@@ -214,7 +214,7 @@ export function SoundPlayer() {
   );
   const src = useMemo(() => music?.src, [music, current]);
   const mediaSrc = useMemo(() => {
-    if (src) return concatOriginUrl(mediaOrigin, src);
+    if (mediaOrigin && src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
 
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
@@ -303,7 +303,7 @@ export function SoundPlayer() {
 
   const artwork = useMemo(
     () =>
-      music.cover
+      music.cover && mediaOrigin
         ? [
             {
               src: concatOriginUrl(mediaOrigin, music.cover),
@@ -311,7 +311,7 @@ export function SoundPlayer() {
             },
           ]
         : [],
-    [music]
+    [music, mediaOrigin]
   );
 
   return (

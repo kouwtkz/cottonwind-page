@@ -69,38 +69,5 @@ export function SoundState() {
       })();
     }
   }, [soundsData, soundAlbumsData, RegistPlaylist]);
-  // useEffect(() => {
-  //   if (load) {
-  //     fetch(url)
-  //       .then((r) => r.json())
-  //       .then((data) => {
-  //         const album = data as SoundAlbumType;
-  //         setAlbum(album);
-  //         setSounds(
-  //           album.playlist?.reduce<SoundItemType[]>((a, c) => {
-  //             c.list.forEach((s) => {
-  //               a.push(s);
-  //             });
-  //             return a;
-  //           }, [])
-  //         );
-  //         const setupPlaylist = album.playlist?.find((playlist) =>
-  //           playlist.list.some((item) => item.setup)
-  //         ) || { list: [] };
-  //         if (setupPlaylist?.list.length > 0) {
-  //           const defaultPlaylist = setupPlaylist;
-  //           if (defaultPlaylist) {
-  //             const setupSoundIndex = defaultPlaylist?.list.findIndex(
-  //               (item) => item.setup
-  //             );
-  //             RegistPlaylist({
-  //               playlist: defaultPlaylist,
-  //               current: setupSoundIndex,
-  //             });
-  //           }
-  //         }
-  //       });
-  //   }
-  // }, [load, setSounds, setAlbum, setDefaultPlaylist, RegistPlaylist]);
   return <></>;
 }
