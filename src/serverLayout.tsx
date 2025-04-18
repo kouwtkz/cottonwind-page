@@ -44,13 +44,7 @@ export function DefaultBody({
         <div hidden>
           <header className="title-container">
             <a href="/">
-              <h2>
-                {TITLE_IMAGE_PATH ? (
-                  <img src={TITLE_IMAGE_PATH} alt={env?.TITLE} />
-                ) : (
-                  env?.TITLE
-                )}
-              </h2>
+              <h1>{env?.TITLE}</h1>
             </a>
           </header>
           <footer>

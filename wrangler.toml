@@ -12,7 +12,7 @@ VERSION = "4.0.0"
 DESCRIPTION = "わたかぜコウ(@kouwtkz)の個人サイト。気まぐれに様々なイラストや作品を載せてます。"
 OVERVIEW = "わたかぜコウの個人サイト"
 
-ALTERNATE = "わたかぜコウ,kouwtkz,わたかぜっこ,わたかぜくん,わたかぜコウの個人サイト,わたかぜコウのポートフォリオサイト"
+ALTERNATE = "CottonWind,わたかぜコウの個人サイト"
 
 AUTHOR_ACCOUNT = "kouwtkz"
 AUTHOR_NAME = "わたかぜコウ"

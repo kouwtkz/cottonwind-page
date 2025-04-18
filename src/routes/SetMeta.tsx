@@ -1,4 +1,4 @@
-import { WebSite, WithContext } from "schema-dts";
+import { WebSite, BlogPosting, WithContext } from "schema-dts";
 import { toUpperFirstCase } from "../functions/doc/StrFunctions";
 import {
   autoFixGalleryTagsOptions,
@@ -165,7 +165,9 @@ export function MetaValues({
   if (imageParam) {
     if (imageItem) {
       title =
-        (imageItem.title || imageItem.key) + " | " + (isTopPage ? siteTitle : title);
+        (imageItem.title || imageItem.key) +
+        " | " +
+        (isTopPage ? siteTitle : title);
       const charaListFound = charactersMap
         ? ((imageItem.tags ?? [])
             .map((tag) => charactersMap.get(tag))
@@ -247,6 +249,18 @@ export function MetaTags({
   noindex,
   env,
 }: MetaTagsProps) {
+  let jsonLd: WithContext<WebSite | BlogPosting> | undefined;
+  switch (path) {
+    case "/":
+      jsonLd = {
+        "@type": import.meta.env?.DEV ? "BlogPosting" : "WebSite",
+        "@context": "https://schema.org",
+        url: url || env?.ORIGIN,
+        name: env?.TITLE,
+        alternateName: env?.ALTERNATE?.split(","),
+      };
+      break;
+  }
   return (
     <>
       <title>{title}</title>
@@ -273,6 +287,12 @@ export function MetaTags({
       <meta name="twitter:description" content={description} />
       {image ? <meta name="twitter:image" content={image} /> : null}
       {noindex ? <meta name="robots" content="noindex" /> : null}
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
     </>
   );
 }

@@ -28,7 +28,7 @@ export function SiteTitle({ env }: { env?: SiteConfigEnv }) {
           }
         }}
       >
-        <h2>
+        <h1>
           {lang === defaultLang && TITLE_IMAGE_PATH ? (
             <img src={TITLE_IMAGE_PATH} alt={title} />
           ) : TITLE_IMAGE_PATH_EN ? (
@@ -36,7 +36,7 @@ export function SiteTitle({ env }: { env?: SiteConfigEnv }) {
           ) : (
             title
           )}
-        </h2>
+        </h1>
       </Link>
     </div>
   );
