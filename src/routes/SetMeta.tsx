@@ -156,7 +156,7 @@ export function MetaValues({
         break;
       case "":
         isTopPage = true;
-        title = siteTitle;
+        title = siteTitle + (env?.OVERVIEW ? " - " + env.OVERVIEW : "");
         break;
       default:
         title = siteTitle;
@@ -247,18 +247,6 @@ export function MetaTags({
   noindex,
   env,
 }: MetaTagsProps) {
-  let jsonLd: WithContext<WebSite> | undefined;
-  switch (path) {
-    case "/":
-      jsonLd = {
-        "@type": "WebSite",
-        "@context": "https://schema.org",
-        url: url || env?.ORIGIN,
-        name: env?.TITLE,
-        alternateName: env?.ALTERNATE?.split(","),
-      };
-      break;
-  }
   return (
     <>
       <title>{title}</title>
@@ -285,12 +273,6 @@ export function MetaTags({
       <meta name="twitter:description" content={description} />
       {image ? <meta name="twitter:image" content={image} /> : null}
       {noindex ? <meta name="robots" content="noindex" /> : null}
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      ) : null}
     </>
   );
 }
