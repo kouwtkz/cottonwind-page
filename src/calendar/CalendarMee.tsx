@@ -1035,27 +1035,28 @@ export const CountDown = memo(function CountDown({
       date.getMilliseconds(),
     [date]
   );
+  const [time, setTime] = useState<number>(firstTime);
+  const { countdown } = useSwState();
   useEffect(() => {
-    const ml = firstTime % 1000;
-    let interval: NodeJS.Timeout | undefined;
-    setTimeout(() => {
-      setTime((time) => {
-        const newTime = time - ml;
-        sendMessage({ setCountdown: newTime / 1000 });
-        return newTime;
-      });
-    }, ml);
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    if (firstTime >= 0) {
+      const ml = firstTime % 1000;
+      setTimeout(() => {
+        setTime((time) => {
+          const newTime = time - ml;
+          sendMessage({ setCountdown: newTime / 1000 });
+          return newTime;
+        });
+      }, ml);
+      return () => {
+        if (time) sendMessage({ setCountdown: null });
+      };
+    }
   }, [firstTime]);
-  const { countdown, received } = useSwState();
   useEffect(() => {
     if (typeof countdown === "number") {
       setTime(countdown * 1000);
     }
   }, [countdown]);
-  const [time, setTime] = useState<number>(firstTime);
   const [firstTimeover, setFirstTimeover] = useState(firstTime <= 0);
   useEffect(() => {
     setTime(firstTime);
