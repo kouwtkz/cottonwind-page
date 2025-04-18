@@ -1,18 +1,29 @@
-import { useLayoutEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
-// お借りしました https://zenn.dev/kenghaya/articles/6020b6192dadec
+const subscribe = (callback: () => void) => {
+  window.addEventListener('resize', callback);
+  return () => window.removeEventListener('resize', callback);
+};
+const getServerSideSnapshot = () => 0;
+
+export function useWindowWidth() {
+  return useSyncExternalStore(
+    subscribe,
+    () => window.innerWidth,
+    getServerSideSnapshot
+  );
+}
+export function useWindowHeight() {
+  return useSyncExternalStore(
+    subscribe,
+    () => window.innerHeight,
+    getServerSideSnapshot
+  );
+}
 
 export default function useWindowSize(): number[] {
-  const [size, setSize] = useState([0, 0]);
-  useLayoutEffect(() => {
-    const updateSize = (): void => {
-      setSize([window.innerWidth, window.innerHeight]);
-    };
-
-    window.addEventListener('resize', updateSize);
-    updateSize();
-
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
+  const width = useWindowWidth();
+  const height = useWindowWidth();
+  const size = useMemo(() => [width, height], [width, height])
   return size;
 };
