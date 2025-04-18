@@ -48,12 +48,15 @@ export function DefaultBody({
             </a>
           </header>
           <footer>
-            <LinksList myLinks={ArrayEnv.LINKS || []} maskImage={false} />
+            <LinksList
+              myLinks={ArrayEnv.LINKS || []}
+              noMaskImage
+              noShareButton
+            />
           </footer>
         </div>
       </main>
       {children}
-      <SvgMaskSns />
     </body>
   );
 }

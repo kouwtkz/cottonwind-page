@@ -1764,6 +1764,7 @@ footer {
   header.siteHeader {
     height: #{$headerHeight};
     .title-container {
+      text-align: center;
       img {
         height: 2.75rem;
       }

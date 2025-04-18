@@ -1,4 +1,5 @@
 import ShareButton from "@/components/button/ShareButton";
+import SvgMaskSns from "@/components/svg/mask/SvgMaskSns";
 import { ArrayEnv } from "@/Env";
 import { getYear } from "@/functions/DateFunction";
 
@@ -19,10 +20,12 @@ export function Footer({ env }: { env?: SiteConfigEnv }) {
 
 export function LinksList({
   myLinks,
-  maskImage = true,
+  noMaskImage,
+  noShareButton,
 }: {
   myLinks: SiteMyLinksItemType[];
-  maskImage?: boolean;
+  noMaskImage?: boolean;
+  noShareButton?: boolean;
 }) {
   return (
     <>
@@ -38,7 +41,7 @@ export function LinksList({
                   target={/^\w+:\/\//.test(link.url) ? "_blank" : ""}
                   rel={link.rel ?? "noopener"}
                 >
-                  {maskImage && link.mask ? (
+                  {!noMaskImage && link.mask ? (
                     <div
                       className="mask"
                       style={
@@ -58,11 +61,10 @@ export function LinksList({
                 </a>
               </li>
             ))}
-          <li>
-            <ShareButton className="color" />
-          </li>
+          <li>{noShareButton ? null : <ShareButton className="color" />}</li>
         </ul>
       ) : null}
+      {noMaskImage ? null : <SvgMaskSns />}
     </>
   );
 }
