@@ -34,8 +34,12 @@ import { CreateObjectState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/components/notification/NotificationState";
-import { sendNotification } from "@/components/notification/notificationFunction";
+import { useNotification } from "@/components/serviceWorker/NotificationState";
+import {
+  sendMessage,
+  sendNotification,
+} from "@/components/serviceWorker/clientSw";
+import { useSwState } from "@/components/serviceWorker/clientSwState";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -1035,15 +1039,22 @@ export const CountDown = memo(function CountDown({
     const ml = firstTime % 1000;
     let interval: NodeJS.Timeout | undefined;
     setTimeout(() => {
-      setTime((time) => time - ml);
-      interval = setInterval(() => {
-        setTime((time) => time - 1000);
-      }, 1000);
+      setTime((time) => {
+        const newTime = time - ml;
+        sendMessage({ setCountdown: newTime / 1000 });
+        return newTime;
+      });
     }, ml);
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [firstTime]);
+  const { countdown, received } = useSwState();
+  useEffect(() => {
+    if (typeof countdown === "number") {
+      setTime(countdown * 1000);
+    }
+  }, [countdown]);
   const [time, setTime] = useState<number>(firstTime);
   const [firstTimeover, setFirstTimeover] = useState(firstTime <= 0);
   useEffect(() => {

@@ -43,7 +43,7 @@ import {
   RiNotification2Line,
 } from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
-import { useNotification } from "@/components/notification/NotificationState";
+import { useNotification } from "@/components/serviceWorker/NotificationState";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { getUUID } from "@/functions/clientFunction";
 import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
@@ -52,6 +52,7 @@ import {
   IndexedKVClass,
 } from "@/data/IndexedDB/MeeIndexedDataClass";
 import { useHotkeys } from "react-hotkeys-hook";
+import { SwState } from "@/components/serviceWorker/clientSwState";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -379,6 +380,7 @@ function Root() {
           defaultCalendarList={googleCalendarId}
           RightBottomComponent={EditButton}
         />
+        <SwState />
         <Outlet />
       </div>
     </>
