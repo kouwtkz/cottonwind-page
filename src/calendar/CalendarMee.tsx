@@ -22,6 +22,7 @@ import { strToNumWithNull } from "@/functions/strTo";
 import { Modal } from "@/layout/Modal";
 import { MultiParser } from "@/components/parse/MultiParser";
 import {
+  RiAddLine,
   RiFileCopyLine,
   RiLink,
   RiMapPinLine,
@@ -30,7 +31,7 @@ import {
   RiTimerFill,
 } from "react-icons/ri";
 import { defaultLang } from "@/multilingual/envDef";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
@@ -40,6 +41,7 @@ import {
   sendNotification,
 } from "@/components/serviceWorker/clientSw";
 import { useSwState } from "@/components/serviceWorker/clientSwState";
+import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -157,6 +159,7 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     },
     isLoading: false,
     enableCountdown: defaultEnableCountdown,
+    isDesktopSize: false,
   })
 );
 
@@ -400,7 +403,10 @@ export interface CalendarMeeProps
   defaultView?: Type_VIEW_FC;
   visibleDateSet?: boolean;
   eventOpen?: (e: EventClickArg) => void | boolean;
-  openAddEvents?: (ev: MouseEvent, element: HTMLElement) => void;
+  openAddEvents?: (
+    ev: MouseEvent | React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    element?: HTMLElement
+  ) => void;
   openSetting?: (ev: MouseEvent, element: HTMLElement) => void;
 }
 
@@ -530,6 +536,22 @@ export function CalendarMee({
     list.push("prev,today,next");
     return list.join(" ");
   }, [visibleDateSet, openAddEvents, openSetting]);
+  const RbButtonChildren = useMemo(() => {
+    return (
+      <>
+        {openAddEvents ? (
+          <button
+            type="button"
+            className="color round openAddEvents"
+            title="イベントの追加"
+            onClick={openAddEvents}
+          >
+            <RiAddLine />
+          </button>
+        ) : null}
+      </>
+    );
+  }, [openAddEvents]);
   return (
     <div {...{ ...args, style, className }}>
       <FullCalendar
@@ -638,6 +660,7 @@ export function CalendarMee({
         }}
         noEventsText={noEventsText}
       />
+      <RbButtonArea children={RbButtonChildren} />
     </div>
   );
 }

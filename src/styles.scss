@@ -949,8 +949,8 @@ button,
     svg,
     .svg {
       fill: white;
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 0.5em;
+      height: 0.5em;
     }
   }
   &.link,
@@ -1266,6 +1266,19 @@ h4 {
       input {
         width: 10rem;
         padding: 0.25rem 0.5rem;
+      }
+    }
+  }
+  .fc & {
+    margin-bottom: 1em;
+    margin-right: 1em;
+    button.round {
+      font-size: 4rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      svg {
+        width: 0.8em;
+        height: 0.8em;
       }
     }
   }
@@ -4137,6 +4150,17 @@ form.blogEdit {
   }
   &.background {
     display: none;
+  }
+  .openAddEvents {
+    display: none;
+  }
+  @media (max-width: #{$miniDesktopWidth - 1}) {
+    .openAddEvents {
+      display: flex;
+    }
+    .fc-openAddEvents-button {
+      display: none;
+    }
   }
 }
 
