@@ -402,6 +402,7 @@ export interface CalendarMeeProps
   height?: number;
   defaultView?: Type_VIEW_FC;
   visibleDateSet?: boolean;
+  header?: React.ReactNode;
   eventOpen?: (e: EventClickArg) => void | boolean;
   openAddEvents?: (
     ev: MouseEvent | React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -416,6 +417,7 @@ export function CalendarMee({
   defaultView = FC_VIEW_MONTH,
   visibleDateSet,
   className,
+  header,
   eventOpen: eventOpenProps,
   openAddEvents,
   openSetting,
@@ -554,6 +556,7 @@ export function CalendarMee({
   }, [openAddEvents]);
   return (
     <div {...{ ...args, style, className }}>
+      {header}
       <FullCalendar
         height={height}
         ref={(e: any) => {

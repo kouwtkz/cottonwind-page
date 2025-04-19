@@ -85,7 +85,20 @@ export default function Home() {
         </ul>
         <MeeLinks category="top" banner className="links" />
         <PostsView />
-        <ScheduleContainer defaultView="agenda" />
+        <ScheduleContainer
+          header={
+            <h3>
+              <Link
+                className="title en-title-font"
+                to="/schedule"
+                title="スケジュール"
+              >
+                Schedule
+              </Link>
+            </h3>
+          }
+          defaultView="agenda"
+        />
         {!import.meta.env?.DEV && enableHandle ? (
           <div>
             <h3 className="leaf">つぶやき</h3>

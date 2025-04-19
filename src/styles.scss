@@ -1866,6 +1866,14 @@ footer {
   .links {
     margin: 1rem auto;
   }
+  h3 {
+    margin: 1rem;
+    font-size: 1.75rem;
+    line-height: 2rem;
+    a, a:hover {
+      color: var(--main-color-strong);
+    }
+  }
   .blog {
     max-width: 90rem;
     margin: 1.5rem auto;
@@ -1874,12 +1882,6 @@ footer {
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    h3 {
-      margin: 0;
-      font-size: 1.75rem;
-      line-height: 2rem;
-      margin: 0.5rem;
-    }
     & > .list {
       flex: 1 1 0%;
       font-size: 1.25rem;
@@ -3941,7 +3943,7 @@ form.blogEdit {
     display: flex;
     align-items: center;
   }
-  .topPage & {
+  .topPage > & {
     margin: 2rem auto;
     width: 95%;
     max-width: 72rem;
