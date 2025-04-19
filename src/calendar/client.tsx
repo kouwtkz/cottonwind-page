@@ -53,6 +53,7 @@ import {
 } from "@/data/IndexedDB/MeeIndexedDataClass";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SwState } from "@/components/serviceWorker/clientSwState";
+import { DOMContentLoaded } from "@/clientScripts";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 
@@ -148,43 +149,44 @@ const router = createBrowserRouter([
   },
 ]);
 
-document.addEventListener("DOMContentLoaded", () => {
-  MeeIndexedDB.create({
-    version: 1,
-    dbName: "cottonwind-data-calendar",
-    async onupgradeneeded(e, db) {
-      await indexedCalendarEvents.dbUpgradeneeded(e, db);
-      await indexedCalendarID.dbUpgradeneeded(e, db);
-      await indexedCalendarKV.dbUpgradeneeded(e, db);
-    },
-    async onsuccess(db) {
-      await indexedCalendarEvents.dbSuccess(db);
-      await indexedCalendarID.dbSuccess(db);
-      await indexedCalendarKV.dbSuccess(db);
-    },
-  })
-    .then(async (db) => {
-      dbClass = db;
-      {
-        const localItem = localStorage.getItem("calendarAppData");
-        if (localItem) {
-          await ImportData(localItem);
-          localStorage.removeItem("calendarAppData");
-        }
-      }
-    })
-    .finally(() => {
-      ReactDOM.createRoot(document.getElementById("root")!).render(
-        <>
-          <ClickEffect />
-          <ClickEventState />
-          <Theme />
-          <ToastContainer {...defaultToastContainerOptions} />
-          <ToastProgressState />
-          <RouterProvider router={router} />
-        </>
-      );
-    });
+export const dbCalendarCreatePromise = MeeIndexedDB.create({
+  version: 1,
+  dbName: "cottonwind-data-calendar",
+  async onupgradeneeded(e, db) {
+    await indexedCalendarEvents.dbUpgradeneeded(e, db);
+    await indexedCalendarID.dbUpgradeneeded(e, db);
+    await indexedCalendarKV.dbUpgradeneeded(e, db);
+  },
+  async onsuccess(db) {
+    await indexedCalendarEvents.dbSuccess(db);
+    await indexedCalendarID.dbSuccess(db);
+    await indexedCalendarKV.dbSuccess(db);
+  },
+}).then(async (db) => {
+  dbClass = db;
+  {
+    const localItem = localStorage.getItem("calendarAppData");
+    if (localItem) {
+      await ImportData(localItem);
+      localStorage.removeItem("calendarAppData");
+    }
+  }
+  return db;
+});
+
+DOMContentLoaded(() => {
+  dbCalendarCreatePromise.finally(() => {
+    ReactDOM.createRoot(document.getElementById("root")!).render(
+      <>
+        <ClickEffect />
+        <ClickEventState />
+        <Theme />
+        <ToastContainer {...defaultToastContainerOptions} />
+        <ToastProgressState />
+        <RouterProvider router={router} />
+      </>
+    );
+  });
 });
 
 function ToEventMap(events: EventsDataType[]) {

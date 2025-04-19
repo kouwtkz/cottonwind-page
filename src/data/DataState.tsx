@@ -93,27 +93,26 @@ export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
 export const IdbStateClassList = Array.from(IdbStateClassMap.values());
 
 let dbClass: MeeIndexedDB | undefined;
-export async function MeeIndexedDBCreate() {
-  return MeeIndexedDB.create({
-    version: INDEXEDDB_VERSION,
-    dbName: INDEXEDDB_NAME,
-    onupgradeneeded(e, db) {
-      IdbStateClassList.map((props) => {
-        props.dbUpgradeneeded(e, db);
-      });
-    },
-    async onsuccess(db) {
-      await Promise.all(
-        IdbStateClassList.map(async (props) => {
-          await props.dbSuccess(db);
-          await props.setBeforeLastmod();
-        })
-      );
-    },
-  }).then((db) => {
-    dbClass = db;
-  });
-}
+export const dbCreatePromise = MeeIndexedDB.create({
+  version: INDEXEDDB_VERSION,
+  dbName: INDEXEDDB_NAME,
+  onupgradeneeded(e, db) {
+    IdbStateClassList.map((props) => {
+      props.dbUpgradeneeded(e, db);
+    });
+  },
+  async onsuccess(db) {
+    await Promise.all(
+      IdbStateClassList.map(async (props) => {
+        await props.dbSuccess(db);
+        await props.setBeforeLastmod();
+      })
+    );
+  },
+}).then((db) => {
+  dbClass = db;
+  return db;
+});
 
 const allDataSrc = "/data/all";
 interface DataStateType {
