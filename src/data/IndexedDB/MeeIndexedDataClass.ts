@@ -34,10 +34,13 @@ export class IndexedDataClass<
   }
   async dbSuccess(db: IDBDatabase) {
     this.table.dbSuccess(db);
-    this.emit("update");
+    this.emitEvent("dbSet");
+    this.emitEvent("update");
   }
   override emitSwitchEvents(name: EVENT, arg1: any): void {
-    switch (name) {
+    switch (name as EVENT | Type_MeeIndexedDB_Event) {
+      case "dbSet":
+        break;
       case "update":
         break;
     }
@@ -58,7 +61,7 @@ export class IndexedDataClass<
       }).then((v) => {
         this.table.clone().then((table) => {
           this.table = table as TABLE_CLASS;
-          this.emit("update");
+          this.emitEvent("update");
         })
         return (v ? Promise.all(v) : [])
       })
@@ -92,7 +95,7 @@ export class IndexedKVClass<V = string | null, K = string> extends IndexedDataCl
     const result = await super.save({ store, data: items });
     await this.updateData();
     this.table = (await this.table.clone()) as MeeIndexedDBTable<IndexedKVClassType<V, K>>;
-    this.emit("update");
+    this.emitEvent("update");
     return result;
   }
   async set(key: K, value: V, store?: IDBObjectStore) {

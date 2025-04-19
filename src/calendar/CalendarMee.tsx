@@ -35,7 +35,7 @@ import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/components/serviceWorker/NotificationState";
+import { useNotification } from "@/components/notification/NotificationState";
 import {
   sendMessage,
   sendNotification,
@@ -863,7 +863,7 @@ export function CalendarMeeEventViewer({
   }, [viewerClassName]);
   const { isEnable: _iENC, keyValues, setNotification } = useNotification();
   const countdownNotification = useMemo(
-    () => _iENC && Boolean(keyValues?.[NOTICE_KEY_COUNTDOWN]),
+    () => _iENC && Boolean(keyValues[NOTICE_KEY_COUNTDOWN]),
     [_iENC, keyValues]
   );
   const CountDownButton = useCallback(

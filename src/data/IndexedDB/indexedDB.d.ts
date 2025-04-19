@@ -1,4 +1,4 @@
-type Type_MeeIndexedDB_Event = "update";
+type Type_MeeIndexedDB_Event = "update" | "dbSet";
 
 interface Props_DataStateOptions<T> {
   key: string;

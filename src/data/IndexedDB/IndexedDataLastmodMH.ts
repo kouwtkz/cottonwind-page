@@ -101,7 +101,7 @@ export class IndexedDataLastmodMH<
   async dbSuccess(db: IDBDatabase) {
     this.table.dbSuccess(db);
     await this.setBeforeLastmod();
-    this.emit("update");
+    this.emitEvent("update");
   }
   async setSearchParamsOption({
     searchParams,
@@ -141,7 +141,7 @@ export class IndexedDataLastmodMH<
     }
   }
   load(load?: LoadStateType) {
-    this.emit("load", load);
+    this.emitEvent("load", load);
   }
   override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<T>) {
     let callback: ((item: any) => Promise<T>) | undefined;

@@ -5,16 +5,16 @@ export class SubscribeEventsClass<N = string> {
   constructor() {
     this.events = [];
   }
-  on(name: N, event: EventFunction) {
+  addEventListener(name: N, event: EventFunction) {
     this.events.push({ name, event });
   }
-  remove(name: N, event: EventFunction) {
+  removeEventListener(name: N, event: EventFunction) {
     const found = this.events.findIndex(
       (v) => v.name === name && v.event === event
     );
     this.events.splice(found, 1);
   }
-  emit(name: N, ...arg: any[]) {
+  emitEvent(name: N, ...arg: any[]) {
     this.emitSwitchEvents(name, ...arg);
     this.events
       .filter((item) => item.name === name)
@@ -24,8 +24,8 @@ export class SubscribeEventsClass<N = string> {
   }
   getSubscribe(name: N): EventCallback {
     return (callback) => {
-      this.on(name, callback);
-      return () => this.remove(name, callback);
+      this.addEventListener(name, callback);
+      return () => this.removeEventListener(name, callback);
     };
   }
 }

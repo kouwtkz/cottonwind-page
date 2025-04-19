@@ -48,13 +48,13 @@ type WithSet<T> = T & { Set: setType<T> };
 export function CreateObjectState<T extends object>(
   t: createType<T> = {} as T
 ) {
-  return create<WithSet<T>>((set) => {
+  return create<WithSet<T>>((set, e) => {
     const _t = typeof t === "function" ? (t as Function)(set) : t;
     return {
       Set(v) {
         set((s) => {
           if (typeof v === "function") {
-            return (v as Function)(s) || {};
+            return (v as Function)(s, e) || {};
           } else return v;
         });
       },

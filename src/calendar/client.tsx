@@ -43,7 +43,7 @@ import {
   RiNotification2Line,
 } from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
-import { useNotification } from "@/components/serviceWorker/NotificationState";
+import { useNotification } from "@/components/notification/NotificationState";
 import { fileDialog, fileDownload } from "@/components/FileTool";
 import { getUUID } from "@/functions/clientFunction";
 import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
@@ -134,7 +134,7 @@ type INDEXED_NAME_UNION =
   | typeof INDEXED_KV_NAME
   | typeof INDEXED_CID_NAME;
 
-let dbClass: MeeIndexedDB | undefined;
+export let dbCalendarClass: MeeIndexedDB | undefined;
 
 const router = createBrowserRouter([
   {
@@ -163,7 +163,7 @@ export const dbCalendarCreatePromise = MeeIndexedDB.create({
     await indexedCalendarKV.dbSuccess(db);
   },
 }).then(async (db) => {
-  dbClass = db;
+  dbCalendarClass = db;
   {
     const localItem = localStorage.getItem("calendarAppData");
     if (localItem) {

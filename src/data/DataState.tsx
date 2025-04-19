@@ -92,7 +92,7 @@ export const IdbStateClassMap = new Map<string, anyIdbStateClass>();
 });
 export const IdbStateClassList = Array.from(IdbStateClassMap.values());
 
-let dbClass: MeeIndexedDB | undefined;
+export let dbClass: MeeIndexedDB | undefined;
 export const dbCreatePromise = MeeIndexedDB.create({
   version: INDEXEDDB_VERSION,
   dbName: INDEXEDDB_NAME,
