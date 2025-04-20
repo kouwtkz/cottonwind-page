@@ -1,14 +1,13 @@
 import { CreateObjectState } from "@/state/CreateState";
 import { useCallback, useEffect } from "react";
 import "./clientSw";
-import { connectingSw, sendMessage } from "./clientSw";
+import { connectingSw, sendSwMessage } from "./clientSw";
 
 export const useSwState = CreateObjectState<SwStateType>({
   received: null,
   regist: null,
   sw: null,
-  countdown: null,
-  sendMessage,
+  sendMessage: sendSwMessage,
 });
 
 export function SwState() {
@@ -24,8 +23,6 @@ export function SwState() {
     (e: MessageEvent<any>) => {
       if (regist && e.source === regist.active) {
         const set: Partial<SwStateType> = { received: e.data };
-        if (typeof e.data.countdownTime === "number")
-          set.countdown = e.data.countdownTime;
         Set(set);
       }
     },

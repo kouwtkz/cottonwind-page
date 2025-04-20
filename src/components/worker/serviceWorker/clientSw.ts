@@ -1,4 +1,4 @@
-import { connectServiceWorker } from "./setFunction";
+import { connectServiceWorker } from "@/components/worker/serviceWorker/registerServiceWorker";
 
 const path = import.meta.env?.VITE_PATH_SW_NOTIFICATION;
 let sw: ServiceWorker | null = null;
@@ -10,10 +10,10 @@ if (path) {
   });
 }
 
-export function sendMessage(message: SwReceiveDataType) {
+export function sendSwMessage(message: SwReceiveDataType) {
   sw?.postMessage(JSON.stringify(message));
 }
 
 export function sendNotification(message: string) {
-  sendMessage({ notification: message });
+  sendSwMessage({ notification: message });
 }

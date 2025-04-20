@@ -35,13 +35,15 @@ import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/components/notification/NotificationState";
+import { useNotification } from "@/components/worker/notification/NotificationState";
 import {
-  sendMessage,
+  sendSwMessage,
   sendNotification,
-} from "@/components/serviceWorker/clientSw";
-import { useSwState } from "@/components/serviceWorker/clientSwState";
+} from "@/components/worker/serviceWorker/clientSw";
+import { useSwState } from "@/components/worker/serviceWorker/clientSwState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
+import { dataParse } from "@/functions/dataParse";
+import { toast } from "react-toastify";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {
   calendar: Calendar;
@@ -1061,51 +1063,67 @@ export const CountDown = memo(function CountDown({
       date.getMilliseconds(),
     [date]
   );
+
   const [time, setTime] = useState<number>(firstTime);
-  const { countdown } = useSwState();
+  let noticeText = "時間になりました！";
+
+  const workerRef = useRef<Worker | null>(null);
+  const sendKwMessage = useCallback((message: WkReceiveDataType) => {
+    workerRef.current?.postMessage(JSON.stringify(message));
+  }, []);
+  const completeMessage = useMemo(
+    () => title + "\n" + noticeText,
+    [title, noticeText]
+  );
+  const [wkReceived, setWkReceived] = useState<WkSendDataType>({});
+  useEffect(() => {
+    const path = import.meta.env?.VITE_PATH_WK_COUNTDOWN;
+    if (path) {
+      workerRef.current = new Worker(new URL(path, location.origin), {
+        type: "module",
+      });
+      workerRef.current.addEventListener("message", (e) => {
+        setWkReceived(dataParse<WkSendDataType>(e.data));
+      });
+      return () => {
+        workerRef.current!.terminate();
+      };
+    }
+  }, []);
+  useEffect(() => {
+    const { countdownTime } = wkReceived;
+    if (countdownTime) setTime(countdownTime * 1000);
+    else if (countdownTime === 0) setTime(0);
+  }, [wkReceived]);
+  const isJust = useMemo(() => time === 0, [time]);
+
+  useEffect(() => {
+    if (isJust) {
+      toast(completeMessage);
+      sendNotification(completeMessage);
+    }
+  }, [isJust, completeMessage]);
+
   useEffect(() => {
     if (firstTime >= 0) {
       const ml = firstTime % 1000;
       setTimeout(() => {
         setTime((time) => {
           const newTime = time - ml;
-          sendMessage({ setCountdown: newTime / 1000 });
+          sendKwMessage({
+            setCountdown: newTime / 1000,
+          });
           return newTime;
         });
       }, ml);
       return () => {
-        if (time) sendMessage({ setCountdown: null });
+        if (time) sendKwMessage({ setCountdown: null });
       };
     }
   }, [firstTime]);
   useEffect(() => {
-    if (typeof countdown === "number") {
-      setTime(countdown * 1000);
-    }
-  }, [countdown]);
-  const [firstTimeover, setFirstTimeover] = useState(firstTime <= 0);
-  useEffect(() => {
     setTime(firstTime);
-    setFirstTimeover(firstTime <= 0);
   }, [firstTime]);
-  const currentTimeover = useMemo(() => time <= 0, [time]);
-  const timeOver = useMemo(
-    () => currentTimeover && !firstTimeover,
-    [currentTimeover, firstTimeover]
-  );
-  useEffect(() => {
-    if (timeOver) {
-      if (notification) {
-        let noticeText = "時間になりました！";
-        if (title) noticeText = title + "\n" + noticeText;
-        try {
-          sendNotification(noticeText);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-  }, [timeOver, notification]);
   const result = useMemo(() => {
     const totalSeconds = Math.floor(time / 1000);
     const seconds = totalSeconds % 60;

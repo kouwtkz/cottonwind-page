@@ -1,7 +1,7 @@
 import { IndexedKVClass } from "@/data/IndexedDB/MeeIndexedDataClass";
 import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
 
-const NOTIFICATION_DB_NAME = "cottonwind-notice";
+const NOTIFICATION_DB_NAME = "cottonwind-worker";
 const NOTIFICATION_TABLE_NAME = "notification";
 const NOTIFICATION_INDEXEDDB_VERSION: number = 1;
 

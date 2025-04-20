@@ -27,6 +27,13 @@ interface setClientBuildOptionsProps {
 }
 
 const envDev = loadEnv("development", process.cwd()) as ImportMetaEnv;
+const buildDefaultAssets = [
+  './src/clientBefore.ts',
+  './src/styles.scss',
+  './src/styles/styles_lib.scss',
+  `.${envDev.VITE_PATH_SW_NOTIFICATION}`,
+  `.${envDev.VITE_PATH_WK_COUNTDOWN}`,
+]
 const allowedHosts: string[] = [];
 if (envDev.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN);
 if (envDev.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN_2);
@@ -35,7 +42,13 @@ function setClientBuildOptions({ dir_assets = "assets", dir_js, dir_css, dir_ima
   return ({
     rollupOptions: {
       output: {
-        entryFileNames: `${dir_js || dir_assets}/[name].js`,
+        entryFileNames: (assetInfo) => {
+          if (assetInfo.name.startsWith("sw")) {
+            return `[name].js`;
+          } else {
+            return `${dir_js || dir_assets}/[name].js`;
+          }
+        },
         chunkFileNames: `${dir_js || dir_assets}/[name].js`,
         assetFileNames: (assetInfo) => {
           const name = assetInfo?.name ?? "";
@@ -113,11 +126,9 @@ export default defineConfig(async ({ mode }) => {
       clientInput.push('./src/workers/twix/twixClient.tsx');
     } else {
       clientInput.push(
-        './src/client.tsx',
-        './src/clientBefore.ts',
-        './src/styles.scss',
-        './src/styles/styles_lib.scss',
-        `.${envDev.VITE_PATH_SW_NOTIFICATION}`,
+        ...buildDefaultAssets.concat([
+          './src/client.tsx',
+        ])
       );
     }
     return clientOptions;
@@ -133,13 +144,9 @@ export default defineConfig(async ({ mode }) => {
           outDir: "src/calendar/dist",
           rollupOptions: {
             ...setClientBuildOptions(),
-            input: [
+            input: buildDefaultAssets.concat([
               './src/calendar/client.tsx',
-              './src/clientBefore.ts',
-              './src/styles.scss',
-              './src/styles/styles_lib.scss',
-              `.${envDev.VITE_PATH_SW_NOTIFICATION}`,
-            ]
+            ])
           },
           chunkSizeWarningLimit: 1000
         },
