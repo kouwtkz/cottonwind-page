@@ -185,7 +185,7 @@ function dateFromSearchParams(
   return newDate;
 }
 
-function setDateUrl(date: Date, setSearchParams: SetURLSearchParams) {
+function setDateUrl(date: Date, setSearchParams: SetURLSearchParams, replace?: boolean) {
   const beforeSearch = location.search;
   const searchParams = new URLSearchParams(beforeSearch);
   const dateDiff = Math.abs(new Date().getTime() - date.getTime());
@@ -200,7 +200,7 @@ function setDateUrl(date: Date, setSearchParams: SetURLSearchParams) {
   }
   const afterSearch = (searchParams.size ? "?" : "") + searchParams.toString();
   if (beforeSearch !== afterSearch) {
-    setSearchParams(searchParams, { preventScrollReset: true });
+    setSearchParams(searchParams, { preventScrollReset: true, replace });
   }
   return afterSearch;
 }
@@ -411,6 +411,7 @@ export interface CalendarMeeProps
     element?: HTMLElement
   ) => void;
   openSetting?: (ev: MouseEvent, element: HTMLElement) => void;
+  linkMoveReplace?: boolean;
 }
 
 export function CalendarMee({
@@ -423,6 +424,7 @@ export function CalendarMee({
   eventOpen: eventOpenProps,
   openAddEvents,
   openSetting,
+  linkMoveReplace,
   ...args
 }: CalendarMeeProps) {
   className = useMemo(() => {
@@ -449,10 +451,10 @@ export function CalendarMee({
       const afterSearch =
         (searchParams.size ? "?" : "") + searchParams.toString();
       if (beforeSearch !== afterSearch) {
-        setSearchParams(searchParams, { preventScrollReset: true });
+        setSearchParams(searchParams, { preventScrollReset: true, replace: linkMoveReplace });
       }
     },
-    [defaultView]
+    [defaultView, linkMoveReplace]
   );
   useEffect(() => {
     Set({ view });
@@ -515,12 +517,12 @@ export function CalendarMee({
         if (isChangeView.current) {
           isChangeView.current = false;
         } else {
-          setDateUrl(calendar.getDate(), setSearchParams);
+          setDateUrl(calendar.getDate(), setSearchParams, linkMoveReplace);
           setView(calendar.view.type as Type_VIEW_FC);
         }
       }
     },
-    [calendar, eventId]
+    [calendar, eventId, linkMoveReplace]
   );
   const eventOpen = useCallback(
     (e: EventClickArg) => {

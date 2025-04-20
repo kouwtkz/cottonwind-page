@@ -851,6 +851,7 @@ function Home() {
           openSetting={() => openSettingForm(true)}
           height={800}
           defaultView={defaultView as Type_VIEW_FC}
+          linkMoveReplace
         />
       ) : null}
     </>
