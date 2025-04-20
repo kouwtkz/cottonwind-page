@@ -215,7 +215,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       position: String(image?.position),
       tags: image?.tags || [],
       characters: image?.characters || [],
-      type: image?.type || "",
+      type: image?.rawdata?.type || "",
       time: ToFormTime(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",

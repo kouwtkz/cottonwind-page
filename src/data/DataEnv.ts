@@ -1,5 +1,5 @@
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
-export const INDEXEDDB_VERSION: number = 2;
+export const INDEXEDDB_VERSION: number = 3;
 
 export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
   name: "images",
@@ -9,7 +9,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
   latestField: { time: "desc" },
   primary: "id",
   secondary: ["key", "time", "lastmod", "album", "type"],
-  convert: { date: ["time", "lastmod", "mtime"], array: ["tags", "copyright", "characters"], boolean: ["draft"] }
+  convert: { date: ["time", "lastmod", "mtime"], array: ["tags", "copyright", "characters"], boolean: ["pickup", "draft"] }
 }
 
 export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, CharacterDataType> = {
