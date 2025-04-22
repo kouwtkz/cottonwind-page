@@ -211,7 +211,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       title: image?.title || "",
       description: image?.description || "",
       topImage: String(image?.topImage ?? null),
-      pickup: String(image?.pickup),
+      pickup: String(image?.pickup ?? null),
       position: String(image?.position),
       tags: image?.tags || [],
       characters: image?.characters || [],
@@ -790,7 +790,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                   {...register("pickup")}
                   disabled={isBusy}
                 >
-                  <option value="undefined">自動</option>
+                  <option value="null">自動</option>
                   <option value="true">固定する</option>
                   <option value="false">固定しない</option>
                 </select>
