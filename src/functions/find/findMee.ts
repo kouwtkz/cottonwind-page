@@ -212,7 +212,11 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     case "regexp":
       return (fval as RegExp).test(innerValue);
     default:
-      return innerValue == fval
+      let switchInnerValue = innerValue;
+      if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
+        switchInnerValue = innerValue[fkey];
+      }
+      return switchInnerValue == fval
   }
 }
 
