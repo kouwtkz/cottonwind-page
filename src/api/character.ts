@@ -6,6 +6,7 @@ import { UpdateTablesDataObject } from "./DBTablesObject";
 import { charactersDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 import { ImageTableObject } from "./image";
+import { ImageBucketRename } from "./serverFunction";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -80,25 +81,38 @@ app.post("/send", async (c, next) => {
         if (!entry.key && data.id) entry.key = data.id;
         await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
         if (entry.key && entry.key !== target.key) {
-          const list = await ImageTableObject.Select({ db, where: { characters: { contains: target.key } } });
+          const list = await ImageTableObject.Select({ db, where: { OR: [{ key: target.key }, { characters: { contains: target.key } }] } });
           const time = new Date();
           await Promise.all(
             list.map((item) => {
-              const characters = item.characters?.split(",") || []
+              const charactersList = item.characters?.split(",") || [target.key]
               return ({
-                ...item, characters, index: characters.findIndex(v => v === target.key)
+                ...item, charactersList, index: charactersList.findIndex(v => v === target.key)
               })
             })
               .filter(item => item.index >= 0)
               .map(async item => {
-                item.characters[item.index] = entry.key as string;
+                const newKey = entry.key as string;
+                item.charactersList[item.index] = newKey;
                 const lastmod = time.toISOString();
                 time.setMilliseconds(time.getMilliseconds() + 1);
-                await ImageTableObject.Update({
-                  db,
-                  where: { id: item.id },
-                  entry: { characters: item.characters.join(","), lastmod }
-                });
+                if (target.key === item.key) {
+                  const entry: Partial<ImageDataType> = {
+                    title: newKey, key: newKey, characters: item.charactersList.join(","), lastmod
+                  };
+                  await ImageBucketRename({ bucket: c.env.BUCKET, rename: newKey, image: item, entry });
+                  await ImageTableObject.Update({
+                    db,
+                    where: { id: item.id },
+                    entry,
+                  });
+                } else {
+                  await ImageTableObject.Update({
+                    db,
+                    where: { id: item.id },
+                    entry: { characters: item.charactersList.join(","), lastmod },
+                  });
+                }
                 return;
               })
           )

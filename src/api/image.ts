@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getBasename, getExtension, getName } from "@/functions/doc/PathParse";
+import { getBasename, getName } from "@/functions/doc/PathParse";
 import { imageDimensionsFromData } from "image-dimensions";
 import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
 import { IsLogin } from "@/admin";
@@ -9,6 +9,7 @@ import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { ImageDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
+import { ImageBucketRename } from "./serverFunction";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -96,25 +97,7 @@ app.patch("/send", async (c, next) => {
       if (rename) {
         if (value) {
           entry.key = rename;
-          async function renamePut(
-            key: "src" | "thumbnail",
-            rename: string
-          ) {
-            if (value[key]) {
-              const object = await c.env.BUCKET.get(value[key]);
-              if (object) {
-                entry[key] = rename;
-                await c.env.BUCKET.put(rename, await object.arrayBuffer());
-                await c.env.BUCKET.delete(value[key]);
-              }
-            }
-          }
-          const renameSrc = value.src
-            ? rename + "." + getExtension(value.src)
-            : null;
-          const renameWebp = rename + ".webp";
-          if (renameSrc) await renamePut("src", "image/" + renameSrc);
-          await renamePut("thumbnail", "image/thumbnail/" + renameWebp);
+          await ImageBucketRename({ bucket: c.env.BUCKET, rename, image: value, entry });
         }
       }
       KeyValueConvertDBEntry(entry);
