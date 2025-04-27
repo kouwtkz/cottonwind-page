@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
-import { charactersDataIndexed, likeDataIndexed } from "@/data/DataState";
-import { getCharacterMap as getCharactersMap } from "@/functions/characterFunction";
-import { CreateObjectState, CreateState } from "./CreateState";
+import { charactersDataIndexed } from "@/data/DataState";
+import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
-import { useFaviconState } from "./FaviconState";
-import { useParams } from "react-router-dom";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -39,27 +36,8 @@ export function CharacterState() {
   return (
     <>
       <CharacterDataState />
-      <CharacterParamState />
     </>
   );
-}
-
-function CharacterParamState() {
-  const setFavicon = useFaviconState()[1];
-  const { charaName = "" } = useParams();
-  const { charactersMap } = useCharacters();
-  const character = useMemo(
-    () => charactersMap.get(charaName) || null,
-    [charaName, charactersMap]
-  );
-  useEffect(() => {
-    if (character?.media?.icon) {
-      setFavicon(character.media.icon);
-    } else {
-      setFavicon(null);
-    }
-  }, [character]);
-  return <></>;
 }
 
 function CharacterDataState() {
