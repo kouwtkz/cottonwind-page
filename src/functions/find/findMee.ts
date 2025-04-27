@@ -168,55 +168,51 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): bool
 
 export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any) {
   const innerValueType = typeof innerValue;
-  let switchInnerValue = innerValue;
-  if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
-    switchInnerValue = innerValue[fkey];
-  }
   switch (fkey) {
     case "equals":
-      if (innerValueType === "string") return String(switchInnerValue).toLocaleLowerCase() === fval;
-      else return switchInnerValue == fval;
+      if (innerValueType === "string") return String(innerValue).toLocaleLowerCase() === fval;
+      else return innerValue == fval;
     case "has":
-      return Boolean(switchInnerValue) === fval;
+      return Boolean(innerValue) === fval;
     case "not":
-      return switchInnerValue != fval;
+      return innerValue != fval;
     case "like":
     case "contains":
-      if (Array.isArray(switchInnerValue)) return switchInnerValue.some((x) => x.toLocaleLowerCase() === fval);
+      if (Array.isArray(innerValue)) return innerValue.some((x) => x.toLocaleLowerCase() === fval);
       else {
-        const _v = String(switchInnerValue).toLocaleLowerCase();
+        const _v = String(innerValue).toLocaleLowerCase();
         if (/[\*\?]/.test(fval)) {
           try { return _v.match(fval) } catch { return true }
         } else return _v.includes(fval);
       }
     case "startsWith":
-      return String(switchInnerValue).toLocaleLowerCase().startsWith(fval);
+      return String(innerValue).toLocaleLowerCase().startsWith(fval);
     case "endsWith":
-      return String(switchInnerValue).toLocaleLowerCase().endsWith(fval);
+      return String(innerValue).toLocaleLowerCase().endsWith(fval);
     case "gt":
-      return switchInnerValue > fval;
+      return innerValue > fval;
     case "gte":
-      return switchInnerValue >= fval;
+      return innerValue >= fval;
     case "lt":
-      return switchInnerValue < fval;
+      return innerValue < fval;
     case "lte":
-      return switchInnerValue <= fval;
+      return innerValue <= fval;
     case "in":
       const inVal = fval as unknown[];
-      if (Array.isArray(switchInnerValue)) return inVal.some(v => switchInnerValue.some(c => v == c));
-      else return inVal.some(v => v == switchInnerValue);
+      if (Array.isArray(innerValue)) return inVal.some(v => innerValue.some(c => v == c));
+      else return inVal.some(v => v == innerValue);
     case "between":
       const betweenVal = fval as any[];
-      return betweenVal[0] <= switchInnerValue && switchInnerValue <= betweenVal[1];
+      return betweenVal[0] <= innerValue && innerValue <= betweenVal[1];
     case "bool":
       let boolVal: boolean;
-      if (Array.isArray(switchInnerValue)) boolVal = switchInnerValue.length > 0;
-      else boolVal = Boolean(switchInnerValue);
+      if (Array.isArray(innerValue)) boolVal = innerValue.length > 0;
+      else boolVal = Boolean(innerValue);
       return fval ? boolVal : !boolVal;
     case "regexp":
-      return (fval as RegExp).test(switchInnerValue);
+      return (fval as RegExp).test(innerValue);
     default:
-      return switchInnerValue == fval
+      return innerValue == fval
   }
 }
 
