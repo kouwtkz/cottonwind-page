@@ -18,6 +18,7 @@ import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
 import { KeyValueDBState, useKeyValueDB } from "./KeyValueDBState";
 import { CalendarMeeState } from "@/calendar/CalendarMee";
+import { FaviconState } from "./FaviconState";
 
 export const useSiteIsFirst = CreateState(true);
 export const useDataIsComplete = CreateState(false);
@@ -28,6 +29,7 @@ export function StateSet() {
     <>
       <EnvState />
       <DataState />
+      <FaviconState />
       <SoundPlayer />
       <ImageViewer />
       <MiniGallery />

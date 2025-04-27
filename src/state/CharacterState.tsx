@@ -8,6 +8,8 @@ import { getCharacterMap as getCharactersMap } from "@/functions/characterFuncti
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
+import { useFaviconState } from "./FaviconState";
+import { useParams } from "react-router-dom";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -34,6 +36,33 @@ export const useCharacters = CreateObjectState<characterStateType>((set) => ({
 }));
 
 export function CharacterState() {
+  return (
+    <>
+      <CharacterDataState />
+      <CharacterParamState />
+    </>
+  );
+}
+
+function CharacterParamState() {
+  const setFavicon = useFaviconState()[1];
+  const { charaName = "" } = useParams();
+  const { charactersMap } = useCharacters();
+  const character = useMemo(
+    () => charactersMap.get(charaName) || null,
+    [charaName, charactersMap]
+  );
+  useEffect(() => {
+    if (character?.media?.icon) {
+      setFavicon(character.media.icon);
+    } else {
+      setFavicon(null);
+    }
+  }, [character]);
+  return <></>;
+}
+
+function CharacterDataState() {
   const charactersData = useSyncExternalStore(
     charactersDataIndexed.subscribe,
     () => charactersDataIndexed.table
@@ -44,7 +73,14 @@ export function CharacterState() {
   const { likeCategoryMap } = useLikeState();
   const env = useEnv()[0];
   useEffect(() => {
-    if (charactersData.db && imagesMap && sounds && defaultPlaylist && likeCategoryMap && env) {
+    if (
+      charactersData.db &&
+      imagesMap &&
+      sounds &&
+      defaultPlaylist &&
+      likeCategoryMap &&
+      env
+    ) {
       charactersData.getAll().then(async (characters) => {
         const charactersMap = new Map(
           characters.map((character) => [character.key, character])
