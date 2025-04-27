@@ -238,6 +238,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         )
         .then(() => {
           charactersDataIndexed.load("no-cache");
+          if (data.key) imageDataIndexed.load("no-cache");
           if (move) nav(`/character/${formValues.key}`);
         });
     } else {

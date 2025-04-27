@@ -5,6 +5,7 @@ import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { charactersDataOptions } from "@/data/DataEnv";
 import { GetDataProps } from "./propsDef";
+import { ImageTableObject } from "./image";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({
   strict: false,
@@ -78,6 +79,30 @@ app.post("/send", async (c, next) => {
       if (target) {
         if (!entry.key && data.id) entry.key = data.id;
         await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
+        if (entry.key && entry.key !== target.key) {
+          const list = await ImageTableObject.Select({ db, where: { characters: { contains: target.key } } });
+          const time = new Date();
+          await Promise.all(
+            list.map((item) => {
+              const characters = item.characters?.split(",") || []
+              return ({
+                ...item, characters, index: characters.findIndex(v => v === target.key)
+              })
+            })
+              .filter(item => item.index >= 0)
+              .map(async item => {
+                item.characters[item.index] = entry.key as string;
+                const lastmod = time.toISOString();
+                time.setMilliseconds(time.getMilliseconds() + 1);
+                await ImageTableObject.Update({
+                  db,
+                  where: { id: item.id },
+                  entry: { characters: item.characters.join(","), lastmod }
+                });
+                return;
+              })
+          )
+        }
         return { type: "update", entry: { ...target, ...entry } };
       } else {
         entry.key = data.key || target_id;
