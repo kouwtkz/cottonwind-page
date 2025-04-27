@@ -16,18 +16,18 @@ const element = (() => {
 })();
 export const useFaviconState = CreateState<string | ImageType | null>();
 
+let defaultWait = 0;
+if (/Firefox/.test(navigator.userAgent)) defaultWait = 250;
+
 export function FaviconState() {
   const src = useFaviconState()[0];
   const mediaOrigin = useMediaOrigin()[0];
-  const [isWait, setIsWait] = useState(true);
+  const [isWait, setIsWait] = useState(defaultWait > 0);
   useEffect(() => {
-    let timer = 0;
-    if (/Firefox/.test(navigator.userAgent)) timer = 250;
-    if (timer) {
+    if (defaultWait > 0)
       setTimeout(() => {
         setIsWait(false);
-      }, timer);
-    } else setIsWait(false);
+      }, defaultWait);
   }, []);
   useEffect(() => {
     if (!isWait && src) {
