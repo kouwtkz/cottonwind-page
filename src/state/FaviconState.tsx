@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CreateState } from "./CreateState";
 import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
@@ -19,8 +19,18 @@ export const useFaviconState = CreateState<string | ImageType | null>();
 export function FaviconState() {
   const src = useFaviconState()[0];
   const mediaOrigin = useMediaOrigin()[0];
+  const [isWait, setIsWait] = useState(true);
   useEffect(() => {
-    if (src) {
+    let timer = 0;
+    if (/Firefox/.test(navigator.userAgent)) timer = 250;
+    if (timer) {
+      setTimeout(() => {
+        setIsWait(false);
+      }, timer);
+    } else setIsWait(false);
+  }, []);
+  useEffect(() => {
+    if (!isWait && src) {
       if (typeof src === "string") {
         element.href = src;
       } else {
@@ -29,6 +39,6 @@ export function FaviconState() {
     } else if (defaultValue) {
       element.href = defaultValue;
     } else element.removeAttribute("href");
-  }, [src, mediaOrigin]);
+  }, [src, mediaOrigin, isWait]);
   return <></>;
 }
