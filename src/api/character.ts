@@ -76,7 +76,7 @@ app.post("/send", async (c, next) => {
         ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
         : undefined;
       if (target) {
-        entry.key = data.id;
+        if (!entry.key && data.id) entry.key = data.id;
         await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
         return { type: "update", entry: { ...target, ...entry } };
       } else {
