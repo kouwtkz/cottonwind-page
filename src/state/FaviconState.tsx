@@ -64,8 +64,8 @@ function FaviconSetState() {
     const character = params.charaName
       ? charactersMap.get(params.charaName) || null
       : null;
-    if (character?.media?.icon) {
-      return character.media.icon;
+    if (character?.icon) {
+      return character.icon;
     } else {
       return null;
     }

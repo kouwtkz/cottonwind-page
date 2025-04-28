@@ -23,6 +23,7 @@ export function getImageObjectMap(imagesData: ImageDataType[], imageAlbumEnv?: I
   imagesData
     .filter((v) => v.version && v.src)
     .forEach((v) => {
+      console.log(v);
       if (v.album && !imageAlbumMap.has(v.album)) imageAlbumMap.set(v.album, { name: v.album, list: [] });
       const albumObject = v.album ? imageAlbumMap.get(v.album) : undefined;
       const item: ImageType = {

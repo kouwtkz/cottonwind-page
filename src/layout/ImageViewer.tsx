@@ -120,9 +120,9 @@ function InfoArea({ image }: InfoAreaProps) {
                   className="character"
                   key={i}
                 >
-                  {chara?.media?.icon ? (
+                  {chara?.icon ? (
                     <ImageMee
-                      imageItem={chara.media.icon}
+                      imageItem={chara.icon}
                       mode="icon"
                       width={40}
                       height={40}

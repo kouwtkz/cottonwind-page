@@ -15,9 +15,9 @@ export function charaTagsLabel(
         {character ? (
           <>
             <span className="label-sl">
-              {character.media?.icon ? (
+              {character.icon ? (
                 <ImageMeeIcon
-                  imageItem={character.media.icon}
+                  imageItem={character.icon}
                   className="charaIcon"
                 />
               ) : (

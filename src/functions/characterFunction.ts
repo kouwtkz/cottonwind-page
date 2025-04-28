@@ -2,9 +2,9 @@ export function getCharacterMap(data: CharacterDataType[]) {
   const charactersMap = new Map<string, CharacterType>();
   data.forEach((v) => {
     if (!v.name) return;
+    const { icon, image, headerImage, ..._v } = v;
     const item: CharacterType = {
-      ...v,
-      media: {},
+      ..._v,
       tags: v.tags ? v.tags.split(",") : [],
       playlist: v.playlist ? v.playlist.split(",") : [],
       draft: typeof v.draft === "number" ? Boolean(v.draft) : undefined,

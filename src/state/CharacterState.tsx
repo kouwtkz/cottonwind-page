@@ -70,26 +70,26 @@ function CharacterDataState() {
             const currentLikeData = charaLikeData.get(chara.key);
             if (currentLikeData) chara.like = currentLikeData;
           }
-          if (!chara.media) chara.media = {};
-          const charaMedia = chara.media;
-          charaMediaKindMap.forEach((name, key) => {
-            const charaMediaItem = chara[key];
-            let image: ImageType | undefined;
-            if (charaMediaItem) {
-              image = imagesMap.get(charaMediaItem);
-            } else if (name === "charaIcon") {
-              image = imagesMap.get(chara.key);
-            }
-            if (image?.src) charaMedia[key] = image;
-          });
-          chara.visible = Boolean(chara.media.image || chara.media.icon);
+          if (chara.rawdata) {
+            charaMediaKindMap.forEach((name, key) => {
+              const charaMediaItem = chara.rawdata![key];
+              let image: ImageType | undefined;
+              if (charaMediaItem) {
+                image = imagesMap.get(charaMediaItem);
+              } else if (name === "charaIcon") {
+                image = imagesMap.get(chara.key);
+              }
+              if (image?.src) chara[key] = image;
+              else chara[key] = null;
+            });
+          }
+          chara.visible = Boolean(chara.image || chara.icon);
 
           if (sounds && defaultPlaylist) {
             let playlist = chara.playlist;
             if (playlist) {
               const playlistTitle = `${chara.name}のプレイリスト`;
-              if (!chara.media) chara.media = {};
-              chara.media.playlist = {
+              chara.soundPlaylist = {
                 title: playlistTitle,
                 list: playlist
                   .reduce((a, c) => {

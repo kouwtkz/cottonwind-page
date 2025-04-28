@@ -110,9 +110,9 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       overview: chara?.overview || "",
       description: chara?.description || "",
       defEmoji: chara?.defEmoji || "",
-      icon: chara?.icon || "",
-      image: chara?.image || "",
-      headerImage: chara?.headerImage || "",
+      icon: chara?.rawdata?.icon || "",
+      image: chara?.rawdata?.image || "",
+      headerImage: chara?.rawdata?.headerImage || "",
       time: ToFormTime(chara?.time),
       birthday: ToFormTime(chara?.birthday),
       tags: chara?.tags || [],
@@ -357,7 +357,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         if (mode === "body") classNames.push("color");
         else {
           classNames.push("normal", "setter");
-          if (!chara?.media?.[mode]) classNames.push("color");
+          if (!chara?.[mode]) classNames.push("color");
         }
       }
       let album: string | undefined;
@@ -418,8 +418,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             }
           }}
         >
-          {mode !== "body" && chara?.media?.[mode] ? (
-            <ImageMeeIcon className="charaIcon" imageItem={chara.media[mode]} />
+          {mode !== "body" && chara?.[mode] ? (
+            <ImageMeeIcon className="charaIcon" imageItem={chara[mode]} />
           ) : (
             <MdFileUpload />
           )}
@@ -447,8 +447,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       />
       <form className="edit">
         <div>
-          {chara?.media?.icon ? (
-            <ImageMeeIcon className="icon" imageItem={chara.media.icon} />
+          {chara?.icon ? (
+            <ImageMeeIcon className="icon" imageItem={chara.icon} />
           ) : (
             <ImageMeeQuestion alt={chara?.name} className="icon" />
           )}
@@ -504,11 +504,13 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("icon")}
               />
             </label>
-            <ImageModalSetter
-              mode="icon"
-              title="ギャラリーからアイコンの設定"
-            />
-            <ImageSetter mode="icon" title="アイコンの設定" />
+            <div className="flex">
+              <ImageModalSetter
+                mode="icon"
+                title="ギャラリーからアイコンの設定"
+              />
+              <ImageSetter mode="icon" title="アイコンの設定" />
+            </div>
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
@@ -521,11 +523,13 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("headerImage")}
               />
             </label>
-            <ImageModalSetter
-              mode="headerImage"
-              title="ギャラリーからヘッダーの設定"
-            />
-            <ImageSetter mode="headerImage" title="ヘッダーの設定" />
+            <div className="flex">
+              <ImageModalSetter
+                mode="headerImage"
+                title="ギャラリーからヘッダーの設定"
+              />
+              <ImageSetter mode="headerImage" title="ヘッダーの設定" />
+            </div>
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
@@ -538,11 +542,13 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 {...register("image")}
               />
             </label>
-            <ImageModalSetter
-              mode="image"
-              title="ギャラリーからメイン画像の設定"
-            />
-            <ImageSetter mode="image" title="メイン画像の設定" />
+            <div className="flex">
+              <ImageModalSetter
+                mode="image"
+                title="ギャラリーからメイン画像の設定"
+              />
+              <ImageSetter mode="image" title="メイン画像の設定" />
+            </div>
           </div>
         </div>
         <div className="flex column">

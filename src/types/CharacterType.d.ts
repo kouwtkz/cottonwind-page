@@ -21,21 +21,19 @@ interface CharacterDataType {
   lastmod: string;
 }
 
-interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod">, WithRawDataType<CharacterDataType> {
+interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod" | "icon" | "image" | "headerImage">, WithRawDataType<CharacterDataType> {
   tags?: string[],
   playlist?: string[],
+  soundPlaylist?: SoundPlaylistType,
   draft?: boolean,
   time?: Date,
   birthday?: Date,
   lastmod?: Date,
   visible?: boolean;
   like?: LikeType;
-  media?: {
-    icon?: ImageType | null,
-    image?: ImageType | null,
-    headerImage?: ImageType | null,
-    playlist?: SoundPlaylistType,
-  },
+  icon?: ImageType | null,
+  image?: ImageType | null,
+  headerImage?: ImageType | null,
 }
 
 type characterImageMediaMode = "icon" | "image" | "headerImage";

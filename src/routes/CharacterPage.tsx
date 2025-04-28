@@ -258,15 +258,15 @@ export const CharaListItem = memo(function CharaListItem({
   return (
     <>
       <div className="inner" {...args}>
-        {chara.media?.image ? (
+        {chara.image ? (
           <ImageMeeThumbnail
-            imageItem={chara.media.image}
+            imageItem={chara.image}
             className="image"
             loadingScreen={true}
           />
-        ) : chara.media?.icon ? (
+        ) : chara.icon ? (
           <ImageMeeThumbnail
-            imageItem={chara.media.icon}
+            imageItem={chara.icon}
             className="image"
             loadingScreen={true}
           />
@@ -427,9 +427,9 @@ export function CharaBeforeAfter({
             state={state}
           >
             <span className="cursor">＜</span>
-            {beforeChara.media?.icon ? (
+            {beforeChara.icon ? (
               <ImageMeeIcon
-                imageItem={beforeChara.media.icon}
+                imageItem={beforeChara.icon}
                 size={40}
                 className="charaIcon"
               />
@@ -444,9 +444,9 @@ export function CharaBeforeAfter({
             to={"/character/" + afterChara.key + (isEdit ? "?edit=on" : "")}
             state={state}
           >
-            {afterChara.media?.icon ? (
+            {afterChara.icon ? (
               <ImageMeeIcon
-                imageItem={afterChara.media.icon}
+                imageItem={afterChara.icon}
                 size={40}
                 className="charaIcon"
               />
@@ -489,10 +489,10 @@ function CharaDetail({ charaName }: { charaName: string }) {
     [charactersMap, charaName]
   );
   useEffect(() => {
-    if (chara?.media?.playlist && chara.media.playlist.list.length > 0) {
-      RegistPlaylist({ playlist: chara?.media?.playlist });
+    if (chara?.soundPlaylist && chara.soundPlaylist.list.length > 0) {
+      RegistPlaylist({ playlist: chara.soundPlaylist });
     }
-  }, [chara?.media?.playlist?.title]);
+  }, [chara?.soundPlaylist?.title]);
   return (
     <>
       {charactersMap ? (
@@ -504,9 +504,9 @@ function CharaDetail({ charaName }: { charaName: string }) {
             ) : null}
             <div className="head">
               <h1 className="title">
-                {chara.media?.icon ? (
+                {chara.icon ? (
                   <ImageMeeIcon
-                    imageItem={chara.media.icon}
+                    imageItem={chara.icon}
                     size={40}
                     className="charaIcon"
                   />
@@ -520,20 +520,20 @@ function CharaDetail({ charaName }: { charaName: string }) {
               ) : null}
               <div className="overview">{chara.overview}</div>
             </div>
-            {chara.media?.headerImage ? (
+            {chara.headerImage ? (
               <p>
                 <ImageMee
-                  imageItem={chara.media.headerImage}
+                  imageItem={chara.headerImage}
                   className="headerImage"
                   loading="eager"
                   suppressHydrationWarning={true}
                 />
               </p>
             ) : null}
-            {chara.media?.image ? (
+            {chara.image ? (
               <p>
                 <ImageMee
-                  imageItem={chara.media.image}
+                  imageItem={chara.image}
                   className="mainImage"
                   mode="thumbnail"
                   loading="eager"

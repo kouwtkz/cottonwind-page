@@ -2220,14 +2220,17 @@ form {
     .charaIcon {
       font-size: 2.25rem;
     }
-    .flex {
+    > .flex, .flex.center {
       flex-wrap: wrap;
+    }
+    .flex {
       > * {
         &.mini {
           width: 8rem;
         }
         .label-l {
           flex: 0.5;
+          word-break: keep-all;
         }
       }
     }

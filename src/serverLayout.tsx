@@ -1,13 +1,11 @@
 import { Footer, LinksList } from "./layout/Footer";
 import { Loading } from "./layout/Loading";
-import { SetMeta, SetMetaProps } from "./routes/SetMeta";
+import { SetMeta } from "./routes/SetMeta";
 import { CommonContext } from "./types/HonoCustomType";
 import { renderHtml } from "./functions/render";
 import { Context, Next } from "hono";
-import { getPostsData } from "@/functions/blogFunction";
 import SvgMaskSns from "./components/svg/mask/SvgMaskSns";
 import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
-import { getCharacterMap } from "@/functions/characterFunction";
 import { toImageType } from "@/functions/media/imageFunction";
 import { getMediaOrigin } from "./functions/originUrl";
 import { ImageSelectFromKey } from "./functions/media/serverDataFunction";
@@ -79,12 +77,12 @@ interface defaultServerLayoutProps extends DefaultMetaProps {
 export interface ServerLayoutProps extends defaultServerLayoutProps {
   c: CommonContext<MeePagesEnv>;
   path: string;
-  characters?: Map<string, CharacterType>;
+  characters?: Map<string, CharacterDataType>;
   isLogin?: boolean;
 }
 export async function ServerLayout({
   c,
-  characters: charactersMap,
+  characters: charactersDataMap,
   meta,
   style,
   headScript,
@@ -102,6 +100,9 @@ export async function ServerLayout({
   );
   let image: ImageType | undefined;
   let post: PostDataType | undefined;
+  let charactersMap = charactersDataMap as unknown as
+    | Map<string, CharacterType>
+    | undefined;
   if (isBot || import.meta.env!.DEV) {
     const db = new MeeSqlD1(env.DB);
     if (Url.searchParams.has("image")) {
@@ -109,28 +110,24 @@ export async function ServerLayout({
       const data = await ImageSelectFromKey(db, key);
       if (data) image = toImageType(data);
     }
-    if (charactersMap) {
+    if (charactersDataMap) {
+      async function getImage(path: string) {
+        const data = await ImageSelectFromKey(db, path)
+        if (data) return toImageType(data);
+      }
       await Promise.all(
-        Object.values(Object.fromEntries(charactersMap)).map(
-          async (character) => {
-            character.media = {};
-            if (character.image) {
-              character.media.image = toImageType(
-                await ImageSelectFromKey(db, character.image)
-              );
-            }
-            if (character.headerImage) {
-              character.media.headerImage = toImageType(
-                await ImageSelectFromKey(db, character.headerImage)
-              );
-            }
-            if (character.icon) {
-              character.media.icon = toImageType(
-                await ImageSelectFromKey(db, character.icon)
-              );
-            }
+        Array.from(charactersDataMap.values()).map(async (data) => {
+          const character = data as unknown as CharacterType;
+          if (data.image) {
+            character.image = await getImage(data.image);
           }
-        )
+          if (data.headerImage) {
+            character.headerImage = await getImage(data.headerImage);
+          }
+          if (data.icon) {
+            character.icon = await getImage(data.icon);
+          }
+        })
       );
     }
     if (!image && env.SITE_IMAGE) {
@@ -227,7 +224,7 @@ export async function ReactResponse({
           db,
           where: { AND: [{ key }] },
         });
-        if (data.length > 0) characters = getCharacterMap(data);
+        if (data.length > 0) characters = new Map(data.map((v) => [v.key, v]));
       }
       break;
   }

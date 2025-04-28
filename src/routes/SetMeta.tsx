@@ -91,13 +91,13 @@ export function MetaValues({
           : "キャラクター | " + siteTitle;
         description =
           chara?.overview || chara?.description || "わたかぜコウのキャラクター";
-        if (chara?.media?.image) {
-          if (chara.media.image) {
-            image = concatOriginUrl(mediaOrigin, chara.media.image.src);
-            if (chara.media.image.width && chara.media.image.height) {
+        if (chara?.image) {
+          if (chara.image) {
+            image = concatOriginUrl(mediaOrigin, chara.image.src);
+            if (chara.image.width && chara.image.height) {
               imageSize = {
-                w: chara.media.image.width,
-                h: chara.media.image.height,
+                w: chara.image.width,
+                h: chara.image.height,
               };
             }
           }
