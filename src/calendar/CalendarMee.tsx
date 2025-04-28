@@ -36,11 +36,6 @@ import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
 import { useNotification } from "@/components/worker/notification/NotificationState";
-import {
-  sendSwMessage,
-  sendNotification,
-} from "@/components/worker/serviceWorker/clientSw";
-import { useSwState } from "@/components/worker/serviceWorker/clientSwState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { dataParse } from "@/functions/dataParse";
 import { toast } from "react-toastify";
@@ -1068,6 +1063,7 @@ export const CountDown = memo(function CountDown({
 
   const [time, setTime] = useState<number>(firstTime);
   let noticeText = "時間になりました！";
+  const { sendNotification } = useNotification();
 
   const workerRef = useRef<Worker | null>(null);
   const sendKwMessage = useCallback((message: WkReceiveDataType) => {
@@ -1102,7 +1098,7 @@ export const CountDown = memo(function CountDown({
   useEffect(() => {
     if (isJust) {
       toast(completeMessage);
-      sendNotification(completeMessage);
+      sendNotification(NOTICE_KEY_COUNTDOWN, completeMessage);
     }
   }, [isJust, completeMessage]);
 

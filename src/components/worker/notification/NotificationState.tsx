@@ -1,5 +1,6 @@
 import { CreateObjectState } from "@/state/CreateState";
 import { indexedNotification, IndexedNotification_KV } from "./NotificationDB";
+import { sendNotification } from "../serviceWorker/clientSw";
 
 localStorage.removeItem("notification");
 
@@ -9,7 +10,8 @@ interface notificationStateType {
   map: Map<string, boolean | null> | null;
   keyValues: { [k: string]: boolean | null };
   db: IndexedNotification_KV;
-  setNotification: (key?: string, value?: boolean) => void;
+  setNotification(key?: string, value?: boolean): void;
+  sendNotification(key: string, message: string): void;
 }
 export const useNotification = CreateObjectState<notificationStateType>(
   (set) => {
@@ -19,11 +21,14 @@ export const useNotification = CreateObjectState<notificationStateType>(
       return { map, keyValues };
     }
     function dbCallback() {
-      indexedNotification.getAllMap().then((map) => {
-        set(getMapKeyValue(map));
-      }).finally(() => {
-        indexedNotification.removeEventListener(dbSetCallbackKey, dbCallback);
-      });
+      indexedNotification
+        .getAllMap()
+        .then((map) => {
+          set(getMapKeyValue(map));
+        })
+        .finally(() => {
+          indexedNotification.removeEventListener(dbSetCallbackKey, dbCallback);
+        });
     }
     indexedNotification.addEventListener(dbSetCallbackKey, dbCallback);
     function checkPermission() {
@@ -50,6 +55,13 @@ export const useNotification = CreateObjectState<notificationStateType>(
               set(checkPermission());
             }
           });
+      },
+      sendNotification(key, message) {
+        indexedNotification.get(key).then((v) => {
+          if (v) {
+            sendNotification(message);
+          }
+        });
       },
     };
   }
