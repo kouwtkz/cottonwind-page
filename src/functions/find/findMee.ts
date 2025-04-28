@@ -294,8 +294,13 @@ function TextToWhere({ rawValue, value: strValue, operator, forceContains }: Tex
           return { equals: undefined };
         default:
           let value: any = strValue;
-          const num = Number(value);
-          if (!isNaN(num)) value = num;
+          if (/\d/.test(value)) {
+            const num = Number(value);
+            if (isNaN(num)) {
+              const date = new Date(value);
+              if (!isNaN(date.getTime())) value = date;
+            } else value = num;
+          }
           switch (operator) {
             case ">":
               return { gt: value };
