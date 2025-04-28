@@ -3894,6 +3894,7 @@ form.blogEdit {
   .fc-toolbar {
     .fc-toolbar-title {
       @extend %auto-phrase;
+      max-width: 60vw;
       font-size: 1.2em;
     }
     &.fc-header-toolbar {
