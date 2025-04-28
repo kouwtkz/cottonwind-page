@@ -535,8 +535,8 @@ export function CalendarMee({
   );
   const headerToolbarEnd = useMemo(() => {
     const list: string[] = [];
-    if (openSetting) list.push("openSetting");
     if (openAddEvents) list.push("openAddEvents");
+    if (openSetting) list.push("openSetting");
     if (visibleDateSet) list.push("dateSet");
     list.push(`${FC_VIEW_MONTH},${FC_VIEW_WEEK},${FC_VIEW_AGENDA}`);
     list.push("prev,today,next");
