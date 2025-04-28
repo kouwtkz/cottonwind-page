@@ -278,9 +278,9 @@ function SplitPeriodKey(key: string, value: any) {
 }
 
 interface TextToWhereProps {
-  rawValue: string; value: string; operator?: string; forceContains?: boolean;
+  rawValue: string; value: string; switchKey?: string; operator?: string; forceContains?: boolean;
 }
-function TextToWhere({ rawValue, value: strValue, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<any, unknown> {
+function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<any, unknown> {
   if (forceContains) return { contains: strValue };
   else {
     const m = rawValue.match(/^\/(.+)\/(\w*)$/);
@@ -294,7 +294,7 @@ function TextToWhere({ rawValue, value: strValue, operator, forceContains }: Tex
           return { equals: undefined };
         default:
           let value: any = strValue;
-          if (/\d/.test(value)) {
+          if (switchKey && /\d/.test(value)) {
             const num = Number(value);
             if (isNaN(num)) {
               const date = new Date(value);
@@ -401,7 +401,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, operator }));
+              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator }));
             }
             break;
           case "id":
@@ -521,7 +521,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
                   filterEntry = { bool };
                   break;
                 default:
-                  filterEntry = TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, operator });
+                  filterEntry = TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator });
                   break;
               }
               if (typeof key === "string" && /\./.test(key)) {
