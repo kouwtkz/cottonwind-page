@@ -217,9 +217,18 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
       defaultView,
     }: CalendarAppStateSaveProps = {}) {
       if (overwrite) {
-        await indexedCalendarKV.table.clear();
-        await indexedCalendarEvents.table.clear();
-        await indexedCalendarID.table.clear();
+        if (typeof event !== "undefined" || typeof _events !== "undefined") {
+          await indexedCalendarEvents.table.clear();
+        }
+        if (
+          typeof googleApiKey !== "undefined" ||
+          typeof googleCalendarId !== "undefined"
+        ) {
+          await indexedCalendarKV.table.clear();
+        }
+        if (typeof defaultView !== "undefined") {
+          await indexedCalendarID.table.clear();
+        }
       }
       let indexedCalendarKVMap = new Map<CALENDAR_APP_KVKEYS, any>();
       if (typeof googleApiKey !== "undefined") {
@@ -626,7 +635,7 @@ function CalendarSettingForm() {
   });
   const Submit = useCallback(() => {
     if (isDirty) {
-      const options: CalendarAppStateSaveProps = { overwrite: true };
+      const options: CalendarAppStateSaveProps = {};
       const values = getValues();
       if ("googleApiKey" in values)
         options.googleApiKey = values.googleApiKey || null;
