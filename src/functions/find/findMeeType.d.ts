@@ -7,7 +7,7 @@ type filterConditionsRegexpType = "regexp";
 type filterConditionsVariadicType = "in" | "between";
 type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType | filterConditionsRegexpType;
 type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean } & { [C in filterConditionsRegexpType]?: RegExp };
-type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue;
+type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] | number } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue;
 type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T, K> };
 type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> } | filterConditionsGenericsAllKeyValue<T>;
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
