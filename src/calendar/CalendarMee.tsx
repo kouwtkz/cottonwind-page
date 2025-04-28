@@ -1071,17 +1071,12 @@ export const CountDown = memo(function CountDown({
     } else return 0;
   }, [time, onTheDayTime]);
 
-  let noticeText = "時間になりました！";
   const { sendNotification } = useNotification();
 
   const workerRef = useRef<Worker | null>(null);
   const sendKwMessage = useCallback((message: WkReceiveDataType) => {
     workerRef.current?.postMessage(JSON.stringify(message));
   }, []);
-  const completeMessage = useMemo(
-    () => title + "\n" + noticeText,
-    [title, noticeText]
-  );
   const [wkReceived, setWkReceived] = useState<WkSendDataType>({});
   useEffect(() => {
     const path = import.meta.env?.VITE_PATH_WK_COUNTDOWN;
@@ -1097,12 +1092,27 @@ export const CountDown = memo(function CountDown({
       };
     }
   }, []);
+
   useEffect(() => {
     const { countdownTime } = wkReceived;
     if (countdownTime) setTime(countdownTime * 1000);
     else if (countdownTime === 0) setTime(0);
   }, [wkReceived]);
-  const isJust = useMemo(() => time === 0, [time]);
+
+  const dtime = useMemo(
+    () => (time >= 0 ? time : time + duringTime),
+    [time, duringTime]
+  );
+  const isDuringTime = useMemo(() => time < 0 && dtime >= 0, [time, dtime]);
+
+  const isJust = useMemo(() => dtime === 0, [dtime]);
+
+  const completeMessage = useMemo(
+    () =>
+      `・${title}\n` +
+      (isDuringTime ? "期間が終了しました！" : "時間になりました！"),
+    [title, isDuringTime]
+  );
 
   useEffect(() => {
     if (isJust) {
@@ -1137,7 +1147,6 @@ export const CountDown = memo(function CountDown({
   }, [firstTime]);
 
   const result = useMemo(() => {
-    const dtime = time >= 0 ? time : time + duringTime;
     const totalSeconds = Math.floor(dtime / 1000);
     const seconds = totalSeconds % 60;
     const totalMinutes = (totalSeconds - seconds) / 60;
@@ -1163,7 +1172,6 @@ export const CountDown = memo(function CountDown({
       let str = "";
       if (time < 0) {
         if (dtime > 0) {
-          console.log(duringTime);
           if (allDay && duringTime <= 864e5) str = "当日";
           else str = "期間中";
           str = str + " 残り";
@@ -1193,7 +1201,7 @@ export const CountDown = memo(function CountDown({
       }
       return str;
     }
-  }, [time, format, onTheDayTime, duringTime, allDay, backDays]);
+  }, [time, dtime, format, onTheDayTime, duringTime, allDay, backDays]);
   return (
     <span className={className} {...props}>
       {result}
