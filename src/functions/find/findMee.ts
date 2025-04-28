@@ -167,6 +167,13 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): bool
 }
 
 export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any) {
+  if (typeof (fval) === "number") {
+    if (typeof innerValue === "string" || Array.isArray(innerValue)) {
+      innerValue = innerValue.length;
+    } else {
+      innerValue = Number(innerValue || 0);
+    }
+  }
   const innerValueType = typeof innerValue;
   switch (fkey) {
     case "equals":
@@ -273,8 +280,8 @@ function SplitPeriodKey(key: string, value: any) {
 interface TextToWhereProps {
   rawValue: string; value: string; operator?: string; forceContains?: boolean;
 }
-function TextToWhere({ rawValue, value, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<any, unknown> {
-  if (forceContains) return { contains: value };
+function TextToWhere({ rawValue, value: strValue, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<any, unknown> {
+  if (forceContains) return { contains: strValue };
   else {
     const m = rawValue.match(/^\/(.+)\/(\w*)$/);
     if (m) {
@@ -286,6 +293,9 @@ function TextToWhere({ rawValue, value, operator, forceContains }: TextToWherePr
         case "undefined":
           return { equals: undefined };
         default:
+          let value: any = strValue;
+          const num = Number(value);
+          if (!isNaN(num)) value = num;
           switch (operator) {
             case ">":
               return { gt: value };
@@ -358,7 +368,6 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
       } else {
         const operatorMatch = /^\w+:\/\//.test(item) ? null : item.match(/:|>=?|<=?/);
         const operator = operatorMatch?.[0] || "";
-        console.log(operatorMatch);
         const operatorIndex = operatorMatch ? operatorMatch.index! : -1;
         const switchKey = operatorIndex >= 0 ? item.slice(0, operatorIndex).toLocaleLowerCase() : "";
         const UNDER = switchKey.startsWith("_");
