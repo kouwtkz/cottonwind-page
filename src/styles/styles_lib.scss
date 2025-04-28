@@ -11,8 +11,11 @@
   --toastify-z-index: 20000;
 }
 
-.Toastify__toast--default {
-  .Toastify__close-button {
-    color: var(--main-color-dark-grayish);
+.Toastify {
+  white-space: break-spaces;
+  .Toastify__toast--default {
+    .Toastify__close-button {
+      color: var(--main-color-dark-grayish);
+    }
   }
 }
