@@ -29,7 +29,7 @@ type findMeeProps<T> = {
   direction?: IDBCursorDirection;
 }
 
-type findWhereFunction<T> = (v: string) => findWhereType<T>;
+type findWhereFunction<T> = (v: string, operator?: string) => findWhereType<T>;
 type KeyOfOrArray<T> = keyof T | (keyof T)[];
 
 interface WhereOptionsType<T> {
