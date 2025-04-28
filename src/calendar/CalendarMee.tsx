@@ -180,7 +180,11 @@ function dateFromSearchParams(
   return newDate;
 }
 
-function setDateUrl(date: Date, setSearchParams: SetURLSearchParams, replace?: boolean) {
+function setDateUrl(
+  date: Date,
+  setSearchParams: SetURLSearchParams,
+  replace?: boolean
+) {
   const beforeSearch = location.search;
   const searchParams = new URLSearchParams(beforeSearch);
   const dateDiff = Math.abs(new Date().getTime() - date.getTime());
@@ -446,7 +450,10 @@ export function CalendarMee({
       const afterSearch =
         (searchParams.size ? "?" : "") + searchParams.toString();
       if (beforeSearch !== afterSearch) {
-        setSearchParams(searchParams, { preventScrollReset: true, replace: linkMoveReplace });
+        setSearchParams(searchParams, {
+          preventScrollReset: true,
+          replace: linkMoveReplace,
+        });
       }
     },
     [defaultView, linkMoveReplace]
@@ -738,15 +745,8 @@ export function CalendarMeeEventViewer({
     }
     if (startDate && endDate) {
       if (event.allDay) {
-        const sameDate = Math.floor(
-          (endDate.getTime() - startDate.getTime()) / 86400000
-        );
-        if (sameDate < 2) {
-          endDate = null;
-        } else {
-          endDate.setMilliseconds(-1);
-          setEndDateFormat();
-        }
+        endDate.setMilliseconds(-1);
+        setEndDateFormat();
       } else {
         setEndDateFormat();
       }
@@ -1008,6 +1008,7 @@ export interface countDownFormatProps {
   days: number;
   onTheDayTime: number;
   duringTime: number;
+  allDay?: boolean;
 }
 interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
   date: Date;
@@ -1062,6 +1063,14 @@ export const CountDown = memo(function CountDown({
   );
 
   const [time, setTime] = useState<number>(firstTime);
+
+  const backDays = useMemo(() => {
+    if (time < 0) {
+      const backTime = 864e5 + time - onTheDayTime;
+      return Math.floor(backTime / 864e5);
+    } else return 0;
+  }, [time, onTheDayTime]);
+
   let noticeText = "時間になりました！";
   const { sendNotification } = useNotification();
 
@@ -1103,27 +1112,33 @@ export const CountDown = memo(function CountDown({
   }, [isJust, completeMessage]);
 
   useEffect(() => {
-    if (firstTime >= 0) {
-      const ml = firstTime % 1000;
-      setTimeout(() => {
-        setTime((time) => {
-          const newTime = time - ml;
-          sendKwMessage({
-            setCountdown: newTime / 1000,
-          });
-          return newTime;
+    const ml = firstTime % 1000;
+    setTimeout(() => {
+      setTime((time) => {
+        const newTime = time - ml;
+        sendKwMessage({
+          setCountdown: newTime / 1000,
         });
-      }, ml);
-      return () => {
-        if (time) sendKwMessage({ setCountdown: null });
-      };
-    }
+        return newTime;
+      });
+    }, ml);
+    return () => {
+      if (time) sendKwMessage({ setCountdown: null });
+    };
   }, [firstTime]);
+
+  const sendStopFlag = useMemo(() => Boolean(backDays), [backDays]);
+  useEffect(() => {
+    if (sendStopFlag) sendKwMessage({ setCountdown: null });
+  }, [sendStopFlag]);
+
   useEffect(() => {
     setTime(firstTime);
   }, [firstTime]);
+
   const result = useMemo(() => {
-    const totalSeconds = Math.floor(time / 1000);
+    const dtime = time >= 0 ? time : time + duringTime;
+    const totalSeconds = Math.floor(dtime / 1000);
     const seconds = totalSeconds % 60;
     const totalMinutes = (totalSeconds - seconds) / 60;
     const minutes = totalMinutes % 60;
@@ -1142,14 +1157,33 @@ export const CountDown = memo(function CountDown({
         days,
         onTheDayTime,
         duringTime,
+        allDay,
       });
     else {
       let str = "";
       if (time < 0) {
-        const backTime = 864e5 + time - onTheDayTime;
-        const backDays = Math.floor(backTime / 864e5);
-        if (backDays) str = Math.abs(backDays) + "日前";
-        else str = "当日";
+        if (dtime > 0) {
+          console.log(duringTime);
+          if (allDay && duringTime <= 864e5) str = "当日";
+          else str = "期間中";
+          str = str + " 残り";
+          if (days) str = str + ` ${days}日`;
+          if (days || hours) str = str + ` ${hours}時間`;
+          if (days || hours || minutes) str = str + minutes + "分";
+          str = str + seconds + "秒";
+        } else if (backDays) {
+          str = Math.abs(backDays) + "日前に終了";
+        } else {
+          if (totalHours < 0) {
+            str = `${-totalHours}時間`;
+            if (minutes !== 0) str = str + `${-minutes}分`;
+            str = str + "前に終了";
+          } else if (totalMinutes < 0) {
+            str = `${-totalMinutes}分前に終了`;
+          } else {
+            str = `${-totalSeconds}秒前に終了`;
+          }
+        }
       } else {
         str = "あと ";
         if (days) str = str + ` ${days}日`;
@@ -1159,7 +1193,7 @@ export const CountDown = memo(function CountDown({
       }
       return str;
     }
-  }, [time, format, onTheDayTime, duringTime]);
+  }, [time, format, onTheDayTime, duringTime, allDay, backDays]);
   return (
     <span className={className} {...props}>
       {result}

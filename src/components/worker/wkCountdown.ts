@@ -24,7 +24,6 @@ namespace WK {
           const currentDate = new Date();
           countdownTime = Math.round((endDate.getTime() - currentDate.getTime()) / 1000);
           Post({ countdownTime });
-          if (countdownTime < 0 && countdownId) { clearInterval(countdownId); }
         }, 1000);
       } else {
         countdownId = null;
