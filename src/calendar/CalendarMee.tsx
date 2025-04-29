@@ -156,6 +156,13 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
       });
     },
     isLoading: false,
+    isLoadingLayer: 0,
+    setLoading(value) {
+      set(({ isLoadingLayer }) => {
+        isLoadingLayer += value ? 1 : -1;
+        return { isLoadingLayer, isLoading: isLoadingLayer > 0 };
+      });
+    },
     enableCountdown: defaultEnableCountdown,
     endModeCountdown: defaultEndModeCountdown,
     isDesktopSize: false,
@@ -214,7 +221,7 @@ interface CalendarMeeStateProps extends CalendarMeeEventViewerProps {
   defaultCalendarList?: CalendarListType[];
 }
 export function CalendarMeeState({
-  googleApiKey,
+  googleApiKey: propsGoogleApiKey,
   defaultEvents,
   defaultCalendarList,
   ...viewerProps
@@ -235,7 +242,8 @@ export function CalendarMeeState({
     syncRange,
     setTimeRanges,
     dateLock,
-    calendarList,
+    calendarList: stateCalendarList,
+    setLoading,
   } = useCalendarMee();
   useEffect(() => {
     if (add.length > 0) Set({ add: [] });
@@ -253,12 +261,19 @@ export function CalendarMeeState({
       calendarList: calendarDataList,
     });
   }, [calendarDataList]);
+  const [googleApiKey, calendarList] = useMemo<
+    [string | null, CalendarListType[]]
+  >(() => {
+    if (stateCalendarList.some((c) => c.id))
+      return [propsGoogleApiKey || null, stateCalendarList];
+    else return [null, stateCalendarList];
+  }, [propsGoogleApiKey, stateCalendarList]);
   useEffect(() => {
     if (getRange && calendarList) setTimeRanges(getRange);
   }, [getRange, calendarList]);
   useEffect(() => {
     if (syncRange) {
-      Set({ isLoading: true });
+      setLoading(true);
       Promise.all(
         calendarList.map(async ({ id, private: p, list, callback }) => {
           if (id) {
@@ -316,8 +331,8 @@ export function CalendarMeeState({
           });
         })
         .finally(() => {
+          setLoading(false);
           Set({
-            isLoading: false,
             syncOverwrite: false,
             eventsOverwrite: false,
           });

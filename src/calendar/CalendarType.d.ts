@@ -105,9 +105,11 @@ interface CalendarMeeStateType extends CalendarMeeOverWriteOption {
   syncRange: timeRangesType | null;
   syncOverwrite: boolean;
   eventsOverwrite: boolean;
-  setTimeRanges: (range: timeRangesType) => void;
-  reload: (props: CalendarMeeReloadProps) => void
+  setTimeRanges(range: timeRangesType): void;
+  reload(props: CalendarMeeReloadProps): void
   isLoading: boolean;
+  isLoadingLayer: number;
+  setLoading(value: boolean): void;
   enableCountdown: boolean;
   endModeCountdown: boolean;
 }
@@ -135,8 +137,8 @@ interface CalendarAppStateSaveProps
 
 interface CalendarAppStateType extends CalendarAppClassType {
   eventsMap: Map<string, EventsDataType>;
-  save: (props?: CalendarAppStateSaveProps) => Promise<void>;
-  removeEvent: (id: string) => void;
+  save(props?: CalendarAppStateSaveProps): Promise<void>;
+  removeEvent(id: string): void;
 }
 
 interface CalendarAppLayoutProps {

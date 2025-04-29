@@ -205,7 +205,6 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
     googleApiKey: null,
     defaultView: DEFAULT_VIEW,
     eventsMap: new Map(),
-    isLoading: true,
     IndexedSetupMap: new Map(
       [INDEXED_EVENTS_NAME, INDEXED_KV_NAME, INDEXED_CID_NAME].map((name) => [
         name as INDEXED_NAME_UNION,
@@ -294,7 +293,9 @@ function checkIndexedMap(
 }
 
 function Root() {
-  const { events, googleApiKey, googleCalendarId, Set } = useCalendarAppState();
+  const { events, googleApiKey, googleCalendarId, Set, IndexedSetupMap } =
+    useCalendarAppState();
+  const { setLoading } = useCalendarMee();
   const { state } = useLocation();
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -311,6 +312,16 @@ function Root() {
     },
     [state, searchParams]
   );
+  const complete = useMemo(() => {
+    return Array.from(IndexedSetupMap.values()).every((v) => v);
+  }, [IndexedSetupMap]);
+  useEffect(() => {
+    if (complete) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [complete]);
   const indexedEvents = useSyncExternalStore(
     indexedCalendarEvents.subscribe,
     () => indexedCalendarEvents.table
@@ -331,7 +342,11 @@ function Root() {
           IndexedSetupMap,
           indexedEvents.options.name as INDEXED_NAME_UNION
         );
-        return { events, IndexedSetupMap };
+        return {
+          events,
+          eventsMap: new Map(events?.map((v) => [v.id, v])),
+          IndexedSetupMap,
+        };
       });
     });
   }, [indexedEvents]);
@@ -434,10 +449,7 @@ function openSearchParamFunction({
 
 const calendarAppEventEditSchema = z.object({});
 function CalendarAppEventEdit() {
-  const { events, eventsMap, save, removeEvent, Set } = useCalendarAppState();
-  useEffect(() => {
-    Set({ eventsMap: new Map(events?.map((v) => [v.id, v])) });
-  }, [events]);
+  const { events, eventsMap, save, removeEvent } = useCalendarAppState();
   const { state } = useLocation();
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -758,10 +770,13 @@ function CalendarSettingForm() {
             save({ defaultView: view }).then(() => {
               nav(-1);
               setTimeout(() => {
-                setSearchParams((search) => {
-                  search.delete("fc-view");
-                  return search;
-                }, {replace: true});
+                setSearchParams(
+                  (search) => {
+                    search.delete("fc-view");
+                    return search;
+                  },
+                  { replace: true }
+                );
                 setTimeout(() => {
                   location.reload();
                 }, 0);
