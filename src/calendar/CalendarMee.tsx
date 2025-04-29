@@ -1210,17 +1210,26 @@ export const CountDown = memo(function CountDown({
         }
       } else {
         str = endMode ? "終了まで 残り " : "あと ";
-        if (days) str = str + ` ${days}日`;
-        if (days || hours) str = str + ` ${hours}時間`;
+        if (days) str = str + `${days}日`;
+        if (days || hours) str = str + `${hours}時間`;
         if (days || hours || minutes) str = str + minutes + "分";
         str = str + seconds + "秒";
       }
       return str;
     }
-  }, [time, dtime, format, onTheDayTime, duringTime, allDay, backDays, endMode]);
+  }, [
+    time,
+    dtime,
+    format,
+    onTheDayTime,
+    duringTime,
+    allDay,
+    backDays,
+    endMode,
+  ]);
   return (
     <span className={className} {...props}>
-      {result}
+      <span>{result}</span>
     </span>
   );
 });

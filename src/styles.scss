@@ -4091,10 +4091,12 @@ form.blogEdit {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0.1em 1em 0;
+      margin: 0.3rem 1rem 0;
       font-size: 1.5em;
       .countdown {
         color: var(--main-color-dark);
+        word-break: keep-all;
+        text-align: center;
       }
     }
     h5 {
@@ -4132,7 +4134,7 @@ form.blogEdit {
           justify-content: center;
         }
         h4 {
-          margin: 0;
+          margin: 0.4rem 1rem;
           font-size: 1.5em;
         }
         &.smaller {
