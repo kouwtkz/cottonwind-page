@@ -756,13 +756,16 @@ function CalendarSettingForm() {
           disabled={isDefault}
           onClick={() => {
             save({ defaultView: view }).then(() => {
-              setSearchParams((search) => {
-                search.delete("fc-view");
-                return search;
-              });
+              nav(-1);
               setTimeout(() => {
-                location.reload();
-              }, 0);
+                setSearchParams((search) => {
+                  search.delete("fc-view");
+                  return search;
+                }, {replace: true});
+                setTimeout(() => {
+                  location.reload();
+                }, 0);
+              }, 10);
             });
           }}
         >
