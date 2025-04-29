@@ -363,8 +363,9 @@ export function CalendarMeeState({
           });
         }
       } else {
-        if (state?.from) nav(-1);
-        else {
+        if (state?.from) {
+          nav(-1);
+        } else {
           searchParams.delete(FC_SP_EVENT_ID);
           setSearchParams(searchParams, {
             state,
@@ -689,7 +690,6 @@ export function CalendarMeeEventViewer({
     eventsMap,
     eventId: stateEventId,
     isOpenEvent,
-    isLoading,
     enableCountdown,
     endModeCountdown,
   } = useCalendarMee();
@@ -781,8 +781,8 @@ export function CalendarMeeEventViewer({
   }, []);
 
   const failEvent = useMemo(() => {
-    return eventId && !isLoading && !event;
-  }, [eventId, isLoading, event]);
+    return eventId && !event;
+  }, [eventId, event]);
   const isOpen = useMemo(() => {
     return isOpenEvent && !failEvent;
   }, [isOpenEvent, failEvent]);
