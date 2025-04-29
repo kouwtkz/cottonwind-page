@@ -700,6 +700,9 @@ function CalendarAppEventEdit() {
 const googleCalendarSchema = z.object({
   googleApiKey: z.string(),
   googleCalendarId_1: z.string(),
+  googleCalendarId_2: z.string(),
+  googleCalendarId_3: z.string(),
+  googleCalendarId_4: z.string(),
 });
 function CalendarSettingForm() {
   const { googleApiKey, googleCalendarId, events, save, defaultView, Set } =
@@ -734,22 +737,35 @@ function CalendarSettingForm() {
     values: {
       googleApiKey: googleApiKey || "",
       googleCalendarId_1: googleCalendarId?.[0]?.id || "",
+      googleCalendarId_2: googleCalendarId?.[1]?.id || "",
+      googleCalendarId_3: googleCalendarId?.[2]?.id || "",
+      googleCalendarId_4: googleCalendarId?.[3]?.id || "",
     },
     resolver: zodResolver(googleCalendarSchema),
   });
   const Submit = useCallback(() => {
     if (isDirty) {
       const options: CalendarAppStateSaveProps = {};
-      const values = getValues();
-      if ("googleApiKey" in values)
-        options.googleApiKey = values.googleApiKey || null;
-      if ("googleCalendarId_1" in values) {
-        if (typeof values.googleCalendarId_1 !== "undefined") {
-          options.googleCalendarId = {
-            key: 1,
-            id: values.googleCalendarId_1,
-          } as any;
-        }
+      const valuesMap = new Map(Object.entries(getValues()));
+      if (valuesMap.has("googleApiKey"))
+        options.googleApiKey = valuesMap.get("googleApiKey") || null;
+      const valuesGoogleCalendarIdList = Array.from(valuesMap.entries()).filter(
+        ([k, v]) => k.startsWith("googleCalendarId") && typeof v !== "undefined"
+      );
+      if (valuesGoogleCalendarIdList.length > 0) {
+        const googleCalendarId: CalendarIdListType[] = [];
+        options.googleCalendarId = googleCalendarId;
+        valuesGoogleCalendarIdList.forEach(([k, v]) => {
+          if (typeof v !== "undefined") {
+            const numMatch = k.match(/\d+$/);
+            if (numMatch) {
+              googleCalendarId.push({
+                key: Number(numMatch[0]),
+                id: v,
+              });
+            }
+          }
+        });
       }
       save(options);
       reload({ syncOverwrite: true });
@@ -847,6 +863,7 @@ function CalendarSettingForm() {
         }
       }}
       timeout={60}
+      scroll
     >
       <form onSubmit={handleSubmit(Submit)}>
         <h2>テーマの設定</h2>
@@ -902,23 +919,36 @@ function CalendarSettingForm() {
             インポート
           </button>
         </div>
-        <h2>GoogleAPIの設定（読取専用で任意です）</h2>
-        <label>
-          <span className="label-l">Google API</span>
-          <input
-            title="Google API Key"
-            placeholder="Google API Key"
-            {...register("googleApiKey")}
-          />
-        </label>
-        <label>
-          <span className="label-l">カレンダーID</span>
-          <input
-            title="Google Calendar ID"
-            placeholder="Google Calendar ID"
-            {...register("googleCalendarId_1")}
-          />
-        </label>
+        <details>
+          <summary>GoogleAPIの設定（読取専用・任意）</summary>
+          <ul>
+            <li>
+              <label className="flex">
+                <span className="label-l">Google API</span>
+                <input
+                  title="Google API Key"
+                  placeholder="Google API Key"
+                  className="flex-1"
+                  {...register("googleApiKey")}
+                />
+              </label>
+            </li>
+            <p>GoogleカレンダーIDの設定</p>
+            {[1, 2, 3, 4].map((i) => (
+              <li key={i}>
+                <label className="flex">
+                  <span className="label-l">{i}つめのID</span>
+                  <input
+                    title={`Google Calendar ID (${i})`}
+                    placeholder={`Google Calendar ID (${i})`}
+                    className="flex-1"
+                    {...register(`googleCalendarId_${i}`)}
+                  />
+                </label>
+              </li>
+            ))}
+          </ul>
+        </details>
         <div className="actions">
           <button
             type="submit"

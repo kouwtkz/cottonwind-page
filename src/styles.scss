@@ -2851,17 +2851,42 @@ label,
       svg {
         font-size: 1.1em;
       }
-      h2 {
+      %h {
         font-size: 1.25em;
         line-height: 1.25em;
-        margin: 1em 0.5em 0.5em;
+        margin: 1rem 0.5rem 0.5rem;
         @extend %auto-phrase;
       }
-      & > * {
+      h2 {
+        @extend %h;
+      }
+      %c {
         margin: 0.25rem;
+      }
+      & > * {
+        @extend %c;
       }
       button.labels {
         margin: 0.25rem auto;
+      }
+      ul li {
+        @extend %c;
+      }
+      details {
+        & > * {
+          @extend %c;
+        }
+        & > label {
+          display: flex;
+          align-items: center;
+        }
+        summary {
+          @extend %h;
+          margin-left: 0.25rem;
+          padding: 0;
+          color: var(--text-color);
+          background-color: transparent;
+        }
       }
       @media (min-width: $tabletWidth) {
         min-width: 20rem;
@@ -2906,6 +2931,8 @@ label,
     &.window {
       margin-top: 3.5rem;
       margin-bottom: 1rem;
+      max-height: 85vh;
+      max-height: 85dvh;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
