@@ -215,17 +215,30 @@ function setDateUrl(
 
 const SyncedMap = new Map<string, timeRangesType | null>();
 
+let eventViewerTimeout = 0;
+
 interface CalendarMeeStateProps extends CalendarMeeEventViewerProps {
   googleApiKey?: string | null;
   defaultEvents?: EventsDataType[];
   defaultCalendarList?: CalendarListType[];
+  firstFade?: boolean;
 }
 export function CalendarMeeState({
   googleApiKey: propsGoogleApiKey,
   defaultEvents,
   defaultCalendarList,
+  firstFade,
   ...viewerProps
 }: CalendarMeeStateProps = {}) {
+  useEffect(() => {
+    if (firstFade) {
+      eventViewerTimeout = 60;
+    } else {
+      setTimeout(() => {
+        eventViewerTimeout = 60;
+      }, 0);
+    }
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const eventIdParam = useMemo(
     () => searchParams.get(FC_SP_EVENT_ID),
@@ -707,6 +720,7 @@ export function CalendarMeeEventViewer({
     isOpenEvent,
     enableCountdown,
     endModeCountdown,
+    isLoading,
   } = useCalendarMee();
   const keepId = useRef<string | null>(null);
   const eventId = useMemo(() => {
@@ -796,8 +810,8 @@ export function CalendarMeeEventViewer({
   }, []);
 
   const failEvent = useMemo(() => {
-    return eventId && !event;
-  }, [eventId, event]);
+    return eventId && !event && !isLoading;
+  }, [eventId, event, isLoading]);
   const isOpen = useMemo(() => {
     return isOpenEvent && !failEvent;
   }, [isOpenEvent, failEvent]);
@@ -937,7 +951,7 @@ export function CalendarMeeEventViewer({
         onClose={ModalCloseHandler}
         onExited={EventCloseHandler}
         isOpen={isOpen}
-        timeout={60}
+        timeout={eventViewerTimeout}
         scroll
       >
         {event ? (

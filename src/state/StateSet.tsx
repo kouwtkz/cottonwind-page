@@ -17,7 +17,7 @@ import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "@/routes/Home";
 import { KeyValueDBState, useKeyValueDB } from "./KeyValueDBState";
-import { CalendarMeeState } from "@/calendar/CalendarMee";
+import { CalendarMeeState, useCalendarMee } from "@/calendar/CalendarMee";
 import { FaviconState } from "./FaviconState";
 
 export const useSiteIsFirst = CreateState(true);
@@ -44,7 +44,17 @@ export function StateSet() {
 
 function CalendarState() {
   const env = useEnv()[0];
-  const { kvList } = useKeyValueDB();
+  const { setLoading } = useCalendarMee();
+  const { kvList, isLoading } = useKeyValueDB();
+  const currentIsLoading = useMemo(() => !env || isLoading, [env, isLoading]);
+  useEffect(() => {
+    if (currentIsLoading) setLoading(true);
+    else {
+      setTimeout(() => {
+        setLoading(false);
+      }, 0);
+    }
+  }, [currentIsLoading]);
   const isLogin = useIsLogin()[0];
   const googleCalendarList = useMemo(() => {
     if (env && kvList) {
@@ -64,6 +74,7 @@ function CalendarState() {
       googleApiKey={API_KEY}
       defaultCalendarList={googleCalendarList}
       enableMarkdownCopy={isLogin}
+      firstFade
     />
   );
 }

@@ -30,7 +30,8 @@ import { TextareaWithPreview } from "@/components/parse/PostTextarea";
 export const useKeyValueDB = CreateObjectState<{
   kvList?: KeyValueDBType[];
   kvMap?: Map<string, KeyValueDBType>;
-}>();
+  isLoading: boolean;
+}>({ isLoading: true });
 
 type EditType = "text" | "textarea" | "image";
 
@@ -53,6 +54,7 @@ export function KeyValueDBState() {
           kvMap: new Map(
             parsedData.filter((v) => v.key).map((v) => [v.key!, v])
           ),
+          isLoading: false,
         });
       });
     }
