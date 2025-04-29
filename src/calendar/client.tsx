@@ -214,6 +214,7 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
     async save({
       event,
       events: _events,
+      eventsMap,
       googleApiKey,
       googleCalendarId,
       overwrite,
@@ -244,7 +245,8 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
       if (indexedCalendarKVMap.size) {
         await indexedCalendarKV.save({ data: indexedCalendarKVMap });
       }
-      const events: Array<Partial<EventsDataType>> = _events || [];
+      const events: Array<Partial<EventsDataType>> =
+        _events || (eventsMap ? Array.from(eventsMap.values()) : null) || [];
       if (event) events.unshift(event);
       if (events.length) {
         await indexedCalendarEvents.save({ data: events });
@@ -271,12 +273,9 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
         });
       }
     },
-    removeEvent(id) {
-      set((state) => {
-        state.eventsMap.delete(id);
-        state.save({ eventsMap: state.eventsMap });
-        return {};
-      });
+    async removeEvent(id) {
+      await indexedCalendarEvents.table.delete({query: id});
+      set({events: await indexedCalendarEvents.table.getAll()})
     },
   })
 );

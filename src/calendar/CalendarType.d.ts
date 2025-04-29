@@ -138,7 +138,7 @@ interface CalendarAppStateSaveProps
 interface CalendarAppStateType extends CalendarAppClassType {
   eventsMap: Map<string, EventsDataType>;
   save(props?: CalendarAppStateSaveProps): Promise<void>;
-  removeEvent(id: string): void;
+  removeEvent(id: string): Promise<void>;
 }
 
 interface CalendarAppLayoutProps {
