@@ -83,7 +83,7 @@ export type Type_VIEW_FC =
   | typeof FC_VIEW_WEEK
   | typeof FC_VIEW_MONTH
   | typeof FC_VIEW_DAY;
-const FC_SP_EVENT_ID = "fc-event-id";
+export const FC_SP_EVENT_ID = "fc-event-id";
 export const NOTICE_KEY_CALENDAR = "calendar";
 export const NOTICE_KEY_COUNTDOWN = "countdown";
 

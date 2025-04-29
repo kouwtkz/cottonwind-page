@@ -1,8 +1,11 @@
 import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
+  NavigateOptions,
   Outlet,
   RouterProvider,
+  useLocation,
+  useNavigate,
   useSearchParams,
 } from "react-router-dom";
 import "@/components/hook/ScrollLock";
@@ -12,6 +15,7 @@ import { Theme } from "@/components/theme/Theme";
 import {
   CalendarMee,
   CalendarMeeState,
+  FC_SP_EVENT_ID,
   FC_VIEW_MONTH,
   NOTICE_KEY_COUNTDOWN,
   Type_VIEW_FC,
@@ -275,25 +279,6 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
         return {};
       });
     },
-    addEventsEdit(date) {
-      const newDate = date ? new Date(date) : new Date();
-      newDate.setMilliseconds(0);
-      newDate.setSeconds(0);
-      const start = new Date(newDate);
-      start.setMinutes(0);
-      start.setHours(start.getHours() + 1);
-      const end = new Date(start);
-      end.setHours(end.getHours() + 1);
-      set({
-        edit: {
-          id: getUUID(),
-          start,
-          end,
-        },
-      });
-    },
-    isEdit: false,
-    edit: null,
   })
 );
 
@@ -310,6 +295,22 @@ function checkIndexedMap(
 
 function Root() {
   const { events, googleApiKey, googleCalendarId, Set } = useCalendarAppState();
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setOpenSearchParamFunction = useCallback(
+    (key: "edit", value: boolean | string) => {
+      const options = openSearchParamFunction({
+        key,
+        searchParams,
+        state,
+        value,
+      });
+      if (typeof options === "number") nav(options);
+      else setSearchParams(...options);
+    },
+    [state, searchParams]
+  );
   const indexedEvents = useSyncExternalStore(
     indexedCalendarEvents.subscribe,
     () => indexedCalendarEvents.table
@@ -373,14 +374,14 @@ function Root() {
             type="button"
             title="編集"
             onClick={() => {
-              Set({ edit: event });
+              setOpenSearchParamFunction("edit", true);
             }}
           >
             <RiEdit2Fill />
           </button>
         );
     },
-    []
+    [state, searchParams]
   );
   return (
     <>
@@ -398,15 +399,89 @@ function Root() {
   );
 }
 
+interface openSearchParamFunctionProps {
+  searchParams: URLSearchParams;
+  key: string;
+  value?: any;
+  state?: any;
+  whenEnabled?: string;
+}
+function openSearchParamFunction({
+  key,
+  value,
+  searchParams,
+  state,
+}: openSearchParamFunctionProps): [URLSearchParams, NavigateOptions] | number {
+  if (value) {
+    let whenEnabled = "enable";
+    if (typeof value !== "boolean") whenEnabled = String(value);
+    searchParams.set(key, whenEnabled);
+    state = {
+      ...(state && typeof state === "object" ? state : {}),
+      from: location.href,
+    };
+    return [searchParams, { state, preventScrollReset: true }];
+  } else {
+    if (state && typeof state === "object" && "from" in state) {
+      return -1;
+    } else {
+      searchParams.delete(key);
+      if (state && typeof state === "object") delete state.from;
+      return [searchParams, { state, replace: true, preventScrollReset: true }];
+    }
+  }
+}
+
 const calendarAppEventEditSchema = z.object({});
 function CalendarAppEventEdit() {
-  const {
-    Set,
-    edit: stateEdit,
-    events,
-    save,
-    removeEvent,
-  } = useCalendarAppState();
+  const { events, eventsMap, save, removeEvent, Set } = useCalendarAppState();
+  useEffect(() => {
+    Set({ eventsMap: new Map(events?.map((v) => [v.id, v])) });
+  }, [events]);
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setOpenSearchParamFunction = useCallback(
+    (key: "edit", value: boolean | string) => {
+      const options = openSearchParamFunction({
+        key,
+        searchParams,
+        state,
+        value,
+      });
+      if (typeof options === "number") nav(options);
+      else setSearchParams(...options);
+    },
+    [state, searchParams]
+  );
+  const paramEdit = useMemo(() => searchParams.get("edit"), [searchParams]);
+  const paramEventId = useMemo(
+    () => searchParams.get(FC_SP_EVENT_ID),
+    [searchParams]
+  );
+  const stateEdit = useMemo<EventsDataType | null>(() => {
+    if (paramEdit) {
+      if (paramEventId) {
+        return eventsMap.get(paramEventId) || null;
+      } else {
+        const date = new Date(paramEdit);
+        const newDate = date ? new Date(date) : new Date();
+        newDate.setMilliseconds(0);
+        newDate.setSeconds(0);
+        const start = new Date(newDate);
+        start.setMinutes(0);
+        start.setHours(start.getHours() + 1);
+        const end = new Date(start);
+        end.setHours(end.getHours() + 1);
+        return {
+          id: getUUID(),
+          start,
+          end,
+        };
+      }
+    } else return null;
+  }, [paramEdit, paramEventId, eventsMap]);
+
   const { reload } = useCalendarMee();
   const isOpenForm = useMemo(() => Boolean(stateEdit), [stateEdit]);
   const keepEdit = useRef<EventsDataType | null>(null);
@@ -463,9 +538,9 @@ function CalendarAppEventEdit() {
         eventsOverwrite,
         eventClose,
       });
-      Set({ edit: null });
+      setOpenSearchParamFunction("edit", false);
     },
-    []
+    [searchParams, state]
   );
   const watchStartDate = watch("start");
   const watchEndDate = watch("end");
@@ -544,7 +619,7 @@ function CalendarAppEventEdit() {
       isOpen={isOpenForm}
       onClose={() => {
         if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
-          Set({ edit: null });
+          setOpenSearchParamFunction("edit", false);
         }
       }}
       timeout={60}
@@ -614,12 +689,29 @@ const googleCalendarSchema = z.object({
   googleApiKey: z.string(),
   googleCalendarId_1: z.string(),
 });
-const useCalendarSettingForm = CreateState(false);
 function CalendarSettingForm() {
   const { googleApiKey, googleCalendarId, events, save, defaultView, Set } =
     useCalendarAppState();
   const { reload, view, date } = useCalendarMee();
-  const setSearchParams = useSearchParams()[1];
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setOpenSearchParamFunction = useCallback(
+    (key: "setting", value: boolean) => {
+      const options = openSearchParamFunction({
+        key,
+        searchParams,
+        state,
+        value,
+      });
+      if (typeof options === "number") nav(options);
+      else setSearchParams(...options);
+    },
+    [state, searchParams]
+  );
+  const isOpenForm = useMemo(() => {
+    return searchParams.has("setting");
+  }, [searchParams]);
   const {
     register,
     handleSubmit,
@@ -649,10 +741,9 @@ function CalendarSettingForm() {
       }
       save(options);
       reload({ syncOverwrite: true });
-      setIsOpenForm(false);
+      setOpenSearchParamFunction("setting", false);
     }
   }, [googleApiKey, googleCalendarId, events, isDirty]);
-  const [isOpenForm, setIsOpenForm] = useCalendarSettingForm();
   useEffect(() => {
     if (!isOpenForm) reset();
   }, [isOpenForm]);
@@ -734,7 +825,7 @@ function CalendarSettingForm() {
       isOpen={isOpenForm}
       onClose={() => {
         if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
-          setIsOpenForm(false);
+          setOpenSearchParamFunction("setting", false);
         }
       }}
       timeout={60}
@@ -825,28 +916,24 @@ function CalendarSettingForm() {
     </Modal>
   );
 }
-
 function Home() {
-  const { isEdit, events, Set, addEventsEdit, defaultView, IndexedSetupMap } =
-    useCalendarAppState();
-  const openSettingForm = useCalendarSettingForm()[1];
+  const { defaultView, IndexedSetupMap } = useCalendarAppState();
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const date = useCalendarMee(({ date }) => date);
-  const eventOpen = useCallback(
-    (e: EventClickArg) => {
-      if (isEdit) {
-        if (e.event.url) {
-          toast(
-            "外部から読み込まれたカレンダーは読み取り専用になります",
-            toastLoadingShortOptions
-          );
-        } else if (events) {
-          const edit = events.find((event) => event.id === e.event.id);
-          if (edit) Set({ edit });
-        }
-        return false;
-      } else return true;
+  const setOpenSearchParamFunction = useCallback(
+    (key: "setting" | "edit", value: boolean | string) => {
+      const options = openSearchParamFunction({
+        key,
+        searchParams,
+        state,
+        value,
+      });
+      if (typeof options === "number") nav(options);
+      else setSearchParams(...options);
     },
-    [isEdit]
+    [state, searchParams]
   );
   const isVisible = useMemo(() => IndexedSetupMap.get("kv"), [IndexedSetupMap]);
   return (
@@ -855,9 +942,10 @@ function Home() {
       <CalendarAppEventEdit />
       {isVisible ? (
         <CalendarMee
-          eventOpen={eventOpen}
-          openAddEvents={() => addEventsEdit(date)}
-          openSetting={() => openSettingForm(true)}
+          openAddEvents={() =>
+            setOpenSearchParamFunction("edit", date.toISOString())
+          }
+          openSetting={() => setOpenSearchParamFunction("setting", true)}
           height={800}
           defaultView={defaultView as Type_VIEW_FC}
           linkMoveReplace

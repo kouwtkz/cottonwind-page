@@ -109,6 +109,7 @@ interface CalendarMeeStateType extends CalendarMeeOverWriteOption {
   reload: (props: CalendarMeeReloadProps) => void
   isLoading: boolean;
   enableCountdown: boolean;
+  endModeCountdown: boolean;
 }
 interface CalendarMeeReloadProps extends Partial<CalendarMeeOverWriteOption>, Partial<timeRangesType> {
   eventClose?: boolean;
@@ -133,12 +134,9 @@ interface CalendarAppStateSaveProps
 }
 
 interface CalendarAppStateType extends CalendarAppClassType {
-  isEdit: boolean;
-  edit: EventsDataType | null;
   eventsMap: Map<string, EventsDataType>;
   save: (props?: CalendarAppStateSaveProps) => Promise<void>;
   removeEvent: (id: string) => void;
-  addEventsEdit: (date?: Date) => void;
 }
 
 interface CalendarAppLayoutProps {
