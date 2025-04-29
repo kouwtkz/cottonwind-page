@@ -91,9 +91,10 @@ function openWindow(url: string) {
   window.open(url, "google-calendar-event", "width=700,height=600");
 }
 
-const defaultEnableCountdown = (() => {
+const [defaultEnableCountdown, defaultEndModeCountdown] = (() => {
   const searchParams = new URLSearchParams(window.location.search);
-  return searchParams.has("countdown");
+  const mode = searchParams.get("countdown");
+  return [Boolean(mode), mode === "endTime"];
 })();
 
 export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
@@ -156,6 +157,7 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     },
     isLoading: false,
     enableCountdown: defaultEnableCountdown,
+    endModeCountdown: defaultEndModeCountdown,
     isDesktopSize: false,
   })
 );
@@ -365,7 +367,9 @@ export function CalendarMeeState({
         else {
           searchParams.delete(FC_SP_EVENT_ID);
           setSearchParams(searchParams, {
+            state,
             preventScrollReset: true,
+            replace: true,
           });
         }
       }
@@ -687,6 +691,7 @@ export function CalendarMeeEventViewer({
     isOpenEvent,
     isLoading,
     enableCountdown,
+    endModeCountdown,
   } = useCalendarMee();
   const keepId = useRef<string | null>(null);
   const eventId = useMemo(() => {
@@ -806,19 +811,19 @@ export function CalendarMeeEventViewer({
   const { state } = useLocation();
   const setSearchParams = useSearchParams()[1];
   const setCountdown = useCallback(
-    (v: boolean) => {
+    (v: boolean, endMode = false) => {
       const options = { state, preventScrollReset: true, replace: true };
       const searchParams = new URLSearchParams(window.location.search);
-      if (v && !enableCountdown) {
-        searchParams.set("countdown", "enable");
-        Set({ enableCountdown: true });
+      if ((v && !enableCountdown) || endMode !== endModeCountdown) {
+        searchParams.set("countdown", endMode ? "endTime" : "startTime");
+        Set({ enableCountdown: true, endModeCountdown: Boolean(endMode) });
       } else if (!v && enableCountdown) {
         searchParams.delete("countdown");
         Set({ enableCountdown: false });
       }
       setSearchParams(searchParams, options);
     },
-    [enableCountdown, state]
+    [enableCountdown, endModeCountdown, state]
   );
   const timeClassName = useMemo(() => {
     const classNames = ["time"];
@@ -868,16 +873,24 @@ export function CalendarMeeEventViewer({
   const CountDownButton = useCallback(
     () => (
       <button
-        title={"カウントダウンを" + (enableCountdown ? "しまう" : "表示する")}
+        title={
+          "カウントダウンを" +
+          (enableCountdown ? "しまう" : "表示する") +
+          "\n右クリックでモード切り替え"
+        }
         type="button"
         onClick={() => {
-          setCountdown(!enableCountdown);
+          setCountdown(!enableCountdown, endModeCountdown);
+        }}
+        onContextMenu={(e) => {
+          setCountdown(true, enableCountdown ? !endModeCountdown : true);
+          e.preventDefault();
         }}
       >
         <RiTimerFill />
       </button>
     ),
-    [enableCountdown]
+    [enableCountdown, endModeCountdown, state]
   );
   const SwitchNotificationButton = useCallback(
     () => (
@@ -939,6 +952,7 @@ export function CalendarMeeEventViewer({
                     allDay={event.allDay}
                     title={event.title}
                     notification={countdownNotification}
+                    endMode={endModeCountdown}
                   />
                 </h4>
               ) : null}
@@ -1018,6 +1032,7 @@ interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
   format?: (options: countDownFormatProps) => string;
   notification?: boolean;
   title?: string;
+  endMode?: boolean;
 }
 export const CountDown = memo(function CountDown({
   date,
@@ -1028,6 +1043,7 @@ export const CountDown = memo(function CountDown({
   allDay,
   notification,
   title,
+  endMode,
   ...props
 }: CountDownProps) {
   className = useMemo(() => {
@@ -1100,8 +1116,8 @@ export const CountDown = memo(function CountDown({
   }, [wkReceived]);
 
   const dtime = useMemo(
-    () => (time >= 0 ? time : time + duringTime),
-    [time, duringTime]
+    () => (time >= 0 && !endMode ? time : time + duringTime),
+    [time, duringTime, endMode]
   );
   const isDuringTime = useMemo(() => time < 0 && dtime >= 0, [time, dtime]);
 
@@ -1193,7 +1209,7 @@ export const CountDown = memo(function CountDown({
           }
         }
       } else {
-        str = "あと ";
+        str = endMode ? "終了まで 残り " : "あと ";
         if (days) str = str + ` ${days}日`;
         if (days || hours) str = str + ` ${hours}時間`;
         if (days || hours || minutes) str = str + minutes + "分";
@@ -1201,7 +1217,7 @@ export const CountDown = memo(function CountDown({
       }
       return str;
     }
-  }, [time, dtime, format, onTheDayTime, duringTime, allDay, backDays]);
+  }, [time, dtime, format, onTheDayTime, duringTime, allDay, backDays, endMode]);
   return (
     <span className={className} {...props}>
       {result}
