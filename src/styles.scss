@@ -2869,16 +2869,27 @@ label,
       button.labels {
         margin: 0.25rem auto;
       }
-      ul li {
-        @extend %c;
+      ul {
+        padding-left: 2rem;
+        li {
+          @extend %c;
+        }
+        @media (max-width: #{$tabletWidth - 1}) {
+          padding-left: 1rem;
+        }
       }
       details {
         & > * {
           @extend %c;
         }
-        & > label {
+        label {
           display: flex;
           align-items: center;
+          width: 100%;
+          input {
+            flex: 1;
+            width: inherit;
+          }
         }
         summary {
           @extend %h;

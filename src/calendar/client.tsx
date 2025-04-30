@@ -922,12 +922,11 @@ function CalendarSettingForm() {
           <summary>GoogleAPIの設定（読取専用・任意）</summary>
           <ul>
             <li>
-              <label className="flex">
+              <label>
                 <span className="label-l">Google API</span>
                 <input
                   title="Google API Key"
                   placeholder="Google API Key"
-                  className="flex-1"
                   {...register("googleApiKey")}
                 />
               </label>
@@ -935,12 +934,11 @@ function CalendarSettingForm() {
             <p>GoogleカレンダーIDの設定</p>
             {[1, 2, 3, 4].map((i) => (
               <li key={i}>
-                <label className="flex">
+                <label>
                   <span className="label-l">{i}つめのID</span>
                   <input
                     title={`Google Calendar ID (${i})`}
                     placeholder={`Google Calendar ID (${i})`}
-                    className="flex-1"
                     {...register(`googleCalendarId_${i}`)}
                   />
                 </label>
