@@ -70,7 +70,11 @@ type CALENDAR_APP_KVKEYS =
   | typeof GOOGLE_API_KEY_KVKEY;
 
 class IndexedCalendarMHEvents extends IndexedDataClass<EventsDataType> {
-  saveFromJSON(props: Props_IndexedDataClass_NoCallback_Save<EventsDataType>) {
+  saveFromJSON(
+    props: Props_IndexedDataClass_NoCallback_Save<EventsDataType>,
+    overwrite = false
+  ) {
+    if (overwrite) this.table.clear();
     return super.save({
       ...props,
       callback(item) {
@@ -91,10 +95,11 @@ class IndexedCalendarMH_KV extends IndexedKVClass<
   string | null,
   CALENDAR_APP_KVKEYS
 > {
-  saveFromJSON({
-    data,
-    store,
-  }: Props_IndexedDataClass_DataStore<CalendarAppClassType>) {
+  saveFromJSON(
+    { data, store }: Props_IndexedDataClass_DataStore<CalendarAppClassType>,
+    overwrite = false
+  ) {
+    if (overwrite) this.table.clear();
     const kvMap = new Map();
     if (data.defaultView) kvMap.set(DEFAULT_VIEW_KVKEY, data.defaultView);
     if (data.googleApiKey) kvMap.set(GOOGLE_API_KEY_KVKEY, data.googleApiKey);
@@ -121,9 +126,10 @@ async function ExportData() {
 async function ImportData(json: string) {
   const data: CalendarAppClassType = JSON.parse(json);
   if (data.events)
-    await indexedCalendarEvents.saveFromJSON({ data: data.events });
-  await indexedCalendarKV.saveFromJSON({ data });
+    await indexedCalendarEvents.saveFromJSON({ data: data.events }, true);
+  await indexedCalendarKV.saveFromJSON({ data }, true);
   if (data.googleCalendarId) {
+    indexedCalendarID.table.clear();
     const list = data.googleCalendarId.map((item, i) => {
       if (typeof item === "string") return { key: i + 1, id: item };
       else return item;
@@ -274,8 +280,8 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
       }
     },
     async removeEvent(id) {
-      await indexedCalendarEvents.table.delete({query: id});
-      set({events: await indexedCalendarEvents.table.getAll()})
+      await indexedCalendarEvents.table.delete({ query: id });
+      set({ events: await indexedCalendarEvents.table.getAll() });
     },
   })
 );
