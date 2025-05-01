@@ -643,20 +643,26 @@ function CalendarAppEventEdit() {
     >
       <form className="flex" onSubmit={handleSubmit(Submit)}>
         <input title="タイトル" placeholder="タイトル" {...register("title")} />
-        <input
-          type="datetime-local"
-          step={60}
-          title="開始"
-          {...register("start")}
-        />
-        <input
-          type="datetime-local"
-          step={60}
-          title="終了"
-          {...register("end")}
-        />
         <label>
-          終日
+          <span className="label">開始</span>
+          <input
+            type="datetime-local"
+            step={60}
+            title="開始"
+            {...register("start")}
+          />
+        </label>
+        <label>
+          <span className="label">終了</span>
+          <input
+            type="datetime-local"
+            step={60}
+            title="終了"
+            {...register("end")}
+          />
+        </label>
+        <label>
+          <span>終日</span>
           <input title="終日" type="checkbox" {...register("allDay")} />
         </label>
         <input

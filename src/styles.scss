@@ -4287,8 +4287,21 @@ form.blogEdit {
         max-width: 75vw;
       }
     }
-    label > span:first-child {
-      min-width: 6em;
+    label {
+      display: flex;
+      align-items: center;
+      input {
+        flex: 1;
+      }
+      span.label {
+        margin: 0;
+      }
+      input[type="checkbox"] {
+        flex: 0;
+        margin-left: 0.5em;
+        width: 1em;
+        height: 1em;
+      }
     }
     .switch {
       @extend %headerSwitch;
