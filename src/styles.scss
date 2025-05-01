@@ -2973,6 +2973,9 @@ label,
       }
       .absoluteCorner {
         margin: 0.5em;
+        button {
+          margin: 0;
+        }
       }
     }
   }
@@ -4008,29 +4011,21 @@ form.blogEdit {
     }
   }
   .modal {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    padding: 1.5rem 1rem 2rem;
     h2 {
       @extend %auto-phrase;
       font-size: 1.75em;
-      min-height: 3.5em;
-      margin: 0 1em;
+      margin: 0;
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      @extend %auto-phrase;
-      > div {
-        display: flex;
-      }
+      text-align: center;
+      margin: 0.5rem 0.5rem 0.75rem;
     }
     a {
       display: inline-flex;
+      justify-content: center;
       align-items: stretch;
     }
     button {
@@ -4058,28 +4053,33 @@ form.blogEdit {
         }
       }
     }
+    & > * {
+      margin: 0.5rem 2rem;
+    }
     div.time {
       width: 90vw;
       max-width: 35em;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-      min-height: 4em;
-      padding-top: 0.5em;
-      margin: auto;
+      justify-content: center;
+      min-height: 4.5em;
+      padding-top: 0.25em;
+      margin: 0 auto;
+      &.enableCountdown {
+        justify-content: flex-end;
+      }
       &.single {
-        padding: 1em 1em 0;
+        padding: 0 1rem 0;
         h3 {
           font-size: 1.75em;
-        }
-        &.enableCountdown {
-          padding-top: 0.2em;
         }
       }
       h3 {
         margin: 0 1em;
         display: flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
         font-size: 1.6em;
         a {
           > span.time {
@@ -4092,6 +4092,9 @@ form.blogEdit {
         h3 {
           margin: 0 1em;
           font-size: 1.2em;
+        }
+        h4 {
+          margin-bottom: 0.5rem;
         }
         &.smaller {
           h3 {
@@ -4129,7 +4132,7 @@ form.blogEdit {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0.3rem 1rem 0;
+      margin: 0.5rem 1rem 0;
       font-size: 1.5em;
       .countdown {
         color: var(--main-color-dark);
@@ -4138,25 +4141,27 @@ form.blogEdit {
       }
     }
     h5 {
-      margin: 0 0.5em;
       display: flex;
       align-items: center;
       font-size: 1.1em;
     }
     .description {
-      margin: 0 1em;
+      white-space: break-spaces;
     }
     @media (max-width: #{$mobileWidth - 1}) {
+      padding: 1.5rem 1rem 2.5rem;
+      & > * {
+        margin: 0.3rem 0.5rem;
+      }
       h2 {
+        min-height: 3rem;
         margin: 0;
-        text-align: center;
       }
       div.time {
-        padding-top: 0.5em;
-        min-height: 5em;
+        padding-top: 0;
+        min-height: 4.5em;
         &.single {
           padding: 0;
-          padding-top: 0.5em;
           margin: 0 auto;
           &.enableCountdown {
             padding-top: 0;
@@ -4168,8 +4173,6 @@ form.blogEdit {
         h3 {
           margin: 0;
           font-size: 1.6em;
-          text-align: center;
-          justify-content: center;
         }
         h4 {
           margin: 0.4rem 1rem;
@@ -4196,9 +4199,6 @@ form.blogEdit {
       }
       h5 {
         font-size: 1em;
-      }
-      .description {
-        margin: 0 0.25em;
       }
     }
   }

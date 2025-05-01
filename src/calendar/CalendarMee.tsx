@@ -943,6 +943,14 @@ export function CalendarMeeEventViewer({
     ),
     [countdownNotification]
   );
+  const BlogCopyButton = useCallback(
+    () => (
+      <button title="ブログ用にコピーする" type="button" onClick={copyAction}>
+        <RiFileCopyLine />
+      </button>
+    ),
+    [copyAction]
+  );
   return (
     <>
       <Modal
@@ -986,21 +994,7 @@ export function CalendarMeeEventViewer({
                 </h4>
               ) : null}
             </div>
-            <div className="title">
-              <h2>{event.title}</h2>
-              <div>
-                {enableMarkdownCopy && !event.private ? (
-                  <button
-                    title="ブログ用にコピーする"
-                    type="button"
-                    onClick={copyAction}
-                  >
-                    <RiFileCopyLine />
-                  </button>
-                ) : null}
-                <CountDownButton />
-              </div>
-            </div>
+            <h2 className="title">{event.title}</h2>
             {location ? (
               <h5>
                 {/^http.?:\/\//.test(location) ? (
@@ -1020,16 +1014,20 @@ export function CalendarMeeEventViewer({
                 )}
               </h5>
             ) : null}
-            <div className="description">
-              <MultiParser only={{ toDom: true }}>
-                {event.description}
-              </MultiParser>
-            </div>
+            {event.description ? (
+              <div className="description">
+                <MultiParser only={{ toDom: true }}>
+                  {event.description}
+                </MultiParser>
+              </div>
+            ) : null}
             <div className="absoluteCorner bottom right">
-              {enableCountdown ? <SwitchNotificationButton /> : null}
+              {enableMarkdownCopy && !event.private ? <BlogCopyButton /> : null}
               {RightBottomComponent ? (
                 <RightBottomComponent event={event} />
               ) : null}
+              {enableCountdown ? <SwitchNotificationButton /> : null}
+              <CountDownButton />
             </div>
           </>
         ) : (
@@ -1258,7 +1256,7 @@ export const CountDown = memo(function CountDown({
   ]);
   return (
     <span className={className} {...props}>
-      <span>{result}</span>
+      {result}
     </span>
   );
 });
