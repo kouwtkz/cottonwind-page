@@ -951,6 +951,12 @@ export function CalendarMeeEventViewer({
     ),
     [copyAction]
   );
+  viewerClassName = useMemo(() => {
+    const classNames = viewerClassName?.split(" ") || [];
+    classNames.push("eventsViewer");
+    if (!event) classNames.push("loading");
+    return classNames.join(" ");
+  }, [viewerClassName, event]);
   return (
     <>
       <Modal
@@ -994,7 +1000,7 @@ export function CalendarMeeEventViewer({
                 </h4>
               ) : null}
             </div>
-            <h2 className="title">{event.title}</h2>
+            {event.title ? <h2 className="title">{event.title}</h2> : null}
             {location ? (
               <h5>
                 {/^http.?:\/\//.test(location) ? (
@@ -1016,12 +1022,12 @@ export function CalendarMeeEventViewer({
             ) : null}
             {event.description ? (
               <div className="description">
-                <MultiParser only={{ toDom: true }}>
+                <MultiParser only={{ toDom: true, markdown: true }}>
                   {event.description}
                 </MultiParser>
               </div>
             ) : null}
-            <div className="absoluteCorner bottom right">
+            <div className="buttons">
               {enableMarkdownCopy && !event.private ? <BlogCopyButton /> : null}
               {RightBottomComponent ? (
                 <RightBottomComponent event={event} />
