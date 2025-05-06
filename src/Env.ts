@@ -88,18 +88,17 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://note.com/kouwtkz/"
     },
     {
-      hidden: true,
-      mask: "#mask_github",
-      name: "GitHub",
-      url: "https://github.com/kouwtkz"
-    },
-    {
       mask: "#mask_booth",
       name: "BOOTH",
       rel: "me",
       row: 2,
       url: "https://cottonwind.booth.pm/"
-    }
+    },
+    {
+      mask: "#mask_github",
+      name: "このサイトプロジェクトのGitHub",
+      url: "https://github.com/kouwtkz/cottonwind-page"
+    },
   ],
   IMAGE_ALBUMS: [
     {
