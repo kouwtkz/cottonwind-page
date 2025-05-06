@@ -117,6 +117,7 @@ export function LinksEdit({
       description: item?.description,
       url: item?.url,
       category: item?.category ?? category,
+      draft: item?.draft ?? null,
     },
     resolver: zodResolver(schema),
   });
@@ -300,15 +301,21 @@ export function LinksEdit({
           placeholder="サイトのURL"
           {...register("url")}
         />
-        {categories.length ? (
-          <select title="カテゴリ" {...register("category")}>
-            {categories.map((category) => (
-              <option value={category} key={category}>
-                {category || "未分類"}
-              </option>
-            ))}
-          </select>
-        ) : null}
+        <div className="flex center">
+          {categories.length ? (
+            <select title="カテゴリ" {...register("category")} className="flex-1">
+              {categories.map((category) => (
+                <option value={category} key={category}>
+                  {category || "未分類"}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <label className="ml">
+            <input {...register("draft")} type="checkbox" />
+            <span>下書き</span>
+          </label>
+        </div>
         <div className="actions">
           <button
             type="button"
