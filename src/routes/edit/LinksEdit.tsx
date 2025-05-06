@@ -86,14 +86,14 @@ export function LinksEdit({
   defaultCategories,
 }: LinksEditProps) {
   const { links } = linksState;
-  console.log(links);
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
     let item: SiteLink | undefined;
-    if (links && typeof edit === "number")
+    if (links && typeof edit === "number") {
       item = findMee(links, { where: { id: edit } })[0];
+    }
     if (item?.rawdata?.lastmod) targetLastmod.current = item.rawdata.lastmod;
     return item;
   }, [edit, links]);

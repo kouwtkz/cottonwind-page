@@ -168,9 +168,10 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): bool
 
 export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any) {
   if (typeof (fval) === "number") {
-    if (typeof innerValue === "string" || Array.isArray(innerValue)) {
+    const innerValueType = typeof innerValue;
+    if (innerValueType === "string" || Array.isArray(innerValue)) {
       innerValue = innerValue.length;
-    } else {
+    } else if (!innerValue || innerValueType !== "object") {
       innerValue = Number(innerValue || 0);
     }
   }
