@@ -150,7 +150,7 @@ export function ObjectIndexedDBDownloadButton<T extends WithRawDataType<any>>({
     <ObjectDownloadButton
       {...props}
       onClick={async () => {
-        if (indexedDB) getIndexedDBJsonOptions(indexedDB);
+        if (indexedDB) return getIndexedDBJsonOptions(indexedDB);
       }}
     />
   );
