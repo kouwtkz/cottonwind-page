@@ -37,7 +37,6 @@ async function callSetLinks({
         return data;
       });
   });
-  console.log(links);
   const linksMap = links
     .filter((v) => v.url || v.title || v.image)
     .reduce<LinksMapType>((a, c) => {
