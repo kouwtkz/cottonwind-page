@@ -1,5 +1,5 @@
 import { ToastContainer } from "react-toastify";
-import { SoundPlayer } from "./SoundPlayer";
+import { SoundPlayer } from "@/layout/SoundPlayer";
 import { ImageViewer } from "@/layout/ImageViewer";
 import { DataState } from "@/data/DataState";
 import { ImageState, useImageState } from "./ImageState";

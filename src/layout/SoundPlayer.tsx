@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useMediaOrigin } from "./EnvState";
+import { useMediaOrigin } from "@/state/EnvState";
 import { concatOriginUrl } from "@/functions/originUrl";
 import MebtteMediaSession from "@mebtte/react-media-session";
 import { useLocation } from "react-router-dom";
@@ -9,7 +9,7 @@ import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
-import { CreateObjectState, CreateState, setTypeProps } from "./CreateState";
+import { CreateObjectState, CreateState, setTypeProps } from "@/state/CreateState";
 import ReactSlider from "react-slider";
 
 import {

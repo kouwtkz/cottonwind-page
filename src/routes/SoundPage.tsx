@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { useSoundPlayer } from "@/state/SoundPlayer";
+import { useSoundPlayer } from "@/layout/SoundPlayer";
 import { useSounds } from "@/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";

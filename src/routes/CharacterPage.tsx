@@ -27,7 +27,7 @@ import { useImageState } from "@/state/ImageState";
 import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
 import { CharacterEdit, CharaEditButton } from "./edit/CharacterEdit";
 import { ErrorContent } from "./ErrorPage";
-import { useSoundPlayer } from "@/state/SoundPlayer";
+import { useSoundPlayer } from "@/layout/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "@/functions/find/findMee";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";

@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { useSoundPlayer } from "./SoundPlayer";
+import { useSoundPlayer } from "@/layout/SoundPlayer";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { soundsDataIndexed, soundAlbumsDataIndexed } from "@/data/DataState";
 import { getSoundAlbumsMap, getSoundsMap } from "@/functions/soundFunction";
