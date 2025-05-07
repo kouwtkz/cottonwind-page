@@ -81,6 +81,7 @@ export function SoundEditButton() {
             )
             .then(() => {
               soundsDataIndexed.load("no-cache");
+              soundAlbumsDataIndexed.load("no-cache");
             });
         }}
       >

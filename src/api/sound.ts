@@ -152,6 +152,14 @@ app.post("/send", async (c, next) => {
       if (!value || value.mtime !== entry.mtime) {
         await c.env.BUCKET.put(src, file);
       }
+      const album = meta.common.album;
+      if (album) {
+        const albumValue = await AlbumTableObject.Select({ db, take: 1, where: { key: album } })
+          .then<SoundAlbumDataType | null>(v => v[0] || null);
+        if (!albumValue) {
+          await AlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
+        }
+      }
       if (value) {
         await TableObject.Update({ db, entry, where: { key } });
       } else {
