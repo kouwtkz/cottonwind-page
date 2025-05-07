@@ -61,6 +61,7 @@ type SoundPlayerType = {
   jumped: boolean;
   volume: number;
   muted: boolean;
+  sound: SoundItemType | null;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   Play: (args?: setTypeProps<SoundPlayerType>) => void;
   Pause: () => void;
@@ -89,6 +90,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   jumped: false,
   volume: 0.5,
   muted: false,
+  sound: null,
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
       playlist?: SoundPlaylistType | undefined;
@@ -215,11 +217,11 @@ export function SoundPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioElm = audioRef.current;
   const listLength = useMemo(() => playlist.list.length, [playlist.list]);
-  const music = useMemo(
+  const sound = useMemo(
     () => playlist.list[current] || {},
     [playlist, current]
   );
-  const src = useMemo(() => music?.src, [music, current]);
+  const src = useMemo(() => sound?.src, [sound, current]);
   const mediaSrc = useMemo(() => {
     if (mediaOrigin && src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
@@ -282,10 +284,7 @@ export function SoundPlayer() {
         break;
     }
   }, [loopMode, audioElm, Stop, listLength]);
-  useEffect(
-    () => Set({ duration: !ended && audioElm ? audioElm.duration : 0 }),
-    [audioElm?.duration, ended]
-  );
+
   const [intervalState, setIntervalState] = useState<number>(-1);
   const onTimeUpdate = useCallback(() => {
     if (audioElm) {
@@ -309,16 +308,15 @@ export function SoundPlayer() {
   }, [intervalState, stopped, audioElm]);
 
   const callbackMetaData = useCallback(
-    (music: SoundItemType, mediaSrc: string) => {
-      if (!music.meta) {
+    (sound: SoundItemType, mediaSrc: string) => {
+      if (!sound.meta) {
         fetch(mediaSrc)
           .then((r) => r.blob())
           .then((blob) => parseBlob(blob))
           .then((meta) => {
             SetSounds(({ soundsMap }) => {
-              const item = soundsMap.get(music.key)!;
+              const item = soundsMap.get(sound.key)!;
               item.meta = meta;
-              item.common = meta.common;
               return {
                 soundsMap: new Map(soundsMap),
                 sounds: Array.from(soundsMap.values()),
@@ -330,29 +328,32 @@ export function SoundPlayer() {
     []
   );
   useEffect(() => {
-    if (!paused && music && mediaSrc) callbackMetaData(music, mediaSrc);
-  }, [paused, music, mediaSrc]);
+    if (!paused && sound && mediaSrc) callbackMetaData(sound, mediaSrc);
+  }, [paused, sound, mediaSrc]);
+  useEffect(() => {
+    Set({ sound });
+  }, [sound]);
 
   const artwork = useMemo(
     () =>
-      music.cover && mediaOrigin
+      sound.cover && mediaOrigin
         ? [
             {
-              src: concatOriginUrl(mediaOrigin, music.cover),
+              src: concatOriginUrl(mediaOrigin, sound.cover),
               sizes: "512x512",
             },
           ]
         : [],
-    [music, mediaOrigin]
+    [sound, mediaOrigin]
   );
 
   return (
     <>
       <SoundController />
       <MebtteMediaSession
-        title={music.title}
-        artist={music.artist}
-        album={playlist.title || music.album}
+        title={sound.title}
+        artist={sound.artist}
+        album={playlist.title || sound.album}
         {...{
           artwork,
           onPlay: Play,
@@ -372,8 +373,12 @@ export function SoundPlayer() {
   );
 }
 
-function DurationToStr(duration: number, emptyToHyphen?: boolean) {
-  if (!duration && emptyToHyphen) return "-:--";
+function DurationToStr(
+  duration: number,
+  emptyToHyphen = false,
+  forceToHypen = false
+) {
+  if (forceToHypen || (!duration && emptyToHyphen)) return "-:--";
   const floorTime = Math.floor(duration);
   const s = floorTime % 60;
   const m = (floorTime - s) / 60;
@@ -405,7 +410,7 @@ export function SoundController() {
   const sound = playlist.list[current];
   const title = sound?.title || null;
   const artist = sound?.artist || null;
-  const composer = sound?.common?.composer?.join(", ") || artist;
+  const composer = sound?.meta?.common?.composer?.join(", ") || artist;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
     [pathname, paused, ended]
@@ -474,6 +479,7 @@ export function SoundController() {
       };
     }
   }, [volumeDivRef]);
+
   return (
     <>
       <div className={soundControllerClass}>
@@ -592,8 +598,18 @@ export function SoundController() {
 }
 
 function SoundControllerTime() {
-  const { Play, Pause, paused, stopped, currentTime, duration } =
+  const { Play, Pause, paused, stopped, ended, currentTime, sound, Set } =
     useSoundPlayer();
+  const duration = useMemo(
+    () => (ended ? 0 : sound?.meta?.format?.duration || 0),
+    [sound?.meta, ended]
+  );
+  useEffect(() => {
+    if (duration !== null)
+      Set({
+        duration: !ended && duration ? duration : 0,
+      });
+  }, [duration]);
   const currentPerT = useMemo(
     () => Math.round((currentTime / (duration || 1)) * 1000),
     [currentTime, duration]

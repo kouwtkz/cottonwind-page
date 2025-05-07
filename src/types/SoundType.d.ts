@@ -20,7 +20,6 @@ interface SoundItemType extends SoundDataType, WithRawDataType<SoundDataType> {
   genre?: string[];
   grouping?: string[];
   draft?: boolean;
-  common?: ICommonTagsResult;
   meta?: IAudioMetadata;
   time?: Date;
   lastmod?: Date;
