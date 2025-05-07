@@ -2533,7 +2533,7 @@ div.banner {
 }
 
 $soundBoxWidth: 18rem;
-$soundBoxHeight: 12rem;
+$soundBoxHeight: 10rem;
 .soundController {
   position: fixed;
   left: -#{$soundBoxWidth};
@@ -2614,7 +2614,7 @@ $soundBoxHeight: 12rem;
           }
         }
         .meta {
-          margin: 1rem auto 0.25rem;
+          margin: 1.25rem auto 0.25rem;
           display: inline-flex;
           flex-direction: column;
           align-items: center;
@@ -2622,17 +2622,18 @@ $soundBoxHeight: 12rem;
           justify-content: center;
           @extend %auto-phrase;
           p {
-            margin-top: 0;
             margin: 0.25rem;
+            margin-top: 0;
           }
           .title {
             display: flex;
             align-items: center;
-            min-height: 3.5rem;
+            min-height: 2.75rem;
             font-size: 1.25rem;
           }
           .wait {
             font-size: 1.2rem;
+            margin-top: 0.5rem;
             margin-bottom: 0.5rem;
           }
         }
@@ -2806,10 +2807,10 @@ $soundBoxHeight: 12rem;
           @extend %auto-phrase;
         }
         .button {
-          margin-right: 0.5em;
-          @include square(2.25em);
+          margin-right: 1rem;
+          @include square(2.25rem);
           svg {
-            @include square(2em);
+            @include square(2rem);
           }
         }
       }
