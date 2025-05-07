@@ -408,6 +408,11 @@ textarea,
   }
 }
 
+@mixin square($size) {
+  width: $size;
+  height: $size;
+}
+
 $m-sizes: 1, 2, 3, 4;
 $m-vectors: "", "t", "b", "l", "r";
 @each $m-vector in $m-vectors {
@@ -919,6 +924,10 @@ button,
   &:not(:disabled) {
     @extend %cursor-pointer;
   }
+  &.soft-color {
+    color: white;
+    background-color: var(--main-color-soft);
+  }
   &.color {
     color: white;
     background-color: var(--main-color);
@@ -949,8 +958,7 @@ button,
     svg,
     .svg {
       fill: white;
-      width: 1.5rem;
-      height: 1.5rem;
+      @include square(1.5rem);
     }
   }
   &.link,
@@ -1026,12 +1034,10 @@ button,
   @media (min-width: $tabletWidth) {
     &.round {
       margin: 0.25rem;
-      width: 3rem;
-      height: 3rem;
+      @include square(3rem);
       svg,
       .svg {
-        width: 2rem;
-        height: 2rem;
+        @include square(2rem);
       }
     }
   }
@@ -2525,8 +2531,9 @@ div.banner {
     align-items: center;
   }
 }
-$soundBoxWidth: 14rem;
-$soundBoxHeight: 14rem;
+
+$soundBoxWidth: 18rem;
+$soundBoxHeight: 12rem;
 .soundController {
   position: fixed;
   left: -#{$soundBoxWidth};
@@ -2534,6 +2541,10 @@ $soundBoxHeight: 14rem;
   z-index: 40;
   transition: left 250ms;
   display: none;
+  pointer-events: none;
+  > * {
+    pointer-events: all;
+  }
   &.show {
     display: flex;
     flex-direction: row-reverse;
@@ -2546,15 +2557,23 @@ $soundBoxHeight: 14rem;
     margin: 0.3rem;
     button {
       margin: 0.2rem;
+      border: solid 1px var(--background);
+      @include square(3rem);
+      svg {
+        @include square(2rem);
+      }
     }
   }
   button {
     margin: 0 0.25rem;
   }
   .box {
-    width: #{$soundBoxWidth};
-    height: #{$soundBoxHeight};
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     background-color: var(--background-bw);
+    width: #{$soundBoxWidth};
+    min-height: #{$soundBoxHeight};
     .player {
       display: none;
     }
@@ -2571,26 +2590,44 @@ $soundBoxHeight: 14rem;
     }
     .box {
       .player {
-        margin: 1rem 0.25rem;
+        margin: 0 0.25rem;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        > div {
+        justify-content: flex-end;
+        .controll {
+          margin: 1rem 0.5rem;
           display: flex;
-          justify-content: space-evenly;
-          margin: 0.125rem 1.5rem;
-          &.time {
-            margin: auto;
+          & > div {
+            display: flex;
+            justify-content: center;
+            button {
+              margin: 0;
+            }
+          }
+          .right,
+          .left {
+            flex: 1;
+          }
+          .center {
+            flex: 2;
+            justify-content: space-around;
           }
         }
-        .title {
-          height: 3rem;
-          margin: auto;
-          margin-top: 0.5rem;
+        .meta {
+          margin: 0.5rem auto 0.25rem;
           display: inline-flex;
+          flex-direction: column;
           align-items: center;
           text-align: center;
+          justify-content: center;
           @extend %auto-phrase;
+          p {
+            margin-top: 0;
+            margin: 0.25rem;
+          }
+          .wait {
+            font-size: 1.2em;
+          }
         }
         .time {
           display: flex;
@@ -2629,8 +2666,12 @@ $soundBoxHeight: 14rem;
           }
         }
         .volume {
+          display: flex;
+          align-items: center;
+          position: relative;
           .sliderBox {
             $height: 3rem;
+            top: $height;
             position: absolute;
             background-color: var(--background-bw);
             transform: translateY(#{-3-$height});
@@ -2676,17 +2717,32 @@ $soundBoxHeight: 14rem;
         background-color: transparent;
         svg {
           fill: var(--main-color-soft);
-          width: 2.5rem;
-          height: 2.5rem;
+          stroke: var(--main-color-soft);
+          @include square(2.5rem);
+          --background: var(--background-bw);
+          &.small {
+            @include square(2rem);
+          }
+        }
+        &.large svg {
+          @include square(3rem);
+        }
+        &.small svg {
+          @include square(2rem);
         }
         &.round {
           background-color: var(--main-color-soft);
-          width: 2.5rem;
-          height: 2.5rem;
+          @include square(2.5rem);
+          &.large {
+            @include square(3rem);
+          }
+          &.small {
+            @include square(2rem);
+          }
           svg {
             fill: white;
-            width: 75%;
-            height: 75%;
+            stroke: white;
+            --background: var(--main-color-soft);
           }
         }
       }
@@ -2741,10 +2797,12 @@ $soundBoxHeight: 14rem;
           align-items: center;
           @extend %auto-phrase;
         }
-        .play {
-          flex: 2;
-          margin-right: 0.25rem;
-          fill: var(--main-color-soft);
+        .button {
+          margin-right: 0.5em;
+          @include square(2.25em);
+          svg {
+            @include square(2em);
+          }
         }
       }
     }

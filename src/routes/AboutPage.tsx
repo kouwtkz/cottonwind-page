@@ -200,6 +200,10 @@ export function WebsiteFramework({
             <li>
               <span className="label">プレイヤー</span>
               <span>@mebtte/react-media-session</span>
+            <li>
+              <span className="label">メタデータ</span>
+              <span>music-metadata</span>
+            </li>
             </li>
             <li>
               <span className="label">UIライブラリ</span>

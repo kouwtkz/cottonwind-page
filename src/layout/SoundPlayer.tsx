@@ -9,7 +9,11 @@ import ShuffleButton from "@/components/svg/audio/ShuffleButton";
 import PrevButton from "@/components/svg/audio/PrevButton";
 import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
 import NextButton from "@/components/svg/audio/NextButton";
-import { CreateObjectState, CreateState, setTypeProps } from "@/state/CreateState";
+import {
+  CreateObjectState,
+  CreateState,
+  setTypeProps,
+} from "@/state/CreateState";
 import ReactSlider from "react-slider";
 
 import {
@@ -23,6 +27,8 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { parseBlob } from "music-metadata";
+import { useSounds } from "@/state/SoundState";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -187,6 +193,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
 export function SoundPlayer() {
   const mediaOrigin = useMediaOrigin()[0];
+  const { Set: SetSounds } = useSounds();
   const {
     playlist,
     current,
@@ -301,6 +308,31 @@ export function SoundPlayer() {
     };
   }, [intervalState, stopped, audioElm]);
 
+  const callbackMetaData = useCallback(
+    (music: SoundItemType, mediaSrc: string) => {
+      if (!music.meta) {
+        fetch(mediaSrc)
+          .then((r) => r.blob())
+          .then((blob) => parseBlob(blob))
+          .then((meta) => {
+            SetSounds(({ soundsMap }) => {
+              const item = soundsMap.get(music.key)!;
+              item.meta = meta;
+              item.common = meta.common;
+              return {
+                soundsMap: new Map(soundsMap),
+                sounds: Array.from(soundsMap.values()),
+              };
+            });
+          });
+      }
+    },
+    []
+  );
+  useEffect(() => {
+    if (!paused && music && mediaSrc) callbackMetaData(music, mediaSrc);
+  }, [paused, music, mediaSrc]);
+
   const artwork = useMemo(
     () =>
       music.cover && mediaOrigin
@@ -372,6 +404,8 @@ export function SoundController() {
   } = useSoundPlayer();
   const sound = playlist.list[current];
   const title = sound?.title || null;
+  const artist = sound?.artist || null;
+  const composer = sound?.common?.composer?.join(", ") || artist;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
     [pathname, paused, ended]
@@ -419,11 +453,11 @@ export function SoundController() {
     () => (
       <>
         {muted || volume === 0 ? (
-          <RiVolumeMuteFill />
+          <RiVolumeMuteFill className="small" />
         ) : volume < 0.6 ? (
-          <RiVolumeDownFill />
+          <RiVolumeDownFill className="small" />
         ) : (
-          <RiVolumeUpFill />
+          <RiVolumeUpFill className="small" />
         )}
       </>
     ),
@@ -472,62 +506,84 @@ export function SoundController() {
         </div>
         <div className="box">
           <div className="player">
-            <div>
-              <DropdownObject
-                className="volume"
-                ref={volumeDivRef}
-                classNames={{
-                  dropMenuButton: "round",
-                  dropItemList: "sliderBox",
-                }}
-                MenuButton={<VolumeIcon />}
-                title="音量を変更する"
-                hiddenClassName="disabled"
-                keepActiveOpen
-              >
-                <button
-                  type="button"
-                  title="ミュート切り替え"
-                  onClick={() => Set((s) => ({ muted: !s.muted }))}
-                >
-                  <VolumeIcon />
-                </button>
-                <ReactSlider
-                  thumbClassName="thumb"
-                  trackClassName="track"
-                  max={100}
-                  value={currentVolume}
-                  onChange={(value) => {
-                    SetVolume(value / 100);
-                  }}
-                />
-              </DropdownObject>
-              <button type="button" title="ループモード" onClick={NextLoopMode}>
-                <LoopButton loopMode={loopMode} />
-              </button>
-              <button type="button" title="シャッフル" onClick={ToggleShuffle}>
-                <ShuffleButton shuffle={shuffle} />
-              </button>
-            </div>
-            <div>
-              <button type="button" title="前の曲" onClick={Prev}>
-                <PrevButton />
-              </button>
-              <button
-                type="button"
-                title="再生 / 一時停止"
-                onClick={onClickPlayPause}
-              >
-                <PlayPauseButton paused={paused} />
-              </button>
-              <button type="button" title="次の曲" onClick={Next}>
-                <NextButton />
-              </button>
-            </div>
-            <div className="title">
-              {title && !stopped ? "♪ " + title : "（たいきちゅう）"}
+            <div className="meta">
+              {stopped ? (
+                <p className="wait">（たいきちゅう）</p>
+              ) : (
+                <>
+                  {title ? <p className="title">{"♪ " + title}</p> : null}
+                  {composer !== artist ? <p>編曲: {artist}</p> : null}
+                  {composer ? <p>作曲: {composer}</p> : null}
+                </>
+              )}
             </div>
             <SoundControllerTime />
+            <div className="controll">
+              <div className="left">
+                <DropdownObject
+                  className="volume"
+                  ref={volumeDivRef}
+                  classNames={{
+                    dropItemList: "sliderBox",
+                  }}
+                  MenuButton={<VolumeIcon />}
+                  title="音量を変更する"
+                  hiddenClassName="disabled"
+                  keepActiveOpen
+                >
+                  <button
+                    type="button"
+                    title="ミュート切り替え"
+                    onClick={() => Set((s) => ({ muted: !s.muted }))}
+                  >
+                    <VolumeIcon />
+                  </button>
+                  <ReactSlider
+                    thumbClassName="thumb"
+                    trackClassName="track"
+                    max={100}
+                    value={currentVolume}
+                    onChange={(value) => {
+                      SetVolume(value / 100);
+                    }}
+                  />
+                </DropdownObject>
+              </div>
+              <div className="center">
+                <button type="button" title="前の曲" onClick={Prev}>
+                  <PrevButton />
+                </button>
+                <button
+                  type="button"
+                  title="再生 / 一時停止"
+                  className="round large"
+                  onClick={onClickPlayPause}
+                >
+                  <PlayPauseButton paused={paused} />
+                </button>
+                <button type="button" title="次の曲" onClick={Next}>
+                  <NextButton />
+                </button>
+              </div>
+              <div className="right">
+                <button
+                  type="button"
+                  title="シャッフル"
+                  className="small"
+                  onClick={ToggleShuffle}
+                >
+                  <ShuffleButton shuffle={shuffle} />
+                </button>
+                <button
+                  type="button"
+                  title="ループモード"
+                  className="small"
+                  onClick={NextLoopMode}
+                >
+                  <LoopButton loopMode={loopMode} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -116,9 +116,14 @@ export function SoundPage() {
                         <span>{sound.title}</span>
                       </div>
                       {isEdit ? (
-                        <div className="play" />
+                        <div className="button" />
                       ) : (
-                        <PlayPauseButton className="play" paused={itemPaused} />
+                        <div className="button round soft-color">
+                          <PlayPauseButton
+                            className="play"
+                            paused={itemPaused}
+                          />
+                        </div>
                       )}
                     </div>
                   );

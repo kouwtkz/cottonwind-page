@@ -6,7 +6,7 @@ type PlayPauseButtonProps = {
 
 const PausePath = memo(function PausePath() {
   return (
-    <g fill="white">
+    <g strokeWidth={0}>
       <rect x="9" y="9" width="6" height="18" />
       <rect x="21" y="9" width="6" height="18" />
     </g>
@@ -14,7 +14,7 @@ const PausePath = memo(function PausePath() {
 });
 const PlayPath = memo(function PlayPath() {
   return (
-    <g fill="white">
+    <g strokeWidth={0}>
       <path d="M30.5 17.7415L11 28.1338L11 7.34915L30.5 17.7415Z" />
     </g>
   );
@@ -34,7 +34,6 @@ export default function PlayPauseButton({
       name="pause"
       {...attributes}
     >
-      <circle cx="18" cy="18" r="18" />
       {paused ? <PlayPath /> : <PausePath />}
     </svg>
   );

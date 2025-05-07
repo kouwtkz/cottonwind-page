@@ -11,9 +11,8 @@ export default function PrevButton(attributes: SVGAttributes<SVGSVGElement>) {
       name="stop"
       {...attributes}
     >
-      <circle cx="18" cy="18" r="18" />
-      <path d="M14 17.6603L26.75 26.3205L26.75 9L14 17.6603Z" fill="white" />
-      <path d="M12 9.66028H9V25.6603H12V9.66028Z" fill="white" />
+      <path d="M14 17.6603L26.75 26.3205L26.75 9L14 17.6603Z" strokeWidth={0} />
+      <path d="M12 9.66028H9V25.6603H12V9.66028Z" strokeWidth={0} />
     </svg>
   );
 }

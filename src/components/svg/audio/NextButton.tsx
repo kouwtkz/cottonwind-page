@@ -11,9 +11,8 @@ export default function NextButton(attributes: SVGAttributes<SVGSVGElement>) {
       name="stop"
       {...attributes}
     >
-      <circle cx="18" cy="18" r="18" />
-      <path d="M21.75 17.6603L9 26.3205L9 9L21.75 17.6603Z" fill="white" />
-      <path d="M23.75 9.66028H26.75V25.6603H23.75V9.66028Z" fill="white" />
+      <path d="M21.75 17.6603L9 26.3205L9 9L21.75 17.6603Z" strokeWidth={0} />
+      <path d="M23.75 9.66028H26.75V25.6603H23.75V9.66028Z" strokeWidth={0} />
     </svg>
   );
 }
