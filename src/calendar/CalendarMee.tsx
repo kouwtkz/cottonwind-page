@@ -23,6 +23,7 @@ import { Modal } from "@/layout/Modal";
 import { MultiParser } from "@/components/parse/MultiParser";
 import {
   RiAddLine,
+  RiCalendar2Line,
   RiFileCopyLine,
   RiLink,
   RiMapPinLine,
@@ -879,7 +880,7 @@ export function CalendarMeeEventViewer({
         {startDateString}
         <span className="time">
           {startTimeString}
-          {endTimeString ? (
+          {endTimeString && startTimeString !== endTimeString ? (
             <>
               <span className="during">-</span>
               {endTimeString}
@@ -951,6 +952,20 @@ export function CalendarMeeEventViewer({
     ),
     [copyAction]
   );
+  const LinkButton = useMemo(
+    () =>
+      event?.url ? (
+        <a
+          className="button"
+          href={event.url}
+          title="カレンダーへのリンク"
+          target="google-calendar-event"
+        >
+          <RiCalendar2Line />
+        </a>
+      ) : null,
+    [event]
+  );
   viewerClassName = useMemo(() => {
     const classNames = viewerClassName?.split(" ") || [];
     classNames.push("eventsViewer");
@@ -974,17 +989,7 @@ export function CalendarMeeEventViewer({
             <div className={timeClassName}>
               {startDate ? (
                 <h3>
-                  {event.url ? (
-                    <a
-                      className="time"
-                      href={event.url}
-                      target="google-calendar-event"
-                    >
-                      {TitleTime}
-                    </a>
-                  ) : (
-                    <span className="time">{TitleTime}</span>
-                  )}
+                  <span className="time">{TitleTime}</span>
                 </h3>
               ) : null}
               {enableCountdown && startDate ? (
@@ -1029,6 +1034,7 @@ export function CalendarMeeEventViewer({
             ) : null}
             <div className="buttons">
               {enableMarkdownCopy && !event.private ? <BlogCopyButton /> : null}
+              {LinkButton}
               {RightBottomComponent ? (
                 <RightBottomComponent event={event} />
               ) : null}
