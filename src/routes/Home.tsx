@@ -11,7 +11,7 @@ import { MeeLinks } from "./LinksPage";
 import { EmbedBluesky, EmbedTwitter } from "@/components/embed/EmbedSNS";
 import { useEnv } from "@/state/EnvState";
 import useSchedule from "@/components/hook/useSchedule";
-import { shuffleArray } from "@/functions/arrayFunction";
+import { compareArray, shuffleArray } from "@/functions/arrayFunction";
 import { ScheduleContainer } from "./SchedulePage";
 
 export default function Home() {
@@ -233,20 +233,30 @@ export function HomeImageState() {
         },
         orderBy: [{ topImage: "desc" }],
       });
-      const firstQue = topImages.filter(
-        ({ topImage }) => topImage === 2 || topImage === 5
-      );
-      const alwaysImages = topImages.filter(
-        ({ topImage }) => topImage === 3 || topImage === 6
-      );
-      shuffleArray(topImages);
-      setTopImage({
-        topImage: firstQue[0] || topImages[0],
-        topImageIndex: 0,
-        topImages,
-        firstQueIndex: 0,
-        firstQue,
-        alwaysImages,
+      setTopImage((state) => {
+        if (!compareArray(state.topImages, topImages, { key: "key" })) {
+          const firstQue = topImages.filter(
+            ({ topImage }) => topImage === 2 || topImage === 5
+          );
+          const alwaysImages = topImages.filter(
+            ({ topImage }) => topImage === 3 || topImage === 6
+          );
+          if (state.topImages.length !== topImages.length) {
+            shuffleArray(topImages);
+          }
+          let topImage: ImageType | null | undefined;
+          if (state.topImages.length === 0) {
+            topImage = firstQue[0] || topImages[0];
+          }
+          return {
+            topImage,
+            topImageIndex: 0,
+            topImages,
+            firstQueIndex: 0,
+            firstQue,
+            alwaysImages,
+          };
+        }
       });
     }
   }, [images, timeframeTag]);

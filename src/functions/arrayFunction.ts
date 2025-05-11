@@ -71,3 +71,14 @@ export function shuffleArray<T>(array: T[], clone = false) {
   }
   return useArray;
 }
+
+interface compareArrayOptionsType<T> {
+  type?: "nomal";
+  key?: keyof T;
+}
+export function compareArray<T>(array1: T[], array2: T[], { type = "nomal", key }: compareArrayOptionsType<T> = {}) {
+  switch (type) {
+    case "nomal":
+      return array1.length === array2.length && array1.every(v1 => key ? array2.some(v2 => v1[key] === v2[key]) : array2.some(v2 => v1 === v2));
+  }
+}
