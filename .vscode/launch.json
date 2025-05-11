@@ -11,7 +11,11 @@
       "name": "Launch Chrome",
       "type": "chrome",
       "url": "http://localhost:51730",
-      "request": "launch"
+      "request": "launch",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "name": "Launch Firefox",
@@ -24,14 +28,18 @@
       "name": "Launch Chrome 2",
       "type": "chrome",
       "url": "http://localhost:51740",
-      "request": "launch"
+      "request": "launch",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "name": "dev-calendar",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev-calendar"
-    },
+    }
   ],
   "compounds": [
     {
