@@ -343,11 +343,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     return list;
   }, [defaultGalleryTags, stateTags, unregisteredTagsOptions]);
 
-  const [copyrightTags, setCopyrightTags] = useState(
-    copyrightList.map(
-      ({ value }) => ({ label: value, value } as ContentsTagsOption)
-    )
-  );
+  const [copyrightTags, setCopyrightTags] = useState<ContentsTagsOption[]>([]);
+  useEffect(() => {
+    setCopyrightTags(
+      copyrightList.map(
+        ({ value }) => ({ label: value, value } as ContentsTagsOption)
+      )
+    );
+  }, [copyrightList]);
   const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
