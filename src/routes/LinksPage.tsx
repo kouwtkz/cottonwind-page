@@ -47,7 +47,6 @@ import {
   favLinksDataIndexed,
 } from "@/data/DataState";
 import { CompatGalleryButton } from "./edit/ImagesManager";
-import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
 import { findMee } from "@/functions/find/findMee";
 
 export default function LinksPage() {

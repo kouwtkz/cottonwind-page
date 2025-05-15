@@ -1,4 +1,3 @@
-import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
 import { HTMLAttributes, ReactNode, Ref } from "react";
 import { fileDownload } from "../FileTool";
 import { RiDownloadFill } from "react-icons/ri";

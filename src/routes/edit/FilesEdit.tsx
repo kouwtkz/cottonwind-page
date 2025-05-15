@@ -1,7 +1,6 @@
 import { PromiseOrder } from "@/functions/arrayFunction";
 import { corsFetch } from "@/functions/fetch";
 import { concatOriginUrl } from "@/functions/originUrl";
-import { StorageDataStateClass } from "@/data/localStorage/StorageDataStateClass";
 import { Modal } from "@/layout/Modal";
 import { CreateState } from "@/state/CreateState";
 import { filesDataIndexed, UploadToast } from "@/data/DataState";

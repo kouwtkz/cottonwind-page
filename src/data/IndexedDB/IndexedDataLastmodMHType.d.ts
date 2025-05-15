@@ -1,8 +1,3 @@
-interface Props_LastmodMHClass<T, D = T, TABLE_CLASS> {
-  options: Props_LastmodMHClass_Options<T, D>;
-  table?: TABLE_CLASS;
-}
-
 type Type_LastmodMH_Event = Type_MeeIndexedDB_Event | "load";
 
 interface Props_LastmodMHClass_Options<T, D = T> extends Props_LastmodMH_TableVersion, Props_MeeIndexedDBTable_Options<T> {
