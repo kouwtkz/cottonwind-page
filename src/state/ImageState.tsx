@@ -10,6 +10,7 @@ import { findMee } from "@/functions/find/findMee";
 import { useLikeState } from "./LikeState";
 import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "@/functions/arrayFunction";
+import { useCharacters } from "./CharacterState";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -33,13 +34,14 @@ export const useImageState = CreateObjectState<imageStateType>();
 export function ImageState() {
   const { Set } = useImageState();
   const { likeCategoryMap } = useLikeState();
+  const { charactersMap } = useCharacters();
   const imagesData = useSyncExternalStore(
     imageDataIndexed.subscribe,
     () => imageDataIndexed.table
   );
 
   useEffect(() => {
-    if (!imageDataIndexed.isUpgrade && likeCategoryMap) {
+    if (!imageDataIndexed.isUpgrade && charactersMap && likeCategoryMap) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
         const lastmod = imageDataIndexed.beforeLastmod;
@@ -52,7 +54,15 @@ export function ImageState() {
           image.new =
             image.update &&
             (image.time && latest ? image.time > latest : false);
-
+          image.characterObjects = image.characters
+            ?.map((character) => charactersMap.get(character)!)
+            .filter((c) => c);
+          image.characterNameGuides = image.characterObjects?.map((chara) => {
+            const values: string[] = [];
+            if (chara.name) values.push(chara.name);
+            if (chara.nameGuide) values.push(chara.nameGuide);
+            return values.join(",");
+          });
           if (imagesLikeData?.has(image.key))
             image.like = imagesLikeData.get(image.key)!;
         });
@@ -101,7 +111,7 @@ export function ImageState() {
         });
       });
     }
-  }, [imagesData, likeCategoryMap]);
+  }, [imagesData, likeCategoryMap, charactersMap]);
   return <></>;
 }
 

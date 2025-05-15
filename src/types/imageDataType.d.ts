@@ -28,6 +28,8 @@ interface ImageType extends ImageDataType, WithRawDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
+  characterObjects?: CharacterType[];
+  characterNameGuides?: string[];
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;

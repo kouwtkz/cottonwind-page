@@ -1,13 +1,15 @@
 type logicalConditionsType = "AND" | "OR";
 type logicalNotConditionsType = "NOT";
 type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not";
-type filterConditionsStringType = "contains" | "like" | "startsWith" | "endsWith";
+type filterConditionsStringType = "like" | "startsWith" | "endsWith";
 type filterConditionsBoolType = "bool" | "has" | "kanaReplace";
 type filterConditionsRegexpType = "regexp";
+type filterConditionsArrayType = "contains";
 type filterConditionsVariadicType = "in" | "between";
-type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType | filterConditionsRegexpType;
+type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsArrayType | filterConditionsVariadicType | filterConditionsBoolType | filterConditionsRegexpType;
+type filterConditionsArray<T, K> = { [C in filterConditionsArrayType]?: T[K][number] };
 type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean } & { [C in filterConditionsRegexpType]?: RegExp };
-type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] | number } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue;
+type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] | number } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue & filterConditionsArray<T, K>;
 type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T, K> };
 type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> } | filterConditionsGenericsAllKeyValue<T>;
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
@@ -31,7 +33,9 @@ type findMeeProps<T> = {
 }
 
 type findWhereFunction<T> = (v: string, operator?: string) => findWhereType<T>;
-type KeyOfOrArray<T> = keyof T | (keyof T)[];
+type KeyOfT<T> = keyof T | (string & {});
+type KeyOfOrArray<T> = KeyOfT<T> | (KeyOfT<T>)[];
+
 
 interface WhereOptionsType<T> {
   key?: KeyOfOrArray<T>;

@@ -314,6 +314,7 @@ export function GalleryObject({
             "title",
             "description",
             "embed",
+            "characterNameGuides",
           ],
         },
         hashtag: { key: ["tags", "characters"], textKey: ["description"] },

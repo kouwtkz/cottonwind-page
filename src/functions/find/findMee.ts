@@ -188,7 +188,7 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
   }
   if (kanaReplace && innerValue) {
     fval = kanaToHira(fval);
-    innerValue = kanaToHira(innerValue);
+    innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : kanaToHira(innerValue);
   }
   const innerValueType = typeof innerValue;
   switch (fkey) {
@@ -279,17 +279,27 @@ function whereFromKey(
   value: findWhereType<any>,
   { kanaReplace }: WhereFromKeyOptions = {}
 ): findWhereType<any> {
+  function nestCheck(key: string, value: findWhereType<any>): findWhereType<any> {
+    const splitKeys = key.split(".");
+    if (splitKeys.length > 1) {
+      return splitKeys.sort(() => -1).reduce<findWhereType<any>>((value, key) => {
+        return { [key]: value };
+      }, value);
+    } else {
+      return { [key]: value };
+    }
+  }
   if (Array.isArray(key)) {
     return {
       OR: key.map((k) => {
         if (kanaReplace === true || kanaReplace?.has(k)) {
           value = { ...value, kanaReplace: true };
         }
-        return { [k]: value }
+        return nestCheck(k, value);
       })
     };
   } else {
-    return { [key]: value };
+    return nestCheck(key, value);
   }
 }
 
@@ -356,7 +366,8 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
   const hashtagKey = options.hashtag?.key ? Array.isArray(options.hashtag.key) ? options.hashtag.key : [options.hashtag.key] : null;
   const hashtagTextKey = options.hashtag?.textKey ? Array.isArray(options.hashtag.textKey) ? options.hashtag.textKey : [options.hashtag.textKey] : null;
   const allKanaReplace = options.kanaReplace === true;
-  const kanaReplaceMap = new Map<keyof T, boolean>(Array.isArray(options.kanaReplace) ? options.kanaReplace.map(v => { return [v, true] }) : []);
+  const kanaReplaceArray = typeof options.kanaReplace === "string" ? [options.kanaReplace] : Array.isArray(options.kanaReplace) ? options.kanaReplace : [];
+  const kanaReplaceMap = new Map<KeyOfT<T>, boolean>(kanaReplaceArray.map(v => { return [v, true] }));
   const kanaReplace = allKanaReplace || kanaReplaceMap;
   const whereList: findWhereType<any>[] = [];
   let id: number | undefined;

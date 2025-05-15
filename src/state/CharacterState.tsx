@@ -52,7 +52,6 @@ function CharacterDataState() {
   useEffect(() => {
     if (
       charactersData.db &&
-      imagesMap &&
       sounds &&
       defaultPlaylist &&
       likeCategoryMap &&
@@ -68,19 +67,6 @@ function CharacterDataState() {
           if (charaLikeData) {
             const currentLikeData = charaLikeData.get(chara.key);
             if (currentLikeData) chara.like = currentLikeData;
-          }
-          if (chara.rawdata) {
-            charaMediaKindMap.forEach((name, key) => {
-              const charaMediaItem = chara.rawdata![key];
-              let image: ImageType | undefined;
-              if (charaMediaItem) {
-                image = imagesMap.get(charaMediaItem);
-              } else if (name === "charaIcon") {
-                image = imagesMap.get(chara.key);
-              }
-              if (image?.src) chara[key] = image;
-              else chara[key] = null;
-            });
           }
           chara.visible = Boolean(chara.image || chara.icon);
 
@@ -126,13 +112,31 @@ function CharacterDataState() {
         Set({ charactersData, characters, charactersMap, charactersTags });
       });
     }
-  }, [
-    charactersData,
-    imagesMap,
-    sounds,
-    defaultPlaylist,
-    likeCategoryMap,
-    env,
-  ]);
+  }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env]);
+  useEffect(() => {
+    if (imagesMap) {
+      Set(({ charactersMap, characters }) => {
+        characters.forEach((chara) => {
+          if (chara.rawdata) {
+            charaMediaKindMap.forEach((name, key) => {
+              const charaMediaItem = chara.rawdata![key];
+              let image: ImageType | undefined;
+              if (charaMediaItem) {
+                image = imagesMap.get(charaMediaItem);
+              } else if (name === "charaIcon") {
+                image = imagesMap.get(chara.key);
+              }
+              if (image?.src) chara[key] = image;
+              else chara[key] = null;
+            });
+          }
+          return {
+            characters: characters.concat(),
+            charactersMap: new Map(charactersMap),
+          };
+        });
+      });
+    }
+  }, [imagesMap]);
   return <></>;
 }
