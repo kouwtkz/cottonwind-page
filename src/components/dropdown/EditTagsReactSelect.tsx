@@ -12,7 +12,8 @@ import ReactSelect, {
   ThemeConfig,
 } from "react-select";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { CustomReactSelect } from "./CustomReactSelect";
 type setValueFunctionType = (
   name: string,
   value: any,
@@ -67,19 +68,22 @@ export function EditTagsReactSelect({
       shouldDirty: true,
     });
   }
+  const isEnterAction = useRef(false);
   function addTagsPrompt() {
     const answer = prompt(promptQuestion);
     if (answer !== null) addTags(answer);
   }
   function addKeydownEnter(e: React.KeyboardEvent<HTMLDivElement>) {
     if (enableEnterAdd && e.key === "Enter" && !e.ctrlKey) {
+      isEnterAction.current = true;
       setTimeout(() => {
-        const input = e.target as HTMLInputElement;
-        const value = input.value;
-        if (value) {
-          addTags(value);
-          input.blur();
-          input.focus();
+        if (isEnterAction.current) {
+          const input = e.target as HTMLInputElement;
+          if (input.value) {
+            addTags(input.value);
+            input.blur();
+            input.focus();
+          }
         }
       }, 50);
     }
@@ -107,7 +111,8 @@ export function EditTagsReactSelect({
           control={control}
           name={name}
           render={({ field }) => (
-            <ReactSelect
+            <CustomReactSelect
+              isSearchable={true}
               instanceId={name + "Select"}
               isMulti
               theme={theme}
@@ -119,6 +124,7 @@ export function EditTagsReactSelect({
               formatOptionLabel={formatOptionLabel}
               placeholder={placeholder}
               onChange={(newValues) => {
+                isEnterAction.current = false;
                 field.onChange(
                   (newValues as MultiValue<ContentsTagsOption | undefined>).map(
                     (v) => v?.value

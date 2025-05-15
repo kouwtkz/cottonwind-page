@@ -6,13 +6,19 @@ import ReactSelect, {
   ActionMeta,
   PropsValue,
   FormatOptionLabelMeta,
+  StylesConfig,
 } from "react-select";
 import { useCallback, useMemo, useState } from "react";
 import { kanaToHira } from "@/functions/doc/StrFunctions";
 
 interface CustomReactSelectProps<IsMulti extends boolean>
-  extends Omit<Props<ContentsTagsOption, IsMulti>, "options"> {
+  extends Omit<
+    Props<ContentsTagsOption, IsMulti>,
+    "options" | "styles" | "value"
+  > {
   options: Array<ContentsTagsOption>;
+  styles?: StylesConfig<any, IsMulti>;
+  value?: unknown;
 }
 
 export function CustomReactSelect<IsMulti extends boolean = boolean>({
@@ -22,9 +28,21 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   value,
   onChange,
   formatOptionLabel,
+  styles,
+  isSearchable: propsIsSearchable,
   ...props
 }: CustomReactSelectProps<IsMulti>) {
-  const [isSearchable, setIsSearchable] = useState(false);
+  const [stateIsSearchable, setIsSearchable] = useState(false);
+  const enablePropsIsSearchable = useMemo(
+    () => typeof propsIsSearchable === "boolean",
+    [propsIsSearchable]
+  );
+  const isSearchable = useMemo(
+    () =>
+      (enablePropsIsSearchable ? propsIsSearchable : stateIsSearchable) ||
+      false,
+    [enablePropsIsSearchable, propsIsSearchable, stateIsSearchable]
+  );
   function ES_P(e: HTMLElement) {
     if (/select/.test(e.className)) return e;
     else if (e.parentElement) return ES_P(e.parentElement);
@@ -32,7 +50,8 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   }
   function EnableSearchable(e: React.UIEvent<HTMLDivElement>) {
     const target = ES_P(e.target as HTMLElement);
-    if (!/remove/.test(target.className)) setIsSearchable(true);
+    if (!propsIsSearchable && !/remove/.test(target.className))
+      setIsSearchable(true);
   }
   const toMap = useCallback((options: ContentsTagsOption[]) => {
     const map = new Map<
@@ -135,6 +154,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
       value={customValue}
       onChange={changeHandler}
       formatOptionLabel={customFormatOptionLabel}
+      styles={styles}
       {...props}
       components={{
         ...propsComponents,
@@ -149,7 +169,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
         ),
       }}
       onMenuClose={() => {
-        setIsSearchable(false);
+        if (!propsIsSearchable) setIsSearchable(false);
         if (onMenuClose) onMenuClose();
       }}
     />
