@@ -525,7 +525,7 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { ignoreModifiers: true }
+    { ignoreModifiers: true, enableOnFormTags: true }
   );
   useHotkeys(
     "ArrowRight",
@@ -541,7 +541,7 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { ignoreModifiers: true }
+    { ignoreModifiers: true, enableOnFormTags: true }
   );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
