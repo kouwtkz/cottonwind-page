@@ -470,7 +470,12 @@ export function GalleryObject({
   );
   return (
     <>
-      <GalleryBody items={items} yfList={yfList} {...args} />
+      <GalleryBody
+        items={items}
+        yfList={yfList}
+        filteredGroups={filteredGroups}
+        {...args}
+      />
     </>
   );
 }
@@ -568,10 +573,12 @@ function UploadChain({
 interface GalleryBodyProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
   yfList: ImageType[][];
+  filteredGroups: GalleryItemObjectType[];
 }
 function GalleryBody({
   items,
   yfList,
+  filteredGroups,
   showInPageMenu = true,
   showGalleryHeader = true,
   showGalleryLabel = true,
@@ -589,44 +596,73 @@ function GalleryBody({
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const images = useMemo(
     () =>
-      yfList.reduce<ImageType[]>((a, images) => {
-        images.forEach((image) => {
-          a.push(image);
-        });
-        return a;
-      }, []),
-    [yfList]
+      filteredGroups
+        .filter((group) => {
+          return !group.hide && group.name !== "pickup" && group.list;
+        })
+        .map((group) => group.list!)
+        .reduce<ImageType[]>((a, images) => {
+          images.forEach((image) => {
+            a.push(image);
+          });
+          return a;
+        }, []),
+    [filteredGroups]
   );
   const tagsList = useMemo(
-    () =>
-      getCountList(images, "tags")
-        .filter(({ value: tag }) =>
-          simpleDefaultTags.every(({ value }) => value !== tag)
-        )
-        .sort((a, b) => b.count - a.count),
+    () => getCountList(images, "tags").sort((a, b) => b.count - a.count),
     [images]
   );
-  const tagsListOptions = useMemo<ContentsTagsOption>(() => {
-    const options = CountToContentsTagsOption(tagsList);
-    return { label: "タグ", options };
-  }, [tagsList]);
   const copyrightList = useMemo(
     () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
     [images]
   );
-  const copyrightOptions = useMemo<ContentsTagsOption>(() => {
-    const options = CountToContentsTagsOption(copyrightList, "copyright");
-    return {
-      label: "コピーライト",
-      options,
-    };
-  }, [copyrightList]);
-  const addOptions = useMemo(() => {
-    const list: ContentsTagsOption[] = [];
-    if (tagsListOptions.options!.length > 0) list.push(tagsListOptions);
-    if (copyrightOptions.options!.length > 0) list.push(copyrightOptions);
-    return list;
-  }, [tagsListOptions, copyrightOptions]);
+  const callbackOptions = useCallback(
+    (options: ContentsTagsOption[]) => {
+      if (tagsList.length > 0) {
+        const otherTags = tagsList.filter(({ value: tag }) =>
+          simpleDefaultTags.every(({ value }) => value !== tag)
+        );
+        const defaultTagsMap = new Map(
+          tagsList
+            .filter(({ value }) =>
+              otherTags.every(({ value: ov }) => value !== ov)
+            )
+            .map((v) => [v.value, v])
+        );
+        function defaultReplace(
+          options: ContentsTagsOption[]
+        ): ContentsTagsOption[] {
+          return options.map((option) => {
+            if (option.options) {
+              option = { ...option };
+              option.options = defaultReplace(option.options!);
+            } else if (option.value) {
+              option = { ...option };
+              const tag = defaultTagsMap.get(option.value!);
+              if (tag) {
+                option.label = `${option.label} (${tag.count})`;
+              }
+            }
+            return option;
+          });
+        }
+        options = defaultReplace(options);
+        options.push({
+          label: "タグ",
+          options: CountToContentsTagsOption(otherTags),
+        });
+      }
+      if (copyrightList.length > 0) {
+        options.push({
+          label: "コピーライト",
+          options: CountToContentsTagsOption(copyrightList, "copyright"),
+        });
+      }
+      return options;
+    },
+    [tagsList, copyrightList]
+  );
   const inPageList = useMemo(
     () =>
       yfList
@@ -682,7 +718,7 @@ function GalleryBody({
                 />
                 <GalleryTagsSelect
                   {...SearchAreaOptions}
-                  addOptions={addOptions}
+                  callbackOptions={callbackOptions}
                   className="flex-1"
                 />
               </div>
@@ -1207,12 +1243,17 @@ function getYearObjects(dates: (Date | null | undefined)[]) {
 interface SelectAreaProps extends SearchAreaOptionsProps {
   className?: string;
   addOptions?: ContentsTagsOption[];
+  callbackOptions?(options: ContentsTagsOption[]): ContentsTagsOption[];
 }
 
 const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder", "likeCount"]),
 ];
-export function GalleryTagsSelect({ addOptions, ...args }: SelectAreaProps) {
+export function GalleryTagsSelect({
+  addOptions,
+  callbackOptions,
+  ...args
+}: SelectAreaProps) {
   const isLogin = useIsLogin()[0];
   const searchParams = useSearchParams()[0];
   const filterParam = searchParams.get("filter");
@@ -1230,7 +1271,7 @@ export function GalleryTagsSelect({ addOptions, ...args }: SelectAreaProps) {
     const filterOptions: ContentsTagsOption[] = [];
     if (likeWhere || hasLikeChecked)
       filterOptions.push({ label: "♥️いいね済み", value: "filter:like" });
-    return [
+    const options = [
       ...gallerySortTags,
       {
         label: "フィルタ",
@@ -1240,7 +1281,9 @@ export function GalleryTagsSelect({ addOptions, ...args }: SelectAreaProps) {
       ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
       ...(addOptions ? addOptions : []),
     ];
-  }, [isLogin, likeWhere, hasLikeChecked, addOptions]);
+    if (callbackOptions) return callbackOptions(options);
+    else return options;
+  }, [isLogin, likeWhere, hasLikeChecked, addOptions, callbackOptions]);
   return <ContentsTagsSelect {...args} tags={tags} />;
 }
 export function GalleryCharactersSelect({
