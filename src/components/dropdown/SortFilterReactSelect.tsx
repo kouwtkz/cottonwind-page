@@ -91,7 +91,7 @@ export function ContentsTagsSelect({
             listObj.monthMode = [values[1]];
             break;
           case "copyright":
-            listObj.copyright = [values[1]];
+            listObj.copyright.push(values[1]);
             break;
           default:
             if (value) {
