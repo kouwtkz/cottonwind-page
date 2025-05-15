@@ -936,7 +936,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       ) : null}
       <GalleryViewerPaging
         image={image}
-        onClick={() => {
+        onLinkEvent={() => {
           if (isEdit && isDirty) SubmitImage();
         }}
       />

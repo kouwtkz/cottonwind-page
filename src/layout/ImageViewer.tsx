@@ -473,10 +473,12 @@ export function ImageViewer() {
 interface GalleryViewerPagingProps
   extends React.HTMLAttributes<HTMLDivElement> {
   image: ImageType | null;
+  onLinkEvent?(e?: any): void;
 }
 
 export function GalleryViewerPaging({
   className,
+  onLinkEvent,
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -511,8 +513,9 @@ export function GalleryViewerPaging({
   };
   useHotkeys(
     "ArrowLeft",
-    () => {
-      if (prevNextImage.before) {
+    (e) => {
+      if (prevNextImage.before && (!isEdit || (e.ctrlKey && e.altKey))) {
+        if (onLinkEvent) onLinkEvent(e);
         setSearchParams(
           {
             ...Object.fromEntries(searchParams),
@@ -522,12 +525,13 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { enabled: !isEdit }
+    { ignoreModifiers: true }
   );
   useHotkeys(
     "ArrowRight",
-    () => {
-      if (prevNextImage.after) {
+    (e) => {
+      if (prevNextImage.after && (!isEdit || (e.ctrlKey && e.altKey))) {
+        if (onLinkEvent) onLinkEvent(e);
         setSearchParams(
           {
             ...Object.fromEntries(searchParams),
@@ -537,7 +541,7 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { enabled: !isEdit }
+    { ignoreModifiers: true }
   );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
@@ -547,6 +551,7 @@ export function GalleryViewerPaging({
           to={prevNextToHandler(prevNextImage.before)}
           preventScrollReset={true}
           state={escapeState}
+          onClick={onLinkEvent}
         >
           <div className="cursor">≪</div>
           <div>{prevNextImage.before.title}</div>
@@ -560,6 +565,7 @@ export function GalleryViewerPaging({
           to={prevNextToHandler(prevNextImage.after)}
           preventScrollReset={true}
           state={escapeState}
+          onClick={onLinkEvent}
         >
           <div>{prevNextImage.after.title}</div>
           <div className="cursor">≫</div>
