@@ -74,6 +74,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     options: [
       { value: "project", label: "🎪企画・イベント", nameGuide: "きかく" },
       { value: "synopsis", label: "📰設定資料", nameGuide: "せっていしりょう" },
+      { value: "pixelArt", label: "👾ドット絵", nameGuide: ["どっとえ", "ぴくせるあーと"] },
     ],
   },
   {
@@ -92,7 +93,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
       { value: "happy", label: "🎶ハッピーなすがた" },
       { value: "sleep", label: "💤ねてるすがた" },
       { value: "foodForm", label: "🍲たべもののすがた" },
-      { value: "darkForm", label: "😈やみのすがた" },
+      { value: "darkForm", label: "😈やみのすがた" }
     ],
   },
   {
