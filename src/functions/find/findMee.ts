@@ -207,8 +207,9 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
         });
       }
       else {
-        const _v = String(innerValue).toLocaleLowerCase();
-        if (/[\*\?]/.test(fval)) {
+        const _v = String(innerValue || null).toLocaleLowerCase();
+        if (_v === "null") return fval === _v;
+        else if (/[\*\?]/.test(fval)) {
           try { return _v.match(fval) } catch { return true }
         } else return _v.includes(fval);
       }
