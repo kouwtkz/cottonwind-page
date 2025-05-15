@@ -160,7 +160,15 @@ function InfoArea({ image }: InfoAreaProps) {
             {othertags.map((tag, i) => (
               <Link
                 className="unregistered"
-                to={new URL("?q=%23" + tag, tagsBaseURL).href}
+                to={
+                  new URL(
+                    "?" +
+                      createSearchParams({
+                        tags: tag,
+                      }),
+                    tagsBaseURL
+                  ).href
+                }
                 key={i}
               >
                 #{tag}
@@ -197,7 +205,7 @@ function InfoArea({ image }: InfoAreaProps) {
                       new URL(
                         "?" +
                           createSearchParams({
-                            q: `"${value}"`,
+                            copyright: value,
                           }),
                         tagsBaseURL
                       ).href
