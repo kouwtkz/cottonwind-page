@@ -136,9 +136,19 @@ function fromEntryKeys(object: any, keys: (string | number)[]) {
   }, object);
 }
 
+interface WheresFilterOptions {
+  kanaReplace?: boolean;
+}
 const isObjectExp = /^\[object .+\]$/;
-export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): boolean {
-  function wheresLoop(innerValue: any, innerWhere: findWhereType<T>): boolean {
+export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsType<T>): boolean {
+  function wheresLoop(innerValue: any, innerWhere: findWhereOrConditionsType<T>, { kanaReplace }: WheresFilterOptions = {}): boolean {
+    if ("kanaReplace" in innerWhere) {
+      innerWhere = { ...innerWhere };
+      if ("kanaReplace" in innerWhere) {
+        kanaReplace = innerWhere.kanaReplace;
+        delete innerWhere.kanaReplace;
+      }
+    }
     const wheres = Object.entries(innerWhere);
     if (wheres.length === 0) {
       return true;
@@ -157,16 +167,16 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereType<T>): bool
       }
       if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
         const nextInnerValue = innerValue && typeof innerValue === "object" ? innerValue[fkey] : innerValue;
-        return wheresLoop(nextInnerValue, fval);
+        return wheresLoop(nextInnerValue, fval, { kanaReplace });
       } else {
-        return findMeeWheresInnerSwitch(innerValue, fkey, fval);
+        return findMeeWheresInnerSwitch(innerValue, fkey, fval, { kanaReplace });
       }
     });
   }
   return where ? wheresLoop(value, where) : true;
 }
 
-export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any) {
+export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any, { kanaReplace }: WheresFilterOptions = {}) {
   if (typeof (fval) === "number") {
     const innerValueType = typeof innerValue;
     if (innerValueType === "string" || Array.isArray(innerValue)) {
@@ -174,6 +184,10 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     } else if (!innerValue || innerValueType !== "object") {
       innerValue = Number(innerValue || 0);
     }
+  }
+  if (kanaReplace && innerValue) {
+    fval = kanaToHira(fval);
+    innerValue = kanaToHira(innerValue);
   }
   const innerValueType = typeof innerValue;
   switch (fkey) {
@@ -251,10 +265,21 @@ function getKeyFromOptions<T>(key: WhereOptionsKeyUnion, options: WhereOptionsKv
     : key;
 }
 
-function whereFromKey(key: string | string[], value: findWhereWithConditionsType<any>): findWhereType<any> {
+interface WhereFromKeyOptions {
+  kanaReplace?: true | Map<any, any>;
+}
+
+function whereFromKey(
+  key: string | string[],
+  value: findWhereType<any>,
+  { kanaReplace }: WhereFromKeyOptions = {}
+): findWhereType<any> {
   if (Array.isArray(key)) {
     return {
-      OR: key.map(k => {
+      OR: key.map((k) => {
+        if (kanaReplace === true || kanaReplace?.has(k)) {
+          value = { ...value, kanaReplace: true };
+        }
         return { [k]: value }
       })
     };
@@ -325,7 +350,9 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
   const timeKey = getKeyFromOptions("time", options);
   const hashtagKey = options.hashtag?.key ? Array.isArray(options.hashtag.key) ? options.hashtag.key : [options.hashtag.key] : null;
   const hashtagTextKey = options.hashtag?.textKey ? Array.isArray(options.hashtag.textKey) ? options.hashtag.textKey : [options.hashtag.textKey] : null;
-  const kanaReplace = options.kanaReplace ?? false;
+  const allKanaReplace = options.kanaReplace === true;
+  const kanaReplaceMap = new Map<keyof T, boolean>(Array.isArray(options.kanaReplace) ? options.kanaReplace.map(v => { return [v, true] }) : []);
+  const kanaReplace = allKanaReplace || kanaReplaceMap;
   const whereList: findWhereType<any>[] = [];
   let id: number | undefined;
   let take: number | undefined;
@@ -336,7 +363,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
   q = q.replace(/"([^"]+)"/g, (m, m1) => {
     const key = (i++).toString(16);
     m1 = m1.toLocaleLowerCase();
-    if (kanaReplace) m1 = kanaToHira(m1);
+    if (allKanaReplace === true) m1 = kanaToHira(m1);
     doubleQuoteDic[key] = m1;
     return `"${key}"`;
   })
@@ -382,7 +409,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         filterKey = filterKey.replace(/"([^"]+)"/g, (m, m1) => doubleQuoteDic[m1]);
         rawFilterValue = rawFilterValue.replace(/"([^"]+)"/g, (m, m1) => doubleQuoteDic[m1]);
         let filterValue = rawFilterValue.toLocaleLowerCase();
-        if (kanaReplace) filterValue = kanaToHira(filterValue);
+        if (allKanaReplace) filterValue = kanaToHira(filterValue);
         let filterOptions: WhereOptionsType<T>;
         switch (typeof options[filterKey]) {
           case "object":
@@ -402,7 +429,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator }));
+              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator }), { kanaReplace });
             }
             break;
           case "id":

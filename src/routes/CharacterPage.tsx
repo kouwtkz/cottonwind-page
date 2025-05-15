@@ -96,9 +96,11 @@ function CharacterPageState() {
             "overview",
             "description",
             "honorific",
+            "nameGuide",
           ],
         },
         hashtag: { key: "tags" },
+        kanaReplace: ["name"],
       }),
     [text]
   );

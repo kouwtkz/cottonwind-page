@@ -2,7 +2,7 @@ type logicalConditionsType = "AND" | "OR";
 type logicalNotConditionsType = "NOT";
 type filterConditionsType = "equals" | "gt" | "gte" | "lt" | "lte" | "not";
 type filterConditionsStringType = "contains" | "like" | "startsWith" | "endsWith";
-type filterConditionsBoolType = "bool" | "has";
+type filterConditionsBoolType = "bool" | "has" | "kanaReplace";
 type filterConditionsRegexpType = "regexp";
 type filterConditionsVariadicType = "in" | "between";
 type filterConditionsAllType = filterConditionsType | filterConditionsStringType | filterConditionsVariadicType | filterConditionsBoolType | filterConditionsRegexpType;
@@ -12,6 +12,7 @@ type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterCo
 type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> } | filterConditionsGenericsAllKeyValue<T>;
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
 type findWhereWithConditionsType<T> = findWhereType<T> | filterConditionsAllType;
+type findWhereOrConditionsType<T> = findWhereType<T> | { [K in filterConditionsAllType]: any };
 
 type OrderByType = "asc" | "desc";
 type OrderByItemType<K extends Object> = OrderByItem<K> | OrderByType;
@@ -54,7 +55,7 @@ type WhereOptionsValueType<T> = string
 
 type WhereOptionsKvType<T> = {
   hashtag?: WhereOptionsHashtagType<T>;
-  kanaReplace?: boolean;
+  kanaReplace?: boolean | KeyOfOrArray<T>;
   forceContains?: boolean;
   [k: string]: WhereOptionsValueType<T>;
 } & {
