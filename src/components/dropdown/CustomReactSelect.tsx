@@ -61,7 +61,10 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
     function fn(options: ContentsTagsOption[]) {
       options.forEach((v) => {
         if (v.options) return fn(v.options);
-        else map.set(v.value || v.label || "", { value: v });
+        else {
+          const key = v.value || v.label;
+          if (key) map.set(key, { value: v });
+        }
       });
     }
     fn(options);
@@ -72,29 +75,33 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   }, [options]);
   const customOptions = useMemo(() => {
     function fn(options: ContentsTagsOption[]): ContentsTagsOption[] {
-      return options.concat().map((v) => {
-        v = { ...v };
-        if (v.options) {
-          v.options = fn(v.options);
-          return v;
-        } else {
-          v.rawValue = v.value;
-          const found = optionsMap.get(v.value || v.label || "")!;
-          found.custom = v;
-          const base = v.label || v.nameGuide?.toString() || v.value || "";
-          const hira = kanaToHira(base)
-            .replaceAll("月", "がつ(つき)")
-            .replaceAll("順", "じゅん");
-          const values = [v.value ? v.value : base];
-          if (base !== hira) values.push(hira);
-          if (v.nameGuide)
-            values.push(
-              ...(Array.isArray(v.nameGuide) ? v.nameGuide : [v.nameGuide])
-            );
-          v.value = values.join(",");
-          return v;
-        }
-      });
+      return options
+        .map((v) => {
+          v = { ...v };
+          if (v.options) {
+            v.options = fn(v.options);
+            return v;
+          } else {
+            v.rawValue = v.value;
+            const found = optionsMap.get(v.value || v.label || "");
+            if (found) {
+              found.custom = v;
+              const base = v.label || v.nameGuide?.toString() || v.value || "";
+              const hira = kanaToHira(base)
+                .replaceAll("月", "がつ(つき)")
+                .replaceAll("順", "じゅん");
+              const values = [v.value ? v.value : base];
+              if (base !== hira) values.push(hira);
+              if (v.nameGuide)
+                values.push(
+                  ...(Array.isArray(v.nameGuide) ? v.nameGuide : [v.nameGuide])
+                );
+              v.value = values.join(",");
+              return v;
+            } else return null!;
+          }
+        })
+        .filter((v) => v);
     }
     return fn(options);
   }, [options, optionsMap]);
@@ -129,9 +136,9 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
     const v = value as ContentsTagsOption | ContentsTagsOption[];
     if (v) {
       if (Array.isArray(v)) {
-        return v.map((v) => find(v) || v);
+        return v.map((v) => (v ? find(v) || v : null)!).filter((v) => v);
       } else {
-        return find(v) || v;
+        return v ? find(v) || v : null;
       }
     } else return v;
   }, [value, optionsMap]);

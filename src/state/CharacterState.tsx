@@ -118,7 +118,7 @@ function CharacterDataState() {
             if (a.has(tag)) {
               const option = a.get(tag)!;
               option.count!++;
-            } else a.set(tag, { label: tag, value: tag, count: 1 });
+            } else if (tag) a.set(tag, { label: tag, value: tag, count: 1 });
           });
           return a;
         }, new Map<string, ContentsTagsOption>());

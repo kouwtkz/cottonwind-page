@@ -8,7 +8,7 @@ export function KeyValueConvertDBEntry(value: Object | Object[]) {
     .forEach((entry) => {
       Object.keys(entry).forEach(k => {
         if (Array.isArray(entry[k]))
-          entry[k] = entry[k].map(v => String(v)).join(",");
+          entry[k] = entry[k].length > 0 ? entry[k].map(v => String(v)).join(",") : null;
         else {
           const type = typeof entry[k];
           if (type === "boolean")
