@@ -137,11 +137,12 @@ function fromEntryKeys(object: any, keys: (string | number)[]) {
 }
 
 interface WheresFilterOptions {
+  key?: string;
   kanaReplace?: boolean;
 }
 const isObjectExp = /^\[object .+\]$/;
 export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsType<T>): boolean {
-  function wheresLoop(innerValue: any, innerWhere: findWhereOrConditionsType<T>, { kanaReplace }: WheresFilterOptions = {}): boolean {
+  function wheresLoop(innerValue: any, innerWhere: findWhereOrConditionsType<T>, { kanaReplace, key }: WheresFilterOptions = {}): boolean {
     if ("kanaReplace" in innerWhere) {
       innerWhere = { ...innerWhere };
       if ("kanaReplace" in innerWhere) {
@@ -167,16 +168,16 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
       }
       if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
         const nextInnerValue = innerValue && typeof innerValue === "object" ? innerValue[fkey] : innerValue;
-        return wheresLoop(nextInnerValue, fval, { kanaReplace });
+        return wheresLoop(nextInnerValue, fval, { kanaReplace, key: fkey });
       } else {
-        return findMeeWheresInnerSwitch(innerValue, fkey, fval, { kanaReplace });
+        return findMeeWheresInnerSwitch(innerValue, fkey, fval, { kanaReplace, key });
       }
     });
   }
   return where ? wheresLoop(value, where) : true;
 }
 
-export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any, { kanaReplace }: WheresFilterOptions = {}) {
+export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any, { kanaReplace, key }: WheresFilterOptions = {}) {
   if (typeof (fval) === "number") {
     const innerValueType = typeof innerValue;
     if (innerValueType === "string" || Array.isArray(innerValue)) {
@@ -200,7 +201,11 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
       return innerValue != fval;
     case "like":
     case "contains":
-      if (Array.isArray(innerValue)) return innerValue.some((x) => x.toLocaleLowerCase() === fval);
+      if (Array.isArray(innerValue)) {
+        return innerValue.some((x) => {
+          return x.toLocaleLowerCase() === fval.toLocaleLowerCase()
+        });
+      }
       else {
         const _v = String(innerValue).toLocaleLowerCase();
         if (/[\*\?]/.test(fval)) {
