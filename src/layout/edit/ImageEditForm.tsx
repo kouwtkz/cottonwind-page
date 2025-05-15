@@ -6,8 +6,8 @@ import {
   defaultGalleryTags,
   getTagsOptions,
   autoFixGalleryTagsOptions,
-  ContentsTagsOption,
   addExtentionGalleryTagsOptions,
+  simpleDefaultTags,
 } from "@/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useController, useForm } from "react-hook-form";
@@ -75,6 +75,7 @@ import {
   RiVideoUploadLine,
 } from "react-icons/ri";
 import { repostThumbnail } from "@/routes/edit/ImagesManager";
+import { CountToContentsTagsOption } from "@/components/dropdown/CustomReactSelect";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -111,23 +112,11 @@ const defPositions: optionElementInterface[] = [
 const IMAGE_SEND = "/image/send";
 
 export default function ImageEditForm({ className, image, ...args }: Props) {
-  const { images, imageAlbums: albums } = useImageState();
-  const [copyrightList, setCopyrightList] = useState<ValueCountType[]>([]);
-  const [allTagsOptions, setAllTagsOptions] = useState<ContentsTagsOption[]>(
-    []
+  const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
+  const allTagsOptions = useMemo(
+    () => (tagsList ? CountToContentsTagsOption(tagsList) : []),
+    [tagsList]
   );
-  useEffect(() => {
-    setCopyrightList(getCountList(images || [], "copyright"));
-    setAllTagsOptions(
-      getCountList(images || [], "tags").map(
-        (v) =>
-          ({
-            label: `${v.value} (${v.count})`,
-            value: v.value,
-          } as ContentsTagsOption)
-      )
-    );
-  }, [images]);
 
   const { charactersData } = useCharacters();
   const apiOrigin = useApiOrigin()[0];
@@ -190,10 +179,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       );
     });
   }, [charactersData]);
-  const simpleDefaultTags = useMemo(
-    () => autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
-    [defaultGalleryTags]
-  );
   const unregisteredTagsOptions = useMemo(
     () =>
       [
@@ -326,7 +311,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 
   const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
-  const tagsList = useMemo(() => {
+  const currentTagsList = useMemo(() => {
     const list = [
       ...autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
     ];
@@ -345,11 +330,12 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
 
   const [copyrightTags, setCopyrightTags] = useState<ContentsTagsOption[]>([]);
   useEffect(() => {
-    setCopyrightTags(
-      copyrightList.map(
-        ({ value }) => ({ label: value, value } as ContentsTagsOption)
-      )
-    );
+    if (copyrightList)
+      setCopyrightTags(
+        copyrightList.map(
+          ({ value }) => ({ label: value, value } as ContentsTagsOption)
+        )
+      );
   }, [copyrightList]);
   const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
@@ -712,7 +698,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
               name="tags"
               labelVisible
               label="その他のタグ"
-              tags={tagsList}
+              tags={currentTagsList}
               set={setStateTags}
               control={control}
               setValue={setValue}

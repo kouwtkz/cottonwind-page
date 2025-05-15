@@ -1,32 +1,17 @@
-export interface ContentsTagsOption {
-  name?: string;
-  label: string;
-  color?: string;
-  value?: string;
-  index?: number;
-  group?: string;
-  count?: number;
-  editable?: boolean;
-  query?: { [k: string]: string };
-  options?: ContentsTagsOption[];
-}
-
 export type ContentsTagsOptionDispatch = React.Dispatch<
   React.SetStateAction<ContentsTagsOption[]>
 >;
 
-export const TimeframeTagMap = new Map<string, string>([
-  ["morning", "🌄朝"], // (6:00-8:59)
-  ["forenoon", "🚃午前"], // (9:00-11:59)
-  ["midday", "🍱真昼"], // (12:00-13:59)
-  ["afternoon", "🏞️午後"], // (14:00-16:59)
-  ["evening", "🌇夕方"], // (17:00-19:59)
-  ["night", "🌃夜"], // (20:00-23:59)
-  ["midnight", "🌌夜中"], // (24:00-5:59)
-] as [TimeframeTagType, string][]);
-export const timeframeTags = Object.keys(
-  Object.fromEntries(TimeframeTagMap)
-) as TimeframeTagType[];
+export const TimeframeTags: ContentsTagsOptionTimeframe[] = [
+  { value: "morning", label: "🌄朝", during: "6:00-8:59", nameGuide: "あさ" },
+  { value: "forenoon", label: "🚃午前", during: "9:00-11:59", nameGuide: "ごぜん" },
+  { value: "midday", label: "🍱真昼", during: "12:00-13:59", nameGuide: "まひる" },
+  { value: "afternoon", label: "🏞️午後", during: "14:00-16:59", nameGuide: "ごご" },
+  { value: "evening", label: "🌇夕方", during: "17:00-19:59", nameGuide: "ゆうがた" },
+  { value: "night", label: "🌃夜", during: "20:00-23:59", nameGuide: "よる" },
+  { value: "midnight", label: "🌌夜中", during: "24:00-5:59", nameGuide: "よなか" },
+];
+export const TimeframeTagMap = new Map<string, ContentsTagsOptionTimeframe>(TimeframeTags.map(v => [v.value, v]));
 
 export const defaultGalleryTags: ContentsTagsOption[] = [
   {
@@ -35,12 +20,12 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     editable: false,
     options: [
       { value: "type:illust", label: "🎨イラスト" },
-      { value: "type:ebook", label: "📖漫画・小説" },
-      { value: "type:goods", label: "🛍️販売・グッズ" },
-      { value: "type:movie", label: "🎬動画・アニメ" },
-      { value: "type:picture", label: "📷写真・VRC" },
+      { value: "type:ebook", label: "📖漫画・小説", nameGuide: "まんが" },
+      { value: "type:goods", label: "🛍️販売・グッズ", nameGuide: "はんばい" },
+      { value: "type:movie", label: "🎬動画・アニメ", nameGuide: "どうが" },
+      { value: "type:picture", label: "📷写真・VRC", nameGuide: ["しゃしん", "ぶいあーる"] },
       { value: "type:3d", label: "🧶3Dモデル" },
-      { value: "type:material", label: "📦素材" },
+      { value: "type:material", label: "📦素材", nameGuide: "そざい" },
     ],
   },
   {
@@ -67,39 +52,37 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     label: "シーズン",
     name: "season",
     options: [
-      { value: "spring", label: "🌸春" },
-      { value: "summer", label: "🌻夏" },
-      { value: "autumn", label: "🍂秋" },
-      { value: "winter", label: "⛄冬" },
+      { value: "spring", label: "🌸春", nameGuide: "はる" },
+      { value: "summer", label: "🌻夏", nameGuide: "なつ" },
+      { value: "autumn", label: "🍂秋", nameGuide: "あき" },
+      { value: "winter", label: "⛄冬", nameGuide: "ふゆ" },
       { value: "valentine", label: "🍫バレンタインデー" },
       { value: "easter", label: "🐰イースター" },
       { value: "halloween", label: "🎃ハロウィン" },
       { value: "christmas", label: "🎄クリスマス" },
-      { value: "myBirthday", label: "🎂自分の誕生日" },
+      { value: "myBirthday", label: "🎂自分の誕生日", nameGuide: "たんじょうび" },
     ],
   },
   {
     label: "時間帯",
     name: "timeframe",
-    options: Object.entries(Object.fromEntries(TimeframeTagMap)).map(
-      ([value, label]) => ({ value, label })
-    ),
+    options: TimeframeTags,
   },
   {
     label: "創作",
     name: "creation",
     options: [
-      { value: "project", label: "🎪企画・イベント" },
-      { value: "synopsis", label: "📰設定資料" },
+      { value: "project", label: "🎪企画・イベント", nameGuide: "きかく" },
+      { value: "synopsis", label: "📰設定資料", nameGuide: "せっていしりょう" },
     ],
   },
   {
     label: "コミュニティ",
     name: "community",
     options: [
-      { value: "yosonoko", label: "🐕よその子" },
-      { value: "birthday", label: "🎂誕生日" },
-      { value: "VRChat", label: "🥽VRChat" },
+      { value: "yosonoko", label: "🐕よその子", nameGuide: "よそのこ" },
+      { value: "birthday", label: "🎂誕生日", nameGuide: "たんじょうび" },
+      { value: "VRChat", label: "🥽VRChat", nameGuide: "ぶいあーるちゃっと" },
     ],
   },
   {
@@ -117,7 +100,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     name: "activity",
     options: [
       { value: "competition", label: "🚩コンペ" },
-      { value: "prize", label: "👑入賞" },
+      { value: "prize", label: "👑入賞", nameGuide: "にゅうしょう" },
       { value: "commission", label: "📒コミッション" },
       { value: "recommend", label: "👍おすすめ" },
     ],
@@ -162,21 +145,23 @@ export const filterGalleryMonthList: filterMonthType[] = [
   { month: 12, tags: ["december", "winter", "christmas", "myBirthday"] },
 ];
 
+export const simpleDefaultTags = autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags));
+
 export function defineSortTags(tags: defineSortTagsUnion[]) {
   const options: ContentsTagsOption[] = [];
   tags.forEach((tag) => {
     switch (tag) {
       case "recently":
-        options.push({ value: "sort:recently", label: "🕒新しい順" });
+        options.push({ value: "sort:recently", label: "🕒新しい順", nameGuide: "あたらしい" });
         break;
       case "leastResently":
-        options.push({ value: "sort:leastRecently", label: "🕘古い順" });
+        options.push({ value: "sort:leastRecently", label: "🕘古い順", nameGuide: "ふるい" });
         break;
       case "nameOrder":
-        options.push({ value: "sort:nameOrder", label: "⬇️名前（昇順）" });
+        options.push({ value: "sort:nameOrder", label: "⬇️名前（昇順）", nameGuide: "なまえ" });
         break;
       case "leastNameOrder":
-        options.push({ value: "sort:leastNameOrder", label: "⬆️名前（降順）" });
+        options.push({ value: "sort:leastNameOrder", label: "⬆️名前（降順）", nameGuide: "なまえ" });
         break;
       case "likeCount":
         options.push({ value: "sort:likeCount", label: "♥️いいね順" });

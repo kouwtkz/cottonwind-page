@@ -1,7 +1,6 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
-import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { useEnv } from "./EnvState";
 import { charactersDataIndexed } from "@/data/DataState";
 import { CreateObjectState } from "./CreateState";

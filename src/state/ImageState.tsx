@@ -9,6 +9,7 @@ import { ArrayEnv } from "@/Env";
 import { findMee } from "@/functions/find/findMee";
 import { useLikeState } from "./LikeState";
 import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/IndexedDataLastmodMH";
+import { getCountList } from "@/functions/arrayFunction";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -23,6 +24,9 @@ interface imageStateType {
   imageAlbums?: Map<string, ImageAlbumType>;
   galleryAlbums?: Array<ImageAlbumEnvType>;
   imagesLikeData?: Map<string, LikeType>;
+  copyrightList?: ValueCountType[];
+  tagsList?: ValueCountType[];
+  simpleDefaultTags?: ContentsTagsOption[];
 }
 export const useImageState = CreateObjectState<imageStateType>();
 
@@ -33,6 +37,7 @@ export function ImageState() {
     imageDataIndexed.subscribe,
     () => imageDataIndexed.table
   );
+
   useEffect(() => {
     if (!imageDataIndexed.isUpgrade && likeCategoryMap) {
       imagesData.getAll().then((images) => {
@@ -82,6 +87,8 @@ export function ImageState() {
             found.list = v.list;
           }
         });
+        const copyrightList = getCountList(images || [], "copyright");
+        const tagsList = getCountList(images || [], "tags");
         Set({
           images,
           imagesMap,
@@ -89,6 +96,8 @@ export function ImageState() {
           imageAlbums,
           imagesData,
           imagesLikeData,
+          copyrightList,
+          tagsList,
         });
       });
     }

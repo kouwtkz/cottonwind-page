@@ -1,8 +1,4 @@
-import {
-  ContentsTagsOption,
-  getTagsOptions,
-  TimeframeTagMap,
-} from "./SortFilterTags";
+import { getTagsOptions, TimeframeTagMap } from "./SortFilterTags";
 import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
 import { HTMLAttributes, useCallback } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -49,12 +45,18 @@ export function ContentsTagsSelect({
       .get("sort")
       ?.split(",")
       .map((v) => `sort:${v}`) || [];
+  const searchCopyright =
+    searchParams
+      .get("copyright")
+      ?.split(",")
+      .map((v) => `copyright:${v}`) || [];
   const searchQuery = searchTags.concat(
     searchType,
     searchMonth,
     searchMonthMode,
     searchFilters,
-    searchSort
+    searchSort,
+    searchCopyright
   );
   const currentTags = getTagsOptions(tags).filter((tag) =>
     searchQuery.some((stag) => tag.value === stag)
@@ -68,6 +70,7 @@ export function ContentsTagsSelect({
         tags: [],
         month: [],
         monthMode: [],
+        copyright: [],
       };
       list.forEach(({ value }) => {
         const values = (value?.split(":", 2) || [""]).concat("");
@@ -86,6 +89,9 @@ export function ContentsTagsSelect({
             break;
           case "monthMode":
             listObj.monthMode = [values[1]];
+            break;
+          case "copyright":
+            listObj.copyright = [values[1]];
             break;
           default:
             if (value) {

@@ -41,7 +41,6 @@ import {
   useMoveCharacters,
 } from "../CharacterPage";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
-import { ContentsTagsOption } from "@/components/dropdown/SortFilterTags";
 import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { fileDialog } from "@/components/FileTool";

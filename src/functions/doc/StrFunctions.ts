@@ -18,3 +18,10 @@ export function JoinUnique(a?: string | string[] | null, b?: string | string[] |
     return a;
   }, a).join(separator);
 }
+
+export function kanaToHira(str: string) {
+  return str.replace(/[\u30a1-\u30f6]/g, (m) => {
+    var chr = m.charCodeAt(0) - 0x60;
+    return String.fromCharCode(chr);
+  });
+}

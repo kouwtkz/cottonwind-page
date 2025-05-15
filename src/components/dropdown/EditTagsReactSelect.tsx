@@ -5,7 +5,7 @@ import {
   SetValueConfig,
   UseFormGetValues,
 } from "react-hook-form";
-import { ContentsTagsOption, getTagsOptions } from "./SortFilterTags";
+import { getTagsOptions } from "./SortFilterTags";
 import ReactSelect, {
   MultiValue,
   StylesConfig,

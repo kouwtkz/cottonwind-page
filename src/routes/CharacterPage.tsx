@@ -31,10 +31,7 @@ import { useSoundPlayer } from "@/layout/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "@/functions/find/findMee";
 import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
-import {
-  ContentsTagsOption,
-  defineSortTags,
-} from "@/components/dropdown/SortFilterTags";
+import { defineSortTags } from "@/components/dropdown/SortFilterTags";
 import { useApiOrigin, useIsLogin } from "@/state/EnvState";
 import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { Movable } from "@/layout/edit/Movable";

@@ -24,8 +24,8 @@ import {
   addExtentionTagsOptions,
   defaultGalleryTags,
   MonthToTag,
-  ContentsTagsOption,
-  timeframeTags,
+  TimeframeTags,
+  simpleDefaultTags,
 } from "@/components/dropdown/SortFilterTags";
 import { filterPickFixed } from "@/functions/media/FilterImages";
 import { InPageMenu } from "@/layout/InPageMenu";
@@ -94,8 +94,12 @@ import { ArrayEnv } from "@/Env";
 import { useLikeState, useLikeStateUpdated } from "@/state/LikeState";
 import { CreateObjectState } from "@/state/CreateState";
 import { useLang } from "@/multilingual/LangState";
-import { CustomReactSelect } from "@/components/dropdown/CustomReactSelect";
+import {
+  CountToContentsTagsOption,
+  CustomReactSelect,
+} from "@/components/dropdown/CustomReactSelect";
 import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
+import { getCountList } from "@/functions/arrayFunction";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -238,11 +242,12 @@ export function GalleryObject({
     "time") as MonthSearchModeType;
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
+  const copyrightParam = searchParams.get("copyright");
   const charactersParam = searchParams.get("characters"?.toLowerCase());
   const { imageAlbums } = useImageState();
   const searchMode = useMemo(
-    () => Boolean(qParam || tagsParam || charactersParam),
-    [qParam, tagsParam || charactersParam]
+    () => Boolean(qParam || tagsParam || copyrightParam || charactersParam),
+    [qParam, tagsParam, copyrightParam, charactersParam]
   );
   const year = Number(yearParam);
   const filterMonthly = useCallback(
@@ -322,6 +327,13 @@ export function GalleryObject({
       })),
     [tagsParam]
   );
+  const copyrightWhere = useMemo(
+    () =>
+      copyrightParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
+        copyright: { contains: value },
+      })),
+    [copyrightParam]
+  );
   const charactersWhere = useMemo(
     () =>
       charactersParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
@@ -344,6 +356,7 @@ export function GalleryObject({
     const wheres = [where];
     if (tagsWhere) wheres.push(...tagsWhere);
     if (charactersWhere) wheres.push(...charactersWhere);
+    if (copyrightWhere) wheres.push(...copyrightWhere);
     if (whereMonth) wheres.push(whereMonth);
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
@@ -354,6 +367,7 @@ export function GalleryObject({
   }, [
     where,
     tagsWhere,
+    copyrightWhere,
     charactersWhere,
     whereMonth,
     hasTopImage,
@@ -573,6 +587,46 @@ function GalleryBody({
   };
   const isLogin = useIsLogin()[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
+  const images = useMemo(
+    () =>
+      yfList.reduce<ImageType[]>((a, images) => {
+        images.forEach((image) => {
+          a.push(image);
+        });
+        return a;
+      }, []),
+    [yfList]
+  );
+  const tagsList = useMemo(
+    () =>
+      getCountList(images, "tags")
+        .filter(({ value: tag }) =>
+          simpleDefaultTags.every(({ value }) => value !== tag)
+        )
+        .sort((a, b) => b.count - a.count),
+    [images]
+  );
+  const tagsListOptions = useMemo<ContentsTagsOption>(() => {
+    const options = CountToContentsTagsOption(tagsList);
+    return { label: "タグ", options };
+  }, [tagsList]);
+  const copyrightList = useMemo(
+    () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
+    [images]
+  );
+  const copyrightOptions = useMemo<ContentsTagsOption>(() => {
+    const options = CountToContentsTagsOption(copyrightList, "copyright");
+    return {
+      label: "コピーライト",
+      options,
+    };
+  }, [copyrightList]);
+  const addOptions = useMemo(() => {
+    const list: ContentsTagsOption[] = [];
+    if (tagsListOptions.options!.length > 0) list.push(tagsListOptions);
+    if (copyrightOptions.options!.length > 0) list.push(copyrightOptions);
+    return list;
+  }, [tagsListOptions, copyrightOptions]);
   const inPageList = useMemo(
     () =>
       yfList
@@ -626,7 +680,11 @@ function GalleryBody({
                   {...SearchAreaOptions}
                   className="flex-1"
                 />
-                <GalleryTagsSelect {...SearchAreaOptions} className="flex-1" />
+                <GalleryTagsSelect
+                  {...SearchAreaOptions}
+                  addOptions={addOptions}
+                  className="flex-1"
+                />
               </div>
             </div>
             {isLogin ? (
@@ -752,7 +810,9 @@ function GalleryImageItem({
     };
   }, [searchParams, image, state]);
   const ImageTimeFrameTag = useMemo(() => {
-    return timeframeTags.find((tt) => image.tags?.some((tag) => tt === tag));
+    return TimeframeTags.find((tt) =>
+      image.tags?.some((tag) => tt.value === tag)
+    )?.value;
   }, [image]);
   return (
     <Link
@@ -1146,12 +1206,13 @@ function getYearObjects(dates: (Date | null | undefined)[]) {
 
 interface SelectAreaProps extends SearchAreaOptionsProps {
   className?: string;
+  addOptions?: ContentsTagsOption[];
 }
 
 const gallerySortTags = [
   defineSortTags(["leastResently", "nameOrder", "leastNameOrder", "likeCount"]),
 ];
-export function GalleryTagsSelect(args: SelectAreaProps) {
+export function GalleryTagsSelect({ addOptions, ...args }: SelectAreaProps) {
   const isLogin = useIsLogin()[0];
   const searchParams = useSearchParams()[0];
   const filterParam = searchParams.get("filter");
@@ -1177,8 +1238,9 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
         options: filterOptions,
       },
       ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
+      ...(addOptions ? addOptions : []),
     ];
-  }, [isLogin, likeWhere, hasLikeChecked]);
+  }, [isLogin, likeWhere, hasLikeChecked, addOptions]);
   return <ContentsTagsSelect {...args} tags={tags} />;
 }
 export function GalleryCharactersSelect({
@@ -1195,7 +1257,14 @@ export function GalleryCharactersSelect({
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
-    return list.map((chara) => ({ value: chara.key }));
+    return list.map<ContentsTagsOptionMustValue>((chara) => ({
+      value: chara.key,
+      nameGuide:
+        chara.name +
+        (chara.honorific || "") +
+        (chara.enName ? "," + chara.enName : "") +
+        (chara.nameGuide ? "," + chara.nameGuide : ""),
+    }));
   }, [characters, currentChara, enableCharaFilter]);
   const { state } = useLocation();
   const value = useMemo(() => {
