@@ -243,6 +243,7 @@ export function GalleryObject({
   const qParam = searchParams.get("q") || "";
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const copyrightParam = searchParams.get("copyright");
+  const viewModeParam = searchParams.get("viewMode");
   const charactersParam = searchParams.get("characters"?.toLowerCase());
   const { imageAlbums } = useImageState();
   const searchMode = useMemo(
@@ -407,7 +408,7 @@ export function GalleryObject({
     return list;
   }, [sortParam, orderBy, hasTopImage]);
 
-  const filteredGroups = useMemo(() => {
+  let filteredGroups = useMemo(() => {
     return items.map<GalleryItemObjectType>(({ list, ...group }) => {
       if (
         group.hide ||
@@ -441,6 +442,30 @@ export function GalleryObject({
     hasTopImage,
     linkStateUpdated,
   ]);
+
+  filteredGroups = useMemo(() => {
+    if (viewModeParam === "mix") {
+      return [
+        filteredGroups.reduce<GalleryItemObjectType>(
+          (a, c) => {
+            if (c.name !== "pickup") {
+              c.list?.forEach((item) => {
+                a.list!.push(item);
+              });
+            }
+            return a;
+          },
+          { name: "gallery", list: [] }
+        ),
+      ].map((v) => {
+        v.list = findMee(v.list!, {
+          orderBy: orderBySort,
+        });
+        return v;
+      });
+    } else return filteredGroups;
+  }, [filteredGroups, viewModeParam, orderBySort]);
+
   const filteredYearGroups = useMemo(() => {
     return filteredGroups.map<GalleryItemObjectType>(({ list, ...item }) => {
       if (year && list)
@@ -471,12 +496,7 @@ export function GalleryObject({
   );
   return (
     <>
-      <GalleryBody
-        items={items}
-        yfList={yfList}
-        filteredGroups={filteredGroups}
-        {...args}
-      />
+      <GalleryBody items={filteredGroups} yfList={yfList} {...args} />
     </>
   );
 }
@@ -574,12 +594,10 @@ function UploadChain({
 interface GalleryBodyProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
   yfList: ImageType[][];
-  filteredGroups: GalleryItemObjectType[];
 }
 function GalleryBody({
   items,
   yfList,
-  filteredGroups,
   showInPageMenu = true,
   showGalleryHeader = true,
   showGalleryLabel = true,
@@ -597,7 +615,7 @@ function GalleryBody({
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const images = useMemo(
     () =>
-      filteredGroups
+      items
         .filter((group) => {
           return !group.hide && group.name !== "pickup" && group.list;
         })
@@ -608,7 +626,7 @@ function GalleryBody({
           });
           return a;
         }, []),
-    [filteredGroups]
+    [items]
   );
   const tagsList = useMemo(
     () => getCountList(images, "tags").sort((a, b) => b.count - a.count),
@@ -1248,7 +1266,13 @@ interface SelectAreaProps extends SearchAreaOptionsProps {
 }
 
 const gallerySortTags = [
-  defineSortTags(["leastResently", "nameOrder", "leastNameOrder", "likeCount"]),
+  defineSortTags([
+    "leastResently",
+    "nameOrder",
+    "leastNameOrder",
+    "likeCount",
+    "mix",
+  ]),
 ];
 export function GalleryTagsSelect({
   addOptions,

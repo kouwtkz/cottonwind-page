@@ -167,6 +167,9 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
       case "likeCount":
         options.push({ value: "sort:likeCount", label: "♥️いいね順" });
         break;
+      case "mix":
+        options.push({ value: "viewMode:mix", label: "🔄️全て合わせる" });
+        break;
     }
   });
   return {

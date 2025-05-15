@@ -5,4 +5,5 @@ type defineSortTagsUnion =
   | "leastResently"
   | "nameOrder"
   | "leastNameOrder"
-  | "likeCount";
+  | "likeCount"
+  | "mix";

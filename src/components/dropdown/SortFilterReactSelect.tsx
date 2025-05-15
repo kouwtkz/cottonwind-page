@@ -50,13 +50,19 @@ export function ContentsTagsSelect({
       .get("copyright")
       ?.split(",")
       .map((v) => `copyright:${v}`) || [];
+  const searchViewMode =
+    searchParams
+      .get("viewMode")
+      ?.split(",")
+      .map((v) => `viewMode:${v}`) || [];
   const searchQuery = searchTags.concat(
     searchType,
     searchMonth,
     searchMonthMode,
     searchFilters,
     searchSort,
-    searchCopyright
+    searchCopyright,
+    searchViewMode
   );
   const currentTags = getTagsOptions(tags).filter((tag) =>
     searchQuery.some((stag) => tag.value === stag)
@@ -71,6 +77,7 @@ export function ContentsTagsSelect({
         month: [],
         monthMode: [],
         copyright: [],
+        viewMode: [],
       };
       list.forEach(({ value }) => {
         const values = (value?.split(":", 2) || [""]).concat("");
@@ -92,6 +99,9 @@ export function ContentsTagsSelect({
             break;
           case "copyright":
             listObj.copyright.push(values[1]);
+            break;
+          case "viewMode":
+            listObj.viewMode.push(values[1]);
             break;
           default:
             if (value) {
