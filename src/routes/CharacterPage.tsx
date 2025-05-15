@@ -461,6 +461,7 @@ export function CharaBeforeAfter({
 
 const defaultGalleryList = [
   { name: "main" },
+  { name: "works" },
   { name: "goods" },
   { name: "3D" },
   { name: "picture" },
