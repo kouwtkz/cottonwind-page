@@ -21,9 +21,11 @@
   --def-main-color-text: #31332b;
   --def-main-color-grayish-fluo: hsla(68, 15%, 65%, 0.15);
   --def-main-color-dark-grayish: hsl(68, 7%, 30%);
+  --def-main-color-dark-grayish-fluo: hsla(68, 7%, 30%, 0.15);
   --def-main-color-very-grayish: hsl(68, 9%, 48%);
   --def-main-color-grayish: hsl(68, 15%, 65%);
   --def-main-color-light-grayish: hsl(68, 28%, 75%);
+  --def-main-color-light-grayish-fluo: hsla(68, 28%, 75%, 0.15);
   --def-main-color-pearl-grayish: hsl(68, 48%, 87%);
   --def-sub-color: #b99f72;
   --def-sub-color-soft: #d8bb8a;
@@ -31,6 +33,8 @@
   --def-text-color: #27231d;
   --def-dark-text-color: white;
   --def-background-color: #fdfde4;
+  --def-text-background-white: hsla(0, 0%, 100%, 0.9);
+  --def-text-background-black: hsla(0, 0%, 0%, 0.75);
   --def-play-background-color: #ecfffe;
   --def-dark-background-color: hsl(80, 10%, 14%);
   --def-dark-play-background-color: hsl(0, 0%, 18%);
@@ -56,9 +60,11 @@
   --def-text-color: #27231d;
   --def-main-color-grayish-fluo: hsla(29, 8%, 54%, 0.15);
   --def-main-color-dark-grayish: hsl(29, 7%, 30%);
+  --def-main-color-dark-grayish-fluo: hsla(29, 7%, 30%, 0.15);
   --def-main-color-very-grayish: hsl(29, 9%, 48%);
   --def-main-color-grayish: hsl(29, 15%, 65%);
   --def-main-color-light-grayish: hsl(29, 28%, 75%);
+  --def-main-color-light-grayish-fluo: hsla(29, 28%, 75%, 0.15);
   --def-main-color-pearl-grayish: hsl(29, 48%, 87%);
   --def-background-color: #fff8e3;
   --def-play-background-color: #fffbdf;
@@ -79,9 +85,11 @@
   --def-text-color: #1d2227;
   --def-main-color-grayish-fluo: hsla(191, 8%, 54%, 0.15);
   --def-main-color-dark-grayish: hsl(191, 7%, 30%);
+  --def-main-color-dark-grayish-fluo: hsla(191, 7%, 30%, 0.15);
   --def-main-color-very-grayish: hsl(191, 9%, 48%);
   --def-main-color-grayish: hsl(191, 15%, 65%);
   --def-main-color-light-grayish: hsl(191, 28%, 75%);
+  --def-main-color-light-grayish-fluo: hsla(191, 28%, 75%, 0.15);
   --def-main-color-pearl-grayish: hsl(191, 48%, 87%);
   --def-background-color: #e5fcf6;
   --def-play-background-color: #d9f8f6;
@@ -101,9 +109,11 @@
   --main-color-text: var(--def-main-color-text);
   --main-color-grayish-fluo: var(--def-main-color-grayish-fluo);
   --main-color-dark-grayish: var(--def-main-color-dark-grayish);
+  --main-color-dark-grayish-fluo: var(--def-main-color-light-dark-fluo);
   --main-color-very-grayish: var(--def-main-color-very-grayish);
   --main-color-grayish: var(--def-main-color-grayish);
   --main-color-light-grayish: var(--def-main-color-light-grayish);
+  --main-color-light-grayish-fluo: var(--def-main-color-light-grayish-fluo);
   --main-color-pearl-grayish: var(--def-main-color-pearl-grayish);
   --main-color-dark-text: var(--def-main-color-dark-grayish);
   --sub-color: var(--def-sub-color);
@@ -112,6 +122,7 @@
   --text-color: var(--def-text-color);
   --dark-text-color: var(--def-dark-text-color);
   --background-color: var(--def-background-color);
+  --text-background: var(--def-text-background-white);
   --play-background-color: var(--def-play-background-color);
   --dark-background-color: var(--def-dark-background-color);
   --dark-play-background-color: var(--def-dark-play-background-color);
@@ -144,11 +155,14 @@
   --main-color-light-grayish: var(--def-main-color-very-grayish);
   --main-color-very-grayish: var(--def-main-color-light-grayish);
   --main-color-dark-grayish: var(--def-main-color-pearl-grayish);
+  --main-color-light-grayish-fluo: var(--def-main-color-dark-grayish-fluo);
+  --main-color-dark-grayish-fluo: var(--def-main-color-light-grayish-fluo);
   --main-color-dark: var(--def-main-color-soft);
   --background: var(--def-dark-background-color);
   --background-input: var(--def-dark-background-color);
   --background-bw: rgb(10, 10, 10);
   --modal-window-background: var(--def-dark-background-color);
+  --text-background: var(--def-text-background-black);
   --play-background-color: var(--def-dark-play-background-color);
   --form-background-color: var(--def-dark-form-background-color);
   --lightbox-background-preview: rgba(103, 103, 94, 0.8);
@@ -2171,35 +2185,60 @@ form {
   }
   .charaDetail {
     .head {
-      margin: 1.5rem auto 2rem;
-      .title {
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      > * {
         color: var(--main-color-strong);
+        margin: 0.15rem auto;
+        padding: 0.1rem 0.3rem;
+      }
+      .headerImage {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        display: inline-block;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+      }
+      &.includeHeaderImage {
+        min-height: 10rem;
+        & > * {
+          color: var(--main-color-strong);
+          background-color: var(--text-background);
+        }
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: bold;
         font-size: 1.875rem;
-        margin: auto 0.5rem;
         height: 2.5rem;
-        display: inline-flex;
-        align-items: center;
         img {
           font-size: 2.25rem;
           margin-right: 0.5rem;
         }
       }
       .overview {
-        color: var(--main-color);
         font-size: 1.25rem;
         line-height: 1.5rem;
-        margin: 0.5rem auto;
       }
-    }
-    .headerImage {
-      display: inline-block;
-      width: 100%;
     }
     .mainImage {
       display: inline-block;
       max-width: 100%;
       box-sizing: border-box;
+    }
+    .tags {
+      & > * {
+        margin: 0.25rem;
+      }
     }
   }
   .edit {

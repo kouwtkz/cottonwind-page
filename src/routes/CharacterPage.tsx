@@ -493,6 +493,11 @@ function CharaDetail({ charaName }: { charaName: string }) {
       RegistPlaylist({ playlist: chara.soundPlaylist });
     }
   }, [chara?.soundPlaylist?.title]);
+  const headClassName = useMemo(() => {
+    const classNames: Array<string> = ["head"];
+    if (chara?.headerImage) classNames.push("includeHeaderImage");
+    return classNames.join(" ");
+  }, [chara]);
   return (
     <>
       {charactersMap ? (
@@ -502,7 +507,15 @@ function CharaDetail({ charaName }: { charaName: string }) {
             {chara.draft ? (
               <div className="color-gray">（下書き中のキャラクター）</div>
             ) : null}
-            <div className="head">
+            <div className={headClassName}>
+              {chara.headerImage ? (
+                <ImageMee
+                  imageItem={chara.headerImage}
+                  className="headerImage"
+                  loading="eager"
+                  suppressHydrationWarning={true}
+                />
+              ) : null}
               <h1 className="title">
                 {chara.icon ? (
                   <ImageMeeIcon
@@ -520,16 +533,6 @@ function CharaDetail({ charaName }: { charaName: string }) {
               ) : null}
               <div className="overview">{chara.overview}</div>
             </div>
-            {chara.headerImage ? (
-              <p>
-                <ImageMee
-                  imageItem={chara.headerImage}
-                  className="headerImage"
-                  loading="eager"
-                  suppressHydrationWarning={true}
-                />
-              </p>
-            ) : null}
             {chara.image ? (
               <p>
                 <ImageMee
@@ -542,6 +545,15 @@ function CharaDetail({ charaName }: { charaName: string }) {
                   height={340}
                 />
               </p>
+            ) : null}
+            {chara.tags && chara.tags.length > 0 ? (
+              <div className="tags">
+                {chara.tags.map((tag, i) => (
+                  <Link key={i} to={`/character?tags=${tag}`}>
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
             ) : null}
             {chara.time ? (
               <p>
