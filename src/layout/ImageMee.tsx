@@ -119,7 +119,12 @@ export function ImageMee({
     [imageItem, width, height]
   );
 
-  const [pngURL, setPngURL] = useState<string>();
+  const [statePngURL, setPngURL] = useState<string>();
+  const pngURL = useMemo(() => {
+    const src = imageItem?.src || "";
+    if (/\.png(\??.*|)$/i.test(src)) return MediaOrigin(src);
+    else return statePngURL;
+  }, [statePngURL, imageItem, MediaOrigin]);
   const showPng = useImageMeeShowPng()[0];
   useEffect(() => {
     if (showPng && !pngURL) {
