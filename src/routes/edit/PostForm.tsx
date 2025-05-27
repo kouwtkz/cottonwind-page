@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
+import { PostTextarea } from "@/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -133,7 +133,7 @@ export function PostForm() {
     [postTarget]
   );
 
-  const { togglePreviewMode } = usePreviewMode();
+  const [previewMode, setPreviewMode] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -161,6 +161,7 @@ export function PostForm() {
     setValue,
     reset,
     control,
+    watch,
   } = useForm<FieldValues>({
     values,
     resolver: zodResolver(schema),
@@ -285,7 +286,7 @@ export function PostForm() {
   useHotkeys(
     "ctrl+period",
     () => {
-      togglePreviewMode(textareaRef.current?.value);
+      // togglePreviewMode(textareaRef.current?.value);
     },
     { enableOnFormTags: ["TEXTAREA"] }
   );
@@ -571,14 +572,15 @@ export function PostForm() {
           </DropdownObject>
         </div>
         <input name="upload" {...getInputProps()} />
-        <div {...getRootProps()}>
-          <PostTextarea
-            registed={SetRegister({ name: "body", ref: textareaRef, register })}
-            id="post_body_area"
-            placeholder="ブログの本文"
-            className="body"
-          />
-        </div>
+        <PostTextarea
+          {...getRootProps()}
+          registed={SetRegister({ name: "body", ref: textareaRef, register })}
+          id="post_body_area"
+          placeholder="ブログの本文"
+          className="body"
+          mode={"both"}
+          body={watch("body")}
+        />
         <div className="action">
           <button
             className="color text"
@@ -590,13 +592,6 @@ export function PostForm() {
             }}
           >
             リセット
-          </button>
-          <button
-            type="button"
-            className="color text"
-            onClick={() => togglePreviewMode(getValues("body"))}
-          >
-            プレビュー
           </button>
           <button className="color text" type="submit">
             {updateMode ? "更新する" : "投稿する"}

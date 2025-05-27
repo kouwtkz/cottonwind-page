@@ -78,7 +78,7 @@ import {
   replacePostTextareaFromImage,
 } from "@/components/dropdown/PostEditSelect";
 import { RegisterRef } from "@/components/hook/SetRef";
-import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
+import { PostTextarea } from "@/components/parse/PostTextarea";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -265,9 +265,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       });
     }
   }
-
-  const { togglePreviewMode } = usePreviewMode();
-
+  const [previewMode, setPreviewMode] = useState(false);
   useEffect(() => {
     if (selectedImage && selectedImageMode && chara) {
       if (selectedImageMode === "body") {
@@ -662,7 +660,9 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             <button
               type="button"
               className="color text"
-              onClick={() => togglePreviewMode(getValues("description"))}
+              onClick={() => {
+                setPreviewMode((v) => !v);
+              }}
             >
               プレビュー
             </button>
@@ -672,6 +672,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             id="post_body_area"
             placeholder="詳細"
             className="description"
+            mode={previewMode}
+            body={getValues("description")}
           />
         </div>
         <div className="flex around wrap">

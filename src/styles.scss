@@ -2284,7 +2284,9 @@ form {
       min-width: -moz-fit-content;
       min-width: fit-content;
       width: 100%;
-      &.description {
+    }
+    .postTextarea {
+      & > * {
         min-height: 8rem;
         height: 16rem;
       }
@@ -2887,6 +2889,9 @@ $soundBoxHeight: 10rem;
     font-size: 1em;
   }
 }
+textarea {
+  display: block;
+}
 
 label,
 .label {
@@ -3023,7 +3028,7 @@ label,
         display: flex;
         align-items: center;
       }
-      .postTextarea {
+      .postTextarea > textarea {
         width: 36rem;
         min-height: 12rem;
         max-width: 100%;
@@ -3334,7 +3339,8 @@ label,
         border-radius: 0.25rem;
         padding: 0.125rem;
       }
-      .wide {
+      .wide,
+      .postTextarea {
         padding: 0 0.25rem;
         width: 100%;
         > input,
@@ -3635,6 +3641,21 @@ body.workers {
   }
 }
 
+.postTextarea {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  @media (width < $mobileWidth) {
+    flex-direction: column;
+  }
+  > * {
+    flex: 1;
+  }
+  .preview-area {
+    background: transparent;
+  }
+}
+
 .blogPage {
   margin-top: 1.5rem;
   padding-top: 2rem;
@@ -3813,17 +3834,17 @@ form.blogEdit {
   .date {
     padding: 0.125rem 0.25rem;
   }
-  .body {
-    margin: auto;
-    width: 90%;
-    min-height: 20rem;
+  .postTextarea > * {
+    min-height: 10rem;
     padding: 0.5rem;
+    margin: 0.25rem;
     text-align: start;
+    word-break: break-all;
   }
   .action {
     button {
       font-size: 1.25rem;
-      margin: 1rem;
+      margin: 0.5rem 1rem;
     }
   }
   @media (min-width: $tabletWidth) {

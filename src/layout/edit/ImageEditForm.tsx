@@ -19,7 +19,7 @@ import {
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
-import { PostTextarea, usePreviewMode } from "@/components/parse/PostTextarea";
+import { PostTextarea } from "@/components/parse/PostTextarea";
 import { useCharacters } from "@/state/CharacterState";
 import { AutoImageItemType } from "@/functions/media/imageFunction";
 import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
@@ -286,8 +286,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
       return false;
     }
   }
-
-  const { togglePreviewMode, previewMode } = usePreviewMode();
+  const [previewMode, setPreviewMode] = useState(false);
   function setDescription(v: any) {
     setValue("description", v, {
       shouldDirty: true,
@@ -661,23 +660,25 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 title="プレビューモードの切り替え"
                 type="button"
                 className="color"
-                onClick={() => togglePreviewMode(getValues("description"))}
+                onClick={() => {
+                  setPreviewMode((v) => !v);
+                }}
               >
                 {previewMode ? "編集に戻る" : "プレビュー"}
               </button>
             </div>
-            <div className="wide">
-              <PostTextarea
-                title="説明文"
-                className="description"
-                registed={SetRegister({
-                  name: "description",
-                  ref: textareaRef,
-                  register,
-                })}
-                disabled={isBusy}
-              />
-            </div>
+            <PostTextarea
+              title="説明文"
+              className="description"
+              registed={SetRegister({
+                name: "description",
+                ref: textareaRef,
+                register,
+              })}
+              disabled={isBusy}
+              mode={previewMode}
+              body={getValues("description")}
+            />
           </div>
           <div>
             <EditTagsReactSelect

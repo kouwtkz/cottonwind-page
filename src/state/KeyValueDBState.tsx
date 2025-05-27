@@ -207,7 +207,7 @@ function KeyValueEdit() {
           ) : editType === "textarea" ? (
             <TextareaWithPreview
               name="value"
-              {...{ title, placeholder, getValues, setValue, register }}
+              {...{ title, placeholder, watch: getValues, setValue, register }}
             />
           ) : editType === "image" ? (
             <>
