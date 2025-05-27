@@ -63,7 +63,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "@/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "@/functions/sendFunction";
-import { DownloadDataObject } from "@/components/button/ObjectDownloadButton";
+import {
+  DownloadDataObject,
+  ObjectIndexedDBDownloadButton,
+} from "@/components/button/ObjectDownloadButton";
 import { useImageState, useSelectedImage } from "@/state/ImageState";
 import { findMee } from "@/functions/find/findMee";
 import { RiImageAddFill } from "react-icons/ri";
@@ -760,17 +763,12 @@ export function CharaEditButton() {
     <RbButtonArea
       dropdown={
         <>
-          <button
-            type="button"
-            className="color round font-larger"
+          <ObjectIndexedDBDownloadButton
             title="キャラデータのダウンロード"
-            onClick={() => {
-              // if (confirm("キャラクターのJSONデータをダウンロードしますか？"))
-              //   DownloadDataObject(charactersDataIndexed);
-            }}
-          >
-            <MdFileDownload />
-          </button>
+            className="color round font-larger"
+            indexedDB={charactersDataIndexed}
+            icon={<MdFileDownload />}
+          />
           <button
             type="button"
             className="color round font-larger"
