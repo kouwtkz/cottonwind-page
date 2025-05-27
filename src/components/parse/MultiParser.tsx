@@ -134,7 +134,7 @@ export function MultiParser({
     let str = childString;
     if (str && markdown) {
       str = str.replace(/:::(.+)\n([\s\S]+):::/g, (m, m1, m2) => {
-        return `<div class="${m1}">${m2.replace(/\n/, "<br/>")}</div>`;
+        return `<p class="${m1}">${m2}</p>`;
       });
       str = parse(str, { async: false }) as string;
     }
