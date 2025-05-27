@@ -314,7 +314,7 @@ export function PostForm() {
             theme={callReactSelectTheme}
             isMulti
             options={categoryList}
-            value={(field.value as string[]).map((fv) =>
+            value={((field?.value || []) as string[]).map((fv) =>
               categoryList.find((ci) => ci.value === fv)
             )}
             onChange={(newValues) => {
