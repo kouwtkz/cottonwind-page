@@ -82,7 +82,12 @@ function CharacterPageState() {
     const textArray: Array<string> = [];
     if (searchParams.has("q")) textArray.push(searchParams.get("q")!);
     if (searchParams.has("tags"))
-      textArray.push("tags:" + searchParams.get("tags")!);
+      searchParams
+        .get("tags")!
+        .split(",")
+        .forEach((tag) => {
+          textArray.push("tags:" + tag);
+        });
     return textArray.join(" ");
   }, [searchParams]);
   const whereOptions = useMemo(
