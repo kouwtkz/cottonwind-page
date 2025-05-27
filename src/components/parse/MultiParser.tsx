@@ -131,9 +131,14 @@ export function MultiParser({
   }, [childString, list]);
 
   childString = useMemo(() => {
-    if (childString && markdown)
-      return parse(childString, { async: false }) as string;
-    else return childString;
+    let str = childString;
+    if (str && markdown) {
+      str = str.replace(/:::(.+)\n([\s\S]+):::/g, (m, m1, m2) => {
+        return `<div class="${m1}">${m2.replace(/\n/, "<br/>")}</div>`;
+      });
+      str = parse(str, { async: false }) as string;
+    }
+    return str;
   }, [childString, markdown]);
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   let parsedChildren = useMemo((): React.ReactNode => {
