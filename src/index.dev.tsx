@@ -7,13 +7,13 @@ import { IsLogin } from "./admin";
 import { honoTest } from "./functions";
 import { renderHtml } from "./functions/render";
 import ssg from "./ssg";
-import { GitLogObject } from "@/gitlog/GitlogObject";
-import { NoIndex, MainPageRouteIndex } from "@/index.route";
+import { GitLogObject } from "@src/gitlog/GitlogObject";
+import { NoIndex, MainPageRouteIndex } from "@src/index.route";
 import { app_test } from "./test.dev";
 import { cors } from "hono/cors";
 import stylesMain from "./styles.scss";
 import stylesfromLib from "./styles/styles_lib.scss";
-import { appFromImportStyle } from "@/indexFunctions";
+import { appFromImportStyle } from "@src/indexFunctions";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 

@@ -11,8 +11,8 @@ import {
   ImageMeeIcon,
   ImageMeeQuestion,
   ImageMeeThumbnail,
-} from "@/layout/ImageMee";
-import { useCharacters } from "@/state/CharacterState";
+} from "@src/layout/ImageMee";
+import { useCharacters } from "@src/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import {
   HTMLAttributes,
@@ -23,27 +23,27 @@ import {
   useRef,
   useState,
 } from "react";
-import { useImageState } from "@/state/ImageState";
-import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
+import { useImageState } from "@src/state/ImageState";
+import { MultiParserWithMedia } from "@src/components/parse/MultiParserWithMedia";
 import { CharacterEdit, CharaEditButton } from "./edit/CharacterEdit";
 import { ErrorContent } from "./ErrorPage";
-import { useSoundPlayer } from "@/layout/SoundPlayer";
+import { useSoundPlayer } from "@src/layout/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
-import { findMee, setWhere } from "@/functions/find/findMee";
-import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
-import { defineSortTags } from "@/components/dropdown/SortFilterTags";
-import { useApiOrigin, useIsLogin } from "@/state/EnvState";
-import { CreateObjectState, CreateState } from "@/state/CreateState";
-import { Movable } from "@/layout/edit/Movable";
+import { findMee, setWhere } from "@src/functions/find/findMee";
+import { ContentsTagsSelect } from "@src/components/dropdown/SortFilterReactSelect";
+import { defineSortTags } from "@src/components/dropdown/SortFilterTags";
+import { useApiOrigin, useIsLogin } from "@src/state/EnvState";
+import { CreateObjectState, CreateState } from "@src/state/CreateState";
+import { Movable } from "@src/layout/edit/Movable";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { charactersDataIndexed } from "@/data/DataState";
-import { getInitialString } from "@/functions/InitialString";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { charactersDataIndexed } from "@src/data/DataState";
+import { getInitialString } from "@src/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
-import { LikeButton } from "@/components/button/LikeButton";
-import { useLang } from "@/multilingual/LangState";
-import { defaultLang } from "@/multilingual/envDef";
+import { LikeButton } from "@src/components/button/LikeButton";
+import { useLang } from "@src/multilingual/LangState";
+import { defaultLang } from "@src/multilingual/envDef";
 
 interface PartsType {
   label?: string;

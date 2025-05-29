@@ -1,7 +1,7 @@
-import { CopyWithToast } from "@/functions/toastFunction";
+import { CopyWithToast } from "@src/functions/toastFunction";
 import { Link } from "react-router-dom";
 import { BiGitBranch } from "react-icons/bi";
-import { KeyValueEditable } from "@/state/KeyValueDBState";
+import { KeyValueEditable } from "@src/state/KeyValueDBState";
 
 export default function AboutPage() {
   return (

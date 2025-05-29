@@ -1,27 +1,27 @@
-import { useApiOrigin } from "@/state/EnvState";
+import { useApiOrigin } from "@src/state/EnvState";
 import React, {
   SetStateAction,
   useCallback,
   useEffect,
   useSyncExternalStore,
 } from "react";
-import { jsonFileDialog } from "@/components/FileTool";
+import { jsonFileDialog } from "@src/components/FileTool";
 import { toast } from "react-toastify";
-import { getBasename, getName } from "@/functions/doc/PathParse";
-import { BooleanToNumber, unknownToString } from "@/functions/doc/ToFunction";
-import { corsFetch } from "@/functions/fetch";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { getBasename, getName } from "@src/functions/doc/PathParse";
+import { BooleanToNumber, unknownToString } from "@src/functions/doc/ToFunction";
+import { corsFetch } from "@src/functions/fetch";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import {
   arrayPartition,
   PromiseOrder,
   PromiseOrderOptions,
-} from "@/functions/arrayFunction";
-import { CreateObjectState } from "@/state/CreateState";
+} from "@src/functions/arrayFunction";
+import { CreateObjectState } from "@src/state/CreateState";
 import {
   toastLoadingOptions,
   toastUpdateOptions,
-} from "@/components/define/toastContainerDef";
-import { SendLinksDir } from "@/routes/edit/LinksEdit";
+} from "@src/components/define/toastContainerDef";
+import { SendLinksDir } from "@src/routes/edit/LinksEdit";
 import {
   charactersDataOptions,
   linksFavDataOptions,
@@ -36,13 +36,13 @@ import {
   KeyValueDBDataOptions,
   INDEXEDDB_VERSION,
   INDEXEDDB_NAME,
-} from "@/data/DataEnv";
+} from "@src/data/DataEnv";
 import { MeeIndexedDB, MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import {
   ImageIndexedDataStateClass,
   ImageMeeIndexedDBTable,
   IndexedDataLastmodMH,
-} from "@/data/IndexedDB/IndexedDataLastmodMH";
+} from "@src/data/IndexedDB/IndexedDataLastmodMH";
 
 export const tableVersionDataIndexed = new IndexedDataLastmodMH(
   TableVersionDataOptions

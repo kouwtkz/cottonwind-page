@@ -6,8 +6,8 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useImageState, useSelectedImage } from "@/state/ImageState";
-import { useDataIsComplete } from "@/state/StateSet";
+import { useImageState, useSelectedImage } from "@src/state/ImageState";
+import { useDataIsComplete } from "@src/state/StateSet";
 import React, {
   ReactNode,
   createRef,
@@ -26,9 +26,9 @@ import {
   MonthToTag,
   TimeframeTags,
   simpleDefaultTags,
-} from "@/components/dropdown/SortFilterTags";
-import { filterPickFixed } from "@/functions/media/FilterImages";
-import { InPageMenu } from "@/layout/InPageMenu";
+} from "@src/components/dropdown/SortFilterTags";
+import { filterPickFixed } from "@src/functions/media/FilterImages";
+import { InPageMenu } from "@src/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";
 import {
   RiBook2Fill,
@@ -48,14 +48,14 @@ import {
   RiSunFill,
   RiTimeLine,
 } from "react-icons/ri";
-import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@/layout/ImageMee";
+import { ImageMeeShowPngSwitch, ImageMeeThumbnail } from "@src/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
-import { getYear } from "@/functions/DateFunction";
-import { findMee, setWhere } from "@/functions/find/findMee";
+import { getYear } from "@src/functions/DateFunction";
+import { findMee, setWhere } from "@src/functions/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ContentsTagsSelect } from "@/components/dropdown/SortFilterReactSelect";
-import useWindowSize from "@/components/hook/useWindowSize";
-import { useImageViewer } from "@/layout/ImageViewer";
+import { ContentsTagsSelect } from "@src/components/dropdown/SortFilterReactSelect";
+import useWindowSize from "@src/components/hook/useWindowSize";
+import { useImageViewer } from "@src/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
   SwitchNotDraftUpload,
@@ -65,20 +65,20 @@ import {
   useImageNotDraftUpload,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "@/layout/edit/ImageEditForm";
-import { useApiOrigin, useIsLogin } from "@/state/EnvState";
-import { imageDataIndexed, likeDataIndexed } from "@/data/DataState";
-import { useCharacters } from "@/state/CharacterState";
-import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
+} from "@src/layout/edit/ImageEditForm";
+import { useApiOrigin, useIsLogin } from "@src/state/EnvState";
+import { imageDataIndexed, likeDataIndexed } from "@src/data/DataState";
+import { useCharacters } from "@src/state/CharacterState";
+import { callReactSelectTheme } from "@src/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
-import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { ModeSearchSwitch, ModeSwitch } from "@/layout/edit/CommonSwitch";
-import { ComicsViewer } from "@/routes/ComicsViewer";
+import { charaTagsLabel } from "@src/components/FormatOptionLabel";
+import { ModeSearchSwitch, ModeSwitch } from "@src/layout/edit/CommonSwitch";
+import { ComicsViewer } from "@src/routes/ComicsViewer";
 import { AiFillEdit } from "react-icons/ai";
 import {
   DropdownButton,
   IconsFoldButton,
-} from "@/components/dropdown/DropdownButton";
+} from "@src/components/dropdown/DropdownButton";
 import {
   CompatGalleryButton as CGB,
   CompatMendingThumbnailButton,
@@ -86,20 +86,20 @@ import {
   GalleryUploadButton,
   ThumbnailResetButton,
 } from "./edit/ImagesManager";
-import { Modal } from "@/layout/Modal";
-import { ObjectIndexedDBDownloadButton } from "@/components/button/ObjectDownloadButton";
+import { Modal } from "@src/layout/Modal";
+import { ObjectIndexedDBDownloadButton } from "@src/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
-import { ArrayEnv } from "@/Env";
-import { useLikeState, useLikeStateUpdated } from "@/state/LikeState";
-import { CreateObjectState } from "@/state/CreateState";
-import { useLang } from "@/multilingual/LangState";
+import { ArrayEnv } from "@src/Env";
+import { useLikeState, useLikeStateUpdated } from "@src/state/LikeState";
+import { CreateObjectState } from "@src/state/CreateState";
+import { useLang } from "@src/multilingual/LangState";
 import {
   CountToContentsTagsOption,
   CustomReactSelect,
-} from "@/components/dropdown/CustomReactSelect";
-import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
-import { getCountList } from "@/functions/arrayFunction";
+} from "@src/components/dropdown/CustomReactSelect";
+import { IndexedDataLastmodMH } from "@src/data/IndexedDB/IndexedDataLastmodMH";
+import { getCountList } from "@src/functions/arrayFunction";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;

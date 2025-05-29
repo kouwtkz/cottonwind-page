@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
-import { IsLogin } from "@/admin";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { IsLogin } from "@src/admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { charactersDataOptions } from "@/data/DataEnv";
+import { charactersDataOptions } from "@src/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 import { ImageTableObject } from "./image";
 import { ImageBucketRename } from "./serverFunction";

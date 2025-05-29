@@ -1,6 +1,6 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
-import { HeaderClient } from "@/layout/Header";
-import { Footer } from "@/layout/Footer";
+import { HeaderClient } from "@src/layout/Header";
+import { Footer } from "@src/layout/Footer";
 import {
   ReactNode,
   useEffect,
@@ -9,12 +9,12 @@ import {
   useState,
 } from "react";
 import { MetaValues } from "./SetMeta";
-import { useCharacters } from "@/state/CharacterState";
+import { useCharacters } from "@src/state/CharacterState";
 import { isMobile } from "react-device-detect";
-import { useImageState } from "@/state/ImageState";
-import { usePosts } from "@/state/PostState";
-import { StateSet, useDataIsComplete } from "@/state/StateSet";
-import { useEnv, useMediaOrigin } from "@/state/EnvState";
+import { useImageState } from "@src/state/ImageState";
+import { usePosts } from "@src/state/PostState";
+import { StateSet, useDataIsComplete } from "@src/state/StateSet";
+import { useEnv, useMediaOrigin } from "@src/state/EnvState";
 
 function SetTitle() {
   const { pathname, search } = useLocation();

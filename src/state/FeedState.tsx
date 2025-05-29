@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useApiOrigin } from "./EnvState";
-import { corsFetch } from "@/functions/fetch";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { corsFetch } from "@src/functions/fetch";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import { CreateState } from "./CreateState";
 
 export const useOutFeed = CreateState<FeedContentType>();

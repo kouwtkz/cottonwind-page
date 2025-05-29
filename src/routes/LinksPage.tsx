@@ -11,23 +11,23 @@ import React, {
 } from "react";
 import { toast } from "react-toastify";
 import { Link, useSearchParams } from "react-router-dom";
-import { useDataIsComplete } from "@/state/StateSet";
-import { MakeRelativeURL } from "@/functions/doc/MakeURL";
+import { useDataIsComplete } from "@src/state/StateSet";
+import { MakeRelativeURL } from "@src/functions/doc/MakeURL";
 import {
   useLinks,
   LinksMapType,
   LinksStateType,
   useFavLinks,
   LinksIndexedDBType,
-} from "@/state/LinksState";
+} from "@src/state/LinksState";
 import {
   useApiOrigin,
   useEnv,
   useIsLogin,
   useMediaOrigin,
-} from "@/state/EnvState";
-import { ImageMee } from "@/layout/ImageMee";
-import { CreateState } from "@/state/CreateState";
+} from "@src/state/EnvState";
+import { ImageMee } from "@src/layout/ImageMee";
+import { CreateState } from "@src/state/CreateState";
 import {
   LinksEdit,
   MyBannerEditButtons,
@@ -36,18 +36,18 @@ import {
   editLinksType,
   SendLinksDir,
 } from "./edit/LinksEdit";
-import { useImageEditSwitchHold } from "@/layout/edit/ImageEditForm";
-import { useImageState } from "@/state/ImageState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { useImageViewer } from "@/layout/ImageViewer";
-import { Movable } from "@/layout/edit/Movable";
+import { useImageEditSwitchHold } from "@src/layout/edit/ImageEditForm";
+import { useImageState } from "@src/state/ImageState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { useImageViewer } from "@src/layout/ImageViewer";
+import { Movable } from "@src/layout/edit/Movable";
 import {
   imageDataIndexed,
   linksDataIndexed,
   favLinksDataIndexed,
-} from "@/data/DataState";
+} from "@src/data/DataState";
 import { CompatGalleryButton } from "./edit/ImagesManager";
-import { findMee } from "@/functions/find/findMee";
+import { findMee } from "@src/functions/find/findMee";
 
 export default function LinksPage() {
   const env = useEnv()[0];

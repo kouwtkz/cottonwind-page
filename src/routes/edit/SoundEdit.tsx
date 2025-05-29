@@ -1,31 +1,31 @@
-import { fileDialog } from "@/components/FileTool";
+import { fileDialog } from "@src/components/FileTool";
 import {
   ImportCommonJson,
   soundAlbumsDataIndexed,
   soundsDataIndexed,
   UploadToast,
-} from "@/data/DataState";
-import { useApiOrigin } from "@/state/EnvState";
+} from "@src/data/DataState";
+import { useApiOrigin } from "@src/state/EnvState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FilesUploadProcess } from "./FilesEdit";
-import { Modal } from "@/layout/Modal";
-import { CreateState } from "@/state/CreateState";
+import { Modal } from "@src/layout/Modal";
+import { CreateState } from "@src/state/CreateState";
 import { FieldValues, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import {
   ImportObjectButtonProps,
   ObjectCommonButton,
   ObjectIndexedDBDownloadButton,
-} from "@/components/button/ObjectDownloadButton";
-import { DropdownButton } from "@/components/dropdown/DropdownButton";
+} from "@src/components/button/ObjectDownloadButton";
+import { DropdownButton } from "@src/components/dropdown/DropdownButton";
 import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
-import { useSounds } from "@/state/SoundState";
-import { soundsDataOptions } from "@/data/DataEnv";
+import { useSounds } from "@src/state/SoundState";
+import { soundsDataOptions } from "@src/data/DataEnv";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];

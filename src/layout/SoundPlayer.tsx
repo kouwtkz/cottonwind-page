@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useMediaOrigin } from "@/state/EnvState";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { useMediaOrigin } from "@src/state/EnvState";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import MebtteMediaSession from "@mebtte/react-media-session";
 import { useLocation } from "react-router-dom";
-import StopButton from "@/components/svg/audio/StopButton";
-import LoopButton from "@/components/svg/audio/LoopButton";
-import ShuffleButton from "@/components/svg/audio/ShuffleButton";
-import PrevButton from "@/components/svg/audio/PrevButton";
-import PlayPauseButton from "@/components/svg/audio/PlayPauseButton";
-import NextButton from "@/components/svg/audio/NextButton";
+import StopButton from "@src/components/svg/audio/StopButton";
+import LoopButton from "@src/components/svg/audio/LoopButton";
+import ShuffleButton from "@src/components/svg/audio/ShuffleButton";
+import PrevButton from "@src/components/svg/audio/PrevButton";
+import PlayPauseButton from "@src/components/svg/audio/PlayPauseButton";
+import NextButton from "@src/components/svg/audio/NextButton";
 import {
   CreateObjectState,
   CreateState,
   setTypeProps,
-} from "@/state/CreateState";
+} from "@src/state/CreateState";
 import ReactSlider from "react-slider";
 
 import {
@@ -26,9 +26,9 @@ import {
   RiVolumeMuteFill,
   RiVolumeUpFill,
 } from "react-icons/ri";
-import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { DropdownObject } from "@src/components/dropdown/DropdownMenu";
 import { parseBlob } from "music-metadata";
-import { useSounds } from "@/state/SoundState";
+import { useSounds } from "@src/state/SoundState";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",

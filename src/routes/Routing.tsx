@@ -4,7 +4,7 @@ import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
 import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
-import { ComicsViewer } from "@/routes/ComicsViewer";
+import { ComicsViewer } from "@src/routes/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { RoutingUnion } from "./RoutingList";
@@ -15,7 +15,7 @@ import { PostForm } from "./edit/PostForm";
 import ContactPage from "./ContactPage";
 import { SettingPage } from "./Setting";
 import { AdminPage } from "./AdminPage";
-import { ChangeLog } from "@/state/GitState";
+import { ChangeLog } from "@src/state/GitState";
 import { SchedulePage } from "./SchedulePage";
 
 export interface MeeRouteObject extends NonIndexRouteObject {

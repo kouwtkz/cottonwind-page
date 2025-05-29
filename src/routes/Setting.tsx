@@ -1,4 +1,4 @@
-import { useIsLogin } from "@/state/EnvState";
+import { useIsLogin } from "@src/state/EnvState";
 import { AdminMainPage } from "./AdminPage";
 
 export function SettingPage() {

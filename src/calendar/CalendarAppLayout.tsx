@@ -1,4 +1,4 @@
-import { Style } from "@/serverLayout";
+import { Style } from "@src/serverLayout";
 
 interface LayoutPropsWithChildren extends CalendarAppLayoutProps {
   children?: React.ReactNode;

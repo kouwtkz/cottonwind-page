@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { cache } from "hono/cache";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
 import { ImageTableObject } from "./api/image";
 import { concatOriginUrl, getMediaOrigin } from "./functions/originUrl";
-import { ArrayEnv } from "@/Env";
+import { ArrayEnv } from "@src/Env";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 

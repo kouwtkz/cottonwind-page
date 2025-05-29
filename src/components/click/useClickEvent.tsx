@@ -1,4 +1,4 @@
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 import { useCallback, useEffect } from "react";
 
 interface useClickVectorType extends Vector {

@@ -1,8 +1,8 @@
-import { useEnv } from "@/state/EnvState";
+import { useEnv } from "@src/state/EnvState";
 import { EmbedScript } from "./EmbedScript";
-import { useDarkMode } from "@/components/theme/Theme";
+import { useDarkMode } from "@src/components/theme/Theme";
 import React, { useEffect, useState } from "react";
-import { defaultLang } from "@/multilingual/envDef";
+import { defaultLang } from "@src/multilingual/envDef";
 
 interface EmbedSNSprops {
   width?: number;

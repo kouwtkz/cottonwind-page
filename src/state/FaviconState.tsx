@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CreateState } from "./CreateState";
 import { useMediaOrigin } from "./EnvState";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useCharacters } from "./CharacterState";
 

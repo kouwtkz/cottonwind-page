@@ -1,13 +1,13 @@
-import { corsFetch } from "@/functions/fetch";
-import { setPrefix, setSuffix } from "@/functions/stringFix";
-import { CreateState } from "@/state/CreateState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { corsFetch } from "@src/functions/fetch";
+import { setPrefix, setSuffix } from "@src/functions/stringFix";
+import { CreateState } from "@src/state/CreateState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 import { SetStateAction } from "react";
-import { convertToMeeIndexedData, saveConvertMeeIndexedFromData } from "@/data/IndexedDB/ConvertToMeeIndexedData";
+import { convertToMeeIndexedData, saveConvertMeeIndexedFromData } from "@src/data/IndexedDB/ConvertToMeeIndexedData";
 import { IndexedDataClass } from "./MeeIndexedDataClass";
-import { AutoImageItemType, getImageAlbumMap } from "@/functions/media/imageFunction";
-import { ArrayEnv } from "@/Env";
+import { AutoImageItemType, getImageAlbumMap } from "@src/functions/media/imageFunction";
+import { ArrayEnv } from "@src/Env";
 
 export class IndexedDataLastmodMH<
   T,

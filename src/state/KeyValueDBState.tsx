@@ -7,8 +7,8 @@ import {
   useSyncExternalStore,
 } from "react";
 import { CreateObjectState } from "./CreateState";
-import { imageDataIndexed, keyValueDBDataIndexed } from "@/data/DataState";
-import { Modal } from "@/layout/Modal";
+import { imageDataIndexed, keyValueDBDataIndexed } from "@src/data/DataState";
+import { Modal } from "@src/layout/Modal";
 import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
 import {
   RiEdit2Fill,
@@ -18,14 +18,14 @@ import {
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { fileDialog } from "@/components/FileTool";
-import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
-import { ImageMee, ImageMeeProps } from "@/layout/ImageMee";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { fileDialog } from "@src/components/FileTool";
+import { ImagesUploadWithToast } from "@src/layout/edit/ImageEditForm";
+import { ImageMee, ImageMeeProps } from "@src/layout/ImageMee";
 import { useSelectedImage } from "./ImageState";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { MultiParserWithMedia as MultiParser } from "@/components/parse/MultiParserWithMedia";
-import { TextareaWithPreview } from "@/components/parse/PostTextarea";
+import { MultiParserWithMedia as MultiParser } from "@src/components/parse/MultiParserWithMedia";
+import { TextareaWithPreview } from "@src/components/parse/PostTextarea";
 
 export const useKeyValueDB = CreateObjectState<{
   kvList?: KeyValueDBType[];

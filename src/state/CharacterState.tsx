@@ -2,9 +2,9 @@ import { useEffect, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { useEnv } from "./EnvState";
-import { charactersDataIndexed } from "@/data/DataState";
+import { charactersDataIndexed } from "@src/data/DataState";
 import { CreateObjectState } from "./CreateState";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
 
 export type mediaKindType = "icon" | "image" | "headerImage";

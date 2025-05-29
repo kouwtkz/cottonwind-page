@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { imageDataIndexed, likeDataIndexed } from "@/data/DataState";
+import { imageDataIndexed, likeDataIndexed } from "@src/data/DataState";
 import {
   getImageAlbumMap,
   getImageObjectMap,
-} from "@/functions/media/imageFunction";
+} from "@src/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { ArrayEnv } from "@/Env";
-import { findMee } from "@/functions/find/findMee";
+import { ArrayEnv } from "@src/Env";
+import { findMee } from "@src/functions/find/findMee";
 import { useLikeState } from "./LikeState";
-import { ImageMeeIndexedDBTable } from "@/data/IndexedDB/IndexedDataLastmodMH";
-import { getCountList } from "@/functions/arrayFunction";
+import { ImageMeeIndexedDBTable } from "@src/data/IndexedDB/IndexedDataLastmodMH";
+import { getCountList } from "@src/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
 
 const galleryList =

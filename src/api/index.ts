@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from 'hono/cors';
 import { cache } from 'hono/cache'
-import { FeedSet } from "@/ServerContent";
+import { FeedSet } from "@src/ServerContent";
 import { app_data_api } from "./data";
 import { app_image_api } from "./image";
 import { app_character_api } from "./character";
@@ -9,10 +9,10 @@ import { app_blog_api } from "./blog";
 import { app_sound_api } from "./sound";
 import { app_files_api as app_file_api } from "./file";
 import { app_links_api } from "./links";
-import { getOriginFromAPI } from "@/functions/originUrl";
-import { AddMetaEnv } from "@/serverLayout";
+import { getOriginFromAPI } from "@src/functions/originUrl";
+import { AddMetaEnv } from "@src/serverLayout";
 import { app_like_api } from "./like";
-import { KeyValueDBDataOptions } from "@/data/DataEnv";
+import { KeyValueDBDataOptions } from "@src/data/DataEnv";
 import { app_kvdb_api } from "./KeyValueDB";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();

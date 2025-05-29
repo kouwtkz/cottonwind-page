@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { getBasename, getName } from "@/functions/doc/PathParse";
+import { getBasename, getName } from "@src/functions/doc/PathParse";
 import { imageDimensionsFromData } from "image-dimensions";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
-import { IsLogin } from "@/admin";
-import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
-import { JoinUnique } from "@/functions/doc/StrFunctions";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { IsLogin } from "@src/admin";
+import { KeyValueConvertDBEntry } from "@src/functions/doc/ToFunction";
+import { JoinUnique } from "@src/functions/doc/StrFunctions";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { ImageDataOptions } from "@/data/DataEnv";
+import { ImageDataOptions } from "@src/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 import { ImageBucketRename } from "./serverFunction";
 

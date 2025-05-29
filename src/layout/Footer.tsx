@@ -1,7 +1,7 @@
-import ShareButton from "@/components/button/ShareButton";
-import SvgMaskSns from "@/components/svg/mask/SvgMaskSns";
-import { ArrayEnv } from "@/Env";
-import { getYear } from "@/functions/DateFunction";
+import ShareButton from "@src/components/button/ShareButton";
+import SvgMaskSns from "@src/components/svg/mask/SvgMaskSns";
+import { ArrayEnv } from "@src/Env";
+import { getYear } from "@src/functions/DateFunction";
 
 export function Footer({ env }: { env?: SiteConfigEnv }) {
   return (

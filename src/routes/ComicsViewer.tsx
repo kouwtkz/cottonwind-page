@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useImageState } from "@/state/ImageState";
+import { useImageState } from "@src/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
-import { GalleryObject } from "@/routes/GalleryPage";
+import { GalleryObject } from "@src/routes/GalleryPage";
 import ComicViewer from "react-comic-viewer";
 import { useSearchParams } from "react-router-dom";
-import { useMediaOrigin } from "@/state/EnvState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { useFiles } from "@/state/FileState";
-import { findMee } from "@/functions/find/findMee";
+import { useMediaOrigin } from "@src/state/EnvState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { useFiles } from "@src/state/FileState";
+import { findMee } from "@src/functions/find/findMee";
 
 interface ePubMetadataType {
   title?: string;

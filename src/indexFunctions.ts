@@ -1,5 +1,5 @@
-import { CompactCode } from "@/functions/doc/StrFunctions";
-import { CommonHono } from "@/types/HonoCustomType";
+import { CompactCode } from "@src/functions/doc/StrFunctions";
+import { CommonHono } from "@src/types/HonoCustomType";
 
 interface appFromImportStyleProps<T> {
   styles: [string, unknown][];

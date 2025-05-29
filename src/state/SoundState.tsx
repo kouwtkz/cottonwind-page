@@ -1,9 +1,9 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { useSoundPlayer } from "@/layout/SoundPlayer";
+import { useSoundPlayer } from "@src/layout/SoundPlayer";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { soundsDataIndexed, soundAlbumsDataIndexed } from "@/data/DataState";
-import { getSoundAlbumsMap, getSoundsMap } from "@/functions/soundFunction";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { soundsDataIndexed, soundAlbumsDataIndexed } from "@src/data/DataState";
+import { getSoundAlbumsMap, getSoundsMap } from "@src/functions/soundFunction";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 
 interface SoundsStateType {
   sounds: SoundItemType[];

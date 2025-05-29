@@ -11,7 +11,7 @@ import {
 } from "react";
 import { CSSTransition } from "react-transition-group";
 import { CSSTransitionClassNames } from "react-transition-group/CSSTransition";
-import { useClickEvent } from "@/components/click/useClickEvent";
+import { useClickEvent } from "@src/components/click/useClickEvent";
 
 export interface InsertElementProps extends HTMLAttributes<Element> {
   isOpen: boolean;

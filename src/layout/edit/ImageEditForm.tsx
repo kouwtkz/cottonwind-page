@@ -1,14 +1,14 @@
 import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
-import { GalleryViewerPaging } from "@/layout/ImageViewer";
+import { GalleryViewerPaging } from "@src/layout/ImageViewer";
 import { toast } from "react-toastify";
-import { useImageState } from "@/state/ImageState";
+import { useImageState } from "@src/state/ImageState";
 import {
   defaultGalleryTags,
   getTagsOptions,
   autoFixGalleryTagsOptions,
   addExtentionGalleryTagsOptions,
   simpleDefaultTags,
-} from "@/components/dropdown/SortFilterTags";
+} from "@src/components/dropdown/SortFilterTags";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FieldValues, useController, useForm } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
@@ -19,54 +19,54 @@ import {
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
-import { PostTextarea } from "@/components/parse/PostTextarea";
-import { useCharacters } from "@/state/CharacterState";
-import { AutoImageItemType } from "@/functions/media/imageFunction";
-import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
-import SetRegister from "@/components/hook/SetRegister";
+import { PostTextarea } from "@src/components/parse/PostTextarea";
+import { useCharacters } from "@src/state/CharacterState";
+import { AutoImageItemType } from "@src/functions/media/imageFunction";
+import { IsoFormTime, ToFormTime } from "@src/functions/DateFunction";
+import SetRegister from "@src/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
-} from "@/components/dropdown/PostEditSelect";
+} from "@src/components/dropdown/PostEditSelect";
 import { Options, useHotkeys } from "react-hotkeys-hook";
-import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
-import { getExtension, getName } from "@/functions/doc/PathParse";
-import { imageDataIndexed } from "@/data/DataState";
+import { EditTagsReactSelect } from "@src/components/dropdown/EditTagsReactSelect";
+import { RbButtonArea } from "@src/components/dropdown/RbButtonArea";
+import { useApiOrigin, useMediaOrigin } from "@src/state/EnvState";
+import { getExtension, getName } from "@src/functions/doc/PathParse";
+import { imageDataIndexed } from "@src/data/DataState";
 import {
   imageObject,
   imageOverSizeCheck,
   resizeImageCanvas,
   resizeImageCanvasProps,
-} from "@/components/Canvas";
-import { CharaImageSettingRbButtons } from "@/routes/edit/CharacterEdit";
-import { JoinUnique } from "@/functions/doc/StrFunctions";
-import { charaTagsLabel } from "@/components/FormatOptionLabel";
-import { corsFetchJSON, methodType } from "@/functions/fetch";
-import { concatOriginUrl } from "@/functions/originUrl";
+} from "@src/components/Canvas";
+import { CharaImageSettingRbButtons } from "@src/routes/edit/CharacterEdit";
+import { JoinUnique } from "@src/functions/doc/StrFunctions";
+import { charaTagsLabel } from "@src/components/FormatOptionLabel";
+import { corsFetchJSON, methodType } from "@src/functions/fetch";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import {
   getCountList,
   PromiseOrder,
   PromiseOrderStateType,
-} from "@/functions/arrayFunction";
-import { CreateObjectState, CreateState } from "@/state/CreateState";
-import { useFiles } from "@/state/FileState";
+} from "@src/functions/arrayFunction";
+import { CreateObjectState, CreateState } from "@src/state/CreateState";
+import { useFiles } from "@src/state/FileState";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import {
   toastLoadingOptions,
   toastLoadingShortOptions,
   toastUpdateOptions,
-} from "@/components/define/toastContainerDef";
-import { fileDialog, RenameFile } from "@/components/FileTool";
-import { FormToBoolean, FormToNumber } from "@/functions/form/formConvert";
-import { CopyWithToast } from "@/functions/toastFunction";
-import { ModeSwitch } from "@/layout/edit/CommonSwitch";
-import { ImageMee } from "@/layout/ImageMee";
+} from "@src/components/define/toastContainerDef";
+import { fileDialog, RenameFile } from "@src/components/FileTool";
+import { FormToBoolean, FormToNumber } from "@src/functions/form/formConvert";
+import { CopyWithToast } from "@src/functions/toastFunction";
+import { ModeSwitch } from "@src/layout/edit/CommonSwitch";
+import { ImageMee } from "@src/layout/ImageMee";
 import { useSwipeable } from "react-swipeable";
-import { LimitValue } from "@/functions/MathFunction";
-import { RegisterRef } from "@/components/hook/SetRef";
+import { LimitValue } from "@src/functions/MathFunction";
+import { RegisterRef } from "@src/components/hook/SetRef";
 import {
   RiArtboard2Fill,
   RiFileUploadLine,
@@ -74,8 +74,8 @@ import {
   RiVideoOnLine,
   RiVideoUploadLine,
 } from "react-icons/ri";
-import { repostThumbnail } from "@/routes/edit/ImagesManager";
-import { CountToContentsTagsOption } from "@/components/dropdown/CustomReactSelect";
+import { repostThumbnail } from "@src/routes/edit/ImagesManager";
+import { CountToContentsTagsOption } from "@src/components/dropdown/CustomReactSelect";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;

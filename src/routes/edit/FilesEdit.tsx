@@ -1,11 +1,11 @@
-import { PromiseOrder } from "@/functions/arrayFunction";
-import { corsFetch } from "@/functions/fetch";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { Modal } from "@/layout/Modal";
-import { CreateState } from "@/state/CreateState";
-import { filesDataIndexed, UploadToast } from "@/data/DataState";
-import { useApiOrigin } from "@/state/EnvState";
-import { useFiles } from "@/state/FileState";
+import { PromiseOrder } from "@src/functions/arrayFunction";
+import { corsFetch } from "@src/functions/fetch";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { Modal } from "@src/layout/Modal";
+import { CreateState } from "@src/state/CreateState";
+import { filesDataIndexed, UploadToast } from "@src/data/DataState";
+import { useApiOrigin } from "@src/state/EnvState";
+import { useFiles } from "@src/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
@@ -14,8 +14,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { MdDeleteForever } from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataLastmodMH } from "@src/data/IndexedDB/IndexedDataLastmodMH";
 
 const SEND_FILES = "/file/send";
 

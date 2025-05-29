@@ -8,10 +8,10 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import "@/components/hook/ScrollLock";
-import { ClickEffect } from "@/components/click/ClickEffect";
-import { ClickEventState } from "@/components/click/useClickEvent";
-import { Theme } from "@/components/theme/Theme";
+import "@src/components/hook/ScrollLock";
+import { ClickEffect } from "@src/components/click/ClickEffect";
+import { ClickEventState } from "@src/components/click/useClickEvent";
+import { Theme } from "@src/components/theme/Theme";
 import {
   CalendarMee,
   CalendarMeeState,
@@ -21,7 +21,7 @@ import {
   Type_VIEW_FC,
   useCalendarMee,
 } from "./CalendarMee";
-import { CreateObjectState, CreateState } from "@/state/CreateState";
+import { CreateObjectState, CreateState } from "@src/state/CreateState";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, useForm } from "react-hook-form";
@@ -32,32 +32,32 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
-import { Modal } from "@/layout/Modal";
-import { FormatDate, ToFormTime } from "@/functions/DateFunction";
+import { Modal } from "@src/layout/Modal";
+import { FormatDate, ToFormTime } from "@src/functions/DateFunction";
 import { EventClickArg } from "@fullcalendar/core/index.js";
 import { toast, ToastContainer } from "react-toastify";
 import {
   defaultToastContainerOptions,
   toastLoadingShortOptions,
-} from "@/components/define/toastContainerDef";
-import { ToastProgressState } from "@/state/ToastProgress";
+} from "@src/components/define/toastContainerDef";
+import { ToastProgressState } from "@src/state/ToastProgress";
 import {
   RiEdit2Fill,
   RiNotification2Fill,
   RiNotification2Line,
 } from "react-icons/ri";
-import { SiteMenuSwitchButtons } from "@/layout/SiteMenu";
-import { useNotification } from "@/worker/notification/NotificationState";
-import { fileDialog, fileDownload } from "@/components/FileTool";
-import { getUUID } from "@/functions/clientFunction";
-import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
+import { SiteMenuSwitchButtons } from "@src/layout/SiteMenu";
+import { useNotification } from "@src/worker/notification/NotificationState";
+import { fileDialog, fileDownload } from "@src/components/FileTool";
+import { getUUID } from "@src/functions/clientFunction";
+import { MeeIndexedDB } from "@src/data/IndexedDB/MeeIndexedDB";
 import {
   IndexedDataClass,
   IndexedKVClass,
-} from "@/data/IndexedDB/MeeIndexedDataClass";
+} from "@src/data/IndexedDB/MeeIndexedDataClass";
 import { useHotkeys } from "react-hotkeys-hook";
-import { SwState } from "@/worker/serviceWorker/clientSwState";
-import { DOMContentLoaded } from "@/clientScripts";
+import { SwState } from "@src/worker/serviceWorker/clientSwState";
+import { DOMContentLoaded } from "@src/clientScripts";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
 

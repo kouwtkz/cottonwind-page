@@ -1,4 +1,4 @@
-import { dataParse } from "@/functions/dataParse";
+import { dataParse } from "@src/functions/dataParse";
 
 namespace WK {
   let countdownId: NodeJS.Timeout | null = null;

@@ -1,4 +1,4 @@
-import { SubscribeEventsClass } from "@/components/hook/SubscribeEvents";
+import { SubscribeEventsClass } from "@src/components/hook/SubscribeEvents";
 import { MeeIndexedDBTable } from "./MeeIndexedDB";
 
 export class IndexedDataClass<

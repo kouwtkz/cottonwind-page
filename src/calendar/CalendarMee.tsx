@@ -18,9 +18,9 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { strToNumWithNull } from "@/functions/strTo";
-import { Modal } from "@/layout/Modal";
-import { MultiParser } from "@/components/parse/MultiParser";
+import { strToNumWithNull } from "@src/functions/strTo";
+import { Modal } from "@src/layout/Modal";
+import { MultiParser } from "@src/components/parse/MultiParser";
 import {
   RiAddLine,
   RiCalendar2Line,
@@ -31,14 +31,14 @@ import {
   RiNotificationOffFill,
   RiTimerFill,
 } from "react-icons/ri";
-import { defaultLang } from "@/multilingual/envDef";
-import { CreateObjectState, CreateState } from "@/state/CreateState";
-import { CopyWithToast } from "@/functions/toastFunction";
+import { defaultLang } from "@src/multilingual/envDef";
+import { CreateObjectState, CreateState } from "@src/state/CreateState";
+import { CopyWithToast } from "@src/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
-import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/worker/notification/NotificationState";
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { dataParse } from "@/functions/dataParse";
+import { DateNotEqual, toDayStart } from "@src/functions/DateFunction";
+import { useNotification } from "@src/worker/notification/NotificationState";
+import { RbButtonArea } from "@src/components/dropdown/RbButtonArea";
+import { dataParse } from "@src/functions/dataParse";
 import { toast } from "react-toastify";
 
 interface CustomFullCalendar extends Omit<FullCalendar, "calendar"> {

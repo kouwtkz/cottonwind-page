@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { renderHtml } from "@/functions/render";
+import { renderHtml } from "@src/functions/render";
 import { WorkersLayout } from "..";
 import {
   SyncToken,

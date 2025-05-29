@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { likeDataIndexed } from "@/data/DataState";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
+import { likeDataIndexed } from "@src/data/DataState";
 
 export const useLikeStateUpdated = CreateState<string>();
 interface LikeStateType {

@@ -1,6 +1,6 @@
 import { RefObject, memo, useEffect, useMemo, useState } from "react";
-import useScroll from "@/components/hook/useScroll";
-import TriangleCursor from "@/components/svg/cursor/Triangle";
+import useScroll from "@src/components/hook/useScroll";
+import TriangleCursor from "@src/components/svg/cursor/Triangle";
 
 type InPageRefObject = {
   name: string;

@@ -1,14 +1,14 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { SiteMenuButton } from "@/components/svg/button/MenuButton";
-import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useEnv, useIsLogin } from "@/state/EnvState";
-import { ArrayEnv } from "@/Env";
-import { ClickEffectSwitchButton } from "@/components/click/ClickEffect";
+import { SiteMenuButton } from "@src/components/svg/button/MenuButton";
+import { DropdownObject } from "@src/components/dropdown/DropdownMenu";
+import { useEnv, useIsLogin } from "@src/state/EnvState";
+import { ArrayEnv } from "@src/Env";
+import { ClickEffectSwitchButton } from "@src/components/click/ClickEffect";
 import {
   DarkThemeChangeButton,
   ThemeChangeButton,
-} from "@/components/theme/Theme";
+} from "@src/components/theme/Theme";
 
 export function SiteMenuSwitchButtons({
   className,

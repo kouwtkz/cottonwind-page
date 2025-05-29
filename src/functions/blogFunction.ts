@@ -1,11 +1,11 @@
-import { CommonContext } from "@/types/HonoCustomType";
-import GenerateRss from "@/functions/doc/GenerateRss";
+import { CommonContext } from "@src/types/HonoCustomType";
+import GenerateRss from "@src/functions/doc/GenerateRss";
 import { parse } from "marked";
-import { findMee, setWhere } from "@/functions/find/findMee";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
+import { findMee, setWhere } from "@src/functions/find/findMee";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
 import { concatOriginUrl, getMediaOrigin } from "./originUrl";
 import { ImageSelectFromKey } from "./media/serverDataFunction";
-import { defaultLang } from "@/multilingual/envDef";
+import { defaultLang } from "@src/multilingual/envDef";
 
 export async function getPostsData(c: CommonContext) {
   const kvPosts = await c.env.KV.get("posts");

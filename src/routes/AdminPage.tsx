@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { useApiOrigin, useIsLogin, useMediaOrigin } from "@/state/EnvState";
+import { useApiOrigin, useIsLogin, useMediaOrigin } from "@src/state/EnvState";
 import { Link, useParams } from "react-router-dom";
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "@/components/FileTool";
+import { RbButtonArea } from "@src/components/dropdown/RbButtonArea";
+import { fileDialog, fileDownload } from "@src/components/FileTool";
 import {
   useDataState,
   filesDataIndexed,
@@ -14,24 +14,24 @@ import {
   keyValueDBDataIndexed,
   tableVersionDataIndexed,
   IdbStateClassList,
-} from "@/data/DataState";
+} from "@src/data/DataState";
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
 import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
-import { useFiles } from "@/state/FileState";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { useFiles } from "@src/state/FileState";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import { ImagesManager } from "./edit/ImagesManager";
 import { AiFillEdit } from "react-icons/ai";
-import { LinkButton } from "@/components/button/LinkButton";
-import { findMee } from "@/functions/find/findMee";
-import { useToastProgress } from "@/state/ToastProgress";
-import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
-import { useSounds } from "@/state/SoundState";
+import { LinkButton } from "@src/components/button/LinkButton";
+import { findMee } from "@src/functions/find/findMee";
+import { useToastProgress } from "@src/state/ToastProgress";
+import { arrayPartition, PromiseOrder } from "@src/functions/arrayFunction";
+import { useSounds } from "@src/state/SoundState";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
   DownloadDataObject,
   getIndexedDBJsonOptions,
-} from "@/components/button/ObjectDownloadButton";
+} from "@src/components/button/ObjectDownloadButton";
 import {
   charactersDataOptions,
   ImageDataOptions,
@@ -39,11 +39,11 @@ import {
   linksDataOptions,
   linksFavDataOptions,
   postsDataOptions,
-} from "@/data/DataEnv";
-import { useCharacters } from "@/state/CharacterState";
-import { FormatDate } from "@/functions/DateFunction";
-import { KeyValueEditable } from "@/state/KeyValueDBState";
-import { useImageState } from "@/state/ImageState";
+} from "@src/data/DataEnv";
+import { useCharacters } from "@src/state/CharacterState";
+import { FormatDate } from "@src/functions/DateFunction";
+import { KeyValueEditable } from "@src/state/KeyValueDBState";
+import { useImageState } from "@src/state/ImageState";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];

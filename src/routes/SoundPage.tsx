@@ -1,10 +1,10 @@
 import { toast } from "react-toastify";
-import { useSoundPlayer } from "@/layout/SoundPlayer";
-import { useSounds } from "@/state/SoundState";
+import { useSoundPlayer } from "@src/layout/SoundPlayer";
+import { useSounds } from "@src/state/SoundState";
 import PlayPauseButton from "../components/svg/audio/PlayPauseButton";
 import TriangleCursor from "../components/svg/cursor/Triangle";
 import { useSearchParams } from "react-router-dom";
-import { useIsLogin } from "@/state/EnvState";
+import { useIsLogin } from "@src/state/EnvState";
 import {
   SoundAlbumEdit,
   SoundEdit,

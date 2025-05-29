@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BackButton from "./BackButton";
-import { SiteMenu } from "@/layout/SiteMenu";
-import { useLang } from "@/multilingual/LangState";
+import { SiteMenu } from "@src/layout/SiteMenu";
+import { useLang } from "@src/multilingual/LangState";
 import {
   defaultLang,
   TITLE_IMAGE_PATH,
   TITLE_IMAGE_PATH_EN,
-} from "@/multilingual/envDef";
+} from "@src/multilingual/envDef";
 
 export function SiteTitle({ env }: { env?: SiteConfigEnv }) {
   const lang = useLang()[0];

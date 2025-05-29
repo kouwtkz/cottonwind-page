@@ -5,15 +5,15 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useMediaOrigin } from "@/state/EnvState";
-import { getExtension } from "@/functions/doc/PathParse";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { CreateState } from "@/state/CreateState";
-import { resizeImageCanvas } from "@/components/Canvas";
-import { useToastProgress } from "@/state/ToastProgress";
+import { useMediaOrigin } from "@src/state/EnvState";
+import { getExtension } from "@src/functions/doc/PathParse";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { CreateState } from "@src/state/CreateState";
+import { resizeImageCanvas } from "@src/components/Canvas";
+import { useToastProgress } from "@src/state/ToastProgress";
 import { PiFilePng } from "react-icons/pi";
 import { ModeSwitch } from "./edit/CommonSwitch";
-import { useImageState } from "@/state/ImageState";
+import { useImageState } from "@src/state/ImageState";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";

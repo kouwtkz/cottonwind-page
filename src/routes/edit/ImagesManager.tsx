@@ -1,33 +1,33 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
+import { useApiOrigin, useMediaOrigin } from "@src/state/EnvState";
 import { GalleryObject, useGalleryObject } from "../GalleryPage";
-import { useImageState } from "@/state/ImageState";
-import { imageDataIndexed, ImportImagesJson } from "@/data/DataState";
+import { useImageState } from "@src/state/ImageState";
+import { imageDataIndexed, ImportImagesJson } from "@src/data/DataState";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
-import { useCharacters } from "@/state/CharacterState";
+import { useCharacters } from "@src/state/CharacterState";
 import { useParams } from "react-router-dom";
-import { fileDialog } from "@/components/FileTool";
+import { fileDialog } from "@src/components/FileTool";
 import {
   ImagesUpload,
   ImagesUploadWithToast,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "@/layout/edit/ImageEditForm";
-import { useToastProgress } from "@/state/ToastProgress";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { arrayPartition, PromiseOrder } from "@/functions/arrayFunction";
+} from "@src/layout/edit/ImageEditForm";
+import { useToastProgress } from "@src/state/ToastProgress";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { arrayPartition, PromiseOrder } from "@src/functions/arrayFunction";
 import axios from "axios";
 import {
   BaseObjectButtonProps,
   ImportObjectButtonProps,
   ObjectCommonButton,
-} from "@/components/button/ObjectDownloadButton";
-import { getName } from "@/functions/doc/PathParse";
+} from "@src/components/button/ObjectDownloadButton";
+import { getName } from "@src/functions/doc/PathParse";
 import { toast } from "react-toastify";
 import {
   toastLoadingOptions,
   toastLoadingShortOptions,
-} from "@/components/define/toastContainerDef";
+} from "@src/components/define/toastContainerDef";
 import { RiVideoUploadLine } from "react-icons/ri";
 
 export function ImagesManager() {

@@ -1,5 +1,5 @@
-import { ImageMeeIcon } from "@/layout/ImageMee";
-import { CharacterName, translateCharaLangName } from "@/routes/CharacterPage";
+import { ImageMeeIcon } from "@src/layout/ImageMee";
+import { CharacterName, translateCharaLangName } from "@src/routes/CharacterPage";
 
 export type labelValue = { label?: string; value?: string };
 

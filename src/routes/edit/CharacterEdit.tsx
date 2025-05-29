@@ -9,7 +9,7 @@ import { Controller, FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { UrlObject } from "url";
-import { useDataIsComplete } from "@/state/StateSet";
+import { useDataIsComplete } from "@src/state/StateSet";
 import {
   MdAdd,
   MdCleaningServices,
@@ -24,61 +24,61 @@ import {
   MdOutlineLandscape,
 } from "react-icons/md";
 import { TbArrowsMove, TbDatabaseImport } from "react-icons/tb";
-import { LinkMee } from "@/functions/doc/MakeURL";
+import { LinkMee } from "@src/functions/doc/MakeURL";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import {
   useCharacters,
   charaMediaKindMap,
   charaMediaKindValues,
-} from "@/state/CharacterState";
-import { useSounds } from "@/state/SoundState";
-import { ImageMeeIcon, ImageMeeQuestion } from "@/layout/ImageMee";
-import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
+} from "@src/state/CharacterState";
+import { useSounds } from "@src/state/SoundState";
+import { ImageMeeIcon, ImageMeeQuestion } from "@src/layout/ImageMee";
+import { callReactSelectTheme } from "@src/components/define/callReactSelectTheme";
 import {
   CharaBeforeAfter,
   useCharacterPageState,
   useMoveCharacters,
 } from "../CharacterPage";
-import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
-import { EditTagsReactSelect } from "@/components/dropdown/EditTagsReactSelect";
-import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
-import { fileDialog } from "@/components/FileTool";
-import { useApiOrigin, useMediaOrigin } from "@/state/EnvState";
+import { IsoFormTime, ToFormTime } from "@src/functions/DateFunction";
+import { EditTagsReactSelect } from "@src/components/dropdown/EditTagsReactSelect";
+import { RbButtonArea } from "@src/components/dropdown/RbButtonArea";
+import { fileDialog } from "@src/components/FileTool";
+import { useApiOrigin, useMediaOrigin } from "@src/state/EnvState";
 import {
   charactersDataIndexed,
   ImportCharacterJson,
   imageDataIndexed,
-} from "@/data/DataState";
+} from "@src/data/DataState";
 import {
   iconImagesUploadOptions,
   ImagesUpload,
   ImagesUploadWithToast,
   srcObjectType,
-} from "@/layout/edit/ImageEditForm";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { getName } from "@/functions/doc/PathParse";
-import { corsFetchJSON } from "@/functions/fetch";
+} from "@src/layout/edit/ImageEditForm";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { getName } from "@src/functions/doc/PathParse";
+import { corsFetchJSON } from "@src/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
-import { DropdownObject } from "@/components/dropdown/DropdownMenu";
+import { DropdownObject } from "@src/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
-import { SendDelete } from "@/functions/sendFunction";
+import { SendDelete } from "@src/functions/sendFunction";
 import {
   DownloadDataObject,
   ObjectIndexedDBDownloadButton,
-} from "@/components/button/ObjectDownloadButton";
-import { useImageState, useSelectedImage } from "@/state/ImageState";
-import { findMee } from "@/functions/find/findMee";
+} from "@src/components/button/ObjectDownloadButton";
+import { useImageState, useSelectedImage } from "@src/state/ImageState";
+import { findMee } from "@src/functions/find/findMee";
 import { RiImageAddFill } from "react-icons/ri";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 import {
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
   replacePostTextareaFromImage,
-} from "@/components/dropdown/PostEditSelect";
-import { RegisterRef } from "@/components/hook/SetRef";
-import { PostTextarea } from "@/components/parse/PostTextarea";
+} from "@src/components/dropdown/PostEditSelect";
+import { RegisterRef } from "@src/components/hook/SetRef";
+import { PostTextarea } from "@src/components/parse/PostTextarea";
 
 export function CharacterEdit() {
   const { charaName } = useParams();

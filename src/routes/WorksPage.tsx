@@ -1,9 +1,9 @@
-import { useImageState } from "@/state/ImageState";
+import { useImageState } from "@src/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
 import { useMemo, useState } from "react";
-import { findMee } from "@/functions/find/findMee";
+import { findMee } from "@src/functions/find/findMee";
 
 export default function WorksPage() {
   const { images } = useImageState();

@@ -1,6 +1,6 @@
-import { KeyValueConvertDBEntry } from "@/functions/doc/ToFunction";
-import { MeeSqlClass } from "@/data/functions/MeeSqlClass";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
+import { KeyValueConvertDBEntry } from "@src/functions/doc/ToFunction";
+import { MeeSqlClass } from "@src/data/functions/MeeSqlClass";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
 
 export class DBTableClass<T extends Object = any> {
   table: string;

@@ -4,9 +4,9 @@ import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { app_twix } from "./twix/twixPage";
 import { app_noticeFeed } from "./notice-feed";
-import { renderHtml } from "@/functions/render";
-import { ServerSimpleLayout, ServerSimpleLayoutProps } from "@/serverLayout";
-import { FeedSet } from "@/ServerContent";
+import { renderHtml } from "@src/functions/render";
+import { ServerSimpleLayout, ServerSimpleLayoutProps } from "@src/serverLayout";
+import { FeedSet } from "@src/ServerContent";
 import { LoginCheckMiddleware, LoginRoute, Logout } from "../admin";
 
 export const app = new Hono<MeeBindings>();

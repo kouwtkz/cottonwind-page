@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { RoutingList } from "@/routes/RoutingList";
-import { DefaultReactResponse, ServerNotFound, Style } from "@/serverLayout";
-import { IsLogin } from "@/admin";
-import { renderHtml } from "@/functions/render";
-import { NoIndex, MainPageRouteIndex } from "@/index.route";
+import { RoutingList } from "@src/routes/RoutingList";
+import { DefaultReactResponse, ServerNotFound, Style } from "@src/serverLayout";
+import { IsLogin } from "@src/admin";
+import { renderHtml } from "@src/functions/render";
+import { NoIndex, MainPageRouteIndex } from "@src/index.route";
 import { cors } from "hono/cors";
 import { cache } from "hono/cache";
-import { DefaultImportScripts } from "@/clientScripts";
+import { DefaultImportScripts } from "@src/clientScripts";
 
 const app = new Hono<MeePagesBindings>({ strict: true });
 

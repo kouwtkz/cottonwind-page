@@ -1,11 +1,11 @@
 import { HTMLAttributes, useEffect, useMemo, useRef } from "react";
 import { DropdownObject, DropdownObjectBaseProps } from "./DropdownMenu";
-import { useApiOrigin, useEnv } from "@/state/EnvState";
-import { imageDataIndexed } from "@/data/DataState";
+import { useApiOrigin, useEnv } from "@src/state/EnvState";
+import { imageDataIndexed } from "@src/data/DataState";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useSelectedImage } from "@/state/ImageState";
+import { useSelectedImage } from "@src/state/ImageState";
 import { fileDialog } from "../FileTool";
-import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
+import { ImagesUploadWithToast } from "@src/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea?: HTMLTextAreaElement | null;
   setValue?: (v: any) => void;

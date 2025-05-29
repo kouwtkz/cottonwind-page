@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { renderHtml } from "@/functions/render";
+import { renderHtml } from "@src/functions/render";
 import { WorkersLayout } from ".";
 
 const app = new Hono();

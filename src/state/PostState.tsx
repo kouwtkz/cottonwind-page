@@ -1,8 +1,8 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { useEnv } from "@/state/EnvState";
-import { postsDataIndexed } from "@/data/DataState";
+import { useEnv } from "@src/state/EnvState";
+import { postsDataIndexed } from "@src/data/DataState";
 import { CreateObjectState } from "./CreateState";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 
 interface usePostsType {
   posts?: PostType[];

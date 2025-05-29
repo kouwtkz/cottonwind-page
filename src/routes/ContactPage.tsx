@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { useEnv } from "@/state/EnvState";
+import { useEnv } from "@src/state/EnvState";
 import { RiLinksFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { CopyWithToast } from "@/functions/toastFunction";
+import { CopyWithToast } from "@src/functions/toastFunction";
 
 export default function ContactPage() {
   const env = useEnv()[0];

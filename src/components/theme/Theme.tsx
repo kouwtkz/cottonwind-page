@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { ThemeStateClass } from "@/components/theme/ThemeSetter";
-import { CreateState } from "@/state/CreateState";
-import { ThemeChangeButtonProps } from "@/components/theme/ThemeSetter";
+import { ThemeStateClass } from "@src/components/theme/ThemeSetter";
+import { CreateState } from "@src/state/CreateState";
+import { ThemeChangeButtonProps } from "@src/components/theme/ThemeSetter";
 import { CgDarkMode, CgMoon, CgSun } from "react-icons/cg";
 import { PiDrop, PiLeaf, PiOrangeSlice } from "react-icons/pi";
 

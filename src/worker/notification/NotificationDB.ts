@@ -1,5 +1,5 @@
-import { IndexedKVClass } from "@/data/IndexedDB/MeeIndexedDataClass";
-import { MeeIndexedDB } from "@/data/IndexedDB/MeeIndexedDB";
+import { IndexedKVClass } from "@src/data/IndexedDB/MeeIndexedDataClass";
+import { MeeIndexedDB } from "@src/data/IndexedDB/MeeIndexedDB";
 
 const NOTIFICATION_DB_NAME = "cottonwind-worker";
 const NOTIFICATION_TABLE_NAME = "notification";

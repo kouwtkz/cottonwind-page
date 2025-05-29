@@ -6,8 +6,8 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import { SiteDateOptions as opt } from "@/functions/DateFunction";
+import { MultiParserWithMedia } from "@src/components/parse/MultiParserWithMedia";
+import { SiteDateOptions as opt } from "@src/functions/DateFunction";
 import { ImageMee } from "./ImageMee";
 import ImageEditForm, {
   useImageEditState,
@@ -17,7 +17,7 @@ import {
   defaultGalleryTags,
   getTagsOptions,
   autoFixGalleryTagsOptions,
-} from "@/components/dropdown/SortFilterTags";
+} from "@src/components/dropdown/SortFilterTags";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,
@@ -25,19 +25,19 @@ import {
   RiLinkM,
   RiStore3Fill,
 } from "react-icons/ri";
-import { useCharacters } from "@/state/CharacterState";
-import { useImageState } from "@/state/ImageState";
+import { useCharacters } from "@src/state/CharacterState";
+import { useImageState } from "@src/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
-import { scrollLock } from "@/components/hook/ScrollLock";
-import { useIsLogin, useMediaOrigin } from "@/state/EnvState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { EmbedNode, useFiles } from "@/state/FileState";
-import ShareButton from "@/components/button/ShareButton";
+import { scrollLock } from "@src/components/hook/ScrollLock";
+import { useIsLogin, useMediaOrigin } from "@src/state/EnvState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { EmbedNode, useFiles } from "@src/state/FileState";
+import ShareButton from "@src/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
-import { LikeButton } from "@/components/button/LikeButton";
-import { useGalleryObject } from "@/routes/GalleryPage";
-import { CreateObjectState } from "@/state/CreateState";
-import { CharacterName } from "@/routes/CharacterPage";
+import { LikeButton } from "@src/components/button/LikeButton";
+import { useGalleryObject } from "@src/routes/GalleryPage";
+import { CreateObjectState } from "@src/state/CreateState";
+import { CharacterName } from "@src/routes/CharacterPage";
 import { Modal } from "./Modal";
 
 interface ImageViewerParamType {

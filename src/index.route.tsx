@@ -1,18 +1,18 @@
-import { ServerPostsGetRssData } from "@/api/blog";
-import { ImageSelectFromKey } from "@/functions/media/serverDataFunction";
-import { MakeRss } from "@/functions/blogFunction";
-import { toImageType } from "@/functions/media/imageFunction";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
-import { concatOriginUrl, getMediaOrigin } from "@/functions/originUrl";
-import { RoutingUnion } from "@/routes/RoutingList";
-import { discordInviteMatch } from "@/ServerContent";
-import { CommonHono } from "@/types/HonoCustomType";
-import { app_workers } from "@/workers";
-import { LoginCheckMiddleware } from "@/admin";
-import { app_api } from "@/api";
-import { app_get } from "@/get";
-import { AddMetaEnv } from "@/serverLayout";
-import mediaApp from "@/media";
+import { ServerPostsGetRssData } from "@src/api/blog";
+import { ImageSelectFromKey } from "@src/functions/media/serverDataFunction";
+import { MakeRss } from "@src/functions/blogFunction";
+import { toImageType } from "@src/functions/media/imageFunction";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { concatOriginUrl, getMediaOrigin } from "@src/functions/originUrl";
+import { RoutingUnion } from "@src/routes/RoutingList";
+import { discordInviteMatch } from "@src/ServerContent";
+import { CommonHono } from "@src/types/HonoCustomType";
+import { app_workers } from "@src/workers";
+import { LoginCheckMiddleware } from "@src/admin";
+import { app_api } from "@src/api";
+import { app_get } from "@src/get";
+import { AddMetaEnv } from "@src/serverLayout";
+import mediaApp from "@src/media";
 
 export function MainPageRouteIndex(app: CommonHono) {
   app.route("/workers", app_workers);

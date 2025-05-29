@@ -1,5 +1,5 @@
-import { renderHtml } from "@/functions/render";
-import { CommonHono } from "@/types/HonoCustomType";
+import { renderHtml } from "@src/functions/render";
+import { CommonHono } from "@src/types/HonoCustomType";
 import { CalendarAppLayout, CalendarAppNotFound } from "./CalendarAppLayout";
 
 interface IndexRouteCalendarProps extends CalendarAppLayoutProps {

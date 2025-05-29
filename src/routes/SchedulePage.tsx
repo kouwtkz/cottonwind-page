@@ -1,4 +1,4 @@
-import { CalendarMee, CalendarMeeProps } from "@/calendar/CalendarMee";
+import { CalendarMee, CalendarMeeProps } from "@src/calendar/CalendarMee";
 
 const MeeCalendarURL = location.hostname.endsWith(".pages.dev")
   ? "https://cottonwind-calendar.pages.dev"

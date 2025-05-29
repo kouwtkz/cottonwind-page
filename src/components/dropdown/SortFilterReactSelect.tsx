@@ -1,5 +1,5 @@
 import { getTagsOptions, TimeframeTagMap } from "./SortFilterTags";
-import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
+import { callReactSelectTheme } from "@src/components/define/callReactSelectTheme";
 import { HTMLAttributes, useCallback } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { MultiValue } from "react-select";

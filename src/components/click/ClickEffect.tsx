@@ -1,7 +1,7 @@
-import { ShortStocks } from "@/components/hook/ShortStocks";
-import { useClickEvent } from "@/components/click/useClickEvent";
+import { ShortStocks } from "@src/components/hook/ShortStocks";
+import { useClickEvent } from "@src/components/click/useClickEvent";
 import { HTMLAttributes, useCallback, useMemo, useRef, useState } from "react";
-import { CreateState } from "@/state/CreateState";
+import { CreateState } from "@src/state/CreateState";
 
 export function ClickEffect() {
   return <ClickEffectElement effectName="spread"></ClickEffectElement>;

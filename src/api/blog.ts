@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { autoPostId } from "@/functions/blogFunction";
-import { IsLogin } from "@/admin";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
+import { autoPostId } from "@src/functions/blogFunction";
+import { IsLogin } from "@src/admin";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
-import { postsDataOptions } from "@/data/DataEnv";
+import { postsDataOptions } from "@src/data/DataEnv";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { GetDataProps } from "./propsDef";
 

@@ -9,7 +9,7 @@ import ReactSelect, {
   StylesConfig,
 } from "react-select";
 import { useCallback, useMemo, useState } from "react";
-import { kanaToHira } from "@/functions/doc/StrFunctions";
+import { kanaToHira } from "@src/functions/doc/StrFunctions";
 
 interface CustomReactSelectProps<IsMulti extends boolean>
   extends Omit<

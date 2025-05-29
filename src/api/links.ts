@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
-import { IsLogin } from "@/admin";
-import { lastModToUniqueNow } from "@/functions/doc/ToFunction";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { IsLogin } from "@src/admin";
+import { lastModToUniqueNow } from "@src/functions/doc/ToFunction";
 import { DBTableClass, DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
-import { linksFavDataOptions, linksDataOptions } from "@/data/DataEnv";
+import { linksFavDataOptions, linksDataOptions } from "@src/data/DataEnv";
 import { GetDataProps } from "./propsDef";
 
 export const app = new Hono<MeeBindings<MeeCommonEnv>>({

@@ -1,4 +1,4 @@
-import { getAPIOrigin, getMediaOrigin } from "@/functions/originUrl";
+import { getAPIOrigin, getMediaOrigin } from "@src/functions/originUrl";
 import { CreateState } from "./CreateState";
 import { useEffect } from "react";
 export const useEnv = CreateState<SiteConfigEnv>();

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { favLinksDataIndexed, linksDataIndexed } from "@/data/DataState";
+import { favLinksDataIndexed, linksDataIndexed } from "@src/data/DataState";
 import { useImageState } from "./ImageState";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataLastmodMH } from "@src/data/IndexedDB/IndexedDataLastmodMH";
 
 export type LinksIndexedDBType = IndexedDataLastmodMH<
   SiteLink,

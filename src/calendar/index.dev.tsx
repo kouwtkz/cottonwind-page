@@ -2,10 +2,10 @@ import { Hono } from "hono";
 import { IndexRouteCalendar } from "./index.route";
 import { serveStatic } from "@hono/node-server/serve-static";
 
-import stylesMain from "@/styles.scss";
-import stylesfromLib from "@/styles/styles_lib.scss";
-import { appFromImportStyle } from "@/indexFunctions";
-import { renderHtml } from "@/functions/render";
+import stylesMain from "@src/styles.scss";
+import stylesfromLib from "@src/styles/styles_lib.scss";
+import { appFromImportStyle } from "@src/indexFunctions";
+import { renderHtml } from "@src/functions/render";
 import { CalendarAppNotFound } from "./CalendarAppLayout";
 
 const app = new Hono<MeeBindings<Object>>({ strict: true });

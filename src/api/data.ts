@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { cache } from "hono/cache";
 import { ServerImagesGetData } from "./image";
-import { MeeSqlD1 } from "@/data/functions/MeeSqlD1";
+import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
 import { ServerCharactersGetData } from "./character";
-import { IsLogin } from "@/admin";
+import { IsLogin } from "@src/admin";
 import { ServerPostsGetData } from "./blog";
-import { getDataWithoutPrefix } from "@/functions/stringFix";
+import { getDataWithoutPrefix } from "@src/functions/stringFix";
 import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 import { ServerFilesGetData } from "./file";
 import { SiteFavLinkServer, SiteLinkServer } from "./links";
@@ -21,7 +21,7 @@ import {
   TableVersionDataOptions,
   likeDataOptions,
   KeyValueDBDataOptions,
-} from "@/data/DataEnv";
+} from "@src/data/DataEnv";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 import { ServerLikeGetData } from "./like";
 import { GetDataProps } from "./propsDef";

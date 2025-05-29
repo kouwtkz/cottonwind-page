@@ -6,20 +6,20 @@ import {
   useRef,
   useState,
 } from "react";
-import { Modal } from "@/layout/Modal";
-import { CreateState } from "@/state/CreateState";
+import { Modal } from "@src/layout/Modal";
+import { CreateState } from "@src/state/CreateState";
 import {
   ImagesUploadWithToast,
   useImageEditSwitchHold,
   useNoUploadThumbnail,
   useUploadWebp,
-} from "@/layout/edit/ImageEditForm";
-import { useApiOrigin } from "@/state/EnvState";
+} from "@src/layout/edit/ImageEditForm";
+import { useApiOrigin } from "@src/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
-import { fileDialog } from "@/components/FileTool";
-import { imageDataIndexed, ImportLinksJson } from "@/data/DataState";
+import { fileDialog } from "@src/components/FileTool";
+import { imageDataIndexed, ImportLinksJson } from "@src/data/DataState";
 import axios from "axios";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import { FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -29,28 +29,28 @@ import {
   CompleteButton,
   ModeSwitch,
   MoveButton,
-} from "@/layout/edit/CommonSwitch";
+} from "@src/layout/edit/CommonSwitch";
 import { AiFillEdit } from "react-icons/ai";
 import { MdDeleteForever, MdOutlineImage } from "react-icons/md";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DropdownButton } from "@/components/dropdown/DropdownButton";
+import { DropdownButton } from "@src/components/dropdown/DropdownButton";
 import {
   ObjectCommonButton,
   ObjectIndexedDBDownloadButton,
-} from "@/components/button/ObjectDownloadButton";
+} from "@src/components/button/ObjectDownloadButton";
 import { TbDatabaseImport } from "react-icons/tb";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { RiImageAddFill } from "react-icons/ri";
-import { useSelectedImage } from "@/state/ImageState";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
+import { useSelectedImage } from "@src/state/ImageState";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataLastmodMH } from "@src/data/IndexedDB/IndexedDataLastmodMH";
 import {
   LinksIndexedDBType,
   LinksStateType,
   useLinks,
-} from "@/state/LinksState";
-import { findMee } from "@/functions/find/findMee";
+} from "@src/state/LinksState";
+import { findMee } from "@src/functions/find/findMee";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,

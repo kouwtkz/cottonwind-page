@@ -1,4 +1,4 @@
-import { defaultGalleryTags, filterGalleryMonthList } from "@/components/dropdown/SortFilterTags";
+import { defaultGalleryTags, filterGalleryMonthList } from "@src/components/dropdown/SortFilterTags";
 export const publicParam = { list: <Array<OldMediaImageItemType>>[] };
 const currentTime = new Date();
 const currentMonth = currentTime.getMonth() + 1;

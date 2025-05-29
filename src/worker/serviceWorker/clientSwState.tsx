@@ -1,4 +1,4 @@
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 import { useCallback, useEffect } from "react";
 import "./clientSw";
 import { connectingSw, sendSwMessage } from "./clientSw";

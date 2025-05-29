@@ -7,8 +7,8 @@ import {
 } from "../components/dropdown/SortFilterTags";
 import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { ArrayEnv } from "@/Env";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { ArrayEnv } from "@src/Env";
 
 export interface SetMetaProps {
   path: string;

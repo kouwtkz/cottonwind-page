@@ -1,8 +1,8 @@
 import { HTMLAttributes, ReactNode, Ref } from "react";
 import { fileDownload } from "../FileTool";
 import { RiDownloadFill } from "react-icons/ri";
-import { IndexedDataLastmodMH } from "@/data/IndexedDB/IndexedDataLastmodMH";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { IndexedDataLastmodMH } from "@src/data/IndexedDB/IndexedDataLastmodMH";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 
 export function JsonFromDataObject<T>({
   data: TData,

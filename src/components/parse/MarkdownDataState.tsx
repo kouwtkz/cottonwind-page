@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import axios from "axios";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 
 type dataType = { [k: string]: string };
 

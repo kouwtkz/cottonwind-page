@@ -4,12 +4,12 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { useEnv, useMediaOrigin } from "@/state/EnvState";
-import { filesDataIndexed } from "@/data/DataState";
+import { useEnv, useMediaOrigin } from "@src/state/EnvState";
+import { filesDataIndexed } from "@src/data/DataState";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { MultiParserWithMedia } from "@/components/parse/MultiParserWithMedia";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { MeeIndexedDBTable } from "@/data/IndexedDB/MeeIndexedDB";
+import { MultiParserWithMedia } from "@src/components/parse/MultiParserWithMedia";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { MeeIndexedDBTable } from "@src/data/IndexedDB/MeeIndexedDB";
 
 interface FilesState {
   files?: FilesRecordType[];

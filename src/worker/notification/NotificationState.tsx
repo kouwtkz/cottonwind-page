@@ -1,4 +1,4 @@
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 import { indexedNotification, IndexedNotification_KV } from "./NotificationDB";
 import { sendNotification } from "../serviceWorker/clientSw";
 

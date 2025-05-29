@@ -3,12 +3,12 @@ import { RiHeart3Fill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { toastLoadingOptions } from "../define/toastContainerDef";
 import { useLocation } from "react-router-dom";
-import { toLikePath } from "@/functions/likeFunction";
-import { likeDataIndexed } from "@/data/DataState";
+import { toLikePath } from "@src/functions/likeFunction";
+import { likeDataIndexed } from "@src/data/DataState";
 import axios from "axios";
-import { useApiOrigin } from "@/state/EnvState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { useLikeState } from "@/state/LikeState";
+import { useApiOrigin } from "@src/state/EnvState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { useLikeState } from "@src/state/LikeState";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;

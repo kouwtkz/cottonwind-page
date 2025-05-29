@@ -1,4 +1,4 @@
-import { CreateStateFunctionType } from "@/state/CreateState";
+import { CreateStateFunctionType } from "@src/state/CreateState";
 import { HTMLAttributes, useMemo } from "react";
 import { AiOutlinePlus, AiOutlineTool } from "react-icons/ai";
 import { MdClose, MdDoneOutline } from "react-icons/md";

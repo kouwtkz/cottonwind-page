@@ -1,7 +1,7 @@
 import {
   toastLoadingOptions,
   toastUpdateOptions,
-} from "@/components/define/toastContainerDef";
+} from "@src/components/define/toastContainerDef";
 import { useEffect } from "react";
 import { Id, toast } from "react-toastify";
 import { CreateObjectState } from "./CreateState";

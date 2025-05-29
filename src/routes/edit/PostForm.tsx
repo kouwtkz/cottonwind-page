@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PostTextarea } from "@/components/parse/PostTextarea";
+import { PostTextarea } from "@src/components/parse/PostTextarea";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { HotkeyRunEvent } from "@/components/hook/EventSet";
+import { HotkeyRunEvent } from "@src/components/hook/EventSet";
 import * as z from "zod";
 import {
   Controller,
@@ -12,33 +12,33 @@ import {
   useForm,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import SetRegister from "@/components/hook/SetRegister";
-import { usePosts } from "@/state/PostState";
-import { findMee } from "@/functions/find/findMee";
+import SetRegister from "@src/components/hook/SetRegister";
+import { usePosts } from "@src/state/PostState";
+import { findMee } from "@src/functions/find/findMee";
 import ReactSelect from "react-select";
-import { callReactSelectTheme } from "@/components/define/callReactSelectTheme";
+import { callReactSelectTheme } from "@src/components/define/callReactSelectTheme";
 import {
   MenuItem,
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
   replacePostTextareaFromImage,
-} from "@/components/dropdown/PostEditSelect";
-import { DropdownObject } from "@/components/dropdown/DropdownMenu";
-import { useApiOrigin, useEnv } from "@/state/EnvState";
+} from "@src/components/dropdown/PostEditSelect";
+import { DropdownObject } from "@src/components/dropdown/DropdownMenu";
+import { useApiOrigin, useEnv } from "@src/state/EnvState";
 import {
   imageDataIndexed,
   ImportPostJson,
   postsDataIndexed,
-} from "@/data/DataState";
-import { concatOriginUrl } from "@/functions/originUrl";
-import { corsFetchJSON } from "@/functions/fetch";
-import { IsoFormTime, ToFormTime } from "@/functions/DateFunction";
-import { SendDelete } from "@/functions/sendFunction";
-import { DownloadIndexedDBObject } from "@/components/button/ObjectDownloadButton";
-import { CreateObjectState } from "@/state/CreateState";
+} from "@src/data/DataState";
+import { concatOriginUrl } from "@src/functions/originUrl";
+import { corsFetchJSON } from "@src/functions/fetch";
+import { IsoFormTime, ToFormTime } from "@src/functions/DateFunction";
+import { SendDelete } from "@src/functions/sendFunction";
+import { DownloadIndexedDBObject } from "@src/components/button/ObjectDownloadButton";
+import { CreateObjectState } from "@src/state/CreateState";
 import { useDropzone } from "react-dropzone";
-import { ImagesUploadWithToast } from "@/layout/edit/ImageEditForm";
+import { ImagesUploadWithToast } from "@src/layout/edit/ImageEditForm";
 
 const backupStorageKey = "backupPostDraft";
 

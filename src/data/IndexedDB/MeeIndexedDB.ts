@@ -1,4 +1,4 @@
-import { findMeeSort, findMeeWheresFilter } from "@/functions/find/findMee";
+import { findMeeSort, findMeeWheresFilter } from "@src/functions/find/findMee";
 
 export class MeeIndexedDB implements Props_MeeIndexedDB {
   db?: IDBDatabase;

@@ -1,14 +1,14 @@
-import { useImageState } from "@/state/ImageState";
-import { useMediaOrigin } from "@/state/EnvState";
+import { useImageState } from "@src/state/ImageState";
+import { useMediaOrigin } from "@src/state/EnvState";
 import {
   MultiParser,
   MultiParserProps,
   MultiParserReplaceProps,
 } from "./MultiParser";
 import { Element as NodeElement, Text as NodeText } from "domhandler";
-import { concatOriginUrl } from "@/functions/originUrl";
+import { concatOriginUrl } from "@src/functions/originUrl";
 import { useCallback } from "react";
-import { CopyWithToast } from "@/functions/toastFunction";
+import { CopyWithToast } from "@src/functions/toastFunction";
 
 interface MultiParserWithMediaProps
   extends Omit<MultiParserProps, "replaceFunctions"> {}

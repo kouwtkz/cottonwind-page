@@ -1,7 +1,7 @@
 import { SetRegisterReturn } from "../hook/SetRegister";
 import { MultiParserWithMedia as MultiParser } from "./MultiParserWithMedia";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CreateObjectState } from "@/state/CreateState";
+import { CreateObjectState } from "@src/state/CreateState";
 import {
   FieldPath,
   FieldValues,

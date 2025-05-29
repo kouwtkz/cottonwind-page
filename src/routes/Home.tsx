@@ -1,17 +1,17 @@
 import { Link, To, useLocation, useSearchParams } from "react-router-dom";
-import { useImageState } from "@/state/ImageState";
-import { getTimeframeTag, monthlyFilter } from "@/functions/media/FilterImages";
+import { useImageState } from "@src/state/ImageState";
+import { getTimeframeTag, monthlyFilter } from "@src/functions/media/FilterImages";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { ImageMee, ImgSwitch } from "@/layout/ImageMee";
-import { usePosts } from "@/state/PostState";
-import { findMee } from "@/functions/find/findMee";
-import { CreateObjectState } from "@/state/CreateState";
+import { ImageMee, ImgSwitch } from "@src/layout/ImageMee";
+import { usePosts } from "@src/state/PostState";
+import { findMee } from "@src/functions/find/findMee";
+import { CreateObjectState } from "@src/state/CreateState";
 import { MeeLinks } from "./LinksPage";
-import { EmbedBluesky, EmbedTwitter } from "@/components/embed/EmbedSNS";
-import { useEnv } from "@/state/EnvState";
-import useSchedule from "@/components/hook/useSchedule";
-import { compareArray, shuffleArray } from "@/functions/arrayFunction";
+import { EmbedBluesky, EmbedTwitter } from "@src/components/embed/EmbedSNS";
+import { useEnv } from "@src/state/EnvState";
+import useSchedule from "@src/components/hook/useSchedule";
+import { compareArray, shuffleArray } from "@src/functions/arrayFunction";
 import { ScheduleContainer } from "./SchedulePage";
 
 export default function Home() {
