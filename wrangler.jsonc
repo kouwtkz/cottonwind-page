@@ -1,7 +1,10 @@
 {
   "compatibility_date": "2025-05-29",
-  "name": "cottonwind-page",
-  "pages_build_output_dir": "./dist",
+  "name": "cottonwind",
+  "main": "./dist/_worker.js",
+  "assets": {
+    "directory": "./dist"
+  },
   "vars": {
     "ORIGIN": "https://cottonwind.com",
     "TITLE": "こっとんうぃんど",
@@ -23,7 +26,7 @@
     "SITE_IMAGE": "コットンの日2023_わたかぜくん",
     "WAVEBOX": "https://wavebox.me/wave/2l8tqqpnqjdccg85/",
     "ORIGIN_HOST": "cottonwind.com",
-    "PAGES_DEV_ORIGIN": "https://cottonwind.pages.dev",
+    "PAGES_DEV_ORIGIN": "https://cottonwind.kouwtkz.workers.dev",
     "API_ORIGIN": "/api",
     "MEDIA_ORIGIN": "https://media.cottonwind.com",
     "MEDIA_PAGES_ORIGIN": "/media",

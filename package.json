@@ -8,7 +8,7 @@
     "build-worker": "npx vite build",
     "start": "npx wrangler pages dev",
     "deploy": "npm run build && npm run deploy-only",
-    "deploy-only": "npx wrangler pages deploy dist --commit-dirty true --branch master",
+    "deploy-only": "npx wrangler deploy",
     "deploy-sv": "npx wrangler deploy -c wrangler-sv.jsonc",
     "dev-sv": "npx wrangler dev --local -c wrangler-sv.jsonc --port 51732 --test-scheduled",
     "dev-calendar": "npx vite --mode calendar-dev --host --port 51740",
