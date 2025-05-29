@@ -36,7 +36,7 @@ import { CreateObjectState, CreateState } from "@/state/CreateState";
 import { CopyWithToast } from "@/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
 import { DateNotEqual, toDayStart } from "@/functions/DateFunction";
-import { useNotification } from "@/components/worker/notification/NotificationState";
+import { useNotification } from "@/worker/notification/NotificationState";
 import { RbButtonArea } from "@/components/dropdown/RbButtonArea";
 import { dataParse } from "@/functions/dataParse";
 import { toast } from "react-toastify";

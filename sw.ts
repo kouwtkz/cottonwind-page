@@ -1,1 +1,1 @@
-import "@/components/worker/serviceWorker/swDefault";
+import "@/worker/serviceWorker/swDefault";

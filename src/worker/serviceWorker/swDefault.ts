@@ -1,4 +1,4 @@
-import { indexedNotification } from "@/components/worker/notification/NotificationDB";
+import { indexedNotification } from "@/worker/notification/NotificationDB";
 import { dataParse } from "@/functions/dataParse";
 
 namespace SW {

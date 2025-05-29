@@ -1,4 +1,4 @@
-import { connectServiceWorker } from "@/components/worker/serviceWorker/registerServiceWorker";
+import { connectServiceWorker } from "@/worker/serviceWorker/registerServiceWorker";
 
 const path = import.meta.env?.VITE_PATH_SW_NOTIFICATION;
 let sw: ServiceWorker | null = null;
