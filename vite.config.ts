@@ -201,7 +201,7 @@ export default defineConfig(async ({ mode }) => {
         ...defaultPlugins,
         devServer({
           entry: 'src/media.ts',
-          adapter: adapter({ proxy: { configPath: "wrangler-media.toml", } }),
+          adapter: adapter({ proxy: { configPath: "wrangler-media.jsonc", } }),
         })
       ]
     }

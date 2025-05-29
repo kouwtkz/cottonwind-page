@@ -1,0 +1,59 @@
+{
+  "compatibility_date": "2025-05-29",
+  "name": "cottonwind-page",
+  "pages_build_output_dir": "./dist",
+  "vars": {
+    "ORIGIN": "https://cottonwind.com",
+    "TITLE": "こっとんうぃんど",
+    "TITLE_EN": "CottonWind",
+    "VERSION": "4.1.0",
+    "DESCRIPTION": "わたかぜコウ(@kouwtkz)の個人サイト。気まぐれに様々なイラストや作品を載せてます。",
+    "OVERVIEW": "わたかぜコウの個人サイト",
+    "ALTERNATE": "CottonWind,わたかぜコウの個人サイト",
+    "AUTHOR_ACCOUNT": "kouwtkz",
+    "AUTHOR_NAME": "わたかぜコウ",
+    "AUTHOR_EN_NAME": "WATAKAZE Kou",
+    "AUTHOR_EN_PROP": "watakaze kô",
+    "AUTHOR_IMAGE": "めぇ20240404",
+    "AUTHOR_DESCRIPTION": "めぇ",
+    "BLUESKY_HANDLE": "kouwtkz.cottonwind.com",
+    "TWITTER_HANDLE": "kouwtkz",
+    "EMAIL": "kouwtkz@cottonwind.com",
+    "SINCE": "2017",
+    "SITE_IMAGE": "コットンの日2023_わたかぜくん",
+    "WAVEBOX": "https://wavebox.me/wave/2l8tqqpnqjdccg85/",
+    "ORIGIN_HOST": "cottonwind.com",
+    "PAGES_DEV_ORIGIN": "https://cottonwind.pages.dev",
+    "API_ORIGIN": "/api",
+    "MEDIA_ORIGIN": "https://media.cottonwind.com",
+    "MEDIA_PAGES_ORIGIN": "/media",
+    "GOOGLE_CALENDAR_ID": "1a26c5b4aa8352785869e51bf3d4fbf10a71ad8e67e260fda2e0f52dcb86adc1@group.calendar.google.com",
+    "UPLOAD_SERVICE": "https://f.hatena.ne.jp/kour/BlogPic/",
+    "IMAGE_ALBUM_BLOG": "blog",
+    "DISCORD_INVITE_QUESTION": "わたかぜコウの代理キャラクターの名前は？"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "c4d890a161dc4d8abc299dd09d8b3165",
+      "preview_id": "baf0b24ce5014aa4b8fcd5a6774bc026"
+    },
+    {
+      "binding": "NOTICE_FEED_KV",
+      "id": "ded0df1afdc3450ca2baab60314fa9dd"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "8d8bef89-42a4-436d-991a-ebdbd3b252a5",
+      "database_name": "cottonwind-db"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "cottonwind-bucket"
+    }
+  ]
+}

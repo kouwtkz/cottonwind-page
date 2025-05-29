@@ -25,7 +25,7 @@ process.argv.reduce<previousType>((a, c) => {
       case "--help":
         console.log("--src, -s: Hono script source (default: src/index)");
         console.log("--dir, -d: Output directry (default: dist)");
-        console.log("--config, -c: Config .toml file (default: wrangler.toml)");
+        console.log("--config, -c: Config .jsonc file (default: wrangler.jsonc)");
         console.log("--help, -h: Help");
         process.exit();
       default:
@@ -80,7 +80,7 @@ export async function buildMeeSSG({ src = defaultSrc, dir = defaultDir, configPa
         const gottenStaticParams = await getStaticParamsFromModule(m, env);
         if (gottenStaticParams) staticParams = gottenStaticParams;
         messageObject.src = src;
-        messageObject.config = configPath ?? "wrangler.toml";
+        messageObject.config = configPath ?? "wrangler.jsonc";
       } else throw ("Honoがデフォルトのエクスポートじゃないです");
     });
   }
