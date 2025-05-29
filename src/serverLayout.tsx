@@ -112,7 +112,7 @@ export async function ServerLayout({
     }
     if (charactersDataMap) {
       async function getImage(path: string) {
-        const data = await ImageSelectFromKey(db, path)
+        const data = await ImageSelectFromKey(db, path);
         if (data) return toImageType(data);
       }
       await Promise.all(
@@ -239,6 +239,7 @@ export interface ServerSimpleLayoutProps extends defaultServerLayoutProps {
   children?: React.ReactNode;
   env?: SiteConfigEnv;
   logo?: React.ReactNode | boolean | null;
+  footer?: boolean | React.ReactNode;
 }
 export function ServerSimpleLayout({
   title,
@@ -251,6 +252,7 @@ export function ServerSimpleLayout({
   bodyScript,
   env,
   logo = true,
+  footer = false,
   ...defaultMetaArgs
 }: ServerSimpleLayoutProps) {
   return (
@@ -289,7 +291,13 @@ export function ServerSimpleLayout({
         </header>
         <div className="content-base">
           {children}
-          <Footer env={env} />
+          {typeof footer === "boolean" ? (
+            !footer ? null : (
+              <Footer env={env} />
+            )
+          ) : (
+            footer
+          )}
         </div>
         <SvgMaskSns />
         {bodyScript}
