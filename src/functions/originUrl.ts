@@ -26,7 +26,7 @@ export function getAPIOrigin(env: SiteConfigEnv, origin: string, localFullPath =
   } else if (env.ORIGIN === origin) {
     result = env.API_ORIGIN;
   } else {
-    result = getLocalOrigin(origin, env.API_PAGES_ORIGIN);
+    result = getLocalOrigin(origin, env.API_CF_ORIGIN);
   }
   if (localFullPath && result?.startsWith("/")) result = origin + result;
   return result;
@@ -37,7 +37,7 @@ export function getMediaOrigin(env: SiteConfigEnv, origin: string, localFullPath
   if (env.ORIGIN === origin) {
     result = env.MEDIA_ORIGIN;
   } else {
-    result = getLocalOrigin(origin, env.MEDIA_PAGES_ORIGIN);
+    result = getLocalOrigin(origin, env.MEDIA_CF_ORIGIN);
   }
   if (localFullPath && result?.startsWith("/")) result = origin + result;
   return result;

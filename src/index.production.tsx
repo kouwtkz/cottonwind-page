@@ -29,7 +29,7 @@ MainPageRouteIndex(app);
 RoutingList.forEach((path) => {
   app.get(path, async (c, next) => {
     if (
-      c.req.url.startsWith(c.env.PAGES_DEV_ORIGIN ?? "") &&
+      c.req.url.startsWith(c.env.CF_DEV_ORIGIN ?? "") &&
       (await c.env.NOTICE_FEED_KV.get("life-check")) !== "false"
     ) {
       const Url = new URL(c.req.url);

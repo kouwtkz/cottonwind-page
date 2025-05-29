@@ -1,4 +1,4 @@
 #:schema node_modules/wrangler/config-schema.json
 compatibility_date = "2025-03-10"
 name = "cottonwind-calendar"
-pages_build_output_dir = "./dist"
+CF_build_output_dir = "./dist"
