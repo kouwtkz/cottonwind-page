@@ -1,3 +1,5 @@
+@use "sass:list";
+
 // size
 :root {
   --ct-width: 128rem;
@@ -238,7 +240,7 @@
 }
 
 @mixin CursorKeyframe($name, $url_or_time, $urls...) {
-  $max: length($urls);
+  $max: list.length($urls);
   $keyname: cursor-#{$name};
   @if $max > 0 {
     @keyframes #{$keyname} {

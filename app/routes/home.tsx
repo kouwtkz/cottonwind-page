@@ -14,7 +14,6 @@ export function meta({ data }: Route.MetaArgs) {
 export async function loader({ context }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
   const db = getCfDB({ context });
-  console.log(env.VALUE_FROM_CLOUDFLARE2);
   //   const db = new MeeSqlD1(context.cloudflare.env.DB);
   //   const selected = await db.select<ImageDataType>({
   //     table: "images",
