@@ -14,22 +14,18 @@ import "./styles/styles_lib.scss";
 import { getCfEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { SetLoaderEnv, SetMetaDefault } from "./components/SetMeta";
 
 export const links: Route.LinksFunction = () => [];
 
 export function meta({ data }: Route.MetaArgs) {
-  return [
-    { title: data?.title },
-    { name: "og:title", content: data?.description },
-    { name: "description", content: data?.description },
-  ];
+  return [...SetMetaDefault({ data })];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
   return {
-    title: env.TITLE,
-    description: env.DESCRIPTION,
+    ...SetLoaderEnv(env),
     image: env.SITE_IMAGE,
     since: env.SINCE,
     account: env.AUTHOR_ACCOUNT,
