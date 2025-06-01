@@ -19,7 +19,8 @@
 		"react-router": "^7.5.3",
 		"react-select": "^5.10.1",
 		"react-toastify": "^11.0.5",
-		"tsqlstring": "^1.0.1"
+		"tsqlstring": "^1.0.1",
+		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "^1.0.12",

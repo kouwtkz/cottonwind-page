@@ -1,4 +1,8 @@
-import { create, StateCreator, StoreMutatorIdentifier } from "zustand";
+import {
+  create,
+  type StateCreator,
+  type StoreMutatorIdentifier,
+} from "zustand";
 
 type SetStateAction<S> = S | ((prevState: S) => S);
 type Dispatch<A> = (value: A) => void;
