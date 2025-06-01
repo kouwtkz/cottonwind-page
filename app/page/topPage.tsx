@@ -1,7 +1,10 @@
+import { Link } from "react-router";
+
 export function TopPage() {
   return (
-    <main>
+    <>
       <h1>top page !</h1>
-    </main>
+      <Link to="/characters">キャラページ</Link>
+    </>
   );
 }

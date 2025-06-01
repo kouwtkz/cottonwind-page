@@ -5,7 +5,6 @@ import { TITLE_IMAGE_PATH } from "~/Env";
 
 export function SiteTitle({ loaderData }: Route.ComponentProps) {
   const title = loaderData.title;
-  console.log(loaderData.image);
   // const lang = useLang()[0];
   // const title =
   //   (lang === defaultLang ? env?.TITLE : env?.TITLE_EN) ??

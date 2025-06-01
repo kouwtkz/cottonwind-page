@@ -45,7 +45,7 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
         <Meta />
         <Links />
       </head>
-      <body className="dummy">
+      <body>
         {/* <Loading /> */}
         <main id="root">
           <HeaderClient loaderData={loaderData} {...e} />

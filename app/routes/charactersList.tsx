@@ -1,3 +1,4 @@
+import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/charactersList";
 
 export function meta({ data }: Route.MetaArgs) {
@@ -5,20 +6,23 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  // console.log({ context });
-  console.log({ mee: globalThis.globalEnv });
-  if (context.cloudflare) {
-    // console.log(context.cloudflare.env);
-  }
-  //   const db = new MeeSqlD1(context.cloudflare.env.DB);
-  //   const selected = await db.select<ImageDataType>({
-  //     table: "images",
-  //     where: { id: 12 },
-  //   });
-  //   console.log(selected);
-  return { mee: "meemee" };
+  // const env = getCfEnv({ context });
+  const db = getCfDB({ context });
+  const list = await db?.select<CharacterDataType>({
+    table: "characters",
+  });
+  return { list };
 }
 
-export default function Home({ loaderData }: Route.ComponentProps) {
-  return <main>めぇめぇ</main>;
+export default function CharactersList({ loaderData }: Route.ComponentProps) {
+  return (
+    <>
+      <h1>Character page !</h1>
+      <div>
+        {loaderData.list?.map((character, i) => (
+          <div key={i}>{character.name}</div>
+        ))}
+      </div>
+    </>
+  );
 }
