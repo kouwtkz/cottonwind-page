@@ -19,7 +19,16 @@ import { SetLoaderEnv, SetMetaDefault } from "./components/SetMeta";
 export const links: Route.LinksFunction = () => [];
 
 export function meta({ data }: Route.MetaArgs) {
+  // console.log(data);
   return [...SetMetaDefault({ data })];
+}
+
+interface RootMetaArgsType {
+  image?: string;
+  since?: string;
+  account?: string;
+  title?: string;
+  description?: string;
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
@@ -29,8 +38,23 @@ export async function loader({ context }: Route.LoaderArgs) {
     image: env.SITE_IMAGE,
     since: env.SINCE,
     account: env.AUTHOR_ACCOUNT,
-  };
+  } as RootMetaArgsType;
 }
+
+let clientServerData: RootMetaArgsType | null = null;
+
+export async function clientLoader({
+  request,
+  serverLoader,
+  params,
+}: Route.ClientLoaderArgs) {
+  if (!clientServerData) {
+    const serverData = await serverLoader();
+    clientServerData = serverData;
+    return serverData;
+  } else return clientServerData;
+}
+clientLoader.hydrate = true;
 
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
   return (
