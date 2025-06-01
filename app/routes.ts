@@ -6,4 +6,5 @@ export default [
   route("characters", "routes/charactersList.tsx"),
   route("characters/:name", "routes/characters.tsx"),
   route("media/*", "./media.ts"),
+  route("api/*", "routes/api/index.ts"),
 ] satisfies RouteConfig;
