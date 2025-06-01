@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import type { Route } from "../+types/root";
-import { TITLE_IMAGE_PATH } from "~/envDef";
+import { TITLE_IMAGE_PATH } from "~/Env";
 
 export function SiteTitle({ loaderData }: Route.ComponentProps) {
   const title = loaderData.title;

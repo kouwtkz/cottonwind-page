@@ -1,4 +1,4 @@
-import { Slide, ToastContainerProps, ToastOptions, UpdateOptions } from "react-toastify";
+import { Slide, type ToastContainerProps, type ToastOptions, type UpdateOptions } from "react-toastify";
 
 export const toastDefaultOptions: ToastOptions = {
   autoClose: 3000,
@@ -12,7 +12,7 @@ export const toastDefaultOptions: ToastOptions = {
 }
 
 export const toastLoadingOptions: ToastOptions = {
-  progressStyle: { backgroundColor: "var(--main-color)" },
+  progressClassName: "color-main",
   closeButton: true,
 };
 
@@ -24,7 +24,7 @@ export const toastLoadingShortOptions: ToastOptions = {
 export const toastUpdateOptions: UpdateOptions = {
   progress: 0,
   ...toastDefaultOptions,
-  progressStyle: { backgroundColor: "white" },
+  progressClassName: "color-white",
   isLoading: false,
   onClose: null,
 }

@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from "react";
+import React, { type HTMLAttributes } from "react";
 import { MdOutlineShare } from "react-icons/md";
 
 interface ShareButtonProps

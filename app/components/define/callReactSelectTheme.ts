@@ -1,4 +1,4 @@
-import { ThemeConfig } from "react-select";
+import { type ThemeConfig } from "react-select";
 
 export const callReactSelectTheme: ThemeConfig = (theme) => ({
   ...theme,

@@ -13,6 +13,7 @@ import "./styles/styles.scss";
 import "./styles/styles_lib.scss";
 import { getCfEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -30,6 +31,8 @@ export async function loader({ context }: Route.LoaderArgs) {
     title: env.TITLE,
     description: env.DESCRIPTION,
     image: env.SITE_IMAGE,
+    since: env.SINCE,
+    account: env.AUTHOR_ACCOUNT,
   };
 }
 
@@ -51,13 +54,7 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
               <Outlet />
             </div>
           </div>
-          <footer>
-            {/* <LinksList
-                myLinks={ArrayEnv.LINKS || []}
-                noMaskImage
-                noShareButton
-              /> */}
-          </footer>
+          <Footer loaderData={loaderData} {...e} />
         </main>
         <ScrollRestoration />
         <Scripts />

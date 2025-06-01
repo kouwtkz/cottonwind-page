@@ -1,17 +1,16 @@
-import ShareButton from "@src/components/button/ShareButton";
-import SvgMaskSns from "@src/components/svg/mask/SvgMaskSns";
-import { ArrayEnv } from "@src/Env";
-import { getYear } from "@src/functions/DateFunction";
+import ShareButton from "./button/ShareButton";
+import SvgMaskSns from "./svg/mask/SvgMaskSns";
+import { ArrayEnv } from "../Env";
+import { getYear } from "./functions/DateFunction";
+import type { Route } from "../+types/root";
 
-export function Footer({ env }: { env?: SiteConfigEnv }) {
+export function Footer({ loaderData }: Route.ComponentProps) {
   return (
     <footer>
       <div>
-        {env ? (
-          <span className="copyright">
-            © {env.SINCE}-{getYear(new Date())} {env.AUTHOR_ACCOUNT}
-          </span>
-        ) : null}
+        <span className="copyright">
+          © {loaderData.since}-{getYear(new Date())} {loaderData.account}
+        </span>
       </div>
       <LinksList myLinks={ArrayEnv.LINKS || []} />
     </footer>
