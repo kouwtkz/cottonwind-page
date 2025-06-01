@@ -12,19 +12,9 @@ import type { Route } from "./+types/root";
 import "./styles/styles.scss";
 import "./styles/styles_lib.scss";
 import { getCfEnv } from "./data/cf/getEnv";
+import { HeaderClient } from "./components/Header";
 
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
+export const links: Route.LinksFunction = () => [];
 
 export function meta({ data }: Route.MetaArgs) {
   return [
@@ -34,13 +24,16 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-
 export async function loader({ context }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
-  return { title: env.TITLE, description: env.DESCRIPTION };
+  return {
+    title: env.TITLE,
+    description: env.DESCRIPTION,
+    image: env.SITE_IMAGE,
+  };
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function App({ loaderData, ...e }: Route.ComponentProps) {
   return (
     <html lang="ja">
       <head>
@@ -49,25 +42,23 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="dummy">
         {/* <Loading /> */}
         <main id="root">
-          <div>
-            <header className="title-container">
-              <Link to="/">
-                <h1>{loaderData.title}</h1>
-              </Link>
-            </header>
-            <footer>
-              {/* <LinksList
+          <HeaderClient loaderData={loaderData} {...e} />
+          <div className="content-base">
+            <div className="contant-parent">
+              <Outlet />
+            </div>
+          </div>
+          <footer>
+            {/* <LinksList
                 myLinks={ArrayEnv.LINKS || []}
                 noMaskImage
                 noShareButton
               /> */}
-            </footer>
-          </div>
+          </footer>
         </main>
-        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -76,8 +67,8 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let message = "めぇ！";
+  let details = "エラーです…！";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
