@@ -1,28 +1,27 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
+import { TopPage } from "~/page/topPage";
 
 export function meta({ data }: Route.MetaArgs) {
-  console.log("ほーむ");
   return [
-    { title: "test" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: data?.title },
+    { name: "description", content: data?.description },
   ];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
-  const db = getCfDB({ context });
+  // const db = getCfDB({ context });
   //   const db = new MeeSqlD1(context.cloudflare.env.DB);
   //   const selected = await db.select<ImageDataType>({
   //     table: "images",
   //     where: { id: 12 },
   //   });
   //   console.log(selected);
-  return { mee: "meemee" };
+  return { title: env.TITLE, description: env.DESCRIPTION };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome message={"test"} />;
+  return <TopPage />;
 }
