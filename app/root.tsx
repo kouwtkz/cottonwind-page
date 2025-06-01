@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -10,6 +11,7 @@ import {
 import type { Route } from "./+types/root";
 import "./styles/styles.scss";
 import "./styles/styles_lib.scss";
+import { getCfEnv } from "./data/cf/getEnv";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,26 +26,21 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function meta() {
+export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: "非常にクールなアプリ" },
-    {
-      property: "og:title",
-      content: "非常にクールなアプリ",
-    },
-    {
-      name: "description",
-      content: "このアプリは最高です",
-    },
+    { title: data?.title },
+    { name: "og:title", content: data?.description },
+    { name: "description", content: data?.description },
   ];
 }
 
+
 export async function loader({ context }: Route.LoaderArgs) {
-  console.log("root");
-  return { message: "online" };
+  const env = getCfEnv({ context });
+  return { title: env.TITLE, description: env.DESCRIPTION };
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <html lang="ja">
       <head>
@@ -53,16 +50,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        {/* <Loading /> */}
+        <main id="root">
+          <div>
+            <header className="title-container">
+              <Link to="/">
+                <h1>{loaderData.title}</h1>
+              </Link>
+            </header>
+            <footer>
+              {/* <LinksList
+                myLinks={ArrayEnv.LINKS || []}
+                noMaskImage
+                noShareButton
+              /> */}
+            </footer>
+          </div>
+        </main>
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
-}
-
-export default function App() {
-  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

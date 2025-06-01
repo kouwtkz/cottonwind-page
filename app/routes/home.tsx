@@ -3,13 +3,6 @@ import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { TopPage } from "~/page/topPage";
 
-export function meta({ data }: Route.MetaArgs) {
-  return [
-    { title: data?.title },
-    { name: "description", content: data?.description },
-  ];
-}
-
 export async function loader({ context }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
   // const db = getCfDB({ context });
