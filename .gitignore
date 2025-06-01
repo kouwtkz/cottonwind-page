@@ -1,7 +1,18 @@
-node_modules
-dist
+.DS_Store
+node_modules/
+*.tsbuildinfo
+
+# React Router
+/.react-router/
+
+# output
+build/
+dist/
+
+# Cloudflare
+.mf
 .wrangler
-.dev.vars
+.dev.vars*
 
 .archive
 

@@ -1,22 +1,17 @@
 {
-  "include": ["src", "**/*.d.ts", "./*.ts"],
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.cloudflare.json" }
+  ],
   "compilerOptions": {
-    "target": "es2017",
-    "lib": ["ES2023", "DOM", "DOM.Iterable", "WebWorker"],
-    "types": ["@cloudflare/workers-types", "vite/client"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "noEmit": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "checkJs": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "allowJs": true,
-    "baseUrl": "./",
-    "paths": {
-      "@src/*": ["./src/*"]
-    }
+    "strict": true,
+    "noEmit": true,
+    "types": [
+        "./worker-configuration.d.ts"
+    ]
   }
 }

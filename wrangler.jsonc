@@ -1,10 +1,10 @@
 {
   "compatibility_date": "2025-05-29",
   "name": "cottonwind",
-  "main": "./dist/_worker.js",
-  "assets": {
-    "directory": "./dist"
-  },
+	"main": "./workers/app.ts",
+  // "assets": {
+  //   "directory": "./build/client"
+  // },
   "vars": {
     "ORIGIN": "https://cottonwind.com",
     "TITLE": "こっとんうぃんど",
@@ -60,3 +60,4 @@
     }
   ]
 }
+
