@@ -1,5 +1,5 @@
-import { getExtension } from "@src/functions/doc/PathParse";
-import { HonoRequest } from "hono";
+import { getExtension } from "~/components/functions/doc/PathParse";
+type HonoRequest<T = any> = any;
 
 export function getIpAddress(req: HonoRequest<string>) {
   return req.header('cf-connecting-ip') || req.header('x-forwarded-for') || "anonymous";

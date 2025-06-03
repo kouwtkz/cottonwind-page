@@ -1,7 +1,7 @@
-import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 import { DBTableClass } from "./DBTableClass";
-import { TableVersionDataOptions } from "@src/data/DataEnv";
-import { GetDataProps } from "./propsDef";
+import { TableVersionDataOptions } from "~/data/DataEnv";
+import { type GetDataProps } from "./propsDef";
 
 export const TableObject = new DBTableClass<Props_LastmodMH_Tables_Data>({
   table: "tables",

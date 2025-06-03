@@ -1,6 +1,6 @@
-import { KeyValueConvertDBEntry } from "@src/functions/doc/ToFunction";
-import { MeeSqlClass } from "@src/data/functions/MeeSqlClass";
-import { MeeSqlD1 } from "@src/data/functions/MeeSqlD1";
+import { KeyValueConvertDBEntry } from "~/components/functions/doc/ToFunction";
+import { MeeSqlClass } from "~/data/functions/MeeSqlClass";
+import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 
 export class DBTableClass<T extends Object = any> {
   table: string;
@@ -19,7 +19,7 @@ export class DBTableClass<T extends Object = any> {
     this.insertEntryKeys = insertEntryKeys;
     this.insertEntryTimes = insertEntryTimes;
   }
-  async CreateTable<D extends MeeSqlClass<unknown>>({ db }: { db: D }) {
+  async CreateTable<D extends MeeSqlClass<any>>({ db }: { db: D }) {
     await db
       .createTable({
         table: this.table,
@@ -29,7 +29,7 @@ export class DBTableClass<T extends Object = any> {
         if (this.errorEnable) console.error(e);
       });
   }
-  async Select<D extends MeeSqlClass<unknown>>({
+  async Select<D extends MeeSqlClass<any>>({
     db,
     ...args
   }: Omit<MeeSqlSelectProps<T>, "table"> & { db: D }) {
@@ -38,25 +38,25 @@ export class DBTableClass<T extends Object = any> {
     };
     return _s().catch(() => this.CreateTable({ db }).then(() => _s()));
   }
-  async Update<D extends MeeSqlClass<unknown>>({
+  async Update<D extends MeeSqlClass<any>>({
     db,
     ...args
   }: Omit<MeeSqlUpdateProps<T>, "table"> & { db: D }) {
     return db.update<T>({ table: this.table, ...args });
   }
-  async Insert<D extends MeeSqlClass<unknown>>({
+  async Insert<D extends MeeSqlClass<any>>({
     db,
     ...args
   }: Omit<MeeSqlInsertProps<T>, "table"> & { db: D }) {
     return db.insert<T>({ table: this.table, ...args });
   }
-  async Drop<D extends MeeSqlClass<unknown>>({
+  async Drop<D extends MeeSqlClass<any>>({
     db,
     viewSql,
   }: Omit<MeeSqlBaseProps, "table"> & { db: D }) {
     return db.dropTable({ table: this.table, viewSql }).catch(() => { });
   }
-  async Rename<D extends MeeSqlClass<unknown>>({ db, from, table, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D, from?: string, table: string }) {
+  async Rename<D extends MeeSqlClass<any>>({ db, from, table, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D, from?: string, table: string }) {
     return db.renameTable({ from: from ?? this.table, table, viewSql }).catch(() => { });
   }
   getInsertEntry(
@@ -78,7 +78,7 @@ export class DBTableClass<T extends Object = any> {
       });
     return Object.fromEntries(entries);
   }
-  async getTimeFieldLatest<D extends MeeSqlClass<unknown>>({
+  async getTimeFieldLatest<D extends MeeSqlClass<any>>({
     db,
     field = "lastmod",
     value,
@@ -100,7 +100,7 @@ export class DBTableClass<T extends Object = any> {
       })
     )[0] as T | undefined;
   }
-  async getTimeFieldLatestAddTime<D extends MeeSqlClass<unknown>>({
+  async getTimeFieldLatestAddTime<D extends MeeSqlClass<any>>({
     field = "lastmod",
     value,
     ...args
@@ -116,7 +116,7 @@ export class DBTableClass<T extends Object = any> {
       return latestLastmod.toISOString();
     } else return value;
   }
-  async getClassifyScheduleValue<D extends MeeSqlClass<unknown>>({
+  async getClassifyScheduleValue<D extends MeeSqlClass<any>>({
     now = new Date().toISOString(),
     value,
     time,
