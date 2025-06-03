@@ -20,7 +20,7 @@ import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObj
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { ServerImagesGetData } from "./image";
 import { ServerCharactersGetData } from "./character";
-// import { ServerPostsGetData } from "./blog";
+import { ServerPostsGetData } from "./blog";
 // import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 // import { ServerFilesGetData } from "./file";
 // import { SiteFavLinkServer, SiteLinkServer } from "./links";
@@ -33,7 +33,7 @@ const dataset: Array<[
 ]> = [
     [ImageDataOptions, ServerImagesGetData],
     [charactersDataOptions, ServerCharactersGetData],
-    // [postsDataOptions, ServerPostsGetData],
+    [postsDataOptions, ServerPostsGetData],
     // [soundsDataOptions, ServerSoundsGetData],
     // [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
     // [filesDataOptions, ServerFilesGetData],
@@ -115,7 +115,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
 // ) {
 //   list.forEach(([{ src }, getData]) => {
 //     app.get(src, async (c) => {
-//       return c.json(
+//       return Response.json(
 //         await getData({
 //           searchParams: new URL(request.url).searchParams,
 //           db: new MeeSqlD1(c.env.DB),
@@ -131,7 +131,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
 //     const Url = new URL(request.url);
 //     const query = Object.fromEntries(Url.searchParams);
 //     const db = getCfDB({ context });;
-//     return c.json(
+//     return Response.json(
 //       Object.fromEntries(
 //         await Promise.all(
 //           list.map(async ([{ name }, getData]) => [
