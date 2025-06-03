@@ -11,7 +11,7 @@ export const app = new Hono<MeeBindings>();
 app.use("*", async (c, next) => {
   if (
     IsLogin(c)
-    || (c.req.method === "POST" && c.req.path.endsWith("/send"))
+    || (request.method === "POST" && request.path.endsWith("/send"))
   ) return next();
   else return c.text("403 Forbidden", 403);
 });
@@ -45,9 +45,9 @@ export async function ServerKeyValueDBGetData({ searchParams, db, isLogin, req }
 }
 
 app.post("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
+  const db = getCfDB({ context });;
   const now = new Date();
-  let { key, update, ...data } = await c.req.json() as KeyValueSendType;
+  let { key, update, ...data } = await request.json() as KeyValueSendType;
   if (key) {
     const entry = TableObject.getInsertEntry(data);
     const whereKey = update || key;
@@ -71,10 +71,10 @@ app.post("/send", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  const data = await c.req.json();
+  const data = await request.json();
   const key = String(data.key || "");
   if (key) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     try {
       await TableObject.Update({
         db,
@@ -93,7 +93,7 @@ app.delete("/send", async (c) => {
 app.post("/import", async (c) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
     idKey: "key",
     kvConvertEntry: true,
@@ -104,7 +104,7 @@ app.post("/import", async (c) => {
 
 app.delete("/all", async (c, next) => {
   if (import.meta.env?.DEV) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }

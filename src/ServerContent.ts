@@ -27,7 +27,7 @@ export async function FetchText(src?: string) {
 }
 
 export async function discordInviteMatch(c: CommonContext<MeePagesEnv>) {
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   const invite_password = Url.searchParams.get("invite_password");
   if (invite_password) {
     if (c.env.DISCORD_INVITE_URL && c.env.DISCORD_INVITE_ANSWER === invite_password) {
@@ -39,7 +39,7 @@ export async function discordInviteMatch(c: CommonContext<MeePagesEnv>) {
 }
 
 async function TrimTrailingContext(c: CommonContext, next: Next) {
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   if (/.+\/+$/.test(Url.pathname)) {
     Url.pathname = Url.pathname.replace(/\/+$/, "");
     return c.redirect(Url.href);

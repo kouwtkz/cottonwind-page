@@ -93,10 +93,10 @@ export async function ServerLayout({
   ...defaultMetaArgs
 }: ServerLayoutProps) {
   const env = AddMetaEnv(c.env);
-  const url = c.req.url;
+  const url = request.url;
   const Url = new URL(url);
   const isBot = /http|bot|spider\/|facebookexternalhit/i.test(
-    c.req.header("user-agent") ?? ""
+    request.header("user-agent") ?? ""
   );
   let image: ImageType | undefined;
   let post: PostDataType | undefined;
@@ -148,8 +148,8 @@ export async function ServerLayout({
         <DefaultMeta {...defaultMetaArgs} />
         <SetMeta
           url={url}
-          path={c.req.path}
-          query={c.req.query()}
+          path={request.path}
+          query={request.query()}
           charactersMap={charactersMap}
           imageItem={image}
           post={post}
@@ -211,13 +211,13 @@ export async function ReactResponse({
 }: ReactResponseProps) {
   switch (path) {
     case "character":
-      const name = c.req.query("name");
+      const name = request.query("name");
       console.log(name);
       if (name) return c.redirect("/character/" + name);
       break;
     case "character/:charaName":
       if (!characters) {
-        const db = new MeeSqlD1(c.env.DB);
+        const db = getCfDB({ context });;
         const req = (c as Context<MeeBindings, typeof path, any>).req;
         const key = req.param("charaName");
         const data = await charaTableObject.Select({

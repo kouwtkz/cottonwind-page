@@ -64,8 +64,8 @@ export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
 }
 
 app.post("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const { id, postId, update, ...data } = await c.req.json() as PostFormType;
+  const db = getCfDB({ context });;
+  const { id, postId, update, ...data } = await request.json() as PostFormType;
   const entry = TableObject.getInsertEntry(data);
   if (postId !== update) entry.postId = postId;
   const target = update
@@ -87,10 +87,10 @@ app.post("/send", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  const data = await c.req.json();
+  const data = await request.json();
   const postId = String(data.postId || "");
   if (postId) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     try {
       await TableObject.Update({
         db,
@@ -109,7 +109,7 @@ app.delete("/send", async (c) => {
 app.post("/import", async (c) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
     idKey: "postId",
     kvConvertEntry: true,
@@ -120,7 +120,7 @@ app.post("/import", async (c) => {
 
 app.delete("/all", async (c, next) => {
   if (import.meta.env?.DEV) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }

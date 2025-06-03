@@ -17,16 +17,16 @@ app.get("*", async (c, next) => {
 });
 
 app.get("/:target/:name", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const Url = new URL(c.req.url);
+  const db = getCfDB({ context });;
+  const Url = new URL(request.url);
   const mediaOrigin = getMediaOrigin(
     { ...c.env, DEV: import.meta.env?.DEV },
     Url.origin,
     true
   );
-  switch (c.req.param("target")) {
+  switch (request.param("target")) {
     case "images":
-      const albumName = c.req.param("name");
+      const albumName = request.param("name");
       if (
         ArrayEnv.IMAGE_ALBUMS?.some(
           (album) => album.name === albumName && album.latest

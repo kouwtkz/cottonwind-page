@@ -29,10 +29,10 @@ MainPageRouteIndex(app);
 RoutingList.forEach((path) => {
   app.get(path, async (c, next) => {
     if (
-      c.req.url.startsWith(c.env.CF_DEV_ORIGIN ?? "") &&
+      request.url.startsWith(c.env.CF_DEV_ORIGIN ?? "") &&
       (await c.env.NOTICE_FEED_KV.get("life-check")) !== "false"
     ) {
-      const Url = new URL(c.req.url);
+      const Url = new URL(request.url);
       if (c.env.ORIGIN) {
         const redirectUrl = new URL(c.env.ORIGIN);
         redirectUrl.pathname = Url.pathname;
@@ -61,7 +61,7 @@ RoutingList.forEach((path) => {
 });
 
 app.all("*", async (c, next) => {
-  if (!/.+\/+$/.test(c.req.path))
+  if (!/.+\/+$/.test(request.path))
     return c.html(renderHtml(<ServerNotFound />), { status: 404 });
   else return next();
 });

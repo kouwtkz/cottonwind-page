@@ -49,8 +49,8 @@ export async function ServerFilesGetData({ searchParams, db, isLogin }: GetDataP
 }
 
 app.patch("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const rawData = await c.req.json();
+  const db = getCfDB({ context });;
+  const rawData = await request.json();
   const data = Array.isArray(rawData) ? rawData : [rawData];
   const now = new Date();
   return Promise.all(
@@ -82,8 +82,8 @@ app.patch("/send", async (c, next) => {
 });
 
 app.post("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const formData = await c.req.formData();
+  const db = getCfDB({ context });;
+  const formData = await request.formData();
   const file = formData.get("file") as File | null;
   if (file) {
     const src = "files/" + file.name;
@@ -111,8 +111,8 @@ app.post("/send", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const data = await c.req.json();
+  const db = getCfDB({ context });;
+  const data = await request.json();
   const id = data.id;
   if (typeof data.id === "number") {
     const values = (await TableObject.Select({ db, params: "*", where: { id } }))[0];
@@ -134,7 +134,7 @@ app.delete("/send", async (c) => {
 app.post("/import", async (c, next) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
   })
     .then(() => c.text("インポートしました！"))
@@ -142,7 +142,7 @@ app.post("/import", async (c, next) => {
 })
 app.delete("/all", async (c, next) => {
   if (import.meta.env?.DEV) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }

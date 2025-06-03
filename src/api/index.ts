@@ -18,7 +18,7 @@ import { app_kvdb_api } from "./KeyValueDB";
 export const app = new Hono<MeeBindings<MeeCommonEnv>>();
 
 app.use("*", (c, next) => {
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   const origin: string[] = [];
   const env = AddMetaEnv(c.env);
   const autoOrigin = getOriginFromAPI(env, Url.origin);

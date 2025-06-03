@@ -72,8 +72,8 @@ export class SiteLinkServerClass {
     });
     const TableObject = this.object;
     app.post("/send", async (c, next) => {
-      const db = new MeeSqlD1(c.env.DB);
-      const rawData = await c.req.json();
+      const db = getCfDB({ context });;
+      const rawData = await request.json();
       const data = Array.isArray(rawData) ? rawData : [rawData];
       const now = new Date();
       return Promise.all(
@@ -98,9 +98,9 @@ export class SiteLinkServerClass {
       });
     });
     app.post("/import", async (c, next) => {
-      const db = new MeeSqlD1(c.env.DB);
+      const db = getCfDB({ context });;
       const lastmod = new Date().toISOString();
-      const object = await c.req.json() as importEntryDataType<CharacterDataType>;
+      const object = await request.json() as importEntryDataType<CharacterDataType>;
       if (object.data) {
         if (object.overwrite && object.first) {
           await TableObject.Drop({ db });
@@ -119,10 +119,10 @@ export class SiteLinkServerClass {
       return c.text("インポートに失敗しました", 500);
     })
     app.delete("/send", async (c) => {
-      const data = await c.req.json();
+      const data = await request.json();
       const id = data.id;
       if (id) {
-        const db = new MeeSqlD1(c.env.DB);
+        const db = getCfDB({ context });;
         try {
           await TableObject.Update({
             db,
@@ -139,7 +139,7 @@ export class SiteLinkServerClass {
     });
     app.delete("/all", async (c, next) => {
       if (import.meta.env?.DEV) {
-        const db = new MeeSqlD1(c.env.DB);
+        const db = getCfDB({ context });;
         await TableObject.Drop({ db });
         return c.json({ message: "successed!" });
       }

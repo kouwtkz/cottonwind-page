@@ -4,11 +4,11 @@ export const app = new Hono<MeeBindings>({ strict: false });
 
 app.get("/", async (c) => {
   console.log(c.env)
-  return c.json(c.req);
+  return c.json(request);
 });
 app.get("/cf", async (c) => {
-  console.log(c.req.header("cf-connecting-ip"));
-  return c.json((c.req.raw as any).cf);
+  console.log(request.header("cf-connecting-ip"));
+  return c.json((request.raw as any).cf);
 });
 
 export const app_test = app;

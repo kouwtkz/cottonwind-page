@@ -63,8 +63,8 @@ export async function ServerCharactersGetData({ searchParams, db, isLogin }: Get
 }
 
 app.post("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const rawData = await c.req.json();
+  const db = getCfDB({ context });;
+  const rawData = await request.json();
   const data = Array.isArray(rawData) ? rawData : [rawData];
   const now = new Date();
   return Promise.all(
@@ -132,7 +132,7 @@ app.post("/send", async (c, next) => {
 app.post("/import", async (c, next) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
   })
     .then(() => c.text("インポートしました！"))
@@ -140,10 +140,10 @@ app.post("/import", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  const data = await c.req.json();
+  const data = await request.json();
   const key = data.target;
   if (key) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     try {
       await TableObject.Update({
         db,
@@ -161,7 +161,7 @@ app.delete("/send", async (c) => {
 
 app.delete("/all", async (c, next) => {
   if (import.meta.env?.DEV) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }

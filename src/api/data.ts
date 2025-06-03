@@ -33,7 +33,7 @@ export const app = new Hono<MeeBindings<MeeCommonEnv>>({
 
 app.get("*", async (c, next) => {
   if (import.meta.env?.DEV) return next();
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   const hasCacheParam = Url.searchParams.has("cache");
   if (hasCacheParam) {
     const cacheParam = Url.searchParams.get("cache") as CacheParamType;
@@ -69,10 +69,10 @@ function apps(
     app.get(src, async (c) => {
       return c.json(
         await getData({
-          searchParams: new URL(c.req.url).searchParams,
+          searchParams: new URL(request.url).searchParams,
           db: new MeeSqlD1(c.env.DB),
           isLogin: IsLogin(c),
-          req: c.req
+          req: request
         }
         )
       );
@@ -80,9 +80,9 @@ function apps(
   });
   app.get("/all", async (c) => {
     const isLogin = IsLogin(c);
-    const Url = new URL(c.req.url);
+    const Url = new URL(request.url);
     const query = Object.fromEntries(Url.searchParams);
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     return c.json(
       Object.fromEntries(
         await Promise.all(
@@ -93,7 +93,7 @@ function apps(
                 searchParams: new URLSearchParams(getDataWithoutPrefix(name, query)),
                 db,
                 isLogin,
-                req: c.req
+                req: request
               }
             ),
           ])
@@ -130,7 +130,7 @@ app.post("/tables/update", async (c) => {
     likeDataOptions,
     KeyValueDBDataOptions,
   ];
-  const db = new MeeSqlD1(c.env.DB);
+  const db = getCfDB({ context });;
   const lastmodTime = new Date();
   for (const options of list) {
     const lastmod = lastmodTime.toISOString();

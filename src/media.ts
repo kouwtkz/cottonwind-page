@@ -18,8 +18,8 @@ app.get(
   }
 );
 app.get("*", async (c, next) => {
-  const root = c.req.routePath.slice(0, -2);
-  let pathname = c.req.path.replace(/\/+/g, "/");
+  const root = request.routePath.slice(0, -2);
+  let pathname = request.path.replace(/\/+/g, "/");
   if (root) pathname = pathname.replace(root, "");
   const filename = pathname.slice(pathname.indexOf("/", 0) + 1);
   if (filename) {

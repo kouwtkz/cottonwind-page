@@ -52,7 +52,7 @@ app.get("/json/gitlog.json", (c) => {
 //       Allow: "/",
 //     },
 //   ] as { [k: string]: string }[];
-//   const sitemap = (c.env.ORIGIN ?? new URL(c.req.url).origin) + "/sitemap.xml";
+//   const sitemap = (c.env.ORIGIN ?? new URL(request.url).origin) + "/sitemap.xml";
 //   return c.text(
 //     AccessList.concat({ sitemap })
 //       .map((v) =>

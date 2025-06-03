@@ -24,7 +24,7 @@ app.get("/feed-update", async (c) => {
   return c.redirect("/");
 });
 app.get("/", async (c) => {
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   const cookieKey = "VisibleWorkers";
   const switchCookieKey = "viewCookie";
   if (Url.searchParams.has(switchCookieKey)) {

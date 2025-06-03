@@ -18,7 +18,7 @@ const app = new Hono<MeePagesBindings>();
 
 app.post("/", async (c) => {
   const token = await SyncToken(c.env);
-  const body = await c.req.parseBody();
+  const body = await request.parseBody();
   if (typeof body.post === "string") {
     await PostTest({ text: body.post, token });
     return c.redirect("/workers/twix");
@@ -26,8 +26,8 @@ app.post("/", async (c) => {
 });
 
 app.get("/", async (c) => {
-  const Url = new URL(c.req.url);
-  const query = c.req.query() as { [k in string]: string };
+  const Url = new URL(request.url);
+  const query = request.query() as { [k in string]: string };
   if ("authorize" in query) {
     const code_challenge = generateRandomStr(42);
     const state = generateRandomStr(42);
@@ -82,7 +82,7 @@ app.get("/", async (c) => {
         }),
       });
     }
-    return c.redirect(c.req.header("referer") ?? "/");
+    return c.redirect(request.header("referer") ?? "/");
   }
   if (token?.access_token && "revoke" in query) {
     await RevokeToken({
@@ -93,7 +93,7 @@ app.get("/", async (c) => {
         client_secret: c.env.X_CLIENT_SECRET ?? "",
       }),
     });
-    return c.redirect(c.req.header("referer") ?? "/");
+    return c.redirect(request.header("referer") ?? "/");
   }
   return c.html(
     renderHtml(

@@ -13,7 +13,7 @@ export const app = new Hono<MeeBindings>();
 app.use("*", async (c, next) => {
   if (
     IsLogin(c)
-    || (c.req.method === "POST" && c.req.path.endsWith("/send"))
+    || (request.method === "POST" && request.path.endsWith("/send"))
   ) return next();
   else return c.text("403 Forbidden", 403);
 });
@@ -57,11 +57,11 @@ export async function ServerLikeGetData({ searchParams, db, isLogin, req }: GetD
 
 app.post("/send", async (c, next) => {
   const now = new Date();
-  const db = new MeeSqlD1(c.env.DB);
-  const { path: pathData, mode = "add" } = await c.req.json() as LikeFormType;
+  const db = getCfDB({ context });;
+  const { path: pathData, mode = "add" } = await request.json() as LikeFormType;
   const path = toLikePath(pathData);
   const target = (await TableObject.Select({ db, where: { path }, take: 1 }))[0];
-  const address = getIpAddress(c.req);
+  const address = getIpAddress(request);
   const registedData = getRegistedData(target?.registed);
   let count = target?.count || 0;
   if (mode === "add") {
@@ -98,10 +98,10 @@ app.post("/send", async (c, next) => {
 });
 
 app.delete("/send", async (c) => {
-  const data = await c.req.json();
+  const data = await request.json();
   const path = String(data.path || "");
   if (path) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     try {
       await TableObject.Update({
         db,
@@ -120,7 +120,7 @@ app.delete("/send", async (c) => {
 app.post("/import", async (c) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
     idKey: "path",
     kvConvertEntry: true,
@@ -131,7 +131,7 @@ app.post("/import", async (c) => {
 
 app.delete("/all", async (c, next) => {
   if (import.meta.env?.DEV) {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }

@@ -20,14 +20,14 @@ export function MainPageRouteIndex(app: CommonHono) {
   app.use("/admin/*", LoginCheckMiddleware);
   app.route("/get/latest", app_get);
   app.get("/blog/rss.xml", async (c) => {
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     const postsData = await ServerPostsGetRssData(db, 10);
     return new Response(
       await MakeRss({
         env: c.env,
         db,
         postsData,
-        url: c.req.url,
+        url: request.url,
       }),
       {
         headers: {
@@ -37,7 +37,7 @@ export function MainPageRouteIndex(app: CommonHono) {
     );
   });
   app.post("/life/check", async (c) => {
-    const body = await c.req.text();
+    const body = await request.text();
     const result = c.env.LIFE_CHECK_CHALLENGE === body;
     if (result) return c.text(c.env.LIFE_CHECK_VERIFIER ?? "");
     else return c.text("401 Unauthorized", 401);

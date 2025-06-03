@@ -13,7 +13,7 @@ app.get("/life", async (c, next) => {
 
 app.get("/clean", async (c, next) => {
   if (!import.meta.env?.DEV) return next();
-  const Url = new URL(c.req.url);
+  const Url = new URL(request.url);
   const day = Url.searchParams.has("d") ? Number(Url.searchParams.get("d")) : null;
   await SvCleanPages(c.env, day && !isNaN(day) ? day : undefined);
   return c.text("");

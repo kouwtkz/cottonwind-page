@@ -41,14 +41,14 @@ app.get("/json/*", serveStatic({ root: "./public/" }));
 app.route("/test", app_test);
 
 app.get("/check/:bool", async (c) => {
-  const bool = c.req.param().bool;
+  const bool = request.param().bool;
   await c.env.NOTICE_FEED_KV.put("life-check", bool);
   return c.text("written life-check:" + bool);
 });
 
 app.route("/", ssg);
 app.post("/", async (c) => {
-  return c.json(Object.fromEntries(await c.req.formData()));
+  return c.json(Object.fromEntries(await request.formData()));
 });
 
 RoutingList.forEach((path) => {
@@ -65,7 +65,7 @@ RoutingList.forEach((path) => {
 });
 
 app.all("*", async (c, next) => {
-  if (!/.+\/+$/.test(c.req.path))
+  if (!/.+\/+$/.test(request.path))
     return c.html(renderHtml(<ServerNotFound />), { status: 404 });
   else return next();
 });

@@ -97,8 +97,8 @@ export async function ServerSoundAlbumsGetData({ searchParams, db, isLogin }: Ge
 }
 
 app.patch("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const rawData = await c.req.json();
+  const db = getCfDB({ context });;
+  const rawData = await request.json();
   const data = Array.isArray(rawData) ? rawData : [rawData];
   const now = new Date();
   return Promise.all(
@@ -127,8 +127,8 @@ app.patch("/send", async (c, next) => {
 });
 
 app.post("/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const formData = await c.req.formData();
+  const db = getCfDB({ context });;
+  const formData = await request.formData();
   const file = formData.get("file") as File | null;
   if (file) {
     await parseBlob(file).then(async (meta) => {
@@ -174,7 +174,7 @@ app.post("/send", async (c, next) => {
 app.post("/import", async (c, next) => {
   return DBTableImport({
     db: new MeeSqlD1(c.env.DB),
-    object: await c.req.json(),
+    object: await request.json(),
     TableObject,
   })
     .then(() => c.text("インポートしました！"))
@@ -187,7 +187,7 @@ app.delete("/all", async (c, next) => {
       (object) => object.key
     );
     await c.env.BUCKET.delete(list);
-    const db = new MeeSqlD1(c.env.DB);
+    const db = getCfDB({ context });;
     await TableObject.Drop({ db });
     return c.json({ message: "successed!" });
   }
@@ -195,8 +195,8 @@ app.delete("/all", async (c, next) => {
 });
 
 app.patch("/album/send", async (c, next) => {
-  const db = new MeeSqlD1(c.env.DB);
-  const rawData = await c.req.json();
+  const db = getCfDB({ context });;
+  const rawData = await request.json();
   const data = Array.isArray(rawData) ? rawData : [rawData];
   const now = new Date();
   return Promise.all(
