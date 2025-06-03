@@ -63,6 +63,8 @@ interface ImageAlbumType {
   list: ImageType[];
 }
 
+interface ImageAlbumEnvType extends Omit<ImageAlbumType, "list"> { }
+
 interface ImageAlbumDataType {
   name?: string;
   description?: string;
