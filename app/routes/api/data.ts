@@ -21,7 +21,8 @@ import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { ServerImagesGetData } from "./image";
 import { ServerCharactersGetData } from "./character";
 import { ServerPostsGetData } from "./blog";
-// import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
+import { ServerSoundsGetData } from "./sound";
+import { ServerSoundAlbumsGetData } from "./soundAlbum";
 import { ServerFilesGetData } from "./file";
 // import { SiteFavLinkServer, SiteLinkServer } from "./links";
 import { ServerLikeGetData } from "./like";
@@ -34,8 +35,8 @@ const dataset: Array<[
     [ImageDataOptions, ServerImagesGetData],
     [charactersDataOptions, ServerCharactersGetData],
     [postsDataOptions, ServerPostsGetData],
-    // [soundsDataOptions, ServerSoundsGetData],
-    // [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
+    [soundsDataOptions, ServerSoundsGetData],
+    [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
     [filesDataOptions, ServerFilesGetData],
     // [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
     // [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
