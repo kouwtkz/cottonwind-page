@@ -1,5 +1,5 @@
 {
-  "compatibility_date": "2025-05-29",
+  "compatibility_date": "2025-05-25",
   "name": "cottonwind",
 	"main": "./workers/app.ts",
   // "assets": {
