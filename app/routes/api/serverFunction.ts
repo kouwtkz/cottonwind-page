@@ -1,8 +1,7 @@
 import { getExtension } from "~/components/functions/doc/PathParse";
-type HonoRequest<T = any> = any;
 
-export function getIpAddress(req: HonoRequest<string>) {
-  return req.header('cf-connecting-ip') || req.header('x-forwarded-for') || "anonymous";
+export function getIpAddress(request: Request) {
+  return request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || "anonymous";
 }
 
 export async function BucketRename(bucket: R2Bucket, before: string, after: string) {

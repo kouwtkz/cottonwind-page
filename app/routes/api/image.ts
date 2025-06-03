@@ -11,10 +11,6 @@ import type { Route } from "./+types/image";
 import { LoginCheck } from "~/components/utility/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 
-export async function action(props: Route.ActionArgs) {
-  return LoginCheck({ ...props, next, trueWhenDev: true });
-}
-
 const TableObject = new DBTableClass<ImageDataType>({
   table: ImageDataOptions.name,
   createEntry: {
@@ -48,6 +44,10 @@ const TableObject = new DBTableClass<ImageDataType>({
   insertEntryTimes: ["time", "mtime", "lastmod"]
 });
 export const ImageTableObject = TableObject;
+
+export async function action(props: Route.ActionArgs) {
+  return LoginCheck({ ...props, next, trueWhenDev: true });
+}
 
 interface WithEnvProps extends Route.ActionArgs {
   env: Partial<Env>;

@@ -22,10 +22,10 @@ import { ServerImagesGetData } from "./image";
 import { ServerCharactersGetData } from "./character";
 import { ServerPostsGetData } from "./blog";
 // import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
-// import { ServerFilesGetData } from "./file";
+import { ServerFilesGetData } from "./file";
 // import { SiteFavLinkServer, SiteLinkServer } from "./links";
-// import { ServerLikeGetData } from "./like";
-// import { ServerKeyValueDBGetData } from "./KeyValueDB";
+import { ServerLikeGetData } from "./like";
+import { ServerKeyValueDBGetData } from "./KeyValueDB";
 
 const dataset: Array<[
   options: Props_LastmodMHClass_Options<any>,
@@ -36,12 +36,12 @@ const dataset: Array<[
     [postsDataOptions, ServerPostsGetData],
     // [soundsDataOptions, ServerSoundsGetData],
     // [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
-    // [filesDataOptions, ServerFilesGetData],
+    [filesDataOptions, ServerFilesGetData],
     // [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
     // [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
-    // [likeDataOptions, ServerLikeGetData],
-    // [KeyValueDBDataOptions, ServerKeyValueDBGetData],
-    // [TableVersionDataOptions, ServerTableVersionGetData],
+    [likeDataOptions, ServerLikeGetData],
+    [KeyValueDBDataOptions, ServerKeyValueDBGetData],
+    [TableVersionDataOptions, ServerTableVersionGetData],
   ];
 
 export async function loader({ params, context, request }: Route.LoaderArgs) {

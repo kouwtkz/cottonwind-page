@@ -8,10 +8,6 @@ import { LoginCheck } from "~/components/utility/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { ImageTableObject } from "./image";
 
-export async function action(props: Route.ActionArgs) {
-  return LoginCheck({ ...props, next, trueWhenDev: true });
-}
-
 const TableObject = new DBTableClass<CharacterDataType>({
   table: charactersDataOptions.name,
   createEntry: {
@@ -39,6 +35,10 @@ const TableObject = new DBTableClass<CharacterDataType>({
   insertEntryKeys: ["key", "name", "enName", "nameGuide", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
   insertEntryTimes: ["time", "birthday", "lastmod"]
 });
+
+export async function action(props: Route.ActionArgs) {
+  return LoginCheck({ ...props, next, trueWhenDev: true });
+}
 
 interface WithEnvProps extends Route.ActionArgs {
   env: Partial<Env>;
