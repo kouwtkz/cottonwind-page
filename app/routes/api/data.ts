@@ -24,7 +24,8 @@ import { ServerPostsGetData } from "./blog";
 import { ServerSoundsGetData } from "./sound";
 import { ServerSoundAlbumsGetData } from "./soundAlbum";
 import { ServerFilesGetData } from "./file";
-// import { SiteFavLinkServer, SiteLinkServer } from "./links";
+import { SiteLinkServer } from "./links";
+import { SiteFavLinkServer } from "./links-fav";
 import { ServerLikeGetData } from "./like";
 import { ServerKeyValueDBGetData } from "./KeyValueDB";
 
@@ -38,8 +39,8 @@ const dataset: Array<[
     [soundsDataOptions, ServerSoundsGetData],
     [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
     [filesDataOptions, ServerFilesGetData],
-    // [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
-    // [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
+    [linksDataOptions, SiteLinkServer.getData.bind(SiteLinkServer)],
+    [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
     [likeDataOptions, ServerLikeGetData],
     [KeyValueDBDataOptions, ServerKeyValueDBGetData],
     [TableVersionDataOptions, ServerTableVersionGetData],
