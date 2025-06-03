@@ -9,4 +9,5 @@ export default [
   route("api", "routes/api/index.ts"),
   route("api/data/:param", "routes/api/data.ts"),
   route("api/image/:action", "routes/api/image.ts"),
+  route("api/character/:action", "routes/api/character.ts"),
 ] satisfies RouteConfig;

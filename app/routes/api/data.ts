@@ -19,7 +19,7 @@ import {
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { ServerImagesGetData } from "./image";
-// import { ServerCharactersGetData } from "./character";
+import { ServerCharactersGetData } from "./character";
 // import { ServerPostsGetData } from "./blog";
 // import { ServerSoundAlbumsGetData, ServerSoundsGetData } from "./sound";
 // import { ServerFilesGetData } from "./file";
@@ -32,7 +32,7 @@ const dataset: Array<[
   (arg0: GetDataProps) => Promise<any>
 ]> = [
     [ImageDataOptions, ServerImagesGetData],
-    // [charactersDataOptions, ServerCharactersGetData],
+    [charactersDataOptions, ServerCharactersGetData],
     // [postsDataOptions, ServerPostsGetData],
     // [soundsDataOptions, ServerSoundsGetData],
     // [soundAlbumsDataOptions, ServerSoundAlbumsGetData],
@@ -47,6 +47,9 @@ const dataset: Array<[
 export async function loader({ params, context, request }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
   switch (params.param) {
+    case "image": {
+
+    }
     case "all": {
       const isLogin = IsLogin({ env, request, trueWhenDev: true });
       const Url = new URL(request.url);
@@ -72,7 +75,6 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
         );
       } else return {};
     }
-      break;
   }
   return {};
 }

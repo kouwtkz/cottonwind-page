@@ -267,7 +267,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
         }
       }
       break;
-    case "delete":
+    case "item":
       if (import.meta.env?.DEV && request.method === "DELETE") {
         const Url = new URL(request.url);
         const filename = Url.searchParams.get("path");
@@ -277,7 +277,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
         return "successed!";
       }
       break;
-    case "delete-all":
+    case "all":
       if (import.meta.env?.DEV && request.method === "DELETE") {
         let list: string[];
         if (env.BUCKET) {
