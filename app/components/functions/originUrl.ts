@@ -14,12 +14,17 @@ export function getLocalOrigin(origin: string, envLocalOrigin?: string) {
   } else return undefined;
 }
 
-export function getOriginFromAPI(env: SiteConfigEnv, origin: string) {
+export function getOriginFromAPI(env: Partial<Env>, origin: string) {
   if (env.API_ORIGIN === origin) return env.ORIGIN;
   else return origin;
 }
 
-export function getAPIOrigin(env: SiteConfigEnv, origin: string, localFullPath = false) {
+interface APIEnvOptions extends Partial<Env> {
+  MEDIA_CF_ORIGIN?: string;
+  API_CF_ORIGIN?: string;
+}
+
+export function getAPIOrigin(env: APIEnvOptions, origin: string, localFullPath = false) {
   let result: string | undefined;
   if ((env.API_ORIGIN && !env.API_ORIGIN.match("://"))) {
     result = new URL(env.API_ORIGIN, origin).href;
@@ -32,7 +37,7 @@ export function getAPIOrigin(env: SiteConfigEnv, origin: string, localFullPath =
   return result;
 }
 
-export function getMediaOrigin(env: SiteConfigEnv, origin: string, localFullPath = false) {
+export function getMediaOrigin(env: APIEnvOptions, origin: string, localFullPath = false) {
   let result: string | undefined;
   if (env.ORIGIN === origin) {
     result = env.MEDIA_ORIGIN;
