@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useSoundPlayer } from "~/components/layout/SoundPlayer";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { soundsDataIndexed, soundAlbumsDataIndexed } from "~/data/DataState";
+import { soundsDataIndexed, soundAlbumsDataIndexed } from "~/data/ClientDBLoader";
 import { getSoundAlbumsMap, getSoundsMap } from "~/components/functions/soundFunction";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 
@@ -24,16 +24,16 @@ export const useSounds = CreateObjectState<SoundsStateType>({
 export function SoundState() {
   const { Set } = useSounds();
   const soundsData = useSyncExternalStore(
-    soundsDataIndexed.subscribe,
-    () => soundsDataIndexed.table
+    soundsDataIndexed?.subscribe || (() => () => {}),
+    () => soundsDataIndexed?.table
   );
   const soundAlbumsData = useSyncExternalStore(
-    soundAlbumsDataIndexed.subscribe,
-    () => soundAlbumsDataIndexed.table
+    soundAlbumsDataIndexed?.subscribe || (() => () => {}),
+    () => soundAlbumsDataIndexed?.table
   );
   const { RegistPlaylist } = useSoundPlayer();
   useEffect(() => {
-    if (soundsData.db && soundAlbumsData) {
+    if (soundsData?.db && soundAlbumsData) {
       (async () => {
         const sounds = await soundsData.getAll();
         const soundsMap = new Map(sounds.map((v) => [v.key, v]));

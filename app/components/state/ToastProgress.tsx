@@ -3,7 +3,7 @@ import {
   toastUpdateOptions,
 } from "~/components/define/toastContainerDef";
 import { useEffect } from "react";
-import { Id, toast } from "react-toastify";
+import { type Id, toast } from "react-toastify";
 import { CreateObjectState } from "./CreateState";
 
 interface Messages {

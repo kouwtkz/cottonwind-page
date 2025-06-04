@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { toastLoadingOptions } from "../define/toastContainerDef";
 import { useLocation } from "react-router";
 import { toLikePath } from "~/components/functions/media/likeFunction";
-import { likeDataIndexed } from "~/data/DataState";
+import { likeDataIndexed } from "~/data/ClientDBLoader";
 import axios from "axios";
 import { useApiOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -58,7 +58,7 @@ export function LikeButton({
               mode: "remove",
             } as LikeFormType)
             .then(() => {
-              likeDataIndexed.load("no-cache");
+              likeDataIndexed?.load("no-cache");
               toast("いいねを解除しました", toastLoadingOptions);
             });
         } else {
@@ -68,7 +68,7 @@ export function LikeButton({
               mode: "add",
             } as LikeFormType)
             .then(() => {
-              likeDataIndexed.load("no-cache");
+              likeDataIndexed?.load("no-cache");
               toast("いいねしました", toastLoadingOptions);
             });
         }

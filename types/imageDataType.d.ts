@@ -28,7 +28,7 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "copyrig
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
-  // characterObjects?: CharacterType[];
+  characterObjects?: CharacterType[];
   characterNameGuides?: string[];
   copyright?: string[];
   direct?: boolean;
@@ -42,7 +42,7 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "copyrig
   update?: boolean;
   new?: boolean;
   schedule?: boolean;
-  // like?: LikeType;
+  like?: LikeType;
   data?: ImageDataType;
 }
 /** @comments ひとつのアルバムの変数 */

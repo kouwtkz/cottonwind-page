@@ -2,7 +2,7 @@ import { type JSX, useEffect, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { useEnv } from "./EnvState";
-import { charactersDataIndexed } from "~/data/DataState";
+import { charactersDataIndexed } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
@@ -41,8 +41,8 @@ export function CharacterState() {
 
 function CharacterDataState() {
   const charactersData = useSyncExternalStore(
-    charactersDataIndexed.subscribe,
-    () => charactersDataIndexed.table
+    charactersDataIndexed?.subscribe || (() => () => {}),
+    () => charactersDataIndexed?.table
   );
   const { Set } = useCharacters();
   const { imagesMap } = useImageState();
@@ -51,7 +51,7 @@ function CharacterDataState() {
   const env = useEnv()[0];
   useEffect(() => {
     if (
-      charactersData.db &&
+      charactersData?.db &&
       sounds &&
       defaultPlaylist &&
       likeCategoryMap &&

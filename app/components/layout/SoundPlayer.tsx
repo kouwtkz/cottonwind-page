@@ -27,7 +27,7 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
-import { parseBlob } from "music-metadata";
+// import { parseBlob } from "music-metadata";
 import { useSounds } from "~/components/state/SoundState";
 
 const LoopModeList: SoundLoopMode[] = [
@@ -312,17 +312,17 @@ export function SoundPlayer() {
       if (!sound.meta) {
         fetch(mediaSrc)
           .then((r) => r.blob())
-          .then((blob) => parseBlob(blob))
-          .then((meta) => {
-            SetSounds(({ soundsMap }) => {
-              const item = soundsMap.get(sound.key)!;
-              item.meta = meta;
-              return {
-                soundsMap: new Map(soundsMap),
-                sounds: Array.from(soundsMap.values()),
-              };
-            });
-          });
+          // .then((blob) => parseBlob(blob))
+          // .then((meta) => {
+          //   SetSounds(({ soundsMap }) => {
+          //     const item = soundsMap.get(sound.key)!;
+          //     item.meta = meta;
+          //     return {
+          //       soundsMap: new Map(soundsMap),
+          //       sounds: Array.from(soundsMap.values()),
+          //     };
+          //   });
+          // });
       }
     },
     []

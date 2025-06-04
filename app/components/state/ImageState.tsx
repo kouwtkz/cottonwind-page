@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { imageDataIndexed, likeDataIndexed } from "~/data/DataState";
+import { imageDataIndexed, likeDataIndexed } from "~/data/ClientDBLoader";
 import {
   getImageAlbumMap,
   getImageObjectMap,
 } from "~/components/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "~/Env";
-import { findMeeSort, findMeeWheresFilter } from "~/data/find/findMee";
+import { findMee, findMeeSort, findMeeWheresFilter } from "~/data/find/findMee";
 import { useLikeState } from "./LikeState";
 import { ImageMeeIndexedDBTable } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
@@ -36,16 +36,20 @@ export function ImageState() {
   const { likeCategoryMap } = useLikeState();
   const { charactersMap } = useCharacters();
   const imagesData = useSyncExternalStore(
-    imageDataIndexed.subscribe,
-    () => imageDataIndexed.table
+    imageDataIndexed?.subscribe || (() => () => {}),
+    () => imageDataIndexed?.table
   );
-
   useEffect(() => {
-    if (!imageDataIndexed.isUpgrade && charactersMap && likeCategoryMap) {
+    if (
+      imagesData &&
+      !imageDataIndexed?.isUpgrade &&
+      charactersMap &&
+      likeCategoryMap
+    ) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
-        const lastmod = imageDataIndexed.beforeLastmod;
-        const latest = imageDataIndexed.latest;
+        const lastmod = imageDataIndexed?.beforeLastmod;
+        const latest = imageDataIndexed?.latest;
         images.forEach((image) => {
           if (lastmod)
             image.update = Boolean(

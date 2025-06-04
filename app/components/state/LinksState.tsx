@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { favLinksDataIndexed, linksDataIndexed } from "~/data/DataState";
+import { favLinksDataIndexed, linksDataIndexed } from "~/data/ClientDBLoader";
 import { useImageState } from "./ImageState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
@@ -54,16 +54,16 @@ async function callSetLinks({
 export function LinksState() {
   const { imagesMap } = useImageState();
   const linksData = useSyncExternalStore(
-    linksDataIndexed.subscribe,
-    () => linksDataIndexed.table
+    linksDataIndexed?.subscribe || (() => () => {}),
+    () => linksDataIndexed?.table
   );
   const favLinksData = useSyncExternalStore(
-    favLinksDataIndexed.subscribe,
-    () => favLinksDataIndexed.table
+    favLinksDataIndexed?.subscribe || (() => () => {}),
+    () => favLinksDataIndexed?.table
   );
   const { Set: setLinks } = useLinks();
   useEffect(() => {
-    if (linksData.db && imagesMap) {
+    if (linksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData }).then((result) => {
         setLinks(result);
       });
@@ -71,7 +71,7 @@ export function LinksState() {
   }, [linksData, imagesMap]);
   const { Set: setFavLinks } = useFavLinks();
   useEffect(() => {
-    if (favLinksData.db && imagesMap) {
+    if (favLinksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData: favLinksData }).then((result) => {
         setFavLinks(result);
       });

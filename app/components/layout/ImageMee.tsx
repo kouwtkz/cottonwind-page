@@ -1,5 +1,5 @@
 import React, {
-  ImgHTMLAttributes,
+  type ImgHTMLAttributes,
   useCallback,
   useEffect,
   useMemo,
@@ -43,7 +43,7 @@ export interface ImageMeeProps
   autoPixel?: boolean | number;
   showMessage?: boolean;
   autoPosition?: boolean;
-  ref?: React.RefObject<HTMLImageElement>;
+  ref?: React.RefObject<HTMLImageElement | null>;
 }
 export function ImageMee({
   imageItem: _imageItem,

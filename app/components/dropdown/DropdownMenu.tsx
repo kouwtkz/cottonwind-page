@@ -41,7 +41,7 @@ export interface DropdownObjectBaseProps {
   keepActiveOpen?: boolean;
   coverZIndex?: number;
   hiddenClassName?: string;
-  ref?: React.RefObject<HTMLDivElement>;
+  ref?: React.RefObject<HTMLDivElement | null>;
 }
 
 export interface DropdownObjectProps extends DropdownObjectBaseProps {

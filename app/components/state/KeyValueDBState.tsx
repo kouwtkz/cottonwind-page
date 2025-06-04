@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { CreateObjectState } from "./CreateState";
-import { imageDataIndexed, keyValueDBDataIndexed } from "~/data/DataState";
+import { imageDataIndexed, keyValueDBDataIndexed } from "~/data/ClientDBLoader";
 import { Modal } from "~/components/layout/Modal";
 import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
 import {
@@ -22,7 +22,7 @@ import axios from "axios";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { fileDialog } from "~/components/utility/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
-import { ImageMee, ImageMeeProps } from "~/components/layout/ImageMee";
+import { ImageMee, type ImageMeeProps } from "~/components/layout/ImageMee";
 import { useSelectedImage } from "./ImageState";
 import { MultiParserWithMedia as MultiParser } from "~/components/parse/MultiParserWithMedia";
 import { TextareaWithPreview } from "~/components/parse/PostTextarea";
@@ -38,12 +38,12 @@ type EditType = "text" | "textarea" | "image";
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
   const data = useSyncExternalStore(
-    keyValueDBDataIndexed.subscribe,
-    () => keyValueDBDataIndexed.table
+    keyValueDBDataIndexed?.subscribe || (() => () => {}),
+    () => keyValueDBDataIndexed?.table
   );
 
   useEffect(() => {
-    if (data.db) {
+    if (data?.db) {
       data.getAll().then((items) => {
         const parsedData = items.map(({ private: p, ...props }) => ({
           private: Boolean(p),
@@ -71,10 +71,11 @@ export const useKeyValueEdit = CreateObjectState<{
   placeholder?: string;
 }>({ edit: null, type: "text" });
 
-const send = keyValueDBDataIndexed.options.src + "/send";
+const send = keyValueDBDataIndexed?.options.src + "/send";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { OmittedEnv } from "types/custom-configuration";
 
 const schema = z.object({
   value: z.string().nullish(),
@@ -115,7 +116,7 @@ function KeyValueEdit() {
     setValue,
     reset,
     formState: { isDirty, dirtyFields },
-  } = useForm<FieldValues>({
+  } = useForm<any>({
     defaultValues: values,
     resolver: zodResolver(schema),
   });
@@ -128,7 +129,7 @@ function KeyValueEdit() {
         .delete(concatOriginUrl(apiOrigin, send), { data: { key: edit } })
         .then(() => {
           toast.success("削除しました");
-          keyValueDBDataIndexed.load("no-cache");
+          keyValueDBDataIndexed?.load("no-cache");
           Set({ edit: null });
         });
     }
@@ -147,7 +148,7 @@ function KeyValueEdit() {
           withCredentials: true,
         })
         .then(() => {
-          keyValueDBDataIndexed.load("no-cache");
+          keyValueDBDataIndexed?.load("no-cache");
           Set({ edit: null });
         }),
       {
@@ -174,7 +175,7 @@ function KeyValueEdit() {
           }
         )
         .then((r) => {
-          keyValueDBDataIndexed.load("no-cache");
+          keyValueDBDataIndexed?.load("no-cache");
         });
       setIsSelectedImage(false);
     }
@@ -250,7 +251,7 @@ function KeyValueEdit() {
                         });
                       })
                       .then(async (r) => {
-                        imageDataIndexed.load("no-cache");
+                        imageDataIndexed?.load("no-cache");
                         return r
                           ? ((await r[0].data) as KeyValueType<unknown>)
                           : null;
@@ -269,7 +270,7 @@ function KeyValueEdit() {
                               }
                             )
                             .then((r) => {
-                              keyValueDBDataIndexed.load("no-cache");
+                              keyValueDBDataIndexed?.load("no-cache");
                             });
                         }
                       });
@@ -313,7 +314,7 @@ export interface KeyValueEditableMainProps
 }
 export interface KeyValueEditableProps extends KeyValueEditableMainProps {
   editEnvKey?: ImportMetaKVKeyType;
-  editEnvDefault?: keyof SiteConfigEnv;
+  editEnvDefault?: keyof OmittedEnv;
   childrenOutDefault?: boolean;
   childrenOutParse?: boolean;
   replaceValue?: string;

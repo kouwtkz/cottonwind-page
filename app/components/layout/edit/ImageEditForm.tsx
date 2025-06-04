@@ -34,14 +34,14 @@ import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { useApiOrigin, useMediaOrigin } from "~/components/state/EnvState";
 import { getExtension, getName } from "~/components/functions/doc/PathParse";
-import { imageDataIndexed } from "~/data/DataState";
+import { imageDataIndexed } from "~/data/ClientDBLoader";
 import {
   imageObject,
   imageOverSizeCheck,
   resizeImageCanvas,
   type resizeImageCanvasProps,
 } from "~/components/Canvas";
-import { CharaImageSettingRbButtons } from "~/components/routes/edit/CharacterEdit";
+import { CharaImageSettingRbButtons } from "~/page/edit/CharacterEdit";
 import { JoinUnique } from "~/components/functions/doc/StrFunctions";
 import { charaTagsLabel } from "~/components/FormatOptionLabel";
 import { corsFetchJSON, type methodType } from "~/components/functions/fetch";
@@ -74,7 +74,7 @@ import {
   RiVideoOnLine,
   RiVideoUploadLine,
 } from "react-icons/ri";
-import { repostThumbnail } from "~/components/routes/edit/ImagesManager";
+import { repostThumbnail } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
 
 interface Props extends HTMLAttributes<HTMLFormElement> {
@@ -220,7 +220,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     setValue,
     control,
     formState: { isDirty, dirtyFields },
-  } = useForm<FieldValues>({
+  } = useForm<any>({
     values,
   });
 
@@ -277,7 +277,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         searchParams.set("image", fields.rename);
         setSearchParams(searchParams, { replace: true });
       }
-      imageDataIndexed.load("no-cache");
+      imageDataIndexed?.load("no-cache");
       return true;
     } else {
       toast.error(res.statusText, {
@@ -504,7 +504,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      imageDataIndexed.load("no-cache");
+                      imageDataIndexed?.load("no-cache");
                     });
               }}
             >
@@ -527,7 +527,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      imageDataIndexed.load("no-cache");
+                      imageDataIndexed?.load("no-cache");
                     });
               }}
             >
@@ -541,7 +541,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
                   repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
                     () => {
-                      imageDataIndexed.load("no-cache");
+                      imageDataIndexed?.load("no-cache");
                       toast(
                         "サムネイルを設定しました",
                         toastLoadingShortOptions

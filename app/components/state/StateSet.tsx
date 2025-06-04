@@ -1,7 +1,6 @@
 import { ToastContainer } from "react-toastify";
 import { SoundPlayer } from "~/components/layout/SoundPlayer";
 import { ImageViewer } from "~/components/layout/ImageViewer";
-import { DataState } from "~/data/DataState";
 import { ImageState, useImageState } from "./ImageState";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
 import { useEffect, useMemo, useRef } from "react";
@@ -12,10 +11,10 @@ import { CreateState } from "./CreateState";
 import FileState from "./FileState";
 import { defaultToastContainerOptions } from "~/components/define/toastContainerDef";
 import { ToastProgressState } from "./ToastProgress";
-import { MiniGallery } from "~/components/routes/GalleryPage";
+import { MiniGallery } from "~/page/GalleryPage";
 import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
-import { HomeImageState } from "~/components/routes/Home";
+import { HomeImageState } from "~/page/Home";
 import { KeyValueDBState, useKeyValueDB } from "./KeyValueDBState";
 import { CalendarMeeState, useCalendarMee } from "~/components/calendar/CalendarMee";
 import { FaviconState } from "./FaviconState";
@@ -28,7 +27,6 @@ export function StateSet() {
   return (
     <>
       <EnvState />
-      <DataState />
       <FaviconState />
       <SoundPlayer />
       <ImageViewer />

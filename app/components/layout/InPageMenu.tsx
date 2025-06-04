@@ -4,7 +4,7 @@ import TriangleCursor from "~/components/svg/cursor/Triangle";
 
 type InPageRefObject = {
   name: string;
-  ref: RefObject<HTMLElement>;
+  ref: RefObject<HTMLElement | null>;
 };
 
 interface InPageMenuProps extends React.HTMLAttributes<HTMLDivElement> {

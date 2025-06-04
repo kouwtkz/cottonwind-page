@@ -33,21 +33,21 @@ export let waitIdb = new Promise((resolve, reject) => {
 type anyIdbStateClass = IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>;
 export let IdbStateClassMap: Map<string, anyIdbStateClass> | null = null;
 
-export let imageDataIndexed: ImageIndexedDataStateClass | undefined;
-export let charactersDataIndexed: IndexedDataLastmodMH<CharacterType, CharacterDataType> | undefined;
-export let postsDataIndexed: IndexedDataLastmodMH<PostType, PostDataType> | undefined;
-export let soundsDataIndexed: IndexedDataLastmodMH<SoundItemType, SoundDataType> | undefined;
-export let soundAlbumsDataIndexed: IndexedDataLastmodMH<SoundAlbumType, SoundAlbumDataType> | undefined;
-export let filesDataIndexed: IndexedDataLastmodMH<FilesRecordType, FilesRecordDataType> | undefined;
-export let linksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData> | undefined;
-export let favLinksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData> | undefined;
-export let likeDataIndexed: IndexedDataLastmodMH<LikeType, LikeDataType> | undefined;
-export let keyValueDBDataIndexed: IndexedDataLastmodMH<KeyValueDBType, KeyValueDBDataType> | undefined;
+export let imageDataIndexed: ImageIndexedDataStateClass;
+export let charactersDataIndexed: IndexedDataLastmodMH<CharacterType, CharacterDataType>;
+export let postsDataIndexed: IndexedDataLastmodMH<PostType, PostDataType>;
+export let soundsDataIndexed: IndexedDataLastmodMH<SoundItemType, SoundDataType>;
+export let soundAlbumsDataIndexed: IndexedDataLastmodMH<SoundAlbumType, SoundAlbumDataType>;
+export let filesDataIndexed: IndexedDataLastmodMH<FilesRecordType, FilesRecordDataType>;
+export let linksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
+export let favLinksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
+export let likeDataIndexed: IndexedDataLastmodMH<LikeType, LikeDataType>;
+export let keyValueDBDataIndexed: IndexedDataLastmodMH<KeyValueDBType, KeyValueDBDataType>;
 export let KVDataIndexed: typeof keyValueDBDataIndexed;
-export let tableVersionDataIndexed: IndexedDataLastmodMH<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data> | undefined;
+export let tableVersionDataIndexed: IndexedDataLastmodMH<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data>;
 export let IdbStateClassList: anyIdbStateClass[] = [];
 
-export let dbClass: MeeIndexedDB | undefined;
+export let dbClass: MeeIndexedDB;
 export async function MeeIndexedDBCreate() {
   return MeeIndexedDB.create({
     version: INDEXEDDB_VERSION,

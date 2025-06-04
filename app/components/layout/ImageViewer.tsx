@@ -35,9 +35,9 @@ import { EmbedNode, useFiles } from "~/components/state/FileState";
 import ShareButton from "~/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "~/components/button/LikeButton";
-import { useGalleryObject } from "~/components/routes/GalleryPage";
+import { useGalleryObject } from "~/page/GalleryPage";
 import { CreateObjectState } from "~/components/state/CreateState";
-import { CharacterName } from "~/components/routes/CharacterPage";
+import { CharacterName } from "~/page/CharacterPage";
 import { Modal } from "./Modal";
 
 interface ImageViewerParamType {

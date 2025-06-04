@@ -1,8 +1,8 @@
-import { SetRegisterReturn } from "../hook/SetRegister";
+import type { SetRegisterReturn } from "../hook/SetRegister";
 import { MultiParserWithMedia as MultiParser } from "./MultiParserWithMedia";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CreateObjectState } from "~/components/state/CreateState";
-import {
+import type {
   FieldPath,
   FieldValues,
   UseFormRegister,
@@ -100,7 +100,7 @@ export function TextareaWithPreview<
   register,
 }: TextareaWithPreviewProps<TFieldValues>) {
   const [previewMode, setPreviewMode] = useState(false);
-  const ref = useRef<HTMLTextAreaElement>();
+  const ref = useRef<HTMLTextAreaElement>(null);
   const { refPassthrough: dscRefPassthrough, registered: registerDescription } =
     RegisterRef({
       useRefValue: ref,

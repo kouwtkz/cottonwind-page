@@ -1,7 +1,9 @@
 import { getAPIOrigin, getMediaOrigin } from "~/components/functions/originUrl";
 import { CreateState } from "./CreateState";
 import { useEffect } from "react";
-export const useEnv = CreateState<Env>();
+import type { OmittedEnv } from "types/custom-configuration";
+
+export const useEnv = CreateState<OmittedEnv>();
 export const useApiOrigin = CreateState<string>();
 export const useMediaOrigin = CreateState<string>();
 export const useIsLogin = CreateState<boolean>();

@@ -1,11 +1,11 @@
 import {
-  HTMLAttributes,
+  type HTMLAttributes,
   useEffect,
   useState,
   useSyncExternalStore,
 } from "react";
 import { useEnv, useMediaOrigin } from "~/components/state/EnvState";
-import { filesDataIndexed } from "~/data/DataState";
+import { filesDataIndexed } from "~/data/ClientDBLoader";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -20,13 +20,13 @@ export const useFiles = CreateObjectState<FilesState>();
 
 export default function FileState() {
   const filesData = useSyncExternalStore(
-    filesDataIndexed.subscribe,
-    () => filesDataIndexed.table
+    filesDataIndexed?.subscribe || (() => () => {}),
+    () => filesDataIndexed?.table
   );
   const { Set } = useFiles();
   const env = useEnv()[0];
   useEffect(() => {
-    if (filesData.db && env) {
+    if (filesData?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
       filesData.getAll().then((items) => {
         items.forEach((v) => {

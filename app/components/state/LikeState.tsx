@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
-import { likeDataIndexed } from "~/data/DataState";
+import { likeDataIndexed } from "~/data/ClientDBLoader";
 
 export const useLikeStateUpdated = CreateState<string>();
 interface LikeStateType {
@@ -14,12 +14,12 @@ export const useLikeState = CreateObjectState<LikeStateType>();
 
 export function LikeState() {
   const likeData = useSyncExternalStore(
-    likeDataIndexed.subscribe,
-    () => likeDataIndexed.table
+    likeDataIndexed?.subscribe || (() => () => {}),
+    () => likeDataIndexed?.table
   );
   const { Set } = useLikeState();
   useEffect(() => {
-    if (likeData.db) {
+    if (likeData?.db) {
       likeData.getAll().then((likes) => {
         const _likes = likes.filter((v) => v.path);
         const likeMap = new Map(_likes.map((v) => [v.path!, v]));
