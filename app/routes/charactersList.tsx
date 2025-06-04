@@ -1,33 +1,19 @@
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/charactersList";
-import { SetLoaderEnv, SetMetaTitle } from "~/components/SetMeta";
-
-export function meta({ data }: Route.MetaArgs) {
-  // console.log(data);
-  // return [SetMetaTitle({ title: "キャラクターページ", data })];
-}
-
-export async function loader({ context }: Route.LoaderArgs) {
-  const env = getCfEnv({ context });
-  const db = getCfDB({ context });
-  const list = await db?.select<CharacterDataType>({
-    table: "characters",
-  });
-  return { ...SetLoaderEnv(env) };
-}
+import { SetMetaTitle } from "~/components/SetMeta";
+import { charactersDataIndexed } from "~/data/ClientDBLoader";
 
 export async function clientLoader({
   request,
   serverLoader,
   params,
 }: Route.ClientLoaderArgs) {
-  const serverData = await serverLoader();
-  console.log(serverData);
-  return serverData;
+  return await charactersDataIndexed?.table.getAll();
 }
 clientLoader.hydrate = true;
 
 export default function CharactersList({ loaderData }: Route.ComponentProps) {
+  console.log(loaderData);
   return (
     <>
       <h1>Character page !</h1>
