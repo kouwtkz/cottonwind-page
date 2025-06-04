@@ -3,11 +3,10 @@ import { setPrefix, setSuffix } from "~/components/functions/stringFix";
 import { CreateState } from "~/components/state/CreateState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
-import { SetStateAction } from "react";
 import { convertToMeeIndexedData, saveConvertMeeIndexedFromData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 import { IndexedDataClass } from "./MeeIndexedDataClass";
 import { AutoImageItemType, getImageAlbumMap } from "~/components/functions/media/imageFunction";
-import { ArrayEnv } from "~/components/Env";
+import { ArrayEnv } from "~/Env";
 
 export class IndexedDataLastmodMH<
   T,
@@ -143,7 +142,7 @@ export class IndexedDataLastmodMH<
   load(load?: LoadStateType) {
     this.emitEvent("load", load);
   }
-  override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<T>) {
+  override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<D>) {
     let callback: ((item: any) => Promise<T>) | undefined;
     if (this.options.convert) callback = (async (item) => {
       return await convertToMeeIndexedData<T, D>({ item, convert: this.options.convert! });

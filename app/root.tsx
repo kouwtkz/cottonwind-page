@@ -14,45 +14,34 @@ import "./styles/styles_lib.scss";
 import { getCfEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { SetLoaderEnv, SetMetaDefault } from "./components/SetMeta";
+import { SetMetaDefault, type SetMetaProps } from "./components/SetMeta";
+import "./data/ClientDBLoader";
+import { ClientDBLoader } from "./data/ClientDBLoader";
 
 export const links: Route.LinksFunction = () => [];
 
-export function meta({ data }: Route.MetaArgs) {
-  // console.log(data);
-  return [...SetMetaDefault({ data })];
+interface MetaArgs extends Route.MetaArgs {
+  data: SetMetaProps;
 }
-
-interface RootMetaArgsType {
-  image?: string;
-  since?: string;
-  account?: string;
-  title?: string;
-  description?: string;
+export function meta({ data }: MetaArgs) {
+  return [...SetMetaDefault({ env: data.env })];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  const env = getCfEnv({ context });
   return {
-    ...SetLoaderEnv(env),
-    image: env.SITE_IMAGE,
-    since: env.SINCE,
-    account: env.AUTHOR_ACCOUNT,
-  } as RootMetaArgsType;
+    env: getCfEnv({ context }),
+  } as SetMetaProps;
 }
 
-let clientServerData: RootMetaArgsType | null = null;
+let clientServerData: SetMetaProps | null = null;
 
-export async function clientLoader({
-  request,
-  serverLoader,
-  params,
-}: Route.ClientLoaderArgs) {
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   if (!clientServerData) {
-    const serverData = await serverLoader();
-    clientServerData = serverData;
-    return serverData;
-  } else return clientServerData;
+    const serverData = (await serverLoader()) as SetMetaProps;
+    clientServerData = serverData || null;
+  }
+  if (clientServerData.env) await ClientDBLoader({ env: clientServerData.env });
+  return clientServerData;
 }
 clientLoader.hydrate = true;
 

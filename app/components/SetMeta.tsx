@@ -1,20 +1,11 @@
-interface LoaderEnv {
-  title?: string;
-  description?: string;
-}
-
-export function SetLoaderEnv(env: Partial<Env>): LoaderEnv {
-  return { title: env.TITLE, description: env.DESCRIPTION };
-}
-
 export type MetaValuesType =
   | { title: string }
   | { name: string; content: string };
 
 interface SetMetaBaseProps {
-  data?: LoaderEnv;
+  env?: Partial<Env>;
 }
-interface SetMetaProps extends SetMetaBaseProps {
+export interface SetMetaProps extends SetMetaBaseProps {
   title?: string;
   description?: string;
 }
@@ -22,13 +13,13 @@ interface SetMetaProps extends SetMetaBaseProps {
 export function SetMetaDefault({
   title,
   description,
-  data,
+  env,
 }: SetMetaProps): MetaValuesType[] {
   const list: MetaValuesType[] = [];
-  SetMetaTitle({ title, data }).forEach((v) => {
+  SetMetaTitle({ title, env }).forEach((v) => {
     list.push(v);
   });
-  description = description || data?.description;
+  description = description || env?.DESCRIPTION;
   if (description) list.push({ name: "description", content: description });
   return list;
 }
@@ -36,9 +27,9 @@ export function SetMetaDefault({
 interface SetMetaTitleProps extends SetMetaBaseProps {
   title?: string;
 }
-export function SetMetaTitle({ title = "", data }: SetMetaTitleProps) {
+export function SetMetaTitle({ title = "", env }: SetMetaTitleProps) {
   const list: MetaValuesType[] = [];
-  const siteTitle = data?.title || "";
+  const siteTitle = env?.TITLE || "";
   const rightTitle = title && siteTitle ? " - " + siteTitle : siteTitle;
   title = title + rightTitle;
   if (title) {

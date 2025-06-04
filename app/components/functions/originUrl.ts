@@ -19,12 +19,12 @@ export function getOriginFromAPI(env: Partial<Env>, origin: string) {
   else return origin;
 }
 
-interface APIEnvOptions extends Partial<Env> {
+export interface EnvWithCfOriginOptions extends Partial<Env> {
   MEDIA_CF_ORIGIN?: string;
   API_CF_ORIGIN?: string;
 }
 
-export function getAPIOrigin(env: APIEnvOptions, origin: string, localFullPath = false) {
+export function getAPIOrigin(env: EnvWithCfOriginOptions, origin: string, localFullPath = false) {
   let result: string | undefined;
   if ((env.API_ORIGIN && !env.API_ORIGIN.match("://"))) {
     result = new URL(env.API_ORIGIN, origin).href;
@@ -37,7 +37,7 @@ export function getAPIOrigin(env: APIEnvOptions, origin: string, localFullPath =
   return result;
 }
 
-export function getMediaOrigin(env: APIEnvOptions, origin: string, localFullPath = false) {
+export function getMediaOrigin(env: EnvWithCfOriginOptions, origin: string, localFullPath = false) {
   let result: string | undefined;
   if (env.ORIGIN === origin) {
     result = env.MEDIA_ORIGIN;

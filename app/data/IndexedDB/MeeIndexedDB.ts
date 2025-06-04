@@ -1,4 +1,4 @@
-import { findMeeSort, findMeeWheresFilter } from "~/components/functions/find/findMee";
+import { findMeeSort, findMeeWheresFilter } from "~/data/find/findMee";
 
 export class MeeIndexedDB implements Props_MeeIndexedDB {
   db?: IDBDatabase;
@@ -102,6 +102,7 @@ export class MeeIndexedDBTable<T> {
     return new MeeIndexedDBTable(this.options, this.db);
   }
   async usingTransaction({ mode = "readonly", callback }: Props_MeeIndexedDB_UsingTransaction) {
+    if (!this.db) console.error(this.options.name + "のdbが定義されていません");
     const transaction = this.db?.transaction(this.options.name, mode)
     if (transaction) {
       try {
