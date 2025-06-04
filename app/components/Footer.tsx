@@ -2,14 +2,17 @@ import ShareButton from "./button/ShareButton";
 import SvgMaskSns from "./svg/mask/SvgMaskSns";
 import { ArrayEnv } from "../Env";
 import { getYear } from "./functions/DateFunction";
-import type { Route } from "../+types/root";
+import type { OmittedEnv } from "types/custom-configuration";
 
-export function Footer({ loaderData }: Route.ComponentProps) {
+interface FooterProps {
+  env?: Partial<OmittedEnv>;
+}
+export function Footer({ env }: FooterProps) {
   return (
     <footer>
       <div>
         <span className="copyright">
-          © {loaderData.since}-{getYear(new Date())} {loaderData.account}
+          © {env?.SINCE}-{getYear(new Date())} {env?.AUTHOR_ACCOUNT}
         </span>
       </div>
       <LinksList myLinks={ArrayEnv.LINKS || []} />

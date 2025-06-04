@@ -17,6 +17,7 @@ import { Footer } from "./components/Footer";
 import { SetMetaDefault, type SetMetaProps } from "./components/SetMeta";
 import "./data/ClientDBLoader";
 import { ClientDBLoader } from "./data/ClientDBLoader";
+import type { ReactNode } from "react";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -40,12 +41,12 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
     const serverData = (await serverLoader()) as SetMetaProps;
     clientServerData = serverData || null;
   }
-  if (clientServerData.env) await ClientDBLoader({ env: clientServerData.env });
+  if (clientServerData.env) ClientDBLoader({ env: clientServerData.env });
   return clientServerData;
 }
 clientLoader.hydrate = true;
 
-export default function App({ loaderData, ...e }: Route.ComponentProps) {
+export function Layout({ children }: { children?: ReactNode }) {
   return (
     <html lang="ja">
       <head>
@@ -55,20 +56,26 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
         <Links />
       </head>
       <body>
-        {/* <Loading /> */}
-        <main id="root">
-          <HeaderClient loaderData={loaderData} {...e} />
-          <div className="content-base">
-            <div className="contant-parent">
-              <Outlet />
-            </div>
-          </div>
-          <Footer loaderData={loaderData} {...e} />
-        </main>
-        <ScrollRestoration />
-        <Scripts />
+        <main id="root">{children}</main>
       </body>
     </html>
+  );
+}
+
+export default function App({ loaderData, ...e }: Route.ComponentProps) {
+  return (
+    <>
+      {/* <Loading /> */}
+      <HeaderClient env={loaderData.env} {...e} />
+      <div className="content-base">
+        <div className="contant-parent">
+          <Outlet />
+        </div>
+      </div>
+      <Footer env={loaderData.env} {...e} />
+      <ScrollRestoration />
+      <Scripts />
+    </>
   );
 }
 

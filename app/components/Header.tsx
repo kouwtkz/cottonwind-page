@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router";
-import type { Route } from "../+types/root";
 import { TITLE_IMAGE_PATH } from "~/Env";
+import type { OmittedEnv } from "types/custom-configuration";
 
-export function SiteTitle({ loaderData }: Route.ComponentProps) {
-  const title = loaderData.title;
+interface HeaderProps {
+  env?: Partial<OmittedEnv>;
+}
+export function SiteTitle({ env }: HeaderProps) {
+  const title = env?.TITLE;
   // const lang = useLang()[0];
   // const title =
   //   (lang === defaultLang ? env?.TITLE : env?.TITLE_EN) ??
@@ -38,7 +41,7 @@ export function SiteTitle({ loaderData }: Route.ComponentProps) {
   );
 }
 
-export function HeaderClient(props: Route.ComponentProps) {
+export function HeaderClient(props: HeaderProps) {
   return (
     <header id="header" className="siteHeader">
       {/* <BackButton className="backButton" /> */}

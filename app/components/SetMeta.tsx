@@ -1,9 +1,11 @@
+import type { OmittedEnv } from "types/custom-configuration";
+
 export type MetaValuesType =
   | { title: string }
   | { name: string; content: string };
 
 interface SetMetaBaseProps {
-  env?: Partial<Env>;
+  env?: Partial<OmittedEnv>;
 }
 export interface SetMetaProps extends SetMetaBaseProps {
   title?: string;

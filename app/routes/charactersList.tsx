@@ -1,13 +1,21 @@
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/charactersList";
-import { SetMetaTitle } from "~/components/SetMeta";
-import { charactersDataIndexed } from "~/data/ClientDBLoader";
+import {
+  SetMetaDefault,
+  SetMetaTitle,
+  type SetMetaProps,
+} from "~/components/SetMeta";
+import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
+
+export async function loader() {
+}
 
 export async function clientLoader({
   request,
   serverLoader,
   params,
 }: Route.ClientLoaderArgs) {
+  await waitIdb;
   return await charactersDataIndexed?.table.getAll();
 }
 clientLoader.hydrate = true;

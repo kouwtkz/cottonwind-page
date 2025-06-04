@@ -25,6 +25,11 @@ import { concatOriginUrl, getAPIOrigin, type EnvWithCfOriginOptions } from "~/co
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { corsFetch } from "~/components/functions/fetch";
 
+let waitIdbResolve: (value?: unknown) => void;
+export let waitIdb = new Promise((resolve, reject) => {
+  waitIdbResolve = resolve;
+});
+
 type anyIdbStateClass = IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>;
 export let IdbStateClassMap: Map<string, anyIdbStateClass> | null = null;
 
@@ -161,5 +166,7 @@ export async function ClientDBLoader({
           await obj.save({ data });
         })
       )
+    }).then(() => {
+      waitIdbResolve();
     })
 }
