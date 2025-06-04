@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
 import { useEnv } from "~/components/state/EnvState";
 import { postsDataIndexed } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
@@ -13,11 +13,8 @@ export const usePosts = CreateObjectState<usePostsType>();
 
 export default function PostState() {
   const { Set } = usePosts();
-  const postsData = useSyncExternalStore(
-    postsDataIndexed?.subscribe || (() => () => {}),
-    () => postsDataIndexed?.table
-  );
   useEffect(() => {
+    const postsData = postsDataIndexed.table;
     if (postsData?.db) {
       postsData
         .find({ where: { body: { has: true }, postId: { has: true } } })
@@ -26,6 +23,6 @@ export default function PostState() {
           Set({ postsData, posts, postsMap });
         });
     }
-  }, [postsData]);
+  }, [postsDataIndexed]);
   return <></>;
 }

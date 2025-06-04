@@ -16,7 +16,7 @@ export async function clientLoader({
   params,
 }: Route.ClientLoaderArgs) {
   await waitIdb;
-  return await charactersDataIndexed?.table.getAll();
+  return await charactersDataIndexed.table.getAll();
 }
 clientLoader.hydrate = true;
 

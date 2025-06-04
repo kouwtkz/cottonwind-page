@@ -236,8 +236,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           }
         )
         .then(() => {
-          charactersDataIndexed?.load("no-cache");
-          if (data.key) imageDataIndexed?.load("no-cache");
+          charactersDataIndexed.load("no-cache");
+          if (data.key) imageDataIndexed.load("no-cache");
           if (move) nav(`/character/${formValues.key}`);
         });
     } else {
@@ -289,7 +289,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               toast("メイン画像に設定しました");
               break;
           }
-          charactersDataIndexed?.load("no-cache");
+          charactersDataIndexed.load("no-cache");
         });
       }
     }
@@ -390,10 +390,8 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   });
                 })
                 .then(async (r) => {
-                  imageDataIndexed?.load("no-cache");
-                  return r
-                    ? ((await r[0].data) as KeyValueType<unknown>)
-                    : null;
+                  imageDataIndexed.load("no-cache");
+                  return (r?.[0].data || null) as ImageDataType | null;
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
@@ -407,7 +405,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                           [mode]: mode === "icon" ? "" : o.key,
                         },
                       }).then(() => {
-                        charactersDataIndexed?.load("no-cache");
+                        charactersDataIndexed.load("no-cache");
                       });
                     }
                   }
@@ -690,7 +688,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     data: { target: chara.key },
                   }).then((r) => {
                     if (r.ok) {
-                      charactersDataIndexed?.load("no-cache");
+                      charactersDataIndexed.load("no-cache");
                       nav("/character", { replace: true });
                     }
                   });
@@ -792,7 +790,7 @@ export function CharaEditButton() {
                   })
                 )
                 .then(() => {
-                  imageDataIndexed?.load("no-cache");
+                  imageDataIndexed.load("no-cache");
                 });
             }}
           >
@@ -804,7 +802,7 @@ export function CharaEditButton() {
             title="キャラクターデータベースのインポート"
             onClick={() => {
               ImportCharacterJson().then(() => {
-                charactersDataIndexed?.load("no-cache-reload");
+                charactersDataIndexed.load("no-cache-reload");
               });
             }}
           >
@@ -901,7 +899,7 @@ export function CharaImageSettingRbButtons({
           }),
           mode
         );
-        charactersDataIndexed?.load("no-cache");
+        charactersDataIndexed.load("no-cache");
       }
     }
 
@@ -931,14 +929,14 @@ export function CharaImageSettingRbButtons({
                     }
                   })
                   .then(() => {
-                    imageDataIndexed?.load("no-cache");
+                    imageDataIndexed.load("no-cache");
                     return SendPostFetch({
                       apiOrigin,
                       data: { target: charaName, icon: "" },
                     });
                   })
                   .then(() => {
-                    charactersDataIndexed?.load("no-cache");
+                    charactersDataIndexed.load("no-cache");
                   }),
                 "icon"
               );

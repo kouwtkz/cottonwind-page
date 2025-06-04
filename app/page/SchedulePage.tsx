@@ -1,6 +1,6 @@
-import { CalendarMee, CalendarMeeProps } from "~/components/calendar/CalendarMee";
+import { CalendarMee, type CalendarMeeProps } from "~/components/calendar/CalendarMee";
 
-const MeeCalendarURL = location.hostname.endsWith(".pages.dev")
+const MeeCalendarURL = globalThis.location?.hostname.endsWith(".pages.dev")
   ? "https://cottonwind-calendar.pages.dev"
   : "https://calendar.cottonwind.com";
 

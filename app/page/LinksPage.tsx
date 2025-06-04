@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, {
   type CSSProperties,
   type HTMLAttributes,
@@ -48,6 +47,7 @@ import {
 } from "~/data/ClientDBLoader";
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
+import { corsFetch, corsFetchJSON } from "~/components/functions/fetch";
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -106,7 +106,7 @@ function InviteDiscordLink({
   const invite = searchParams.get("invite");
   const [isComplete] = useDataIsComplete();
   const question = useMemo(async () => {
-    return axios.get("/fetch/discord/invite").then((r) => r.data);
+    return fetch("/fetch/discord/invite").then((r) => r.text());
   }, []);
   useEffect(() => {
     if (isComplete && invite === "discord") {
@@ -130,16 +130,16 @@ function InviteDiscordLink({
           e.preventDefault();
           const answer = prompt(await question);
           if (answer) {
-            axios
-              .get(
-                MakeRelativeURL({
-                  pathname: "/fetch/discord/invite",
-                  query: { invite_password: answer },
-                })
-              )
-              .then((r) => {
+            fetch(
+              MakeRelativeURL({
+                pathname: "/fetch/discord/invite",
+                query: { invite_password: answer },
+              })
+            )
+              .then((r) => r.text())
+              .then((data) => {
                 element.title = "Discordの招待リンク";
-                element.href = r.data;
+                element.href = data;
                 element.setAttribute("invited", "");
                 element.click();
               })
@@ -198,14 +198,13 @@ export function MyBanners() {
                 });
               if (dirty.length > 0) {
                 toast.promise(
-                  axios
-                    .patch(concatOriginUrl(apiOrigin, "image/send"), dirty, {
-                      withCredentials: true,
-                    })
-                    .then(() => {
-                      imageDataIndexed?.load("no-cache");
-                      setMove(0);
-                    }),
+                  corsFetch(concatOriginUrl(apiOrigin, "image/send"), {
+                    method: "PATCH",
+                    body: dirty,
+                  }).then(() => {
+                    imageDataIndexed.load("no-cache");
+                    setMove(0);
+                  }),
                   {
                     pending: "送信中",
                     success: "送信しました",
@@ -391,14 +390,13 @@ function LinksContainer({
                     });
                   if (dirty.length > 0) {
                     toast.promise(
-                      axios
-                        .post(concatOriginUrl(apiOrigin, send), dirty, {
-                          withCredentials: true,
-                        })
-                        .then(() => {
-                          indexedDB.load("no-cache");
-                          setMove(0);
-                        }),
+                      corsFetchJSON(
+                        concatOriginUrl(apiOrigin, send),
+                        dirty
+                      ).then(() => {
+                        indexedDB.load("no-cache");
+                        setMove(0);
+                      }),
                       {
                         pending: "送信中",
                         success: "送信しました",

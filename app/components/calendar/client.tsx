@@ -8,7 +8,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router";
-import "~/components/hook/ScrollLock";
+import "~/.client/ScrollLock";
 import { ClickEffect } from "~/components/click/ClickEffect";
 import { ClickEventState } from "~/components/click/useClickEvent";
 import { Theme } from "~/components/theme/Theme";

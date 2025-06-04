@@ -1,14 +1,14 @@
-import { WebSite, BlogPosting, WithContext } from "schema-dts";
-import { toUpperFirstCase } from "../functions/doc/StrFunctions";
+import type { WebSite, BlogPosting, WithContext } from "schema-dts";
+import { toUpperFirstCase } from "~/components/functions/doc/StrFunctions";
 import {
   autoFixGalleryTagsOptions,
   defaultGalleryTags,
   getTagsOptions,
 } from "../components/dropdown/SortFilterTags";
-import { RoutingUnion } from "../routes/RoutingList";
 import { parse } from "marked";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { ArrayEnv } from "~/Env";
+import type { OmittedEnv } from "types/custom-configuration";
 
 export interface SetMetaProps {
   path: string;
@@ -19,7 +19,7 @@ export interface SetMetaProps {
   post?: PostType | PostDataType | null;
   noindex?: boolean;
   mediaOrigin?: string;
-  env?: SiteConfigEnv;
+  env?: OmittedEnv;
 }
 
 type MetaValuesReturnType = {
@@ -66,7 +66,7 @@ export function MetaValues({
     description = "Discordへの招待ページ（合言葉式）";
   }
   if (!title)
-    switch (list[1] as RoutingUnion | "") {
+    switch (list[1] as string | "") {
       case "gallery":
         title = "ギャラリー | " + siteTitle;
         const group = list[2];

@@ -8,7 +8,6 @@ import { UploadToast } from "~/data/ClientDBFunctions";
 import { useApiOrigin } from "~/components/state/EnvState";
 import { useFiles } from "~/components/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import { type FieldValues, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -129,14 +128,13 @@ export function FilesEdit({
     ) as SiteLink;
     entry.id = dataItem?.id;
     toast.promise(
-      axios
-        .patch(concatOriginUrl(apiOrigin, send), entry, {
-          withCredentials: true,
-        })
-        .then(() => {
-          filesDataIndexed?.load("no-cache");
-          setEdit();
-        }),
+      corsFetch(concatOriginUrl(apiOrigin, send), {
+        method: "PATCH",
+        body: entry,
+      }).then(() => {
+        filesDataIndexed.load("no-cache");
+        setEdit();
+      }),
       {
         pending: "送信中",
         success: "送信しました",
@@ -167,12 +165,13 @@ export function FilesEdit({
           onClick={async () => {
             const id = item?.id;
             if (id && confirm("本当に削除しますか？")) {
-              axios
-                .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
-                .then(() => {
-                  filesDataIndexed?.load("no-cache");
-                  setEdit();
-                });
+              corsFetch(concatOriginUrl(apiOrigin, send), {
+                method: "DELETE",
+                body: { id },
+              }).then(() => {
+                filesDataIndexed.load("no-cache");
+                setEdit();
+              });
             }
           }}
         >

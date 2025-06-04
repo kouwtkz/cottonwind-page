@@ -1,8 +1,5 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
-import {
-  useIsLogin,
-  useMediaOrigin,
-} from "~/components/state/EnvState";
+import { useEffect, useMemo } from "react";
+import { useIsLogin, useMediaOrigin } from "~/components/state/EnvState";
 import { Link, useParams } from "react-router";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "~/components/utility/FileTool";
@@ -36,7 +33,6 @@ import {
 } from "~/components/functions/arrayFunction";
 import { useSounds } from "~/components/state/SoundState";
 import { toast } from "react-toastify";
-import axios from "axios";
 import {
   DownloadDataObject,
   getIndexedDBJsonOptions,
@@ -53,6 +49,7 @@ import { useCharacters } from "~/components/state/CharacterState";
 import { FormatDate } from "~/components/functions/DateFunction";
 import { KeyValueEditable } from "~/components/state/KeyValueDBState";
 import { useImageState } from "~/components/state/ImageState";
+import { corsFetch } from "~/components/functions/fetch";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -127,7 +124,7 @@ function FilesManager() {
                 FilesUpload({ send: "/file/send", files, apiOrigin })
               )
               .then(() => {
-                filesDataIndexed?.load("no-cache");
+                filesDataIndexed.load("no-cache");
               });
           }}
         >
@@ -322,10 +319,6 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
 
 function DBPage() {
   const { charactersMap } = useCharacters();
-  const tableIndexed = useSyncExternalStore(
-    tableVersionDataIndexed?.subscribe || (() => () => {}),
-    () => tableVersionDataIndexed?.table
-  );
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -338,7 +331,9 @@ function DBPage() {
             (async function () {
               const currentVersionMap = new Map(
                 (
-                  await tableIndexed.find({ where: { key: { not: "tables" } } })
+                  await tableVersionDataIndexed.table.find({
+                    where: { key: { not: "tables" } },
+                  })
                 ).map((v) => [v.key, v])
               );
               const newVersions = findMee(IdbStateClassList, {
@@ -383,36 +378,31 @@ function DBPage() {
                     switch (object.key) {
                       case ImageDataOptions.name:
                         return ImportImagesJson({
-                          
                           charactersMap,
                           overwrite: true,
                           json,
                         });
                       case charactersDataOptions.name:
                         return ImportCharacterJson({
-                          
                           json,
                         });
                       case postsDataOptions.name:
                         return ImportPostJson({
-                          
                           json,
                         });
                       case linksDataOptions.name:
                         return ImportLinksJson({
-                          
                           json,
                         });
                       case linksFavDataOptions.name:
                         return ImportLinksJson({
-                          
                           json,
                           dir: "/fav",
                         });
-                      case keyValueDBDataIndexed?.key:
+                      case keyValueDBDataIndexed.key:
                         return ImportCommonJson({
                           options: KeyValueDBDataOptions,
-                          
+
                           json,
                         });
                       default:
@@ -423,11 +413,9 @@ function DBPage() {
                   Promise.all(list)
                     .then(() => {
                       return toast.promise(
-                        axios.post(
+                        corsFetch(
                           concatOriginUrl(apiOrigin, "data/tables/update"),
-                          {
-                            withCredentials: true,
-                          }
+                          { method: "POST" }
                         ),
                         {
                           pending: "送信中",

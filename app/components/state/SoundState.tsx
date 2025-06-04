@@ -1,8 +1,14 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
 import { useSoundPlayer } from "~/components/layout/SoundPlayer";
 import { CreateObjectState, CreateState } from "./CreateState";
-import { soundsDataIndexed, soundAlbumsDataIndexed } from "~/data/ClientDBLoader";
-import { getSoundAlbumsMap, getSoundsMap } from "~/components/functions/soundFunction";
+import {
+  soundsDataIndexed,
+  soundAlbumsDataIndexed,
+} from "~/data/ClientDBLoader";
+import {
+  getSoundAlbumsMap,
+  getSoundsMap,
+} from "~/components/functions/soundFunction";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 
 interface SoundsStateType {
@@ -23,16 +29,10 @@ export const useSounds = CreateObjectState<SoundsStateType>({
 
 export function SoundState() {
   const { Set } = useSounds();
-  const soundsData = useSyncExternalStore(
-    soundsDataIndexed?.subscribe || (() => () => {}),
-    () => soundsDataIndexed?.table
-  );
-  const soundAlbumsData = useSyncExternalStore(
-    soundAlbumsDataIndexed?.subscribe || (() => () => {}),
-    () => soundAlbumsDataIndexed?.table
-  );
   const { RegistPlaylist } = useSoundPlayer();
   useEffect(() => {
+    const soundsData = soundsDataIndexed.table;
+    const soundAlbumsData = soundAlbumsDataIndexed.table;
     if (soundsData?.db && soundAlbumsData) {
       (async () => {
         const sounds = await soundsData.getAll();
@@ -68,6 +68,6 @@ export function SoundState() {
         }
       })();
     }
-  }, [soundsData, soundAlbumsData, RegistPlaylist]);
+  }, [soundsDataIndexed, soundAlbumsDataIndexed, RegistPlaylist]);
   return <></>;
 }

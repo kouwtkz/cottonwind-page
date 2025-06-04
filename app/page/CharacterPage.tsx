@@ -32,18 +32,18 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
 import { defineSortTags } from "~/components/dropdown/SortFilterTags";
-import { useApiOrigin, useIsLogin } from "~/components/state/EnvState";
+import { useIsLogin } from "~/components/state/EnvState";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { Movable } from "~/components/layout/edit/Movable";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { charactersDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, charactersDataIndexed } from "~/data/ClientDBLoader";
 import { getInitialString } from "~/components/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "~/components/button/LikeButton";
 import { useLang } from "~/components/multilingual/LangState";
 import { defaultLang } from "~/Env";
+import { corsFetchJSON } from "~/components/functions/fetch";
 
 interface PartsType {
   label?: string;
@@ -291,7 +291,6 @@ function CharaListPage() {
   const { parts } = useCharacterPageState();
   const { state } = useLocation();
   const extendMode = useExtendMode()[0];
-  const apiOrigin = useApiOrigin()[0];
   const [move, setMove] = useMoveCharacters();
   const Inner = useCallback(
     ({ item }: { item: CharacterType }) => (
@@ -343,18 +342,13 @@ function CharaListPage() {
                         });
                       if (dirty.length > 0) {
                         toast.promise(
-                          axios
-                            .post(
-                              concatOriginUrl(apiOrigin, "character/send"),
-                              dirty,
-                              {
-                                withCredentials: true,
-                              }
-                            )
-                            .then(() => {
-                              charactersDataIndexed?.load("no-cache");
-                              setMove(0);
-                            }),
+                          corsFetchJSON(
+                            concatOriginUrl(apiOrigin, "character/send"),
+                            dirty
+                          ).then(() => {
+                            charactersDataIndexed.load("no-cache");
+                            setMove(0);
+                          }),
                           {
                             pending: "送信中",
                             success: "送信しました",

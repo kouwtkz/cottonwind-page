@@ -1,6 +1,6 @@
 import {
-  CSSProperties,
-  ReactNode,
+  type CSSProperties,
+  type ReactNode,
   useCallback,
   useEffect,
   useState,
@@ -15,16 +15,16 @@ import {
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
+  type UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
 
-type InnerElement<T> = (props: { item: T; move?: boolean }) => JSX.Element;
+type InnerElement<T> = (props: { item: T; move?: boolean }) => React.ReactNode;
 export function Movable<T>({
   items: Items,
   Inner,

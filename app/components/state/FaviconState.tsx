@@ -5,11 +5,12 @@ import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useCharacters } from "./CharacterState";
 
-const defaultLink = document.querySelector<HTMLLinkElement>(`link[rel="icon"]`);
+const defaultLink =
+  globalThis.document?.querySelector<HTMLLinkElement>(`link[rel="icon"]`);
 const defaultValue = defaultLink?.href;
 const element = (() => {
   if (defaultLink) return defaultLink;
-  else {
+  else if (globalThis.document) {
     const link = document.createElement("link");
     link.rel = "icon";
     document.head.appendChild(link);
@@ -41,15 +42,17 @@ function FaviconSystemState() {
       }, defaultWait);
   }, []);
   useEffect(() => {
-    if (!isWait && src) {
-      if (typeof src === "string") {
-        element.href = src;
-      } else {
-        element.href = concatOriginUrl(mediaOrigin, src.src);
-      }
-    } else if (defaultValue) {
-      element.href = defaultValue;
-    } else element.removeAttribute("href");
+    if (element) {
+      if (!isWait && src) {
+        if (typeof src === "string") {
+          element.href = src;
+        } else {
+          element.href = concatOriginUrl(mediaOrigin, src.src);
+        }
+      } else if (defaultValue) {
+        element.href = defaultValue;
+      } else element.removeAttribute("href");
+    }
   }, [src, mediaOrigin, isWait]);
   return <></>;
 }

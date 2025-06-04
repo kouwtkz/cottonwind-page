@@ -4,11 +4,10 @@ import { toast } from "react-toastify";
 import { toastLoadingOptions } from "../define/toastContainerDef";
 import { useLocation } from "react-router";
 import { toLikePath } from "~/components/functions/media/likeFunction";
-import { likeDataIndexed } from "~/data/ClientDBLoader";
-import axios from "axios";
-import { useApiOrigin } from "~/components/state/EnvState";
+import { apiOrigin, likeDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useLikeState } from "~/components/state/LikeState";
+import { corsFetchJSON } from "../functions/fetch";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;
@@ -23,7 +22,6 @@ export function LikeButton({
   title,
   ...props
 }: LikeButtonProps) {
-  const apiOrigin = useApiOrigin()[0];
   const { pathname, search } = useLocation();
   if (!url) url = pathname + search;
   const pathKey = useMemo(() => toLikePath(url), [url]);
@@ -52,25 +50,27 @@ export function LikeButton({
       className={className}
       onClick={(e) => {
         if (checked) {
-          axios
-            .post(concatOriginUrl(apiOrigin, "like/send"), {
+          corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
+            method: "POST",
+            body: {
               path: pathKey,
               mode: "remove",
-            } as LikeFormType)
-            .then(() => {
-              likeDataIndexed?.load("no-cache");
-              toast("いいねを解除しました", toastLoadingOptions);
-            });
+            } as LikeFormType,
+          }).then(() => {
+            likeDataIndexed.load("no-cache");
+            toast("いいねを解除しました", toastLoadingOptions);
+          });
         } else {
-          axios
-            .post(concatOriginUrl(apiOrigin, "like/send"), {
+          corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
+            method: "POST",
+            body: {
               path: pathKey,
               mode: "add",
-            } as LikeFormType)
-            .then(() => {
-              likeDataIndexed?.load("no-cache");
-              toast("いいねしました", toastLoadingOptions);
-            });
+            } as LikeFormType,
+          }).then(() => {
+            likeDataIndexed.load("no-cache");
+            toast("いいねしました", toastLoadingOptions);
+          });
         }
         if (onClick) onClick(e);
       }}

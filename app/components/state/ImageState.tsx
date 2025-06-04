@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo } from "react";
 import { imageDataIndexed, likeDataIndexed } from "~/data/ClientDBLoader";
 import {
   getImageAlbumMap,
@@ -35,21 +35,18 @@ export function ImageState() {
   const { Set } = useImageState();
   const { likeCategoryMap } = useLikeState();
   const { charactersMap } = useCharacters();
-  const imagesData = useSyncExternalStore(
-    imageDataIndexed?.subscribe || (() => () => {}),
-    () => imageDataIndexed?.table
-  );
   useEffect(() => {
+    const imagesData = imageDataIndexed.table;
     if (
       imagesData &&
-      !imageDataIndexed?.isUpgrade &&
+      !imageDataIndexed.isUpgrade &&
       charactersMap &&
       likeCategoryMap
     ) {
       imagesData.getAll().then((images) => {
         const imagesLikeData = likeCategoryMap.get("image");
-        const lastmod = imageDataIndexed?.beforeLastmod;
-        const latest = imageDataIndexed?.latest;
+        const lastmod = imageDataIndexed.beforeLastmod;
+        const latest = imageDataIndexed.latest;
         images.forEach((image) => {
           if (lastmod)
             image.update = Boolean(
@@ -115,7 +112,7 @@ export function ImageState() {
         });
       });
     }
-  }, [imagesData, likeCategoryMap, charactersMap]);
+  }, [imageDataIndexed, likeCategoryMap, charactersMap]);
   return <></>;
 }
 

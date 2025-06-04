@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useSyncExternalStore } from "react";
+import { type JSX, useEffect } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { useEnv } from "./EnvState";
@@ -40,16 +40,13 @@ export function CharacterState() {
 }
 
 function CharacterDataState() {
-  const charactersData = useSyncExternalStore(
-    charactersDataIndexed?.subscribe || (() => () => {}),
-    () => charactersDataIndexed?.table
-  );
   const { Set } = useCharacters();
   const { imagesMap } = useImageState();
   const { sounds, defaultPlaylist } = useSounds();
   const { likeCategoryMap } = useLikeState();
   const env = useEnv()[0];
   useEffect(() => {
+    const charactersData = charactersDataIndexed.table;
     if (
       charactersData?.db &&
       sounds &&
@@ -112,7 +109,7 @@ function CharacterDataState() {
         Set({ charactersData, characters, charactersMap, charactersTags });
       });
     }
-  }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env]);
+  }, [charactersDataIndexed, sounds, defaultPlaylist, likeCategoryMap, env]);
   useEffect(() => {
     if (imagesMap) {
       Set(({ charactersMap, characters }) => {

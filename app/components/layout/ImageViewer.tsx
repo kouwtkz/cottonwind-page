@@ -28,7 +28,7 @@ import {
 import { useCharacters } from "~/components/state/CharacterState";
 import { useImageState } from "~/components/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
-import { scrollLock } from "~/components/hook/ScrollLock";
+import { scrollLock } from "~/.client/ScrollLock";
 import { useIsLogin, useMediaOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { EmbedNode, useFiles } from "~/components/state/FileState";
@@ -97,7 +97,7 @@ function InfoArea({ image }: InfoAreaProps) {
   const othertags = tags.filter((tag) =>
     registeredTags.every((rt) => rt !== tag)
   );
-  const tagsBaseURL = location.origin + "/gallery";
+  const tagsBaseURL = (globalThis.window?.location.origin || "") + "/gallery";
   return (
     <div className="infoArea">
       {isEdit ? null : (

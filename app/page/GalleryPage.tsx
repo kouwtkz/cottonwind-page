@@ -1,6 +1,6 @@
 import {
   Link,
-  To,
+  type To,
   useLocation,
   useNavigate,
   useParams,
@@ -16,7 +16,6 @@ import React, {
   useLayoutEffect,
   useMemo,
   useState,
-  useSyncExternalStore,
 } from "react";
 import {
   defineSortTags,
@@ -569,7 +568,7 @@ function UploadChain({
             }
           : undefined),
       }).then(() => {
-        imageDataIndexed?.load("no-cache");
+        imageDataIndexed.load("no-cache");
       });
     },
     [item, character, apiOrigin, webp, thumbnail, notDraft, tags]

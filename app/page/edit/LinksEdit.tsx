@@ -19,7 +19,6 @@ import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "~/components/utility/FileTool";
 import { imageDataIndexed } from "~/data/ClientDBLoader";
 import { ImportLinksJson } from "~/data/ClientDBFunctions";
-import axios from "axios";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { type FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -52,6 +51,7 @@ import {
   useLinks,
 } from "~/components/state/LinksState";
 import { findMee } from "~/data/find/findMee";
+import { corsFetch, corsFetchJSON } from "~/components/functions/fetch";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -142,14 +142,10 @@ export function LinksEdit({
       entry.category = null;
     }
     toast.promise(
-      axios
-        .post(concatOriginUrl(apiOrigin, send), entry, {
-          withCredentials: true,
-        })
-        .then(() => {
-          indexedDB.load("no-cache");
-          setEdit(false);
-        }),
+      corsFetchJSON(concatOriginUrl(apiOrigin, send), entry).then(() => {
+        indexedDB.load("no-cache");
+        setEdit(false);
+      }),
       {
         pending: "送信中",
         success: "送信しました",
@@ -175,18 +171,12 @@ export function LinksEdit({
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      axios
-        .post(
-          concatOriginUrl(apiOrigin, send),
-          {
-            id: item?.id,
-            image: selectedImage.key,
-            category,
-          } as SiteLinkData,
-          {
-            withCredentials: true,
-          }
-        )
+      corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+        id: item?.id,
+        image: selectedImage.key,
+        category,
+      } as SiteLinkData)
+        .then(async (r) => ({ ...r, data: (await r.json()) as any }))
         .then((r) => {
           if (r.status === 201) {
             targetLastmod.current = r.data[0].entry.lastmod;
@@ -207,13 +197,14 @@ export function LinksEdit({
           onClick={async () => {
             const id = item?.id;
             if (id && confirm("本当に削除しますか？")) {
-              axios
-                .delete(concatOriginUrl(apiOrigin, send), { data: { id } })
-                .then(() => {
-                  toast.success("削除しました");
-                  indexedDB.load("no-cache");
-                  setEdit(false);
-                });
+              corsFetch(concatOriginUrl(apiOrigin, send), {
+                method: "DELETE",
+                body: { id },
+              }).then(() => {
+                toast.success("削除しました");
+                indexedDB.load("no-cache");
+                setEdit(false);
+              });
             }
           }}
         >
@@ -259,25 +250,20 @@ export function LinksEdit({
                   });
                 })
                 .then(async (r) => {
-                  imageDataIndexed?.load("no-cache");
-                  return r
-                    ? ((await r[0].data) as KeyValueType<unknown>)
-                    : null;
+                  imageDataIndexed.load("no-cache");
+                  return (r?.[0].data || null) as ImageDataType | null;
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
-                    return axios
-                      .post(
-                        concatOriginUrl(apiOrigin, send),
-                        {
-                          id: item?.id,
-                          image: o.key,
-                          category,
-                        } as SiteLinkData,
-                        {
-                          withCredentials: true,
-                        }
-                      )
+                    return corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+                      id: item?.id,
+                      image: o.key,
+                      category,
+                    } as SiteLinkData)
+                      .then(async (r) => ({
+                        ...r,
+                        data: (await r.json()) as any,
+                      }))
                       .then((r) => {
                         if (r.status === 201) {
                           targetLastmod.current = r.data[0].entry.lastmod;
@@ -500,7 +486,7 @@ export function MyBannerEditButtons() {
                   });
                 })
                 .then(async () => {
-                  imageDataIndexed?.load("no-cache");
+                  imageDataIndexed.load("no-cache");
                 });
             }}
           />

@@ -4,7 +4,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { CreateObjectState } from "./CreateState";
@@ -18,7 +17,6 @@ import {
 } from "react-icons/ri";
 import { type FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { fileDialog } from "~/components/utility/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
@@ -37,12 +35,8 @@ type EditType = "text" | "textarea" | "image";
 
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
-  const data = useSyncExternalStore(
-    keyValueDBDataIndexed?.subscribe || (() => () => {}),
-    () => keyValueDBDataIndexed?.table
-  );
-
   useEffect(() => {
+    const data = keyValueDBDataIndexed.table;
     if (data?.db) {
       data.getAll().then((items) => {
         const parsedData = items.map(({ private: p, ...props }) => ({
@@ -58,7 +52,7 @@ export function KeyValueDBState() {
         });
       });
     }
-  }, [data]);
+  }, [keyValueDBDataIndexed]);
   const { edit } = useKeyValueEdit();
   return <>{edit ? <KeyValueEdit /> : null}</>;
 }
@@ -71,11 +65,12 @@ export const useKeyValueEdit = CreateObjectState<{
   placeholder?: string;
 }>({ edit: null, type: "text" });
 
-const send = keyValueDBDataIndexed?.options.src + "/send";
+const send = (keyValueDBDataIndexed?.options.src || "") + "/send";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OmittedEnv } from "types/custom-configuration";
+import { corsFetch, corsFetchJSON } from "../functions/fetch";
 
 const schema = z.object({
   value: z.string().nullish(),
@@ -125,13 +120,13 @@ function KeyValueEdit() {
   }, []);
   const Delete = useCallback(() => {
     if (edit && confirm("本当に削除しますか？\n(デフォルトの設定に戻ります)")) {
-      axios
-        .delete(concatOriginUrl(apiOrigin, send), { data: { key: edit } })
-        .then(() => {
+      corsFetch(concatOriginUrl(apiOrigin, send), { body: { key: edit } }).then(
+        () => {
           toast.success("削除しました");
-          keyValueDBDataIndexed?.load("no-cache");
+          keyValueDBDataIndexed.load("no-cache");
           Set({ edit: null });
-        });
+        }
+      );
     }
   }, [edit]);
   const Submit = useCallback(() => {
@@ -143,14 +138,10 @@ function KeyValueEdit() {
     );
     entry.key = edit;
     toast.promise(
-      axios
-        .post(concatOriginUrl(apiOrigin, send), entry, {
-          withCredentials: true,
-        })
-        .then(() => {
-          keyValueDBDataIndexed?.load("no-cache");
-          Set({ edit: null });
-        }),
+      corsFetchJSON(concatOriginUrl(apiOrigin, send), entry).then(() => {
+        keyValueDBDataIndexed.load("no-cache");
+        Set({ edit: null });
+      }),
       {
         pending: "送信中",
         success: "送信しました",
@@ -163,20 +154,12 @@ function KeyValueEdit() {
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      axios
-        .post(
-          concatOriginUrl(apiOrigin, send),
-          {
-            key: edit,
-            value: selectedImage.key,
-          },
-          {
-            withCredentials: true,
-          }
-        )
-        .then((r) => {
-          keyValueDBDataIndexed?.load("no-cache");
-        });
+      corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+        key: edit,
+        value: selectedImage.key,
+      }).then((r) => {
+        keyValueDBDataIndexed.load("no-cache");
+      });
       setIsSelectedImage(false);
     }
   }, [selectedImage, isSelectedImage]);
@@ -250,28 +233,21 @@ function KeyValueEdit() {
                           thumbnail: false,
                         });
                       })
-                      .then(async (r) => {
-                        imageDataIndexed?.load("no-cache");
-                        return r
-                          ? ((await r[0].data) as KeyValueType<unknown>)
-                          : null;
+                      .then((r) => {
+                        imageDataIndexed.load("no-cache");
+                        return (r?.[0].data || null) as ImageDataType | null;
                       })
                       .then(async (o) => {
                         if (o && typeof o.key === "string") {
-                          return axios
-                            .post(
-                              concatOriginUrl(apiOrigin, send),
-                              {
-                                key: edit,
-                                value: o.key,
-                              } as SiteLinkData,
-                              {
-                                withCredentials: true,
-                              }
-                            )
-                            .then((r) => {
-                              keyValueDBDataIndexed?.load("no-cache");
-                            });
+                          return corsFetchJSON(
+                            concatOriginUrl(apiOrigin, send),
+                            {
+                              key: edit,
+                              value: o.key,
+                            } as SiteLinkData
+                          ).then((r) => {
+                            keyValueDBDataIndexed.load("no-cache");
+                          });
                         }
                       });
                   }}

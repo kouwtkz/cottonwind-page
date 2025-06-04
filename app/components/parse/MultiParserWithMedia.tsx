@@ -2,8 +2,8 @@ import { useImageState } from "~/components/state/ImageState";
 import { useMediaOrigin } from "~/components/state/EnvState";
 import {
   MultiParser,
-  MultiParserProps,
-  MultiParserReplaceProps,
+  type MultiParserProps,
+  type MultiParserReplaceProps,
 } from "./MultiParser";
 import { Element as NodeElement, Text as NodeText } from "domhandler";
 import { concatOriginUrl } from "~/components/functions/originUrl";

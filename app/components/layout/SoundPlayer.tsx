@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { useMediaOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import MebtteMediaSession from "@mebtte/react-media-session";
 import StopButton from "~/components/svg/audio/StopButton";
 import LoopButton from "~/components/svg/audio/LoopButton";
 import ShuffleButton from "~/components/svg/audio/ShuffleButton";
@@ -192,6 +191,62 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   },
 }));
 
+interface Artwork {
+  src: string;
+  sizes: string;
+  type?: string;
+}
+export interface MediaSessionProps {
+  title?: string;
+  artist?: string;
+  album?: string;
+  artwork: Artwork[];
+  onPlay?: (...args: any[]) => any;
+  onPause?: (...args: any[]) => any;
+  onSeekBackward?: (...args: any[]) => any;
+  onSeekForward?: (...args: any[]) => any;
+  onPreviousTrack?: (...args: any[]) => any;
+  onNextTrack?: (...args: any[]) => any;
+}
+
+export function MediaSession({
+  onPlay,
+  onPause,
+  onSeekBackward,
+  onSeekForward,
+  onPreviousTrack,
+  onNextTrack,
+  ...props
+}: MediaSessionProps) {
+  useEffect(() => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata(props);
+      if (onPlay) navigator.mediaSession.setActionHandler("play", onPlay);
+      if (onPause) navigator.mediaSession.setActionHandler("pause", onPause);
+      if (onSeekBackward)
+        navigator.mediaSession.setActionHandler("seekbackward", onSeekBackward);
+      if (onSeekForward)
+        navigator.mediaSession.setActionHandler("seekforward", onSeekForward);
+      if (onPreviousTrack)
+        navigator.mediaSession.setActionHandler(
+          "previoustrack",
+          onPreviousTrack
+        );
+      if (onNextTrack)
+        navigator.mediaSession.setActionHandler("nexttrack", onNextTrack);
+    }
+  }, [
+    onPlay,
+    onPause,
+    onSeekBackward,
+    onSeekForward,
+    onPreviousTrack,
+    onNextTrack,
+    props,
+  ]);
+  return <></>;
+}
+
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
 export function SoundPlayer() {
   const mediaOrigin = useMediaOrigin()[0];
@@ -310,19 +365,18 @@ export function SoundPlayer() {
   const callbackMetaData = useCallback(
     (sound: SoundItemType, mediaSrc: string) => {
       if (!sound.meta) {
-        fetch(mediaSrc)
-          .then((r) => r.blob())
-          // .then((blob) => parseBlob(blob))
-          // .then((meta) => {
-          //   SetSounds(({ soundsMap }) => {
-          //     const item = soundsMap.get(sound.key)!;
-          //     item.meta = meta;
-          //     return {
-          //       soundsMap: new Map(soundsMap),
-          //       sounds: Array.from(soundsMap.values()),
-          //     };
-          //   });
-          // });
+        fetch(mediaSrc).then((r) => r.blob());
+        // .then((blob) => parseBlob(blob))
+        // .then((meta) => {
+        //   SetSounds(({ soundsMap }) => {
+        //     const item = soundsMap.get(sound.key)!;
+        //     item.meta = meta;
+        //     return {
+        //       soundsMap: new Map(soundsMap),
+        //       sounds: Array.from(soundsMap.values()),
+        //     };
+        //   });
+        // });
       }
     },
     []
@@ -350,7 +404,7 @@ export function SoundPlayer() {
   return (
     <>
       <SoundController />
-      <MebtteMediaSession
+      <MediaSession
         title={sound.title}
         artist={sound.artist}
         album={playlist.title || sound.album}

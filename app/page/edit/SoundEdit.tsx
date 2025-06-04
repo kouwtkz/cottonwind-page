@@ -13,7 +13,6 @@ import { CreateState } from "~/components/state/CreateState";
 import { type FieldValues, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import {
   type ImportObjectButtonProps,
@@ -25,6 +24,7 @@ import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
 import { useSounds } from "~/components/state/SoundState";
 import { soundsDataOptions } from "~/data/DataEnv";
+import { corsFetch } from "~/components/functions/fetch";
 
 export function SoundEditButton() {
   const apiOrigin = useApiOrigin()[0];
@@ -79,8 +79,8 @@ export function SoundEditButton() {
               })
             )
             .then(() => {
-              soundsDataIndexed?.load("no-cache");
-              soundAlbumsDataIndexed?.load("no-cache");
+              soundsDataIndexed.load("no-cache");
+              soundAlbumsDataIndexed.load("no-cache");
             });
         }}
       >
@@ -99,8 +99,8 @@ export function SoundsImportButton({
     <ObjectCommonButton
       {...props}
       onClick={() => {
-        ImportCommonJson({ options: soundsDataOptions, apiOrigin }).then(() => {
-          soundsDataIndexed?.load("no-cache-reload");
+        ImportCommonJson({ options: soundsDataOptions }).then(() => {
+          soundsDataIndexed.load("no-cache-reload");
         });
       }}
     />
@@ -150,14 +150,13 @@ export function SoundEdit() {
       );
       entry.target = dataItem.key;
       toast.promise(
-        axios
-          .patch(concatOriginUrl(apiOrigin, "sound/send"), entry, {
-            withCredentials: true,
-          })
-          .then(() => {
-            soundAlbumsDataIndexed?.load("no-cache");
-            setEdit(null);
-          }),
+        corsFetch(concatOriginUrl(apiOrigin, "sound/send"), {
+          method: "PATCH",
+          body: entry,
+        }).then(() => {
+          soundAlbumsDataIndexed.load("no-cache");
+          setEdit(null);
+        }),
         {
           pending: "送信中",
           success: "送信しました",
@@ -228,14 +227,13 @@ export function SoundAlbumEdit() {
       );
       entry.target = item.key;
       toast.promise(
-        axios
-          .patch(concatOriginUrl(apiOrigin, "sound/album/send"), entry, {
-            withCredentials: true,
-          })
-          .then(() => {
-            soundAlbumsDataIndexed?.load("no-cache");
-            setEdit(null);
-          }),
+        corsFetch(concatOriginUrl(apiOrigin, "sound/album/send"), {
+          method: "PATCH",
+          body: entry,
+        }).then(() => {
+          soundAlbumsDataIndexed.load("no-cache");
+          setEdit(null);
+        }),
         {
           pending: "送信中",
           success: "送信しました",

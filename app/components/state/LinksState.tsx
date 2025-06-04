@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { favLinksDataIndexed, linksDataIndexed } from "~/data/ClientDBLoader";
 import { useImageState } from "./ImageState";
@@ -53,29 +53,23 @@ async function callSetLinks({
 }
 export function LinksState() {
   const { imagesMap } = useImageState();
-  const linksData = useSyncExternalStore(
-    linksDataIndexed?.subscribe || (() => () => {}),
-    () => linksDataIndexed?.table
-  );
-  const favLinksData = useSyncExternalStore(
-    favLinksDataIndexed?.subscribe || (() => () => {}),
-    () => favLinksDataIndexed?.table
-  );
   const { Set: setLinks } = useLinks();
   useEffect(() => {
+    const linksData = linksDataIndexed.table;
     if (linksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData }).then((result) => {
         setLinks(result);
       });
     }
-  }, [linksData, imagesMap]);
+  }, [linksDataIndexed, imagesMap]);
   const { Set: setFavLinks } = useFavLinks();
   useEffect(() => {
+    const favLinksData = favLinksDataIndexed.table;
     if (favLinksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData: favLinksData }).then((result) => {
         setFavLinks(result);
       });
     }
-  }, [favLinksData, imagesMap]);
+  }, [favLinksDataIndexed, imagesMap]);
   return <></>;
 }

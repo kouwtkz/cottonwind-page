@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import axios from "axios";
 import { CreateObjectState } from "~/components/state/CreateState";
 
 type dataType = { [k: string]: string };
@@ -25,10 +24,11 @@ export default function MarkdownDataState({ url }: { url: string }) {
   const isSet = useRef(false);
   useEffect(() => {
     if (!isSet.current) {
-      axios(url).then((r) => {
-        const data: dataType = r.data;
-        setData(data);
-      });
+      fetch(url)
+        .then<dataType>((r) => r.json())
+        .then((data) => {
+          setData(data);
+        });
       isSet.current = true;
     }
   });

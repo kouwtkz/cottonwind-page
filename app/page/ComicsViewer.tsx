@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useImageState } from "~/components/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
 import { GalleryObject } from "~/page/GalleryPage";
-import ComicViewer from "react-comic-viewer";
+// import ComicViewer from "react-comic-viewer";
 import { useSearchParams } from "react-router";
 import { useMediaOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -211,7 +211,7 @@ function Viewer({
         className={"react-comic-viewer" + (setedFixCover ? "" : " loading")}
         ref={rcvRef}
       >
-        <ComicViewer
+        {/* <ComicViewer
           pages={_pages}
           direction={metadata?.direction}
           onChangeCurrentPage={(n) => (nRef.current = n)}
@@ -221,7 +221,7 @@ function Viewer({
             move: "いどう",
             normal: "もとにもどす",
           }}
-        />
+        /> */}
       </div>
       <div className="mt-6 [&_*]:mx-2">
         {metadata === null ? (

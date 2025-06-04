@@ -1,8 +1,8 @@
-import { CreateObjectState } from "@src/state/CreateState";
+import { CreateObjectState } from "~/components/state/CreateState";
 import { indexedNotification, IndexedNotification_KV } from "./NotificationDB";
 import { sendNotification } from "../serviceWorker/clientSw";
 
-localStorage.removeItem("notification");
+if (globalThis.localStorage) globalThis.localStorage.removeItem("notification");
 
 interface notificationStateType {
   isEnable: boolean;
@@ -32,7 +32,7 @@ export const useNotification = CreateObjectState<notificationStateType>(
     }
     indexedNotification.addEventListener(dbSetCallbackKey, dbCallback);
     function checkPermission() {
-      const permission = Notification.permission;
+      const permission = globalThis.Notification?.permission;
       return {
         isEnable: permission === "granted",
         permission,

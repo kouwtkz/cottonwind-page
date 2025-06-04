@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router";
-import { CreateState } from "~/components/state/CreateState";
-const useData = CreateState<any>();
+import { test } from "~/.client/test";
+// import { CharacterState } from "~/components/state/CharacterState";
 
 export function TopPage() {
   // const [data, setData] = useData();
@@ -17,6 +17,9 @@ export function TopPage() {
   // useEffect(() => {
   //   console.log(data);
   // }, [data]);
+  useEffect(() => {
+    test();
+  });
   return (
     <>
       <h1>top page !</h1>

@@ -93,7 +93,7 @@ function openWindow(url: string) {
 }
 
 const [defaultEnableCountdown, defaultEndModeCountdown] = (() => {
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(globalThis.window?.location.search || "");
   const mode = searchParams.get("countdown");
   return [Boolean(mode), mode === "endTime"];
 })();
@@ -108,7 +108,7 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     calendarList: [],
     stateLock: false,
     view: null,
-    date: dateFromSearchParams(new URLSearchParams(document.location.search)),
+    date: dateFromSearchParams(new URLSearchParams(globalThis.document?.location.search || "")),
     dateLock: false,
     timeRanges: [],
     getRange: null,

@@ -1,6 +1,6 @@
-import { HTMLAttributes, useEffect, useRef } from "react";
+import { type HTMLAttributes, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
-import { StoreApi, UseBoundStore } from "zustand";
+import type { StoreApi, UseBoundStore } from "zustand";
 import { CreateObjectState } from "~/components/state/CreateState";
 
 export interface ThemeChangeButtonProps

@@ -244,7 +244,7 @@ export function PostForm() {
         data: { postId: getValues("postId") },
       }).then((r) => {
         if (r.ok) {
-          postsDataIndexed?.load("no-cache");
+          postsDataIndexed.load("no-cache");
           nav("/blog", { replace: true });
         }
       });
@@ -336,13 +336,13 @@ export function PostForm() {
     };
     let toPage = "";
     try {
-      Object.entries(values).forEach(([key, item]) => {
+      Object.entries<any>(values).forEach(([key, item]) => {
         if (key === "update") {
           if (item) {
             toPage = item;
             append(key, item, false);
           }
-        } else if (dirtyFields[key as keyof typeof values]) {
+        } else if (dirtyFields[key]) {
           switch (key) {
             case "time":
               append(key, IsoFormTime(item));
@@ -381,8 +381,8 @@ export function PostForm() {
           )
           .then(async (r) => {
             refIsSubmitted.current = true;
-            postsDataIndexed?.load("no-cache");
-            if (attached) imageDataIndexed?.load("no-cache");
+            postsDataIndexed.load("no-cache");
+            if (attached) imageDataIndexed.load("no-cache");
             return (await r.json()) as KeyValueType<string>;
           })
           .then((data) => {
@@ -428,7 +428,7 @@ export function PostForm() {
         notDraft: true,
       })
         .then((list) => {
-          imageDataIndexed?.load("no-cache");
+          imageDataIndexed.load("no-cache");
           return list
             ?.map((r) => r.data as ImageDataType)
             .filter((data) => data);
@@ -554,7 +554,7 @@ export function PostForm() {
                   break;
                 case "upload":
                 // ImportPostJson({ apiOrigin }).then(() => {
-                //   postsDataIndexed?.load("no-cache-reload");
+                //   postsDataIndexed.load("no-cache-reload");
                 //   nav(`/blog`, { replace: true });
                 // });
               }

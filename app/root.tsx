@@ -17,7 +17,15 @@ import { Footer } from "./components/Footer";
 import { SetMetaDefault, type SetMetaProps } from "./components/SetMeta";
 import "./data/ClientDBLoader";
 import { ClientDBLoader } from "./data/ClientDBLoader";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { ImageState, useImageState } from "./components/state/ImageState";
+import { CharacterState } from "./components/state/CharacterState";
+import PostState from "./components/state/PostState";
+import { SoundState } from "./components/state/SoundState";
+import FileState from "./components/state/FileState";
+import { LinksState } from "./components/state/LinksState";
+import { LikeState } from "./components/state/LikeState";
+import { KeyValueDBState } from "./components/state/KeyValueDBState";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -62,10 +70,34 @@ export function Layout({ children }: { children?: ReactNode }) {
   );
 }
 
+function SetState() {
+  return (
+    <>
+      <ImageState />
+      <CharacterState />
+      <PostState />
+      <SoundState />
+      <FileState />
+      <LinksState />
+      <LikeState />
+      <KeyValueDBState />
+    </>
+  );
+}
+function Test() {
+  const { images } = useImageState();
+  useEffect(() => {
+    console.log(images);
+  }, [images]);
+  return <></>;
+}
+
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
   return (
     <>
       {/* <Loading /> */}
+      <SetState />
+      <Test />
       <HeaderClient env={loaderData.env} {...e} />
       <div className="content-base">
         <div className="contant-parent">

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import { GoTriangleDown, GoTriangleRight } from "react-icons/go";
 import { CreateObjectState } from "./CreateState";
 const defaultUrl = "/json/gitlog.json";
@@ -67,10 +66,11 @@ export default function GitState({ url = defaultUrl }: { url?: string }) {
   const { isSet, setLog } = useGitState();
   useEffect(() => {
     if (!isSet) {
-      axios(url).then((r) => {
-        const data: GitObjectJsonType = r.data;
-        setLog(data);
-      });
+      fetch(url)
+        .then<GitObjectJsonType>((r) => r.json())
+        .then((data) => {
+          setLog(data);
+        });
     }
   }, []);
   return <></>;

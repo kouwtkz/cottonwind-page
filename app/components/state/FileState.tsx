@@ -2,7 +2,6 @@ import {
   type HTMLAttributes,
   useEffect,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { useEnv, useMediaOrigin } from "~/components/state/EnvState";
 import { filesDataIndexed } from "~/data/ClientDBLoader";
@@ -19,13 +18,10 @@ interface FilesState {
 export const useFiles = CreateObjectState<FilesState>();
 
 export default function FileState() {
-  const filesData = useSyncExternalStore(
-    filesDataIndexed?.subscribe || (() => () => {}),
-    () => filesDataIndexed?.table
-  );
   const { Set } = useFiles();
   const env = useEnv()[0];
   useEffect(() => {
+    const filesData = filesDataIndexed.table;
     if (filesData?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
       filesData.getAll().then((items) => {
@@ -46,7 +42,7 @@ export default function FileState() {
         Set({ filesData, filesMap, files: Array.from(filesMap.values()) });
       });
     }
-  }, [filesData, env]);
+  }, [filesDataIndexed, env]);
   return <></>;
 }
 

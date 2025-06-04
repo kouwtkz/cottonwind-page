@@ -1,8 +1,8 @@
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
-import { HeaderClient } from "~/components/layout/Header";
-import { Footer } from "~/components/layout/Footer";
+import { HeaderClient } from "~/components/Header";
+import { Footer } from "~/components/Footer";
 import {
-  ReactNode,
+  type ReactNode,
   useEffect,
   useLayoutEffect,
   useMemo,

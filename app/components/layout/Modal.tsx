@@ -1,4 +1,4 @@
-import { scrollLock } from "~/components/hook/ScrollLock";
+import { scrollLock } from "~/.client/ScrollLock";
 import CloseButton from "~/components/svg/button/CloseButton";
 import {
   type CSSProperties,

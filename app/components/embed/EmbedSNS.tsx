@@ -63,7 +63,7 @@ export function EmbedTwitter({ width = 420, height = 500 }: EmbedSNSprops) {
           const observer = new MutationObserver((callback) => {
             callback.some(({ removedNodes }) => {
               if (Array.from(removedNodes).some((n) => n.nodeName === "A")) {
-                window.window.EmbedTwitterCaches = Array.from(
+                window.EmbedTwitterCaches = Array.from(
                   node.children
                 ) as HTMLElement[];
                 observer.disconnect();

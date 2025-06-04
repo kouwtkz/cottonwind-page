@@ -1,4 +1,10 @@
-import { type HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type HTMLAttributes,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { GalleryViewerPaging } from "~/components/layout/ImageViewer";
 import { toast } from "react-toastify";
@@ -53,14 +59,16 @@ import {
 } from "~/components/functions/arrayFunction";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { useFiles } from "~/components/state/FileState";
-import axios, { AxiosError, type AxiosResponse } from "axios";
 import {
   toastLoadingOptions,
   toastLoadingShortOptions,
   toastUpdateOptions,
 } from "~/components/define/toastContainerDef";
 import { fileDialog, RenameFile } from "~/components/utility/FileTool";
-import { FormToBoolean, FormToNumber } from "~/components/functions/form/formConvert";
+import {
+  FormToBoolean,
+  FormToNumber,
+} from "~/components/functions/form/formConvert";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { ModeSwitch } from "~/components/layout/edit/CommonSwitch";
 import { ImageMee } from "~/components/layout/ImageMee";
@@ -241,7 +249,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     data.id = image!.id;
     if (deleteMode) method = "DELETE";
     else {
-      Object.entries(fields).forEach(([key, value]) => {
+      Object.entries<any>(fields).forEach(([key, value]) => {
         if (dirtyFields[key as keyof typeof values]) {
           switch (key as keyof imageUpdateJsonDataType) {
             case "time":
@@ -277,7 +285,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         searchParams.set("image", fields.rename);
         setSearchParams(searchParams, { replace: true });
       }
-      imageDataIndexed?.load("no-cache");
+      imageDataIndexed.load("no-cache");
       return true;
     } else {
       toast.error(res.statusText, {
@@ -370,14 +378,14 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
     return style;
   }, [positionValue]);
 
-  const positionSelectRef = useRef<HTMLSelectElement>();
+  const positionSelectRef = useRef<HTMLSelectElement>(null);
   const { refPassthrough: psRefPassthrough, registered: registerPosition } =
     RegisterRef({
       useRefValue: positionSelectRef,
       registerValue: register("position"),
     });
 
-  const positionPreviewRef = useRef<HTMLDivElement>();
+  const positionPreviewRef = useRef<HTMLDivElement>(null);
   const ppRefPassthrough = (el: HTMLDivElement) => {
     positionPreviewHandlers.ref(el);
     positionPreviewRef.current = el;
@@ -504,7 +512,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      imageDataIndexed?.load("no-cache");
+                      imageDataIndexed.load("no-cache");
                     });
               }}
             >
@@ -527,7 +535,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                       })
                     )
                     .then(() => {
-                      imageDataIndexed?.load("no-cache");
+                      imageDataIndexed.load("no-cache");
                     });
               }}
             >
@@ -541,7 +549,7 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
                   repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
                     () => {
-                      imageDataIndexed?.load("no-cache");
+                      imageDataIndexed.load("no-cache");
                       toast(
                         "サムネイルを設定しました",
                         toastLoadingShortOptions
@@ -968,6 +976,9 @@ export interface MakeImagesUploadListProps extends ImagesUploadOptions {
   src: srcWithObjectType | srcWithObjectType[];
   apiOrigin?: string;
 }
+export interface MakeImagesUploadListResponse<T> extends Response {
+  data?: T;
+}
 export async function MakeImagesUploadList({
   src,
   apiOrigin,
@@ -1065,23 +1076,27 @@ export async function MakeImagesUploadList({
   );
   return formDataList.map(
     (data) => () =>
-      axios(url, {
+      corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
         method: "POST",
-        data,
-        withCredentials: true,
+        body: data,
         timeout: 10000,
-      }).catch((e: AxiosError) => {
-        const stock: unknown[] = [];
-        if (e.config?.data) {
-          const data = Object.fromEntries(e.config.data);
-          if (data.file?.name) stock.push(data.file.name);
-          stock.push(data);
-        }
-        stock.push(e);
-        console.error(...stock);
-        if (e.response) return e.response;
-        else return { status: 500 } as AxiosResponse;
       })
+        .then(
+          async (v) =>
+            ({
+              ...v,
+              data: (await v.json()) as ImageDataType,
+            } as MakeImagesUploadListResponse<ImageDataType>)
+        )
+        .catch((e: Response) => {
+          const stock: unknown[] = [];
+          const file = data.get("file") as File | null;
+          if (file?.name) stock.push(file.name);
+          stock.push(data);
+          stock.push(e);
+          console.error(...stock);
+          return { ...e, data } as MakeImagesUploadListResponse<FormData>;
+        })
   );
 }
 
@@ -1154,7 +1169,8 @@ export async function ImagesUploadWithToast({
         } else {
           const failedList = results
             .filter((r) => r.status !== 200)
-            .map((r) => {
+            .map((_) => {
+              const r = _ as Response & { data: FormData };
               const formData: FormData = r.data;
               const src = (formData.get("src") ||
                 formData.get("icon")) as srcType;
