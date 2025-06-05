@@ -1,5 +1,6 @@
 import { useIsLogin } from "~/components/state/EnvState";
 import { AdminMainPage } from "./AdminPage";
+import { Link } from "react-router";
 
 export function SettingPage() {
   const isLogin = useIsLogin()[0];
@@ -12,7 +13,7 @@ export function SettingPage() {
           <AdminMainPage />
         </div>
       ) : (
-        <a href="/admin" className="color-main font-larger">管理者ページ</a>
+        <Link to="/admin" className="color-main font-larger">管理者ページ</Link>
       )}
     </main>
   );
