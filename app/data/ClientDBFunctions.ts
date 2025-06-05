@@ -3,7 +3,7 @@ import { apiOrigin } from "./ClientDBLoader";
 import { BooleanToNumber, unknownToString } from "~/components/functions/doc/ToFunction";
 import { arrayPartition, PromiseOrder, type PromiseOrderOptions } from "~/components/functions/arrayFunction";
 import { toastLoadingOptions, toastUpdateOptions } from "~/components/define/toastContainerDef";
-import { jsonFileDialog } from "~/components/utility/FileTool";
+import { jsonFileDialog } from "~/components/utils/FileTool";
 import { corsFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";

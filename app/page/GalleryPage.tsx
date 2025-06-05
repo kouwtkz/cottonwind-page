@@ -120,9 +120,7 @@ export function GalleryPage({ children, ...args }: GalleryPageProps) {
   return (
     <div className="galleryPage">
       {children}
-      {isComplete ? (
-        <GalleryObjectConvert items={galleryAlbums} {...args} />
-      ) : null}
+      <GalleryObjectConvert items={galleryAlbums} {...args} />
     </div>
   );
 }

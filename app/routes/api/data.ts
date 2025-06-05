@@ -1,6 +1,6 @@
 import type { Route } from "./+types/data";
 import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
-import { IsLogin } from "~/components/utility/Admin";
+import { IsLogin } from "~/components/utils/Admin";
 import type { GetDataProps } from "./propsDef";
 import { getDataWithoutPrefix } from "~/components/functions/stringFix";
 import {

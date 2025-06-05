@@ -4,7 +4,7 @@ import { useEnv } from "~/components/state/EnvState";
 import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { useLocation, useSearchParams } from "react-router";
 import { useSelectedImage } from "~/components/state/ImageState";
-import { fileDialog } from "~/components/utility/FileTool";
+import { fileDialog } from "~/components/utils/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea?: HTMLTextAreaElement | null;

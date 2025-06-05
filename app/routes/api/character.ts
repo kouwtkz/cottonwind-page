@@ -4,7 +4,7 @@ import { charactersDataOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import { ImageBucketRename } from "./serverFunction";
 import type { Route } from "./+types/character";
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { ImageTableObject } from "./image";
 

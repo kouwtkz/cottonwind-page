@@ -1,5 +1,5 @@
 import { autoPostId } from "~/components/functions/media/blogFunction";
-import { IsLogin, LoginCheck } from "~/components/utility/Admin";
+import { IsLogin, LoginCheck } from "~/components/utils/Admin";
 import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { postsDataOptions } from "~/data/DataEnv";

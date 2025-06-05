@@ -8,7 +8,7 @@ import { ImageDataOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import { ImageBucketRename } from "./serverFunction";
 import type { Route } from "./+types/image";
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 
 const TableObject = new DBTableClass<ImageDataType>({

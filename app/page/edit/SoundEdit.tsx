@@ -1,4 +1,4 @@
-import { fileDialog } from "~/components/utility/FileTool";
+import { fileDialog } from "~/components/utils/FileTool";
 import {
   apiOrigin,
   soundAlbumsDataIndexed,

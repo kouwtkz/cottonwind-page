@@ -1,4 +1,4 @@
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { getBasename } from "~/components/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";

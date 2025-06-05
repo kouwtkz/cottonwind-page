@@ -3,7 +3,7 @@ import { DBTableClass, DBTableImport } from "./DBTableClass";
 import type { GetDataProps } from "./propsDef";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import type { Route } from "./+types/soundAlbum";
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 
 const TableObject = new DBTableClass<SoundAlbumDataType>({

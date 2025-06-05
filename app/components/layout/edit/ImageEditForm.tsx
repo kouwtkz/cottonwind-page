@@ -39,7 +39,11 @@ import { type Options, useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { getExtension, getName } from "~/components/functions/doc/PathParse";
-import { apiOrigin, imageDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  imageDataIndexed,
+  mediaOrigin,
+} from "~/data/ClientDBLoader";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -49,7 +53,7 @@ import {
 import { CharaImageSettingRbButtons } from "~/page/edit/CharacterEdit";
 import { JoinUnique } from "~/components/functions/doc/StrFunctions";
 import { charaTagsLabel } from "~/components/FormatOptionLabel";
-import { corsFetchJSON, type methodType } from "~/components/functions/fetch";
+import { corsFetch, corsFetchJSON, type methodType } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import {
   getCountList,
@@ -63,7 +67,7 @@ import {
   toastLoadingShortOptions,
   toastUpdateOptions,
 } from "~/components/define/toastContainerDef";
-import { fileDialog, RenameFile } from "~/components/utility/FileTool";
+import { fileDialog, RenameFile } from "~/components/utils/FileTool";
 import {
   FormToBoolean,
   FormToNumber,
@@ -1073,7 +1077,7 @@ export async function MakeImagesUploadList({
   );
   return formDataList.map(
     (data) => () =>
-      corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
+      corsFetch(concatOriginUrl(apiOrigin, "image/send"), {
         method: "POST",
         body: data,
         timeout: 10000,

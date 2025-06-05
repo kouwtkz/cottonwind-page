@@ -1,4 +1,4 @@
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { KeyValueDBDataOptions } from "~/data/DataEnv";
 import { UpdateTablesDataObject } from "./DBTablesObject";

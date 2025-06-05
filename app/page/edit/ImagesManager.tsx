@@ -10,7 +10,7 @@ import { ImportImagesJson } from "~/data/ClientDBFunctions";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
 import { useCharacters } from "~/components/state/CharacterState";
 import { useParams } from "react-router";
-import { fileDialog } from "~/components/utility/FileTool";
+import { fileDialog } from "~/components/utils/FileTool";
 import {
   ImagesUpload,
   ImagesUploadWithToast,

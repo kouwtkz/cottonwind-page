@@ -18,7 +18,7 @@ import {
 import { type FieldValues, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { fileDialog } from "~/components/utility/FileTool";
+import { fileDialog } from "~/components/utils/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 import { ImageMee, type ImageMeeProps } from "~/components/layout/ImageMee";
 import { useSelectedImage } from "./ImageState";

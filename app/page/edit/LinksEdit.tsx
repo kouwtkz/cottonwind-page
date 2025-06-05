@@ -15,7 +15,7 @@ import {
   useUploadWebp,
 } from "~/components/layout/edit/ImageEditForm";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
-import { fileDialog } from "~/components/utility/FileTool";
+import { fileDialog } from "~/components/utils/FileTool";
 import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { ImportLinksJson } from "~/data/ClientDBFunctions";
 import { concatOriginUrl } from "~/components/functions/originUrl";

@@ -36,6 +36,8 @@ import { EnvState, useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
 import { ClickEventState } from "./components/click/useClickEvent";
 import { getSession } from "./sessions.server";
+import { ToastContainer } from "react-toastify";
+import { defaultToastContainerOptions } from "./components/define/toastContainerDef";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -98,6 +100,7 @@ function SetState({
     <>
       <EnvState env={env} isLogin={isLogin} />
       <ClickEventState />
+      <ToastContainer {...defaultToastContainerOptions} />
       <ImageState />
       <CharacterState />
       <PostState />

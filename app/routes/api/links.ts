@@ -1,10 +1,10 @@
-import { LoginCheck } from "~/components/utility/Admin";
+import { LoginCheck } from "~/components/utils/Admin";
 import { lastModToUniqueNow } from "~/components/functions/doc/ToFunction";
 import { DBTableClass, type DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 import { linksDataOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
-import type { RouteBasePropsWithEnvProps } from "~/components/utility/RouteProps";
+import type { RouteBasePropsWithEnvProps } from "~/components/utils/RouteProps";
 import { getCfDB } from "~/data/cf/getEnv";
 import type { Route } from "./+types/links";
 

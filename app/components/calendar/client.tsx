@@ -48,7 +48,7 @@ import {
 } from "react-icons/ri";
 import { SiteMenuSwitchButtons } from "~/components/layout/SiteMenu";
 import { useNotification } from "~/worker/notification/NotificationState";
-import { fileDialog, fileDownload } from "~/components/utility/FileTool";
+import { fileDialog, fileDownload } from "~/components/utils/FileTool";
 import { getUUID } from "~/components/functions/clientFunction";
 import { MeeIndexedDB } from "~/data/IndexedDB/MeeIndexedDB";
 import {
