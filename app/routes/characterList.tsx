@@ -9,23 +9,20 @@ import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
 import { envAsync } from "~/data/ClientEnvLorder";
 
-interface MetaArgs extends Route.MetaArgs {
+interface MetaWithDataArgs extends Route.MetaArgs {
   data: SetRootMetaProps;
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  return {
-    env: getCfEnv({ context }),
-  } as SetRootMetaProps;
+  return { env: getCfEnv({ context }) };
 }
-
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   await waitIdb;
   return { env: await envAsync } as SetRootMetaProps;
 }
 clientLoader.hydrate = true;
 
-export function meta({ data }: MetaArgs) {
+export function meta({ data }: MetaWithDataArgs) {
   let title = "キャラクター";
   return SetMetaDefault({ env: data?.env, title });
 }

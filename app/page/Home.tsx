@@ -1,6 +1,9 @@
 import { Link, type To, useLocation, useSearchParams } from "react-router";
 import { useImageState } from "~/components/state/ImageState";
-import { getTimeframeTag, monthlyFilter } from "~/components/functions/media/FilterImages";
+import {
+  getTimeframeTag,
+  monthlyFilter,
+} from "~/components/functions/media/FilterImages";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "~/components/layout/ImageMee";
@@ -9,13 +12,15 @@ import { findMee } from "~/data/find/findMee";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { MeeLinks } from "./LinksPage";
 import { EmbedBluesky, EmbedTwitter } from "~/components/embed/EmbedSNS";
-import { useEnv } from "~/components/state/EnvState";
 import useSchedule from "~/components/hook/useSchedule";
-import { compareArray, shuffleArray } from "~/components/functions/arrayFunction";
+import {
+  compareArray,
+  shuffleArray,
+} from "~/components/functions/arrayFunction";
 import { ScheduleContainer } from "./SchedulePage";
+import type { OmittedEnv } from "types/custom-configuration";
 
-export default function Home() {
-  const env = useEnv()[0];
+export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
   const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
   return (
     <>
