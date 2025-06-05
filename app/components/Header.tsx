@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router";
 import { TITLE_IMAGE_PATH } from "~/Env";
 import type { OmittedEnv } from "types/custom-configuration";
+import BackButton from "./layout/BackButton";
+import { SiteMenu } from "./layout/SiteMenu";
 
 interface HeaderProps {
   env?: Partial<OmittedEnv>;
@@ -44,9 +46,9 @@ export function SiteTitle({ env }: HeaderProps) {
 export function HeaderClient(props: HeaderProps) {
   return (
     <header id="header" className="siteHeader">
-      {/* <BackButton className="backButton" /> */}
+      <BackButton className="backButton" />
       <SiteTitle {...props} />
-      {/* <SiteMenu /> */}
+      <SiteMenu />
       <div className="headerBackground" />
     </header>
   );

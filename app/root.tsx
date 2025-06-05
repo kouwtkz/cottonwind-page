@@ -32,6 +32,7 @@ import { KeyValueDBState } from "./components/state/KeyValueDBState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
 import { EnvState, useEnv } from "./components/state/EnvState";
+import { DefaultImportScripts } from "./clientScripts";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -72,6 +73,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <DefaultImportScripts />
       </head>
       <body>
         <main id="root">{children}</main>
