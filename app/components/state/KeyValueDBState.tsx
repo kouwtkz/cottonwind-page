@@ -72,8 +72,6 @@ export const useKeyValueEdit = CreateObjectState<{
   placeholder?: string;
 }>({ edit: null, type: "text" });
 
-const send = (keyValueDBDataIndexed?.options.src || "") + "/send";
-
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OmittedEnv } from "types/custom-configuration";
@@ -85,6 +83,10 @@ const schema = z.object({
   private: z.boolean().nullish(),
 });
 function KeyValueEdit() {
+  const send = useMemo(
+    () => (keyValueDBDataIndexed?.options.src || "") + "/send",
+    [keyValueDBDataIndexed]
+  );
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   let {
