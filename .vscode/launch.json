@@ -10,7 +10,7 @@
     {
       "name": "Launch Chrome",
       "type": "chrome",
-      "url": "http://localhost:51730",
+      "url": "http://localhost:5173",
       "request": "launch",
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
@@ -22,12 +22,12 @@
       "type": "firefox",
       "request": "launch",
       "reAttach": true,
-      "url": "http://localhost:51730"
+      "url": "http://localhost:5173"
     },
     {
       "name": "Launch Chrome 2",
       "type": "chrome",
-      "url": "http://localhost:51740",
+      "url": "http://localhost:5174",
       "request": "launch",
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
