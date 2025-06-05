@@ -29,5 +29,6 @@ export default [
     route("links/fav/:action", "routes/api/links-fav.ts"),
     route("like/:action", "routes/api/like.ts"),
     route("kvdb/:action", "routes/api/KeyValueDB.ts"),
+    route("discord/:action", "routes/api/discord.ts"),
   ]),
 ] satisfies RouteConfig;

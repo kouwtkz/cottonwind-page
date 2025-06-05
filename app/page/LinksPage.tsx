@@ -100,8 +100,13 @@ function InviteDiscordLink({
   const [searchParams, setSearchParams] = useSearchParams();
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const invite = searchParams.get("invite");
-  const question = useMemo(async () => {
-    return fetch("/fetch/discord/invite").then((r) => r.text());
+  const [question, setQuestion] = useState<string>();
+  useEffect(() => {
+    fetch("/api/discord/invite")
+      .then((r) => r.text())
+      .then((value) => {
+        setQuestion(value);
+      });
   }, []);
   useEffect(() => {
     if (invite === "discord") {
@@ -127,7 +132,7 @@ function InviteDiscordLink({
           if (answer) {
             fetch(
               MakeRelativeURL({
-                pathname: "/fetch/discord/invite",
+                pathname: "/api/discord/invite",
                 query: { invite_password: answer },
               })
             )

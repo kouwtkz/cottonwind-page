@@ -62,7 +62,7 @@ export function MainPageRouteIndex(app: CommonHono) {
     const env = _env as SiteConfigEnv;
     return c.json(env);
   });
-  app.get("/fetch/discord/invite", async (c) => {
+  app.get("/api/discord/invite", async (c) => {
     return discordInviteMatch(c);
   });
   app.route("/media/", mediaApp);
