@@ -2,6 +2,8 @@ import { CopyWithToast } from "~/components/functions/toastFunction";
 import { Link } from "react-router";
 import { BiGitBranch } from "react-icons/bi";
 import { KeyValueEditable } from "~/components/state/KeyValueDBState";
+import { EnvLinksMap } from "~/Env";
+import { useMemo } from "react";
 
 export default function AboutPage() {
   return (
@@ -118,18 +120,21 @@ export function WebsiteFramework({
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
+  const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
   return (
     <div {...props}>
       <h3 className="color-main">
         このサイトの構成
-        <Link
-          className="button miniIcon ml inline-flex"
-          to="/log"
-          state={{ backUrl: globalThis.location?.href }}
-          title="サイトの更新履歴 (Git)"
-        >
-          <BiGitBranch />
-        </Link>
+        {githubLink ? (
+          <a
+            className="button miniIcon ml inline-flex"
+            href={githubLink.url}
+            title={githubLink.title || githubLink.name}
+            target="_blank"
+          >
+            <BiGitBranch />
+          </a>
+        ) : null}
       </h3>
       <ul className="sm">
         <li>

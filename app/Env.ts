@@ -43,26 +43,31 @@ export const ArrayEnv: ArrayEnvType = {
   ],
   LINKS: [
     {
+      key: "x",
       mask: "#mask_twitter",
       name: "𝕏 (Twitter)",
       url: "https://x.com/kouwtkz"
     },
     {
+      key: "youtube",
       mask: "#mask_youtube",
       name: "youtube",
       url: "https://www.youtube.com/@kouwtkz"
     },
     {
+      key: "pixiv",
       mask: "#mask_pixiv",
       name: "pixiv",
       url: "https://www.pixiv.net/users/5577703"
     },
     {
+      key: "instagram",
       mask: "#mask_instagram",
       name: "instagram",
       url: "https://www.instagram.com/kouwtkz/"
     },
     {
+      key: "misskey.design",
       hidden: true,
       mask: "#mask_misskey_design",
       name: "MisskeyDesign",
@@ -72,6 +77,7 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://misskey.design/@kouwtkz"
     },
     {
+      key: "mascodon",
       mask: "#mask_mascodon",
       name: "Mascodon",
       rel: "me",
@@ -80,6 +86,7 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://mascodon.jp/@kouwtkz"
     },
     {
+      key: "bluesky",
       mask: "#mask_bluesky",
       name: "Bluesky",
       rel: "me",
@@ -87,11 +94,13 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://bsky.app/profile/kouwtkz.cottonwind.com"
     },
     {
+      key: "note",
       hidden: true,
       name: "Note",
       url: "https://note.com/kouwtkz/"
     },
     {
+      key: "booth",
       mask: "#mask_booth",
       name: "BOOTH",
       rel: "me",
@@ -99,6 +108,7 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://cottonwind.booth.pm/"
     },
     {
+      key: "github",
       mask: "#mask_github",
       name: "このサイトプロジェクトのGitHub",
       url: "https://github.com/kouwtkz/cottonwind-page"
@@ -257,3 +267,5 @@ export const ArrayEnv: ArrayEnvType = {
     }
   ]
 }
+
+export const EnvLinksMap = new Map(ArrayEnv.LINKS?.map((v) => [v.key, v]) || []);

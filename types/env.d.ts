@@ -8,6 +8,7 @@ type SiteMenuItemType = {
 }
 
 type SiteMyLinksItemType = {
+  key: string;
   name: string
   url: string
   title?: string
