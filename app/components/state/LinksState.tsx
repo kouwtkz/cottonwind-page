@@ -55,7 +55,7 @@ export function LinksState() {
   const { imagesMap } = useImageState();
   const { Set: setLinks } = useLinks();
   useEffect(() => {
-    const linksData = linksDataIndexed.table;
+    const linksData = linksDataIndexed?.table;
     if (linksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData }).then((result) => {
         setLinks(result);
@@ -64,7 +64,7 @@ export function LinksState() {
   }, [linksDataIndexed, imagesMap]);
   const { Set: setFavLinks } = useFavLinks();
   useEffect(() => {
-    const favLinksData = favLinksDataIndexed.table;
+    const favLinksData = favLinksDataIndexed?.table;
     if (favLinksData?.db && imagesMap) {
       callSetLinks({ imagesMap, linksData: favLinksData }).then((result) => {
         setFavLinks(result);

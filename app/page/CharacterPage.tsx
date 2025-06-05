@@ -26,7 +26,6 @@ import {
 import { useImageState } from "~/components/state/ImageState";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { CharacterEdit, CharaEditButton } from "./edit/CharacterEdit";
-import { ErrorContent } from "./ErrorPage";
 import { useSoundPlayer } from "~/components/layout/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "~/data/find/findMee";
@@ -197,8 +196,7 @@ function CharacterPageState() {
   return <></>;
 }
 
-export function CharacterPage() {
-  const { charaName } = useParams();
+export function CharacterPage({ name }: { name?: string }) {
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useIsLogin()[0];
@@ -210,11 +208,7 @@ export function CharacterPage() {
       ) : (
         <>
           {isLogin ? <CharaEditButton /> : null}
-          {charaName ? (
-            <CharaDetail charaName={charaName} />
-          ) : (
-            <CharaListPage />
-          )}
+          {name ? <CharaDetail charaName={name} /> : <CharaListPage />}
         </>
       )}
     </div>
@@ -467,7 +461,7 @@ const defaultGalleryList = [
   { name: "parody", max: 12 },
   { name: "given", label: "Fanart", max: 40 },
 ] as GalleryItemType[];
-function CharaDetail({ charaName }: { charaName: string }) {
+export function CharaDetail({ charaName }: { charaName: string }) {
   const { charactersMap } = useCharacters();
   const { imageAlbums: albums } = useImageState();
   const searchParams = useSearchParams()[0];
@@ -581,9 +575,7 @@ function CharaDetail({ charaName }: { charaName: string }) {
               submitPreventScrollReset={true}
             />
           </div>
-        ) : (
-          <ErrorContent status={404} />
-        )
+        ) : null
       ) : null}
     </>
   );

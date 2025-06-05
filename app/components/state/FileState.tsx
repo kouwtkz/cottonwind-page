@@ -21,7 +21,7 @@ export default function FileState() {
   const { Set } = useFiles();
   const env = useEnv()[0];
   useEffect(() => {
-    const filesData = filesDataIndexed.table;
+    const filesData = filesDataIndexed?.table;
     if (filesData?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
       filesData.getAll().then((items) => {

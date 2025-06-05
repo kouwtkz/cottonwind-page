@@ -1,11 +1,11 @@
 import { type JSX, useEffect } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
-import { useEnv } from "./EnvState";
 import { charactersDataIndexed } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
+import type { OmittedEnv } from "types/custom-configuration";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -31,22 +31,24 @@ export const useCharacters = CreateObjectState<characterStateType>((set) => ({
   charactersMap: new Map(),
 }));
 
-export function CharacterState() {
+interface CharacterStateProps {
+  env?: Partial<OmittedEnv>;
+}
+export function CharacterState({ env }: CharacterStateProps) {
   return (
     <>
-      <CharacterDataState />
+      <CharacterDataState env={env} />
     </>
   );
 }
 
-function CharacterDataState() {
+function CharacterDataState({ env }: CharacterStateProps) {
   const { Set } = useCharacters();
   const { imagesMap } = useImageState();
   const { sounds, defaultPlaylist } = useSounds();
   const { likeCategoryMap } = useLikeState();
-  const env = useEnv()[0];
   useEffect(() => {
-    const charactersData = charactersDataIndexed.table;
+    const charactersData = charactersDataIndexed?.table;
     if (
       charactersData?.db &&
       sounds &&

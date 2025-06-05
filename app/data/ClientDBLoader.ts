@@ -21,11 +21,11 @@ import {
   ImageMeeIndexedDBTable,
   IndexedDataLastmodMH,
 } from "./IndexedDB/IndexedDataLastmodMH";
-import { concatOriginUrl, getAPIOrigin, type EnvWithCfOriginOptions } from "~/components/functions/originUrl";
+import { concatOriginUrl, getAPIOrigin, getMediaOrigin, type EnvWithCfOriginOptions } from "~/components/functions/originUrl";
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { corsFetch } from "~/components/functions/fetch";
 
-let waitIdbResolve: (value?: unknown) => void;
+export let waitIdbResolve: (value?: unknown) => void;
 export let waitIdb = new Promise((resolve, reject) => {
   waitIdbResolve = resolve;
 });
@@ -72,6 +72,7 @@ export async function MeeIndexedDBCreate() {
 }
 
 export let apiOrigin: string | undefined;
+export let mediaOrigin: string | undefined;
 
 async function setSearchParamsOptionUrl(Url: URL, isLoading?: LoadStateType, idb?: anyIdbStateClass) {
   function set(obj: anyIdbStateClass) {
@@ -111,6 +112,7 @@ export async function ClientDBLoader({
 }: ClientDBLoaderProps) {
   if (!IdbStateClassMap) {
     apiOrigin = getAPIOrigin(env, location.origin);
+    mediaOrigin = getMediaOrigin(env, location.origin);
     tableVersionDataIndexed = new IndexedDataLastmodMH(
       TableVersionDataOptions
     );

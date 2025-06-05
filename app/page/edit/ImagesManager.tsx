@@ -170,7 +170,7 @@ export function CompatMendingThumbnailButton({
       beforeConfirm={"ギャラリーのサムネイルを修復しますか？"}
       onClick={async () => {
         const noThumbnailList =
-          (await imageDataIndexed.table.find({
+          (await imageDataIndexed?.table.find({
             where: {
               AND: [{ thumbnail: { has: false } }, { src: { has: true } }],
             },
@@ -216,7 +216,7 @@ export function CompatMendingThumbnailButton({
             minTime: 200,
           });
         }
-        const thumbnailOnly = await imageDataIndexed.table.find({
+        const thumbnailOnly = await imageDataIndexed?.table.find({
           where: {
             AND: [{ thumbnail: { has: true } }, { src: { has: false } }],
           },

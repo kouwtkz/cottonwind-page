@@ -331,7 +331,7 @@ function DBPage() {
             (async function () {
               const currentVersionMap = new Map(
                 (
-                  await tableVersionDataIndexed.table.find({
+                  await tableVersionDataIndexed?.table.find({
                     where: { key: { not: "tables" } },
                   })
                 ).map((v) => [v.key, v])

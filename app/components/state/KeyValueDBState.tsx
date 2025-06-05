@@ -36,7 +36,7 @@ type EditType = "text" | "textarea" | "image";
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
   useEffect(() => {
-    const data = keyValueDBDataIndexed.table;
+    const data = keyValueDBDataIndexed?.table;
     if (data?.db) {
       data.getAll().then((items) => {
         const parsedData = items.map(({ private: p, ...props }) => ({

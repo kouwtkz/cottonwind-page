@@ -14,7 +14,7 @@ export const usePosts = CreateObjectState<usePostsType>();
 export default function PostState() {
   const { Set } = usePosts();
   useEffect(() => {
-    const postsData = postsDataIndexed.table;
+    const postsData = postsDataIndexed?.table;
     if (postsData?.db) {
       postsData
         .find({ where: { body: { has: true }, postId: { has: true } } })

@@ -31,8 +31,8 @@ export function SoundState() {
   const { Set } = useSounds();
   const { RegistPlaylist } = useSoundPlayer();
   useEffect(() => {
-    const soundsData = soundsDataIndexed.table;
-    const soundAlbumsData = soundAlbumsDataIndexed.table;
+    const soundsData = soundsDataIndexed?.table;
+    const soundAlbumsData = soundAlbumsDataIndexed?.table;
     if (soundsData?.db && soundAlbumsData) {
       (async () => {
         const sounds = await soundsData.getAll();

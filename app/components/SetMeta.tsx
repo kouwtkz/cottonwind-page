@@ -7,7 +7,7 @@ export type MetaValuesType =
 interface SetMetaBaseProps {
   env?: Partial<OmittedEnv>;
 }
-export interface SetMetaProps extends SetMetaBaseProps {
+export interface SetRootMetaProps extends SetMetaBaseProps {
   title?: string;
   description?: string;
 }
@@ -16,7 +16,7 @@ export function SetMetaDefault({
   title,
   description,
   env,
-}: SetMetaProps): MetaValuesType[] {
+}: SetRootMetaProps): MetaValuesType[] {
   const list: MetaValuesType[] = [];
   SetMetaTitle({ title, env }).forEach((v) => {
     list.push(v);
@@ -26,14 +26,17 @@ export function SetMetaDefault({
   return list;
 }
 
-interface SetMetaTitleProps extends SetMetaBaseProps {
+interface addSiteTitleProps extends SetMetaBaseProps {
   title?: string;
 }
-export function SetMetaTitle({ title = "", env }: SetMetaTitleProps) {
-  const list: MetaValuesType[] = [];
+export function addSiteTitle({ title = "", env }: addSiteTitleProps) {
   const siteTitle = env?.TITLE || "";
-  const rightTitle = title && siteTitle ? " - " + siteTitle : siteTitle;
-  title = title + rightTitle;
+  const rightTitle = title && siteTitle ? " | " + siteTitle : siteTitle;
+  return title + rightTitle;
+}
+export function SetMetaTitle(props: addSiteTitleProps) {
+  const list: MetaValuesType[] = [];
+  const title = addSiteTitle(props);
   if (title) {
     list.push({ title });
     list.push({ name: "og:title", content: title });

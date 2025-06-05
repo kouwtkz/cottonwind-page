@@ -36,7 +36,7 @@ export function ImageState() {
   const { likeCategoryMap } = useLikeState();
   const { charactersMap } = useCharacters();
   useEffect(() => {
-    const imagesData = imageDataIndexed.table;
+    const imagesData = imageDataIndexed?.table;
     if (
       imagesData &&
       !imageDataIndexed.isUpgrade &&

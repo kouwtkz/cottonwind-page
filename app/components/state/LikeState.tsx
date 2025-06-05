@@ -15,7 +15,7 @@ export const useLikeState = CreateObjectState<LikeStateType>();
 export function LikeState() {
   const { Set } = useLikeState();
   useEffect(() => {
-    const likeData = likeDataIndexed.table;
+    const likeData = likeDataIndexed?.table;
     if (likeData?.db) {
       likeData.getAll().then((likes) => {
         const _likes = likes.filter((v) => v.path);
