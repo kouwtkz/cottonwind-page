@@ -33,6 +33,7 @@ import type { OmittedEnv } from "types/custom-configuration";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
 import { EnvState, useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
+import { ClickEventState } from "./components/click/useClickEvent";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -86,6 +87,7 @@ function SetState({ env }: { env?: Partial<OmittedEnv> }) {
   return (
     <>
       <EnvState env={env} />
+      <ClickEventState />
       <ImageState />
       <CharacterState />
       <PostState />

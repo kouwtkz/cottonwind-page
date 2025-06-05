@@ -1,3 +1,5 @@
+// 領域外クリックはClickEventの状態管理が必要になります
+
 import {
   type JSX,
   type CSSProperties,
