@@ -5,7 +5,7 @@ export default [
   route("gallery", "routes/gallery.tsx"),
   route("gallery/:group", "routes/galleryGroup.tsx"),
   route("character", "routes/characterList.tsx"),
-  route("character/:name", "routes/character.tsx"),
+  route("character/:charaName", "routes/character.tsx"),
   route("sound", "routes/sound.tsx"),
   route("links", "routes/links.tsx"),
   route("works", "routes/works.tsx"),

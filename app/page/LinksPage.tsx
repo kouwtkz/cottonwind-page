@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import { toast } from "react-toastify";
 import { Link, useSearchParams } from "react-router";
-import { useDataIsComplete } from "~/components/state/StateSet";
 import { MakeRelativeURL } from "~/components/functions/doc/MakeURL";
 import {
   useLinks,
@@ -101,12 +100,11 @@ function InviteDiscordLink({
   const [searchParams, setSearchParams] = useSearchParams();
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const invite = searchParams.get("invite");
-  const [isComplete] = useDataIsComplete();
   const question = useMemo(async () => {
     return fetch("/fetch/discord/invite").then((r) => r.text());
   }, []);
   useEffect(() => {
-    if (isComplete && invite === "discord") {
+    if (invite === "discord") {
       anchorRef.current!.click();
       searchParams.delete("invite");
       setSearchParams(searchParams, {
@@ -114,7 +112,7 @@ function InviteDiscordLink({
         preventScrollReset: true,
       });
     }
-  }, [isComplete, invite]);
+  }, [invite]);
   return (
     <a
       title="Discordの招待リンク（合言葉入力式）"

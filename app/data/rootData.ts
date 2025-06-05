@@ -1,12 +1,13 @@
 import type { SetMetaBaseProps } from "~/components/SetMeta";
 
-export interface SetRootMetaProps extends SetMetaBaseProps {
+export interface SetRootProps extends SetMetaBaseProps {
   title?: string;
   description?: string;
   isLogin?: boolean;
+  isComplete?: boolean;
 }
 
 interface rootClientServerDataType {
-  data: SetRootMetaProps | null;
+  data: SetRootProps | null;
 }
 export const rootClientServerData: rootClientServerDataType = { data: null };

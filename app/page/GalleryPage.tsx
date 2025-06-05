@@ -7,7 +7,6 @@ import {
   useSearchParams,
 } from "react-router";
 import { useImageState, useSelectedImage } from "~/components/state/ImageState";
-import { useDataIsComplete } from "~/components/state/StateSet";
 import React, {
   type ReactNode,
   createRef,
@@ -115,8 +114,6 @@ interface GalleryPageProps extends GalleryBodyOptions {
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
   const { galleryAlbums } = useImageState();
-
-  const [isComplete] = useDataIsComplete();
   return (
     <div className="galleryPage">
       {children}
@@ -963,7 +960,6 @@ function GalleryContent({
   ref,
   ...args
 }: GalleryContentProps) {
-  const [isComplete] = useDataIsComplete();
   let {
     name,
     linkLabel,

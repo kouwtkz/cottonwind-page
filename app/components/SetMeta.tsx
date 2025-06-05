@@ -1,5 +1,5 @@
 import type { OmittedEnv } from "types/custom-configuration";
-import type { SetRootMetaProps } from "~/data/rootData";
+import type { SetRootProps } from "~/data/rootData";
 
 export type MetaValuesType =
   | { title: string }
@@ -13,7 +13,7 @@ export function SetMetaDefault({
   title,
   description,
   env,
-}: SetRootMetaProps): MetaValuesType[] {
+}: SetRootProps): MetaValuesType[] {
   const list: MetaValuesType[] = [];
   SetMetaTitle({ title, env }).forEach((v) => {
     list.push(v);

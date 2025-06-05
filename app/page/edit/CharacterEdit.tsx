@@ -9,7 +9,6 @@ import { Controller, type FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { UrlObject } from "url";
-import { useDataIsComplete } from "~/components/state/StateSet";
 import {
   MdAdd,
   MdCleaningServices,
@@ -44,7 +43,12 @@ import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog } from "~/components/utils/FileTool";
-import { apiOrigin, charactersDataIndexed, imageDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  charactersDataIndexed,
+  imageDataIndexed,
+  mediaOrigin,
+} from "~/data/ClientDBLoader";
 import { ImportCharacterJson } from "~/data/ClientDBFunctions";
 import {
   iconImagesUploadOptions,
@@ -741,7 +745,6 @@ export const useEditSwitchState = CreateObjectState<{
 });
 
 export function CharaEditButton() {
-  const isComplete = useDataIsComplete()[0];
   const { charactersMap } = useCharacters();
   const { charaName } = useParams();
   const [move, setMove] = useMoveCharacters();
@@ -750,7 +753,6 @@ export function CharaEditButton() {
     () => (orderBySort ? orderBySort.length > 0 : false),
     [orderBySort]
   );
-  if (!isComplete) return <></>;
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
   return (

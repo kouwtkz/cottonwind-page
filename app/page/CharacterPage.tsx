@@ -196,7 +196,7 @@ function CharacterPageState() {
   return <></>;
 }
 
-export function CharacterPage({ name }: { name?: string }) {
+export function CharacterPage({ charaName }: { charaName?: string }) {
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useIsLogin()[0];
@@ -208,7 +208,7 @@ export function CharacterPage({ name }: { name?: string }) {
       ) : (
         <>
           {isLogin ? <CharaEditButton /> : null}
-          {name ? <CharaDetail charaName={name} /> : <CharaListPage />}
+          {charaName ? <CharaDetail charaName={charaName} /> : <CharaListPage />}
         </>
       )}
     </div>

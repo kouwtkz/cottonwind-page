@@ -1,7 +1,7 @@
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/characterList";
 import { SetMetaDefault } from "~/components/SetMeta";
-import type { SetRootMetaProps } from "~/data/rootData";
+import type { SetRootProps } from "~/data/rootData";
 import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
 import { envAsync } from "~/data/ClientEnvLorder";
@@ -11,12 +11,12 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   await waitIdb;
-  return { env: await envAsync } as SetRootMetaProps;
+  return { env: await envAsync } as SetRootProps;
 }
 clientLoader.hydrate = true;
 
 interface MetaWithDataArgs extends Route.MetaArgs {
-  data: SetRootMetaProps;
+  data: SetRootProps;
 }
 export function meta({ data }: MetaWithDataArgs) {
   let title = "キャラクター";

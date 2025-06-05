@@ -15,19 +15,19 @@ import { getCfEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { SetMetaDefault } from "./components/SetMeta";
-import { rootClientServerData, type SetRootMetaProps } from "./data/rootData";
+import { rootClientServerData, type SetRootProps } from "./data/rootData";
 import "./data/ClientDBLoader";
 import { ClientDBLoader } from "./data/ClientDBLoader";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { ImageState, useImageState } from "./components/state/ImageState";
 import {
   CharacterState,
   useCharacters,
 } from "./components/state/CharacterState";
-import PostState from "./components/state/PostState";
-import { SoundState } from "./components/state/SoundState";
+import PostState, { usePosts } from "./components/state/PostState";
+import { SoundState, useSounds } from "./components/state/SoundState";
 import FileState from "./components/state/FileState";
-import { LinksState } from "./components/state/LinksState";
+import { LinksState, useLinks } from "./components/state/LinksState";
 import { LikeState } from "./components/state/LikeState";
 import { KeyValueDBState } from "./components/state/KeyValueDBState";
 import type { OmittedEnv } from "types/custom-configuration";
@@ -40,11 +40,14 @@ import { ToastContainer } from "react-toastify";
 import { defaultToastContainerOptions } from "./components/define/toastContainerDef";
 import { ImageViewer } from "./components/layout/ImageViewer";
 import { HomeImageState } from "./page/Home";
+import { MiniGallery } from "./page/GalleryPage";
+import { Loading } from "./components/layout/Loading";
+import { SetState, useIsComplete } from "./components/state/SetState";
 
 export const links: Route.LinksFunction = () => [];
 
 interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
-  data?: SetRootMetaProps;
+  data?: SetRootProps;
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -52,7 +55,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     env: getCfEnv({ context }),
     isLogin: session.has("LoginToken"),
-  } as SetRootMetaProps;
+    isComplete: false,
+  } as SetRootProps;
 }
 
 export function meta({ data }: MetaArgs) {
@@ -62,13 +66,15 @@ export function meta({ data }: MetaArgs) {
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
   let clientServerData = rootClientServerData.data;
   if (!clientServerData) {
-    const serverData = (await serverLoader()) as SetRootMetaProps;
+    const serverData = (await serverLoader()) as SetRootProps;
     clientServerData = serverData || null;
     rootClientServerData.data = clientServerData;
     if (serverData?.env) waitEnvResolve(serverData.env);
   }
   if (clientServerData.env) {
-    ClientDBLoader({ env: clientServerData.env });
+    ClientDBLoader({ env: clientServerData.env }).then(() => {
+      // rootClientServerData.data!.isComplete = true;
+    });
   }
   return clientServerData;
 }
@@ -84,38 +90,11 @@ export function Layout({ children }: { children?: ReactNode }) {
         <Links />
         <DefaultImportScripts />
       </head>
-      <body>
-        <main id="root">{children}</main>
-      </body>
+      {children}
     </html>
   );
 }
 
-function SetState({
-  env,
-  isLogin,
-}: {
-  env?: Partial<OmittedEnv>;
-  isLogin?: boolean;
-}) {
-  return (
-    <>
-      <EnvState env={env} isLogin={isLogin} />
-      <ClickEventState />
-      <ToastContainer {...defaultToastContainerOptions} />
-      <ImageState />
-      <ImageViewer />
-      <HomeImageState />
-      <CharacterState />
-      <PostState />
-      <SoundState />
-      <FileState />
-      <LinksState />
-      <LikeState />
-      <KeyValueDBState />
-    </>
-  );
-}
 function Test() {
   const [env] = useEnv();
   useEffect(() => {
@@ -125,21 +104,32 @@ function Test() {
 }
 
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
+  const isCompleteState = useIsComplete()[0];
+  const isComplete = useMemo(() => {
+    return isCompleteState && loaderData.isComplete;
+  }, [isCompleteState, loaderData.isComplete]);
+  const bodyClassName = useMemo(() => {
+    const classNames: string[] = [];
+    if (!isComplete) classNames.push("loading", "dummy");
+    return classNames.join(" ");
+  }, [isComplete]);
   return (
-    <>
-      {/* <Loading /> */}
-      <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
-      {/* <Test /> */}
-      <HeaderClient env={loaderData.env} {...e} />
-      <div className="content-base">
-        <div className="content-parent">
-          <Outlet />
+    <body className={bodyClassName}>
+      {isComplete ? null : <Loading />}
+      <main>
+        <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
+        {/* <Test /> */}
+        <HeaderClient env={loaderData.env} {...e} />
+        <div className="content-base">
+          <div className="content-parent">
+            <Outlet />
+          </div>
         </div>
-      </div>
-      <Footer env={loaderData.env} {...e} />
-      <ScrollRestoration />
+        <Footer env={loaderData.env} {...e} />
+        <ScrollRestoration />
+      </main>
       <Scripts />
-    </>
+    </body>
   );
 }
 
@@ -160,7 +150,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <>
+    <body>
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
@@ -168,12 +158,12 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <code>{stack}</code>
         </pre>
       )}
-    </>
+    </body>
   );
 }
 
 export function matchesRoot(matches: any[]) {
   return matches.find((m) => m.id === "root") as
-    | RouterMatchesType<SetRootMetaProps>
+    | RouterMatchesType<SetRootProps>
     | undefined;
 }

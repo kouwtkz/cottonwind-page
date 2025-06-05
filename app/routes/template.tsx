@@ -3,19 +3,19 @@ import type { Route } from "../+types/root";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { SetMetaDefault } from "~/components/SetMeta";
-import type { SetRootMetaProps } from "~/data/rootData";
+import type { SetRootProps } from "~/data/rootData";
 
 export async function loader({ context }: Route.LoaderArgs) {
   return { env: getCfEnv({ context }) };
 }
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   await waitIdb;
-  return { env: await envAsync } as SetRootMetaProps;
+  return { env: await envAsync } as SetRootProps;
 }
 clientLoader.hydrate = true;
 
 interface MetaWithDataArgs extends Route.MetaArgs {
-  data: SetRootMetaProps;
+  data: SetRootProps;
 }
 export function meta({ data }: MetaWithDataArgs) {
   let title = "";

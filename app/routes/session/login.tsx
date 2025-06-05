@@ -3,7 +3,7 @@ import type { Route } from "./+types/login";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { SetMetaDefault } from "~/components/SetMeta";
-import { rootClientServerData, type SetRootMetaProps } from "~/data/rootData";
+import { rootClientServerData, type SetRootProps } from "~/data/rootData";
 import { matchesRoot } from "~/root";
 import { Form, redirect, useLocation } from "react-router";
 import { LocationToUrl } from "~/components/functions/doc/MakeURL";
@@ -15,12 +15,12 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   await waitIdb;
-  return { env: await envAsync } as SetRootMetaProps;
+  return { env: await envAsync } as SetRootProps;
 }
 clientLoader.hydrate = true;
 
 interface MetaWithDataArgs extends Route.MetaArgs {
-  data: SetRootMetaProps;
+  data: SetRootProps;
 }
 export function meta({ data, matches }: MetaWithDataArgs) {
   // console.log(matches);

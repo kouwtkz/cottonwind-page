@@ -13,7 +13,6 @@ import { useCharacters } from "~/components/state/CharacterState";
 import { isMobile } from "react-device-detect";
 import { useImageState } from "~/components/state/ImageState";
 import { usePosts } from "~/components/state/PostState";
-import { StateSet, useDataIsComplete } from "~/components/state/StateSet";
 import { useEnv } from "~/components/state/EnvState";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 
@@ -27,7 +26,6 @@ function SetTitle() {
       return imagesMap.get(searchParams.get("image")!);
     }
   }, [imagesMap, searchParams]);
-  const [isComplete] = useDataIsComplete();
   const [notFirst, setNotFirst] = useState(false);
   const { postsMap } = usePosts();
   const post = useMemo(() => {
@@ -45,7 +43,7 @@ function SetTitle() {
       mediaOrigin,
       env: env ?? { TITLE: document.title },
     })!.title;
-  } else if (isComplete) setNotFirst(true);
+  } else setNotFirst(true);
   return <></>;
 }
 
@@ -59,7 +57,6 @@ export function Base({ children }: { children?: ReactNode }) {
   return (
     <>
       <ScrollRestoration />
-      <StateSet />
       <HeaderClient env={env} />
       <div className="content-base">
         <div className="content-parent">{children}</div>

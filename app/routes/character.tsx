@@ -2,12 +2,12 @@ import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
 import type { Route } from "./+types/character";
 import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { SetMetaDefault } from "~/components/SetMeta";
-import type { SetRootMetaProps } from "~/data/rootData";
+import type { SetRootProps } from "~/data/rootData";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { useEnv } from "~/components/state/EnvState";
 
-interface SetMetaProps extends SetRootMetaProps {
+interface SetMetaProps extends SetRootProps {
   character?: CharacterDataType | CharacterType;
 }
 interface MetaArgs extends Route.MetaArgs {
@@ -19,7 +19,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
   const character = await db
     ?.select<CharacterDataType>({
       table: "characters",
-      where: { key: params.name },
+      where: { key: params.charaName },
     })
     .then((c) => c[0]);
   return {
@@ -35,12 +35,12 @@ export async function clientLoader({
   params,
 }: Route.ClientLoaderArgs) {
   await waitIdb;
-  if (clientServerData?.character?.name !== params.name) {
+  if (clientServerData?.character?.name !== params.charaName) {
     clientServerData = {
       env: await envAsync,
       character: await charactersDataIndexed.table.get({
         index: "key",
-        query: params.name,
+        query: params.charaName,
       }),
     };
   }
@@ -59,9 +59,6 @@ export function meta({ data }: MetaArgs) {
   return SetMetaDefault({ env: data?.env, title, description });
 }
 
-export default function Character({
-  loaderData,
-  params,
-}: Route.ComponentProps) {
-  return <CharacterPage name={params.name} />;
+export default function Character({ params }: Route.ComponentProps) {
+  return <CharacterPage charaName={params.charaName} />;
 }

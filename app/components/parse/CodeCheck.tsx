@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router";
-import { useDataIsComplete, usePageIsComplete } from "~/components/state/StateSet";
 
 interface codeToHighlightProps {
   selector?: string;
@@ -32,14 +31,8 @@ export function Code(
 
 export function WhenRootCodeToHighlight() {
   const location = useLocation();
-  const [dataIsComplete] = useDataIsComplete();
-  const [pageIsComplete] = usePageIsComplete();
-  const isComplete = useMemo(
-    () => dataIsComplete && pageIsComplete,
-    [dataIsComplete, pageIsComplete]
-  );
   useEffect(() => {
-    if (isComplete) codeToHighlight();
-  }, [location, isComplete]);
+    codeToHighlight();
+  }, [location]);
   return <></>;
 }
