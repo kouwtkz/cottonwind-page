@@ -60,10 +60,11 @@ export async function connectServiceWorker({
   ...props
 }: connectServiceWorkerProps) {
   return new Promise<void>((res) => {
-    const localVersion = localStorage.getItem(key);
-    if (import.meta.env?.DEV || version !== localVersion) {
+    const storage = (globalThis.localStorage || null) as Storage | null;
+    const localVersion = storage?.getItem(key);
+    if ((import.meta.env?.DEV || version !== localVersion) && storage) {
       removeServiceWorker(path).finally(() => res());
-      localStorage.setItem(key, version);
+      storage.setItem(key, version);
     } else {
       res();
     }

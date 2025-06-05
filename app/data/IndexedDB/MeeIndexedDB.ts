@@ -25,28 +25,30 @@ export class MeeIndexedDB implements Props_MeeIndexedDB {
   }
   setDB() {
     return new Promise<void>(async (res, rej) => {
-      if (this.forceDeleteDatabase) await this.deleteDatabase();
-      const request = indexedDB.open(this.dbName, this.version);
-      request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
-        const db: IDBDatabase = (e.target as any).result;
-        if (this.onupgradeneeded) {
-          this.onupgradeneeded(e, db);
-        }
-      };
-      request.onsuccess = (e) => {
-        const db = request.result;
-        this.db = db;
-        (async () => {
-          if (this.onsuccess) {
-            await this.onsuccess(db);
+      if (globalThis.indexedDB) {
+        if (this.forceDeleteDatabase) await this.deleteDatabase();
+        const request = indexedDB.open(this.dbName, this.version);
+        request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
+          const db: IDBDatabase = (e.target as any).result;
+          if (this.onupgradeneeded) {
+            this.onupgradeneeded(e, db);
           }
-        })().then(() => {
-          res();
-        })
-      }
-      request.onerror = (e) => {
-        rej(e);
-      }
+        };
+        request.onsuccess = (e) => {
+          const db = request.result;
+          this.db = db;
+          (async () => {
+            if (this.onsuccess) {
+              await this.onsuccess(db);
+            }
+          })().then(() => {
+            res();
+          })
+        }
+        request.onerror = (e) => {
+          rej(e);
+        }
+      } else res();
     })
   }
   static async create(props: Props_MeeIndexedDB) {
