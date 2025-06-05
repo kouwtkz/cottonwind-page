@@ -17,7 +17,6 @@ export default [
   route("admin", "routes/admin/admin.tsx"),
   route("login", "routes/session/login.tsx"),
   route("logout", "routes/session/logout.tsx"),
-  route("media/*", "./media.ts"),
   route("api", "routes/api/index.ts", [
     route("data/:param", "routes/api/data.ts"),
     route("image/:action", "routes/api/image.ts"),
