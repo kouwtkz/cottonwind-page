@@ -80,9 +80,21 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 }
 clientLoader.hydrate = true;
 
-export function Layout({ children }: { children?: ReactNode }) {
+function Test() {
+  const [env] = useEnv();
+  useEffect(() => {
+    console.log(env);
+  }, [env]);
+  return <></>;
+}
+
+interface BaseLayoutProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+function BaseLayout({ children, className }: BaseLayoutProps) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={className}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -95,41 +107,39 @@ export function Layout({ children }: { children?: ReactNode }) {
   );
 }
 
-function Test() {
-  const [env] = useEnv();
-  useEffect(() => {
-    console.log(env);
-  }, [env]);
-  return <></>;
-}
-
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
   const isCompleteState = useIsComplete()[0];
   const isComplete = useMemo(() => {
     return isCompleteState && loaderData.isComplete;
   }, [isCompleteState, loaderData.isComplete]);
+  const htmlClassName = useMemo(() => {
+    const classNames: string[] = [];
+    if (classNames.length > 0) return classNames.join(" ");
+  }, []);
   const bodyClassName = useMemo(() => {
     const classNames: string[] = [];
     if (!isComplete) classNames.push("loading", "dummy");
     return classNames.join(" ");
   }, [isComplete]);
   return (
-    <body className={bodyClassName}>
-      {isComplete ? null : <Loading />}
-      <main>
-        <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
-        {/* <Test /> */}
-        <HeaderClient env={loaderData.env} {...e} />
-        <div className="content-base">
-          <div className="content-parent">
-            <Outlet />
+    <BaseLayout className={htmlClassName}>
+      <body className={bodyClassName}>
+        {isComplete ? null : <Loading />}
+        <main>
+          <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
+          {/* <Test /> */}
+          <HeaderClient env={loaderData.env} {...e} />
+          <div className="content-base">
+            <div className="content-parent">
+              <Outlet />
+            </div>
           </div>
-        </div>
-        <Footer env={loaderData.env} {...e} />
-        <ScrollRestoration />
-      </main>
-      <Scripts />
-    </body>
+          <Footer env={loaderData.env} {...e} />
+          <ScrollRestoration />
+        </main>
+        <Scripts />
+      </body>
+    </BaseLayout>
   );
 }
 
@@ -150,15 +160,17 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <body>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre>
-          <code>{stack}</code>
-        </pre>
-      )}
-    </body>
+    <BaseLayout>
+      <body>
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre>
+            <code>{stack}</code>
+          </pre>
+        )}
+      </body>
+    </BaseLayout>
   );
 }
 

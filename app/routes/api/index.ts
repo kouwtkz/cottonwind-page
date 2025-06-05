@@ -1,6 +1,6 @@
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types";
-import { getCookie, getCookieObject } from "~/components/utils/Cookie";
+import { getCookie, getCookieObjectFromHeaders } from "~/components/utils/Cookie";
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const env = getCfEnv({ context });

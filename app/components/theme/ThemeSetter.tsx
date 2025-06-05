@@ -1,7 +1,8 @@
-import { type HTMLAttributes, useEffect, useRef } from "react";
-import { useCookies } from "react-cookie";
+import { type HTMLAttributes, useEffect, useMemo, useRef } from "react";
+import type { CookieOptions } from "react-router";
 import type { StoreApi, UseBoundStore } from "zustand";
 import { CreateObjectState } from "~/components/state/CreateState";
+import { getCookieObject } from "../utils/Cookie";
 
 export interface ThemeChangeButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {}
@@ -42,6 +43,35 @@ export function createThemeState(list: string[]) {
   }));
 }
 
+export function getCookies() {
+  return getCookieObject(globalThis.document?.cookie || "");
+}
+interface setCookieProps {
+  key: string;
+  value?: string;
+  options?: CookieOptions;
+}
+export function setCookie({ key, value, options = {} }: setCookieProps) {
+  const optionList: string[] = [];
+  let cookie = key;
+  if (typeof value !== "undefined") cookie = cookie + "=" + value;
+  optionList.push(cookie);
+  if (typeof options.maxAge === "number")
+    optionList.push("max-age=" + options.maxAge);
+  if (options.partitioned) optionList.push("partitioned");
+  if (options.path) optionList.push("path=" + options.path);
+  if (options.sameSite) {
+    if (typeof options.sameSite === "string")
+      optionList.push("samesite=" + options.sameSite);
+    else optionList.push("samesite");
+  }
+  if (options.domain) optionList.push("domain=" + options.domain);
+  document.cookie = optionList.join(" ;");
+}
+export function removeCookie({ key, options }: Omit<setCookieProps, "value">) {
+  return setCookie({ key, value: "", options: { ...options, maxAge: 0 } });
+}
+
 export class ThemeStateClass {
   themes: string[];
   cookieKey: string;
@@ -53,7 +83,7 @@ export class ThemeStateClass {
   }
   State() {
     const { index, theme, list, setIndex } = this.use();
-    const [cookies, setCookie, removeCookie] = useCookies([this.cookieKey]);
+    const cookies = useMemo(() => getCookies(), []);
     const isSet = useRef(false);
     const refIndex = useRef(-1);
     useEffect(() => {
@@ -64,9 +94,16 @@ export class ThemeStateClass {
           }
           if (index >= 0) {
             document.documentElement.classList.add(theme);
-            setCookie(this.cookieKey, theme, { maxAge: 34e6, path: "/" });
+            setCookie({
+              key: this.cookieKey,
+              value: theme,
+              options: {
+                maxAge: 34e6,
+                path: "/",
+              },
+            });
           } else {
-            removeCookie(this.cookieKey, { path: "/" });
+            removeCookie({ key: this.cookieKey, options: { path: "/" } });
           }
           refIndex.current = index;
         }

@@ -29,6 +29,7 @@ import type {
   ImageIndexedDataStateClass,
   IndexedDataLastmodMH,
 } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { Theme } from "../theme/Theme";
 
 export function SetState({
   env,
@@ -59,6 +60,7 @@ export function SetState({
       <LikeState />
       <KeyValueDBState />
       <ClientDBState />
+      <Theme />
     </>
   );
 }
