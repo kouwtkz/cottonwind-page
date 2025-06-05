@@ -39,6 +39,7 @@ import { getSession } from "./sessions.server";
 import { ToastContainer } from "react-toastify";
 import { defaultToastContainerOptions } from "./components/define/toastContainerDef";
 import { ImageViewer } from "./components/layout/ImageViewer";
+import { HomeImageState } from "./page/Home";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -104,6 +105,7 @@ function SetState({
       <ToastContainer {...defaultToastContainerOptions} />
       <ImageState />
       <ImageViewer />
+      <HomeImageState />
       <CharacterState />
       <PostState />
       <SoundState />
