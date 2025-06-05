@@ -2,9 +2,15 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
   index("routes/home.tsx"),
-  route("test", "routes/test.tsx"),
+  route("gallery", "routes/gallery.tsx"),
   route("character", "routes/characterList.tsx"),
   route("character/:name", "routes/character.tsx"),
+  route("sound", "routes/sound.tsx"),
+  route("links", "routes/links.tsx"),
+  route("works", "routes/works.tsx"),
+  route("about", "routes/about.tsx"),
+  route("blog", "routes/blog.tsx"),
+  route("schedule", "routes/schedule.tsx"),
   route("media/*", "./media.ts"),
   route("api", "routes/api/index.ts", [
     route("data/:param", "routes/api/data.ts"),

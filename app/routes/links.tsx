@@ -1,13 +1,9 @@
-import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
-import type { Route } from "./+types/characterList";
-import {
-  SetMetaDefault,
-  SetMetaTitle,
-  type SetRootMetaProps,
-} from "~/components/SetMeta";
-import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
-import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
+import { getCfEnv } from "~/data/cf/getEnv";
+import type { Route } from "./+types/gallery";
+import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
+import { SetMetaDefault, type SetRootMetaProps } from "~/components/SetMeta";
+import LinksPage from "~/page/LinksPage";
 
 export async function loader({ context }: Route.LoaderArgs) {
   return { env: getCfEnv({ context }) };
@@ -22,13 +18,10 @@ interface MetaWithDataArgs extends Route.MetaArgs {
   data: SetRootMetaProps;
 }
 export function meta({ data }: MetaWithDataArgs) {
-  let title = "キャラクター";
+  let title = "リンク";
   return SetMetaDefault({ env: data?.env, title });
 }
 
-export default function CharacterList({
-  loaderData,
-  params,
-}: Route.ComponentProps) {
-  return <CharacterPage />;
+export default function Page() {
+  return <LinksPage/>;
 }

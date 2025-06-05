@@ -4,6 +4,7 @@ import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { SetMetaDefault, type SetRootMetaProps } from "~/components/SetMeta";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { envAsync } from "~/data/ClientEnvLorder";
+import { useEnv } from "~/components/state/EnvState";
 
 interface SetMetaProps extends SetRootMetaProps {
   character?: CharacterDataType | CharacterType;
