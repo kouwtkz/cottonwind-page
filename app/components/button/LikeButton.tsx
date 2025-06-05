@@ -51,23 +51,17 @@ export function LikeButton({
       onClick={(e) => {
         if (checked) {
           corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
-            method: "POST",
-            body: {
-              path: pathKey,
-              mode: "remove",
-            } as LikeFormType,
-          }).then(() => {
+            path: pathKey,
+            mode: "remove",
+          } as LikeFormType).then(() => {
             likeDataIndexed.load("no-cache");
             toast("いいねを解除しました", toastLoadingOptions);
           });
         } else {
           corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
-            method: "POST",
-            body: {
-              path: pathKey,
-              mode: "add",
-            } as LikeFormType,
-          }).then(() => {
+            path: pathKey,
+            mode: "add",
+          } as LikeFormType).then(() => {
             likeDataIndexed.load("no-cache");
             toast("いいねしました", toastLoadingOptions);
           });
