@@ -11,7 +11,7 @@ import {
 import type { Route } from "./+types/root";
 import "./styles/styles.scss";
 import "./styles/styles_lib.scss";
-import { getCfEnv } from "./data/cf/getEnv";
+import { getCfOmitEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { SetMetaDefault } from "./components/SetMeta";
@@ -53,7 +53,7 @@ interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   return {
-    env: getCfEnv({ context }),
+    env: getCfOmitEnv({ context }),
     isLogin: session.has("LoginToken"),
     isComplete: false,
   } as SetRootProps;

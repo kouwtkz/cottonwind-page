@@ -11,6 +11,21 @@ export function getCfEnv<E = Partial<Env>>({ context }: getCfProps = {}): E {
   else return {} as E;
 }
 
+export function getCfOmitEnv<E = Partial<Env>>(params: getCfProps = {}): E {
+  const {
+    DB,
+    KV,
+    NOTICE_FEED_KV,
+    DISCORD_INVITE_ANSWER,
+    DISCORD_INVITE_URL,
+    X_CLIENT_ID,
+    X_CLIENT_SECRET,
+    LOGIN_TOKEN,
+    ...env
+  } = getCfEnv(params)
+  return env as E;
+}
+
 export function getCfDB({ context }: getCfProps = {}): MeeSqlClass | null {
   if (context?.cloudflare && "DB" in context.cloudflare.env)
     return new MeeSqlD1(context.cloudflare.env.DB)
