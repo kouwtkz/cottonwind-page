@@ -4,10 +4,15 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { CreateObjectState } from "./CreateState";
-import { apiOrigin, imageDataIndexed, keyValueDBDataIndexed } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  imageDataIndexed,
+  keyValueDBDataIndexed,
+} from "~/data/ClientDBLoader";
 import { Modal } from "~/components/layout/Modal";
 import { useEnv, useIsLogin } from "./EnvState";
 import {
@@ -35,8 +40,10 @@ type EditType = "text" | "textarea" | "image";
 
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
+  const data = useSyncExternalStore(
+    ...ExternalStoreProps(keyValueDBDataIndexed)
+  );
   useEffect(() => {
-    const data = keyValueDBDataIndexed?.table;
     if (data?.db) {
       data.getAll().then((items) => {
         const parsedData = items.map(({ private: p, ...props }) => ({
@@ -52,7 +59,7 @@ export function KeyValueDBState() {
         });
       });
     }
-  }, [keyValueDBDataIndexed]);
+  }, [data]);
   const { edit } = useKeyValueEdit();
   return <>{edit ? <KeyValueEdit /> : null}</>;
 }
@@ -71,6 +78,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OmittedEnv } from "types/custom-configuration";
 import { corsFetch, corsFetchJSON } from "../functions/fetch";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 const schema = z.object({
   value: z.string().nullish(),

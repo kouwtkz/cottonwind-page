@@ -59,36 +59,27 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "PATCH": {
-            const rawData = await request.json();
-            const data = Array.isArray(rawData) ? rawData : [rawData];
+            const rawData = await request.formData();
+            const item = Object.fromEntries(rawData);
             const now = new Date();
-            return Promise.all(
-              data.map(async item => {
-                const nowString = now.toISOString();
-                now.setMilliseconds(now.getMilliseconds() + 1);
-                let {
-                  id,
-                  rename,
-                  ...values
-                } = item as imageUpdateJsonDataType;
-                const entry: MeeSqlEntryType<ImageDataType> = values;
-                const value = (await TableObject.Select({ db, where: { id } }))[0];
-                entry.lastmod = await TableObject.getClassifyScheduleValue({
-                  db,
-                  now: nowString,
-                  time: item.time,
-                  existTime: value.time,
-                });
-                if (rename) {
-                  if (value && env.BUCKET) {
-                    entry.key = rename;
-                    await ImageBucketRename({ bucket: env.BUCKET, rename, image: value, entry });
-                  }
-                }
-                KeyValueConvertDBEntry(entry);
-                await TableObject.Update({ db, entry, where: { id } });
-              })
-            );
+            const nowString = now.toISOString();
+            now.setMilliseconds(now.getMilliseconds() + 1);
+            let {
+              id,
+              rename,
+              ...values
+            } = item as unknown as imageUpdateJsonDataType;
+            const entry: MeeSqlEntryType<ImageDataType> = values;
+            const value = (await TableObject.Select({ db, where: { id } }))[0];
+            entry.lastmod = nowString;
+            if (rename) {
+              if (value && env.BUCKET) {
+                entry.key = rename;
+                await ImageBucketRename({ bucket: env.BUCKET, rename, image: value, entry });
+              }
+            }
+            KeyValueConvertDBEntry(entry);
+            return await TableObject.Update({ db, entry, where: { id } });
           }
           case "DELETE": {
             const data: any = await request.json();

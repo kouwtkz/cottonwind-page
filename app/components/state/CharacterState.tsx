@@ -1,4 +1,4 @@
-import { type JSX, useEffect } from "react";
+import { type JSX, useEffect, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { charactersDataIndexed } from "~/data/ClientDBLoader";
@@ -7,6 +7,7 @@ import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { useEnv } from "./EnvState";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -46,8 +47,10 @@ function CharacterDataState() {
   const { imagesMap } = useImageState();
   const { sounds, defaultPlaylist } = useSounds();
   const { likeCategoryMap } = useLikeState();
+  const charactersData = useSyncExternalStore(
+    ...ExternalStoreProps(charactersDataIndexed)
+  );
   useEffect(() => {
-    const charactersData = charactersDataIndexed?.table;
     if (
       charactersData?.db &&
       sounds &&
@@ -110,7 +113,7 @@ function CharacterDataState() {
         Set({ charactersData, characters, charactersMap, charactersTags });
       });
     }
-  }, [charactersDataIndexed, sounds, defaultPlaylist, likeCategoryMap, env]);
+  }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env]);
   useEffect(() => {
     if (imagesMap) {
       Set(({ charactersMap, characters }) => {

@@ -38,7 +38,6 @@ export class IndexedDataLastmodMH<
     super(tableOptions, table);
     this.subscribeToLoad = this.getSubscribe("load");
     const {
-      src,
       name: key,
       version = "1",
       primary: idField = "id",
@@ -51,7 +50,7 @@ export class IndexedDataLastmodMH<
     this.version = version;
     this.idField = idField.toString();
     this.key = key;
-    this.src = "/data" + src;
+    this.src = "/data/" + key;
     this.latestField = latestField as { [k in keyof T]: OrderByType };
     this.lastmodField = lastmodField;
     this.scheduleEnable = scheduleEnable;
@@ -194,4 +193,19 @@ export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageType> {
       }
     })
   }
+}
+
+type EventCallback = (callback: () => void) => () => void;
+export function ExternalStoreProps<
+  T,
+  D = T,
+  TABLE_CLASS extends MeeIndexedDBTable<T> = MeeIndexedDBTable<T>,
+>(
+  dataIndexed?: IndexedDataLastmodMH<T, D, TABLE_CLASS>
+): [EventCallback, () => TABLE_CLASS | null, () => null] {
+  return [
+    dataIndexed?.subscribe || (() => () => { }),
+    () => dataIndexed?.table || null,
+    () => null
+  ];
 }

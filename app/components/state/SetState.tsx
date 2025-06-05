@@ -24,6 +24,11 @@ import {
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";
 import { rootClientServerData } from "~/data/rootData";
+import { ClientDBState } from "~/data/ClientDBLoader";
+import type {
+  ImageIndexedDataStateClass,
+  IndexedDataLastmodMH,
+} from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 export function SetState({
   env,
@@ -53,6 +58,7 @@ export function SetState({
       <LinksState />
       <LikeState />
       <KeyValueDBState />
+      <ClientDBState />
     </>
   );
 }

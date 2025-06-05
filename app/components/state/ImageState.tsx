@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { imageDataIndexed, likeDataIndexed } from "~/data/ClientDBLoader";
 import {
   getImageAlbumMap,
@@ -8,7 +8,10 @@ import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "~/Env";
 import { findMee, findMeeSort, findMeeWheresFilter } from "~/data/find/findMee";
 import { useLikeState } from "./LikeState";
-import { ImageMeeIndexedDBTable } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import {
+  ExternalStoreProps,
+  ImageMeeIndexedDBTable,
+} from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
 
@@ -35,11 +38,13 @@ export function ImageState() {
   const { Set } = useImageState();
   const { likeCategoryMap } = useLikeState();
   const { charactersMap } = useCharacters();
+  const imagesData = useSyncExternalStore(
+    ...ExternalStoreProps(imageDataIndexed)
+  );
   useEffect(() => {
-    const imagesData = imageDataIndexed?.table;
     if (
       imagesData &&
-      !imageDataIndexed.isUpgrade &&
+      !imageDataIndexed?.isUpgrade &&
       charactersMap &&
       likeCategoryMap
     ) {
@@ -112,7 +117,7 @@ export function ImageState() {
         });
       });
     }
-  }, [imageDataIndexed, likeCategoryMap, charactersMap]);
+  }, [imagesData, likeCategoryMap, charactersMap]);
   return <></>;
 }
 

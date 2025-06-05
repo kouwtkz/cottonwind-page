@@ -21,9 +21,15 @@ import {
   ImageMeeIndexedDBTable,
   IndexedDataLastmodMH,
 } from "./IndexedDB/IndexedDataLastmodMH";
-import { concatOriginUrl, getAPIOrigin, getMediaOrigin, type EnvWithCfOriginOptions } from "~/components/functions/originUrl";
+import {
+  concatOriginUrl,
+  getAPIOrigin,
+  getMediaOrigin,
+  type EnvWithCfOriginOptions,
+} from "~/components/functions/originUrl";
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { corsFetch } from "~/components/functions/fetch";
+import { useEffect, useSyncExternalStore } from "react";
 
 export let waitIdbResolve: (value?: unknown) => void;
 export let waitIdb = new Promise((resolve, reject) => {
@@ -34,17 +40,35 @@ type anyIdbStateClass = IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>;
 export let IdbStateClassMap: Map<string, anyIdbStateClass> | null = null;
 
 export let imageDataIndexed: ImageIndexedDataStateClass;
-export let charactersDataIndexed: IndexedDataLastmodMH<CharacterType, CharacterDataType>;
+export let charactersDataIndexed: IndexedDataLastmodMH<
+  CharacterType,
+  CharacterDataType
+>;
 export let postsDataIndexed: IndexedDataLastmodMH<PostType, PostDataType>;
-export let soundsDataIndexed: IndexedDataLastmodMH<SoundItemType, SoundDataType>;
-export let soundAlbumsDataIndexed: IndexedDataLastmodMH<SoundAlbumType, SoundAlbumDataType>;
-export let filesDataIndexed: IndexedDataLastmodMH<FilesRecordType, FilesRecordDataType>;
+export let soundsDataIndexed: IndexedDataLastmodMH<
+  SoundItemType,
+  SoundDataType
+>;
+export let soundAlbumsDataIndexed: IndexedDataLastmodMH<
+  SoundAlbumType,
+  SoundAlbumDataType
+>;
+export let filesDataIndexed: IndexedDataLastmodMH<
+  FilesRecordType,
+  FilesRecordDataType
+>;
 export let linksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
 export let favLinksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
 export let likeDataIndexed: IndexedDataLastmodMH<LikeType, LikeDataType>;
-export let keyValueDBDataIndexed: IndexedDataLastmodMH<KeyValueDBType, KeyValueDBDataType>;
+export let keyValueDBDataIndexed: IndexedDataLastmodMH<
+  KeyValueDBType,
+  KeyValueDBDataType
+>;
 export let KVDataIndexed: typeof keyValueDBDataIndexed;
-export let tableVersionDataIndexed: IndexedDataLastmodMH<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data>;
+export let tableVersionDataIndexed: IndexedDataLastmodMH<
+  Props_LastmodMH_Tables,
+  Props_LastmodMH_Tables_Data
+>;
 export let IdbStateClassList: anyIdbStateClass[] = [];
 
 export let dbClass: MeeIndexedDB;
@@ -71,10 +95,16 @@ export async function MeeIndexedDBCreate() {
   });
 }
 
+let indexedList: anyIdbStateClass[] | null = null;
+
 export let apiOrigin: string | undefined;
 export let mediaOrigin: string | undefined;
 
-async function setSearchParamsOptionUrl(Url: URL, isLoading?: LoadStateType, idb?: anyIdbStateClass) {
+async function setSearchParamsOptionUrl(
+  Url: URL,
+  isLoading?: LoadStateType,
+  idb?: anyIdbStateClass
+) {
   function set(obj: anyIdbStateClass) {
     let prefix: string | undefined;
     if (!idb) prefix = obj.key;
@@ -107,53 +137,40 @@ const allDataSrc = "/data/all";
 interface ClientDBLoaderProps {
   env: EnvWithCfOriginOptions;
 }
-export async function ClientDBLoader({
-  env
-}: ClientDBLoaderProps) {
+export async function clientDBLoader({ env }: ClientDBLoaderProps) {
   if (!IdbStateClassMap) {
     apiOrigin = getAPIOrigin(env, location.origin);
     mediaOrigin = getMediaOrigin(env, location.origin);
-    tableVersionDataIndexed = new IndexedDataLastmodMH(
-      TableVersionDataOptions
-    );
+    tableVersionDataIndexed = new IndexedDataLastmodMH(TableVersionDataOptions);
     imageDataIndexed = new ImageIndexedDataStateClass(
       ImageDataOptions,
       new ImageMeeIndexedDBTable(ImageDataOptions)
     );
-    charactersDataIndexed = new IndexedDataLastmodMH(
-      charactersDataOptions
-    );
+    charactersDataIndexed = new IndexedDataLastmodMH(charactersDataOptions);
     postsDataIndexed = new IndexedDataLastmodMH(postsDataOptions);
     soundsDataIndexed = new IndexedDataLastmodMH(soundsDataOptions);
-    soundAlbumsDataIndexed = new IndexedDataLastmodMH(
-      soundAlbumsDataOptions
-    );
+    soundAlbumsDataIndexed = new IndexedDataLastmodMH(soundAlbumsDataOptions);
     filesDataIndexed = new IndexedDataLastmodMH(filesDataOptions);
     linksDataIndexed = new IndexedDataLastmodMH(linksDataOptions);
-    favLinksDataIndexed = new IndexedDataLastmodMH(
-      linksFavDataOptions
-    );
+    favLinksDataIndexed = new IndexedDataLastmodMH(linksFavDataOptions);
     likeDataIndexed = new IndexedDataLastmodMH(likeDataOptions);
-    keyValueDBDataIndexed = new IndexedDataLastmodMH(
-      KeyValueDBDataOptions
-    );
+    keyValueDBDataIndexed = new IndexedDataLastmodMH(KeyValueDBDataOptions);
     KVDataIndexed = keyValueDBDataIndexed;
     IdbStateClassMap = new Map();
-    (
-      [
-        tableVersionDataIndexed,
-        imageDataIndexed,
-        charactersDataIndexed,
-        postsDataIndexed,
-        soundsDataIndexed,
-        soundAlbumsDataIndexed,
-        filesDataIndexed,
-        linksDataIndexed,
-        favLinksDataIndexed,
-        likeDataIndexed,
-        keyValueDBDataIndexed,
-      ] as anyIdbStateClass[]
-    ).forEach((item) => {
+    indexedList = [
+      tableVersionDataIndexed,
+      imageDataIndexed,
+      charactersDataIndexed,
+      postsDataIndexed,
+      soundsDataIndexed,
+      soundAlbumsDataIndexed,
+      filesDataIndexed,
+      linksDataIndexed,
+      favLinksDataIndexed,
+      likeDataIndexed,
+      keyValueDBDataIndexed,
+    ];
+    indexedList.forEach((item) => {
       IdbStateClassMap!.set(item.options.name, item);
     });
     IdbStateClassList = Array.from(IdbStateClassMap.values());
@@ -167,8 +184,35 @@ export async function ClientDBLoader({
           const data = items[obj.key as JSONAllDataKeys];
           await obj.save({ data });
         })
-      )
-    }).then(() => {
-      waitIdbResolve();
+      );
     })
+    .then(() => {
+      waitIdbResolve();
+    });
+}
+
+export function ClientDBState() {
+  function setEffect(
+    obj: IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>
+  ) {
+    const isSoloLoad = useSyncExternalStore(
+      obj.subscribeToLoad,
+      () => obj.isLoad
+    );
+    useEffect(() => {
+      if (isSoloLoad) {
+        getDataFromApi<any[]>(obj.src, isSoloLoad, obj).then((items) => {
+          obj.save({ data: items });
+        });
+      }
+    }, [isSoloLoad]);
+    const data = useSyncExternalStore(obj.subscribe, () => obj.table);
+    useEffect(() => {
+      obj.load(false);
+    }, [data]);
+  }
+  IdbStateClassList.forEach((obj) => {
+    setEffect(obj);
+  });
+  return <></>;
 }

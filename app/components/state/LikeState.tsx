@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { likeDataIndexed } from "~/data/ClientDBLoader";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 export const useLikeStateUpdated = CreateState<string>();
 interface LikeStateType {
@@ -14,8 +15,8 @@ export const useLikeState = CreateObjectState<LikeStateType>();
 
 export function LikeState() {
   const { Set } = useLikeState();
+  const likeData = useSyncExternalStore(...ExternalStoreProps(likeDataIndexed));
   useEffect(() => {
-    const likeData = likeDataIndexed?.table;
     if (likeData?.db) {
       likeData.getAll().then((likes) => {
         const _likes = likes.filter((v) => v.path);
@@ -40,7 +41,7 @@ export function LikeState() {
         Set({ likeData, likes, likeMap, likeCategoryMap });
       });
     }
-  }, [likeDataIndexed]);
+  }, [likeData]);
 
   return <></>;
 }

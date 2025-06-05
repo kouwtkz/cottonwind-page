@@ -2,6 +2,7 @@ import {
   type HTMLAttributes,
   useEffect,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useEnv } from "~/components/state/EnvState";
 import { filesDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
@@ -9,6 +10,7 @@ import { CreateObjectState, CreateState } from "./CreateState";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 interface FilesState {
   files?: FilesRecordType[];
@@ -20,8 +22,10 @@ export const useFiles = CreateObjectState<FilesState>();
 export default function FileState() {
   const { Set } = useFiles();
   const env = useEnv()[0];
+  const filesData = useSyncExternalStore(
+    ...ExternalStoreProps(filesDataIndexed)
+  );
   useEffect(() => {
-    const filesData = filesDataIndexed?.table;
     if (filesData?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
       filesData.getAll().then((items) => {
@@ -42,7 +46,7 @@ export default function FileState() {
         Set({ filesData, filesMap, files: Array.from(filesMap.values()) });
       });
     }
-  }, [filesDataIndexed, env]);
+  }, [filesData, env]);
   return <></>;
 }
 

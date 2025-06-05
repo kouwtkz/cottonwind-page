@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useEnv } from "~/components/state/EnvState";
 import { postsDataIndexed } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 interface usePostsType {
   posts?: PostType[];
@@ -13,8 +14,10 @@ export const usePosts = CreateObjectState<usePostsType>();
 
 export default function PostState() {
   const { Set } = usePosts();
+  const postsData = useSyncExternalStore(
+    ...ExternalStoreProps(postsDataIndexed)
+  );
   useEffect(() => {
-    const postsData = postsDataIndexed?.table;
     if (postsData?.db) {
       postsData
         .find({ where: { body: { has: true }, postId: { has: true } } })
@@ -23,6 +26,6 @@ export default function PostState() {
           Set({ postsData, posts, postsMap });
         });
     }
-  }, [postsDataIndexed]);
+  }, [postsData]);
   return <></>;
 }

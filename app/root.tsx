@@ -17,7 +17,7 @@ import { Footer } from "./components/Footer";
 import { SetMetaDefault } from "./components/SetMeta";
 import { rootClientServerData, type SetRootProps } from "./data/rootData";
 import "./data/ClientDBLoader";
-import { ClientDBLoader } from "./data/ClientDBLoader";
+import { clientDBLoader } from "./data/ClientDBLoader";
 import { useEffect, useMemo, type ReactNode } from "react";
 import { ImageState, useImageState } from "./components/state/ImageState";
 import {
@@ -72,7 +72,7 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
     if (serverData?.env) waitEnvResolve(serverData.env);
   }
   if (clientServerData.env) {
-    ClientDBLoader({ env: clientServerData.env }).then(() => {
+    clientDBLoader({ env: clientServerData.env }).then(() => {
       // rootClientServerData.data!.isComplete = true;
     });
   }

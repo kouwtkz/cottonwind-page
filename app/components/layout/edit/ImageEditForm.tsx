@@ -275,11 +275,10 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
         }
       });
     }
-    const res = await corsFetchJSON(
-      concatOriginUrl(apiOrigin, IMAGE_SEND),
-      data,
-      { method }
-    ).finally(() => {
+    const res = await corsFetch(concatOriginUrl(apiOrigin, IMAGE_SEND), {
+      body: data,
+      method,
+    }).finally(() => {
       Set({ isBusy: false });
     });
     if (res.status === 200) {
