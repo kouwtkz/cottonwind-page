@@ -11,6 +11,8 @@ export default [
   route("about", "routes/about.tsx"),
   route("blog", "routes/blog.tsx"),
   route("schedule", "routes/schedule.tsx"),
+  route("setting", "routes/setting.tsx"),
+  route("admin", "routes/admin.tsx"),
   route("media/*", "./media.ts"),
   route("api", "routes/api/index.ts", [
     route("data/:param", "routes/api/data.ts"),
