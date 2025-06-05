@@ -111,7 +111,7 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
       <Test />
       <HeaderClient env={loaderData.env} {...e} />
       <div className="content-base">
-        <div className="contant-parent">
+        <div className="content-parent">
           <Outlet />
         </div>
       </div>
