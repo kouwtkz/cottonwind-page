@@ -1,15 +1,12 @@
 import type { OmittedEnv } from "types/custom-configuration";
+import type { SetRootMetaProps } from "~/data/rootData";
 
 export type MetaValuesType =
   | { title: string }
   | { name: string; content: string };
 
-interface SetMetaBaseProps {
+export interface SetMetaBaseProps {
   env?: Partial<OmittedEnv>;
-}
-export interface SetRootMetaProps extends SetMetaBaseProps {
-  title?: string;
-  description?: string;
 }
 
 export function SetMetaDefault({

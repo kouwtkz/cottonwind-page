@@ -1,10 +1,7 @@
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/characterList";
-import {
-  SetMetaDefault,
-  SetMetaTitle,
-  type SetRootMetaProps,
-} from "~/components/SetMeta";
+import { SetMetaDefault } from "~/components/SetMeta";
+import type { SetRootMetaProps } from "~/data/rootData";
 import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
 import { envAsync } from "~/data/ClientEnvLorder";

@@ -54,9 +54,6 @@ import { corsFetch } from "~/components/functions/fetch";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
-  useEffect(() => {
-    if (isLogin !== undefined && !isLogin) location.href = "/workers/login";
-  }, [isLogin]);
   const params = useParams();
   return (
     <main className="h1h4Page">
@@ -67,7 +64,13 @@ export function AdminPage() {
           <h2 className="color-main en-title-font">Admin room</h2>
           <h4>かんりしつ</h4>
           <div className="flex center column font-larger">
-            {isLogin ? <AdminMainPage /> : null}
+            {isLogin ? (
+              <AdminMainPage />
+            ) : (
+              <>
+                <Link to="/login">ログインする</Link>
+              </>
+            )}
           </div>
         </>
       )}
@@ -84,7 +87,7 @@ export function AdminMainPage() {
       <Link to="/admin/zip">Zipアーカイブ</Link>
       <Link to="/admin/db">データベース設定</Link>
       <Link to="/admin/schedule">スケジュール設定</Link>
-      <a href="/workers/logout">ログアウト</a>
+      <a href="/logout">ログアウト</a>
     </>
   );
 }

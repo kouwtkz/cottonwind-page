@@ -2,7 +2,8 @@ import { getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/gallery";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
-import { SetMetaDefault, type SetRootMetaProps } from "~/components/SetMeta";
+import { SetMetaDefault } from "~/components/SetMeta";
+import type { SetRootMetaProps } from "~/data/rootData";
 import { GalleryPage } from "~/page/GalleryPage";
 
 export async function loader({ context }: Route.LoaderArgs) {

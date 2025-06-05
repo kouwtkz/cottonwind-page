@@ -13,6 +13,7 @@ export default [
   route("schedule", "routes/schedule.tsx"),
   route("setting", "routes/setting.tsx"),
   route("admin", "routes/admin.tsx"),
+  route("login", "routes/login.tsx"),
   route("media/*", "./media.ts"),
   route("api", "routes/api/index.ts", [
     route("data/:param", "routes/api/data.ts"),

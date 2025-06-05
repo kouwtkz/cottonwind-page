@@ -25,8 +25,8 @@ export function MakeURL(href: TypeUrl) {
     pathname,
     hash,
   } = typeof href === "string"
-      ? ((href.startsWith("?") ? { query: href } : { href }) as UrlObject)
-      : href;
+    ? ((href.startsWith("?") ? { query: href } : { href }) as UrlObject)
+    : href;
   if (
     _href &&
     !(
@@ -56,17 +56,17 @@ export function MakeURL(href: TypeUrl) {
         typeof query === "string"
           ? query
           : Object.fromEntries(
-            Object.entries(query).map(([k, v]) => [
-              k,
-              String(v !== undefined && v !== null ? v : ""),
-            ])
-          )
+              Object.entries(query).map(([k, v]) => [
+                k,
+                String(v !== undefined && v !== null ? v : ""),
+              ])
+            )
       );
       Url.search = search.size
         ? "?" +
-        Object.entries(Object.fromEntries(search))
-          .map(([a, b]) => (b ? `${a}=${b}` : a))
-          .join("&")
+          Object.entries(Object.fromEntries(search))
+            .map(([a, b]) => (b ? `${a}=${b}` : a))
+            .join("&")
         : "";
     }
     return Url;
@@ -81,8 +81,8 @@ export function ToURL(src: string | UrlObject | URL) {
   return typeof src === "string"
     ? new URL(src, location.href)
     : "searchParams" in src
-      ? src
-      : MakeURL(src);
+    ? src
+    : MakeURL(src);
 }
 
 export function ToHref(src: string | UrlObject | URL) {
@@ -155,3 +155,16 @@ export function SearchSet(search: string) {
 }
 
 export type LocationStateType = KeyValueAnyType | null;
+
+export function LocationToUrl(
+  { pathname, search, hash }: Partial<Location>,
+  base?: string | URL
+) {
+  try {
+    const origin = base || location.origin;
+    const path = "" + pathname + search + hash;
+    return new URL(path, origin);
+  } catch (e) {
+    return null;
+  }
+}

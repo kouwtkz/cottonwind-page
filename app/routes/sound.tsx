@@ -1,8 +1,9 @@
 import { getCfEnv } from "~/data/cf/getEnv";
-import type { Route } from "./+types/gallery";
+import type { Route } from "./+types/sound";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
-import { SetMetaDefault, type SetRootMetaProps } from "~/components/SetMeta";
+import { SetMetaDefault } from "~/components/SetMeta";
+import type { SetRootMetaProps } from "~/data/rootData";
 import { SoundPage } from "~/page/SoundPage";
 
 export async function loader({ context }: Route.LoaderArgs) {

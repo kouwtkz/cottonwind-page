@@ -1,5 +1,5 @@
 import { CreateState } from "./CreateState";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { OmittedEnv } from "types/custom-configuration";
 
 export const useEnv = CreateState<Partial<OmittedEnv>>();
@@ -14,9 +14,13 @@ export function EnvState({ env, isLogin }: EnvStateProps) {
   useEffect(() => {
     if (env) setEnv(env);
   }, [env]);
-  const setIsLogin = useIsLogin()[1];
-  useEffect(() => {
-    setIsLogin(isLogin);
+  const SetIsLoginState = useIsLogin()[1];
+  const isLoginValue = useMemo(() => {
+    let isLoginValue = isLogin;
+    return isLoginValue;
   }, [isLogin]);
+  useEffect(() => {
+    SetIsLoginState(isLoginValue);
+  }, [isLoginValue]);
   return <></>;
 }

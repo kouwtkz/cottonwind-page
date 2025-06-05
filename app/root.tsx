@@ -14,7 +14,8 @@ import "./styles/styles_lib.scss";
 import { getCfEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { SetMetaDefault, type SetRootMetaProps } from "./components/SetMeta";
+import { SetMetaDefault } from "./components/SetMeta";
+import { rootClientServerData, type SetRootMetaProps } from "./data/rootData";
 import "./data/ClientDBLoader";
 import { ClientDBLoader } from "./data/ClientDBLoader";
 import { useEffect, type ReactNode } from "react";
@@ -34,6 +35,7 @@ import { waitEnvResolve } from "./data/ClientEnvLorder";
 import { EnvState, useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
 import { ClickEventState } from "./components/click/useClickEvent";
+import { getSession } from "./sessions.server";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -41,9 +43,11 @@ interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
   data?: SetRootMetaProps;
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
   return {
     env: getCfEnv({ context }),
+    isLogin: session.has("LoginToken"),
   } as SetRootMetaProps;
 }
 
@@ -51,12 +55,12 @@ export function meta({ data }: MetaArgs) {
   return SetMetaDefault({ env: data?.env });
 }
 
-let clientServerData: SetRootMetaProps | null = null;
-
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  let clientServerData = rootClientServerData.data;
   if (!clientServerData) {
     const serverData = (await serverLoader()) as SetRootMetaProps;
     clientServerData = serverData || null;
+    rootClientServerData.data = clientServerData;
     if (serverData?.env) waitEnvResolve(serverData.env);
   }
   if (clientServerData.env) {
@@ -83,10 +87,16 @@ export function Layout({ children }: { children?: ReactNode }) {
   );
 }
 
-function SetState({ env }: { env?: Partial<OmittedEnv> }) {
+function SetState({
+  env,
+  isLogin,
+}: {
+  env?: Partial<OmittedEnv>;
+  isLogin?: boolean;
+}) {
   return (
     <>
-      <EnvState env={env} />
+      <EnvState env={env} isLogin={isLogin} />
       <ClickEventState />
       <ImageState />
       <CharacterState />
@@ -111,8 +121,8 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
   return (
     <>
       {/* <Loading /> */}
-      <SetState env={loaderData.env} />
-      <Test />
+      <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
+      {/* <Test /> */}
       <HeaderClient env={loaderData.env} {...e} />
       <div className="content-base">
         <div className="content-parent">
@@ -153,4 +163,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       )}
     </>
   );
+}
+
+export function matchesRoot(matches: any[]) {
+  return matches.find((m) => m.id === "root") as
+    | RouterMatchesType<SetRootMetaProps>
+    | undefined;
 }
