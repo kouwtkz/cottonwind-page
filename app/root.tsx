@@ -88,13 +88,12 @@ function Test() {
   return <></>;
 }
 
-interface BaseLayoutProps {
-  className?: string;
+interface LayoutProps {
   children?: React.ReactNode;
 }
-function BaseLayout({ children, className }: BaseLayoutProps) {
+export function Layout({ children }: LayoutProps) {
   return (
-    <html lang="ja" className={className}>
+    <html lang="ja">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -112,34 +111,28 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
   const isComplete = useMemo(() => {
     return isCompleteState && loaderData.isComplete;
   }, [isCompleteState, loaderData.isComplete]);
-  const htmlClassName = useMemo(() => {
-    const classNames: string[] = [];
-    if (classNames.length > 0) return classNames.join(" ");
-  }, []);
   const bodyClassName = useMemo(() => {
     const classNames: string[] = [];
     if (!isComplete) classNames.push("loading", "dummy");
     return classNames.join(" ");
   }, [isComplete]);
   return (
-    <BaseLayout className={htmlClassName}>
-      <body className={bodyClassName}>
-        {isComplete ? null : <Loading />}
-        <main>
-          <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
-          {/* <Test /> */}
-          <HeaderClient env={loaderData.env} {...e} />
-          <div className="content-base">
-            <div className="content-parent">
-              <Outlet />
-            </div>
+    <body className={bodyClassName}>
+      {isComplete ? null : <Loading />}
+      <main>
+        <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
+        {/* <Test /> */}
+        <HeaderClient env={loaderData.env} {...e} />
+        <div className="content-base">
+          <div className="content-parent">
+            <Outlet />
           </div>
-          <Footer env={loaderData.env} {...e} />
-          <ScrollRestoration />
-        </main>
-        <Scripts />
-      </body>
-    </BaseLayout>
+        </div>
+        <Footer env={loaderData.env} {...e} />
+        <ScrollRestoration />
+      </main>
+      <Scripts />
+    </body>
   );
 }
 
@@ -160,17 +153,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <BaseLayout>
-      <body>
-        <h1>{message}</h1>
-        <p>{details}</p>
-        {stack && (
-          <pre>
-            <code>{stack}</code>
-          </pre>
-        )}
-      </body>
-    </BaseLayout>
+    <body>
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre>
+          <code>{stack}</code>
+        </pre>
+      )}
+    </body>
   );
 }
 

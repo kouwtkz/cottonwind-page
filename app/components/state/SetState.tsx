@@ -30,6 +30,7 @@ import type {
   IndexedDataLastmodMH,
 } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { Theme } from "../theme/Theme";
+import { LangState } from "../multilingual/LangState";
 
 export function SetState({
   env,
@@ -61,6 +62,7 @@ export function SetState({
       <KeyValueDBState />
       <ClientDBState />
       <Theme />
+      <LangState />
     </>
   );
 }
