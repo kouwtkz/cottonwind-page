@@ -365,7 +365,7 @@ function ImageManageButton() {
       className="button color round"
       title="ブログの画像の編集"
       to={{ pathname: "/admin/images", search: ImageManageButtonSearch }}
-      state={{ backUrl: location.href }}
+      state={{ backUrl: globalThis.location?.href }}
     >
       <MdOutlineImage />
     </Link>

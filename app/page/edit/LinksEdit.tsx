@@ -406,7 +406,7 @@ export function LinksEditButtons({
                 pathname: "/admin/images",
                 search: ImageManageButtonSearch,
               }}
-              state={{ backUrl: location.href }}
+              state={{ backUrl: globalThis.location?.href }}
             >
               <span>
                 <MdOutlineImage />

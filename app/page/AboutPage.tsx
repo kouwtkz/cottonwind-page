@@ -125,7 +125,7 @@ export function WebsiteFramework({
         <Link
           className="button miniIcon ml inline-flex"
           to="/log"
-          state={{ backUrl: location.href }}
+          state={{ backUrl: globalThis.location?.href }}
           title="サイトの更新履歴 (Git)"
         >
           <BiGitBranch />

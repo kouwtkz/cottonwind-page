@@ -79,7 +79,7 @@ export default function LinksPage() {
             <a href="/suggest">Suggest page (links for miss typo)</a>
           </li>
           <li>
-            <Link to="/log" state={{ backUrl: location.href }}>
+            <Link to="/log" state={{ backUrl: globalThis.location?.href }}>
               サイトの更新履歴 (Git)
             </Link>
           </li>

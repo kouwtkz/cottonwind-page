@@ -292,7 +292,7 @@ function CharaListPage() {
         to={move ? "" : `/character/${item.key}`}
         state={{
           ...(state ?? {}),
-          backUrl: location.href,
+          backUrl: globalThis.location?.href,
         }}
         className="item"
         key={item.key}
