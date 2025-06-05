@@ -11,6 +11,7 @@ export default [
   route("works", "routes/works.tsx"),
   route("about", "routes/about.tsx"),
   route("blog", "routes/blog.tsx"),
+  route("blog/post", "routes/blogEdit.tsx"),
   route("schedule", "routes/schedule.tsx"),
   route("setting", "routes/setting.tsx"),
   route("admin", "routes/admin/admin.tsx"),
