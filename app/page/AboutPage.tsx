@@ -161,12 +161,8 @@ export function WebsiteFramework({
               <span>TypeScript, SCSS</span>
             </li>
             <li>
-              <span className="label">サーバー</span>
-              <span>Hono</span>
-            </li>
-            <li>
-              <span className="label">クライアント</span>
-              <span>React Router DOM</span>
+              <span className="label">サーバー＆クライアント</span>
+              <span>React Router v7</span>
             </li>
             <li>
               <span className="label">ビルダー</span>
@@ -198,12 +194,8 @@ export function WebsiteFramework({
               <span>zustand</span>
             </li>
             <li>
-              <span className="label">プレイヤー</span>
-              <span>@mebtte/react-media-session</span>
-            <li>
               <span className="label">メタデータ</span>
               <span>music-metadata</span>
-            </li>
             </li>
             <li>
               <span className="label">UIライブラリ</span>

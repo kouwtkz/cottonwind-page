@@ -1,4 +1,4 @@
-このプロジェクトは[Hono](https://hono.dev/)と[React](https://react.dev/)を使用したわたかぜコウのサイトです！
+このプロジェクトは[React Router](https://reactrouter.com/)を使用したわたかぜコウのサイトです！
 
 https://cottonwind.com
 
