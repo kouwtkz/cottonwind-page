@@ -151,5 +151,5 @@ export class SiteLinkServerClass<A> {
 
 export const SiteLinkServer = new SiteLinkServerClass<Route.ActionArgs>(linksDataOptions);
 export async function action(props: Route.ActionArgs) {
-  return LoginCheck({ ...props, next: SiteLinkServer.next, trueWhenDev: true });
+  return LoginCheck({ ...props, next: SiteLinkServer.next.bind(SiteLinkServer), trueWhenDev: true });
 }
