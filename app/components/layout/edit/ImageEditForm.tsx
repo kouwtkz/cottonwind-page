@@ -38,9 +38,8 @@ import {
 import { type Options, useHotkeys } from "react-hotkeys-hook";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
-import { useApiOrigin, useMediaOrigin } from "~/components/state/EnvState";
 import { getExtension, getName } from "~/components/functions/doc/PathParse";
-import { imageDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, imageDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
 import {
   imageObject,
   imageOverSizeCheck,
@@ -127,8 +126,6 @@ export default function ImageEditForm({ className, image, ...args }: Props) {
   );
 
   const { charactersData } = useCharacters();
-  const apiOrigin = useApiOrigin()[0];
-  const mediaOrigin = useMediaOrigin()[0];
 
   const {
     isEdit: stateIsEdit,

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import { useMediaOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import StopButton from "~/components/svg/audio/StopButton";
 import LoopButton from "~/components/svg/audio/LoopButton";
@@ -28,6 +27,7 @@ import {
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 // import { parseBlob } from "music-metadata";
 import { useSounds } from "~/components/state/SoundState";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 const LoopModeList: SoundLoopMode[] = [
   "loop",
@@ -249,7 +249,6 @@ export function MediaSession({
 
 export const useSoundPlaylist = CreateState<SoundPlaylistType>();
 export function SoundPlayer() {
-  const mediaOrigin = useMediaOrigin()[0];
   const { Set: SetSounds } = useSounds();
   const {
     playlist,

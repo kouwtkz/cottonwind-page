@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useIsLogin, useMediaOrigin } from "~/components/state/EnvState";
+import { useIsLogin } from "~/components/state/EnvState";
 import { Link, useParams } from "react-router";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "~/components/utility/FileTool";
@@ -9,6 +9,7 @@ import {
   tableVersionDataIndexed,
   IdbStateClassList,
   apiOrigin,
+  mediaOrigin,
 } from "~/data/ClientDBLoader";
 import {
   ImportImagesJson,
@@ -106,7 +107,6 @@ export function AdminDetailPage({ param }: { param: string }) {
 }
 
 function FilesManager() {
-  const mediaOrigin = useMediaOrigin()[0];
   const [edit, setEdit] = useEditFileID();
   const { files } = useFiles();
   return (
@@ -264,7 +264,6 @@ function SoundFilesDownload({ take, ...props }: DownloadBaseProps) {
 }
 
 function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
-  const mediaOrigin = useMediaOrigin()[0];
   const { setMax, addProgress } = useToastProgress();
   const isAll = useMemo(() => typeof take !== "number", [take]);
   return (

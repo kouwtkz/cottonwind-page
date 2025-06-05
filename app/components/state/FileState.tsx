@@ -3,8 +3,8 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useEnv, useMediaOrigin } from "~/components/state/EnvState";
-import { filesDataIndexed } from "~/data/ClientDBLoader";
+import { useEnv } from "~/components/state/EnvState";
+import { filesDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -52,7 +52,6 @@ interface EmbedNodeProps extends HTMLAttributes<HTMLDivElement> {
 
 export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
   const [element, setElement] = useState<string>();
-  const mediaOrigin = useMediaOrigin()[0];
   const { filesMap } = useFiles();
   useEffect(() => {
     if (embed && mediaOrigin) {

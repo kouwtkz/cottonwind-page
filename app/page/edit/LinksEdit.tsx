@@ -14,10 +14,9 @@ import {
   useNoUploadThumbnail,
   useUploadWebp,
 } from "~/components/layout/edit/ImageEditForm";
-import { useApiOrigin } from "~/components/state/EnvState";
 import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
 import { fileDialog } from "~/components/utility/FileTool";
-import { imageDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { ImportLinksJson } from "~/data/ClientDBFunctions";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { type FieldValues, useForm } from "react-hook-form";
@@ -106,7 +105,6 @@ export function LinksEdit({
     });
     return list;
   }, [links, category, defaultCategories]);
-  const apiOrigin = useApiOrigin()[0];
   const {
     register,
     handleSubmit,
@@ -349,7 +347,6 @@ export function LinksEditButtons({
   dir,
   ...props
 }: LinksEditButtonsProps) {
-  const apiOrigin = useApiOrigin()[0];
   const ImageManageButtonSearch = useMemo(
     () =>
       new URLSearchParams({
@@ -443,7 +440,6 @@ export function LinksEditButtons({
 
 export const useMoveMyBanner = CreateState(0);
 export function MyBannerEditButtons() {
-  const apiOrigin = useApiOrigin()[0];
   const [move, setMove] = useMoveMyBanner();
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];

@@ -4,10 +4,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { GalleryObject } from "~/page/GalleryPage";
 // import ComicViewer from "react-comic-viewer";
 import { useSearchParams } from "react-router";
-import { useMediaOrigin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useFiles } from "~/components/state/FileState";
 import { findMee } from "~/data/find/findMee";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 interface ePubMetadataType {
   title?: string;
@@ -60,7 +60,6 @@ export function EPubViewer({ src }: { src: string }) {
   const [srcList, setSrcList] = useState<any[]>([]);
   const [metadata, setMetadata] = useState<ePubMetadataType | null>(null);
   const backRenderElm = useRef<HTMLDivElement>(null);
-  const mediaOrigin = useMediaOrigin()[0];
   const { filesMap } = useFiles();
   const url = useMemo(() => {
     const file = filesMap?.get(src);

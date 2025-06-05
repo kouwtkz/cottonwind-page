@@ -1,10 +1,10 @@
 import { fileDialog } from "~/components/utility/FileTool";
 import {
+  apiOrigin,
   soundAlbumsDataIndexed,
   soundsDataIndexed,
 } from "~/data/ClientDBLoader";
 import { ImportCommonJson, UploadToast } from "~/data/ClientDBFunctions";
-import { useApiOrigin } from "~/components/state/EnvState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { FilesUploadProcess } from "./FilesEdit";
@@ -27,7 +27,6 @@ import { soundsDataOptions } from "~/data/DataEnv";
 import { corsFetch } from "~/components/functions/fetch";
 
 export function SoundEditButton() {
-  const apiOrigin = useApiOrigin()[0];
   const searchParams = useSearchParams()[0];
   const isEdit = searchParams.get("edit") === "on";
   const switchEditModeLink = useMemo(() => {
@@ -94,7 +93,6 @@ export function SoundsImportButton({
   overwrite = true,
   ...props
 }: ImportObjectButtonProps) {
-  const apiOrigin = useApiOrigin()[0];
   return (
     <ObjectCommonButton
       {...props}
@@ -122,7 +120,6 @@ export function SoundEdit() {
   const dataItem = useMemo(() => {
     if (edit) return soundsMap.get(edit);
   }, [soundsMap, edit]);
-  const apiOrigin = useApiOrigin()[0];
   const {
     register,
     handleSubmit,
@@ -199,7 +196,6 @@ export function SoundAlbumEdit() {
   const item = useMemo(() => {
     if (edit) return soundAlbumsMap.get(edit);
   }, [soundAlbumsMap, edit]);
-  const apiOrigin = useApiOrigin()[0];
   const {
     register,
     handleSubmit,

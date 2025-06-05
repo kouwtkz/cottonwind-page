@@ -7,9 +7,9 @@ import {
 } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { CreateObjectState } from "./CreateState";
-import { imageDataIndexed, keyValueDBDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, imageDataIndexed, keyValueDBDataIndexed } from "~/data/ClientDBLoader";
 import { Modal } from "~/components/layout/Modal";
-import { useApiOrigin, useEnv, useIsLogin } from "./EnvState";
+import { useEnv, useIsLogin } from "./EnvState";
 import {
   RiEdit2Fill,
   RiGitRepositoryPrivateLine,
@@ -79,7 +79,6 @@ const schema = z.object({
 function KeyValueEdit() {
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const apiOrigin = useApiOrigin()[0];
   let {
     edit,
     Set,

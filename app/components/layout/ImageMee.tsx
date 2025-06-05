@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useMediaOrigin } from "~/components/state/EnvState";
 import { getExtension } from "~/components/functions/doc/PathParse";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { CreateState } from "~/components/state/CreateState";
@@ -14,6 +13,7 @@ import { useToastProgress } from "~/components/state/ToastProgress";
 import { PiFilePng } from "react-icons/pi";
 import { ModeSwitch } from "./edit/CommonSwitch";
 import { useImageState } from "~/components/state/ImageState";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -75,7 +75,6 @@ export function ImageMee({
       return _imageItem || null;
     }
   }, [_imageItem, imagesMap]);
-  const mediaOrigin = useMediaOrigin()[0];
   const versionString = useMemo(() => {
     if (imageItem)
       return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";

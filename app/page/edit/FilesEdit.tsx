@@ -3,9 +3,8 @@ import { corsFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { Modal } from "~/components/layout/Modal";
 import { CreateState } from "~/components/state/CreateState";
-import { filesDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, filesDataIndexed } from "~/data/ClientDBLoader";
 import { UploadToast } from "~/data/ClientDBFunctions";
-import { useApiOrigin } from "~/components/state/EnvState";
 import { useFiles } from "~/components/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useRef } from "react";
@@ -101,7 +100,6 @@ export function FilesEdit({
       targetLastmod.current = null;
     }
   }, [files]);
-  const apiOrigin = useApiOrigin()[0];
   const {
     register,
     handleSubmit,

@@ -6,6 +6,7 @@ import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
 import type { OmittedEnv } from "types/custom-configuration";
+import { useEnv } from "./EnvState";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -31,18 +32,16 @@ export const useCharacters = CreateObjectState<characterStateType>((set) => ({
   charactersMap: new Map(),
 }));
 
-interface CharacterStateProps {
-  env?: Partial<OmittedEnv>;
-}
-export function CharacterState({ env }: CharacterStateProps) {
+export function CharacterState() {
   return (
     <>
-      <CharacterDataState env={env} />
+      <CharacterDataState />
     </>
   );
 }
 
-function CharacterDataState({ env }: CharacterStateProps) {
+function CharacterDataState() {
+  const env = useEnv()[0];
   const { Set } = useCharacters();
   const { imagesMap } = useImageState();
   const { sounds, defaultPlaylist } = useSounds();

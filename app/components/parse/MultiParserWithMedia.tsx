@@ -1,5 +1,4 @@
 import { useImageState } from "~/components/state/ImageState";
-import { useMediaOrigin } from "~/components/state/EnvState";
 import {
   MultiParser,
   type MultiParserProps,
@@ -9,13 +8,13 @@ import { Element as NodeElement, Text as NodeText } from "domhandler";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useCallback } from "react";
 import { CopyWithToast } from "~/components/functions/toastFunction";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 interface MultiParserWithMediaProps
   extends Omit<MultiParserProps, "replaceFunctions"> {}
 
 export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   const { imagesMap } = useImageState();
-  const mediaOrigin = useMediaOrigin()[0];
   const copyAction = useCallback((e: MouseEvent) => {
     const elm = e.target as HTMLElement;
     if (elm?.dataset.copy) CopyWithToast(elm.dataset.copy);

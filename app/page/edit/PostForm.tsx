@@ -25,8 +25,8 @@ import {
   replacePostTextareaFromImage,
 } from "~/components/dropdown/PostEditSelect";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
-import { useApiOrigin, useEnv } from "~/components/state/EnvState";
-import { imageDataIndexed, postsDataIndexed } from "~/data/ClientDBLoader";
+import { useEnv } from "~/components/state/EnvState";
+import { apiOrigin, imageDataIndexed, postsDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { corsFetchJSON } from "~/components/functions/fetch";
 import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
@@ -81,7 +81,6 @@ const schema = z.object({
 export function PostForm() {
   const [searchParams] = useSearchParams();
   const { posts, postsMap } = usePosts();
-  const apiOrigin = useApiOrigin()[0];
 
   const nav = useNavigate();
   const base = searchParams.get("base");

@@ -14,7 +14,8 @@ import { isMobile } from "react-device-detect";
 import { useImageState } from "~/components/state/ImageState";
 import { usePosts } from "~/components/state/PostState";
 import { StateSet, useDataIsComplete } from "~/components/state/StateSet";
-import { useEnv, useMediaOrigin } from "~/components/state/EnvState";
+import { useEnv } from "~/components/state/EnvState";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 function SetTitle() {
   const { pathname, search } = useLocation();
@@ -33,7 +34,6 @@ function SetTitle() {
     const postId = searchParams.get("postId") || "";
     return postsMap?.get(postId);
   }, [postsMap, searchParams]);
-  const mediaOrigin = useMediaOrigin()[0];
   const [env] = useEnv();
   if (notFirst) {
     document.title = MetaValues({

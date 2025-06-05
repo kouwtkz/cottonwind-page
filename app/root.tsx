@@ -31,6 +31,7 @@ import { LikeState } from "./components/state/LikeState";
 import { KeyValueDBState } from "./components/state/KeyValueDBState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
+import { EnvState, useEnv } from "./components/state/EnvState";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -79,14 +80,12 @@ export function Layout({ children }: { children?: ReactNode }) {
   );
 }
 
-interface SetStateProps {
-  env?: Partial<OmittedEnv>;
-}
-function SetState({ env }: SetStateProps) {
+function SetState({ env }: { env?: Partial<OmittedEnv> }) {
   return (
     <>
+      <EnvState env={env} />
       <ImageState />
-      <CharacterState env={env} />
+      <CharacterState />
       <PostState />
       <SoundState />
       <FileState />
@@ -97,6 +96,10 @@ function SetState({ env }: SetStateProps) {
   );
 }
 function Test() {
+  const [env] = useEnv();
+  useEffect(() => {
+    console.log(env);
+  }, [env]);
   return <></>;
 }
 

@@ -68,8 +68,8 @@ import {
   useNoUploadThumbnail,
   useUploadWebp,
 } from "~/components/layout/edit/ImageEditForm";
-import { useApiOrigin, useIsLogin } from "~/components/state/EnvState";
-import { imageDataIndexed } from "~/data/ClientDBLoader";
+import { useIsLogin } from "~/components/state/EnvState";
+import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { useCharacters } from "~/components/state/CharacterState";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
@@ -520,7 +520,6 @@ function UploadChain({
   children?: ReactNode;
   enableOnClick?: boolean;
 }) {
-  const apiOrigin = useApiOrigin()[0];
   const character = useParams().charaName;
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];

@@ -19,12 +19,7 @@ import {
   useFavLinks,
   type LinksIndexedDBType,
 } from "~/components/state/LinksState";
-import {
-  useApiOrigin,
-  useEnv,
-  useIsLogin,
-  useMediaOrigin,
-} from "~/components/state/EnvState";
+import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { ImageMee } from "~/components/layout/ImageMee";
 import { CreateState } from "~/components/state/CreateState";
 import {
@@ -44,6 +39,8 @@ import {
   imageDataIndexed,
   linksDataIndexed,
   favLinksDataIndexed,
+  apiOrigin,
+  mediaOrigin,
 } from "~/data/ClientDBLoader";
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
@@ -163,7 +160,6 @@ export function MyBanners() {
   const { imageAlbums } = useImageState();
   const album = imageAlbums?.get(myBannerName);
   const { Set: setImageViewer } = useImageViewer();
-  const apiOrigin = useApiOrigin()[0];
   const myBanners = useMemo(() => {
     const list = album?.list.concat() || [];
     list.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
@@ -229,7 +225,6 @@ export function MyBanners() {
 }
 
 function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
-  const mediaOrigin = useMediaOrigin()[0];
   const setSearchParams = useSearchParams()[1];
   const edit = useImageEditSwitchHold()[0];
   return (
@@ -301,7 +296,6 @@ function LinksContainer({
   const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useState(0);
   const isLogin = useIsLogin()[0];
-  const apiOrigin = useApiOrigin()[0];
   const isEditable = useLinksEditMode()[0];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router";
 import { CreateState } from "./CreateState";
-import { useMediaOrigin } from "./EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useCharacters } from "./CharacterState";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 const defaultLink =
   globalThis.document?.querySelector<HTMLLinkElement>(`link[rel="icon"]`);
@@ -33,7 +33,6 @@ export function FaviconState() {
 
 function FaviconSystemState() {
   const src = useFaviconState()[0];
-  const mediaOrigin = useMediaOrigin()[0];
   const [isWait, setIsWait] = useState(defaultWait > 0);
   useEffect(() => {
     if (defaultWait > 0)

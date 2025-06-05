@@ -44,8 +44,7 @@ import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog } from "~/components/utility/FileTool";
-import { useApiOrigin, useMediaOrigin } from "~/components/state/EnvState";
-import { charactersDataIndexed, imageDataIndexed } from "~/data/ClientDBLoader";
+import { apiOrigin, charactersDataIndexed, imageDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
 import { ImportCharacterJson } from "~/data/ClientDBFunctions";
 import {
   iconImagesUploadOptions,
@@ -93,7 +92,6 @@ export function CharacterEdit() {
 
 function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const { charactersMap, charactersTags } = useCharacters();
-  const apiOrigin = useApiOrigin()[0];
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   let { state } = useLocation();
@@ -743,7 +741,6 @@ export const useEditSwitchState = CreateObjectState<{
 });
 
 export function CharaEditButton() {
-  const apiOrigin = useApiOrigin()[0];
   const isComplete = useDataIsComplete()[0];
   const { charactersMap } = useCharacters();
   const { charaName } = useParams();
@@ -859,8 +856,6 @@ export function CharaImageSettingRbButtons({
 }: CharaImageRbButtonsProps) {
   const params = useParams();
   const charaName = params.charaName;
-  const apiOrigin = useApiOrigin()[0];
-  const mediaOrigin = useMediaOrigin()[0];
   if (params.charaName) {
     async function toastPromise(
       promise: Promise<unknown>,

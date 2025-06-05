@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useMediaOrigin } from "~/components/state/EnvState";
 import { GalleryObject, useGalleryObject } from "../GalleryPage";
 import { useImageState } from "~/components/state/ImageState";
-import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  imageDataIndexed,
+  mediaOrigin,
+} from "~/data/ClientDBLoader";
 import { ImportImagesJson } from "~/data/ClientDBFunctions";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
 import { useCharacters } from "~/components/state/CharacterState";
@@ -160,7 +163,6 @@ export function CompatMendingThumbnailButton({
   ...props
 }: CompatMendingThumbnailButtonProps) {
   const url = concatOriginUrl(apiOrigin, "/image/send");
-  const mediaOrigin = useMediaOrigin()[0];
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton
@@ -275,7 +277,6 @@ export function ThumbnailResetButton({
   children,
   ...props
 }: ThumbnailResetButtonProps) {
-  const mediaOrigin = useMediaOrigin()[0];
   const { images } = useGalleryObject();
   const { addProgress, setMax } = useToastProgress();
   const noThumbnailList = useMemo(

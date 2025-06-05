@@ -29,7 +29,7 @@ import { useCharacters } from "~/components/state/CharacterState";
 import { useImageState } from "~/components/state/ImageState";
 import { useHotkeys } from "react-hotkeys-hook";
 import { scrollLock } from "~/.client/ScrollLock";
-import { useIsLogin, useMediaOrigin } from "~/components/state/EnvState";
+import { useIsLogin } from "~/components/state/EnvState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { EmbedNode, useFiles } from "~/components/state/FileState";
 import ShareButton from "~/components/button/ShareButton";
@@ -39,6 +39,7 @@ import { useGalleryObject } from "~/page/GalleryPage";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { CharacterName } from "~/page/CharacterPage";
 import { Modal } from "./Modal";
+import { mediaOrigin } from "~/data/ClientDBLoader";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -233,7 +234,6 @@ interface PreviewAreaProps {
   image: ImageType;
 }
 function PreviewArea({ image }: PreviewAreaProps) {
-  const mediaOrigin = useMediaOrigin()[0];
   function MediaOrigin(src?: string) {
     return concatOriginUrl(mediaOrigin, src);
   }
@@ -323,7 +323,6 @@ function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
     else if (type === "pdf") title = "PDFを開く";
     else title = "ダウンロードする";
   }
-  const mediaOrigin = useMediaOrigin()[0];
   const { filesMap } = useFiles();
   const url = useMemo(() => {
     const src = embed ? filesMap?.get(embed)?.src : undefined;

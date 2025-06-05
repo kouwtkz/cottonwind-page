@@ -1,14 +1,13 @@
 import { useEffect } from "react";
-import { useApiOrigin } from "./EnvState";
 import { corsFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { CreateState } from "./CreateState";
+import { apiOrigin } from "~/data/ClientDBLoader";
 
 export const useOutFeed = CreateState<FeedContentType>();
 
 export function FeedState() {
   const setOutFeed = useOutFeed()[1];
-  const apiOrigin = useApiOrigin()[0];
   useEffect(() => {
     if (apiOrigin) {
       corsFetch(concatOriginUrl(apiOrigin, "/feed/get"))
