@@ -38,6 +38,7 @@ import { ClickEventState } from "./components/click/useClickEvent";
 import { getSession } from "./sessions.server";
 import { ToastContainer } from "react-toastify";
 import { defaultToastContainerOptions } from "./components/define/toastContainerDef";
+import { ImageViewer } from "./components/layout/ImageViewer";
 
 export const links: Route.LinksFunction = () => [];
 
@@ -102,6 +103,7 @@ function SetState({
       <ClickEventState />
       <ToastContainer {...defaultToastContainerOptions} />
       <ImageState />
+      <ImageViewer />
       <CharacterState />
       <PostState />
       <SoundState />

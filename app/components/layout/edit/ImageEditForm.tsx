@@ -53,7 +53,11 @@ import {
 import { CharaImageSettingRbButtons } from "~/page/edit/CharacterEdit";
 import { JoinUnique } from "~/components/functions/doc/StrFunctions";
 import { charaTagsLabel } from "~/components/FormatOptionLabel";
-import { corsFetch, corsFetchJSON, type methodType } from "~/components/functions/fetch";
+import {
+  corsFetch,
+  corsFetchJSON,
+  type methodType,
+} from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import {
   getCountList,
@@ -1082,21 +1086,23 @@ export async function MakeImagesUploadList({
         body: data,
         timeout: 10000,
       })
-        .then(
-          async (v) =>
-            ({
-              ...v,
-              data: (await v.json()) as ImageDataType,
-            } as MakeImagesUploadListResponse<ImageDataType>)
-        )
+        .then(async (v) => {
+          const r = v as MakeImagesUploadListResponse<ImageDataType>;
+          r.data = await v.json();
+          return r;
+        })
         .catch((e: Response) => {
+          const r = e as MakeImagesUploadListResponse<Partial<ImageDataType>>;
           const stock: unknown[] = [];
           const file = data.get("file") as File | null;
           if (file?.name) stock.push(file.name);
           stock.push(data);
           stock.push(e);
           console.error(...stock);
-          return { ...e, data } as MakeImagesUploadListResponse<FormData>;
+          r.data = {
+            src: data.get("src") as string,
+          };
+          return r;
         })
   );
 }
@@ -1160,6 +1166,7 @@ export async function ImagesUploadWithToast({
       },
     })
       .then((results) => {
+        console.log(results);
         const successCount = results.filter((r) => r.status === 200).length;
         if (results.length === successCount) {
           toast.update(id, {
@@ -1171,12 +1178,10 @@ export async function ImagesUploadWithToast({
           const failedList = results
             .filter((r) => r.status !== 200)
             .map((_) => {
-              const r = _ as Response & { data: FormData };
-              const formData: FormData = r.data;
-              const src = (formData.get("src") ||
-                formData.get("icon")) as srcType;
-              const name =
-                src && typeof src === "object" && src.name ? src.name : src;
+              const r = _ as Response & { data: ImageDataType };
+              const image = r.data;
+              const src = image.src;
+              const name = src;
               return name;
             });
           toast.update(id, {
@@ -1193,7 +1198,8 @@ export async function ImagesUploadWithToast({
         }
         return results;
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log({ e });
         toast.update(id, {
           ...toastUpdateOptions,
           render: "アップロードに失敗したファイルが含まれています",

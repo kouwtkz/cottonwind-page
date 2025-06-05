@@ -1079,34 +1079,31 @@ function GalleryContent({
         </div>
       ) : null}
       {GalleryLabel}
-      {isComplete ? (
-        <div className={listClassName}>
-          {list
-            .filter((_, i) => i < visibleMax)
-            .map((image, i) => (
-              <GalleryImageItem
-                image={image}
-                galleryName={name}
-                onClick={imageOnClick}
-                key={image.key}
-              />
-            ))}
-          {showMoreButton ? (
-            <a
-              onClick={(e) => {
-                e.preventDefault();
-                ShowMore();
-              }}
-              title="もっと見る"
-              className="item"
-            >
-              <MoreButton className="gallery-button-more" />
-            </a>
-          ) : null}
-        </div>
-      ) : (
-        <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div>
-      )}
+      <div className={listClassName}>
+        {list
+          .filter((_, i) => i < visibleMax)
+          .map((image, i) => (
+            <GalleryImageItem
+              image={image}
+              galleryName={name}
+              onClick={imageOnClick}
+              key={image.key}
+            />
+          ))}
+        {showMoreButton ? (
+          <a
+            onClick={(e) => {
+              e.preventDefault();
+              ShowMore();
+            }}
+            title="もっと見る"
+            className="item"
+          >
+            <MoreButton className="gallery-button-more" />
+          </a>
+        ) : null}
+      </div>
+      {/* <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div> */}
     </div>
   );
 }
