@@ -43,7 +43,7 @@ import {
 } from "~/data/ClientDBLoader";
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
-import { corsFetch, corsFetchJSON } from "~/components/functions/fetch";
+import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -387,7 +387,7 @@ function LinksContainer({
                     });
                   if (dirty.length > 0) {
                     toast.promise(
-                      corsFetchJSON(
+                      corsFetchPost(
                         concatOriginUrl(apiOrigin, send),
                         dirty
                       ).then(() => {

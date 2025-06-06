@@ -42,7 +42,7 @@ import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "~/components/button/LikeButton";
 import { useLang } from "~/components/multilingual/LangState";
 import { defaultLang } from "~/Env";
-import { corsFetchJSON } from "~/components/functions/fetch";
+import { corsFetchPost } from "~/components/functions/fetch";
 
 interface PartsType {
   label?: string;
@@ -336,7 +336,7 @@ function CharaListPage() {
                         });
                       if (dirty.length > 0) {
                         toast.promise(
-                          corsFetchJSON(
+                          corsFetchPost(
                             concatOriginUrl(apiOrigin, "character/send"),
                             dirty
                           ).then(() => {

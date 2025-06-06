@@ -28,7 +28,7 @@ import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { useEnv } from "~/components/state/EnvState";
 import { apiOrigin, imageDataIndexed, postsDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { corsFetchJSON } from "~/components/functions/fetch";
+import { corsFetchPost } from "~/components/functions/fetch";
 import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
 import { DownloadIndexedDBObject } from "~/components/button/ObjectDownloadButton";
@@ -358,7 +358,7 @@ export function PostForm() {
       if (sendEnable) {
         toast
           .promise(
-            corsFetchJSON(concatOriginUrl(apiOrigin, "/blog/send"), data).then(
+            corsFetchPost(concatOriginUrl(apiOrigin, "/blog/send"), data).then(
               async (r) => {
                 if (r.ok) return r;
                 else throw await r.text();

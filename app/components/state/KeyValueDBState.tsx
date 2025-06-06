@@ -75,7 +75,7 @@ export const useKeyValueEdit = CreateObjectState<{
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OmittedEnv } from "types/custom-configuration";
-import { corsFetch, corsFetchJSON } from "../functions/fetch";
+import { corsFetch, corsFetchPost } from "../functions/fetch";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 const schema = z.object({
@@ -147,7 +147,7 @@ function KeyValueEdit() {
     );
     entry.key = edit;
     toast.promise(
-      corsFetchJSON(concatOriginUrl(apiOrigin, send), entry).then(() => {
+      corsFetchPost(concatOriginUrl(apiOrigin, send), entry).then(() => {
         keyValueDBDataIndexed.load("no-cache");
         Set({ edit: null });
       }),
@@ -163,7 +163,7 @@ function KeyValueEdit() {
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+      corsFetchPost(concatOriginUrl(apiOrigin, send), {
         key: edit,
         value: selectedImage.key,
       }).then((r) => {
@@ -248,7 +248,7 @@ function KeyValueEdit() {
                       })
                       .then(async (o) => {
                         if (o && typeof o.key === "string") {
-                          return corsFetchJSON(
+                          return corsFetchPost(
                             concatOriginUrl(apiOrigin, send),
                             {
                               key: edit,

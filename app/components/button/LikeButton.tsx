@@ -7,7 +7,7 @@ import { toLikePath } from "~/components/functions/media/likeFunction";
 import { apiOrigin, likeDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useLikeState } from "~/components/state/LikeState";
-import { corsFetchJSON } from "../functions/fetch";
+import { corsFetchPost } from "../functions/fetch";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;
@@ -50,7 +50,7 @@ export function LikeButton({
       className={className}
       onClick={(e) => {
         if (checked) {
-          corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
+          corsFetchPost(concatOriginUrl(apiOrigin, "like/send"), {
             path: pathKey,
             mode: "remove",
           } as LikeFormType).then(() => {
@@ -58,7 +58,7 @@ export function LikeButton({
             toast("いいねを解除しました", toastLoadingOptions);
           });
         } else {
-          corsFetchJSON(concatOriginUrl(apiOrigin, "like/send"), {
+          corsFetchPost(concatOriginUrl(apiOrigin, "like/send"), {
             path: pathKey,
             mode: "add",
           } as LikeFormType).then(() => {

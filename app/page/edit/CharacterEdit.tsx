@@ -58,7 +58,7 @@ import {
 } from "~/components/layout/edit/ImageEditForm";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getName } from "~/components/functions/doc/PathParse";
-import { corsFetchJSON } from "~/components/functions/fetch";
+import { corsFetchPost } from "~/components/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
@@ -974,5 +974,5 @@ interface SendPostFetchProps {
   data: KeyValueAnyType;
 }
 async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
-  return corsFetchJSON(concatOriginUrl(apiOrigin, "character/send"), data);
+  return corsFetchPost(concatOriginUrl(apiOrigin, "character/send"), data);
 }

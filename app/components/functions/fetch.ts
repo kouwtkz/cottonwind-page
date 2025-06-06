@@ -7,17 +7,15 @@ interface initType extends RequestInit {
   timeout?: number;
   cors?: boolean;
 }
-export async function customFetch(input: string | URL | globalThis.Request, { cors, timeout, method, body, ...init }: initType = {}) {
+export async function customFetch(input: string | URL | globalThis.Request, { cors, timeout, method, body, headers = {}, ...init }: initType = {}) {
   if (cors) {
     init.mode = "cors";
     init.credentials = "include";
   }
-  if (method !== "POST" && body && !(body instanceof FormData)) {
-    const formData = new FormData();
-    Object.entries<any>(body).forEach(([k, v]) => {
-      formData.append(k, v);
-    });
-    body = formData;
+  const isFormData = body && (body instanceof FormData);
+  if (body && !isFormData) {
+    headers["Content-Type"] = "application/json";
+    if (typeof body !== "string") body = JSON.stringify(body);
   }
   let timeoutTimer: NodeJS.Timeout | undefined;
   try {
@@ -25,7 +23,7 @@ export async function customFetch(input: string | URL | globalThis.Request, { co
       const controller = new AbortController();
       timeoutTimer = setTimeout(() => { controller.abort() }, timeout || 15000)
     }
-    const response = await fetch(input, { method, body, ...init });
+    const response = await fetch(input, { method, body, headers, ...init });
     if (!response.ok) {
       console.error(response.text);
       return response;
@@ -37,10 +35,8 @@ export async function customFetch(input: string | URL | globalThis.Request, { co
 }
 
 /** @mothod default: POST */
-export async function customFetchJSON(input: string | URL | globalThis.Request, body: Object, { method = "POST", ...init }: initType = {}) {
+export async function customFetchPost(input: string | URL | globalThis.Request, body: Object, { method = "POST", ...init }: initType = {}) {
   return corsFetch(input, {
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
     method,
     ...init
   })
@@ -51,6 +47,6 @@ export async function corsFetch(input: string | URL | globalThis.Request, init?:
 }
 
 /** @mothod default: POST */
-export async function corsFetchJSON(input: string | URL | globalThis.Request, body: Object, { method = "POST", ...init }: initType = {}) {
-  return customFetchJSON(input, body, { cors: true, ...init });
+export async function corsFetchPost(input: string | URL | globalThis.Request, body: Object, { method = "POST", ...init }: initType = {}) {
+  return customFetchPost(input, body, { cors: true, ...init });
 }

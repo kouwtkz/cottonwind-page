@@ -59,8 +59,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "PATCH": {
-            const rawData = await request.formData();
-            const item = Object.fromEntries(rawData);
+            const item = await request.json<KeyValueAnyType>();
             const now = new Date();
             const nowString = now.toISOString();
             now.setMilliseconds(now.getMilliseconds() + 1);
@@ -82,7 +81,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
             return await TableObject.Update({ db, entry, where: { id } });
           }
           case "DELETE": {
-            const data: any = await request.json();
+            const data = await request.json<KeyValueAnyType>();
             if (typeof data.id === "number") {
               const values = (await TableObject.Select({ db, params: "*", where: { id: data.id } }))[0];
               if (env?.BUCKET) {

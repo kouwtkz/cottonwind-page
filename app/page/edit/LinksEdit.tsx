@@ -50,7 +50,7 @@ import {
   useLinks,
 } from "~/components/state/LinksState";
 import { findMee } from "~/data/find/findMee";
-import { corsFetch, corsFetchJSON } from "~/components/functions/fetch";
+import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -140,7 +140,7 @@ export function LinksEdit({
       entry.category = null;
     }
     toast.promise(
-      corsFetchJSON(concatOriginUrl(apiOrigin, send), entry).then(() => {
+      corsFetchPost(concatOriginUrl(apiOrigin, send), entry).then(() => {
         indexedDB.load("no-cache");
         setEdit(false);
       }),
@@ -169,7 +169,7 @@ export function LinksEdit({
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+      corsFetchPost(concatOriginUrl(apiOrigin, send), {
         id: item?.id,
         image: selectedImage.key,
         category,
@@ -253,7 +253,7 @@ export function LinksEdit({
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
-                    return corsFetchJSON(concatOriginUrl(apiOrigin, send), {
+                    return corsFetchPost(concatOriginUrl(apiOrigin, send), {
                       id: item?.id,
                       image: o.key,
                       category,
