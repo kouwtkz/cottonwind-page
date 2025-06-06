@@ -77,7 +77,7 @@ import {
   ModeSearchSwitch,
   ModeSwitch,
 } from "~/components/layout/edit/CommonSwitch";
-import { ComicsViewer } from "./ComicsViewer";
+import { ComicsViewer } from "./ComicsViewer.client";
 import { AiFillEdit } from "react-icons/ai";
 import {
   DropdownButton,
@@ -124,7 +124,12 @@ export function GalleryPage({ children, ...args }: GalleryPageProps) {
 
 export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
   const { group } = useParams();
-  return <>{group === "ebook" ? <ComicsViewer /> : <GalleryGroupPage />}</>;
+  const [ebookMode, set_ebookMode] = useState(false);
+  useEffect(() => {
+    if (group === "ebook" && Boolean(ComicsViewer)) set_ebookMode(true);
+    else set_ebookMode(false);
+  }, [group, ComicsViewer]);
+  return <>{ebookMode ? <ComicsViewer /> : <GalleryGroupPage />}</>;
 }
 
 function GalleryGroupPage() {
