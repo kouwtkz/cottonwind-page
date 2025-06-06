@@ -4,7 +4,7 @@ import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { SetMetaDefault } from "~/components/SetMeta";
 import type { SetRootProps } from "~/data/rootData";
-import { GalleryPage } from "~/page/GalleryPage";
+import { GalleryGroupPageRoot } from "~/page/GalleryPage";
 
 export async function loader({ context }: Route.LoaderArgs) {
   return { env: getCfEnv({ context }) };
@@ -24,5 +24,5 @@ export function meta({ data }: MetaWithDataArgs) {
 }
 
 export default function Page() {
-  return <GalleryPage />;
+  return <GalleryGroupPageRoot />;
 }
