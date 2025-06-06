@@ -15,6 +15,7 @@ export default [
   route("schedule", "routes/schedule.tsx"),
   route("setting", "routes/setting.tsx"),
   route("admin", "routes/admin/admin.tsx"),
+  route("admin/:key", "routes/admin/adminGroup.tsx"),
   route("login", "routes/session/login.tsx"),
   route("logout", "routes/session/logout.tsx"),
   route("api", "routes/api/index.ts", [

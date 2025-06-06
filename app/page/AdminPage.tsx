@@ -81,13 +81,13 @@ export function AdminPage() {
 export function AdminMainPage() {
   return (
     <>
-      <a href="/workers">Workersのページ</a>
+      {/* <a href="/workers">Workersのページ</a> */}
       <Link to="/admin/images">画像管理ページ</Link>
       <Link to="/admin/files">ファイル管理ページ</Link>
       <Link to="/admin/zip">Zipアーカイブ</Link>
       <Link to="/admin/db">データベース設定</Link>
       <Link to="/admin/schedule">スケジュール設定</Link>
-      <a href="/logout">ログアウト</a>
+      <Link to="/logout">ログアウト</Link>
     </>
   );
 }
