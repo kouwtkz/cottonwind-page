@@ -6,6 +6,7 @@ import type { SetRootProps } from "~/data/rootData";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { useEnv } from "~/components/state/EnvState";
+import type { LinkDescriptor } from "react-router";
 
 interface SetMetaProps extends SetRootProps {
   character?: CharacterDataType | CharacterType;

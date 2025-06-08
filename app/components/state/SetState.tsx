@@ -31,6 +31,7 @@ import type {
 } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { Theme } from "../theme/Theme";
 import { LangState } from "../multilingual/LangState";
+import { FaviconState } from "./FaviconState";
 
 export function SetState({
   env,
@@ -63,6 +64,7 @@ export function SetState({
       <ClientDBState />
       <Theme />
       <LangState />
+      <FaviconState />
     </>
   );
 }

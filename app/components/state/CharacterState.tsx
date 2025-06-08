@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useSyncExternalStore } from "react";
+import { type JSX, useEffect, useMemo, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { charactersDataIndexed } from "~/data/ClientDBLoader";
@@ -8,6 +8,8 @@ import { useLikeState } from "./LikeState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { useEnv } from "./EnvState";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { useFaviconState } from "./FaviconState";
+import { useParams } from "react-router";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -37,8 +39,27 @@ export function CharacterState() {
   return (
     <>
       <CharacterDataState />
+      <CharacterParamState />
     </>
   );
+}
+
+function CharacterParamState() {
+  const setFavicon = useFaviconState()[1];
+  const { charaName = "" } = useParams();
+  const { charactersMap } = useCharacters();
+  const character = useMemo(
+    () => charactersMap.get(charaName) || null,
+    [charaName, charactersMap]
+  );
+  useEffect(() => {
+    if (character?.icon) {
+      setFavicon(character.icon);
+    } else {
+      setFavicon(null);
+    }
+  }, [character]);
+  return <></>;
 }
 
 function CharacterDataState() {

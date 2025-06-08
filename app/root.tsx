@@ -5,6 +5,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  type LinkDescriptor,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -25,9 +26,9 @@ import { getSession } from "./sessions.server";
 import { Loading } from "./components/layout/Loading";
 import { SetState, useIsComplete } from "./components/state/SetState";
 
-export const links: Route.LinksFunction = () => [
-  { rel: "stylesheet", href: "/static/styles/laymic.min.css" },
-];
+export function links(): LinkDescriptor[] {
+  return [{ rel: "stylesheet", href: "/static/styles/laymic.min.css" }];
+}
 
 interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
   data?: SetRootProps;
