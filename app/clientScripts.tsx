@@ -1,8 +1,11 @@
-const scripts: { [k in jsFileNames]: string } = {
+const scripts = {
   jszip: "/static/scripts/jszip.min.js",
   epub: "/static/scripts/epub.min.js",
   highlight: "/static/scripts/highlight.min.js",
+  laymic: "/static/scripts/laymic.iife.min.js",
 };
+type jsFileNames = keyof typeof scripts;
+type jsFileNamesArgs = "all" | jsFileNames;
 
 export function DefaultImportScripts({
   names = "all",

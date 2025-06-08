@@ -159,6 +159,7 @@ export class IndexedDataLastmodMH<
 
 export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, ImageDataType, ImageMeeIndexedDBTable> {
   override async updateData() {
+    console.log(this, "updateData");
     return this.table.updateData({ lastmod: this.beforeLastmod });
   }
   override async dbSuccess(db: IDBDatabase) {

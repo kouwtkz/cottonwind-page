@@ -58,7 +58,7 @@ import {
 } from "~/components/layout/edit/ImageEditForm";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getName } from "~/components/functions/doc/PathParse";
-import { corsFetchPost } from "~/components/functions/fetch";
+import { corsFetchPost, customFetch } from "~/components/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
@@ -79,6 +79,8 @@ import {
 } from "~/components/dropdown/PostEditSelect";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { PostTextarea } from "~/components/parse/PostTextarea";
+
+const CHARACTER_SEND = "character/send";
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -212,9 +214,10 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       else if (!data.key) data.key = formValues["key"];
       toast
         .promise(
-          SendPostFetch({
-            apiOrigin,
-            data,
+          customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+            body: data,
+            method: "POST",
+            cors: true,
           }).then(async (r) => {
             if (r.ok) return r;
             else throw await r.text();
@@ -270,15 +273,16 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       if (selectedImageMode === "body") {
         setDescriptionFromImage(selectedImage);
       } else {
-        SendPostFetch({
-          apiOrigin,
-          data: {
+        customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+          body: {
             target: chara.key,
             [selectedImageMode]:
               selectedImageMode === "icon" && chara.key === selectedImage.key
                 ? ""
                 : selectedImage.key,
           },
+          method: "POST",
+          cors: true,
         }).then(() => {
           switch (selectedImageMode) {
             case "icon":
@@ -400,15 +404,17 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     if (mode === "body") {
                       setDescriptionFromImage(o as unknown as ImageDataType);
                     } else {
-                      return SendPostFetch({
-                        apiOrigin,
-                        data: {
-                          target: chara.key,
-                          [mode]: mode === "icon" ? "" : o.key,
-                        },
-                      }).then(() => {
-                        charactersDataIndexed.load("no-cache");
-                      });
+                      return customFetch(
+                        concatOriginUrl(apiOrigin, CHARACTER_SEND),
+                        {
+                          body: {
+                            target: chara.key,
+                            [mode]: mode === "icon" ? "" : o.key,
+                          },
+                          method: "POST",
+                          cors: true,
+                        }
+                      );
                     }
                   }
                 });
@@ -887,12 +893,13 @@ export function CharaImageSettingRbButtons({
     async function onClickHandler(mode: characterImageMode) {
       if (image) {
         await toastPromise(
-          SendPostFetch({
-            apiOrigin,
-            data: {
+          customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+            body: {
               target: charaName,
               [mode]: image.key,
             },
+            method: "POST",
+            cors: true,
           }),
           mode
         );
@@ -927,10 +934,14 @@ export function CharaImageSettingRbButtons({
                   })
                   .then(() => {
                     imageDataIndexed.load("no-cache");
-                    return SendPostFetch({
-                      apiOrigin,
-                      data: { target: charaName, icon: "" },
-                    });
+                    return customFetch(
+                      concatOriginUrl(apiOrigin, CHARACTER_SEND),
+                      {
+                        body: { target: charaName, icon: "" },
+                        method: "POST",
+                        cors: true,
+                      }
+                    );
                   })
                   .then(() => {
                     charactersDataIndexed.load("no-cache");
@@ -967,12 +978,4 @@ export function CharaImageSettingRbButtons({
   } else {
   }
   return <></>;
-}
-
-interface SendPostFetchProps {
-  apiOrigin?: string;
-  data: KeyValueAnyType;
-}
-async function SendPostFetch({ apiOrigin, data }: SendPostFetchProps) {
-  return corsFetchPost(concatOriginUrl(apiOrigin, "character/send"), data);
 }

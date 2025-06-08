@@ -24,6 +24,7 @@ interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   scroll?: boolean;
   scrollLock?: boolean;
   switchWidth?: boolean;
+  disableHotkeys?: boolean;
 }
 export const Modal = memo(function Modal({
   children,
@@ -39,6 +40,7 @@ export const Modal = memo(function Modal({
   scroll,
   scrollLock: isScrollLock = true,
   switchWidth,
+  disableHotkeys,
   ...props
 }: ModalProps) {
   const isOpen = useMemo(() => {
@@ -80,14 +82,18 @@ export const Modal = memo(function Modal({
       animationDuration: timeout + "ms",
     };
   }, [timeout]);
-  useHotkeys("escape", (e) => {
-    if (isOpen && onClose && nodeRef.current) {
-      const element = document.elementFromPoint(0, 0);
-      if (nodeRef.current.contains(element)) {
-        onClose();
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (isOpen && onClose && nodeRef.current) {
+        const element = document.elementFromPoint(0, 0);
+        if (nodeRef.current.contains(element)) {
+          onClose();
+        }
       }
-    }
-  });
+    },
+    { enabled: disableHotkeys }
+  );
   return (
     <CSSTransition
       in={isOpen}

@@ -1,26 +1,28 @@
 import { type HTMLAttributes, useMemo } from "react";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { Link, useLocation, type Location } from "react-router";
 import { RiPlayReverseLargeLine } from "react-icons/ri";
 
-export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
-  const { pathname, state } = useLocation();
-  const [searchParams] = useSearchParams();
-  const backUrl: string = useMemo(() => {
-    if (state?.backUrl) {
-      return state.backUrl;
-    } else {
-      return searchParams.size > 0
-        ? pathname
-        : pathname.replace(/\/[^/]+\/?$/, "");
-    }
-  }, [state, searchParams, pathname]);
+export function getBackURL({
+  pathname,
+  search,
+  state,
+}: Partial<Location<any>>) {
+  if (state?.backUrl) {
+    return state.backUrl;
+  } else {
+    return search ? pathname : pathname?.replace(/\/[^/]+\/?$/, "");
+  }
+}
 
+export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
+  const l = useLocation();
+  const backUrl = useMemo(() => String(getBackURL(l)), [l]);
   return (
     <Link
       {...args}
-      to={String(backUrl)}
+      to={backUrl}
       title="ひとつ前に戻る"
-      style={{ visibility: pathname !== "/" ? "visible" : "hidden" }}
+      style={{ visibility: l.pathname !== "/" ? "visible" : "hidden" }}
     >
       <RiPlayReverseLargeLine />
     </Link>

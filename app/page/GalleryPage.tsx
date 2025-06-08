@@ -77,7 +77,6 @@ import {
   ModeSearchSwitch,
   ModeSwitch,
 } from "~/components/layout/edit/CommonSwitch";
-import { ComicsViewer } from "./ComicsViewer.client";
 import { AiFillEdit } from "react-icons/ai";
 import {
   DropdownButton,
@@ -123,13 +122,7 @@ export function GalleryPage({ children, ...args }: GalleryPageProps) {
 }
 
 export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
-  const { group } = useParams();
-  const [ebookMode, set_ebookMode] = useState(false);
-  useEffect(() => {
-    if (group === "ebook" && Boolean(ComicsViewer)) set_ebookMode(true);
-    else set_ebookMode(false);
-  }, [group, ComicsViewer]);
-  return <>{ebookMode ? <ComicsViewer /> : <GalleryGroupPage />}</>;
+  return <GalleryGroupPage />;
 }
 
 function GalleryGroupPage() {
@@ -1144,9 +1137,9 @@ export function GalleryYearFilter({
   }, [yearListBase, year]);
   const yearList = useMemo(() => {
     const olderSign = isOlder ? 1 : -1;
-    const sortedList = yearListBase2.sort(
-      (a, b) => olderSign * (a.year - b.year)
-    );
+    const sortedList = yearListBase2
+      .concat()
+      .sort((a, b) => olderSign * (a.year - b.year));
     const count = sortedList.reduce((a, c) => a + c.count, 0);
     sortedList.unshift({
       year: 0,

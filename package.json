@@ -26,7 +26,6 @@
     "isbot": "^5.1.27",
     "marked": "^15.0.12",
     "react": "^19.1.0",
-    "react-comic-viewer": "^0.4.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",

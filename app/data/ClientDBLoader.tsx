@@ -29,7 +29,7 @@ import {
 } from "~/components/functions/originUrl";
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { corsFetch } from "~/components/functions/fetch";
-import { useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 export let waitIdbResolve: (value?: unknown) => void;
 export let waitIdb = new Promise((resolve, reject) => {
@@ -192,27 +192,36 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
 }
 
 export function ClientDBState() {
-  function setEffect(
-    obj: IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>
-  ) {
-    const isSoloLoad = useSyncExternalStore(
-      obj.subscribeToLoad,
-      () => obj.isLoad
-    );
-    useEffect(() => {
-      if (isSoloLoad) {
-        getDataFromApi<any[]>(obj.src, isSoloLoad, obj).then((items) => {
-          obj.save({ data: items });
-        });
-      }
-    }, [isSoloLoad]);
-    const data = useSyncExternalStore(obj.subscribe, () => obj.table);
-    useEffect(() => {
-      obj.load(false);
-    }, [data]);
-  }
-  IdbStateClassList.forEach((obj) => {
-    setEffect(obj);
-  });
-  return <></>;
+  const Effect = useCallback(
+    ({
+      obj,
+    }: {
+      obj: IndexedDataLastmodMH<any, any, MeeIndexedDBTable<any>>;
+    }) => {
+      const isSoloLoad = useSyncExternalStore(
+        obj.subscribeToLoad,
+        () => obj.isLoad
+      );
+      useEffect(() => {
+        if (isSoloLoad) {
+          getDataFromApi<any[]>(obj.src, isSoloLoad, obj).then((items) => {
+            obj.save({ data: items });
+          });
+        }
+      }, [isSoloLoad]);
+      const data = useSyncExternalStore(obj.subscribe, () => obj.table);
+      useEffect(() => {
+        obj.load(false);
+      }, [data]);
+      return <></>;
+    },
+    []
+  );
+  return (
+    <>
+      {IdbStateClassList.map((obj, i) => (
+        <Effect obj={obj} key={i} />
+      ))}
+    </>
+  );
 }

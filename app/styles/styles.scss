@@ -1985,22 +1985,8 @@ footer {
   }
 }
 
-.react-comic-viewer {
-  max-width: none !important;
-  // max-height: 40dvh;
-  @extend %userSelectNone;
-  &.loading div[direction] {
-    display: none;
-  }
-  button {
-    color: lightgray;
-    background-color: transparent;
-    display: inherit;
-    &:hover {
-      color: lightgray;
-      background-color: var(--main-color-fluo);
-    }
-  }
+.laymic_root {
+  z-index: 10000;
 }
 
 input,

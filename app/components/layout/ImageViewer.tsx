@@ -40,6 +40,7 @@ import { CreateObjectState } from "~/components/state/CreateState";
 import { CharacterName } from "~/page/CharacterPage";
 import { Modal } from "./Modal";
 import { mediaOrigin } from "~/data/ClientDBLoader";
+import { BookReader } from "./BookReader";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -68,8 +69,9 @@ export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
 
 interface InfoAreaProps {
   image: ImageType;
+  disableHotkeys?: boolean;
 }
-function InfoArea({ image }: InfoAreaProps) {
+function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
   const { imageAlbums } = useImageState();
   const albumObject = image.album ? imageAlbums?.get(image.album) : null;
   const { setClose } = useImageViewer();
@@ -222,9 +224,9 @@ function InfoArea({ image }: InfoAreaProps) {
         </div>
       )}
       {isLogin ? (
-        <ImageEditForm image={image} />
+        <ImageEditForm image={image} disableHotkeys={disableHotkeys} />
       ) : (
-        <GalleryViewerPaging image={image} />
+        <GalleryViewerPaging image={image} disableHotkeys={disableHotkeys} />
       )}
     </div>
   );
@@ -234,6 +236,7 @@ interface PreviewAreaProps {
   image: ImageType;
 }
 function PreviewArea({ image }: PreviewAreaProps) {
+  const { pathname, search, state } = useLocation();
   function MediaOrigin(src?: string) {
     return concatOriginUrl(mediaOrigin, src);
   }
@@ -283,12 +286,9 @@ function PreviewArea({ image }: PreviewAreaProps) {
                 image.type === "ebook" ? (
                   <Link
                     title="よむ"
-                    to={
-                      new URL(
-                        "/gallery/ebook?name=" + image.embed,
-                        location.href
-                      ).href
-                    }
+                    to={pathname + search + "#laymic"}
+                    preventScrollReset={true}
+                    state={{ ...(state || {}), from: pathname + search }}
                     className="translucent-button open"
                   >
                     <RiBook2Fill />
@@ -363,7 +363,8 @@ export function ImageViewer() {
   const l = useLocation();
   const state = l.state;
   const { isDirty, Set: setEdit } = useImageEditState();
-  const nodeRef = useRef<HTMLDivElement>(null);
+  const ebookMode = useMemo(() => l.hash === "#laymic", [l.hash]);
+  const disableHotkeys = useMemo(() => ebookMode, [ebookMode]);
 
   function backAction() {
     if (
@@ -377,17 +378,22 @@ export function ImageViewer() {
         searchParams.delete("pic");
         searchParams.delete("group");
         searchParams.delete("album");
+        searchParams.delete("ebook");
         setSearchParams(searchParams, { preventScrollReset: true, state });
       }
     }
   }
 
-  useHotkeys("escape", (e) => {
-    if (isOpen) {
-      backAction();
-      e.preventDefault();
-    }
-  });
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (isOpen) {
+        backAction();
+        e.preventDefault();
+      }
+    },
+    { enabled: !disableHotkeys }
+  );
 
   const imageSParam = useMemo(() => searchParams.get("image"), [searchParams]);
   const albumSParam = useMemo(() => searchParams.get("album"), [searchParams]);
@@ -437,6 +443,7 @@ export function ImageViewer() {
 
   return (
     <div id="image_viewer">
+      <BookReader />
       <Modal
         onExited={() => {
           setImageViewer({
@@ -445,6 +452,7 @@ export function ImageViewer() {
             groupParam: null,
           });
         }}
+        disableHotkeys={disableHotkeys}
         timeout={timeout}
         // unmountOnExit
         classNameEntire="viewer"
@@ -461,7 +469,7 @@ export function ImageViewer() {
         {image ? (
           <>
             <PreviewArea image={image} />
-            <InfoArea image={image} />
+            <InfoArea image={image} disableHotkeys={disableHotkeys} />
           </>
         ) : null}
       </Modal>
@@ -473,11 +481,13 @@ interface GalleryViewerPagingProps
   extends React.HTMLAttributes<HTMLDivElement> {
   image: ImageType | null;
   onLinkEvent?(e?: any): void;
+  disableHotkeys?: boolean;
 }
 
 export function GalleryViewerPaging({
   className,
   onLinkEvent,
+  disableHotkeys,
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -524,7 +534,7 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true }
+    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys }
   );
   useHotkeys(
     "ArrowRight",
@@ -540,7 +550,7 @@ export function GalleryViewerPaging({
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true }
+    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys }
   );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>

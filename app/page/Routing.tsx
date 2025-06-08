@@ -1,13 +1,12 @@
-import { NonIndexRouteObject, RouteObject } from "react-router";
+import type { NonIndexRouteObject, RouteObject } from "react-router";
 import Root from "./Root";
 import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
 import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
-import { ComicsViewer } from "~/page/ComicsViewer";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
-import { RoutingUnion } from "./RoutingList";
+import { type RoutingUnion } from "./RoutingList";
 import LinksPage from "./LinksPage";
 import WorksPage from "./WorksPage";
 import { BlogPage } from "./BlogPage";

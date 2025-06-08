@@ -1,4 +1,10 @@
-import { useEffect, useState, type HTMLAttributes, useMemo, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  type HTMLAttributes,
+  useMemo,
+  useRef,
+} from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { getExtension, getName } from "~/components/functions/doc/PathParse";
@@ -83,6 +89,7 @@ import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSele
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
+  disableHotkeys?: boolean;
 }
 
 interface ImageEditProps {
@@ -96,7 +103,6 @@ export const useImageEditState = CreateObjectState<ImageEditProps>((s) => ({
   isBusy: false,
 }));
 export const useImageEditSwitchHold = CreateState(false);
-
 
 interface optionElementInterface {
   value?: string;
@@ -119,6 +125,7 @@ const IMAGE_SEND = "/image/send";
 export default function ImageEditForm({
   className,
   image,
+  disableHotkeys,
   ...args
 }: ImageEditFormProps) {
   const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
@@ -946,6 +953,7 @@ export default function ImageEditForm({
         onLinkEvent={() => {
           if (isEdit && isDirty) SubmitImage();
         }}
+        disableHotkeys={disableHotkeys}
       />
     </>
   );

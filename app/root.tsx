@@ -1,6 +1,5 @@
 import {
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   Outlet,
@@ -18,33 +17,17 @@ import { SetMetaDefault } from "./components/SetMeta";
 import { rootClientServerData, type SetRootProps } from "./data/rootData";
 import "./data/ClientDBLoader";
 import { clientDBLoader } from "./data/ClientDBLoader";
-import { useEffect, useMemo, type ReactNode } from "react";
-import { ImageState, useImageState } from "./components/state/ImageState";
-import {
-  CharacterState,
-  useCharacters,
-} from "./components/state/CharacterState";
-import PostState, { usePosts } from "./components/state/PostState";
-import { SoundState, useSounds } from "./components/state/SoundState";
-import FileState from "./components/state/FileState";
-import { LinksState, useLinks } from "./components/state/LinksState";
-import { LikeState } from "./components/state/LikeState";
-import { KeyValueDBState } from "./components/state/KeyValueDBState";
-import type { OmittedEnv } from "types/custom-configuration";
+import { useEffect, useMemo } from "react";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
-import { EnvState, useEnv } from "./components/state/EnvState";
+import { useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
-import { ClickEventState } from "./components/click/useClickEvent";
 import { getSession } from "./sessions.server";
-import { ToastContainer } from "react-toastify";
-import { defaultToastContainerOptions } from "./components/define/toastContainerDef";
-import { ImageViewer } from "./components/layout/ImageViewer";
-import { HomeImageState } from "./page/Home";
-import { MiniGallery } from "./page/GalleryPage";
 import { Loading } from "./components/layout/Loading";
 import { SetState, useIsComplete } from "./components/state/SetState";
 
-export const links: Route.LinksFunction = () => [];
+export const links: Route.LinksFunction = () => [
+  { rel: "stylesheet", href: "/static/styles/laymic.min.css" },
+];
 
 interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
   data?: SetRootProps;

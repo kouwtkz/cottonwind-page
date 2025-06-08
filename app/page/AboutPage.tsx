@@ -166,7 +166,11 @@ export function WebsiteFramework({
               <span>TypeScript, SCSS</span>
             </li>
             <li>
-              <span className="label">サーバー＆クライアント</span>
+              <span className="label">サーバー</span>
+              <span>React Router v7</span>
+            </li>
+            <li>
+              <span className="label">クライアント</span>
               <span>React Router v7</span>
             </li>
             <li>
@@ -212,7 +216,7 @@ export function WebsiteFramework({
             </li>
             <li>
               <span className="label">マンガ</span>
-              <span>react-comic-viewer, Epub.js</span>
+              <span>Laymic, Epub.js</span>
             </li>
           </ul>
         </li>
