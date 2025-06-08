@@ -312,7 +312,7 @@ export function CalendarMeeState({
               end: syncRange.end,
               private: p,
             }).then((data) => {
-              return data.items;
+              return data?.items;
             });
           } else if (list) return list;
           return [];

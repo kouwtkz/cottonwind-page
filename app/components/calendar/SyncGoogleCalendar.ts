@@ -26,9 +26,11 @@ export async function eventsFetch({
   url.searchParams.set("singleEvents", String(single));
   url.searchParams.set("maxResults", String(max));
   return await fetch(url.href)
-    .then(async r => ({ ...r, data: await r.json() }))
-    .then((r) => {
-      const data = r.data as EventsFetchedDataType;
+    .then<EventsFetchedDataType>(async r => {
+      if (r.status !== 200) throw r;
+      return await r.json();
+    })
+    .then((data) => {
       const rawItems = data.items as unknown as EventsRawDataType[];
       data.items = rawItems.map((raw) => {
         const allDay = Boolean(raw.start.date);
@@ -48,6 +50,7 @@ export async function eventsFetch({
           private: p
         };
       });
-      return r.data as EventsFetchedDataType;
-    });
+      return data;
+    })
+    .catch(() => { });
 }
