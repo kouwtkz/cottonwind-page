@@ -2,7 +2,13 @@ import { type HTMLAttributes, useMemo } from "react";
 import { Link, useLocation, type Location } from "react-router";
 import { RiPlayReverseLargeLine } from "react-icons/ri";
 
-export function getBackURL({
+export function getBackURL(href?: string | null) {
+  if (globalThis.location) {
+    const Url = new URL(href || location.href, location.href);
+    return Url.pathname + Url.search + Url.hash;
+  }
+}
+export function getBackButtonURL({
   pathname,
   search,
   state,
@@ -16,7 +22,7 @@ export function getBackURL({
 
 export default function BackButton(args: HTMLAttributes<HTMLAnchorElement>) {
   const l = useLocation();
-  const backUrl = useMemo(() => String(getBackURL(l)), [l]);
+  const backUrl = useMemo(() => String(getBackButtonURL(l)), [l]);
   return (
     <Link
       {...args}

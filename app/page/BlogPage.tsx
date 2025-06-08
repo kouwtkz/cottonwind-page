@@ -22,6 +22,7 @@ import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
 import { PiHandsClapping } from "react-icons/pi";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { MdOutlineImage } from "react-icons/md";
+import { getBackURL } from "~/components/layout/BackButton";
 
 interface getPostsProps {
   posts: PostType[];
@@ -218,7 +219,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       const url = new URL("/blog/post", location.href);
       if (post?.postId) url.searchParams.append("target", post.postId);
       if (post?.localDraft) url.searchParams.append("draft", "local");
-      state.backUrl = location.href;
+      state.backUrl = getBackURL();
       return (
         <Link
           className={className ? String(className) : undefined}
@@ -365,7 +366,7 @@ function ImageManageButton() {
       className="button color round"
       title="ブログの画像の編集"
       to={{ pathname: "/admin/images", search: ImageManageButtonSearch }}
-      state={{ backUrl: globalThis.location?.href }}
+      state={{ backUrl: getBackURL() }}
     >
       <MdOutlineImage />
     </Link>

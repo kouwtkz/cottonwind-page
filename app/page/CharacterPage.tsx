@@ -43,6 +43,7 @@ import { LikeButton } from "~/components/button/LikeButton";
 import { useLang } from "~/components/multilingual/LangState";
 import { defaultLang } from "~/Env";
 import { corsFetchPost } from "~/components/functions/fetch";
+import { getBackURL } from "~/components/layout/BackButton";
 
 interface PartsType {
   label?: string;
@@ -208,7 +209,11 @@ export function CharacterPage({ charaName }: { charaName?: string }) {
       ) : (
         <>
           {isLogin ? <CharaEditButton /> : null}
-          {charaName ? <CharaDetail charaName={charaName} /> : <CharaListPage />}
+          {charaName ? (
+            <CharaDetail charaName={charaName} />
+          ) : (
+            <CharaListPage />
+          )}
         </>
       )}
     </div>
@@ -287,19 +292,21 @@ function CharaListPage() {
   const extendMode = useExtendMode()[0];
   const [move, setMove] = useMoveCharacters();
   const Inner = useCallback(
-    ({ item }: { item: CharacterType }) => (
-      <Link
-        to={move ? "" : `/character/${item.key}`}
-        state={{
-          ...(state ?? {}),
-          backUrl: globalThis.location?.href,
-        }}
-        className="item"
-        key={item.key}
-      >
-        <CharaListItem chara={item} />
-      </Link>
-    ),
+    ({ item }: { item: CharacterType }) => {
+      return (
+        <Link
+          to={move ? "" : `/character/${item.key}`}
+          state={{
+            ...(state ?? {}),
+            backUrl: getBackURL(),
+          }}
+          className="item"
+          key={item.key}
+        >
+          <CharaListItem chara={item} />
+        </Link>
+      );
+    },
     [move]
   );
   const charaListClassName = useMemo(() => {

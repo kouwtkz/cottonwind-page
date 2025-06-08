@@ -44,6 +44,7 @@ import {
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
 import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
+import { getBackURL } from "~/components/layout/BackButton";
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -78,7 +79,7 @@ export default function LinksPage() {
             <a href="/suggest">Suggest page (links for miss typo)</a>
           </li>
           <li>
-            <Link to="/log" state={{ backUrl: globalThis.location?.href }}>
+            <Link to="/log" state={{ backUrl: getBackURL() }}>
               サイトの更新履歴 (Git)
             </Link>
           </li>

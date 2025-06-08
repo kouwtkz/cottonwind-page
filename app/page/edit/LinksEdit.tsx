@@ -51,6 +51,7 @@ import {
 } from "~/components/state/LinksState";
 import { findMee } from "~/data/find/findMee";
 import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
+import { getBackURL } from "~/components/layout/BackButton";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -406,7 +407,7 @@ export function LinksEditButtons({
                 pathname: "/admin/images",
                 search: ImageManageButtonSearch,
               }}
-              state={{ backUrl: globalThis.location?.href }}
+              state={{ backUrl: getBackURL() }}
             >
               <span>
                 <MdOutlineImage />
