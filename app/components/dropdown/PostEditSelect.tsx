@@ -300,7 +300,6 @@ export function PostEditSelectMedia({
           .then((files) =>
             ImagesUploadWithToast({
               src: files,
-              apiOrigin,
               album,
               notDraft: true,
             })

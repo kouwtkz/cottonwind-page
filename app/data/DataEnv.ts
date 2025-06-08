@@ -1,9 +1,13 @@
+import { concatOriginUrl } from "~/components/functions/originUrl";
+import { apiOrigin } from "./ClientDBLoader";
+
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
 export const INDEXEDDB_VERSION: number = 3;
 
 export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
   name: "images",
   src: "/images",
+  api: "/image",
   version: "3.2.0",
   preLoad: false,
   latestField: { time: "desc" },
@@ -15,6 +19,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
 export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, CharacterDataType> = {
   name: "characters",
   src: "/characters",
+  api: "/character",
   version: "1.5.1",
   preLoad: false,
   latestField: { id: "desc" },
@@ -26,6 +31,7 @@ export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, 
 export const postsDataOptions: Props_LastmodMHClass_Options<PostType, PostDataType> = {
   name: "posts",
   src: "/posts",
+  api: "/blog",
   version: "1.4.1",
   preLoad: false,
   latestField: { time: "desc" },
@@ -38,6 +44,7 @@ export const postsDataOptions: Props_LastmodMHClass_Options<PostType, PostDataTy
 export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, SoundDataType> = {
   name: "sounds",
   src: "/sounds",
+  api: "/sound",
   version: "1.3.2",
   preLoad: false,
   latestField: { time: "desc" },
@@ -49,6 +56,7 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, Soun
 export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType, SoundAlbumDataType> = {
   name: "soundAlbums",
   src: "/soundAlbums",
+  api: "/sound/album",
   version: "1.3.2",
   preLoad: false,
   secondary: ["key", "lastmod"],
@@ -58,6 +66,7 @@ export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType
 export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordType, FilesRecordDataType> = {
   name: "files",
   src: "/files",
+  api: "/file",
   version: "1.3.1",
   preLoad: false,
   secondary: ["key", "lastmod"],
@@ -69,6 +78,7 @@ const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromD
 export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
   name: "links",
   src: "/links",
+  api: "/links",
   version: "1.0.1",
   preLoad: false,
   jsonFromDataOptions: linksJsonFromDataOptions,
@@ -80,6 +90,7 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
 export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
   name: "linksFav",
   src: "/links/fav",
+  api: "/links/fav",
   version: "1.0.3",
   preLoad: false,
   oldServerKeys: ["favorite_links"],
@@ -93,6 +104,7 @@ export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLin
 export const likeDataOptions: Props_LastmodMHClass_Options<LikeType, LikeDataType> = {
   name: "likeData",
   src: "/like",
+  api: "/like",
   version: "1.0.1",
   preLoad: false,
   primary: "path",
@@ -104,6 +116,7 @@ export const likeDataOptions: Props_LastmodMHClass_Options<LikeType, LikeDataTyp
 export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBType, KeyValueDBDataType> = {
   name: "KeyValueDB",
   src: "/kvdb",
+  api: "/kvdb",
   version: "1.2.0",
   preLoad: false,
   primary: "key",
@@ -119,4 +132,9 @@ export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_Lastmod
   secondary: ["lastmod"],
   preLoad: false,
   convert: { date: ["lastmod"] }
+}
+
+export function GetAPIFromOptions(options: Props_LastmodMHClass_Options<any>, path?: string) {
+  const API = ("/" + (options.api || options.name)).replace(/\/+/g, "/");
+  return API + (path || "");
 }

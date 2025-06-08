@@ -547,7 +547,6 @@ function UploadChain({
       );
       await ImagesUploadWithToast({
         src: list,
-        apiOrigin,
         character,
         webp,
         thumbnail,

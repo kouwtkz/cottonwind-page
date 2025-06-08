@@ -36,6 +36,9 @@ import {
 } from "~/components/define/toastContainerDef";
 import { RiVideoUploadLine } from "react-icons/ri";
 import { customFetch } from "~/components/functions/fetch";
+import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
+
+const SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -89,7 +92,6 @@ export function GalleryUploadButton({
           .then((files) =>
             ImagesUploadWithToast({
               src: files,
-              apiOrigin,
               character: params.charaName,
               album: group,
               webp,
@@ -130,7 +132,7 @@ export function CompatGalleryButton({
       {...props}
       beforeConfirm={`${from}アルバムを${to}アルバムに変更しますか？`}
       onClick={() => {
-        const url = concatOriginUrl(apiOrigin, "/image/send");
+        const url = concatOriginUrl(apiOrigin, SEND_API);
         const list = albums
           ?.get(from)
           ?.list.map((image) => ({ id: image.id, album: to }));
@@ -163,7 +165,7 @@ export function CompatMendingThumbnailButton({
   children,
   ...props
 }: CompatMendingThumbnailButtonProps) {
-  const url = concatOriginUrl(apiOrigin, "/image/send");
+  const url = concatOriginUrl(apiOrigin, SEND_API);
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton
@@ -269,7 +271,6 @@ export function repostThumbnail({
         if (image.src) {
           return ImagesUpload({
             src: concatOriginUrl(mediaOrigin, image.src),
-            apiOrigin,
             original: false,
             thumbnail: size || true,
           });

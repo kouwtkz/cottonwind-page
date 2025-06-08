@@ -8,6 +8,9 @@ import { apiOrigin, likeDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useLikeState } from "~/components/state/LikeState";
 import { customFetch } from "../functions/fetch";
+import { GetAPIFromOptions, likeDataOptions } from "~/data/DataEnv";
+
+const SEND_API = GetAPIFromOptions(likeDataOptions, "/send");
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;
@@ -50,7 +53,7 @@ export function LikeButton({
       className={className}
       onClick={(e) => {
         if (checked) {
-          customFetch(concatOriginUrl(apiOrigin, "like/send"), {
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
             data: {
               path: pathKey,
               mode: "remove",
@@ -62,7 +65,7 @@ export function LikeButton({
             toast("いいねを解除しました", toastLoadingOptions);
           });
         } else {
-          customFetch(concatOriginUrl(apiOrigin, "like/send"), {
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
             data: {
               path: pathKey,
               mode: "add",

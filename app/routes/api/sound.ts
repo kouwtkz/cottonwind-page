@@ -72,44 +72,45 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
             if (file && env.BUCKET) {
-              await parseBlob(file).then(async (meta) => {
-                if (meta) {
-                  const { track, grouping, year, ...common } = meta.common;
-                  const time = new Date(file.lastModified);
-                  const mtime = time.toISOString();
-                  if (year) time.setFullYear(year);
-                  const src = "sound/" + file.name;
-                  const key = getName(file.name);
-                  const entry = TableObject.getInsertEntry({
-                    ...common,
-                    src,
-                    track: track.no,
-                    grouping: (grouping?.split("\x00") || []).join(","),
-                    time: time.toISOString(),
-                    mtime,
-                    lastmod: new Date().toISOString()
-                  });
-                  const selectValue = await TableObject.Select({ db, where: { key } })
-                  const value = selectValue[0];
-                  if (!value || value.mtime !== entry.mtime) {
-                    await env.BUCKET!.put(src, file);
-                  }
-                  const album = meta.common.album;
-                  if (album) {
-                    const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
-                      .then<SoundAlbumDataType | null>(v => v[0] || null);
-                    if (!albumValue) {
-                      await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
-                    }
-                  }
-                  if (value) {
-                    await TableObject.Update({ db, entry, where: { key } });
-                  } else {
-                    entry.key = key;
-                    await TableObject.Insert({ db, entry });
-                  }
-                }
-              })
+              const src = "sound/" + file.name;
+              await env.BUCKET.put(src, file);
+              // await parseBlob(file).then(async (meta) => {
+              //   if (meta) {
+              //     const { track, grouping, year, ...common } = meta.common;
+              //     const time = new Date(file.lastModified);
+              //     const mtime = time.toISOString();
+              //     if (year) time.setFullYear(year);
+              //     const key = getName(file.name);
+              //     const entry = TableObject.getInsertEntry({
+              //       ...common,
+              //       src,
+              //       track: track.no,
+              //       grouping: (grouping?.split("\x00") || []).join(","),
+              //       time: time.toISOString(),
+              //       mtime,
+              //       lastmod: new Date().toISOString()
+              //     });
+              //     const selectValue = await TableObject.Select({ db, where: { key } })
+              //     const value = selectValue[0];
+              //     if (!value || value.mtime !== entry.mtime) {
+              //       await env.BUCKET!.put(src, file);
+              //     }
+              //     const album = meta.common.album;
+              //     if (album) {
+              //       const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
+              //         .then<SoundAlbumDataType | null>(v => v[0] || null);
+              //       if (!albumValue) {
+              //         await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
+              //       }
+              //     }
+              //     if (value) {
+              //       await TableObject.Update({ db, entry, where: { key } });
+              //     } else {
+              //       entry.key = key;
+              //       await TableObject.Insert({ db, entry });
+              //     }
+              //   }
+              // })
             }
             return new Response("");
           }

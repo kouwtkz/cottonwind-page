@@ -249,7 +249,6 @@ export function LinksEdit({
                 .then((src) => {
                   return ImagesUploadWithToast({
                     src,
-                    apiOrigin,
                     album,
                     albumOverwrite: false,
                     notDraft: true,
@@ -487,7 +486,6 @@ export function MyBannerEditButtons() {
                 .then((src) => {
                   return ImagesUploadWithToast({
                     src,
-                    apiOrigin,
                     album: myBannerName,
                     albumOverwrite: false,
                     notDraft: true,

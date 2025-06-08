@@ -23,8 +23,15 @@ import { DropdownButton } from "~/components/dropdown/DropdownButton";
 import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
 import { useSounds } from "~/components/state/SoundState";
-import { soundsDataOptions } from "~/data/DataEnv";
+import {
+  GetAPIFromOptions,
+  soundAlbumsDataOptions,
+  soundsDataOptions,
+} from "~/data/DataEnv";
 import { customFetch } from "~/components/functions/fetch";
+
+const SOUND_SEND_API = GetAPIFromOptions(soundsDataOptions, "/send");
+const ALBUM_SEND_API = GetAPIFromOptions(soundAlbumsDataOptions, "/send");
 
 export function SoundEditButton() {
   const searchParams = useSearchParams()[0];
@@ -74,7 +81,6 @@ export function SoundEditButton() {
             .then((files) =>
               SoundsUpload({
                 files,
-                apiOrigin,
               })
             )
             .then(() => {
@@ -106,7 +112,10 @@ export function SoundsImportButton({
 }
 
 export async function SoundsUploadProcess(args: UploadBaseProps) {
-  return FilesUploadProcess({ ...args, send: "/sound/send" });
+  return FilesUploadProcess({
+    ...args,
+    send: SOUND_SEND_API,
+  });
 }
 
 export async function SoundsUpload(args: UploadBaseProps) {
@@ -147,11 +156,12 @@ export function SoundEdit() {
       );
       entry.target = dataItem.key;
       toast.promise(
-        customFetch(concatOriginUrl(apiOrigin, "sound/send"), {
+        customFetch(concatOriginUrl(apiOrigin, SOUND_SEND_API), {
           method: "PATCH",
           body: entry,
           cors: true,
         }).then(() => {
+          soundsDataIndexed.load("no-cache");
           soundAlbumsDataIndexed.load("no-cache");
           setEdit(null);
         }),
@@ -224,7 +234,7 @@ export function SoundAlbumEdit() {
       );
       entry.target = item.key;
       toast.promise(
-        customFetch(concatOriginUrl(apiOrigin, "sound/album/send"), {
+        customFetch(concatOriginUrl(apiOrigin, ALBUM_SEND_API), {
           method: "PATCH",
           body: entry,
           cors: true,

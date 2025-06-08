@@ -40,6 +40,7 @@ import {
 } from "~/components/button/ObjectDownloadButton";
 import {
   charactersDataOptions,
+  filesDataOptions,
   ImageDataOptions,
   KeyValueDBDataOptions,
   linksDataOptions,
@@ -123,9 +124,7 @@ function FilesManager() {
           onClick={async () => {
             fileDialog("*", true)
               .then((files) => Array.from(files))
-              .then((files) =>
-                FilesUpload({ send: "/file/send", files, apiOrigin })
-              )
+              .then((files) => FilesUpload({ files, apiOrigin }))
               .then(() => {
                 filesDataIndexed.load("no-cache");
               });

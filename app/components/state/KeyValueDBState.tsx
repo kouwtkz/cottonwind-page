@@ -29,6 +29,14 @@ import { ImageMee, type ImageMeeProps } from "~/components/layout/ImageMee";
 import { useSelectedImage } from "./ImageState";
 import { MultiParserWithMedia as MultiParser } from "~/components/parse/MultiParserWithMedia";
 import { TextareaWithPreview } from "~/components/parse/PostTextarea";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { OmittedEnv } from "types/custom-configuration";
+import { customFetch } from "../functions/fetch";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { GetAPIFromOptions, KeyValueDBDataOptions } from "~/data/DataEnv";
+
+const SEND_API = GetAPIFromOptions(KeyValueDBDataOptions, "/send");
 
 export const useKeyValueDB = CreateObjectState<{
   kvList?: KeyValueDBType[];
@@ -72,21 +80,11 @@ export const useKeyValueEdit = CreateObjectState<{
   placeholder?: string;
 }>({ edit: null, type: "text" });
 
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { OmittedEnv } from "types/custom-configuration";
-import { customFetch } from "../functions/fetch";
-import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
-
 const schema = z.object({
   value: z.string().nullish(),
   private: z.boolean().nullish(),
 });
 function KeyValueEdit() {
-  const send = useMemo(
-    () => (keyValueDBDataIndexed?.options.src || "") + "/send",
-    [keyValueDBDataIndexed]
-  );
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   let {
@@ -129,7 +127,7 @@ function KeyValueEdit() {
   }, []);
   const Delete = useCallback(() => {
     if (edit && confirm("本当に削除しますか？\n(デフォルトの設定に戻ります)")) {
-      customFetch(concatOriginUrl(apiOrigin, send), {
+      customFetch(concatOriginUrl(apiOrigin, SEND_API), {
         data: { key: edit },
         cors: true,
       }).then(() => {
@@ -148,7 +146,7 @@ function KeyValueEdit() {
     );
     entry.key = edit;
     toast.promise(
-      customFetch(concatOriginUrl(apiOrigin, send), {
+      customFetch(concatOriginUrl(apiOrigin, SEND_API), {
         data: entry,
         method: "POST",
         cors: true,
@@ -168,7 +166,7 @@ function KeyValueEdit() {
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      customFetch(concatOriginUrl(apiOrigin, send), {
+      customFetch(concatOriginUrl(apiOrigin, SEND_API), {
         data: {
           key: edit,
           value: selectedImage.key,
@@ -243,7 +241,6 @@ function KeyValueEdit() {
                       .then((src) => {
                         return ImagesUploadWithToast({
                           src,
-                          apiOrigin,
                           album: "images",
                           albumOverwrite: false,
                           notDraft: true,
@@ -257,14 +254,17 @@ function KeyValueEdit() {
                       })
                       .then(async (o) => {
                         if (o && typeof o.key === "string") {
-                          return customFetch(concatOriginUrl(apiOrigin, send), {
-                            data: {
-                              key: edit,
-                              value: o.key,
-                            } as SiteLinkData,
-                            method: "POST",
-                            cors: true,
-                          }).then((r) => {
+                          return customFetch(
+                            concatOriginUrl(apiOrigin, SEND_API),
+                            {
+                              data: {
+                                key: edit,
+                                value: o.key,
+                              } as SiteLinkData,
+                              method: "POST",
+                              cors: true,
+                            }
+                          ).then((r) => {
                             keyValueDBDataIndexed.load("no-cache");
                           });
                         }

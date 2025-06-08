@@ -79,8 +79,9 @@ import {
 } from "~/components/dropdown/PostEditSelect";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { PostTextarea } from "~/components/parse/PostTextarea";
+import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
 
-const CHARACTER_SEND = "character/send";
+const SEND_API = GetAPIFromOptions(charactersDataOptions, "/send");
 
 export function CharacterEdit() {
   const { charaName } = useParams();
@@ -214,7 +215,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       else if (!data.key) data.key = formValues["key"];
       toast
         .promise(
-          customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
             body: data,
             method: "POST",
             cors: true,
@@ -273,7 +274,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       if (selectedImageMode === "body") {
         setDescriptionFromImage(selectedImage);
       } else {
-        customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+        customFetch(concatOriginUrl(apiOrigin, SEND_API), {
           body: {
             target: chara.key,
             [selectedImageMode]:
@@ -384,7 +385,6 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 .then((src) => {
                   return ImagesUploadWithToast({
                     src,
-                    apiOrigin,
                     album,
                     albumOverwrite: false,
                     character: chara.key,
@@ -404,17 +404,14 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                     if (mode === "body") {
                       setDescriptionFromImage(o as unknown as ImageDataType);
                     } else {
-                      return customFetch(
-                        concatOriginUrl(apiOrigin, CHARACTER_SEND),
-                        {
-                          body: {
-                            target: chara.key,
-                            [mode]: mode === "icon" ? "" : o.key,
-                          },
-                          method: "POST",
-                          cors: true,
-                        }
-                      );
+                      return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+                        body: {
+                          target: chara.key,
+                          [mode]: mode === "icon" ? "" : o.key,
+                        },
+                        method: "POST",
+                        cors: true,
+                      });
                     }
                   }
                 });
@@ -692,7 +689,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               onClick={() => {
                 if (chara && confirm("本当に削除しますか？")) {
                   SendDelete({
-                    url: concatOriginUrl(apiOrigin, "/character/send"),
+                    url: concatOriginUrl(apiOrigin, SEND_API),
                     data: { target: chara.key },
                   }).then((r) => {
                     if (r.ok) {
@@ -789,7 +786,6 @@ export function CharaEditButton() {
                 .then((files) =>
                   ImagesUploadWithToast({
                     src: files,
-                    apiOrigin,
                     album: charaMediaKindMap.get("icon"),
                     ...iconImagesUploadOptions,
                   })
@@ -893,7 +889,7 @@ export function CharaImageSettingRbButtons({
     async function onClickHandler(mode: characterImageMode) {
       if (image) {
         await toastPromise(
-          customFetch(concatOriginUrl(apiOrigin, CHARACTER_SEND), {
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
             body: {
               target: charaName,
               [mode]: image.key,
@@ -922,7 +918,6 @@ export function CharaImageSettingRbButtons({
                     name: charaName,
                     src: concatOriginUrl(mediaOrigin, src),
                   },
-                  apiOrigin,
                   album: charaMediaKindMap.get("icon"),
                   ...iconImagesUploadOptions,
                 })
@@ -934,14 +929,11 @@ export function CharaImageSettingRbButtons({
                   })
                   .then(() => {
                     imageDataIndexed.load("no-cache");
-                    return customFetch(
-                      concatOriginUrl(apiOrigin, CHARACTER_SEND),
-                      {
-                        body: { target: charaName, icon: "" },
-                        method: "POST",
-                        cors: true,
-                      }
-                    );
+                    return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+                      body: { target: charaName, icon: "" },
+                      method: "POST",
+                      cors: true,
+                    });
                   })
                   .then(() => {
                     charactersDataIndexed.load("no-cache");

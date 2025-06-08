@@ -44,6 +44,9 @@ import { CreateObjectState } from "~/components/state/CreateState";
 import { useDropzone } from "react-dropzone";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 import { ImportBlogPostJson } from "~/data/ClientDBFunctions";
+import { GetAPIFromOptions, postsDataOptions } from "~/data/DataEnv";
+
+const SEND_API = GetAPIFromOptions(postsDataOptions, "/send");
 
 const backupStorageKey = "backupPostDraft";
 
@@ -248,7 +251,7 @@ export function PostForm() {
   const onDelete = () => {
     if (/target=/.test(location.search) && confirm("本当に削除しますか？")) {
       SendDelete({
-        url: concatOriginUrl(apiOrigin, "/blog/send"),
+        url: concatOriginUrl(apiOrigin, SEND_API),
         data: { postId: getValues("postId") },
       }).then((r) => {
         if (r.ok) {
@@ -367,7 +370,7 @@ export function PostForm() {
       if (sendEnable) {
         toast
           .promise(
-            customFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
+            customFetch(concatOriginUrl(apiOrigin, SEND_API), {
               method: "POST",
               data,
               cors: true,
@@ -433,7 +436,6 @@ export function PostForm() {
     async (acceptedFiles: File[]) => {
       ImagesUploadWithToast({
         src: acceptedFiles,
-        apiOrigin,
         album,
         notDraft: true,
       })
@@ -464,7 +466,7 @@ export function PostForm() {
     <>
       <form
         method={"POST"}
-        action={apiOrigin + "/blog/send"}
+        action={apiOrigin + SEND_API}
         id="postForm"
         ref={formRef}
         encType="multipart/form-data"

@@ -8,24 +8,22 @@ import { UploadToast } from "~/data/ClientDBFunctions";
 import { useFiles } from "~/components/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useRef } from "react";
-import { type FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { MdDeleteForever } from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
-import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
-import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { filesDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
 
-const SEND_FILES = "/file/send";
+const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
 export async function FilesUploadProcess({
   files,
-  apiOrigin,
-  send = SEND_FILES,
+  send = SEND_API,
   sleepTime = 10,
   minTime,
 }: FilesUploadProps) {
-  const url = (apiOrigin || "") + send;
+  const url = concatOriginUrl(apiOrigin, send);
   const formDataList = files.map((file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -77,7 +75,7 @@ const schema = z.object({
 });
 
 export function FilesEdit({
-  send = SEND_FILES,
+  send = SEND_API,
   edit,
   setEdit,
 }: {

@@ -44,6 +44,7 @@ import { useLang } from "~/components/multilingual/LangState";
 import { defaultLang } from "~/Env";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
+import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
 
 interface PartsType {
   label?: string;
@@ -284,6 +285,8 @@ export const CharaListItem = memo(function CharaListItem({
   );
 });
 
+const SEND_API = GetAPIFromOptions(charactersDataOptions, "/send");
+
 const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
@@ -343,10 +346,11 @@ function CharaListPage() {
                         });
                       if (dirty.length > 0) {
                         toast.promise(
-                          customFetch(
-                            concatOriginUrl(apiOrigin, "character/send"),
-                            { data: dirty, method: "POST", cors: true }
-                          ).then(() => {
+                          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+                            data: dirty,
+                            method: "POST",
+                            cors: true,
+                          }).then(() => {
                             charactersDataIndexed.load("no-cache");
                             setMove(0);
                           }),

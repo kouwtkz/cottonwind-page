@@ -96,7 +96,7 @@ export async function ImportCommonJson({
     object = _entry;
     data = _data ? _data : [];
     const fetchList = makeImportFetchList({
-      src: options.src + "/import",
+      src: options.api + "/import",
       partition,
       data,
       object,

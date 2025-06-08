@@ -2,6 +2,7 @@ type Type_LastmodMH_Event = Type_MeeIndexedDB_Event | "load";
 
 interface Props_LastmodMHClass_Options<T, D = T> extends Props_LastmodMH_TableVersion, Props_MeeIndexedDBTable_Options<T> {
   src: string;
+  api?: string;
   preLoad?: LoadStateType;
   isLogin?: LoadStateType;
   latestField?: { [k in keyof T]?: OrderByType };

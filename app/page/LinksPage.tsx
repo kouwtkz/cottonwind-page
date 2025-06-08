@@ -45,6 +45,14 @@ import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
+import {
+  GetAPIFromOptions,
+  ImageDataOptions,
+  linksDataOptions,
+} from "~/data/DataEnv";
+
+const LINKS_API = GetAPIFromOptions(linksDataOptions);
+const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
 export default function LinksPage() {
   const env = useEnv()[0];
@@ -198,7 +206,7 @@ export function MyBanners() {
                 });
               if (dirty.length > 0) {
                 toast.promise(
-                  customFetch(concatOriginUrl(apiOrigin, "image/send"), {
+                  customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND_API), {
                     method: "PATCH",
                     data: dirty,
                     cors: true,
@@ -286,7 +294,7 @@ function LinksContainer({
   linkStyle,
   ...props
 }: LinksContainerProps) {
-  const send = "links" + dir + "/send";
+  const send = LINKS_API + dir + "/send";
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const links = useMemo(
     () =>

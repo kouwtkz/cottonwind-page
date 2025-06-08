@@ -86,6 +86,7 @@ import { RegisterRef } from "~/components/hook/SetRef";
 import { RiVideoOnLine, RiVideoUploadLine } from "react-icons/ri";
 import { repostThumbnail } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
+import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -120,7 +121,7 @@ const defPositions: optionElementInterface[] = [
   { value: "right bottom", inner: "右下" },
 ];
 
-const IMAGE_SEND = "/image/send";
+const SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
 export default function ImageEditForm({
   className,
@@ -149,7 +150,7 @@ export default function ImageEditForm({
   );
 
   const nav = useNavigate();
-  const { state, search, pathname } = useLocation();
+  const { state, pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -276,7 +277,7 @@ export default function ImageEditForm({
         }
       });
     }
-    const res = await customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND), {
+    const res = await customFetch(concatOriginUrl(apiOrigin, SEND_API), {
       data,
       method,
       cors: true,
@@ -512,7 +513,6 @@ export default function ImageEditForm({
                     .then((file) =>
                       ImagesUploadWithToast({
                         src: { src: file, name: image.key },
-                        apiOrigin,
                         webp,
                         thumbnail,
                       })
@@ -537,7 +537,6 @@ export default function ImageEditForm({
                         src: { src: file, name: image.key },
                         original: false,
                         thumbnail: true,
-                        apiOrigin,
                       })
                     )
                     .then(() => {
@@ -981,14 +980,12 @@ export type srcObjectType = {
 type srcWithObjectType = srcType | srcObjectType;
 export interface MakeImagesUploadListProps extends ImagesUploadOptions {
   src: srcWithObjectType | srcWithObjectType[];
-  apiOrigin?: string;
 }
 export interface MakeImagesUploadListResponse<T> extends Response {
   data?: T;
 }
 export async function MakeImagesUploadList({
   src,
-  apiOrigin,
   tags,
   album,
   albumOverwrite,
@@ -999,7 +996,6 @@ export async function MakeImagesUploadList({
   webpOptions,
   notDraft: direct,
 }: MakeImagesUploadListProps) {
-  const url = concatOriginUrl(apiOrigin, IMAGE_SEND);
   const checkTime = new Date().getTime();
   const files = Array.isArray(src) ? src : [src];
   const targetFiles = files.filter((v) => {
@@ -1083,7 +1079,8 @@ export async function MakeImagesUploadList({
   );
   return formDataList.map(
     (data) => () =>
-      customFetch(concatOriginUrl(apiOrigin, "image/send"), {
+      customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+        data,
         method: "POST",
         timeout: 10000,
         cors: true,
