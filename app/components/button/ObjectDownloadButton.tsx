@@ -63,6 +63,7 @@ export async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
     key: indexedDB.key,
     lastmod: indexedDB.beforeLastmod,
     version: indexedDB.version,
+    fields: indexedDB.options.jsonFromDataOptions,
   } as JsonFromDataObjectOptions<any>;
 }
 export function DownloadIndexedDBObject<T extends WithRawDataType<any>>({
