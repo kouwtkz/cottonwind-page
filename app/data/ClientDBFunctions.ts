@@ -4,7 +4,7 @@ import { BooleanToNumber, unknownToString } from "~/components/functions/doc/ToF
 import { arrayPartition, PromiseOrder, type PromiseOrderOptions } from "~/components/functions/arrayFunction";
 import { toastLoadingOptions, toastUpdateOptions } from "~/components/define/toastContainerDef";
 import { jsonFileDialog } from "~/components/utils/FileTool";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";
 import type { SendLinksDir } from "~/page/edit/LinksEdit";
@@ -124,10 +124,10 @@ export function makeImportFetchList({
     if (overwrite) entry.overwrite = true;
     if (i === 0) entry.first = true;
     return () =>
-      corsFetch(concatOriginUrl(apiOrigin, src), {
+      customFetch(concatOriginUrl(apiOrigin, src), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry),
+        data: entry,
+        cors: true
       });
   });
 }
@@ -251,7 +251,7 @@ export async function ImportCharacterJson({
 type importEntryPostDataType = Omit<PostDataType, "id" | "lastmod"> & {
   [k: string]: any;
 };
-export async function ImportPostJson({
+export async function ImportBlogPostJson({
   partition,
   json,
 }: DataUploadBaseProps = {}) {

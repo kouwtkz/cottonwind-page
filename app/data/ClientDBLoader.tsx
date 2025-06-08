@@ -28,7 +28,7 @@ import {
   type EnvWithCfOriginOptions,
 } from "~/components/functions/originUrl";
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 export let waitIdbResolve: (value?: unknown) => void;
@@ -127,8 +127,9 @@ export async function getDataFromApi<T = any>(
   let Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
   Url = await setSearchParamsOptionUrl(Url, isLoading, idb);
   const cache = IndexedDataLastmodMH.getCacheOption(isLoading);
-  return await corsFetch(Url.href, {
+  return await customFetch(Url.href, {
     cache: cache !== "no-cache-reload" ? cache : undefined,
+    cors: true,
   }).then(async (r) => (await r.json()) as T);
 }
 

@@ -43,7 +43,7 @@ import {
 } from "~/data/ClientDBLoader";
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
-import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 
 export default function LinksPage() {
@@ -198,9 +198,10 @@ export function MyBanners() {
                 });
               if (dirty.length > 0) {
                 toast.promise(
-                  corsFetch(concatOriginUrl(apiOrigin, "image/send"), {
+                  customFetch(concatOriginUrl(apiOrigin, "image/send"), {
                     method: "PATCH",
-                    body: dirty,
+                    data: dirty,
+                    cors: true,
                   }).then(() => {
                     imageDataIndexed.load("no-cache");
                     setMove(0);
@@ -388,10 +389,11 @@ function LinksContainer({
                     });
                   if (dirty.length > 0) {
                     toast.promise(
-                      corsFetchPost(
-                        concatOriginUrl(apiOrigin, send),
-                        dirty
-                      ).then(() => {
+                      customFetch(concatOriginUrl(apiOrigin, send), {
+                        data: dirty,
+                        method: "POST",
+                        cors: true,
+                      }).then(() => {
                         indexedDB.load("no-cache");
                         setMove(0);
                       }),

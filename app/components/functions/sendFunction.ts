@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { corsFetch } from "./fetch";
+import { customFetch } from "./fetch";
 
 interface SendDeleteProps {
   url: string;
@@ -8,12 +8,10 @@ interface SendDeleteProps {
 export async function SendDelete({ url, data }: SendDeleteProps) {
   return toast
     .promise(
-      corsFetch(url, {
+      customFetch(url, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        } as ContentTypeHeader,
-        body: JSON.stringify(data),
+        data,
+        cors: true
       }).then(async (r) => {
         if (r.ok) return r;
         else throw await r.text();

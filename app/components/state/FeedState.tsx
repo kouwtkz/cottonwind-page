@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { CreateState } from "./CreateState";
 import { apiOrigin } from "~/data/ClientDBLoader";
@@ -10,7 +10,7 @@ export function FeedState() {
   const setOutFeed = useOutFeed()[1];
   useEffect(() => {
     if (apiOrigin) {
-      corsFetch(concatOriginUrl(apiOrigin, "/feed/get"))
+      customFetch(concatOriginUrl(apiOrigin, "/feed/get"), { cors: true })
         .then((res) => {
           return res.headers.get("Content-Type")?.startsWith("application/json")
             ? (res.json() as { note?: FeedContentType })

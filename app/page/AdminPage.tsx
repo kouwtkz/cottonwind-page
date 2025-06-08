@@ -16,7 +16,7 @@ import {
   ImportCharacterJson,
   ImportCommonJson,
   ImportLinksJson,
-  ImportPostJson,
+  ImportBlogPostJson,
 } from "~/data/ClientDBFunctions";
 
 import { MdFileUpload, MdOpenInNew } from "react-icons/md";
@@ -50,7 +50,7 @@ import { useCharacters } from "~/components/state/CharacterState";
 import { FormatDate } from "~/components/functions/DateFunction";
 import { KeyValueEditable } from "~/components/state/KeyValueDBState";
 import { useImageState } from "~/components/state/ImageState";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -389,7 +389,7 @@ function DBPage() {
                           json,
                         });
                       case postsDataOptions.name:
-                        return ImportPostJson({
+                        return ImportBlogPostJson({
                           json,
                         });
                       case linksDataOptions.name:
@@ -415,9 +415,9 @@ function DBPage() {
                   Promise.all(list)
                     .then(() => {
                       return toast.promise(
-                        corsFetch(
+                        customFetch(
                           concatOriginUrl(apiOrigin, "data/tables/update"),
-                          { method: "POST" }
+                          { method: "POST", cors: true }
                         ),
                         {
                           pending: "送信中",

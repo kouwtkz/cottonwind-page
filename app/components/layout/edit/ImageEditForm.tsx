@@ -15,7 +15,7 @@ import {
   type resizeImageCanvasProps,
 } from "~/components/Canvas";
 import { JoinUnique } from "~/components/functions/doc/StrFunctions";
-import { corsFetch, type methodType } from "~/components/functions/fetch";
+import { customFetch, type methodType } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import {
   PromiseOrder,
@@ -276,9 +276,10 @@ export default function ImageEditForm({
         }
       });
     }
-    const res = await corsFetch(concatOriginUrl(apiOrigin, IMAGE_SEND), {
-      body: data,
+    const res = await customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND), {
+      data,
       method,
+      cors: true,
     }).finally(() => {
       Set({ isBusy: false });
     });
@@ -1082,10 +1083,10 @@ export async function MakeImagesUploadList({
   );
   return formDataList.map(
     (data) => () =>
-      corsFetch(concatOriginUrl(apiOrigin, "image/send"), {
+      customFetch(concatOriginUrl(apiOrigin, "image/send"), {
         method: "POST",
-        body: data,
         timeout: 10000,
+        cors: true,
       })
         .then(async (v) => {
           const r = v as MakeImagesUploadListResponse<ImageDataType>;

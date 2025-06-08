@@ -35,7 +35,7 @@ import {
   toastLoadingShortOptions,
 } from "~/components/define/toastContainerDef";
 import { RiVideoUploadLine } from "react-icons/ri";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -137,9 +137,10 @@ export function CompatGalleryButton({
         if (!list) return;
         const doList = arrayPartition(list, 100).map(
           (items) => () =>
-            corsFetch(url, {
+            customFetch(url, {
               method: "PATCH",
               body: items,
+              cors: true,
             }).finally(() => {
               addProgress();
             })
@@ -203,9 +204,10 @@ export function CompatMendingThumbnailButton({
         if (list.length) {
           const doList = arrayPartition(list, 100).map(
             (items) => () =>
-              corsFetch(url, {
+              customFetch(url, {
                 method: "PATCH",
                 body: items,
+                cors: true,
               }).finally(() => {
                 addProgress();
               })
@@ -226,7 +228,11 @@ export function CompatMendingThumbnailButton({
         if (thumbnailOnly?.length) {
           await Promise.all(
             thumbnailOnly.map((image) =>
-              corsFetch(url, { method: "DELETE", body: { id: image.id } })
+              customFetch(url, {
+                method: "DELETE",
+                body: { id: image.id },
+                cors: true,
+              })
             )
           ).then((v) => {
             toast(

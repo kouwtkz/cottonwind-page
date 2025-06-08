@@ -1,4 +1,4 @@
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { setPrefix, setSuffix } from "~/components/functions/stringFix";
 import { CreateState } from "~/components/state/CreateState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -123,8 +123,9 @@ export class IndexedDataLastmodMH<
     const isCacheReload = cache !== "no-cache-reload";
     if (!isCacheReload) Url.searchParams.delete("lastmod");
     if (cache) Url.searchParams.set("cache", cache);
-    return corsFetch(Url.href, {
+    return customFetch(Url.href, {
       cache: isCacheReload ? cache : undefined,
+      cors: true
     }).then(async (r) => {
       return (await r.json()) as T[];
     });

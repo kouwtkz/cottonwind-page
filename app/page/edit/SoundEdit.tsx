@@ -24,7 +24,7 @@ import { RiArrowGoBackFill, RiEditFill, RiUploadFill } from "react-icons/ri";
 import { TbDatabaseImport } from "react-icons/tb";
 import { useSounds } from "~/components/state/SoundState";
 import { soundsDataOptions } from "~/data/DataEnv";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 
 export function SoundEditButton() {
   const searchParams = useSearchParams()[0];
@@ -147,9 +147,10 @@ export function SoundEdit() {
       );
       entry.target = dataItem.key;
       toast.promise(
-        corsFetch(concatOriginUrl(apiOrigin, "sound/send"), {
+        customFetch(concatOriginUrl(apiOrigin, "sound/send"), {
           method: "PATCH",
           body: entry,
+          cors: true,
         }).then(() => {
           soundAlbumsDataIndexed.load("no-cache");
           setEdit(null);
@@ -223,9 +224,10 @@ export function SoundAlbumEdit() {
       );
       entry.target = item.key;
       toast.promise(
-        corsFetch(concatOriginUrl(apiOrigin, "sound/album/send"), {
+        customFetch(concatOriginUrl(apiOrigin, "sound/album/send"), {
           method: "PATCH",
           body: entry,
+          cors: true,
         }).then(() => {
           soundAlbumsDataIndexed.load("no-cache");
           setEdit(null);

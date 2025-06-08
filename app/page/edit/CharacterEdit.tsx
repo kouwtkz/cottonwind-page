@@ -58,7 +58,7 @@ import {
 } from "~/components/layout/edit/ImageEditForm";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getName } from "~/components/functions/doc/PathParse";
-import { corsFetchPost, customFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";

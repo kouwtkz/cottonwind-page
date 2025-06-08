@@ -75,7 +75,7 @@ export const useKeyValueEdit = CreateObjectState<{
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OmittedEnv } from "types/custom-configuration";
-import { corsFetch, corsFetchPost } from "../functions/fetch";
+import { customFetch } from "../functions/fetch";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 
 const schema = z.object({
@@ -129,13 +129,14 @@ function KeyValueEdit() {
   }, []);
   const Delete = useCallback(() => {
     if (edit && confirm("本当に削除しますか？\n(デフォルトの設定に戻ります)")) {
-      corsFetch(concatOriginUrl(apiOrigin, send), { body: { key: edit } }).then(
-        () => {
-          toast.success("削除しました");
-          keyValueDBDataIndexed.load("no-cache");
-          Set({ edit: null });
-        }
-      );
+      customFetch(concatOriginUrl(apiOrigin, send), {
+        data: { key: edit },
+        cors: true,
+      }).then(() => {
+        toast.success("削除しました");
+        keyValueDBDataIndexed.load("no-cache");
+        Set({ edit: null });
+      });
     }
   }, [edit]);
   const Submit = useCallback(() => {
@@ -147,7 +148,11 @@ function KeyValueEdit() {
     );
     entry.key = edit;
     toast.promise(
-      corsFetchPost(concatOriginUrl(apiOrigin, send), entry).then(() => {
+      customFetch(concatOriginUrl(apiOrigin, send), {
+        data: entry,
+        method: "POST",
+        cors: true,
+      }).then(() => {
         keyValueDBDataIndexed.load("no-cache");
         Set({ edit: null });
       }),
@@ -163,9 +168,13 @@ function KeyValueEdit() {
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      corsFetchPost(concatOriginUrl(apiOrigin, send), {
-        key: edit,
-        value: selectedImage.key,
+      customFetch(concatOriginUrl(apiOrigin, send), {
+        data: {
+          key: edit,
+          value: selectedImage.key,
+        },
+        method: "POST",
+        cors: true,
       }).then((r) => {
         keyValueDBDataIndexed.load("no-cache");
       });
@@ -248,13 +257,14 @@ function KeyValueEdit() {
                       })
                       .then(async (o) => {
                         if (o && typeof o.key === "string") {
-                          return corsFetchPost(
-                            concatOriginUrl(apiOrigin, send),
-                            {
+                          return customFetch(concatOriginUrl(apiOrigin, send), {
+                            data: {
                               key: edit,
                               value: o.key,
-                            } as SiteLinkData
-                          ).then((r) => {
+                            } as SiteLinkData,
+                            method: "POST",
+                            cors: true,
+                          }).then((r) => {
                             keyValueDBDataIndexed.load("no-cache");
                           });
                         }

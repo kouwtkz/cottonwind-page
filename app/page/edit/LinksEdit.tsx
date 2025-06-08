@@ -50,7 +50,7 @@ import {
   useLinks,
 } from "~/components/state/LinksState";
 import { findMee } from "~/data/find/findMee";
-import { corsFetch, corsFetchPost } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
@@ -141,7 +141,11 @@ export function LinksEdit({
       entry.category = null;
     }
     toast.promise(
-      corsFetchPost(concatOriginUrl(apiOrigin, send), entry).then(() => {
+      customFetch(concatOriginUrl(apiOrigin, send), {
+        data: entry,
+        method: "POST",
+        cors: true,
+      }).then(() => {
         indexedDB.load("no-cache");
         setEdit(false);
       }),
@@ -170,11 +174,15 @@ export function LinksEdit({
   const selectedImage = useSelectedImage()[0];
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
-      corsFetchPost(concatOriginUrl(apiOrigin, send), {
-        id: item?.id,
-        image: selectedImage.key,
-        category,
-      } as SiteLinkData)
+      customFetch(concatOriginUrl(apiOrigin, send), {
+        data: {
+          id: item?.id,
+          image: selectedImage.key,
+          category,
+        } as SiteLinkData,
+        method: "POST",
+        cors: true,
+      })
         .then(async (r) => ({ ...r, data: (await r.json()) as any }))
         .then((r) => {
           if (r.status === 201) {
@@ -196,9 +204,10 @@ export function LinksEdit({
           onClick={async () => {
             const id = item?.id;
             if (id && confirm("本当に削除しますか？")) {
-              corsFetch(concatOriginUrl(apiOrigin, send), {
+              customFetch(concatOriginUrl(apiOrigin, send), {
                 method: "DELETE",
                 body: { id },
+                cors: true,
               }).then(() => {
                 toast.success("削除しました");
                 indexedDB.load("no-cache");
@@ -254,11 +263,15 @@ export function LinksEdit({
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
-                    return corsFetchPost(concatOriginUrl(apiOrigin, send), {
-                      id: item?.id,
-                      image: o.key,
-                      category,
-                    } as SiteLinkData)
+                    return customFetch(concatOriginUrl(apiOrigin, send), {
+                      data: {
+                        id: item?.id,
+                        image: o.key,
+                        category,
+                      } as SiteLinkData,
+                      method: "POST",
+                      cors: true,
+                    })
                       .then(async (r) => ({
                         ...r,
                         data: (await r.json()) as any,

@@ -1,5 +1,5 @@
 import { PromiseOrder } from "~/components/functions/arrayFunction";
-import { corsFetch } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { Modal } from "~/components/layout/Modal";
 import { CreateState } from "~/components/state/CreateState";
@@ -32,7 +32,7 @@ export async function FilesUploadProcess({
     return formData;
   });
   const fetchList = formDataList.map(
-    (body) => () => corsFetch(url, { method: "POST", body })
+    (body) => () => customFetch(url, { method: "POST", body, cors: true })
   );
   const results = await PromiseOrder(fetchList, { sleepTime, minTime });
   const successCount = results.filter((r) => r.status === 200).length;
@@ -126,9 +126,10 @@ export function FilesEdit({
     ) as SiteLink;
     entry.id = dataItem?.id;
     toast.promise(
-      corsFetch(concatOriginUrl(apiOrigin, send), {
+      customFetch(concatOriginUrl(apiOrigin, send), {
         method: "PATCH",
         body: entry,
+        cors: true,
       }).then(() => {
         filesDataIndexed.load("no-cache");
         setEdit();
@@ -163,9 +164,10 @@ export function FilesEdit({
           onClick={async () => {
             const id = item?.id;
             if (id && confirm("本当に削除しますか？")) {
-              corsFetch(concatOriginUrl(apiOrigin, send), {
+              customFetch(concatOriginUrl(apiOrigin, send), {
                 method: "DELETE",
                 body: { id },
+                cors: true,
               }).then(() => {
                 filesDataIndexed.load("no-cache");
                 setEdit();

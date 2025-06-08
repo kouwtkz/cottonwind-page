@@ -26,15 +26,24 @@ import {
 } from "~/components/dropdown/PostEditSelect";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { useEnv } from "~/components/state/EnvState";
-import { apiOrigin, imageDataIndexed, postsDataIndexed } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  imageDataIndexed,
+  postsDataIndexed,
+} from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { corsFetchPost } from "~/components/functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
-import { DownloadIndexedDBObject } from "~/components/button/ObjectDownloadButton";
+import {
+  DownloadIndexedDBObject,
+  getIndexedDBJsonOptions,
+  JsonFromDataObject,
+} from "~/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { useDropzone } from "react-dropzone";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
+import { ImportBlogPostJson } from "~/data/ClientDBFunctions";
 
 const backupStorageKey = "backupPostDraft";
 
@@ -358,12 +367,14 @@ export function PostForm() {
       if (sendEnable) {
         toast
           .promise(
-            corsFetchPost(concatOriginUrl(apiOrigin, "/blog/send"), data).then(
-              async (r) => {
-                if (r.ok) return r;
-                else throw await r.text();
-              }
-            ),
+            customFetch(concatOriginUrl(apiOrigin, "/blog/send"), {
+              method: "POST",
+              data,
+              cors: true,
+            }).then(async (r) => {
+              if (r.ok) return r;
+              else throw await r.text();
+            }),
             {
               pending: "送信中",
               success: {
@@ -552,10 +563,10 @@ export function PostForm() {
                   }
                   break;
                 case "upload":
-                // ImportPostJson({ apiOrigin }).then(() => {
-                //   postsDataIndexed.load("no-cache-reload");
-                //   nav(`/blog`, { replace: true });
-                // });
+                  ImportBlogPostJson().then(() => {
+                    postsDataIndexed.load("no-cache-reload");
+                    nav(`/blog`, { replace: true });
+                  });
               }
             }}
           >

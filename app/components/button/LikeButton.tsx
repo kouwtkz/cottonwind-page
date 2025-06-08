@@ -7,7 +7,7 @@ import { toLikePath } from "~/components/functions/media/likeFunction";
 import { apiOrigin, likeDataIndexed } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useLikeState } from "~/components/state/LikeState";
-import { corsFetchPost } from "../functions/fetch";
+import { customFetch } from "../functions/fetch";
 
 interface LikeButtonProps extends HTMLAttributes<HTMLButtonElement> {
   url?: string;
@@ -50,18 +50,26 @@ export function LikeButton({
       className={className}
       onClick={(e) => {
         if (checked) {
-          corsFetchPost(concatOriginUrl(apiOrigin, "like/send"), {
-            path: pathKey,
-            mode: "remove",
-          } as LikeFormType).then(() => {
+          customFetch(concatOriginUrl(apiOrigin, "like/send"), {
+            data: {
+              path: pathKey,
+              mode: "remove",
+            } as LikeFormType,
+            method: "POST",
+            cors: true,
+          }).then(() => {
             likeDataIndexed.load("no-cache");
             toast("いいねを解除しました", toastLoadingOptions);
           });
         } else {
-          corsFetchPost(concatOriginUrl(apiOrigin, "like/send"), {
-            path: pathKey,
-            mode: "add",
-          } as LikeFormType).then(() => {
+          customFetch(concatOriginUrl(apiOrigin, "like/send"), {
+            data: {
+              path: pathKey,
+              mode: "add",
+            } as LikeFormType,
+            method: "POST",
+            cors: true,
+          }).then(() => {
             likeDataIndexed.load("no-cache");
             toast("いいねしました", toastLoadingOptions);
           });
