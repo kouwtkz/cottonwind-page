@@ -25,7 +25,6 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
-// import { parseBlob } from "music-metadata";
 import { useSounds } from "~/components/state/SoundState";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 
@@ -360,29 +359,6 @@ export function SoundPlayer() {
       if (interval) clearInterval(interval);
     };
   }, [intervalState, stopped, audioElm]);
-
-  const callbackMetaData = useCallback(
-    (sound: SoundItemType, mediaSrc: string) => {
-      if (!sound.meta) {
-        fetch(mediaSrc).then((r) => r.blob());
-        // .then((blob) => parseBlob(blob))
-        // .then((meta) => {
-        //   SetSounds(({ soundsMap }) => {
-        //     const item = soundsMap.get(sound.key)!;
-        //     item.meta = meta;
-        //     return {
-        //       soundsMap: new Map(soundsMap),
-        //       sounds: Array.from(soundsMap.values()),
-        //     };
-        //   });
-        // });
-      }
-    },
-    []
-  );
-  useEffect(() => {
-    if (!paused && sound && mediaSrc) callbackMetaData(sound, mediaSrc);
-  }, [paused, sound, mediaSrc]);
   useEffect(() => {
     Set({ sound });
   }, [sound]);
@@ -421,6 +397,9 @@ export function SoundPlayer() {
         src={mediaSrc}
         {...{ autoPlay, onEnded, onTimeUpdate }}
         ref={audioRef}
+        onLoadedData={() => {
+          Set({ duration: audioRef.current!.duration });
+        }}
       />
     </>
   );
@@ -463,7 +442,7 @@ export function SoundController() {
   const sound = playlist.list[current];
   const title = sound?.title || null;
   const artist = sound?.artist || null;
-  const composer = sound?.meta?.common?.composer?.join(", ") || artist;
+  const composer = artist;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
     [pathname, paused, ended]
@@ -651,12 +630,16 @@ export function SoundController() {
 }
 
 function SoundControllerTime() {
-  const { Play, Pause, paused, stopped, ended, currentTime, sound, Set } =
-    useSoundPlayer();
-  const duration = useMemo(
-    () => (ended ? 0 : sound?.meta?.format?.duration || 0),
-    [sound?.meta, ended]
-  );
+  const {
+    Play,
+    Pause,
+    paused,
+    stopped,
+    ended,
+    currentTime,
+    Set,
+    duration = 0,
+  } = useSoundPlayer();
   useEffect(() => {
     if (duration !== null)
       Set({
