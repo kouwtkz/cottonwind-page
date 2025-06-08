@@ -60,6 +60,7 @@ type SoundPlayerType = {
   volume: number;
   muted: boolean;
   sound: SoundItemType | null;
+  isLoading?: boolean;
   RegistPlaylist: (args: PlaylistRegistProps) => void;
   Play: (args?: setTypeProps<SoundPlayerType>) => void;
   Pause: () => void;
@@ -89,6 +90,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   volume: 0.5,
   muted: false,
   sound: null,
+  isLoading: true,
   RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
     const value: {
       playlist?: SoundPlaylistType | undefined;
@@ -278,6 +280,9 @@ export function SoundPlayer() {
   const mediaSrc = useMemo(() => {
     if (mediaOrigin && src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
+  useEffect(() => {
+    Set({ isLoading: true });
+  }, [mediaSrc]);
 
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
   const onNextTrack = useCallback(() => Next(), [Next]);
@@ -376,6 +381,8 @@ export function SoundPlayer() {
     [sound, mediaOrigin]
   );
 
+  useEffect(() => {}, []);
+
   return (
     <>
       <SoundController />
@@ -398,7 +405,7 @@ export function SoundPlayer() {
         {...{ autoPlay, onEnded, onTimeUpdate }}
         ref={audioRef}
         onLoadedData={() => {
-          Set({ duration: audioRef.current!.duration });
+          Set({ isLoading: false, duration: audioRef.current!.duration });
         }}
       />
     </>
@@ -636,19 +643,22 @@ function SoundControllerTime() {
     paused,
     stopped,
     ended,
-    currentTime,
-    Set,
-    duration = 0,
+    currentTime: stateCurrentTime,
+    duration: stateDuration,
+    isLoading,
   } = useSoundPlayer();
-  useEffect(() => {
-    if (duration !== null)
-      Set({
-        duration: !ended && duration ? duration : 0,
-      });
-  }, [duration]);
+  const isMask = useMemo(() => ended || isLoading, [ended, isLoading]);
+  const duration = useMemo(
+    () => (isMask ? 0 : stateDuration),
+    [stateDuration, isMask]
+  );
+  const currentTime = useMemo(
+    () => (isMask ? 0 : stateCurrentTime),
+    [stateCurrentTime, isMask]
+  );
   const currentPerT = useMemo(
     () => Math.round((currentTime / (duration || 1)) * 1000),
-    [currentTime, duration]
+    [currentTime, duration, ended]
   );
   const [sliderValue, setSliderValue] = useState<number | null>(null);
   const currentTimeWithSlider = useMemo(() => {
