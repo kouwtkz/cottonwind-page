@@ -1,4 +1,4 @@
-import React, { SVGAttributes } from "react";
+import React, { type SVGAttributes } from "react";
 
 export type MenuButtonProps = {
   isOpen?: boolean;

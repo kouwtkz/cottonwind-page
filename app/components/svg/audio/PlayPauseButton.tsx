@@ -1,4 +1,4 @@
-import { SVGAttributes, memo } from "react";
+import { type SVGAttributes, memo } from "react";
 
 type PlayPauseButtonProps = {
   paused?: boolean;
