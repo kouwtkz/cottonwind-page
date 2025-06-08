@@ -61,15 +61,15 @@ type SoundPlayerType = {
   muted: boolean;
   sound: SoundItemType | null;
   isLoading?: boolean;
-  RegistPlaylist: (args: PlaylistRegistProps) => void;
-  Play: (args?: setTypeProps<SoundPlayerType>) => void;
-  Pause: () => void;
-  Stop: () => void;
-  Next: () => void;
-  Prev: () => void;
-  NextLoopMode: () => void;
-  ToggleShuffle: () => void;
-  SetVolume: (volume: number, delta?: boolean) => void;
+  RegistPlaylist(args: PlaylistRegistProps): void;
+  Play(args?: setTypeProps<SoundPlayerType>): void;
+  Pause(): void;
+  Stop(): void;
+  Next(): void;
+  Prev(): void;
+  NextLoopMode(): void;
+  ToggleShuffle(): void;
+  SetVolume(volume: number, delta?: boolean): void;
 };
 
 export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
@@ -91,7 +91,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
   muted: false,
   sound: null,
   isLoading: true,
-  RegistPlaylist: ({ playlist: _playlist, current = 0, special }) => {
+  RegistPlaylist({ playlist: _playlist, current = 0, special }) {
     const value: {
       playlist?: SoundPlaylistType | undefined;
       current?: number;
@@ -105,7 +105,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       : undefined;
     set(() => value);
   },
-  Play: (args) => {
+  Play(args) {
     set((state) => {
       let { playlist, ...argsValue } = {} as Partial<SoundPlayerType>;
       if (typeof args === "function") args(state);
@@ -114,11 +114,13 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
         playlist = _playlist;
         argsValue = _argsValue;
       }
+      const argsCurrent = argsValue.current || 0;
       const value: Partial<SoundPlayerType> = {
         ...{
           paused: false,
           ended: false,
           count: 0,
+          isLoading: state.current !== argsCurrent && state.ended,
         },
         ...argsValue,
       };
@@ -126,13 +128,13 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       return value;
     });
   },
-  Pause: () => {
+  Pause() {
     set(() => ({ paused: true, ended: false }));
   },
-  Stop: () => {
+  Stop() {
     set(() => ({ paused: true, ended: true, current: 0 }));
   },
-  Next: () => {
+  Next() {
     set((state) => {
       let newState: Partial<SoundPlayerType>;
       if (state.shuffle) {
@@ -155,7 +157,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       return newState;
     });
   },
-  Prev: () => {
+  Prev() {
     set((state) => {
       let newState: Partial<SoundPlayerType>;
       if (state.currentTime > state.prevReplayTime) {
@@ -171,7 +173,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       return newState;
     });
   },
-  NextLoopMode: () => {
+  NextLoopMode() {
     set((state) => ({
       loopMode:
         LoopModeList[
@@ -280,9 +282,6 @@ export function SoundPlayer() {
   const mediaSrc = useMemo(() => {
     if (mediaOrigin && src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
-  useEffect(() => {
-    Set({ isLoading: true });
-  }, [mediaSrc]);
 
   const onPreviousTrack = useCallback(() => Prev(), [Prev]);
   const onNextTrack = useCallback(() => Next(), [Next]);
