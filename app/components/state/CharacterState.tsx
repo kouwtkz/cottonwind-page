@@ -52,13 +52,14 @@ function CharacterParamState() {
     () => charactersMap.get(charaName) || null,
     [charaName, charactersMap]
   );
+  const images = useImageState().images;
   useEffect(() => {
-    if (character?.icon) {
+    if (images && character?.icon) {
       setFavicon(character.icon);
     } else {
       setFavicon(null);
     }
-  }, [character]);
+  }, [character, images]);
   return <></>;
 }
 
