@@ -55,7 +55,7 @@ export default function GenerateRss(options: Options) {
 }
 
 interface MakeRssProps {
-  env: Env;
+  env: Partial<Env>;
   db: MeeSqlClass;
   url: string;
   postsData: PostDataType[];
