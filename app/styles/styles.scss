@@ -502,11 +502,15 @@ style {
   text-align: center;
 }
 
+%sm-width {
+  margin: auto;
+  max-width: 32rem;
+}
 ul {
   text-align: left;
   margin: auto;
   &.sm {
-    max-width: 32rem;
+    @extend %sm-width;
   }
   li {
     white-space: pre-line;
@@ -3450,6 +3454,9 @@ label,
     max-width: 100%;
   }
   @extend %a-line-none;
+  .parsed {
+    @extend %sm-width;
+  }
 }
 .on-en-prop {
   margin-bottom: 1rem;
