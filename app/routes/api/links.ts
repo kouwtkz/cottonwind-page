@@ -4,7 +4,7 @@ import { DBTableClass, type DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 import { linksDataOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
-import type { RouteBasePropsWithEnvProps } from "~/components/utils/RouteProps";
+import type { RouteBasePropsWithEnvProps } from "~/components/utils/RoutesUtils";
 import { getCfDB } from "~/data/cf/getEnv";
 import type { Route } from "./+types/links";
 

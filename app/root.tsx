@@ -14,8 +14,11 @@ import "./styles/styles_lib.scss";
 import { getCfOmitEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { SetMetaDefault } from "./components/SetMeta";
-import { rootClientServerData, type SetRootProps } from "./data/rootData";
+import {
+  rootClientServerData,
+  SetMetaDefault,
+  type SetRootProps,
+} from "./components/utils/SetMeta";
 import "./data/ClientDBLoader";
 import { clientDBLoader } from "./data/ClientDBLoader";
 import { useEffect, useMemo } from "react";
@@ -147,10 +150,4 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       )}
     </body>
   );
-}
-
-export function matchesRoot(matches: any[]) {
-  return matches.find((m) => m.id === "root") as
-    | RouterMatchesType<SetRootProps>
-    | undefined;
 }

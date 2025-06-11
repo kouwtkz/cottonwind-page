@@ -23,7 +23,6 @@ import {
 // import { FaviconState } from "./FaviconState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";
-import { rootClientServerData } from "~/data/rootData";
 import { ClientDBState } from "~/data/ClientDBLoader";
 import type {
   ImageIndexedDataStateClass,
@@ -32,6 +31,7 @@ import type {
 import { Theme } from "../theme/Theme";
 import { LangState } from "../multilingual/LangState";
 import { FaviconState } from "./FaviconState";
+import { rootClientServerData } from "../utils/SetMeta";
 
 export function SetState({
   env,

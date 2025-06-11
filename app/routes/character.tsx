@@ -1,19 +1,9 @@
-import { CharacterPage, CharaDetail } from "~/page/CharacterPage";
+import { CharacterPage } from "~/page/CharacterPage";
 import type { Route } from "./+types/character";
 import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
-import { SetMetaDefault } from "~/components/SetMeta";
-import type { SetRootProps } from "~/data/rootData";
-import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
-import { envAsync } from "~/data/ClientEnvLorder";
-import { useEnv } from "~/components/state/EnvState";
-import type { LinkDescriptor } from "react-router";
-
-interface SetMetaProps extends SetRootProps {
-  character?: CharacterDataType | CharacterType;
-}
-interface MetaArgs extends Route.MetaArgs {
-  data: SetMetaProps;
-}
+import { SetMetaDefault } from "~/components/utils/SetMeta";
+import { getCfDB } from "~/data/cf/getEnv";
+import { getDataFromMatches } from "~/components/utils/RoutesUtils";
 
 export async function loader({ context, params }: Route.LoaderArgs) {
   const db = getCfDB({ context });
@@ -23,41 +13,36 @@ export async function loader({ context, params }: Route.LoaderArgs) {
       where: { key: params.charaName },
     })
     .then((c) => c[0]);
-  return {
-    env: getCfEnv({ context }),
-    character,
-  } as SetMetaProps;
+  return character;
 }
 
-let clientServerData: SetMetaProps | null = null;
-export async function clientLoader({
-  request,
-  serverLoader,
-  params,
-}: Route.ClientLoaderArgs) {
+let clientServerData: CharacterDataType | null = null;
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   await waitIdb;
-  if (clientServerData?.character?.name !== params.charaName) {
-    clientServerData = {
-      env: await envAsync,
-      character: await charactersDataIndexed.table.get({
+  if (clientServerData?.name !== params.charaName) {
+    clientServerData = await charactersDataIndexed.table
+      .get({
         index: "key",
         query: params.charaName,
-      }),
-    };
+      })
+      .then((v) => v?.rawdata || null);
   }
   return clientServerData;
 }
 clientLoader.hydrate = true;
 
-export function meta({ data }: MetaArgs) {
-  let title = data.title || "キャラクター";
-  let description = data.description;
-  if (data.character) {
-    const character = data.character;
+export function meta({ data: character, matches }: Route.MetaArgs) {
+  let title = "キャラクター";
+  let description: string | undefined;
+  if (character) {
     title = character.name + " - " + title;
     if (character.overview) description = character.overview;
   }
-  return SetMetaDefault({ env: data?.env, title, description });
+  return SetMetaDefault({
+    ...getDataFromMatches(matches)?.data,
+    title,
+    description,
+  });
 }
 
 export default function Character({ params }: Route.ComponentProps) {

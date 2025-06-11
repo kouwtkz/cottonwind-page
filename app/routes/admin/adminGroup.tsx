@@ -2,8 +2,7 @@ import { getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/adminGroup";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
-import { SetMetaDefault } from "~/components/SetMeta";
-import type { SetRootProps } from "~/data/rootData";
+import { SetMetaDefault, type SetRootProps } from "~/components/utils/SetMeta";
 import { AdminPage } from "~/page/AdminPage";
 import { Link } from "react-router";
 

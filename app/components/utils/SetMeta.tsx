@@ -1,5 +1,4 @@
 import type { OmittedEnv } from "types/custom-configuration";
-import type { SetRootProps } from "~/data/rootData";
 
 export type MetaValuesType =
   | { title: string }
@@ -8,6 +7,17 @@ export type MetaValuesType =
 export interface SetMetaBaseProps {
   env?: Partial<OmittedEnv>;
 }
+export interface SetRootProps extends SetMetaBaseProps {
+  title?: string;
+  description?: string;
+  isLogin?: boolean;
+  isComplete?: boolean;
+}
+
+interface rootClientServerDataType {
+  data: SetRootProps | null;
+}
+export const rootClientServerData: rootClientServerDataType = { data: null };
 
 export function SetMetaDefault({
   title,

@@ -2,9 +2,11 @@ import { getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/login";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
-import { SetMetaDefault } from "~/components/SetMeta";
-import { rootClientServerData, type SetRootProps } from "~/data/rootData";
-import { matchesRoot } from "~/root";
+import {
+  rootClientServerData,
+  SetMetaDefault,
+  type SetRootProps,
+} from "~/components/utils/SetMeta";
 import { Form, redirect, useLocation } from "react-router";
 import { LocationToUrl } from "~/components/functions/doc/MakeURL";
 import { useMemo } from "react";
