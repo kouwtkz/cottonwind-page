@@ -204,7 +204,7 @@ export function WebsiteFramework({
             </li>
             <li>
               <span className="label">メタデータ</span>
-              <span>music-metadata</span>
+              <span>mp3tag.js</span>
             </li>
             <li>
               <span className="label">UIライブラリ</span>
