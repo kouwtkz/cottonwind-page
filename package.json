@@ -25,6 +25,7 @@
     "image-dimensions": "^2.3.0",
     "isbot": "^5.1.27",
     "marked": "^15.0.12",
+    "mp3tag.js": "^3.14.0",
     "react": "^19.1.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.1.0",

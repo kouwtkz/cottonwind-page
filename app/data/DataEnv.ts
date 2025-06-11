@@ -45,7 +45,7 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, Soun
   name: "sounds",
   src: "/sounds",
   api: "/sound",
-  version: "1.3.2",
+  version: "1.5.0",
   preLoad: false,
   latestField: { time: "desc" },
   jsonFromDataOptions: { time: null },

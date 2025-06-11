@@ -448,7 +448,7 @@ export function SoundController() {
   const sound = playlist.list[current];
   const title = sound?.title || null;
   const artist = sound?.artist || null;
-  const composer = artist;
+  const composer = sound?.composer || artist;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
     [pathname, paused, ended]

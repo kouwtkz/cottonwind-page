@@ -1,13 +1,14 @@
 import { LoginCheck } from "~/components/utils/Admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
-// import { parseBlob } from 'music-metadata';
 import { getName } from "~/components/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { soundsDataOptions } from "~/data/DataEnv";
 import { soundAlbumTableObject } from "./soundAlbum";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/sound";
-import { getCfDB } from "~/data/cf/getEnv";
+import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
+import MP3Tag from 'mp3tag.js';
+import type { MP3TagTags } from "mp3tag.js/types/tags";
 
 const TableObject = new DBTableClass<SoundDataType>({
   table: soundsDataOptions.name,
@@ -21,6 +22,7 @@ const TableObject = new DBTableClass<SoundDataType>({
     album: { type: "TEXT" },
     cover: { type: "TEXT" },
     artist: { type: "TEXT" },
+    composer: { type: "TEXT" },
     grouping: { type: "TEXT" },
     genre: { type: "TEXT" },
     draft: { type: "INTEGER" },
@@ -55,10 +57,6 @@ export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });
 }
 
-async function parseBlob(a: any) {
-  return null as any;
-}
-
 interface WithEnvProps extends Route.ActionArgs {
   env: Partial<Env>;
 }
@@ -72,47 +70,55 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
             if (file && env.BUCKET) {
+              let tags: Partial<MP3TagTags> = {};
+              if (/\.mp3$/i.test(file.name)) {
+                await file.arrayBuffer().then(buffer => {
+                  const mp3tag = new MP3Tag(buffer);
+                  mp3tag.read();
+                  tags = mp3tag.tags;
+                })
+              }
               const src = "sound/" + file.name;
+              const { track, title, album, year, artist, genre, v2 } = tags;
+              const time = new Date(file.lastModified);
+              const mtime = time.toISOString();
+              if (year) time.setFullYear(Number(year));
+              const key = getName(file.name);
+              console.log(track);
+              const entry = TableObject.getInsertEntry({
+                title,
+                album,
+                composer: v2?.TCOM,
+                artist,
+                genre,
+                src,
+                track: track,
+                grouping: v2?.TIT1?.split("\x00").join(","),
+                time: time.toISOString(),
+                mtime,
+                lastmod: new Date().toISOString()
+              });
+              const selectValue = await TableObject.Select({ db, where: { key } })
+              const value = selectValue[0];
+              if (!value || value.mtime !== entry.mtime) {
+                await env.BUCKET!.put(src, file);
+              }
+              if (album) {
+                const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
+                  .then<SoundAlbumDataType | null>(v => v[0] || null);
+                if (!albumValue) {
+                  await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
+                }
+              }
+              if (value) {
+                await TableObject.Update({ db, entry, where: { key } });
+              } else {
+                entry.key = key;
+                await TableObject.Insert({ db, entry });
+              }
               await env.BUCKET.put(src, file);
-              // await parseBlob(file).then(async (meta) => {
-              //   if (meta) {
-              //     const { track, grouping, year, ...common } = meta.common;
-              //     const time = new Date(file.lastModified);
-              //     const mtime = time.toISOString();
-              //     if (year) time.setFullYear(year);
-              //     const key = getName(file.name);
-              //     const entry = TableObject.getInsertEntry({
-              //       ...common,
-              //       src,
-              //       track: track.no,
-              //       grouping: (grouping?.split("\x00") || []).join(","),
-              //       time: time.toISOString(),
-              //       mtime,
-              //       lastmod: new Date().toISOString()
-              //     });
-              //     const selectValue = await TableObject.Select({ db, where: { key } })
-              //     const value = selectValue[0];
-              //     if (!value || value.mtime !== entry.mtime) {
-              //       await env.BUCKET!.put(src, file);
-              //     }
-              //     const album = meta.common.album;
-              //     if (album) {
-              //       const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
-              //         .then<SoundAlbumDataType | null>(v => v[0] || null);
-              //       if (!albumValue) {
-              //         await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
-              //       }
-              //     }
-              //     if (value) {
-              //       await TableObject.Update({ db, entry, where: { key } });
-              //     } else {
-              //       entry.key = key;
-              //       await TableObject.Insert({ db, entry });
-              //     }
-              //   }
-              // })
             }
-            return new Response("");
+            return new Response();
           }
           case "PATCH": {
             const rawData = await request.json();

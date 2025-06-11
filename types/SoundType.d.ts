@@ -8,6 +8,7 @@ interface SoundDataType {
   album?: string;
   cover?: string;
   artist?: string;
+  composer?: string;
   grouping?: string;
   genre?: string;
   draft?: number;
