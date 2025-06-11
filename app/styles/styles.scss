@@ -480,6 +480,23 @@ $desktopWidth: 1280px;
 @include ColorSetter("color-warm", var(--warm-color));
 @include ColorSetter("color-gray", var(--main-color-light-grayish));
 
+%slider-track-background {
+  background-color: hsla(0, 0%, 65%, 0.3);
+}
+.slider {
+  width: 100%;
+  height: 0.5rem;
+  position: relative;
+  .track {
+    height: 100%;
+    @extend %slider-track-background;
+  }
+  .track-0 {
+    position: absolute;
+    background-color: var(--main-color);
+  }
+}
+
 .pixel {
   image-rendering: pixelated;
 }
@@ -866,6 +883,11 @@ html.loading {
       margin: 1rem;
       width: auto;
       height: 128px;
+    }
+    .slider {
+      margin: 2rem;
+      width: 75%;
+      max-width: 32rem;
     }
   }
 }
@@ -2694,17 +2716,6 @@ $soundBoxHeight: 10rem;
               }
             }
           }
-          .slider {
-            width: 100%;
-            height: 0.5rem;
-            .track {
-              height: 100%;
-              background-color: hsla(0, 0%, 65%, 0.3);
-            }
-            .track-0 {
-              background-color: var(--main-color);
-            }
-          }
         }
         .volume {
           display: flex;
@@ -2742,7 +2753,7 @@ $soundBoxHeight: 10rem;
               }
               .track {
                 height: 100%;
-                background-color: hsla(0, 0%, 65%, 0.3);
+                @extend %slider-track-background;
               }
               .track-0 {
                 background-color: var(--main-color);

@@ -70,16 +70,38 @@ export function SetState({
 }
 
 export const useIsComplete = CreateState(false);
+export const useIsLoaded = CreateState<boolean[]>([]);
 
 function CheckIsComplete() {
-  const isSetList = [
-    Boolean(useEnv()[0]),
-    Boolean(useImageState().images),
-    Boolean(useCharacters().characters),
-    Boolean(usePosts().posts),
-    Boolean(useSounds().sounds),
-    Boolean(useLinks().links),
-  ];
+  const loadedEnv = Boolean(useEnv()[0]);
+  const loadedImages = Boolean(useImageState().images);
+  const loadedCharacters = Boolean(useCharacters().characters);
+  const loadedPosts = Boolean(usePosts().posts);
+  const loadedSounds = Boolean(useSounds().sounds);
+  const loadedLinks = Boolean(useLinks().links);
+
+  const isSetList = useMemo(
+    () => [
+      loadedEnv,
+      loadedImages,
+      loadedCharacters,
+      loadedPosts,
+      loadedSounds,
+      loadedLinks,
+    ],
+    [
+      loadedEnv,
+      loadedImages,
+      loadedCharacters,
+      loadedPosts,
+      loadedSounds,
+      loadedLinks,
+    ]
+  );
+  const setIsLoaded = useIsLoaded()[1];
+  useEffect(() => {
+    setIsLoaded(isSetList);
+  }, [isSetList]);
   const setIsComplete = useIsComplete()[1];
   const isComplete = useMemo(() => isSetList.every((v) => v), [isSetList]);
   useEffect(() => {
