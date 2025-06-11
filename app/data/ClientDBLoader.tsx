@@ -14,6 +14,8 @@ import {
   soundAlbumsDataOptions,
   soundsDataOptions,
   TableVersionDataOptions,
+  type TableNameTypes,
+  type TableNameTypesWithAll,
 } from "./DataEnv";
 
 import {
@@ -70,6 +72,8 @@ export let tableVersionDataIndexed: IndexedDataLastmodMH<
   Props_LastmodMH_Tables_Data
 >;
 export let IdbStateClassList: anyIdbStateClass[] = [];
+export const IdbClassMap: Map<TableNameTypes, anyIdbStateClass> = new Map();
+export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 
 export let dbClass: MeeIndexedDB;
 export async function MeeIndexedDBCreate() {
@@ -119,6 +123,8 @@ async function setSearchParamsOptionUrl(
   return Url;
 }
 
+const allDataSrc = "/data/all";
+
 export async function getDataFromApi<T = any>(
   src: string,
   isLoading?: LoadStateType,
@@ -132,8 +138,6 @@ export async function getDataFromApi<T = any>(
     cors: true,
   }).then(async (r) => (await r.json()) as T);
 }
-
-const allDataSrc = "/data/all";
 
 interface ClientDBLoaderProps {
   env: EnvWithCfOriginOptions;
@@ -176,20 +180,62 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     });
     IdbStateClassList = Array.from(IdbStateClassMap.values());
     await MeeIndexedDBCreate();
-  }
-  await getDataFromApi<JSONAllDataTypes>(allDataSrc)
-    .then(async (items) => {
-      await linksDataIndexed!.save({ data: items.links });
-      Promise.all(
-        IdbStateClassList.map(async (obj) => {
-          const data = items[obj.key as JSONAllDataKeys];
-          await obj.save({ data });
-        })
-      );
-    })
-    .then(() => {
-      waitIdbResolve();
+    IdbStateClassList.forEach((item) => {
+      IdbClassMap.set(item.key as TableNameTypes, item);
     });
+    IdbLoadMap.set("all", true);
+  }
+  IdbLoadMap.forEach((load, key) => {
+    if (!load) IdbLoadMap.delete(key);
+  });
+  if (IdbLoadMap.size > 0) {
+    const allLoadState = IdbLoadMap.get("all");
+    let results: Promise<Partial<JSONAllDataTypes>>;
+    if (allLoadState) {
+      results = getDataFromApi<JSONAllDataTypes>(allDataSrc, allLoadState);
+    } else {
+      results = Promise.all(
+        Array.from(IdbLoadMap).map(async ([k, v]) => {
+          const key = k as TableNameTypes;
+          const idb = IdbClassMap.get(key);
+          return { key, result: await getDataFromApi<any>(idb!.src, v) };
+        })
+      ).then((v) =>
+        v.reduce<Partial<JSONAllDataTypes>>((a, { key, result }) => {
+          a[key] = result;
+          return a;
+        }, {})
+      );
+    }
+    IdbLoadMap.clear();
+    await results
+      .then(async (items) => {
+        Promise.all(
+          IdbStateClassList.map(async (obj) => {
+            const data = items[obj.key as JSONAllDataKeys] as any;
+            await obj.save({ data });
+          })
+        );
+      })
+      .then(async () => {
+        const currentVersionMap = new Map(
+          (
+            await tableVersionDataIndexed?.table.find({
+              where: { key: { not: "tables" } },
+            })
+          ).map((v) => [v.key, v])
+        );
+        indexedList!.forEach((indexedItem) => {
+          const currentTable = currentVersionMap.get(indexedItem.key);
+          if (currentTable) {
+            indexedItem.version = currentTable?.version;
+          }
+        });
+      })
+      .then(() => {
+        waitIdbResolve();
+      });
+  }
 }
 
 export function ClientDBState() {

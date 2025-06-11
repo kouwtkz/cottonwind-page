@@ -87,3 +87,37 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   }
   return {};
 }
+
+export async function action({ params, request, context }: Route.ActionArgs) {
+  if (params.param === "update") {
+    const list: Props_LastmodMHClass_Options<any>[] = [
+      charactersDataOptions,
+      linksFavDataOptions,
+      filesDataOptions,
+      ImageDataOptions,
+      linksDataOptions,
+      postsDataOptions,
+      soundAlbumsDataOptions,
+      soundsDataOptions,
+      likeDataOptions,
+      KeyValueDBDataOptions,
+    ];
+    const db = getCfDB({ context })!;
+    const lastmodTime = new Date();
+    for (const options of list) {
+      const lastmod = lastmodTime.toISOString();
+      if (options.oldServerKeys) {
+        let oldKey: string | undefined;
+        for (const table of options.oldServerKeys) {
+          if (await db.exists({ table })) { oldKey = table; break; }
+        }
+        if (oldKey) {
+          await db.renameTable({ from: oldKey, table: options.name, drop: true });
+        }
+      }
+      await UpdateTablesDataObject({ db, options, lastmod });
+      lastmodTime.setMilliseconds(lastmodTime.getMilliseconds() + 1);
+    }
+    return new Response();
+  }
+}

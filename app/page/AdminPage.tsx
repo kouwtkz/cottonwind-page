@@ -1,12 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useIsLogin } from "~/components/state/EnvState";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog, fileDownload } from "~/components/utils/FileTool";
 import {
   filesDataIndexed,
-  keyValueDBDataIndexed,
-  tableVersionDataIndexed,
   IdbStateClassList,
   apiOrigin,
   mediaOrigin,
@@ -40,18 +38,19 @@ import {
 } from "~/components/button/ObjectDownloadButton";
 import {
   charactersDataOptions,
-  filesDataOptions,
   ImageDataOptions,
   KeyValueDBDataOptions,
   linksDataOptions,
   linksFavDataOptions,
   postsDataOptions,
+  soundsDataOptions,
 } from "~/data/DataEnv";
 import { useCharacters } from "~/components/state/CharacterState";
 import { FormatDate } from "~/components/functions/DateFunction";
 import { KeyValueEditable } from "~/components/state/KeyValueDBState";
 import { useImageState } from "~/components/state/ImageState";
 import { customFetch } from "~/components/functions/fetch";
+import { IdbNavReload } from "~/components/functions/doc/NavReload";
 
 export function AdminPage() {
   const isLogin = useIsLogin()[0];
@@ -124,7 +123,7 @@ function FilesManager() {
           onClick={async () => {
             fileDialog("*", true)
               .then((files) => Array.from(files))
-              .then((files) => FilesUpload({ files, apiOrigin }))
+              .then((files) => FilesUpload({ files }))
               .then(() => {
                 filesDataIndexed.load("no-cache");
               });
@@ -320,6 +319,7 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
 
 function DBPage() {
   const { charactersMap } = useCharacters();
+  const nav = useNavigate();
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
@@ -330,18 +330,9 @@ function DBPage() {
           onClick={(e) => {
             e.preventDefault();
             (async function () {
-              const currentVersionMap = new Map(
-                (
-                  await tableVersionDataIndexed?.table.find({
-                    where: { key: { not: "tables" } },
-                  })
-                ).map((v) => [v.key, v])
-              );
               const newVersions = findMee(IdbStateClassList, {
                 where: { key: { not: "tables" } },
-              }).filter(
-                (v) => v.version !== currentVersionMap.get(v.key)?.version
-              );
+              }).filter((v) => v.version !== v.options.version);
               if (newVersions.length === 0) {
                 toast("データベースは最新です");
               } else {
@@ -349,8 +340,8 @@ function DBPage() {
                 const strList = newVersions.map((v) => v.key).join(", ");
                 let updateString = `データベースのテーブルの更新が${count}件(${strList})あります！\n`;
                 const needAlterTableList = newVersions.filter((v) => {
-                  const m = v.options.version.match(/\d+.\d+/);
-                  const nm = v.version.match(/\d+.\d+/);
+                  const m = v.version.match(/\d+.\d+/);
+                  const nm = v.options.version.match(/\d+.\d+/);
                   return m && nm && m[0] !== nm[0];
                 });
                 const currentDate = new Date();
@@ -376,57 +367,82 @@ function DBPage() {
                       ...json,
                       name: object.key + "_" + FormatDate(currentDate, "Ymd"),
                     });
-                    switch (object.key) {
-                      case ImageDataOptions.name:
-                        return ImportImagesJson({
-                          charactersMap,
-                          overwrite: true,
-                          json,
-                        });
-                      case charactersDataOptions.name:
-                        return ImportCharacterJson({
-                          json,
-                        });
-                      case postsDataOptions.name:
-                        return ImportBlogPostJson({
-                          json,
-                        });
-                      case linksDataOptions.name:
-                        return ImportLinksJson({
-                          json,
-                        });
-                      case linksFavDataOptions.name:
-                        return ImportLinksJson({
-                          json,
-                          dir: "/fav",
-                        });
-                      case keyValueDBDataIndexed.key:
-                        return ImportCommonJson({
-                          options: KeyValueDBDataOptions,
-
-                          json,
-                        });
-                      default:
-                        toast(`${object.key}は現在インポートの実装待ちです…`);
-                        return;
-                    }
+                    return { json, object };
                   });
                   Promise.all(list)
-                    .then(() => {
-                      return toast.promise(
-                        customFetch(
-                          concatOriginUrl(apiOrigin, "data/tables/update"),
-                          { method: "POST", cors: true }
+                    .then((list) => {
+                      return {
+                        list,
+                        response: toast.promise(
+                          customFetch(
+                            concatOriginUrl(apiOrigin, "data/update"),
+                            {
+                              method: "POST",
+                              cors: true,
+                            }
+                          ),
+                          {
+                            pending: "送信中",
+                            success: "更新しました！",
+                            error: "送信に失敗しました",
+                          }
                         ),
-                        {
-                          pending: "送信中",
-                          success: "更新しました！",
-                          error: "送信に失敗しました",
+                      };
+                    })
+                    .then(({ list, response }) => {
+                      list.map(async ({ object, json }) => {
+                        switch (object.key) {
+                          case ImageDataOptions.name:
+                            await ImportImagesJson({
+                              charactersMap,
+                              overwrite: true,
+                              json,
+                            });
+                            break;
+                          case charactersDataOptions.name:
+                            await ImportCharacterJson({
+                              json,
+                            });
+                            break;
+                          case postsDataOptions.name:
+                            await ImportBlogPostJson({
+                              json,
+                            });
+                            break;
+                          case linksDataOptions.name:
+                            await ImportLinksJson({
+                              json,
+                            });
+                            break;
+                          case linksFavDataOptions.name:
+                            await ImportLinksJson({
+                              json,
+                              dir: "/fav",
+                            });
+                            break;
+                          case KeyValueDBDataOptions.name:
+                            await ImportCommonJson({
+                              options: KeyValueDBDataOptions,
+                              json,
+                            });
+                            break;
+                          case soundsDataOptions.name:
+                            await ImportCommonJson({
+                              options: soundsDataOptions,
+                              json,
+                            });
+                            break;
+                          default:
+                            toast(
+                              `${object.key}は現在インポートの実装待ちです…`
+                            );
+                            break;
                         }
-                      );
+                        return response;
+                      });
                     })
                     .then(() => {
-                      // allLoad(true);
+                      IdbNavReload({ nav });
                     });
                 }
               }
