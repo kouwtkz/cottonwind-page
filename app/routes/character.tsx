@@ -1,48 +1,65 @@
 import { CharacterPage } from "~/page/CharacterPage";
 import type { Route } from "./+types/character";
-import { charactersDataIndexed, waitIdb } from "~/data/ClientDBLoader";
+import {
+  charactersDataIndexed,
+  imageDataIndexed,
+  waitIdb,
+} from "~/data/ClientDBLoader";
 import { SetMetaDefault } from "~/components/utils/SetMeta";
 import { getCfDB } from "~/data/cf/getEnv";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
+import { concatOriginUrl } from "~/components/functions/originUrl";
+import { charaTableObject } from "./api/character";
+import { ImageTableObject } from "./api/image";
 
 export async function loader({ context, params }: Route.LoaderArgs) {
   const db = getCfDB({ context });
-  const character = await db
-    ?.select<CharacterDataType>({
-      table: "characters",
-      where: { key: params.charaName },
-    })
-    .then((c) => c[0]);
-  return character;
+  let character: CharacterDataType | undefined;
+  let imageItem: ImageDataType | undefined;
+  if (db) {
+    character = await charaTableObject
+      .Select({ db, where: { key: params.charaName } })
+      .then((c) => c[0]);
+    if (character?.image) {
+      imageItem = await ImageTableObject.Select({
+        db,
+        where: { key: character.image },
+      }).then((c) => c[0]);
+    }
+  }
+  return { character, imageItem };
 }
 
-let clientServerData: CharacterDataType | null = null;
+let clientServerData: {
+  character?: CharacterDataType;
+  imageItem?: ImageDataType;
+} = {};
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   await waitIdb;
-  if (clientServerData?.name !== params.charaName) {
-    clientServerData = await charactersDataIndexed.table
+  if (clientServerData.character?.name !== params.charaName) {
+    clientServerData.character = await charactersDataIndexed.table
       .get({
         index: "key",
         query: params.charaName,
       })
-      .then((v) => v?.rawdata || null);
+      .then((v) => v?.rawdata);
   }
   return clientServerData;
 }
 clientLoader.hydrate = true;
 
-export function meta({ data: character, matches }: Route.MetaArgs) {
-  let title = "キャラクター";
-  let description: string | undefined;
+export function meta({ data: argsData, matches }: Route.MetaArgs) {
+  const character = argsData?.character;
+  const imageItem = argsData?.imageItem;
+  const data = { ...getDataFromMatches(matches)?.data };
+  data.title = "キャラクター";
   if (character) {
-    title = character.name + " - " + title;
-    if (character.overview) description = character.overview;
+    data.title = character.name + " - " + data.title;
+    if (character.overview) data.description = character.overview;
+    if (!data.image && imageItem)
+      data.image = concatOriginUrl(data.mediaOrigin, imageItem.src);
   }
-  return SetMetaDefault({
-    ...getDataFromMatches(matches)?.data,
-    title,
-    description,
-  });
+  return SetMetaDefault(data);
 }
 
 export default function Character({ params }: Route.ComponentProps) {

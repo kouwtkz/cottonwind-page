@@ -11,7 +11,7 @@ import {
 import type { Route } from "./+types/root";
 import "./styles/styles.scss";
 import "./styles/styles_lib.scss";
-import { getCfOmitEnv } from "./data/cf/getEnv";
+import { getCfDB, getCfOmitEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
 import {
@@ -28,6 +28,8 @@ import { DefaultImportScripts } from "./clientScripts";
 import { getSession } from "./sessions.server";
 import { Loading } from "./components/layout/Loading";
 import { SetState, useIsComplete } from "./components/state/SetState";
+import { getAPIOrigin, getMediaOrigin } from "./components/functions/originUrl";
+import { ImageTableObject } from "./routes/api/image";
 
 export function links(): LinkDescriptor[] {
   return [{ rel: "stylesheet", href: "/static/styles/laymic.min.css" }];
@@ -39,8 +41,25 @@ interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
+  const env = getCfOmitEnv({ context });
+  const Url = new URL(request.url);
+  const imageParam = Url.searchParams.get("image");
+  const db = getCfDB({ context });
+  let image: ImageDataType | undefined;
+  if (db && imageParam) {
+    image = await ImageTableObject.Select({
+      db,
+      where: { key: imageParam },
+      take: 1,
+    }).then((images) => images[0]);
+  }
+  const apiOrigin = getAPIOrigin(env, Url.origin, true);
+  const mediaOrigin = getMediaOrigin(env, Url.origin, true);
   return {
-    env: getCfOmitEnv({ context }),
+    env,
+    image,
+    apiOrigin,
+    mediaOrigin,
     isLogin: session.has("LoginToken"),
     isComplete: false,
   } as SetRootProps;

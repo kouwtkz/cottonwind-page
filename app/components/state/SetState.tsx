@@ -105,7 +105,7 @@ function CheckIsComplete() {
   const setIsComplete = useIsComplete()[1];
   const isComplete = useMemo(() => isSetList.every((v) => v), [isSetList]);
   useEffect(() => {
-    if (isComplete && rootClientServerData) {
+    if (isComplete && rootClientServerData.data) {
       setIsComplete(isComplete);
       rootClientServerData.data!.isComplete = true;
     }

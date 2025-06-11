@@ -1,4 +1,5 @@
 import type { OmittedEnv } from "types/custom-configuration";
+import { concatOriginUrl } from "../functions/originUrl";
 
 export type MetaValuesType =
   | { title: string }
@@ -10,6 +11,9 @@ export interface SetMetaBaseProps {
 export interface SetRootProps extends SetMetaBaseProps {
   title?: string;
   description?: string;
+  image?: ImageDataType | string | null;
+  apiOrigin?: string;
+  mediaOrigin?: string;
   isLogin?: boolean;
   isComplete?: boolean;
 }
@@ -23,6 +27,8 @@ export function SetMetaDefault({
   title,
   description,
   env,
+  mediaOrigin,
+  image,
 }: SetRootProps): MetaValuesType[] {
   const list: MetaValuesType[] = [];
   SetMetaTitle({ title, env }).forEach((v) => {
@@ -30,6 +36,14 @@ export function SetMetaDefault({
   });
   description = description || env?.DESCRIPTION;
   if (description) list.push({ name: "description", content: description });
+  if (image) {
+    if (typeof image === "string") {
+      list.push({ name: "og:image", content: image });
+    } else {
+      const imagePath = concatOriginUrl(mediaOrigin, image.src);
+      list.push({ name: "og:image", content: imagePath });
+    }
+  }
   return list;
 }
 
