@@ -14,7 +14,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import SetRegister from "~/components/hook/SetRegister";
 import { usePosts } from "~/components/state/PostState";
-import { findMee } from "~/data/find/findMee";
 import ReactSelect from "react-select";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
 import {
@@ -35,11 +34,7 @@ import { concatOriginUrl } from "~/components/functions/originUrl";
 import { customFetch } from "~/components/functions/fetch";
 import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
-import {
-  DownloadIndexedDBObject,
-  getIndexedDBJsonOptions,
-  JsonFromDataObject,
-} from "~/components/button/ObjectDownloadButton";
+import { DownloadIndexedDBObject } from "~/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { useDropzone } from "react-dropzone";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";

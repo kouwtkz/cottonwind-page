@@ -107,6 +107,7 @@ export function PostEditSelectInsert({
       {...args}
     >
       <MenuItem value="br">改行</MenuItem>
+      <MenuItem value="separator">区切り線</MenuItem>
       <MenuItem value="more">もっと読む</MenuItem>
       <MenuItem value="h2">見出し2</MenuItem>
       <MenuItem value="h3">見出し3</MenuItem>
@@ -132,6 +133,14 @@ export function setPostInsert({
         textarea,
         setValue,
         before: "\n<br/>\n\n",
+        after: "",
+      });
+      break;
+    case "separator":
+      replacePostTextarea({
+        textarea,
+        setValue,
+        before: "\n***\n\n",
         after: "",
       });
       break;
