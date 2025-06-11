@@ -2109,8 +2109,12 @@ form {
   }
 }
 
-.preview-area .parsed p:first-child {
-  margin-top: 0;
+.preview-area {
+  max-height: 40rem;
+  overflow-y: scroll;
+  .parsed p:first-child {
+    margin-top: 0;
+  }
 }
 
 .characterPage {
