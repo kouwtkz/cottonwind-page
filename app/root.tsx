@@ -25,7 +25,7 @@ import {
   clientDBLoader,
   imageDataIndexed,
 } from "./data/ClientDBLoader";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
 import { useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
@@ -196,14 +196,22 @@ export function Layout({ children }: LayoutProps) {
 
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
   const isComplete = useIsComplete()[0];
+  const [isLoading, setIsLoading] = useState(!isComplete);
+  useEffect(() => {
+    if (isComplete) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+    }
+  }, [isComplete]);
   const bodyClassName = useMemo(() => {
     const classNames: string[] = [];
-    if (!isComplete) classNames.push("loading", "dummy");
+    if (isLoading) classNames.push("loading", "dummy");
     return classNames.join(" ");
-  }, [isComplete]);
+  }, [isLoading]);
   return (
     <body className={bodyClassName}>
-      {isComplete ? null : <Loading />}
+      {isLoading ? <Loading /> : null}
       <main>
         <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
         {/* <Test /> */}
