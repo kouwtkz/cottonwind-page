@@ -30,7 +30,7 @@ const TableObject = new DBTableClass<SoundDataType>({
     mtime: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "grouping", "genre", "draft"],
+  insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "composer", "grouping", "genre", "draft"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 });
 export const soundTableObject = TableObject;

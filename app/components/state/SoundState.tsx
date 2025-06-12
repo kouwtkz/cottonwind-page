@@ -58,6 +58,10 @@ export function SoundState() {
           }
         });
         const albums = Object.values(Object.fromEntries(soundAlbumsMap));
+        albums.forEach((album) => {
+          album.playlist?.list.sort((a, b) => (a.track || 0) - (b.track || 0));
+        });
+        albums.sort((a, b) => (a.order || 0) - (b.order || 0));
         const defaultPlaylist =
           albums.find((album) => album.setup && false)?.playlist ||
           albums[0]?.playlist;

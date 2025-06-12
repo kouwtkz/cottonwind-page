@@ -2864,6 +2864,18 @@ $soundBoxHeight: 10rem;
       }
     }
   }
+  form {
+    label {
+      display: flex;
+      .label {
+        min-width: 8rem;
+        text-align: right;
+      }
+      input {
+        flex: 1;
+      }
+    }
+  }
 
   @media (min-width: $tabletWidth) {
     .playlist .list .item {
