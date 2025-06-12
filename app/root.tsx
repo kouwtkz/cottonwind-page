@@ -24,6 +24,7 @@ import {
   charactersDataIndexed,
   clientDBLoader,
   imageDataIndexed,
+  waitIdb,
 } from "./data/ClientDBLoader";
 import { useEffect, useMemo, useState } from "react";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
@@ -128,6 +129,7 @@ export async function clientLoader({
     if (/^\/static\//.test(imageParam)) {
       clientServerData.image = imageParam;
     } else {
+      await waitIdb;
       if (
         typeof clientServerData.image === "string" ||
         clientServerData.image?.key !== imageParam
