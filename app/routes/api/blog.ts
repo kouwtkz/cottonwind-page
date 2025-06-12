@@ -26,6 +26,7 @@ const TableObject = new DBTableClass<PostDataType>({
   insertEntryKeys: ["postId", "title", "body", "category", "pin", "draft", "noindex", "memo"],
   insertEntryTimes: ["time", "lastmod"]
 });
+export const postTableObject = TableObject;
 
 export async function ServerPostsGetData({ searchParams, db, isLogin }: GetDataProps) {
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];

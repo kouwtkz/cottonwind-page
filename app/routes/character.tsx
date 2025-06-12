@@ -51,15 +51,17 @@ clientLoader.hydrate = true;
 export function meta({ data: argsData, matches }: Route.MetaArgs) {
   const character = argsData?.character;
   const imageItem = argsData?.imageItem;
-  const data = { ...getDataFromMatches(matches)?.data };
-  data.title = "キャラクター";
+  const metaData = { ...getDataFromMatches(matches)?.data };
+  metaData.title = "キャラクター";
   if (character) {
-    data.title = character.name + " - " + data.title;
-    if (character.overview) data.description = character.overview;
-    if (!data.image && imageItem)
-      data.image = concatOriginUrl(data.mediaOrigin, imageItem.src);
+    metaData.title = character.name + " - " + metaData.title;
+    if (character.overview) metaData.description = character.overview;
+    if (imageItem)
+      metaData.image = concatOriginUrl(metaData.mediaOrigin, imageItem.src);
   }
-  return SetMetaDefault(data);
+  if (!metaData.description)
+    metaData.description = "わたかぜコウのキャラクター";
+  return SetMetaDefault(metaData);
 }
 
 export default function Character({ params }: Route.ComponentProps) {

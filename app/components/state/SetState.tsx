@@ -107,7 +107,6 @@ function CheckIsComplete() {
   useEffect(() => {
     if (isComplete && rootClientServerData.data) {
       setIsComplete(isComplete);
-      rootClientServerData.data!.isComplete = true;
     }
   }, [isComplete, rootClientServerData]);
   return <></>;

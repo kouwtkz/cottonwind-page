@@ -7,10 +7,9 @@ import {
   SetMetaDefault,
   type SetRootProps,
 } from "~/components/utils/SetMeta";
-import { Form, redirect, useLocation } from "react-router";
-import { LocationToUrl } from "~/components/functions/doc/MakeURL";
-import { useMemo } from "react";
+import { Form, redirect } from "react-router";
 import { commitSession, getSession } from "~/sessions.server";
+import { getDataFromMatches } from "~/components/utils/RoutesUtils";
 
 export async function loader({ context }: Route.LoaderArgs) {
   return { env: getCfEnv({ context }) };
@@ -21,13 +20,11 @@ export async function clientLoader({}: Route.ClientLoaderArgs) {
 }
 clientLoader.hydrate = true;
 
-interface MetaWithDataArgs extends Route.MetaArgs {
-  data: SetRootProps;
-}
-export function meta({ data, matches }: MetaWithDataArgs) {
-  // console.log(matches);
-  let title = "";
-  return SetMetaDefault({ env: data?.env, title });
+export function meta({ matches }: Route.MetaArgs) {
+  return SetMetaDefault({
+    ...getDataFromMatches(matches)?.data,
+    title: "ログイン",
+  });
 }
 
 function redirectAction(request: Request, headers?: HeadersInit) {
