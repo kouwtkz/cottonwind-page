@@ -63,7 +63,6 @@ export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
         setElement(embed);
       } else {
         const file = filesMap?.get(embed);
-        console.log(file, filesMap, embed);
         if (file) {
           const url = concatOriginUrl(mediaOrigin, file.src);
           fetch(url)

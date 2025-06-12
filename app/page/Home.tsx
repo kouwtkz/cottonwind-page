@@ -4,7 +4,7 @@ import {
   getTimeframeTag,
   monthlyFilter,
 } from "~/components/functions/media/FilterImages";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "~/components/layout/ImageMee";
 import { usePosts } from "~/components/state/PostState";
@@ -104,19 +104,23 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
           }
           defaultView="agenda"
         />
-        {!import.meta.env?.DEV && enableHandle ? (
-          <div>
-            <h3 className="leaf">つぶやき</h3>
-            <div className="flex center row wrap m-c-s mb-c">
-              <EmbedBluesky pin />
-              <EmbedTwitter />
-            </div>
-          </div>
-        ) : null}
+        {!import.meta.env.DEV && enableHandle ? <EmbedSNS /> : null}
       </div>
     </>
   );
 }
+
+const EmbedSNS = React.memo(function EmbedSNS() {
+  return (
+    <div>
+      <h3 className="leaf">つぶやき</h3>
+      <div className="flex center row wrap m-c-s mb-c">
+        <EmbedBluesky pin />
+        <EmbedTwitter />
+      </div>
+    </div>
+  );
+});
 
 function PostsView() {
   let { posts } = usePosts();
