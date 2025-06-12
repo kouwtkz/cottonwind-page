@@ -44,18 +44,19 @@ import {
 import { CompatGalleryButton } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
 import { customFetch } from "~/components/functions/fetch";
-import { getBackURL } from "~/components/layout/BackButton";
 import {
   GetAPIFromOptions,
   ImageDataOptions,
   linksDataOptions,
 } from "~/data/DataEnv";
+import { EnvLinksMap } from "~/Env";
 
 const LINKS_API = GetAPIFromOptions(linksDataOptions);
 const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
 export default function LinksPage() {
   const env = useEnv()[0];
+  const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
   const topLinkTitle = useMemo(() => {
     let title: string | undefined;
     if (env?.AUTHOR_NAME) title = env.AUTHOR_NAME + "のリンクたち";
@@ -84,13 +85,19 @@ export default function LinksPage() {
             <InviteDiscordLink />
           </li>
           <li>
-            <a href="/suggest">Suggest page (links for miss typo)</a>
+            <Link to="/suggest">Suggest page (links for miss typo)</Link>
           </li>
-          <li>
-            <Link to="/log" state={{ backUrl: getBackURL() }}>
-              サイトの更新履歴 (Git)
-            </Link>
-          </li>
+          {githubLink ? (
+            <li>
+              <a
+                href={githubLink.url}
+                title={githubLink.title || githubLink.name}
+                target="_blank"
+              >
+                サイトの更新詳細 (GitHub)
+              </a>
+            </li>
+          ) : null}
         </ul>
       </div>
       <MyBanners />
