@@ -4,6 +4,7 @@ import { CreateObjectState, CreateState } from "./CreateState";
 import {
   soundsDataIndexed,
   soundAlbumsDataIndexed,
+  waitIdb,
 } from "~/data/ClientDBLoader";
 import {
   getSoundAlbumsMap,
@@ -38,8 +39,9 @@ export function SoundState() {
     ...ExternalStoreProps(soundAlbumsDataIndexed)
   );
   useEffect(() => {
-    if (soundsData?.db && soundAlbumsData) {
-      (async () => {
+    (async () => {
+      await waitIdb;
+      if (soundsData?.db && soundAlbumsData) {
         const sounds = await soundsData.getAll();
         const soundsMap = new Map(sounds.map((v) => [v.key, v]));
         const soundAlbums = await soundAlbumsData.getAll();
@@ -71,8 +73,8 @@ export function SoundState() {
           Set({ defaultPlaylist });
           RegistPlaylist({ playlist: defaultPlaylist });
         }
-      })();
-    }
+      }
+    })();
   }, [soundsData, soundAlbumsData, RegistPlaylist]);
   return <></>;
 }

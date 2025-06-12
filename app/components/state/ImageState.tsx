@@ -43,7 +43,7 @@ export function ImageState() {
   );
   useEffect(() => {
     if (
-      imagesData &&
+      imagesData?.db &&
       !imageDataIndexed?.isUpgrade &&
       charactersMap &&
       likeCategoryMap
@@ -117,7 +117,7 @@ export function ImageState() {
         });
       });
     }
-  }, [imagesData, likeCategoryMap, charactersMap]);
+  }, [imagesData, imageDataIndexed, likeCategoryMap, charactersMap]);
   return <></>;
 }
 
