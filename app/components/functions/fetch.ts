@@ -11,10 +11,7 @@ interface initType extends RequestInit {
 }
 export async function customFetch(input: string | URL | globalThis.Request, { cors, timeout, method, body, data, headers = {}, isPlane, ...init }: initType = {}) {
   body = body || data;
-  if (cors) {
-    init.mode = "cors";
-    init.credentials = "include";
-  }
+  if (cors) init.mode = "cors";
   const isFormData = body && (body instanceof FormData);
   if (body && !isPlane && !isFormData) {
     headers["Content-Type"] = "application/json";

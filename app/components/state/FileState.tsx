@@ -11,6 +11,7 @@ import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { customFetch } from "../functions/fetch";
 
 interface FilesState {
   files?: FilesRecordType[];
@@ -62,10 +63,15 @@ export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
       if (embed.includes("</")) {
         setElement(embed);
       } else {
-        const file = filesMap?.get(embed);
-        if (file) {
-          const url = concatOriginUrl(mediaOrigin, file.src);
-          fetch(url)
+        let url: string | undefined;
+        if (/^https?:\/\//.test(embed)) {
+          url = embed;
+        } else {
+          const file = filesMap?.get(embed);
+          if (file) url = concatOriginUrl(mediaOrigin, file.src);
+        }
+        if (url) {
+          customFetch(url, { cors: true })
             .then((r) => r.text())
             .then((data) => {
               setElement(data);
