@@ -147,12 +147,12 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
         state.loopMode === "playUntilEnd" &&
         state.playlist.list.length === state.current + 1
       ) {
-        newState = { paused: true, ended: true };
+        newState = { paused: true, ended: true, current: 0 };
       } else
         newState = {
           current: (state.current + 1) % state.playlist.list.length,
         };
-      if (!state.ended) newState.paused = false;
+      if (!state.ended && !newState.ended) newState.paused = false;
       newState.count = state.current === newState.current ? state.count + 1 : 0;
       return newState;
     });
@@ -298,13 +298,6 @@ export function SoundPlayer() {
   useEffect(() => {
     if (audioElm) audioElm.muted = muted;
   }, [audioElm, muted]);
-  useEffect(() => {
-    if (jumpTime >= 0 && audioElm) {
-      const currentTime = jumpTime;
-      audioElm.currentTime = currentTime;
-      Set({ jumpTime: -1, currentTime, jumped: true });
-    }
-  }, [jumpTime, audioElm]);
   const stopped = useMemo(() => paused && ended, [paused, ended]);
   useEffect(() => Set({ stopped }), [stopped]);
   useEffect(() => {
@@ -343,15 +336,24 @@ export function SoundPlayer() {
   }, [loopMode, audioElm, Stop, listLength]);
 
   const [intervalState, setIntervalState] = useState<number>(-1);
-  const onTimeUpdate = useCallback(() => {
-    if (audioElm) {
+  const onTimeUpdate = useCallback(
+    (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+      const audioElm = e.target as HTMLAudioElement;
       const currentTime = audioElm.currentTime;
       if (jumped || !currentTime) {
         Set({ currentTime, jumped: false });
         setIntervalState((v) => v + 1);
       }
+    },
+    [audioElm, jumped]
+  );
+  useEffect(() => {
+    if (jumpTime >= 0 && audioElm) {
+      const currentTime = jumpTime;
+      audioElm.currentTime = currentTime;
+      Set({ jumpTime: -1, currentTime, jumped: true });
     }
-  }, [audioElm, jumped]);
+  }, [jumpTime, audioElm]);
   useEffect(() => {
     if (!audioElm || stopped) return;
     const interval = setInterval(() => {
@@ -403,7 +405,7 @@ export function SoundPlayer() {
         src={mediaSrc}
         {...{ autoPlay, onEnded, onTimeUpdate }}
         ref={audioRef}
-        onLoadedData={() => {
+        onLoadedMetadata={() => {
           Set({ isLoading: false, duration: audioRef.current!.duration });
         }}
       />
