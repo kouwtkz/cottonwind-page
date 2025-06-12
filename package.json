@@ -8,8 +8,10 @@
     "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
     "postinstall": "npm run cf-typegen",
-    "preview": "npm run build && vite preview",
-    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b"
+    "start": "npm run build && npm run start-only",
+    "start-only": "wrangler dev",
+    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
+    "preview": "npm run build && vite preview"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",

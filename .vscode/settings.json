@@ -10,11 +10,7 @@
     { "label": "build", "task": "npm: build" },
     { "label": "start", "task": "npm: start" },
     { "label": "deploy", "task": "npm: deploy" },
-    { "label": "deploy-sv", "task": "npm: deploy-sv" },
-    { "label": "dev", "task": "npm: dev" },
-    { "label": "dev-media", "task": "npm: dev-media" },
-    { "label": "dev-sv", "task": "npm: dev-sv" },
-    { "label": "scheduled", "task": "test: scheduled" }
+    { "label": "dev", "task": "npm: dev" }
   ],
   // Explorer で非表示にするもの
   "files.exclude": {
