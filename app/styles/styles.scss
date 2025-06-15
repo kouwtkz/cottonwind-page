@@ -2818,12 +2818,10 @@ $soundBoxHeight: 10rem;
       font-size: 1.875rem;
     }
     .list {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 56rem;
+      @include GridList("div", 1, $tabletWidth);
       margin: auto;
+      max-width: 56rem;
       .item {
-        margin: auto;
         width: 100%;
         display: flex;
         align-items: center;
@@ -2874,12 +2872,6 @@ $soundBoxHeight: 10rem;
       input {
         flex: 1;
       }
-    }
-  }
-
-  @media (min-width: $tabletWidth) {
-    .playlist .list .item {
-      width: 50%;
     }
   }
 }
