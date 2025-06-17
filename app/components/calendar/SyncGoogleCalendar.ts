@@ -1,3 +1,5 @@
+import { customFetch } from "../functions/fetch";
+
 const API_BASE = "https://www.googleapis.com/calendar/v3/calendars/";
 
 interface eventsFetchProps {
@@ -18,6 +20,7 @@ export async function eventsFetch({
   single = true,
   private: p = false
 }: eventsFetchProps) {
+  if (location.protocol !== "https:") return;
   const url = new URL(id + "/events", API_BASE);
   url.searchParams.set("key", key);
   if (start) url.searchParams.set("timeMin", start.toISOString());
@@ -25,7 +28,7 @@ export async function eventsFetch({
     url.searchParams.set("timeMax", end.toISOString());
   url.searchParams.set("singleEvents", String(single));
   url.searchParams.set("maxResults", String(max));
-  return await fetch(url.href)
+  return await customFetch(url.href)
     .then<EventsFetchedDataType>(async r => {
       if (r.status !== 200) throw r;
       return await r.json();

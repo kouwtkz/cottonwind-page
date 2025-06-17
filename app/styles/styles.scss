@@ -2818,9 +2818,9 @@ $soundBoxHeight: 10rem;
       font-size: 1.875rem;
     }
     .list {
-      @include GridList("div", 1, $tabletWidth);
       margin: auto;
       max-width: 56rem;
+      @include GridList("div", 1, $tabletWidth);
       .item {
         width: 100%;
         display: flex;

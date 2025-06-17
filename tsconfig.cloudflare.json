@@ -5,6 +5,7 @@
     "app/**/*",
     "app/**/.server/**/*",
     "app/**/.client/**/*",
+    "sw.ts",
     "workers/**/*",
     "worker-configuration.d.ts",
     "types/**/*",
@@ -14,7 +15,7 @@
   "compilerOptions": {
     "composite": true,
     "strict": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "lib": ["DOM", "DOM.Iterable", "ES2023", "WebWorker"],
     "types": ["vite/client"],
     "target": "es2023",
     "module": "ES2022",

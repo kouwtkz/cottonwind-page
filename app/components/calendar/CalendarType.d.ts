@@ -105,6 +105,7 @@ interface CalendarMeeStateType extends CalendarMeeOverWriteOption {
   syncRange: timeRangesType | null;
   syncOverwrite: boolean;
   eventsOverwrite: boolean;
+  disableSyncWhenHTTP: boolean,
   setTimeRanges(range: timeRangesType): void;
   reload(props: CalendarMeeReloadProps): void
   isLoading: boolean;

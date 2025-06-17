@@ -8,8 +8,9 @@ interface initType extends RequestInit {
   timeout?: number;
   cors?: boolean;
   isPlane?: boolean;
+  putLog?: boolean;
 }
-export async function customFetch(input: string | URL | globalThis.Request, { cors, timeout, method, body, data, headers = {}, isPlane, ...init }: initType = {}) {
+export async function customFetch(input: string | URL | globalThis.Request, { cors, timeout, method, body, data, headers = {}, isPlane, putLog, ...init }: initType = {}) {
   body = body || data;
   if (cors) init.mode = "cors";
   const isFormData = body && (body instanceof FormData);
@@ -25,10 +26,9 @@ export async function customFetch(input: string | URL | globalThis.Request, { co
     }
     const response = await fetch(input, { method, body, headers, ...init });
     if (!response.ok) {
-      console.error(response.text);
-      return response;
-    }
-    return response;
+      if (putLog) console.error(await response.json());
+      throw response;
+    } else return response;
   } finally {
     if (typeof timeoutTimer !== "undefined") clearTimeout(timeoutTimer);
   }

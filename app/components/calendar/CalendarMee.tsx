@@ -93,7 +93,9 @@ function openWindow(url: string) {
 }
 
 const [defaultEnableCountdown, defaultEndModeCountdown] = (() => {
-  const searchParams = new URLSearchParams(globalThis.window?.location.search || "");
+  const searchParams = new URLSearchParams(
+    globalThis.window?.location.search || ""
+  );
   const mode = searchParams.get("countdown");
   return [Boolean(mode), mode === "endTime"];
 })();
@@ -108,13 +110,16 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     calendarList: [],
     stateLock: false,
     view: null,
-    date: dateFromSearchParams(new URLSearchParams(globalThis.document?.location.search || "")),
+    date: dateFromSearchParams(
+      new URLSearchParams(globalThis.document?.location.search || "")
+    ),
     dateLock: false,
     timeRanges: [],
     getRange: null,
     syncRange: null,
     syncOverwrite: true,
     eventsOverwrite: false,
+    disableSyncWhenHTTP: false,
     reload({ start, end, eventClose, ...props }) {
       set((state) => {
         const value: Partial<CalendarMeeStateType> = props;
@@ -282,6 +287,13 @@ export function CalendarMeeState({
       return [propsGoogleApiKey || null, stateCalendarList];
     else return [null, stateCalendarList];
   }, [propsGoogleApiKey, stateCalendarList]);
+  useEffect(() => {
+    if (googleApiKey) {
+      Set({ disableSyncWhenHTTP: location.protocol === "http:" });
+    } else {
+      Set({ disableSyncWhenHTTP: false });
+    }
+  }, [googleApiKey]);
   useEffect(() => {
     if (getRange && calendarList) setTimeRanges(getRange);
   }, [getRange, calendarList]);
@@ -466,7 +478,8 @@ export function CalendarMee({
     return classNames.join(" ");
   }, [className]);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
-  const { Set, eventId, events, date, isLoading } = useCalendarMee();
+  const { Set, eventId, events, date, isLoading, disableSyncWhenHTTP } =
+    useCalendarMee();
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
@@ -531,8 +544,10 @@ export function CalendarMee({
   const noEventsText = useMemo(() => {
     return isLoading
       ? "読み込み中…"
+      : disableSyncWhenHTTP
+      ? "HTTPSのみデータを受信できます"
       : `この${view === "week" ? "週" : "期間"}はイベントはありません`;
-  }, [isLoading, view]);
+  }, [isLoading, disableSyncWhenHTTP, view]);
   if (height !== undefined) style.height = height;
   const EventToDayFunc = useCallback(
     (e: EventClickArg) => {

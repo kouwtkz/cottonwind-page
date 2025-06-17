@@ -1,5 +1,5 @@
-import { indexedNotification } from "@src/worker/notification/NotificationDB";
-import { dataParse } from "@src/functions/dataParse";
+import { indexedNotification } from "../notification/NotificationDB";
+import { dataParse } from "~/components/functions/dataParse";
 
 namespace SW {
   declare const self: ServiceWorkerGlobalScope;

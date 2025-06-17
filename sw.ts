@@ -1,1 +1,1 @@
-// import "@src/worker/serviceWorker/swDefault";
+import "./app/worker/serviceWorker/swDefault";
