@@ -244,9 +244,9 @@ export function HomeImageState() {
       });
       setTopImage((state) => {
         if (!compareArray(state.topImages, topImages, { key: "key" })) {
-          const firstQue = topImages.filter(
-            ({ topImage }) => topImage === 2 || topImage === 5
-          );
+          const firstQue = topImages
+            .filter(({ topImage }) => topImage === 2 || topImage === 5)
+            .sort((a, b) => (a.topImage === 2 && b.topImage !== 2 ? -1 : 0));
           const alwaysImages = topImages.filter(
             ({ topImage }) => topImage === 3 || topImage === 6
           );
