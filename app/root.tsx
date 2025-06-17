@@ -9,8 +9,6 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./styles/styles.scss";
-import "./styles/styles_lib.scss";
 import { getCfDB, getCfOmitEnv } from "./data/cf/getEnv";
 import { HeaderClient } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -37,14 +35,13 @@ import { getAPIOrigin, getMediaOrigin } from "./components/functions/originUrl";
 import { ImageTableObject } from "./routes/api/image";
 import { charaTableObject } from "./routes/api/character";
 import { isbot } from "isbot";
-import {
-  autoFixGalleryTagsOptions,
-  defaultGalleryTags,
-  getTagsOptions,
-} from "./components/dropdown/SortFilterTags";
 
 export function links(): LinkDescriptor[] {
-  return [{ rel: "stylesheet", href: "/static/styles/laymic.min.css" }];
+  return [
+    { rel: "stylesheet", href: import.meta.env.VITE_CSS_STYLES },
+    { rel: "stylesheet", href: import.meta.env.VITE_CSS_LIB },
+    { rel: "stylesheet", href: "/static/styles/laymic.min.css" },
+  ];
 }
 
 interface MetaArgs extends Omit<Route.MetaArgs, "data"> {

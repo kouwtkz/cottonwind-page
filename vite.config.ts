@@ -19,9 +19,7 @@ export default defineConfig(async ({ mode }) => {
         {
           input,
           output: {
-            entryFileNames() {
-              return `[name].js`;
-            }
+            entryFileNames: "[name].js"
           }
         },
         outDir: "build/client",
@@ -31,6 +29,23 @@ export default defineConfig(async ({ mode }) => {
       plugins: [
         tsconfigPaths(),
       ]
+    }
+  } else if (mode === "css") {
+    const input: string[] = [];
+    if (envDev.VITE_CSS_STYLES) input.push(envDev.VITE_CSS_STYLES);
+    if (envDev.VITE_CSS_LIB) input.push(envDev.VITE_CSS_LIB);
+    return {
+      build: {
+        rollupOptions:
+        {
+          input,
+          output: {
+            assetFileNames: "styles/[name].css"
+          }
+        },
+        outDir: "build/client",
+        emptyOutDir: false,
+      } as BuildOptions
     }
   } else {
     return {
