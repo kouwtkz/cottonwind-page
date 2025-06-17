@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "react-router build && npx vite build --mode worker",
     "cf-typegen": "wrangler types --strict-vars false",
     "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
