@@ -128,7 +128,7 @@ export class SiteLinkServerClass<A> {
                 for (const item of list) {
                   await TableObject.Insert({ db, entry: TableObject.getInsertEntry(item) });
                 }
-                await TablesDataObject.Update({ db, where: { name: this.options.name }, entry: { version: this.options.version, lastmod } });
+                await TablesDataObject.Update({ db, where: { key: this.options.name }, entry: { version: this.options.version, lastmod } });
                 return new Response("インポートしました！")
               }
             }
