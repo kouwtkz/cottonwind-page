@@ -65,6 +65,19 @@ export function SoundEditButton() {
         >
           サウンドJSONデータのインポート
         </SoundsImportButton>
+        <ObjectIndexedDBDownloadButton
+          className="squared item"
+          indexedDB={soundAlbumsDataIndexed}
+        >
+          サウンドアルバムJSONデータのダウンロード
+        </ObjectIndexedDBDownloadButton>
+        <SoundsImportButton
+          className="squared item"
+          icon={<TbDatabaseImport />}
+          album
+        >
+          サウンドアルバムJSONデータのインポート
+        </SoundsImportButton>
       </DropdownButton>
       <Link
         to={switchEditModeLink}
@@ -97,17 +110,27 @@ export function SoundEditButton() {
   );
 }
 
+interface ImportSoundsObjectButtonProps extends ImportObjectButtonProps {
+  album?: boolean;
+}
 export function SoundsImportButton({
   overwrite = true,
+  album,
   ...props
-}: ImportObjectButtonProps) {
+}: ImportSoundsObjectButtonProps) {
   return (
     <ObjectCommonButton
       {...props}
       onClick={() => {
-        ImportCommonJson({ options: soundsDataOptions }).then(() => {
-          soundsDataIndexed.load("no-cache-reload");
-        });
+        if (album) {
+          ImportCommonJson({ options: soundAlbumsDataOptions }).then(() => {
+            soundAlbumsDataIndexed.load("no-cache-reload");
+          });
+        } else {
+          ImportCommonJson({ options: soundsDataOptions }).then(() => {
+            soundsDataIndexed.load("no-cache-reload");
+          });
+        }
       }}
     />
   );
