@@ -57,6 +57,7 @@ import {
 } from "~/data/IndexedDB/MeeIndexedDataClass";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SwState } from "~/worker/serviceWorker/clientSwState";
+import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 // import { DOMContentLoaded } from "~/clientScripts";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
@@ -86,12 +87,12 @@ class IndexedCalendarMHEvents extends IndexedDataClass<EventsDataType> {
   }
 }
 const INDEXED_EVENTS_NAME = "local-events";
-const indexedCalendarEvents = new IndexedCalendarMHEvents({
+export const indexedCalendarEvents = new IndexedCalendarMHEvents({
   name: INDEXED_EVENTS_NAME,
   primary: "id",
   secondary: ["start"],
 });
-class IndexedCalendarMH_KV extends IndexedKVClass<
+export class IndexedCalendarMH_KV extends IndexedKVClass<
   string | null,
   CALENDAR_APP_KVKEYS
 > {
@@ -146,19 +147,6 @@ type INDEXED_NAME_UNION =
 
 export let dbCalendarClass: MeeIndexedDB | undefined;
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-    children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-    ],
-  },
-]);
-
 export const dbCalendarCreatePromise = MeeIndexedDB.create({
   version: 1,
   dbName: "cottonwind-data-calendar",
@@ -175,7 +163,7 @@ export const dbCalendarCreatePromise = MeeIndexedDB.create({
 }).then(async (db) => {
   dbCalendarClass = db;
   {
-    const localItem = localStorage.getItem("calendarAppData");
+    const localItem = globalThis.localStorage?.getItem("calendarAppData");
     if (localItem) {
       await ImportData(localItem);
       localStorage.removeItem("calendarAppData");
@@ -183,21 +171,6 @@ export const dbCalendarCreatePromise = MeeIndexedDB.create({
   }
   return db;
 });
-
-// DOMContentLoaded(() => {
-  dbCalendarCreatePromise.finally(() => {
-    ReactDOM.createRoot(document.getElementById("root")!).render(
-      <>
-        <ClickEffect />
-        <ClickEventState />
-        <Theme />
-        <ToastContainer {...defaultToastContainerOptions} />
-        <ToastProgressState />
-        <RouterProvider router={router} />
-      </>
-    );
-  });
-// });
 
 function ToEventMap(events: EventsDataType[]) {
   return new Map(events.map<[string, EventsDataType]>((v) => [v.id, v]));
@@ -297,128 +270,6 @@ function checkIndexedMap(
   return IndexedSetupMap;
 }
 
-function Root() {
-  const { events, googleApiKey, googleCalendarId, Set, IndexedSetupMap } =
-    useCalendarAppState();
-  const { setLoading } = useCalendarMee();
-  const { state } = useLocation();
-  const nav = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const setOpenSearchParamFunction = useCallback(
-    (key: "edit", value: boolean | string) => {
-      const options = openSearchParamFunction({
-        key,
-        searchParams,
-        state,
-        value,
-      });
-      if (typeof options === "number") nav(options);
-      else setSearchParams(...options);
-    },
-    [state, searchParams]
-  );
-  const complete = useMemo(() => {
-    return Array.from(IndexedSetupMap.values()).every((v) => v);
-  }, [IndexedSetupMap]);
-  useEffect(() => {
-    if (complete) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [complete]);
-  const indexedEvents = useSyncExternalStore(
-    indexedCalendarEvents.subscribe,
-    () => indexedCalendarEvents.table
-  );
-  const indexedKV = useSyncExternalStore(
-    indexedCalendarKV.subscribe,
-    () => indexedCalendarKV.table
-  );
-  const indexedGgID = useSyncExternalStore(
-    indexedCalendarID.subscribe,
-    () => indexedCalendarID.table
-  );
-
-  useEffect(() => {
-    indexedEvents.getAll().then((events) => {
-      Set(({ IndexedSetupMap }) => {
-        IndexedSetupMap = checkIndexedMap(
-          IndexedSetupMap,
-          indexedEvents.options.name as INDEXED_NAME_UNION
-        );
-        return {
-          events,
-          eventsMap: new Map(events?.map((v) => [v.id, v])),
-          IndexedSetupMap,
-        };
-      });
-    });
-  }, [indexedEvents]);
-  useEffect(() => {
-    indexedKV.getAllMap<CALENDAR_APP_KVKEYS>().then((kv) => {
-      Set(({ IndexedSetupMap }) => {
-        IndexedSetupMap = checkIndexedMap(
-          IndexedSetupMap,
-          indexedKV.options.name as INDEXED_NAME_UNION
-        );
-        return {
-          googleApiKey: kv.get("googleApiKey")?.value,
-          defaultView: kv.get("defaultView")?.value,
-          IndexedSetupMap,
-        };
-      });
-    });
-  }, [indexedKV]);
-  useEffect(() => {
-    indexedGgID.getAll().then((googleCalendarId) => {
-      Set(({ IndexedSetupMap }) => {
-        IndexedSetupMap = checkIndexedMap(
-          IndexedSetupMap,
-          indexedGgID.options.name as INDEXED_NAME_UNION
-        );
-        return { googleCalendarId, IndexedSetupMap };
-      });
-    });
-  }, [indexedGgID]);
-
-  useEffect(() => {
-    document.querySelector("html")?.classList.remove("loading");
-  }, []);
-  const EditButton = useCallback(
-    ({ event }: CalendarMeeEventSubComponentProps) => {
-      if (event.raw) return null;
-      else
-        return (
-          <button
-            type="button"
-            title="編集"
-            onClick={() => {
-              setOpenSearchParamFunction("edit", true);
-            }}
-          >
-            <RiEdit2Fill />
-          </button>
-        );
-    },
-    [state, searchParams]
-  );
-  return (
-    <>
-      <div className="calendar-app">
-        <CalendarMeeState
-          defaultEvents={events}
-          googleApiKey={googleApiKey}
-          defaultCalendarList={googleCalendarId}
-          RightBottomComponent={EditButton}
-        />
-        <SwState />
-        <Outlet />
-      </div>
-    </>
-  );
-}
-
 interface openSearchParamFunctionProps {
   searchParams: URLSearchParams;
   key: string;
@@ -426,7 +277,7 @@ interface openSearchParamFunctionProps {
   state?: any;
   whenEnabled?: string;
 }
-function openSearchParamFunction({
+export function openSearchParamFunction({
   key,
   value,
   searchParams,
@@ -604,7 +455,7 @@ function CalendarAppEventEdit() {
     if (edit && isDirty) {
       const values = getValues();
       const entry: Partial<EventsDataType> = edit;
-      Object.entries(values).forEach(([k, v]) => {
+      Object.entries<string>(values).forEach(([k, v]) => {
         switch (k) {
           case "start":
           case "end":
@@ -757,7 +608,7 @@ function CalendarSettingForm() {
   const Submit = useCallback(() => {
     if (isDirty) {
       const options: CalendarAppStateSaveProps = {};
-      const valuesMap = new Map(Object.entries(getValues()));
+      const valuesMap = new Map(Object.entries<string>(getValues()));
       if (valuesMap.has("googleApiKey"))
         options.googleApiKey = valuesMap.get("googleApiKey") || null;
       const valuesGoogleCalendarIdList = Array.from(valuesMap.entries()).filter(
@@ -973,7 +824,8 @@ function CalendarSettingForm() {
     </Modal>
   );
 }
-function Home() {
+
+export default function CalendarHome() {
   const { defaultView, IndexedSetupMap } = useCalendarAppState();
   const { state } = useLocation();
   const nav = useNavigate();
@@ -1008,6 +860,124 @@ function Home() {
           linkMoveReplace
         />
       ) : null}
+    </>
+  );
+}
+
+export function CalendarRoot() {
+  const { events, googleApiKey, googleCalendarId, Set, IndexedSetupMap } =
+    useCalendarAppState();
+  const { setLoading } = useCalendarMee();
+  const { state } = useLocation();
+  const nav = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const setOpenSearchParamFunction = useCallback(
+    (key: "edit", value: boolean | string) => {
+      const options = openSearchParamFunction({
+        key,
+        searchParams,
+        state,
+        value,
+      });
+      if (typeof options === "number") nav(options);
+      else setSearchParams(...options);
+    },
+    [state, searchParams]
+  );
+  const complete = useMemo(() => {
+    return Array.from(IndexedSetupMap.values()).every((v) => v);
+  }, [IndexedSetupMap]);
+  useEffect(() => {
+    if (complete) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [complete]);
+  const indexedEvents = useSyncExternalStore(
+    ...ExternalStoreProps(indexedCalendarEvents)
+  );
+  const indexedKV = useSyncExternalStore(
+    ...ExternalStoreProps(indexedCalendarKV)
+  );
+  const indexedGgID = useSyncExternalStore(
+    ...ExternalStoreProps(indexedCalendarID)
+  );
+  useEffect(() => {
+    indexedEvents?.getAll().then((events) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedEvents.options.name as INDEXED_NAME_UNION
+        );
+        return {
+          events,
+          eventsMap: new Map(events?.map((v) => [v.id, v])),
+          IndexedSetupMap,
+        };
+      });
+    });
+  }, [indexedEvents]);
+  useEffect(() => {
+    indexedKV?.getAllMap<CALENDAR_APP_KVKEYS>().then((kv) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedKV.options.name as INDEXED_NAME_UNION
+        );
+        return {
+          googleApiKey: kv.get("googleApiKey")?.value,
+          defaultView: kv.get("defaultView")?.value,
+          IndexedSetupMap,
+        };
+      });
+    });
+  }, [indexedKV]);
+  useEffect(() => {
+    indexedGgID?.getAll().then((googleCalendarId) => {
+      Set(({ IndexedSetupMap }) => {
+        IndexedSetupMap = checkIndexedMap(
+          IndexedSetupMap,
+          indexedGgID.options.name as INDEXED_NAME_UNION
+        );
+        return { googleCalendarId, IndexedSetupMap };
+      });
+    });
+  }, [indexedGgID]);
+
+  useEffect(() => {
+    document.querySelector("html")?.classList.remove("loading");
+  }, []);
+  const EditButton = useCallback(
+    ({ event }: CalendarMeeEventSubComponentProps) => {
+      if (event.raw) return null;
+      else
+        return (
+          <button
+            type="button"
+            title="編集"
+            onClick={() => {
+              setOpenSearchParamFunction("edit", true);
+            }}
+          >
+            <RiEdit2Fill />
+          </button>
+        );
+    },
+    [state, searchParams]
+  );
+  return (
+    <>
+      <div className="calendar-app">
+        <CalendarMeeState
+          defaultEvents={events}
+          googleApiKey={googleApiKey}
+          defaultCalendarList={googleCalendarId}
+          RightBottomComponent={EditButton}
+        />
+        <SwState />
+        <Outlet />
+      </div>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { customFetch } from "../functions/fetch";
+import { customFetch } from "~/components/functions/fetch";
 
 const API_BASE = "https://www.googleapis.com/calendar/v3/calendars/";
 

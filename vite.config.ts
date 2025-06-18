@@ -1,4 +1,4 @@
-import { cloudflare } from "@cloudflare/vite-plugin";
+import { cloudflare, type PluginConfig } from "@cloudflare/vite-plugin";
 import { defineConfig, loadEnv, type BuildOptions } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -9,7 +9,17 @@ if (envDev.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMA
 if (envDev.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN_2);
 
 export default defineConfig(async ({ mode }) => {
-  if (mode === "worker") {
+  const modes = mode.split("-");
+  function includeModes(v: string) {
+    return modes.some(m => m === v);
+  }
+  const workerMode = includeModes("worker");
+  const cssMode = includeModes("css");
+  const calendarMode = includeModes("calendar");
+  let outDir: string | undefined;
+  if (calendarMode) outDir = "dist/calendar/client";
+  else outDir = "build/client";
+  if (workerMode) {
     const input: string[] = [];
     if (envDev.VITE_PATH_SW_NOTIFICATION) input.push(envDev.VITE_PATH_SW_NOTIFICATION);
     if (envDev.VITE_PATH_WK_COUNTDOWN) input.push(envDev.VITE_PATH_WK_COUNTDOWN);
@@ -22,7 +32,7 @@ export default defineConfig(async ({ mode }) => {
             entryFileNames: "[name].js"
           }
         },
-        outDir: "build/client",
+        outDir,
         assetsDir: "",
         emptyOutDir: false,
       } as BuildOptions,
@@ -30,7 +40,7 @@ export default defineConfig(async ({ mode }) => {
         tsconfigPaths(),
       ]
     }
-  } else if (mode === "css") {
+  } else if (cssMode) {
     const input: string[] = [];
     if (envDev.VITE_CSS_STYLES) input.push(envDev.VITE_CSS_STYLES);
     if (envDev.VITE_CSS_LIB) input.push(envDev.VITE_CSS_LIB);
@@ -43,12 +53,18 @@ export default defineConfig(async ({ mode }) => {
             assetFileNames: "styles/[name].css"
           }
         },
-        outDir: "build/client",
+        outDir,
         emptyOutDir: false,
       } as BuildOptions
     }
   } else {
+    const build: BuildOptions = {};
+    const cloudflareConfig: PluginConfig = { viteEnvironment: { name: "ssr" } };
+    if (calendarMode) {
+      cloudflareConfig.configPath = envDev.VITE_CALENDAR_CONFIG;
+    }
     return {
+      build,
       server: {
         hmr: {
           overlay: false
@@ -56,7 +72,7 @@ export default defineConfig(async ({ mode }) => {
         allowedHosts,
       },
       plugins: [
-        cloudflare({ viteEnvironment: { name: "ssr" } }),
+        cloudflare(cloudflareConfig),
         (await import("@react-router/dev/vite")).reactRouter(),
         tsconfigPaths(),
       ],

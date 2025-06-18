@@ -16,10 +16,7 @@ import { LinksState, useLinks } from "./LinksState";
 import { LikeState } from "./LikeState";
 import { HomeImageState } from "~/page/Home";
 import { KeyValueDBState, useKeyValueDB } from "./KeyValueDBState";
-import {
-  CalendarMeeState,
-  useCalendarMee,
-} from "~/components/calendar/CalendarMee";
+import { CalendarMeeState, useCalendarMee } from "~/calendar/CalendarMee";
 // import { FaviconState } from "./FaviconState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";

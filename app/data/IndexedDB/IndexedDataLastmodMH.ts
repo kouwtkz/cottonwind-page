@@ -203,7 +203,7 @@ export function ExternalStoreProps<
   D = T,
   TABLE_CLASS extends MeeIndexedDBTable<T> = MeeIndexedDBTable<T>,
 >(
-  dataIndexed?: IndexedDataLastmodMH<T, D, TABLE_CLASS>
+  dataIndexed?: IndexedDataClass<T, D, TABLE_CLASS>
 ): [EventCallback, () => TABLE_CLASS | null, () => null] {
   return [
     dataIndexed?.subscribe || (() => () => { }),

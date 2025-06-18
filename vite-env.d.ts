@@ -13,8 +13,6 @@ interface ImportMetaEnv extends ImportMetaKVKeyEnv {
   readonly VITE_DOMAIN: string;
   readonly VITE_CSS_STYLES: string;
   readonly VITE_CSS_LIB: string;
-  readonly VITE_CLIENT_SCRIPT: string;
-  readonly VITE_CLIENT_BEFORE_SCRIPT?: string;
   readonly VITE_PATH_SW_NOTIFICATION: string;
   readonly VITE_PATH_WK_COUNTDOWN: string;
   readonly VITE_THEME_COLOR_KEY: string;
@@ -24,6 +22,7 @@ interface ImportMetaEnv extends ImportMetaKVKeyEnv {
   readonly VITE_STORAGE_KEY_SW?: string;
   readonly VITE_VERSION_SW_CALENDAR?: string;
   readonly VITE_INDEXEDDB_NAME: string;
+  readonly VITE_CALENDAR_CONFIG: string;
 }
 
 interface ImportMeta {

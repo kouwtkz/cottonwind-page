@@ -1,0 +1,9 @@
+{
+  "compatibility_date": "2025-05-25",
+  "name": "cottonwind-calendar",
+	"main": "./workers/calendar-app.ts",
+  "assets": {
+    "directory": "./client",
+    "not_found_handling": "single-page-application"
+  }
+}

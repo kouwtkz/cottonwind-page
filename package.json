@@ -6,13 +6,16 @@
     "build": "react-router build && npx vite build --mode css && npx vite build --mode worker",
     "cf-typegen": "wrangler types --strict-vars false",
     "deploy": "npm run build && wrangler deploy",
-    "dev": "npx vite dev",
-    "dev-calendar": "npx vite dev --mode calendar",
-    "postinstall": "npm run cf-typegen",
     "start": "npm run build && npm run start-only",
     "start-only": "wrangler dev",
-    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
-    "preview": "npm run build && vite preview"
+    "dev": "npx vite dev",
+    "dev-calendar": "npx vite dev --mode dev-calendar",
+    "build-calendar": "npx vite build --mode calendar && npx vite build --mode calendar-css && npx vite build --mode calendar-worker",
+    "deploy-calendar": "wrangler deploy -c dist/calendar/wrangler.json",
+    "start-calendar": "npm run build-calendar && npm run start-only-calendar",
+    "start-only-calendar": "wrangler dev -c dist/calendar/wrangler.json",
+    "postinstall": "npm run cf-typegen",
+    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",
