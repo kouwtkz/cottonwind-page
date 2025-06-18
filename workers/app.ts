@@ -1,5 +1,6 @@
 import { createRequestHandler } from "react-router";
 import { getMimeType } from "~/components/utils/mime";
+import { CleanDeployScheduled } from "./clean-deploy";
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -42,4 +43,5 @@ export default {
       });
     }
   },
+  scheduled: CleanDeployScheduled
 } satisfies ExportedHandler<Env>;

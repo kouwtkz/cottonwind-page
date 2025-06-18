@@ -7,7 +7,7 @@
     "cf-typegen": "wrangler types --strict-vars false",
     "deploy": "npm run build && wrangler deploy",
     "start": "npm run build && npm run start-only",
-    "start-only": "wrangler dev",
+    "start-only": "wrangler dev --test-scheduled",
     "dev": "npx vite dev",
     "dev-calendar": "npx vite dev --mode dev-calendar",
     "build-calendar": "npx vite build --mode calendar && npx vite build --mode calendar-css && npx vite build --mode calendar-worker",
