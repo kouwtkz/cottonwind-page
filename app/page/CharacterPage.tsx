@@ -41,7 +41,7 @@ import { getInitialString } from "~/components/functions/InitialString";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 import { LikeButton } from "~/components/button/LikeButton";
 import { useLang } from "~/components/multilingual/LangState";
-import { defaultLang } from "~/Env";
+import { DEFAULT_LANG } from "~/Env";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
@@ -230,9 +230,9 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
 
 export function translateCharaLangName(
   chara: CharacterType,
-  lang = defaultLang
+  lang = DEFAULT_LANG
 ) {
-  const toEn = lang !== defaultLang && chara.enName;
+  const toEn = lang !== DEFAULT_LANG && chara.enName;
   const returnValue = {
     name: toEn ? chara.enName : chara.name,
   } as { name?: string; lang?: string };

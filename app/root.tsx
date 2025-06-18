@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -35,6 +36,7 @@ import { getAPIOrigin, getMediaOrigin } from "./components/functions/originUrl";
 import { ImageTableObject } from "./routes/api/image";
 import { charaTableObject } from "./routes/api/character";
 import { isbot } from "isbot";
+import { ErrorBoundaryContent } from "./page/ErrorPage";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -214,7 +216,7 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
       <main>
         <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
         {/* <Test /> */}
-        <HeaderClient env={loaderData.env} {...e} />
+        <HeaderClient />
         <div className="content-base">
           <div className="content-parent">
             <Outlet />
@@ -229,30 +231,12 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "めぇ！（エラー）";
-  let details = "エラーです…！";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
   return (
     <body>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre>
-          <code>{stack}</code>
-        </pre>
-      )}
+      <header id="header" className="siteHeader">
+        <HeaderClient hideBackButton hideSiteMenu />
+      </header>
+      <ErrorBoundaryContent error={error} />
     </body>
   );
 }

@@ -1,50 +1,30 @@
-import { Link, useRouteError } from "react-router";
-import { Base } from "./Root";
+import { isRouteErrorResponse, Link } from "react-router";
 
-const errorList: {
-  [k: string | number]: { h1: string; h4: string } | undefined;
-} = {
-  404: {
-    h1: "404 not found",
-    h4: "ページが見つかりませんでした",
-  },
-};
-
-type ErrorType = {
-  status?: number;
-  statusText?: string;
-  internal?: boolean;
-  data?: string;
-  error?: Error;
-};
-
-export function ErrorContent({ status, statusText }: ErrorType) {
-  const errorObj = status ? errorList[status] : null;
-  return (
-    <div className="color-main en-title-font middle">
-      {errorObj ? (
-        <>
-          <h1>{errorObj.h1}</h1>
-          <h4>{errorObj.h4}</h4>
-          <Link to="/">トップページへ戻る</Link>
-        </>
-      ) : (
-        <>
-          <h1>Error</h1>
-          <h4>{statusText}</h4>
-          <Link to="/">トップページへ戻る</Link>
-        </>
-      )}
-    </div>
-  );
+interface ErrorBoundaryContentProps {
+  error: unknown;
 }
-
-export default function ErrorPage() {
-  const error = useRouteError() as ErrorType;
-  console.log(error);
+export function ErrorBoundaryContent({ error }: ErrorBoundaryContentProps) {
+  let message = "めぇ！（エラー）";
+  let details: string | undefined;
+  let stack: string | undefined;
+  if (isRouteErrorResponse(error)) {
+    message = `${error.status} ${error.statusText}`;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
+  }
   return (
-    <Base>
-      <ErrorContent {...error} />
-    </Base>
+    <div className="content-base">
+      <main className="color en-title-font middle">
+        <h1>{message}</h1>
+        {details ? <h4>{details}</h4> : null}
+        <a href="/">トップページへ戻る</a>
+        {stack && (
+          <pre>
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+    </div>
   );
 }

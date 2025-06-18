@@ -1,19 +1,25 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router";
-import { defaultLang, TITLE_IMAGE_PATH, TITLE_IMAGE_PATH_EN } from "~/Env";
-import type { OmittedEnv } from "types/custom-configuration";
+import {
+  DEFAULT_LANG,
+  TITLE,
+  TITLE_EN,
+  TITLE_IMAGE_PATH,
+  TITLE_IMAGE_PATH_EN,
+} from "~/Env";
 import BackButton from "./layout/BackButton";
 import { SiteMenu } from "./layout/SiteMenu";
 import { useLang } from "./multilingual/LangState";
 
 interface HeaderProps {
-  env?: Partial<OmittedEnv>;
+  hideBackButton?: boolean;
+  hideSiteMenu?: boolean;
 }
-export function SiteTitle({ env }: HeaderProps) {
+export function SiteTitle() {
   const lang = useLang()[0];
   const title = useMemo(
     () =>
-      (lang === defaultLang ? env?.TITLE : env?.TITLE_EN) ??
+      (lang === DEFAULT_LANG ? TITLE : TITLE_EN) ??
       (typeof document !== "undefined" ? document.title : ""),
     [lang]
   );
@@ -32,7 +38,7 @@ export function SiteTitle({ env }: HeaderProps) {
         }}
       >
         <h1>
-          {lang === defaultLang && TITLE_IMAGE_PATH ? (
+          {lang === DEFAULT_LANG && TITLE_IMAGE_PATH ? (
             <img src={TITLE_IMAGE_PATH} alt={title} />
           ) : TITLE_IMAGE_PATH_EN ? (
             <img src={TITLE_IMAGE_PATH_EN} alt={title} />
@@ -45,12 +51,12 @@ export function SiteTitle({ env }: HeaderProps) {
   );
 }
 
-export function HeaderClient(props: HeaderProps) {
+export function HeaderClient({ hideBackButton, hideSiteMenu }: HeaderProps) {
   return (
     <header id="header" className="siteHeader">
-      <BackButton className="backButton" />
-      <SiteTitle {...props} />
-      <SiteMenu />
+      {hideBackButton ? null : <BackButton className="backButton" />}
+      <SiteTitle />
+      {hideSiteMenu ? null : <SiteMenu />}
       <div className="headerBackground" />
     </header>
   );

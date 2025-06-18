@@ -31,7 +31,7 @@ import {
   RiNotificationOffFill,
   RiTimerFill,
 } from "react-icons/ri";
-import { defaultLang } from "~/Env";
+import { DEFAULT_LANG } from "~/Env";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
@@ -671,7 +671,7 @@ export function CalendarMee({
         }}
         initialDate={date}
         initialView={initialView}
-        locale={defaultLang}
+        locale={DEFAULT_LANG}
         eventClick={eventOpen}
         buttonText={{
           today: "現在",
@@ -757,7 +757,7 @@ export function CalendarMeeEventViewer({
     () =>
       startDate
         ? formatDate(startDate, {
-            locale: defaultLang,
+            locale: DEFAULT_LANG,
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -770,7 +770,7 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && !event.allDay
         ? formatDate(startDate, {
-            locale: defaultLang,
+            locale: DEFAULT_LANG,
             hour: "numeric",
             minute: "numeric",
           })
@@ -779,7 +779,7 @@ export function CalendarMeeEventViewer({
   );
   const endDateString = useMemo(() => {
     const endFormat: FormatDateOptions = {
-      locale: defaultLang,
+      locale: DEFAULT_LANG,
     };
     function setEndDateFormat() {
       if (startDate!.getFullYear() !== endDate!.getFullYear()) {
@@ -809,7 +809,7 @@ export function CalendarMeeEventViewer({
     () =>
       startDate && endDate && !event.allDay
         ? formatDate(endDate, {
-            locale: defaultLang,
+            locale: DEFAULT_LANG,
             hour: "numeric",
             minute: "numeric",
           })

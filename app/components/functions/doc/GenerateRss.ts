@@ -3,7 +3,7 @@ import { DOMImplementation, DOMParser, XMLSerializer } from "xmldom";
 import type { MeeSqlClass } from "~/data/functions/MeeSqlClass";
 import { concatOriginUrl, getMediaOrigin } from "../originUrl";
 import { ImageSelectFromKey } from "../media/serverDataFunction";
-import { defaultLang } from "~/Env";
+import { DEFAULT_LANG } from "~/Env";
 import { parse } from "marked";
 
 function CData(str: string) {
@@ -89,7 +89,7 @@ export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
       description: env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
-      language: defaultLang,
+      language: DEFAULT_LANG,
       image_url,
       pubDate: new Date(postsData.reduce((a, c) => {
         const lastmod = c.lastmod || "";

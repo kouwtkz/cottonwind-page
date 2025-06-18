@@ -14,6 +14,7 @@ import { ToastContainer } from "react-toastify";
 import { ToastProgressState } from "~/components/state/ToastProgress";
 import { defaultToastContainerOptions } from "~/components/define/toastContainerDef";
 import { CalendarRoot } from "./client";
+import { ErrorBoundaryContent } from "~/page/ErrorPage";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -69,30 +70,9 @@ export default function App({
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "めぇ！（エラー）";
-  let details = "エラーです…！";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "ページが見つかりませんでした"
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
   return (
     <body>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre>
-          <code>{stack}</code>
-        </pre>
-      )}
+      <ErrorBoundaryContent error={error} />
     </body>
   );
 }
