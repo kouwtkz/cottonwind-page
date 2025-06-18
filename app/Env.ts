@@ -1,6 +1,6 @@
-export const DEFAULT_LANG = "ja";
-export const TITLE = "こっとんうぃんど";
-export const TITLE_EN = "cottonwind";
+export const DEFAULT_LANG = import.meta.env.VITE_DEFAULT_LANG;
+export const TITLE = import.meta.env.VITE_TITLE;
+export const TITLE_EN = import.meta.env.VITE_TITLE_EN;
 export const TITLE_IMAGE_PATH = "/static/images/webp/cottonwind_logo_min.webp"
 export const TITLE_IMAGE_PATH_EN = "/static/images/webp/cottonwind_logo_min_en.webp"
 

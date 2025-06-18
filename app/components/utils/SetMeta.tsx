@@ -6,6 +6,7 @@ import {
   defaultGalleryTags,
   getTagsOptions,
 } from "../dropdown/SortFilterTags";
+import { TITLE } from "~/Env";
 
 export type MetaValuesType =
   | { title: string }
@@ -158,7 +159,7 @@ export function SetMetaDefault({
       list.push({ name: "og:image:height", content: String(imageSize.h) });
     }
   }
-  if (env?.TITLE) list.push({ name: "og:site_name", content: env.TITLE });
+  list.push({ name: "og:site_name", content: TITLE });
   list.push({ name: "og:type", content: "website" });
   if (env?.ALTERNATE)
     list.push({ name: "og:keywords", content: env.ALTERNATE });
@@ -175,7 +176,7 @@ export function concatTitle(left?: string, right?: string, separator = "|") {
   return left && right ? left + ` ${separator} ` + right : left || right || "";
 }
 export function addSiteTitle({ title = "", env }: addSiteTitleProps) {
-  return concatTitle(title, env?.TITLE);
+  return concatTitle(title, TITLE);
 }
 export function SetMetaTitle(props: addSiteTitleProps) {
   const list: MetaValuesType[] = [];

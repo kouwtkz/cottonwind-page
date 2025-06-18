@@ -3,7 +3,7 @@ import { DOMImplementation, DOMParser, XMLSerializer } from "xmldom";
 import type { MeeSqlClass } from "~/data/functions/MeeSqlClass";
 import { concatOriginUrl, getMediaOrigin } from "../originUrl";
 import { ImageSelectFromKey } from "../media/serverDataFunction";
-import { DEFAULT_LANG } from "~/Env";
+import { DEFAULT_LANG, TITLE } from "~/Env";
 import { parse } from "marked";
 
 function CData(str: string) {
@@ -85,7 +85,7 @@ export async function MakeRss({ env, db, url, postsData }: MakeRssProps) {
     image_url = concatOriginUrl(mediaOrigin, image_url);
   return GenerateRss(
     {
-      title: env.TITLE || "",
+      title: TITLE || "",
       description: env.DESCRIPTION,
       feed_url: `${SITE_URL}/rss.xml`,
       site_url: SITE_URL + "/blog",
