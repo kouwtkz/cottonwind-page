@@ -142,7 +142,7 @@ export function WebsiteFramework({
           <ul>
             <li>
               <span className="label">ホスティング</span>
-              <span>Cloudflare Pages</span>
+              <span>Cloudflare Workers</span>
             </li>
             <li>
               <span className="label">ドメイン</span>
