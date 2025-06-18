@@ -21,6 +21,7 @@ if (calendarMode) {
     ssr: import.meta.env.DEV,
     appDirectory: "app/calendar",
     buildDirectory: "dist/calendar",
+    prerender: ["/"],
     async buildEnd(args) {
       const env = args.viteConfig.env as ImportMetaEnv;
       const fs = await import("fs");

@@ -4460,3 +4460,13 @@ form.blogEdit {
     }
   }
 }
+
+.errorPage {
+  main {
+    margin: 0 1em;
+    > a {
+      margin: 1em;
+      display: inline-block;
+    }
+  }
+}

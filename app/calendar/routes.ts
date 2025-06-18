@@ -1,4 +1,4 @@
-import { type RouteConfig, index } from "@react-router/dev/routes";
+import { type RouteConfig, index, layout } from "@react-router/dev/routes";
 
 export default [
   index("client.tsx"),

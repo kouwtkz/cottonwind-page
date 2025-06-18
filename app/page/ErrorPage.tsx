@@ -1,9 +1,19 @@
+import { useMemo } from "react";
 import { isRouteErrorResponse, Link } from "react-router";
 
 interface ErrorBoundaryContentProps {
   error: unknown;
+  className?: string;
 }
-export function ErrorBoundaryContent({ error }: ErrorBoundaryContentProps) {
+export function ErrorBoundaryContent({
+  error,
+  className,
+}: ErrorBoundaryContentProps) {
+  className = useMemo(() => {
+    const classNames = ["errorPage content-base"];
+    if (className) classNames.push(className);
+    return classNames.join(" ");
+  }, [className]);
   let message = "めぇ！（エラー）";
   let details: string | undefined;
   let stack: string | undefined;
@@ -14,7 +24,7 @@ export function ErrorBoundaryContent({ error }: ErrorBoundaryContentProps) {
     stack = error.stack;
   }
   return (
-    <div className="content-base">
+    <div className={className}>
       <main className="color en-title-font middle">
         <h1>{message}</h1>
         {details ? <h4>{details}</h4> : null}

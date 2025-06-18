@@ -15,6 +15,7 @@ import { ToastProgressState } from "~/components/state/ToastProgress";
 import { defaultToastContainerOptions } from "~/components/define/toastContainerDef";
 import { CalendarRoot } from "./client";
 import { ErrorBoundaryContent } from "~/page/ErrorPage";
+import { DEFAULT_LANG } from "~/Env";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -37,7 +38,7 @@ interface LayoutProps {
 }
 export function Layout({ children }: LayoutProps) {
   return (
-    <html lang="ja" className="loading">
+    <html lang={DEFAULT_LANG}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
