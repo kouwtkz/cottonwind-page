@@ -9,6 +9,7 @@ export default [
   route("sound", "routes/sound.tsx"),
   route("links", "routes/links.tsx"),
   route("works", "routes/works.tsx"),
+  route("contact", "routes/contact.tsx"),
   route("about", "routes/about.tsx"),
   route("blog", "routes/blog.tsx"),
   route("blog/post", "routes/blogEdit.tsx"),
