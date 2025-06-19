@@ -27,6 +27,7 @@ export interface SetRootProps {
   card?: "summary" | "summary_large_image" | "app" | "player";
   root?: SetRootProps;
   location?: Location<any>;
+  cookie?: { [k: string]: string | undefined };
 }
 
 interface rootClientServerDataType {

@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
   type LinkDescriptor,
 } from "react-router";
 
@@ -50,6 +51,13 @@ interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
   data?: SetRootProps;
 }
 
+function headersToCookie(headers: Headers) {
+  const cookie = headers.get("cookie");
+  if (cookie)
+    return Object.fromEntries(cookie.split(/;\s*/).map((v) => v.split("=")));
+  else return {};
+}
+
 export async function loader({ context, request }: Route.LoaderArgs) {
   const userAgent = request.headers.get("user-agent");
   const isBot = userAgent ? isbot(userAgent) : false;
@@ -91,6 +99,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
   const apiOrigin = getAPIOrigin(env, Url.origin, true);
   const mediaOrigin = getMediaOrigin(env, Url.origin, true);
+  const cookie = headersToCookie(request.headers);
   const clientServerData = {
     env,
     image,
@@ -101,6 +110,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     mediaOrigin,
     isLogin: session.has("LoginToken"),
     isBot,
+    cookie,
   } as SetRootProps;
   clientServerData.root = clientServerData;
   return clientServerData;
@@ -169,20 +179,24 @@ export function meta({ data, location }: MetaArgs) {
   return SetMetaDefault({ ...data, location });
 }
 
-function Test() {
-  const [env] = useEnv();
-  useEffect(() => {
-    console.log(env);
-  }, [env]);
-  return <></>;
-}
-
 interface LayoutProps {
   children?: React.ReactNode;
 }
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, ...e }: LayoutProps) {
+  const data = useRouteLoaderData<SetRootProps>("root");
+  const className = useMemo(() => {
+    const classNames: string[] = [];
+    if (data?.cookie) {
+      const cookie = data.cookie;
+      if (cookie[import.meta.env.VITE_THEME_COLOR_KEY])
+        classNames.push(cookie[import.meta.env.VITE_THEME_COLOR_KEY]!);
+      if (cookie[import.meta.env.VITE_THEME_DARK_KEY])
+        classNames.push(cookie[import.meta.env.VITE_THEME_DARK_KEY]!);
+    }
+    return classNames.join(" ");
+  }, [data?.cookie]);
   return (
-    <html lang="ja">
+    <html lang="ja" className={className}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -190,7 +204,10 @@ export function Layout({ children }: LayoutProps) {
         <Links />
         <DefaultImportScripts />
       </head>
-      {children}
+      <body>
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
@@ -205,17 +222,16 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
       }, 100);
     }
   }, [isComplete]);
-  const bodyClassName = useMemo(() => {
+  const className = useMemo(() => {
     const classNames: string[] = [];
     if (isLoading) classNames.push("loading", "dummy");
     return classNames.join(" ");
   }, [isLoading]);
   return (
-    <body className={bodyClassName}>
+    <div className={className}>
       {isLoading ? <Loading /> : null}
       <main>
         <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
-        {/* <Test /> */}
         <HeaderClient />
         <div className="content-base">
           <div className="content-parent">
@@ -225,8 +241,7 @@ export default function App({ loaderData, ...e }: Route.ComponentProps) {
         <Footer env={loaderData.env} {...e} />
         <ScrollRestoration />
       </main>
-      <Scripts />
-    </body>
+    </div>
   );
 }
 
