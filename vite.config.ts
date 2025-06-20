@@ -16,6 +16,7 @@ export default defineConfig(async ({ mode }) => {
   const workerMode = includeModes("worker");
   const cssMode = includeModes("css");
   const calendarMode = includeModes("calendar");
+  const beforeClientMode = includeModes("beforeClient");
   let outDir: string | undefined;
   if (calendarMode) outDir = "dist/calendar/client";
   else outDir = "build/client";
@@ -54,6 +55,20 @@ export default defineConfig(async ({ mode }) => {
           }
         },
         outDir,
+        emptyOutDir: false,
+      } as BuildOptions
+    }
+  } else if (beforeClientMode) {
+    return {
+      build: {
+        rollupOptions: {
+          input: [envDev.VITE_SSG_BEFORE_CLIENT],
+          output: {
+            entryFileNames: "[name].js"
+          },
+        },
+        outDir,
+        assetsDir: "",
         emptyOutDir: false,
       } as BuildOptions
     }

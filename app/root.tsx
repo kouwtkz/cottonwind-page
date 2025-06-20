@@ -39,6 +39,7 @@ import { charaTableObject } from "./routes/api/character";
 import { isbot } from "isbot";
 import { ErrorBoundaryContent } from "./page/ErrorPage";
 import { getCookieObjectFromHeaders } from "./components/utils/Cookie";
+import { CookieToThemeClassNames } from "./components/theme/ThemeCookie";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -93,7 +94,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
   const apiOrigin = getAPIOrigin(env, Url.origin, true);
   const mediaOrigin = getMediaOrigin(env, Url.origin, true);
-  const cookie = getCookieObjectFromHeaders(request);
   const clientServerData = {
     env,
     image,
@@ -104,7 +104,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     mediaOrigin,
     isLogin: session.has("LoginToken"),
     isBot,
-    cookie,
+    cookie: getCookieObjectFromHeaders(request),
   } as SetRootProps;
   clientServerData.root = clientServerData;
   return clientServerData;
@@ -190,13 +190,9 @@ export function Layout({ children }: LayoutProps) {
   const className = useMemo(() => {
     const classNames: string[] = [];
     if (data?.cookie) {
-      const cookie = data.cookie;
-      if (cookie[import.meta.env.VITE_THEME_COLOR_KEY]) {
-        classNames.push(cookie[import.meta.env.VITE_THEME_COLOR_KEY]!);
-      }
-      if (cookie[import.meta.env.VITE_THEME_DARK_KEY]) {
-        classNames.push(cookie[import.meta.env.VITE_THEME_DARK_KEY]!);
-      }
+      CookieToThemeClassNames(data.cookie).forEach((item) => {
+        classNames.push(item);
+      });
       if (isLoading) {
         classNames.push("loading dummy");
       }

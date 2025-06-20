@@ -1,4 +1,10 @@
-import { Links, Meta, Scripts, type LinkDescriptor } from "react-router";
+import {
+  Links,
+  Meta,
+  Scripts,
+  useRouteLoaderData,
+  type LinkDescriptor,
+} from "react-router";
 import type { Route } from "./+types/root";
 import type { MetaValuesType } from "~/components/utils/SetMeta";
 import { ClickEffect } from "~/components/click/ClickEffect";
@@ -10,6 +16,9 @@ import { defaultToastContainerOptions } from "~/components/define/toastContainer
 import { CalendarRoot } from "./client";
 import { ErrorBoundaryContent } from "~/page/ErrorPage";
 import { DEFAULT_LANG } from "~/Env";
+import { useEffect, useMemo } from "react";
+import { getCookieObjectFromHeaders } from "~/components/utils/Cookie";
+import { CookieToThemeClassNames } from "~/components/theme/ThemeCookie";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -27,17 +36,36 @@ export function meta() {
   ] as MetaValuesType[];
 }
 
+export async function loader({ request }: Route.LoaderArgs) {
+  return {
+    cookie: getCookieObjectFromHeaders(request),
+  };
+}
+
 interface LayoutProps {
   children?: React.ReactNode;
 }
 export function Layout({ children }: LayoutProps) {
+  const data = useRouteLoaderData("root");
+  const className = useMemo(() => {
+    const classNames: string[] = [];
+    if (data?.cookie) {
+      CookieToThemeClassNames(data.cookie).forEach((item) => {
+        classNames.push(item);
+      });
+    }
+    return classNames.join(" ");
+  }, [data?.cookie]);
   return (
-    <html lang={DEFAULT_LANG}>
+    <html lang={DEFAULT_LANG} className={className}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {import.meta.env.PROD ? (
+          <script src={import.meta.env.VITE_SSG_BEFORE_CLIENT} />
+        ) : null}
       </head>
       <body>
         {children}
