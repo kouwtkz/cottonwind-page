@@ -884,16 +884,17 @@ export function CalendarRoot() {
     },
     [state, searchParams]
   );
-  const complete = useMemo(() => {
-    return Array.from(IndexedSetupMap.values()).every((v) => v);
+  const notComplete = useMemo(() => {
+    return !Array.from(IndexedSetupMap.values()).every((v) => v);
   }, [IndexedSetupMap]);
   useEffect(() => {
-    if (complete) {
-      setLoading(false);
-    } else {
+    if (notComplete) {
       setLoading(true);
+      return () => {
+        setLoading(false);
+      };
     }
-  }, [complete]);
+  }, [notComplete]);
   const indexedEvents = useSyncExternalStore(
     ...ExternalStoreProps(indexedCalendarEvents)
   );
