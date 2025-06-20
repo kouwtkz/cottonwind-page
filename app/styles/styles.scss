@@ -833,15 +833,15 @@ body {
   background-color: transparent;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+:root {
+  &.loading {
+    overflow-y: hidden;
+    scrollbar-color: transparent transparent !important;
+  }
   &.dummy {
     min-height: 5000rem;
   }
-  &.loading {
-    overflow-y: hidden;
-  }
-}
-html.loading {
-  scrollbar-color: transparent transparent !important;
 }
 
 %fillCover {

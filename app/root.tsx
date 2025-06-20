@@ -182,19 +182,33 @@ export function meta({ data, location }: MetaArgs) {
 interface LayoutProps {
   children?: React.ReactNode;
 }
-export function Layout({ children, ...e }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
+  const isComplete = useIsComplete()[0];
+  const [isLoading, setIsLoading] = useState(!isComplete);
+  useEffect(() => {
+    if (isComplete) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+    }
+  }, [isComplete]);
   const data = useRouteLoaderData<SetRootProps>("root");
   const className = useMemo(() => {
     const classNames: string[] = [];
     if (data?.cookie) {
       const cookie = data.cookie;
-      if (cookie[import.meta.env.VITE_THEME_COLOR_KEY])
+      if (cookie[import.meta.env.VITE_THEME_COLOR_KEY]) {
         classNames.push(cookie[import.meta.env.VITE_THEME_COLOR_KEY]!);
-      if (cookie[import.meta.env.VITE_THEME_DARK_KEY])
+      }
+      if (cookie[import.meta.env.VITE_THEME_DARK_KEY]) {
         classNames.push(cookie[import.meta.env.VITE_THEME_DARK_KEY]!);
+      }
+      if (isLoading) {
+        classNames.push("loading dummy");
+      }
     }
     return classNames.join(" ");
-  }, [data?.cookie]);
+  }, [data?.cookie, isLoading]);
   return (
     <html lang="ja" className={className}>
       <head>
@@ -205,6 +219,7 @@ export function Layout({ children, ...e }: LayoutProps) {
         <DefaultImportScripts />
       </head>
       <body>
+        {isLoading ? <Loading /> : null}
         {children}
         <Scripts />
       </body>
@@ -213,35 +228,18 @@ export function Layout({ children, ...e }: LayoutProps) {
 }
 
 export default function App({ loaderData, ...e }: Route.ComponentProps) {
-  const isComplete = useIsComplete()[0];
-  const [isLoading, setIsLoading] = useState(!isComplete);
-  useEffect(() => {
-    if (isComplete) {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 100);
-    }
-  }, [isComplete]);
-  const className = useMemo(() => {
-    const classNames: string[] = [];
-    if (isLoading) classNames.push("loading", "dummy");
-    return classNames.join(" ");
-  }, [isLoading]);
   return (
-    <div className={className}>
-      {isLoading ? <Loading /> : null}
-      <main>
-        <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
-        <HeaderClient />
-        <div className="content-base">
-          <div className="content-parent">
-            <Outlet />
-          </div>
+    <main>
+      <SetState env={loaderData.env} isLogin={loaderData.isLogin} />
+      <HeaderClient />
+      <div className="content-base">
+        <div className="content-parent">
+          <Outlet />
         </div>
-        <Footer env={loaderData.env} {...e} />
-        <ScrollRestoration />
-      </main>
-    </div>
+      </div>
+      <Footer env={loaderData.env} {...e} />
+      <ScrollRestoration />
+    </main>
   );
 }
 
