@@ -1,10 +1,4 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Scripts,
-  type LinkDescriptor,
-} from "react-router";
+import { Links, Meta, Scripts, type LinkDescriptor } from "react-router";
 import type { Route } from "./+types/root";
 import type { MetaValuesType } from "~/components/utils/SetMeta";
 import { ClickEffect } from "~/components/click/ClickEffect";
@@ -65,7 +59,6 @@ export default function App({
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />
       <CalendarRoot />
-      <Scripts />
     </>
   );
 }

@@ -38,6 +38,7 @@ import { ImageTableObject } from "./routes/api/image";
 import { charaTableObject } from "./routes/api/character";
 import { isbot } from "isbot";
 import { ErrorBoundaryContent } from "./page/ErrorPage";
+import { getCookieObjectFromHeaders } from "./components/utils/Cookie";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -49,13 +50,6 @@ export function links(): LinkDescriptor[] {
 
 interface MetaArgs extends Omit<Route.MetaArgs, "data"> {
   data?: SetRootProps;
-}
-
-function headersToCookie(headers: Headers) {
-  const cookie = headers.get("cookie");
-  if (cookie)
-    return Object.fromEntries(cookie.split(/;\s*/).map((v) => v.split("=")));
-  else return {};
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -99,7 +93,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
   const apiOrigin = getAPIOrigin(env, Url.origin, true);
   const mediaOrigin = getMediaOrigin(env, Url.origin, true);
-  const cookie = headersToCookie(request.headers);
+  const cookie = getCookieObjectFromHeaders(request);
   const clientServerData = {
     env,
     image,

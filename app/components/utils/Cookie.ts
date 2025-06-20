@@ -20,6 +20,16 @@ export function getCookieObjectFromHeaders({ headers }: getCookieObjectProps): {
     return {};
   }
 }
+interface getCookieFromDocumentProps {
+  cookie: string;
+}
+export function getCookieObjectFromDocument({ cookie }: getCookieFromDocumentProps): { [k: string]: string } {
+  if (cookie) {
+    return getCookieObject(cookie);
+  } else {
+    return {};
+  }
+}
 
 export interface getCookiePropsEither {
   request?: Request;

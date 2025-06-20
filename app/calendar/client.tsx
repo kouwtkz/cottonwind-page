@@ -825,7 +825,7 @@ function CalendarSettingForm() {
   );
 }
 
-export default function CalendarHome() {
+export function CalendarHome() {
   const { defaultView, IndexedSetupMap } = useCalendarAppState();
   const { state } = useLocation();
   const nav = useNavigate();
