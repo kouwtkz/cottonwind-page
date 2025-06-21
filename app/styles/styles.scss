@@ -840,7 +840,11 @@ body {
     scrollbar-color: transparent transparent !important;
   }
   &.dummy {
-    min-height: 5000rem;
+    main::before {
+      content: "";
+      display: block;
+      min-height: 5000rem;
+    }
   }
 }
 
