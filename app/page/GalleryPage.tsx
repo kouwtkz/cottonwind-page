@@ -897,14 +897,16 @@ function GalleryImageItem({
         <div className="translucent-special-button">
           <RiPlayLargeFill />
         </div>
+      ) : image.type === "3d" && (image.embed || image.link) ? (
+        <div className="translucent-special-button">
+          <Md3dRotation />
+        </div>
       ) : image.embed ? (
         <div className="translucent-special-button">
           {image.type === "material" ? (
             <MdMoveToInbox />
           ) : image.type === "pdf" ? (
             <RiFilePdf2Fill />
-          ) : image.type === "3d" ? (
-            <Md3dRotation />
           ) : (
             <MdInsertDriveFile />
           )}

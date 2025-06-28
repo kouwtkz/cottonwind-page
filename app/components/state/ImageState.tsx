@@ -103,6 +103,9 @@ export function ImageState() {
             found.list = v.list;
           }
         });
+        images.forEach((image) => {
+          if (image.album) image.albumObject = imageAlbums.get(image.album);
+        });
         const copyrightList = getCountList(images || [], "copyright");
         const tagsList = getCountList(images || [], "tags");
         Set({

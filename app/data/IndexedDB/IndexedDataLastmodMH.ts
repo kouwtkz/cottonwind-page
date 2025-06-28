@@ -199,7 +199,7 @@ export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageType> {
 
 type EventCallback = (callback: () => void) => () => void;
 export function ExternalStoreProps<
-  T,
+  T = any,
   D = T,
   TABLE_CLASS extends MeeIndexedDBTable<T> = MeeIndexedDBTable<T>,
 >(

@@ -41,6 +41,7 @@ import { CharacterName } from "~/page/CharacterPage";
 import { Modal } from "./Modal";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { BookReader } from "./BookReader";
+import { TbHexagon3D } from "react-icons/tb";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -271,6 +272,15 @@ function PreviewArea({ image }: PreviewAreaProps) {
                     className="translucent-button hover-visible open"
                   >
                     <RiStore3Fill />
+                  </a>
+                ) : image.type === "3d" ? (
+                  <a
+                    title="3Dモデルページを見る"
+                    href={image.link}
+                    target="_blank"
+                    className="translucent-button hover-visible open"
+                  >
+                    <TbHexagon3D />
                   </a>
                 ) : (
                   <a
