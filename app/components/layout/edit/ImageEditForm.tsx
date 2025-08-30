@@ -281,9 +281,11 @@ export default function ImageEditForm({
       data,
       method,
       cors: true,
-    }).finally(() => {
-      Set({ isBusy: false });
-    });
+    })
+      .catch<Response>((e) => e)
+      .finally(() => {
+        Set({ isBusy: false });
+      });
     if (res.status === 200) {
       toast.success(deleteMode ? "削除しました" : "更新しました！", {
         autoClose: 2000,
@@ -295,7 +297,7 @@ export default function ImageEditForm({
       imageDataIndexed.load("no-cache");
       return true;
     } else {
-      toast.error(res.statusText, {
+      toast.error(`送信に失敗しました\n[${res.status} ${res.statusText}]`, {
         autoClose: 2000,
       });
       return false;
