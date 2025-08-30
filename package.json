@@ -8,7 +8,7 @@
     "deploy": "npm run build && wrangler deploy",
     "start": "npm run build && npm run start-only",
     "start-only": "wrangler dev --test-scheduled",
-    "dev": "npx vite dev",
+    "dev": "npx vite dev --host",
     "dev-calendar": "npx vite dev --mode dev-calendar",
     "build-calendar": "npx vite build --mode calendar && npx vite build --mode calendar-css && npx vite build --mode calendar-beforeClient && npx vite build --mode calendar-worker",
     "deploy-calendar": "npm run build-calendar && wrangler deploy -c dist/calendar/wrangler.json",
