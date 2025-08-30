@@ -154,6 +154,7 @@ export default function ImageEditForm({
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  console.log(textareaRef.current);
   const { files } = useFiles();
   const embedList = useMemo(() => {
     const list = (files || []).concat();
@@ -634,322 +635,317 @@ export default function ImageEditForm({
           {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
         </button>
       </RbButtonArea>
-      {isEdit ? (
-        <form
-          {...args}
-          ref={refForm}
-          onSubmit={handleSubmit((e) => {
-            Set({ isEdit: !isEdit });
-            e.preventDefault();
-          })}
-          className={"edit window" + (className ? ` ${className}` : "")}
-        >
-          <label>
-            <div className="label">タイトル</div>
-            <div className="wide">
-              <input
-                className="title"
-                title="タイトル"
-                type="text"
-                {...register("title")}
-                disabled={isBusy}
-              />
-            </div>
+
+      <form
+        {...args}
+        ref={refForm}
+        onSubmit={handleSubmit((e) => {
+          Set({ isEdit: !isEdit });
+          e.preventDefault();
+        })}
+        className={"edit window" + (className ? ` ${className}` : "")}
+        style={isEdit ? {} : { display: "none" }}
+      >
+        <label>
+          <div className="label">タイトル</div>
+          <div className="wide">
+            <input
+              className="title"
+              title="タイトル"
+              type="text"
+              {...register("title")}
+              disabled={isBusy}
+            />
+          </div>
+        </label>
+        <div>
+          <div className="label">
+            <span>説明文</span>
+            <PostEditSelectMedia
+              textarea={textareaRef.current}
+              setValue={setDescription}
+            />
+            <PostEditSelectDecoration
+              textarea={textareaRef.current}
+              setValue={setDescription}
+            />
+            <PostEditSelectInsert
+              textarea={textareaRef.current}
+              setValue={setDescription}
+            />
+            <button
+              title="プレビューモードの切り替え"
+              type="button"
+              className="color"
+              onClick={() => {
+                setPreviewMode((v) => !v);
+              }}
+            >
+              {previewMode ? "編集に戻る" : "プレビュー"}
+            </button>
+          </div>
+          <PostTextarea
+            title="説明文"
+            className="description"
+            registed={SetRegister({
+              name: "description",
+              ref: textareaRef,
+              register,
+            })}
+            disabled={isBusy}
+            mode={previewMode}
+            body={getValues("description")}
+          />
+        </div>
+        <div>
+          <EditTagsReactSelect
+            name="characters"
+            labelVisible
+            label="キャラクタータグ"
+            tags={charaLabelTags}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            isBusy={isBusy}
+            placeholder="キャラの選択"
+            formatOptionLabel={charaFormatOptionLabel}
+          />
+        </div>
+        <div>
+          <EditTagsReactSelect
+            name="tags"
+            labelVisible
+            label="その他のタグ"
+            tags={currentTagsList}
+            set={setStateTags}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            placeholder="その他のタグ選択"
+            isBusy={isBusy}
+            addButtonVisible
+            enableEnterAdd
+          />
+        </div>
+        <div>
+          <EditTagsReactSelect
+            name="copyright"
+            labelVisible
+            label="版権タグ（コピーライト）"
+            tags={copyrightTags}
+            set={setCopyrightTags}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            isBusy={isBusy}
+            placeholder="版権タグ選択"
+            addButtonVisible
+            enableEnterAdd
+          />
+        </div>
+        <div>
+          <label className="ml">
+            <span className="label-l">画像の種類</span>
+            <select title="種類の選択" {...register("type")} disabled={isBusy}>
+              <option value="">
+                自動(
+                {TypeTagsOption.find((item) => item.value === autoImageItemType)
+                  ?.label ?? autoImageItemType}
+                )
+              </option>
+              {TypeTagsOption.map((v, i) => (
+                <option value={v.value} key={i}>
+                  {v.label}
+                </option>
+              ))}
+            </select>
           </label>
-          <div>
-            <div className="label">
-              <span>説明文</span>
-              <PostEditSelectMedia
-                textarea={textareaRef.current}
-                setValue={setDescription}
-              />
-              <PostEditSelectDecoration
-                textarea={textareaRef.current}
-                setValue={setDescription}
-              />
-              <PostEditSelectInsert
-                textarea={textareaRef.current}
-                setValue={setDescription}
-              />
-              <button
-                title="プレビューモードの切り替え"
-                type="button"
-                className="color"
-                onClick={() => {
-                  setPreviewMode((v) => !v);
+          <label className="ml">
+            <input {...register("draft")} type="checkbox" />
+            <span>下書き</span>
+          </label>
+        </div>
+        <div>
+          <div className="label">固定設定</div>
+          <div className="flex wrap mb-1">
+            <label className="ml">
+              <span className="label-sl">トップ画像</span>
+              <select
+                title="トップ画像"
+                {...register("topImage")}
+                disabled={isBusy}
+              >
+                <option value="null">自動</option>
+                <option value="1">トップ表示に含める</option>
+                <option value="2">アクセス時に表示する</option>
+                <option value="3">常に表示する</option>
+                <option value="4">時間帯でトップへ含む</option>
+                <option value="5">時間帯アクセス時表示</option>
+                <option value="6">時間帯で常に表示する</option>
+                <option value="0">表示しない</option>
+              </select>
+            </label>
+            <label className="ml">
+              <span className="label-sl">ピックアップ</span>
+              <select
+                title="ピックアップ画像"
+                {...register("pickup")}
+                disabled={isBusy}
+              >
+                <option value="null">自動</option>
+                <option value="true">固定する</option>
+                <option value="false">固定しない</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex wrap mb-1">
+            <label className="ml">
+              <span className="label-sl">画像の中心</span>
+              <select
+                title="画像の中心"
+                {...registerPosition}
+                ref={psRefPassthrough}
+                disabled={isBusy}
+                onChange={(e) => {
+                  SetPositionPreview(true);
+                  if (positionSelectRef.current?.value === "any") {
+                    const promptDefault: string = replacePositionToPercent(
+                      positionField.value
+                    );
+                    const inputValue = prompt(
+                      "画像の中心を入力してください (object-position)",
+                      promptDefault
+                    );
+                    setPositionSelect(inputValue);
+                  } else {
+                    positionField.onChange(e);
+                  }
                 }}
               >
-                {previewMode ? "編集に戻る" : "プレビュー"}
-              </button>
-            </div>
-            <PostTextarea
-              title="説明文"
-              className="description"
-              registed={SetRegister({
-                name: "description",
-                ref: textareaRef,
-                register,
-              })}
-              disabled={isBusy}
-              mode={previewMode}
-              body={getValues("description")}
-            />
-          </div>
-          <div>
-            <EditTagsReactSelect
-              name="characters"
-              labelVisible
-              label="キャラクタータグ"
-              tags={charaLabelTags}
-              control={control}
-              setValue={setValue}
-              getValues={getValues}
-              isBusy={isBusy}
-              placeholder="キャラの選択"
-              formatOptionLabel={charaFormatOptionLabel}
-            />
-          </div>
-          <div>
-            <EditTagsReactSelect
-              name="tags"
-              labelVisible
-              label="その他のタグ"
-              tags={currentTagsList}
-              set={setStateTags}
-              control={control}
-              setValue={setValue}
-              getValues={getValues}
-              placeholder="その他のタグ選択"
-              isBusy={isBusy}
-              addButtonVisible
-              enableEnterAdd
-            />
-          </div>
-          <div>
-            <EditTagsReactSelect
-              name="copyright"
-              labelVisible
-              label="版権タグ（コピーライト）"
-              tags={copyrightTags}
-              set={setCopyrightTags}
-              control={control}
-              setValue={setValue}
-              getValues={getValues}
-              isBusy={isBusy}
-              placeholder="版権タグ選択"
-              addButtonVisible
-              enableEnterAdd
-            />
-          </div>
-          <div>
-            <label className="ml">
-              <span className="label-l">画像の種類</span>
-              <select
-                title="種類の選択"
-                {...register("type")}
-                disabled={isBusy}
-              >
-                <option value="">
-                  自動(
-                  {TypeTagsOption.find(
-                    (item) => item.value === autoImageItemType
-                  )?.label ?? autoImageItemType}
-                  )
-                </option>
-                {TypeTagsOption.map((v, i) => (
-                  <option value={v.value} key={i}>
-                    {v.label}
+                {positionOptionList.map(({ value, inner }, k) => (
+                  <option value={value} key={k}>
+                    {inner}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="ml">
-              <input {...register("draft")} type="checkbox" />
-              <span>下書き</span>
-            </label>
-          </div>
-          <div>
-            <div className="label">固定設定</div>
-            <div className="flex wrap mb-1">
-              <label className="ml">
-                <span className="label-sl">トップ画像</span>
-                <select
-                  title="トップ画像"
-                  {...register("topImage")}
-                  disabled={isBusy}
+            <div className="positionPreview label">
+              {image ? (
+                <div
+                  hidden={!isPositionPreview}
+                  className="window"
+                  tabIndex={-1}
+                  {...positionPreviewHandlers}
+                  ref={ppRefPassthrough}
                 >
-                  <option value="null">自動</option>
-                  <option value="1">トップ表示に含める</option>
-                  <option value="2">アクセス時に表示する</option>
-                  <option value="3">常に表示する</option>
-                  <option value="4">時間帯でトップへ含む</option>
-                  <option value="5">時間帯アクセス時表示</option>
-                  <option value="6">時間帯で常に表示する</option>
-                  <option value="0">表示しない</option>
-                </select>
-              </label>
-              <label className="ml">
-                <span className="label-sl">ピックアップ</span>
-                <select
-                  title="ピックアップ画像"
-                  {...register("pickup")}
-                  disabled={isBusy}
-                >
-                  <option value="null">自動</option>
-                  <option value="true">固定する</option>
-                  <option value="false">固定しない</option>
-                </select>
-              </label>
-            </div>
-            <div className="flex wrap mb-1">
-              <label className="ml">
-                <span className="label-sl">画像の中心</span>
-                <select
-                  title="画像の中心"
-                  {...registerPosition}
-                  ref={psRefPassthrough}
-                  disabled={isBusy}
-                  onChange={(e) => {
-                    SetPositionPreview(true);
-                    if (positionSelectRef.current?.value === "any") {
-                      const promptDefault: string = replacePositionToPercent(
-                        positionField.value
-                      );
-                      const inputValue = prompt(
-                        "画像の中心を入力してください (object-position)",
-                        promptDefault
-                      );
-                      setPositionSelect(inputValue);
-                    } else {
-                      positionField.onChange(e);
-                    }
-                  }}
-                >
-                  {positionOptionList.map(({ value, inner }, k) => (
-                    <option value={value} key={k}>
-                      {inner}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="positionPreview label">
-                {image ? (
-                  <div
-                    hidden={!isPositionPreview}
-                    className="window"
-                    tabIndex={-1}
-                    {...positionPreviewHandlers}
-                    ref={ppRefPassthrough}
-                  >
+                  <ImageMee
+                    imageItem={image}
+                    mode="simple"
+                    className="vertical"
+                    autoPosition={false}
+                    style={previewImgStyle}
+                  />
+                  <div>
                     <ImageMee
                       imageItem={image}
                       mode="simple"
-                      className="vertical"
+                      className="square"
                       autoPosition={false}
                       style={previewImgStyle}
                     />
-                    <div>
-                      <ImageMee
-                        imageItem={image}
-                        mode="simple"
-                        className="square"
-                        autoPosition={false}
-                        style={previewImgStyle}
-                      />
-                      <ImageMee
-                        imageItem={image}
-                        mode="simple"
-                        className="landscape"
-                        autoPosition={false}
-                        style={previewImgStyle}
-                      />
-                    </div>
+                    <ImageMee
+                      imageItem={image}
+                      mode="simple"
+                      className="landscape"
+                      autoPosition={false}
+                      style={previewImgStyle}
+                    />
                   </div>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={() => {
-                    SetPositionPreview(!isPositionPreview);
-                  }}
-                >
-                  {isPositionPreview ? "▼プレビューを閉じる" : "▲プレビュー"}
-                </button>
-              </div>
+                </div>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  SetPositionPreview(!isPositionPreview);
+                }}
+              >
+                {isPositionPreview ? "▼プレビューを閉じる" : "▲プレビュー"}
+              </button>
             </div>
           </div>
-          <label>
-            <div className="label">リンク</div>
-            <div className="wide">
-              <input
-                title="リンク"
-                type="text"
-                {...register("link")}
-                disabled={isBusy}
-              />
-            </div>
-          </label>
-          <label>
-            <div className="label">埋め込み</div>
-            <div className="wide">
-              <input
-                title="埋め込み"
-                type="text"
-                list="galleryEditEmbedList"
-                {...register("embed")}
-                disabled={isBusy}
-              />
-              <datalist id="galleryEditEmbedList">
-                {embedList.map((file, i) => {
-                  return (
-                    <option key={i} value={file.key}>
-                      {file.src || file.key}
-                    </option>
-                  );
-                })}
-              </datalist>
-            </div>
-          </label>
-          <label>
-            <div className="label-l">時間</div>
+        </div>
+        <label>
+          <div className="label">リンク</div>
+          <div className="wide">
             <input
-              title="時間"
-              type="datetime-local"
-              step={1}
-              {...register("time")}
+              title="リンク"
+              type="text"
+              {...register("link")}
               disabled={isBusy}
             />
-          </label>
-          <label>
-            <div className="label-l">アルバム移動</div>
+          </div>
+        </label>
+        <label>
+          <div className="label">埋め込み</div>
+          <div className="wide">
             <input
-              title="移動"
-              {...register("album")}
+              title="埋め込み"
+              type="text"
+              list="galleryEditEmbedList"
+              {...register("embed")}
               disabled={isBusy}
-              list="album-list"
             />
-            <datalist id="album-list">
-              {albums
-                ? Object.values(Object.fromEntries(albums))
-                    .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
-                    .map((album, i) => (
-                      <option key={i} value={album.name}>
-                        {album.name}
-                      </option>
-                    ))
-                : null}
+            <datalist id="galleryEditEmbedList">
+              {embedList.map((file, i) => {
+                return (
+                  <option key={i} value={file.key}>
+                    {file.src || file.key}
+                  </option>
+                );
+              })}
             </datalist>
-          </label>
-          <label className="around">
-            <div className="label-l">ファイル名変更</div>
-            <input
-              title="ファイル名変更"
-              className="flex-1"
-              {...register("rename")}
-              disabled={isBusy}
-            />
-          </label>
-        </form>
-      ) : null}
+          </div>
+        </label>
+        <label>
+          <div className="label-l">時間</div>
+          <input
+            title="時間"
+            type="datetime-local"
+            step={1}
+            {...register("time")}
+            disabled={isBusy}
+          />
+        </label>
+        <label>
+          <div className="label-l">アルバム移動</div>
+          <input
+            title="移動"
+            {...register("album")}
+            disabled={isBusy}
+            list="album-list"
+          />
+          <datalist id="album-list">
+            {albums
+              ? Object.values(Object.fromEntries(albums))
+                  .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
+                  .map((album, i) => (
+                    <option key={i} value={album.name}>
+                      {album.name}
+                    </option>
+                  ))
+              : null}
+          </datalist>
+        </label>
+        <label className="around">
+          <div className="label-l">ファイル名変更</div>
+          <input
+            title="ファイル名変更"
+            className="flex-1"
+            {...register("rename")}
+            disabled={isBusy}
+          />
+        </label>
+      </form>
       <GalleryViewerPaging
         image={image}
         onLinkEvent={() => {
