@@ -424,10 +424,10 @@ export function ImageViewer() {
     }
   }, [imageSParam, albumSParam, groupSParam]);
 
-  const { items, filteredYearGroups } = useGalleryObject();
+  const { filteredYearGroups } = useGalleryObject();
   const galleryItemIndex = useMemo(
-    () => items?.findIndex((item) => item.name === groupParam) ?? -1,
-    [items, groupParam]
+    () => filteredYearGroups?.findIndex((item) => item.name === groupParam) ?? -1,
+    [filteredYearGroups, groupParam]
   );
   const images = useMemo(
     () => filteredYearGroups[galleryItemIndex]?.list || [],
