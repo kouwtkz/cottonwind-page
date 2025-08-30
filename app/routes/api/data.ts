@@ -49,7 +49,7 @@ const datasetMap = new Map(dataset.map(([options, getData]) => ([options.name, {
 
 export async function loader({ params, context, request }: Route.LoaderArgs) {
   const env = getCfEnv({ context });
-  const isLogin = IsLogin({ env, request, trueWhenDev: true });
+  const isLogin = await IsLogin({ env, request, trueWhenDev: true });
   if (params.param === "all") {
     const Url = new URL(request.url);
     const query = Object.fromEntries(Url.searchParams);
