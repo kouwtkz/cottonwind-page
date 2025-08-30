@@ -3030,7 +3030,9 @@ label,
         }
       }
       @media (min-width: $tabletWidth) {
-        min-width: 20rem;
+        &.window {
+          min-width: 20rem;
+        }
         button.labels {
           svg {
             font-size: 1.25em;
