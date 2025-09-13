@@ -46,7 +46,14 @@ function FaviconSystemState() {
         if (typeof src === "string") {
           element.href = src;
         } else {
-          element.href = concatOriginUrl(mediaOrigin, src.src);
+          const imageUrl = new URL(
+            concatOriginUrl(mediaOrigin, src.src),
+            location.origin
+          );
+          if (src.version) {
+            imageUrl.searchParams.append("v", src.version.toString());
+          }
+          element.href = imageUrl.href;
         }
       } else if (defaultValue) {
         element.href = defaultValue;

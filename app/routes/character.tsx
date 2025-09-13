@@ -56,8 +56,15 @@ export function meta({ data: argsData, matches }: Route.MetaArgs) {
   if (character) {
     metaData.title = character.name + " - " + metaData.title;
     if (character.overview) metaData.description = character.overview;
-    if (imageItem)
-      metaData.image = concatOriginUrl(metaData.mediaOrigin, imageItem.src);
+    if (imageItem) {
+      const imageUrl = new URL(
+        concatOriginUrl(metaData.mediaOrigin, imageItem.src)
+      );
+      if (imageItem.version) {
+        imageUrl.searchParams.append("v", imageItem.version.toString());
+      }
+      metaData.image = imageUrl.href;
+    }
   }
   if (!metaData.description)
     metaData.description = "わたかぜコウのキャラクター";
