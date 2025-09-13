@@ -1,6 +1,6 @@
 import type { NonIndexRouteObject, RouteObject } from "react-router";
-import Root from "./Root";
-import ErrorPage from "./ErrorPage";
+// import Root from "./Root";
+// import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
 import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
@@ -24,8 +24,8 @@ export interface MeeRouteObject extends NonIndexRouteObject {
 export const Routing: RouteObject[] = [
   {
     path: "/",
-    element: <Root />,
-    errorElement: <ErrorPage />,
+    // element: <Root />,
+    // errorElement: <ErrorPage />,
     children: [
       {
         index: true,

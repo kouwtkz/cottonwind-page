@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { isRouteErrorResponse, Link } from "react-router";
 
 interface ErrorBoundaryContentProps {
-  error: unknown;
+  error?: unknown;
   className?: string;
 }
 export function ErrorBoundaryContent({
