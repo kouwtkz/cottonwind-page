@@ -75,22 +75,25 @@ function CharacterPageState() {
     [searchParams]
   );
   const showAll = useMemo(
-    () => isLogin || filters?.some((v) => v === "showAll"),
+    () => filters?.some((v) => v === "showAll"),
     [filters, isLogin]
   );
+  const clientShowAll = useMemo(() => isLogin || showAll, [showAll, isLogin]);
   const liked = useMemo(() => filters?.some((v) => v === "like"), [filters]);
+  const searchParamsTags = useMemo(
+    () =>
+      searchParams.has("tags") ? searchParams.get("tags")!.split(",") : null,
+    [searchParams]
+  );
   const text = useMemo(() => {
     const textArray: Array<string> = [];
     if (searchParams.has("q")) textArray.push(searchParams.get("q")!);
-    if (searchParams.has("tags"))
-      searchParams
-        .get("tags")!
-        .split(",")
-        .forEach((tag) => {
-          textArray.push("tags:" + tag);
-        });
+    if (searchParamsTags)
+      searchParamsTags.forEach((tag) => {
+        textArray.push("tags:" + tag);
+      });
     return textArray.join(" ");
-  }, [searchParams]);
+  }, [searchParams, searchParamsTags]);
   const whereOptions = useMemo(
     () =>
       setWhere<CharacterType>(text, {
@@ -117,10 +120,12 @@ function CharacterPageState() {
   );
   const where: findWhereType<CharacterType> = useMemo(() => {
     const wheres = [whereOptions.where];
+    if (!showAll && !searchParamsTags?.some((v) => v === "archive"))
+      wheres.push({ NOT: { tags: { contains: "archive" } } });
     if (filterDraft) wheres.push({ draft: true });
     if (liked) wheres.push({ like: { checked: true } });
     return { AND: wheres };
-  }, [whereOptions.where, filterDraft, liked]);
+  }, [whereOptions.where, searchParamsTags, filterDraft, liked, showAll]);
   const sortParam = searchParams.get("sort");
   const orderBySort = useMemo(() => {
     const list: OrderByItem<CharacterType>[] = [...orderBy];
@@ -148,7 +153,7 @@ function CharacterPageState() {
   const [parts, setParts] = useState<PartsType[]>();
   useEffect(() => {
     let items = findMee(characters?.concat(), { where, orderBy: orderBySort });
-    if (!showAll) items = items.filter((chara) => chara.visible);
+    if (!clientShowAll) items = items.filter((chara) => chara.visible);
     const parts: PartsType[] = [];
     let sortType: OrderByItemType<any> | undefined;
     let entries: [string, CharacterType[]][] | undefined;
@@ -190,11 +195,11 @@ function CharacterPageState() {
       });
     } else parts.push({ items });
     setParts(parts);
-  }, [characters, orderBySort, showAll, liked, where]);
+  }, [characters, orderBySort, clientShowAll, liked, where]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
-    Set({ filters, orderBySort, showAll, liked, where, parts });
-  }, [filters, orderBySort, showAll, liked, where, parts]);
+    Set({ filters, orderBySort, showAll: clientShowAll, liked, where, parts });
+  }, [filters, orderBySort, clientShowAll, liked, where, parts]);
   return <></>;
 }
 
@@ -473,7 +478,7 @@ const defaultGalleryList = [
   { name: "given", label: "Fanart", max: 40 },
 ] as GalleryItemType[];
 export function CharaDetail({ charaName }: { charaName: string }) {
-  const { charactersMap } = useCharacters();
+  const { charactersMap, charactersTags } = useCharacters();
   const { imageAlbums: albums } = useImageState();
   const searchParams = useSearchParams()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
@@ -552,11 +557,19 @@ export function CharaDetail({ charaName }: { charaName: string }) {
             ) : null}
             {chara.tags && chara.tags.length > 0 ? (
               <div className="tags">
-                {chara.tags.map((tag, i) => (
-                  <Link key={i} to={`/character?tags=${tag}`}>
-                    #{tag}
-                  </Link>
-                ))}
+                {chara.tags
+                  .map<ContentsTagsOption>((tag) => {
+                    const found = charactersTags?.find(
+                      (cTag) => cTag.value === tag
+                    );
+                    if (found) return found;
+                    else return { value: tag };
+                  })
+                  .map((tag, i) => (
+                    <Link key={i} to={`/character?tags=${tag.value}`}>
+                      #{tag.label || tag.value}
+                    </Link>
+                  ))}
               </div>
             ) : null}
             {chara.time ? (

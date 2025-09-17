@@ -131,7 +131,10 @@ function CharacterDataState() {
           });
           return a;
         }, new Map<string, ContentsTagsOption>());
-        const charactersTags = Object.values(Object.fromEntries(tagOptionsMap));
+        const charactersTags = Object.values(
+          Object.fromEntries(tagOptionsMap)
+        ).filter((v) => v.value !== "archive");
+        charactersTags.push({ value: "archive", label: "アーカイブ" });
         Set({ charactersData, characters, charactersMap, charactersTags });
       });
     }
