@@ -154,7 +154,6 @@ export default function ImageEditForm({
   const [searchParams, setSearchParams] = useSearchParams();
   const refForm = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  console.log(textareaRef.current);
   const { files } = useFiles();
   const embedList = useMemo(() => {
     const list = (files || []).concat();
