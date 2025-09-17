@@ -154,16 +154,24 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
     if (wheres.length === 0) {
       return true;
     } else return wheres.every(([fkey, fval]) => {
-      if (Array.isArray(fval) && (fkey === "AND" || fkey === "OR" || fkey === "NOT")) {
-        switch (fkey) {
-          case "AND":
-            return fval.every((_val) => {
-              return wheresLoop(innerValue, _val);
-            });
-          case "OR":
-            return fval.some((_val) => wheresLoop(innerValue, _val));
-          case "NOT":
-            return !fval.some((_val) => wheresLoop(innerValue, _val));
+      if ((fkey === "AND" || fkey === "OR" || fkey === "NOT")) {
+        if (Array.isArray(fval)) {
+          switch (fkey) {
+            case "AND":
+              return fval.every((_val) => {
+                return wheresLoop(innerValue, _val);
+              });
+            case "OR":
+              return fval.some((_val) => wheresLoop(innerValue, _val));
+            case "NOT":
+              return !fval.some((_val) => wheresLoop(innerValue, _val));
+          }
+        } else {
+          if (fkey === "NOT") {
+            return !wheresLoop(innerValue, fval);
+          } else {
+            return wheresLoop(innerValue, fval);
+          }
         }
       }
       if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
