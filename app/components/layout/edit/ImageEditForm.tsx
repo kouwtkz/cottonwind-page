@@ -135,7 +135,7 @@ export default function ImageEditForm({
     [tagsList]
   );
 
-  const { charactersData } = useCharacters();
+  const { characters } = useCharacters();
 
   const {
     isEdit: stateIsEdit,
@@ -185,20 +185,18 @@ export default function ImageEditForm({
     []
   );
   useEffect(() => {
-    charactersData?.getAll().then((characters) => {
-      setCharaLabelTags(
-        characters.map(({ name, key: id }) => ({
-          label: name,
-          value: id,
-        }))
-      );
-    });
-  }, [charactersData]);
+    setCharaLabelTags(
+      characters.map(({ name, key: id }) => ({
+        label: name,
+        value: id,
+      }))
+    );
+  }, [characters]);
   const unregisteredTagsOptions = useMemo(
     () =>
       [
         ...(image?.tags?.map(
-          (v) => ({ label: v, value: v } as ContentsTagsOption)
+          (v) => ({ label: v, value: v }) as ContentsTagsOption
         ) || []),
         ...allTagsOptions,
       ].filter(({ value: tag }) =>
@@ -349,7 +347,7 @@ export default function ImageEditForm({
     if (copyrightList)
       setCopyrightTags(
         copyrightList.map(
-          ({ value }) => ({ label: value, value } as ContentsTagsOption)
+          ({ value }) => ({ label: value, value }) as ContentsTagsOption
         )
       );
   }, [copyrightList]);
@@ -1014,8 +1012,8 @@ export async function MakeImagesUploadList({
         typeof v === "string"
           ? { src: v, name: v }
           : typeof v === "object" && "src" in v
-          ? { name: typeof v.src === "object" ? v.src.name : v.src, ...v }
-          : { src: v, name: v.name };
+            ? { name: typeof v.src === "object" ? v.src.name : v.src, ...v }
+            : { src: v, name: v.name };
       const filename =
         typeof object.src === "object" ? object.src.name : object.src;
       const ext = getExtension(filename);
