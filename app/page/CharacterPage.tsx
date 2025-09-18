@@ -401,9 +401,10 @@ export function CharaBeforeAfter({
     [charactersMap, charaName]
   );
   const { state } = useLocation();
-  const searchParams = useSearchParams()[0];
+  const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
   const { parts } = useCharacterPageState();
+  const nav = useNavigate();
   const items = useMemo(() => {
     return (parts || []).reduce<CharacterType[]>((a, c) => {
       c.items.forEach((item) => {
@@ -426,14 +427,50 @@ export function CharaBeforeAfter({
       return { beforeChara: null, afterChara: null };
     }
   }, [items, charaIndex]);
+  const beforeTo = useMemo(
+    () =>
+      beforeChara
+        ? "/character/" + beforeChara.key + (isEdit ? "?edit=on" : "")
+        : "",
+    [beforeChara, isEdit]
+  );
+  const afterTo = useMemo(
+    () =>
+      afterChara
+        ? "/character/" + afterChara.key + (isEdit ? "?edit=on" : "")
+        : "",
+    [afterChara, isEdit]
+  );
+  const isModalMode = useMemo(
+    () =>
+      searchParams.has("modal") ||
+      searchParams.has("image") ||
+      searchParams.has("fc-event-id"),
+    [searchParams]
+  );
+  useHotkeys(
+    "ArrowLeft",
+    (e) => {
+      if (beforeTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
+        nav(beforeTo, { state });
+      }
+    },
+    { ignoreModifiers: true, enableOnFormTags: true }
+  );
+  useHotkeys(
+    "ArrowRight",
+    (e) => {
+      if (afterTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
+        nav(afterTo, { state });
+      }
+    },
+    { ignoreModifiers: true, enableOnFormTags: true }
+  );
   return (
     <div className={"beforeAfter" + (className ? " " + className : "")}>
       <div className="before" {...props}>
         {beforeChara ? (
-          <Link
-            to={"/character/" + beforeChara.key + (isEdit ? "?edit=on" : "")}
-            state={state}
-          >
+          <Link to={beforeTo} state={state}>
             <span className="cursor">＜</span>
             {beforeChara.icon ? (
               <ImageMeeIcon
@@ -448,10 +485,7 @@ export function CharaBeforeAfter({
       </div>
       <div className="after" {...props}>
         {afterChara ? (
-          <Link
-            to={"/character/" + afterChara.key + (isEdit ? "?edit=on" : "")}
-            state={state}
-          >
+          <Link to={afterTo} state={state}>
             {afterChara.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.icon}
