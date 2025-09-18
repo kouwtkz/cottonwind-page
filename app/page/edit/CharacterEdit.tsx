@@ -5,7 +5,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router";
-import { Controller, type FieldValues, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { UrlObject } from "url";
@@ -63,10 +63,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "~/components/functions/sendFunction";
-import {
-  DownloadDataObject,
-  ObjectIndexedDBDownloadButton,
-} from "~/components/button/ObjectDownloadButton";
+import { ObjectIndexedDBDownloadButton } from "~/components/button/ObjectDownloadButton";
 import { useImageState, useSelectedImage } from "~/components/state/ImageState";
 import { findMee } from "~/data/find/findMee";
 import { RiImageAddFill } from "react-icons/ri";
@@ -75,7 +72,6 @@ import {
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
-  replacePostTextareaFromImage,
 } from "~/components/dropdown/PostEditSelect";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { PostTextarea } from "~/components/parse/PostTextarea";
@@ -259,21 +255,10 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       shouldDirty: true,
     });
   }
-  function setDescriptionFromImage(image: ImageType | ImageDataType) {
-    if (descriptionRef.current) {
-      replacePostTextareaFromImage({
-        image,
-        textarea: descriptionRef.current,
-        setValue: setDescription,
-      });
-    }
-  }
   const [previewMode, setPreviewMode] = useState(false);
   useEffect(() => {
     if (selectedImage && selectedImageMode && chara) {
-      if (selectedImageMode === "body") {
-        setDescriptionFromImage(selectedImage);
-      } else {
+      if (selectedImageMode !== "body") {
         customFetch(concatOriginUrl(apiOrigin, SEND_API), {
           body: {
             target: chara.key,
@@ -302,6 +287,32 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     }
   }, [selectedImage, selectedImageMode, chara]);
 
+  const ImageModalAction = useCallback(
+    ({ mode }: { mode: characterImageMode }) => {
+      if (!state) state = {};
+      state.from = location.href;
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("modal", "gallery");
+      newSearchParams.set("showAllAlbum", "on");
+      switch (mode) {
+        case "icon":
+        case "image":
+        case "headerImage":
+          newSearchParams.set("topAlbum", charaMediaKindMap.get(mode)!);
+          break;
+        default:
+          newSearchParams.set("topAlbum", charaMediaKindValues.join(","));
+          break;
+      }
+      if (chara) newSearchParams.set("characters", chara.key);
+      setSearchParams(Object.fromEntries(newSearchParams), {
+        state,
+        preventScrollReset: true,
+      });
+      setSelectedImageMode(mode);
+    },
+    [searchParams, state, chara]
+  );
   const ImageModalSetter = useCallback(
     ({
       mode,
@@ -318,27 +329,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           title={title}
           type="button"
           onClick={() => {
-            if (!state) state = {};
-            state.from = location.href;
-            const newSearchParams = new URLSearchParams(searchParams);
-            newSearchParams.set("modal", "gallery");
-            newSearchParams.set("showAllAlbum", "on");
-            switch (mode) {
-              case "icon":
-              case "image":
-              case "headerImage":
-                newSearchParams.set("topAlbum", charaMediaKindMap.get(mode)!);
-                break;
-              default:
-                newSearchParams.set("topAlbum", charaMediaKindValues.join(","));
-                break;
-            }
-            if (chara) newSearchParams.set("characters", chara.key);
-            setSearchParams(Object.fromEntries(newSearchParams), {
-              state,
-              preventScrollReset: true,
-            });
-            setSelectedImageMode(mode);
+            ImageModalAction({ mode });
           }}
         >
           <RiImageAddFill />
@@ -401,9 +392,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                 })
                 .then(async (o) => {
                   if (o && typeof o.key === "string") {
-                    if (mode === "body") {
-                      setDescriptionFromImage(o as unknown as ImageDataType);
-                    } else {
+                    if (mode !== "body") {
                       return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
                         body: {
                           target: chara.key,
@@ -644,10 +633,14 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </div>
         <div>
           <div className="flex around wrap modifier mb-2">
-            <ImageSetter mode="body" title="本文に差し込む画像をアップロード" />
-            <ImageModalSetter
-              mode="body"
-              title="ギャラリーから画像を本文に差し込む"
+            <PostEditSelectMedia
+              textarea={descriptionRef.current}
+              setValue={setDescription}
+              actionOverwrite={{
+                gallery: () => {
+                  ImageModalAction({ mode: "body" });
+                },
+              }}
             />
             <PostEditSelectDecoration
               textarea={descriptionRef.current}

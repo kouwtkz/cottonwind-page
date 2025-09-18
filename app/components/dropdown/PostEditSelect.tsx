@@ -9,6 +9,7 @@ import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
   textarea?: HTMLTextAreaElement | null;
   setValue?: (v: any) => void;
+  actionOverwrite?: { [k: string]: (props: PostEditSelectBaseProps) => any };
 }
 
 interface replacePostTextareaProps extends PostEditSelectBaseProps {
@@ -123,59 +124,66 @@ export function setPostInsert({
   value,
   textarea,
   setValue,
+  actionOverwrite,
 }: PostEditSelectBaseProps & {
   value: string;
 }) {
   if (!value || !textarea) return;
-  switch (value) {
-    case "br":
-      replacePostTextarea({
-        textarea,
-        setValue,
-        before: "\n<br/>\n\n",
-        after: "",
-      });
-      break;
-    case "separator":
-      replacePostTextarea({
-        textarea,
-        setValue,
-        before: "\n***\n\n",
-        after: "",
-      });
-      break;
-    case "more":
-      replacePostTextarea({
-        textarea,
-        setValue,
-        before: "\n<details>\n<summary>もっと読む</summary>\n\n",
-        after: "\n</details>",
-      });
-      break;
-    case "h2":
-      replacePostTextarea({ textarea, setValue, before: "## ", after: "" });
-      break;
-    case "h3":
-      replacePostTextarea({ textarea, setValue, before: "### ", after: "" });
-      break;
-    case "h4":
-      replacePostTextarea({ textarea, setValue, before: "#### ", after: "" });
-      break;
-    case "li":
-      replacePostTextarea({ textarea, setValue, before: "- ", after: "" });
-      break;
-    case "ol":
-      replacePostTextarea({ textarea, setValue, before: "+ ", after: "" });
-      break;
-    case "code":
-      replacePostTextarea({
-        textarea,
-        setValue,
-        before: "```\n",
-        after: "\n```",
-      });
-      break;
-  }
+  if (actionOverwrite && typeof actionOverwrite[value] === "function")
+    actionOverwrite[value]({
+      textarea,
+      setValue,
+    });
+  else
+    switch (value) {
+      case "br":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "\n<br/>\n\n",
+          after: "",
+        });
+        break;
+      case "separator":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "\n***\n\n",
+          after: "",
+        });
+        break;
+      case "more":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "\n<details>\n<summary>もっと読む</summary>\n\n",
+          after: "\n</details>",
+        });
+        break;
+      case "h2":
+        replacePostTextarea({ textarea, setValue, before: "## ", after: "" });
+        break;
+      case "h3":
+        replacePostTextarea({ textarea, setValue, before: "### ", after: "" });
+        break;
+      case "h4":
+        replacePostTextarea({ textarea, setValue, before: "#### ", after: "" });
+        break;
+      case "li":
+        replacePostTextarea({ textarea, setValue, before: "- ", after: "" });
+        break;
+      case "ol":
+        replacePostTextarea({ textarea, setValue, before: "+ ", after: "" });
+        break;
+      case "code":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "```\n",
+          after: "\n```",
+        });
+        break;
+    }
 }
 
 export function PostEditSelectDecoration({
@@ -232,28 +240,35 @@ export function setDecoration({
   textarea,
   setValue,
   colorChanger,
+  actionOverwrite,
 }: PostEditSelectBaseProps & {
   value: string;
   colorChanger: HTMLInputElement | null;
 }) {
   if (!value || !textarea) return;
-  switch (value) {
-    case "color":
-      if (colorChanger) {
-        colorChanger.focus();
-        colorChanger.click();
-      }
-      break;
-    case "italic":
-      replacePostTextarea({ textarea, setValue, before: "*" });
-      break;
-    case "bold":
-      replacePostTextarea({ textarea, setValue, before: "**" });
-      break;
-    case "strikethrough":
-      replacePostTextarea({ textarea, setValue, before: "~~" });
-      break;
-  }
+  if (actionOverwrite && typeof actionOverwrite[value] === "function")
+    actionOverwrite[value]({
+      textarea,
+      setValue,
+    });
+  else
+    switch (value) {
+      case "color":
+        if (colorChanger) {
+          colorChanger.focus();
+          colorChanger.click();
+        }
+        break;
+      case "italic":
+        replacePostTextarea({ textarea, setValue, before: "*" });
+        break;
+      case "bold":
+        replacePostTextarea({ textarea, setValue, before: "**" });
+        break;
+      case "strikethrough":
+        replacePostTextarea({ textarea, setValue, before: "~~" });
+        break;
+    }
 }
 
 interface setColorChangeProps extends PostEditSelectBaseProps {
@@ -286,6 +301,7 @@ export function PostEditSelectMedia({
   MenuButton = "メディア",
   title = "メディア",
   album,
+  actionOverwrite,
   ...args
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
@@ -302,57 +318,72 @@ export function PostEditSelectMedia({
   }, [selectedImage]);
   function setMedia(value: string) {
     if (!value || !textarea || !apiOrigin) return;
-    switch (value) {
-      case "upload":
-        fileDialog("image/*", true)
-          .then((files) => Array.from(files))
-          .then((files) =>
-            ImagesUploadWithToast({
-              src: files,
-              album,
-              notDraft: true,
+    if (actionOverwrite && typeof actionOverwrite[value] === "function")
+      actionOverwrite[value]({
+        textarea,
+        setValue,
+      });
+    else
+      switch (value) {
+        case "upload":
+          fileDialog("image/*", true)
+            .then((files) => Array.from(files))
+            .then((files) =>
+              ImagesUploadWithToast({
+                src: files,
+                album,
+                notDraft: true,
+              })
+            )
+            .then((list) => {
+              imageDataIndexed.load("no-cache");
+              return list
+                ?.map((r) => r.data as ImageDataType)
+                .filter((data) => data);
             })
-          )
-          .then((list) => {
-            imageDataIndexed.load("no-cache");
-            return list
-              ?.map((r) => r.data as ImageDataType)
-              .filter((data) => data);
-          })
-          .then((list) => {
-            list?.forEach((data) => {
-              replacePostTextareaFromImage({ image: data, textarea, setValue });
+            .then((list) => {
+              list?.forEach((data) => {
+                replacePostTextareaFromImage({
+                  image: data,
+                  textarea,
+                  setValue,
+                });
+              });
             });
+          break;
+        case "external":
+          replacePostTextarea({
+            textarea,
+            setValue,
+            before: "![](",
+            after: ")",
           });
-        break;
-      case "external":
-        replacePostTextarea({
-          textarea,
-          setValue,
-          before: "![](",
-          after: ")",
-        });
-        window.open(env?.UPLOAD_SERVICE, "uploadExternal");
-        break;
-      case "gallery":
-        searchParams.set("modal", "gallery");
-        if (album) searchParams.set("topAlbum", album);
-        if (!state) state = {};
-        state.from = location.href;
-        setSearchParams(searchParams, { state });
-        break;
-      case "link":
-        replacePostTextarea({ textarea, setValue, before: "[](", after: ")" });
-        break;
-      case "copy":
-        replacePostTextarea({
-          textarea,
-          setValue,
-          before: "[](copy:",
-          after: ")",
-        });
-        break;
-    }
+          window.open(env?.UPLOAD_SERVICE, "uploadExternal");
+          break;
+        case "gallery":
+          searchParams.set("modal", "gallery");
+          if (album) searchParams.set("topAlbum", album);
+          if (!state) state = {};
+          state.from = location.href;
+          setSearchParams(searchParams, { state });
+          break;
+        case "link":
+          replacePostTextarea({
+            textarea,
+            setValue,
+            before: "[](",
+            after: ")",
+          });
+          break;
+        case "copy":
+          replacePostTextarea({
+            textarea,
+            setValue,
+            before: "[](copy:",
+            after: ")",
+          });
+          break;
+      }
   }
   return (
     <DropdownObject
