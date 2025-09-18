@@ -249,7 +249,9 @@
         $p: (100 * calc($i / $max)) + "%";
         $i: $i + 1;
         #{$p} {
-          cursor: url(#{$url}), #{$name};
+          cursor:
+            url(#{$url}),
+            #{$name};
         }
       }
     }
@@ -258,7 +260,9 @@
     }
   } @else {
     %#{$keyname} {
-      cursor: url(#{$url_or_time}), #{$name};
+      cursor:
+        url(#{$url_or_time}),
+        #{$name};
     }
   }
   .#{$keyname} {
@@ -526,7 +530,7 @@ style {
 ul {
   text-align: left;
   margin: auto;
-  &.sm {
+  &:not(.wide) {
     @extend %sm-width;
   }
   li {
@@ -2262,6 +2266,12 @@ form {
         margin: 0.25rem;
       }
     }
+    .parsed {
+      margin: 0.5rem auto;
+    }
+    button.like {
+      margin: 0.5rem;
+    }
   }
   .edit {
     max-width: 44rem;
@@ -2392,7 +2402,9 @@ $translucent-button-hover-bg: rgba(0, 0, 0, 0.2);
   align-items: center;
   color: $translucent-button-default-color;
   background-color: $translucent-button-default-bg;
-  transition: color 200ms, background-color 200ms;
+  transition:
+    color 200ms,
+    background-color 200ms;
   > * {
     width: 100%;
     height: 100%;
@@ -2424,9 +2436,9 @@ select {
 }
 
 %galleryTransition {
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    backdrop-filter;
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -2530,8 +2542,8 @@ div.banner {
         @extend %galleryTransition;
       }
       .ribbon {
-        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-          sans-serif;
+        font-family:
+          "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
         padding: 0.1rem 0.25rem;
         vertical-align: middle;
         position: absolute;

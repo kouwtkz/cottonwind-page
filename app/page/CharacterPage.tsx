@@ -318,7 +318,7 @@ function CharaListPage() {
     [move]
   );
   const charaListClassName = useMemo(() => {
-    const classList = ["charaList"];
+    const classList = ["charaList", "wide"];
     if (extendMode) classList.push("extend");
     return classList.join(" ");
   }, [extendMode]);
@@ -556,7 +556,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
               </p>
             ) : null}
             {chara.tags && chara.tags.length > 0 ? (
-              <div className="tags">
+              <p className="tags">
                 {chara.tags
                   .map<ContentsTagsOption>((tag) => {
                     const found = charactersTags?.find(
@@ -570,7 +570,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                       #{tag.label || tag.value}
                     </Link>
                   ))}
-              </div>
+              </p>
             ) : null}
             {chara.time ? (
               <p>

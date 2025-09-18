@@ -32,7 +32,7 @@ export function LinksList({
   return (
     <>
       {myLinks.length > 0 ? (
-        <ul className="footerLink">
+        <ul className="footerLink wide">
           {myLinks
             .filter((link) => !link.none && link.mask)
             .map((link, i) => (

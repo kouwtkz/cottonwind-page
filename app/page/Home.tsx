@@ -26,7 +26,7 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
     <>
       <HomeImage />
       <div className="topPage wide">
-        <ul className="topButtons">
+        <ul className="topButtons wide">
           <li>
             <Link to="/gallery">
               <ImgSwitch
