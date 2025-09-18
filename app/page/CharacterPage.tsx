@@ -455,7 +455,7 @@ export function CharaBeforeAfter({
         nav(beforeTo, { state });
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true }
+    { ignoreModifiers: true, enableOnFormTags: false }
   );
   useHotkeys(
     "ArrowRight",
@@ -464,7 +464,7 @@ export function CharaBeforeAfter({
         nav(afterTo, { state });
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true }
+    { ignoreModifiers: true, enableOnFormTags: false }
   );
   return (
     <div className={"beforeAfter" + (className ? " " + className : "")}>
