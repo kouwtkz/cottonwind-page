@@ -414,14 +414,23 @@ function CharaListPage() {
   );
 }
 
-interface CharaBeforeAfterProps extends HTMLAttributes<HTMLDivElement> {
+interface CharaBeforeAfterProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "onClick"> {
   charaName?: string;
+  onClick?: (event?: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 }
 export function CharaBeforeAfter({
   charaName,
   className,
+  onClick,
   ...props
 }: CharaBeforeAfterProps) {
+  const OnClick = useCallback<React.MouseEventHandler<HTMLAnchorElement>>(
+    (e) => {
+      if (onClick) onClick(e);
+    },
+    [onClick]
+  );
   const { charactersMap } = useCharacters();
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
@@ -479,6 +488,7 @@ export function CharaBeforeAfter({
     "ArrowLeft",
     (e) => {
       if (beforeTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
+        if (onClick) onClick();
         nav(beforeTo, { state });
       }
     },
@@ -488,6 +498,7 @@ export function CharaBeforeAfter({
     "ArrowRight",
     (e) => {
       if (afterTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
+        if (onClick) onClick();
         nav(afterTo, { state });
       }
     },
@@ -497,7 +508,7 @@ export function CharaBeforeAfter({
     <div className={"beforeAfter" + (className ? " " + className : "")}>
       <div className="before" {...props}>
         {beforeChara ? (
-          <Link to={beforeTo} state={state}>
+          <Link to={beforeTo} state={state} onClick={OnClick}>
             <span className="cursor">＜</span>
             {beforeChara.icon ? (
               <ImageMeeIcon
@@ -512,7 +523,7 @@ export function CharaBeforeAfter({
       </div>
       <div className="after" {...props}>
         {afterChara ? (
-          <Link to={afterTo} state={state}>
+          <Link to={afterTo} state={state} onClick={OnClick}>
             {afterChara.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.icon}
