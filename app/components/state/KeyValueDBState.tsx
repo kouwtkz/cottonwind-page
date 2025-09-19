@@ -370,7 +370,7 @@ export function KeyValueEditable({
       (isLogin ? (
         <>
           <RiEdit2Fill />
-          <span className="title">{title}</span>
+          {title ? <span className="title">{title}</span> : null}
         </>
       ) : null)
     );

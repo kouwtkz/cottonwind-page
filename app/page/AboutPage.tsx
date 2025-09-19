@@ -11,8 +11,8 @@ export default function AboutPage() {
       <h1 className="color-main en-title-font">
         <Link to="/about">About</Link>
       </h1>
-      <h2 className="color-dark">プロフィール</h2>
-      <div className="author">
+      <div className="author container">
+        <h2 className="color-dark">プロフィール</h2>
         <h3 className="color-main">
           <KeyValueEditable
             editEnvKey="VITE_KVDB_KEY_AUTHOR_NAME"
@@ -34,23 +34,27 @@ export default function AboutPage() {
             />
           </p>
         </div>
-        <KeyValueEditable
-          editEnvKey="VITE_KVDB_KEY_AUTHOR_IMAGE"
-          editEnvDefault="AUTHOR_IMAGE"
-          imageMeeProps={{
-            className: "authorImage",
-            alt: "プロフィール画像",
-          }}
-          editType="image"
-        />
-      </div>
-      <div className="container">
-        <KeyValueEditable
-          editEnvKey="VITE_KVDB_KEY_AUTHOR_DESCRIPTION"
-          editEnvDefault="AUTHOR_DESCRIPTION"
-          editType="textarea"
-          title="作者の詳細の編集"
-        />
+        <div className="body">
+          <div>
+            <KeyValueEditable
+              editEnvKey="VITE_KVDB_KEY_AUTHOR_IMAGE"
+              editEnvDefault="AUTHOR_IMAGE"
+              imageMeeProps={{
+                className: "authorImage",
+                alt: "プロフィール画像",
+              }}
+              editType="image"
+            />
+          </div>
+          <div className="description text-left">
+            <KeyValueEditable
+              editEnvKey="VITE_KVDB_KEY_AUTHOR_DESCRIPTION"
+              editEnvDefault="AUTHOR_DESCRIPTION"
+              editType="textarea"
+              title="作者の詳細の編集"
+            />
+          </div>
+        </div>
       </div>
       <div className="container">
         <h3 className="color-main" id="guideline">
