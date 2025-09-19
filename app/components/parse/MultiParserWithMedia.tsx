@@ -50,6 +50,9 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
           );
         }
       }
+      if (n.type === "tag" && n.name === "a") {
+        console.log(n.prev, n);
+      }
       if (
         n.type === "tag" &&
         n.name === "a" &&

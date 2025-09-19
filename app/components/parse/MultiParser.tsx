@@ -247,6 +247,19 @@ export function MultiParser({
                     );
                   break;
                 default:
+                  if (v.name === "li") {
+                    v.children.forEach((c, i) => {
+                      if (c.type === "text" && !/^\s*$/.test(c.data)) {
+                        v.children[i] = new NodeElement(
+                          "div",
+                          {
+                            className: "text",
+                          },
+                          [new NodeText(c.data)]
+                        );
+                      }
+                    });
+                  }
                   if (typeof location !== "undefined" && linkPush) {
                     const newChildren = v.children.reduce((a, n) => {
                       let _n: ChildNode | undefined = n;

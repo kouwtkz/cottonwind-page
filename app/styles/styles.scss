@@ -527,28 +527,37 @@ style {
   margin: auto;
   max-width: 32rem;
 }
-ul {
+ul,
+ol {
+  white-space: normal;
   text-align: left;
   margin: auto;
+  width: max-content;
+  &.auto, &.wide {
+    &,
+    ul,
+    ol {
+      width: auto;
+    }
+  }
   &:not(.wide) {
-    @extend %sm-width;
+    max-width: 32rem;
   }
   li {
-    white-space: pre-line;
-    line-height: 1.75em;
+    line-height: 2em;
     &[tabindex]:focus {
       background-color: var(--main-color-fluo);
+    }
+    .text {
+      white-space: pre-line;
+    }
+    ul,
+    ol {
+      margin-left: 0;
     }
   }
   &.flex {
     padding: 0;
-  }
-  .parsed &,
-  .default {
-    padding-left: 1.25rem;
-    li {
-      list-style: circle;
-    }
   }
   &.files {
     display: flex;
@@ -1883,6 +1892,7 @@ footer {
   }
   @extend %a-line-none;
   ul {
+    width: auto;
     margin: auto;
     $padding-tb: 0.5rem;
     padding: #{$padding-tb} 1rem;
@@ -2122,6 +2132,9 @@ form {
   overflow-y: scroll;
   .parsed p:first-child {
     margin-top: 0;
+  }
+  ul {
+    margin-left: 0;
   }
 }
 
@@ -3490,10 +3503,10 @@ label,
     width: auto;
     max-width: 100%;
   }
-  @extend %a-line-none;
-  .parsed {
-    @extend %sm-width;
+  .framework ul {
+    width: auto;
   }
+  @extend %a-line-none;
 }
 .on-en-prop {
   margin-bottom: 1rem;

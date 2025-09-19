@@ -79,7 +79,6 @@ function FaviconSetState() {
       return null;
     }
   }, [location, params, searchParams, charactersMap]);
-  console.log(icon);
   useEffect(() => {
     setFavicon(icon);
   }, [icon]);

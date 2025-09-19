@@ -128,6 +128,7 @@ function KeyValueEdit() {
   const Delete = useCallback(() => {
     if (edit && confirm("本当に削除しますか？\n(デフォルトの設定に戻ります)")) {
       customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+        method: "DELETE",
         data: { key: edit },
         cors: true,
       }).then(() => {
@@ -339,9 +340,10 @@ export function KeyValueEditable({
         if (editEnvKey && !editKey) {
           editKey = import.meta.env[editEnvKey];
         }
-        if (editEnvDefault && !editDefault && editKey) {
+        if (!editDefault && editKey) {
           editDefault =
-            kvMap?.get(editKey)?.value || env[editEnvDefault]?.toString();
+            kvMap?.get(editKey)?.value ||
+            (editEnvDefault ? env[editEnvDefault]?.toString() : "");
         }
       }
       return { editKey, editDefault };
