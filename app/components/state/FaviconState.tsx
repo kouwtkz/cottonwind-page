@@ -57,7 +57,7 @@ function FaviconSystemState() {
         }
       } else if (defaultValue) {
         element.href = defaultValue;
-      } else element.removeAttribute("href");
+      } else element.setAttribute("href", "/favicon.ico");
     }
   }, [src, mediaOrigin, isWait]);
   return <></>;
@@ -79,6 +79,7 @@ function FaviconSetState() {
       return null;
     }
   }, [location, params, searchParams, charactersMap]);
+  console.log(icon);
   useEffect(() => {
     setFavicon(icon);
   }, [icon]);
