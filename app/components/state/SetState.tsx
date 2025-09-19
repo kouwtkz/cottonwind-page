@@ -29,6 +29,7 @@ import { Theme } from "../theme/Theme";
 import { LangState } from "../multilingual/LangState";
 import { FaviconState } from "./FaviconState";
 import { rootClientServerData } from "../utils/SetMeta";
+import { MiniCharacterPage } from "~/page/CharacterPage";
 
 export function SetState({
   env,
@@ -46,6 +47,7 @@ export function SetState({
       <SoundPlayer />
       <ImageViewer />
       <MiniGallery />
+      <MiniCharacterPage />
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />
       <HomeImageState />

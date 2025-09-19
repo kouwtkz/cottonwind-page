@@ -30,6 +30,7 @@ import {
   useCharacters,
   charaMediaKindMap,
   charaMediaKindValues,
+  useSelectedCharacter,
 } from "~/components/state/CharacterState";
 import { useSounds } from "~/components/state/SoundState";
 import { ImageMeeIcon, ImageMeeQuestion } from "~/components/layout/ImageMee";
@@ -66,12 +67,13 @@ import { SendDelete } from "~/components/functions/sendFunction";
 import { ObjectIndexedDBDownloadButton } from "~/components/button/ObjectDownloadButton";
 import { useImageState, useSelectedImage } from "~/components/state/ImageState";
 import { findMee } from "~/data/find/findMee";
-import { RiImageAddFill } from "react-icons/ri";
+import { RiImageAddFill, RiUserAddFill } from "react-icons/ri";
 import { CreateObjectState } from "~/components/state/CreateState";
 import {
   PostEditSelectDecoration,
   PostEditSelectInsert,
   PostEditSelectMedia,
+  replacePostTextarea,
 } from "~/components/dropdown/PostEditSelect";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { PostTextarea } from "~/components/parse/PostTextarea";
@@ -287,7 +289,37 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     }
   }, [selectedImage, selectedImageMode, chara]);
 
-  const ImageModalAction = useCallback(
+  const characterModalAction = useCallback(() => {
+    if (!state) state = {};
+    state.from = location.href;
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("modal", "character");
+    setSearchParams(Object.fromEntries(newSearchParams), {
+      state,
+      preventScrollReset: true,
+    });
+  }, [searchParams, state, chara]);
+  const selectedCharacter = useSelectedCharacter()[0];
+  useEffect(() => {
+    if (selectedCharacter) {
+      const textarea = descriptionRef.current!;
+      const { selectionStart, selectionEnd } = textarea;
+      let before = "[";
+      let after = `](/character/${selectedCharacter.key})`;
+      if (selectionStart === selectionEnd) {
+        before = before + selectedCharacter.name + after;
+        after = "";
+      }
+      replacePostTextarea({
+        before,
+        after,
+        textarea,
+        setValue: setDescription,
+      });
+    }
+  }, [selectedCharacter]);
+
+  const imageModalAction = useCallback(
     ({ mode }: { mode: characterImageMode }) => {
       if (!state) state = {};
       state.from = location.href;
@@ -329,7 +361,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           title={title}
           type="button"
           onClick={() => {
-            ImageModalAction({ mode });
+            imageModalAction({ mode });
           }}
         >
           <RiImageAddFill />
@@ -633,12 +665,22 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </div>
         <div>
           <div className="flex around wrap modifier mb-2">
+            <button
+              className="color"
+              title={"キャラクターリンクの設定"}
+              type="button"
+              onClick={() => {
+                characterModalAction();
+              }}
+            >
+              <RiUserAddFill />
+            </button>
             <PostEditSelectMedia
               textarea={descriptionRef.current}
               setValue={setDescription}
               actionOverwrite={{
                 gallery: () => {
-                  ImageModalAction({ mode: "body" });
+                  imageModalAction({ mode: "body" });
                 },
               }}
             />

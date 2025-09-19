@@ -12,7 +12,10 @@ import {
   ImageMeeQuestion,
   ImageMeeThumbnail,
 } from "~/components/layout/ImageMee";
-import { useCharacters } from "~/components/state/CharacterState";
+import {
+  useCharacters,
+  useSelectedCharacter,
+} from "~/components/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
 import {
   type HTMLAttributes,
@@ -45,6 +48,7 @@ import { DEFAULT_LANG } from "~/Env";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
+import { Modal } from "~/components/layout/Modal";
 
 interface PartsType {
   label?: string;
@@ -203,14 +207,25 @@ function CharacterPageState() {
   return <></>;
 }
 
-export function CharacterPage({ charaName }: { charaName?: string }) {
+export function CharacterPage({
+  charaName,
+  forceListMode,
+}: {
+  charaName?: string;
+  forceListMode?: boolean;
+}) {
   const searchParams = useSearchParams()[0];
-  const isEdit = searchParams.get("edit") === "on";
+  const isEdit = useMemo(
+    () => searchParams.get("edit") === "on",
+    [searchParams]
+  );
   const isLogin = useIsLogin()[0];
   return (
     <div className="characterPage">
       <CharacterPageState />
-      {isLogin && isEdit ? (
+      {forceListMode ? (
+        <CharaListPage />
+      ) : isLogin && isEdit ? (
         <CharacterEdit />
       ) : (
         <>
@@ -299,6 +314,12 @@ function CharaListPage() {
   const { state } = useLocation();
   const extendMode = useExtendMode()[0];
   const [move, setMove] = useMoveCharacters();
+  const searchParams = useSearchParams()[0];
+  const setSelectedCharacter = useSelectedCharacter()[1];
+  const isModal = useMemo(
+    () => searchParams.get("modal") === "character",
+    [searchParams]
+  );
   const Inner = useCallback(
     ({ item }: { item: CharacterType }) => {
       return (
@@ -307,6 +328,12 @@ function CharaListPage() {
           state={{
             ...(state ?? {}),
             backUrl: getBackURL(),
+          }}
+          onClick={(e) => {
+            if (isModal) {
+              e.preventDefault();
+              setSelectedCharacter(item);
+            }
           }}
           className="item"
           key={item.key}
@@ -779,5 +806,45 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
       />
       <ContentsTagsSelect tags={tags} />
     </div>
+  );
+}
+
+export function MiniCharacterPage() {
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const nav = useNavigate();
+  const { state } = useLocation();
+  const enable = useMemo(
+    () => searchParams.get("modal") === "character",
+    [searchParams]
+  );
+  const closeHandler = useCallback(() => {
+    if (state?.from) {
+      delete state.from;
+      nav(-1);
+    } else {
+      searchParams.delete("modal");
+      setSearchParams(searchParams, { state, preventScrollReset: true });
+    }
+  }, [state, searchParams]);
+  useEffect(() => {
+    if (selectedCharacter) {
+      setSelectedCharacter(null);
+      closeHandler();
+    }
+  }, [selectedCharacter, setSelectedCharacter]);
+  return (
+    <>
+      <Modal
+        classNameEntire="gallery"
+        className="large"
+        onClose={closeHandler}
+        isOpen={enable}
+        scroll
+        timeout={50}
+      >
+        <CharacterPage forceListMode />
+      </Modal>
+    </>
   );
 }

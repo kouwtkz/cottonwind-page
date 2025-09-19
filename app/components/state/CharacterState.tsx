@@ -2,7 +2,7 @@ import { type JSX, useEffect, useMemo, useSyncExternalStore } from "react";
 import { useImageState } from "./ImageState";
 import { useSounds } from "./SoundState";
 import { charactersDataIndexed } from "~/data/ClientDBLoader";
-import { CreateObjectState } from "./CreateState";
+import { CreateObjectState, CreateState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { useLikeState } from "./LikeState";
 import type { OmittedEnv } from "types/custom-configuration";
@@ -166,3 +166,5 @@ function CharacterDataState() {
   }, [imagesMap]);
   return <></>;
 }
+
+export const useSelectedCharacter = CreateState<CharacterType | null>(null);

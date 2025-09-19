@@ -25,14 +25,15 @@ export function replacePostTextarea({
   before = "",
   after,
   replaceSelectionRegExp: reg,
-  replaceSelectionValue = "$1",
+  replaceSelectionValue,
   insertWhenBlank = true,
 }: replacePostTextareaProps) {
   if (!textarea) return;
   if (after === undefined) after = before;
   const { selectionStart, selectionEnd } = textarea;
   let selection = textarea.value.slice(selectionStart, selectionEnd);
-  if (reg) selection = selection.replace(reg, replaceSelectionValue);
+  if (reg) selection = selection.replace(reg, replaceSelectionValue || "$1");
+  else if (replaceSelectionValue) selection = replaceSelectionValue;
   textarea.setRangeText(
     `${before}${selection}${after}`,
     selectionStart,

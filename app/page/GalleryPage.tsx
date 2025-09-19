@@ -980,8 +980,11 @@ function GalleryContent({
   );
   const { state, search, hash } = useLocation();
   const nav = useNavigate();
-  const isModal = searchParams.get("modal") === "gallery";
   const setSelectedImage = useSelectedImage()[1];
+  const isModal = useMemo(
+    () => searchParams.get("modal") === "gallery",
+    [searchParams]
+  );
   const imageOnClick = isModal
     ? function (image: ImageType) {
         setSelectedImage(image);
