@@ -300,26 +300,64 @@ function KeyValueEdit() {
   );
 }
 
-export interface KeyValueEditableMainProps
-  extends React.HTMLAttributes<HTMLButtonElement> {
+export interface KeyValueEditableBaseProps {
   editType?: EditType;
   editKey?: string;
   editDefault?: string;
+}
+export interface KeyValueEditableMainProps
+  extends React.HTMLAttributes<HTMLButtonElement>,
+    KeyValueEditableBaseProps {
   title?: string;
   placeholder?: string;
 }
-export interface KeyValueEditableProps extends KeyValueEditableMainProps {
+export interface KeyValueEditableBaseCaseEnvProps {
   editEnvKey?: ImportMetaKVKeyType;
   editEnvDefault?: keyof OmittedEnv;
+}
+export interface KeyValueEditableProps
+  extends KeyValueEditableMainProps,
+    KeyValueEditableBaseCaseEnvProps {
   childrenOutDefault?: boolean;
   childrenOutParse?: boolean;
   replaceValue?: string;
   imageMeeProps?: ImageMeeProps;
 }
+
+interface getKeyValueFromEnvKeyProps
+  extends KeyValueEditableBaseProps,
+    KeyValueEditableBaseCaseEnvProps {
+  env?: Partial<OmittedEnv>;
+  kvMap?: Map<string, KeyValueDBType>;
+}
+export function getKeyValueFromEnvKey({
+  env,
+  kvMap,
+  editKey,
+  editDefault,
+  editEnvKey,
+  editEnvDefault,
+}: getKeyValueFromEnvKeyProps) {
+  let useKey = editKey;
+  let value = editDefault;
+  if (env && kvMap && import.meta.env) {
+    if (editEnvKey && !useKey) {
+      useKey = import.meta.env[editEnvKey];
+    }
+    if (!value && useKey) {
+      value =
+        kvMap?.get(useKey)?.value ||
+        (editEnvDefault ? env[editEnvDefault]?.toString() : "");
+    }
+  }
+  return { useKey, value };
+}
+
 export function KeyValueEditable({
   children,
-  editKey: ek,
-  editDefault: ed,
+  editType,
+  editKey,
+  editDefault,
   editEnvKey,
   editEnvDefault,
   childrenOutDefault,
@@ -330,39 +368,33 @@ export function KeyValueEditable({
   ...props
 }: KeyValueEditableProps) {
   const env = useEnv()[0];
-  const isLogin = useIsLogin()[0];
   const { kvMap } = useKeyValueDB();
-  const { editKey, editDefault } = useMemo(
-    (() => {
-      let editKey = ek;
-      let editDefault = ed;
-      if (env && kvMap && import.meta.env) {
-        if (editEnvKey && !editKey) {
-          editKey = import.meta.env[editEnvKey];
-        }
-        if (!editDefault && editKey) {
-          editDefault =
-            kvMap?.get(editKey)?.value ||
-            (editEnvDefault ? env[editEnvDefault]?.toString() : "");
-        }
-      }
-      return { editKey, editDefault };
-    }) as () => { editKey?: string; editDefault?: string },
-    [env, kvMap, ek, ed, editEnvKey, editEnvDefault]
+  const isLogin = useIsLogin()[0];
+  const { useKey, value } = useMemo(
+    () =>
+      getKeyValueFromEnvKey({
+        env,
+        kvMap,
+        editKey,
+        editDefault,
+        editEnvKey,
+        editEnvDefault,
+      }),
+    [env, kvMap, editKey, editDefault, editEnvKey, editEnvDefault]
   );
   childrenOutDefault = useMemo(
-    () => childrenOutDefault ?? Boolean(editDefault),
-    [childrenOutDefault, editDefault]
+    () => childrenOutDefault ?? Boolean(value),
+    [childrenOutDefault, value]
   );
   childrenOutParse = useMemo(
-    () => childrenOutParse ?? props.editType === "textarea",
-    [childrenOutParse, props.editType]
+    () => childrenOutParse ?? editType === "textarea",
+    [childrenOutParse, editType]
   );
   children = useMemo(() => {
-    if (!children && childrenOutDefault && editDefault) {
-      switch (props.editType) {
+    if (!children && childrenOutDefault && value) {
+      switch (editType) {
         case "image":
-          return <ImageMee imageItem={editDefault} {...imageMeeProps} />;
+          return <ImageMee imageItem={value} {...imageMeeProps} />;
       }
     }
     return (
@@ -374,20 +406,11 @@ export function KeyValueEditable({
         </>
       ) : null)
     );
-  }, [
-    children,
-    props.editType,
-    title,
-    childrenOutDefault,
-    editDefault,
-    isLogin,
-  ]);
+  }, [children, editType, title, childrenOutDefault, value, isLogin]);
   let defaultValue: ReactNode = useMemo(
     () =>
-      replaceValue && editDefault
-        ? editDefault.replace(/^(.*)$/, replaceValue)
-        : editDefault,
-    [editDefault, replaceValue]
+      replaceValue && value ? value.replace(/^(.*)$/, replaceValue) : value,
+    [value, replaceValue]
   );
   defaultValue = useMemo(
     () =>
@@ -400,7 +423,7 @@ export function KeyValueEditable({
   );
   let defaultBefore = useMemo(() => {
     if (childrenOutDefault) {
-      switch (props.editType || "text") {
+      switch (editType || "text") {
         case "text":
           return defaultValue;
       }
@@ -408,7 +431,7 @@ export function KeyValueEditable({
     return null;
   }, [childrenOutDefault, defaultValue]);
   let defaultAfter = useMemo(() => {
-    switch (props.editType || "text") {
+    switch (editType || "text") {
       case "textarea":
         return defaultValue;
     }
@@ -420,7 +443,10 @@ export function KeyValueEditable({
       {defaultBefore}
       {isLogin ? (
         <>
-          <KeyValueEditableMain {...{ editKey, editDefault, title }} {...props}>
+          <KeyValueEditableMain
+            {...{ editKey: useKey, editDefault: value, title, editType }}
+            {...props}
+          >
             {children}
           </KeyValueEditableMain>
         </>
@@ -429,6 +455,58 @@ export function KeyValueEditable({
       )}
       {defaultAfter}
     </>
+  );
+}
+
+interface KeyValueRenderProps
+  extends KeyValueEditableBaseProps,
+    KeyValueEditableBaseCaseEnvProps {
+  childrenOutParse?: boolean;
+}
+export function KeyValueRenderProps({
+  editType,
+  childrenOutParse,
+  ...props
+}: KeyValueRenderProps) {
+  const env = useEnv()[0];
+  const { kvMap } = useKeyValueDB();
+  childrenOutParse = childrenOutParse ?? editType === "textarea";
+  const { value } = useMemo(
+    () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
+    [env, kvMap, props]
+  );
+  return <>{childrenOutParse ? <MultiParser>{value}</MultiParser> : value}</>;
+}
+
+interface KeyValueEditButtonProps
+  extends KeyValueEditableBaseProps,
+    KeyValueEditableBaseCaseEnvProps {
+  children?: ReactNode;
+}
+export function KeyValueEditButton({
+  children,
+  ...props
+}: KeyValueEditButtonProps) {
+  const env = useEnv()[0];
+  const { kvMap } = useKeyValueDB();
+  const { useKey, value } = useMemo(
+    () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
+    [env, kvMap, props]
+  );
+  return (
+    <KeyValueEditableMain
+      {...{ editKey: useKey, editDefault: value }}
+      {...props}
+    >
+      {typeof children === "object" ? (
+        children
+      ) : (
+        <>
+          <RiEdit2Fill />
+          {children}
+        </>
+      )}
+    </KeyValueEditableMain>
   );
 }
 

@@ -3533,12 +3533,14 @@ label,
         position: relative;
       }
     }
-    h3,
     .on-en-prop {
       button {
         position: absolute;
-        margin: 0.25rem;
+        margin: 0;
         bottom: 0;
+        svg {
+          margin-left: 0.15em;
+        }
       }
     }
     .body {
@@ -3550,8 +3552,33 @@ label,
       > * {
         margin: 1rem;
       }
+      .description {
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: flex-end;
+        align-items: flex-end;
+        button.keyValueEdit {
+          margin-top: 1rem;
+        }
+      }
     }
   }
+  h3#guideline {
+    position: relative;
+  }
+  .author h3,
+  #guideline {
+    button {
+      position: absolute;
+      margin: 0.25rem 0.5rem;
+      bottom: 0;
+      svg {
+        width: 1.1em;
+        height: 1.1em;
+      }
+    }
+  }
+
   img.authorImage {
     height: 20em;
     width: auto;

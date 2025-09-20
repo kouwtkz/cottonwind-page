@@ -1,7 +1,11 @@
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { Link } from "react-router";
 import { BiGitBranch } from "react-icons/bi";
-import { KeyValueEditable } from "~/components/state/KeyValueDBState";
+import {
+  KeyValueEditable,
+  KeyValueEditButton,
+  KeyValueRenderProps,
+} from "~/components/state/KeyValueDBState";
 import { EnvLinksMap } from "~/Env";
 import { useMemo } from "react";
 
@@ -59,11 +63,14 @@ export default function AboutPage() {
       <div className="container">
         <h3 className="color-main" id="guideline">
           <Link to="#guideline">ガイドライン</Link>
+          <KeyValueEditButton
+            editEnvKey="VITE_KVDB_KEY_GUIDELINE"
+            editType="textarea"
+          />
         </h3>
-        <KeyValueEditable
+        <KeyValueRenderProps
           editEnvKey="VITE_KVDB_KEY_GUIDELINE"
           editType="textarea"
-          title="ガイドラインの編集"
         />
       </div>
       <WebsiteFramework className="container" />
