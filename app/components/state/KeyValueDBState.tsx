@@ -493,20 +493,25 @@ export function KeyValueEditButton({
     () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
     [env, kvMap, props]
   );
+  const isLogin = useIsLogin()[0];
   return (
-    <KeyValueEditableMain
-      {...{ editKey: useKey, editDefault: value }}
-      {...props}
-    >
-      {typeof children === "object" ? (
-        children
-      ) : (
-        <>
-          <RiEdit2Fill />
-          {children}
-        </>
-      )}
-    </KeyValueEditableMain>
+    <>
+      {isLogin ? (
+        <KeyValueEditableMain
+          {...{ editKey: useKey, editDefault: value }}
+          {...props}
+        >
+          {typeof children === "object" ? (
+            children
+          ) : (
+            <>
+              <RiEdit2Fill />
+              {children}
+            </>
+          )}
+        </KeyValueEditableMain>
+      ) : null}
+    </>
   );
 }
 
