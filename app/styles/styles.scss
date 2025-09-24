@@ -1267,6 +1267,23 @@ h3 {
 h4 {
   font-size: 1.25rem;
 }
+.content-base {
+  h2,
+  h3,
+  h4,
+  p {
+    position: relative;
+    button.keyValueEdit {
+      position: absolute;
+      margin: 0.25rem 0.5rem;
+      bottom: 0;
+      svg {
+        width: 1.1em;
+        height: 1.1em;
+      }
+    }
+  }
+}
 
 .common-h2 {
   color: var(--main-color);
@@ -2157,12 +2174,14 @@ form {
 }
 
 .parsed {
-  h1, h2 {
+  h1,
+  h2 {
     margin-top: 1em;
     @extend .color-main;
     @extend .en-title-font;
   }
-  h3, h4 {
+  h3,
+  h4 {
     margin-top: 0.5em;
     @extend .color-deep;
   }
@@ -3554,7 +3573,6 @@ label,
   .author {
     h3 {
       font-size: 2.75rem;
-      position: relative;
     }
     .on-en-prop {
       display: flex;
@@ -3563,12 +3581,10 @@ label,
       > * {
         margin: 0 0.5em;
         font-size: 1.5rem;
-        position: relative;
       }
     }
     .on-en-prop {
       button {
-        position: absolute;
         margin: 0;
         bottom: 0;
         svg {
@@ -3596,22 +3612,6 @@ label,
       }
     }
   }
-  h3#guideline {
-    position: relative;
-  }
-  .author h3,
-  #guideline {
-    button {
-      position: absolute;
-      margin: 0.25rem 0.5rem;
-      bottom: 0;
-      svg {
-        width: 1.1em;
-        height: 1.1em;
-      }
-    }
-  }
-
   img.authorImage {
     height: 20em;
     width: auto;
