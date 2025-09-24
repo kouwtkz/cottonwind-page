@@ -57,29 +57,24 @@ const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 export default function LinksPage() {
   const env = useEnv()[0];
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
-  const topLinkTitle = useMemo(() => {
-    let title: string | undefined;
-    if (env?.AUTHOR_NAME) title = env.AUTHOR_NAME + "のリンクたち";
-    return title;
-  }, [env]);
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
-      <MeeLinks title="トップリンク" category="top" banner />
+      <MeeLinks title="Top Link" category="top" banner />
       <MeeLinks
-        title={topLinkTitle}
+        title="My Links"
         category={null}
         banner
         linkStyle={{ minHeight: "3em" }}
       />
       <MeeLinks
-        title="コミッション"
+        title="Commission"
         category="commission"
         banner
         linkStyle={{ minHeight: "3em" }}
       />
       <div>
-        <h3 className="leaf">いろいろ</h3>
+        <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">
           <li>
             <InviteDiscordLink />
@@ -102,8 +97,8 @@ export default function LinksPage() {
       </div>
       <MyBanners />
       <FavoriteLinks />
-      <FavoriteLinks title="参加してるイベント" category="event" />
-      <FavoriteLinks title="登録サーチ" category="search" />
+      <FavoriteLinks title="Joining Event" category="event" />
+      <FavoriteLinks title="Joined Search" category="search" />
     </div>
   );
 }
@@ -193,7 +188,7 @@ export function MyBanners() {
   }, []);
   return (
     <div>
-      <h3 className="leaf">サイトのバナー</h3>
+      <h3 className="color-main en-title-font">Site Banner</h3>
       {isLogin ? <MyBannerEditButtons /> : null}
       <ul className={className}>
         {move ? (
@@ -373,7 +368,7 @@ function LinksContainer({
               defaultCategories={defaultCategories}
             />
           ) : null}
-          {title ? <h3 className="leaf">{title || "リンク集"}</h3> : null}
+          {title ? <h3 className="color-main en-title-font">{title || "Links"}</h3> : null}
           {isLogin ? (
             <LinksEditButtons
               state={state}
@@ -462,7 +457,7 @@ export function FavoriteLinks(props: MeeLinksProps) {
     <>
       {favLinksDataIndexed ? (
         <LinksContainer
-          title="お気に入りのサイト"
+          title="Favorite Site"
           dir="/fav"
           state={useFavLinks()}
           indexedDB={favLinksDataIndexed}

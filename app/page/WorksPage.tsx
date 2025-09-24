@@ -11,8 +11,8 @@ import {
 } from "~/components/state/KeyValueDBState";
 
 export default function WorksPage() {
-  const { images } = useImageState();
-  const list = useMemo(() => {
+  const { images, galleryAlbums } = useImageState();
+  const galleryResults = useMemo(() => {
     if (images) {
       return findMee(images, {
         where: {
@@ -21,22 +21,33 @@ export default function WorksPage() {
       });
     } else return [];
   }, [images]);
-  const groups: GalleryItemObjectType[] = [
-    {
-      name: "Gallery",
-      list,
-      linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks",
-    },
-  ];
+  const gallery3D = useMemo(() => {
+    if (galleryAlbums) {
+      return galleryAlbums.find((v) => v.name === "3D") || null;
+    } else return null;
+  }, [galleryAlbums]);
+  const groups = useMemo(() => {
+    const list: GalleryItemObjectType[] = [
+      {
+        name: "Results",
+        list: galleryResults,
+        linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks",
+      },
+    ];
+    if (gallery3D) {
+      list.push({...gallery3D, label: "3D Sample"});
+    }
+    return list;
+  }, [galleryResults, gallery3D]);
   return (
     <div className="worksPage">
       <div className="color-main en-title-font">
-        <h2>Works</h2>
+        <h2>WORKS</h2>
         <h4>おしごとページ</h4>
       </div>
       <div className="status">
         <h2 className="color-main en-title-font">
-          STATUS
+          Status
           <KeyValueEditButton
             editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
             editType="textarea"
@@ -47,17 +58,16 @@ export default function WorksPage() {
           editType="textarea"
         />
       </div>
-      <div className="results">
-        <h2 className="color-main en-title-font">RESULTS</h2>
+      <div className="gallery">
+        <h2 className="color-main en-title-font">Gallery</h2>
         <GalleryObject
           items={groups}
           showInPageMenu={false}
           showGalleryHeader={false}
-          showGalleryLabel={false}
         />
       </div>
       <MeeLinks
-        title="コミッション"
+        title="Commission"
         category="commission"
         className="linkPage"
         banner
@@ -65,7 +75,7 @@ export default function WorksPage() {
       />
       <div className="price">
         <h2 className="color-main en-title-font">
-          PRICE
+          Price
           <KeyValueEditButton
             editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
             editType="textarea"

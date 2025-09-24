@@ -3558,6 +3558,15 @@ label,
   }
 }
 
+.worksPage {
+  .gallery h2 {
+    margin-bottom: 0;
+  }
+  .linkPage h3 {
+    font-size: 2.5em;
+  }
+}
+
 .aboutPage {
   h2 {
     font-size: 1.75rem;
@@ -4013,10 +4022,8 @@ form.blogEdit {
   font-size: 1.125rem;
   margin: auto;
   h3 {
-    color: var(--main-color-dark);
-  }
-  > * {
-    margin: 1rem auto;
+    font-size: 1.75em;
+    color: var(--main-color-strong);
   }
   ul {
     text-align: left;
