@@ -528,7 +528,7 @@ style {
   max-width: 32rem;
 }
 
-table:not([role]) {
+table:not([class^="fc-"]) {
   display: inline-table;
   border-collapse: collapse;
   margin: 0.5rem;
