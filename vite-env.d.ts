@@ -7,6 +7,8 @@ interface ImportMetaKVKeyEnv {
   readonly VITE_KVDB_KEY_AUTHOR_IMAGE: string;
   readonly VITE_KVDB_KEY_AUTHOR_DESCRIPTION: string;
   readonly VITE_KVDB_KEY_GUIDELINE: string;
+  readonly VITE_KVDB_KEY_WORKS_STATUS: string;
+  readonly VITE_KVDB_KEY_WORKS_PRICE: string;
 }
 type ImportMetaKVKeyType = keyof ImportMetaKVKeyEnv;
 

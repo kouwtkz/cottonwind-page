@@ -117,6 +117,7 @@ export function PostEditSelectInsert({
       <MenuItem value="li">リスト</MenuItem>
       <MenuItem value="ol">数字リスト</MenuItem>
       <MenuItem value="code">コード</MenuItem>
+      <MenuItem value="table">テーブル</MenuItem>
     </DropdownObject>
   );
 }
@@ -182,6 +183,14 @@ export function setPostInsert({
           setValue,
           before: "```\n",
           after: "\n```",
+        });
+        break;
+      case "table":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: `|  |  |  |\n| ---- | ---- | ---- |\n|  |  |  |\n`,
+          after: "",
         });
         break;
     }

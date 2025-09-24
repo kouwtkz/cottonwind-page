@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
@@ -35,6 +36,7 @@ import type { OmittedEnv } from "types/custom-configuration";
 import { customFetch } from "../functions/fetch";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { GetAPIFromOptions, KeyValueDBDataOptions } from "~/data/DataEnv";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const SEND_API = GetAPIFromOptions(KeyValueDBDataOptions, "/send");
 
@@ -85,6 +87,10 @@ const schema = z.object({
   private: z.boolean().nullish(),
 });
 function KeyValueEdit() {
+  const ref = useRef<HTMLFormElement | null>(null);
+  useEffect(() => {
+    ref.current?.querySelector<HTMLElement>(`textarea,input[type="text"]`)?.focus();
+  }, []);
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   let {
@@ -181,6 +187,24 @@ function KeyValueEdit() {
     }
   }, [selectedImage, isSelectedImage]);
 
+  useHotkeys(
+    "ctrl+enter",
+    (e) => {
+      if (isDirty) Submit();
+    },
+    { enableOnFormTags: true }
+  );
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (document.activeElement?.tagName !== "BODY") {
+        (document.activeElement as HTMLElement).blur();
+        e.preventDefault();
+      }
+    },
+    { enableOnFormTags: true }
+  );
+
   return (
     <>
       <Modal
@@ -191,7 +215,7 @@ function KeyValueEdit() {
           }
         }}
       >
-        <form className="flex" onSubmit={handleSubmit(Submit)}>
+        <form className="flex" onSubmit={handleSubmit(Submit)} ref={ref}>
           <div className="header flex justify-between">
             <span>{edit}</span>
             <label className="private">
@@ -203,6 +227,7 @@ function KeyValueEdit() {
             <input
               title="値"
               placeholder={edit || "設定したい値"}
+              type="text"
               {...register("value")}
             />
           ) : editType === "textarea" ? (

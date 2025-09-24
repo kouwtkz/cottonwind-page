@@ -4,6 +4,11 @@ import ContactPage from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
 import { useMemo, useState } from "react";
 import { findMee } from "~/data/find/findMee";
+import {
+  KeyValueEditable,
+  KeyValueEditButton,
+  KeyValueRenderProps,
+} from "~/components/state/KeyValueDBState";
 
 export default function WorksPage() {
   const { images } = useImageState();
@@ -25,13 +30,32 @@ export default function WorksPage() {
   ];
   return (
     <div className="worksPage">
-      <h2 className="color-main en-title-font">Works</h2>
-      <GalleryObject
-        items={groups}
-        showInPageMenu={false}
-        showGalleryHeader={false}
-        showGalleryLabel={false}
-      />
+      <div className="color-main en-title-font">
+        <h2>Works</h2>
+        <h4>おしごとページ</h4>
+      </div>
+      <div className="status">
+        <h2 className="color-main en-title-font">
+          STATUS
+          <KeyValueEditButton
+            editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
+            editType="textarea"
+          />
+        </h2>
+        <KeyValueRenderProps
+          editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
+          editType="textarea"
+        />
+      </div>
+      <div className="results">
+        <h2 className="color-main en-title-font">RESULTS</h2>
+        <GalleryObject
+          items={groups}
+          showInPageMenu={false}
+          showGalleryHeader={false}
+          showGalleryLabel={false}
+        />
+      </div>
       <MeeLinks
         title="コミッション"
         category="commission"
@@ -39,6 +63,19 @@ export default function WorksPage() {
         banner
         linkStyle={{ minHeight: "3em" }}
       />
+      <div className="price">
+        <h2 className="color-main en-title-font">
+          PRICE
+          <KeyValueEditButton
+            editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
+            editType="textarea"
+          />
+        </h2>
+        <KeyValueRenderProps
+          editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
+          editType="textarea"
+        />
+      </div>
       <ContactPage />
     </div>
   );

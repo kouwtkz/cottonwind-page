@@ -527,6 +527,31 @@ style {
   margin: auto;
   max-width: 32rem;
 }
+
+table:not([role]) {
+  display: inline-table;
+  border-collapse: collapse;
+  margin: 0.5rem;
+  border: solid 2px var(--main-color-dark-grayish);
+  th {
+    background-color: var(--main-color-pale);
+  }
+  th,
+  td {
+    border: solid 1px;
+    padding: 0.25rem 1rem;
+  }
+  .price & {
+    th {
+      color: var(--text-background);
+      background-color: var(--main-color-dark-grayish);
+    }
+    td:first-child {
+      background-color: var(--main-color-pale);
+    }
+  }
+}
+
 ul,
 ol {
   white-space: normal;
@@ -584,6 +609,13 @@ ol {
         width: 1.25rem;
       }
     }
+  }
+}
+%ulolAuto {
+  ul,
+  ol {
+    width: auto;
+    margin-left: 0;
   }
 }
 
@@ -1261,14 +1293,6 @@ h4 {
         opacity: 1;
       }
     }
-  }
-}
-
-%ulolAuto {
-  ul,
-  ol {
-    width: auto;
-    margin-left: 0;
   }
 }
 
@@ -2133,6 +2157,15 @@ form {
 }
 
 .parsed {
+  h1, h2 {
+    margin-top: 1em;
+    @extend .color-main;
+    @extend .en-title-font;
+  }
+  h3, h4 {
+    margin-top: 0.5em;
+    @extend .color-deep;
+  }
   &.blog > * {
     margin: 1.5rem auto;
   }
