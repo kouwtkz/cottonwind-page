@@ -5,12 +5,12 @@ import {
   filesDataOptions,
   ImageDataOptions,
   INDEXEDDB_NAME,
-  INDEXEDDB_VERSION,
   KeyValueDBDataOptions,
   likeDataOptions,
   linksDataOptions,
   linksFavDataOptions,
   postsDataOptions,
+  redirectDataOptions,
   soundAlbumsDataOptions,
   soundsDataOptions,
   TableVersionDataOptions,
@@ -67,6 +67,10 @@ export let keyValueDBDataIndexed: IndexedDataLastmodMH<
   KeyValueDBDataType
 >;
 export let KVDataIndexed: typeof keyValueDBDataIndexed;
+export let redirectDataIndexed: IndexedDataLastmodMH<
+  redirectType,
+  redirectDataType
+>;
 export let tableVersionDataIndexed: IndexedDataLastmodMH<
   Props_LastmodMH_Tables,
   Props_LastmodMH_Tables_Data
@@ -76,6 +80,9 @@ export const IdbClassMap: Map<TableNameTypes, anyIdbStateClass> = new Map();
 export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 
 export let dbClass: MeeIndexedDB;
+
+export const INDEXEDDB_VERSION = 4;
+
 export async function MeeIndexedDBCreate() {
   return MeeIndexedDB.create({
     version: INDEXEDDB_VERSION,
@@ -161,6 +168,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     likeDataIndexed = new IndexedDataLastmodMH(likeDataOptions);
     keyValueDBDataIndexed = new IndexedDataLastmodMH(KeyValueDBDataOptions);
     KVDataIndexed = keyValueDBDataIndexed;
+    redirectDataIndexed = new IndexedDataLastmodMH(redirectDataOptions);
     IdbStateClassMap = new Map();
     indexedList = [
       tableVersionDataIndexed,
@@ -174,6 +182,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
       favLinksDataIndexed,
       likeDataIndexed,
       keyValueDBDataIndexed,
+      redirectDataIndexed,
     ];
     indexedList.forEach((item) => {
       IdbStateClassMap!.set(item.options.name, item);
@@ -227,9 +236,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
         );
         indexedList!.forEach((indexedItem) => {
           const currentTable = currentVersionMap.get(indexedItem.key);
-          if (currentTable) {
-            indexedItem.version = currentTable?.version;
-          }
+          indexedItem.version = currentTable?.version || "";
         });
       })
       .then(() => {

@@ -62,9 +62,13 @@ export class IndexedDataLastmodMH<
   override async dbUpgradeneeded(e: IDBVersionChangeEvent, db: IDBDatabase) {
     this.isUpgrade = true;
     if (e.oldVersion) {
-      const request = e.target as IDBOpenDBRequest;
-      const store = this.table.getStore(request.transaction!);
-      await new Promise((s, j) => { const r = store.clear(); r.onsuccess = s; r.onerror = j });
+      if (db.objectStoreNames.contains(this.options.name)) {
+        const request = e.target as IDBOpenDBRequest;
+        const store = this.table.getStore(request.transaction!);
+        await new Promise((s, j) => { const r = store.clear(); r.onsuccess = s; r.onerror = j });
+      } else {
+        db.createObjectStore(this.options.name, { keyPath: (this.options.primary || "key").toString() });
+      }
     } else { this.isFirst = true; }
     return super.dbUpgradeneeded(e, db);
   }

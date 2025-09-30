@@ -30,6 +30,7 @@ import { LangState } from "../multilingual/LangState";
 import { FaviconState } from "./FaviconState";
 import { rootClientServerData } from "../utils/SetMeta";
 import { MiniCharacterPage } from "~/page/CharacterPage";
+import RedirectState from "./redirectState";
 
 export function SetState({
   env,
@@ -60,6 +61,7 @@ export function SetState({
       <LinksState />
       <LikeState />
       <KeyValueDBState />
+      <RedirectState />
       <ClientDBState />
       <Theme />
       <LangState />

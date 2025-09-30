@@ -13,6 +13,15 @@ export function meta({ matches, params }: Route.MetaArgs) {
     case "files":
       metaData.title = "ファイルかんり - " + metaData.title;
       break;
+    case "zip":
+      metaData.title = "ZIPアーカイブ - " + metaData.title;
+      break;
+    case "redirect":
+      metaData.title = "リダイレクトせってい - " + metaData.title;
+      break;
+    case "db":
+      metaData.title = "データベースかんり - " + metaData.title;
+      break;
   }
   metaData.description = "サイトの管理";
   return SetMetaDefault(metaData);

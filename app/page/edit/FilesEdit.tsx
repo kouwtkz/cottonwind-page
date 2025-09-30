@@ -189,7 +189,7 @@ export function FilesEdit({
         />
         <button
           type="button"
-          className="color"
+          className="send"
           onClick={handleSubmit(Submit)}
           disabled={!isDirty}
         >

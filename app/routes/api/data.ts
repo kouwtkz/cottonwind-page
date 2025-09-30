@@ -15,6 +15,7 @@ import {
   TableVersionDataOptions,
   likeDataOptions,
   KeyValueDBDataOptions,
+  redirectDataOptions,
 } from "~/data/DataEnv";
 import { ServerTableVersionGetData, UpdateTablesDataObject } from "./DBTablesObject";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
@@ -28,6 +29,7 @@ import { SiteLinkServer } from "./links";
 import { SiteFavLinkServer } from "./links-fav";
 import { ServerLikeGetData } from "./like";
 import { ServerKeyValueDBGetData } from "./KeyValueDB";
+import { ServerRedirectGetData } from "./redirect";
 
 const dataset: Array<[
   options: Props_LastmodMHClass_Options<any>,
@@ -43,6 +45,7 @@ const dataset: Array<[
     [linksFavDataOptions, SiteFavLinkServer.getData.bind(SiteFavLinkServer)],
     [likeDataOptions, ServerLikeGetData],
     [KeyValueDBDataOptions, ServerKeyValueDBGetData],
+    [redirectDataOptions, ServerRedirectGetData],
     [TableVersionDataOptions, ServerTableVersionGetData],
   ];
 const datasetMap = new Map(dataset.map(([options, getData]) => ([options.name, { options, getData }])));
@@ -90,6 +93,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
 
 export async function action({ params, request, context }: Route.ActionArgs) {
   if (params.param === "update") {
+    console.log(request)
     const list: Props_LastmodMHClass_Options<any>[] = [
       charactersDataOptions,
       linksFavDataOptions,
@@ -101,6 +105,7 @@ export async function action({ params, request, context }: Route.ActionArgs) {
       soundsDataOptions,
       likeDataOptions,
       KeyValueDBDataOptions,
+      redirectDataOptions,
     ];
     const db = getCfDB({ context })!;
     const lastmodTime = new Date();

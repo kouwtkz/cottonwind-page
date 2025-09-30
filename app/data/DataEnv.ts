@@ -2,7 +2,6 @@ import { concatOriginUrl } from "~/components/functions/originUrl";
 import { apiOrigin } from "./ClientDBLoader";
 
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
-export const INDEXEDDB_VERSION: number = 3;
 
 const ImageDataName = "images";
 export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
@@ -134,11 +133,23 @@ export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBType,
   convert: { date: ["lastmod"], boolean: ["private"] }
 }
 
+const redirectDataName = "redirect";
+export const redirectDataOptions: Props_LastmodMHClass_Options<redirectType, redirectDataType> = {
+  name: redirectDataName,
+  src: "/redirect",
+  api: "/redirect",
+  version: "1.0.0",
+  preLoad: false,
+  primary: "id",
+  secondary: ["lastmod", "path"],
+  convert: { date: ["lastmod"] }
+}
+
 const TableVersionDataName = "tables"
 export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data> = {
   name: TableVersionDataName,
   src: "/tables",
-  version: "1.0.1",
+  version: "1.0.2",
   primary: "key",
   secondary: ["lastmod"],
   preLoad: false,
@@ -152,5 +163,5 @@ export function GetAPIFromOptions(options: Props_LastmodMHClass_Options<any>, pa
 
 export type TableNameTypes = typeof ImageDataName | typeof charactersDataName | typeof postsDataName
   | typeof soundsDataName | typeof soundAlbumsDataName | typeof filesDataDataName
-  | typeof linksDataName | typeof linksFavDataName | typeof KeyValueDBDataName | typeof TableVersionDataName;
+  | typeof linksDataName | typeof linksFavDataName | typeof KeyValueDBDataName | typeof redirectDataName | typeof TableVersionDataName;
 export type TableNameTypesWithAll = TableNameTypes | "all";

@@ -2,6 +2,7 @@ import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
+import { getCfDB, getCfEnv } from "./data/cf/getEnv";
 
 export default async function handleRequest(
   request: Request,
@@ -36,6 +37,25 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html");
+
+  // const env = getCfEnv({ context: _loadContext });
+  const db = getCfDB({ context: _loadContext })!;
+  const Url = new URL(request.url);
+  try {
+    const redirectCheck = (
+      await db.select<redirectDataType>({
+        table: "redirect",
+        where: { path: Url.pathname },
+      })
+    )[0];
+    if (redirectCheck) {
+      Url.pathname = redirectCheck.redirect;
+      // Url.search = "";
+      // Url.hash = "";
+      return Response.redirect(Url.href);
+    }
+  } catch {}
+
   return new Response(body, {
     headers: responseHeaders,
     status: responseStatusCode,

@@ -9,6 +9,7 @@ interface JSONAllDataTypes {
   linksFav: SiteLinkData[];
   likeData: LikeDataType[];
   KeyValueDB: KeyValueDBType[];
+  redirect: redirectType[];
   tables: Props_LastmodMH_Tables_Data[];
 }
 type JSONAllDataKeys = keyof JSONAllDataTypes;
