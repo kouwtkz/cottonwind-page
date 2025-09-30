@@ -38,23 +38,25 @@ export default async function handleRequest(
 
   responseHeaders.set("Content-Type", "text/html");
 
-  // const env = getCfEnv({ context: _loadContext });
-  const db = getCfDB({ context: _loadContext })!;
-  const Url = new URL(request.url);
-  try {
-    const redirectCheck = (
-      await db.select<redirectDataType>({
-        table: "redirect",
-        where: { path: Url.pathname },
-      })
-    )[0];
-    if (redirectCheck) {
-      Url.pathname = redirectCheck.redirect;
-      // Url.search = "";
-      // Url.hash = "";
-      return Response.redirect(Url.href);
+  if (request.method === "GET") {
+    const Url = new URL(request.url);
+    if (!Url.pathname.startsWith("/api")) {
+      // const env = getCfEnv({ context: _loadContext });
+      const db = getCfDB({ context: _loadContext })!;
+      try {
+        const redirectCheck = (
+          await db.select<redirectDataType>({
+            table: "redirect",
+            where: { path: Url.pathname },
+          })
+        )[0];
+        if (redirectCheck) {
+          Url.pathname = redirectCheck.redirect;
+          return Response.redirect(Url.href);
+        }
+      } catch {}
     }
-  } catch {}
+  }
 
   return new Response(body, {
     headers: responseHeaders,
