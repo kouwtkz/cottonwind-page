@@ -59,13 +59,30 @@ interface replacePostTextareaFromImageProps extends PostEditSelectBaseProps {
 }
 export function replacePostTextareaFromImage({
   image,
+  textarea,
   ...args
 }: replacePostTextareaFromImageProps) {
   const searchParams = new URLSearchParams({ image: image.key });
+  let appendMode: boolean;
+  if (textarea) {
+    const { selectionStart, selectionEnd } = textarea;
+    appendMode = selectionStart === selectionEnd;
+  } else {
+    appendMode = true;
+  }
+  let before: string, after: string;
+  if (appendMode) {
+    before = `\n![${image.title}](?${searchParams})\n`;
+    after = "";
+  } else {
+    before = "[";
+    after = `](?${searchParams})`;
+  }
   replacePostTextarea({
     ...args,
-    before: `\n![${image.title}](?${searchParams})\n`,
-    after: "",
+    textarea,
+    before,
+    after,
   });
 }
 
