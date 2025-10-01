@@ -89,7 +89,9 @@ const schema = z.object({
 function KeyValueEdit() {
   const ref = useRef<HTMLFormElement | null>(null);
   useEffect(() => {
-    ref.current?.querySelector<HTMLElement>(`textarea,input[type="text"]`)?.focus();
+    ref.current
+      ?.querySelector<HTMLElement>(`textarea,input[type="text"]`)
+      ?.focus();
   }, []);
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -487,10 +489,12 @@ interface KeyValueRenderProps
   extends KeyValueEditableBaseProps,
     KeyValueEditableBaseCaseEnvProps {
   childrenOutParse?: boolean;
+  onRender?: (elm: HTMLElement) => void;
 }
 export function KeyValueRenderProps({
   editType,
   childrenOutParse,
+  onRender,
   ...props
 }: KeyValueRenderProps) {
   const env = useEnv()[0];
@@ -500,7 +504,15 @@ export function KeyValueRenderProps({
     () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
     [env, kvMap, props]
   );
-  return <>{childrenOutParse ? <MultiParser>{value}</MultiParser> : value}</>;
+  return (
+    <>
+      {childrenOutParse ? (
+        <MultiParser onRender={onRender}>{value}</MultiParser>
+      ) : (
+        value
+      )}
+    </>
+  );
 }
 
 interface KeyValueEditButtonProps

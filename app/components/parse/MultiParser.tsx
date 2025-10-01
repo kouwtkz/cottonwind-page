@@ -34,6 +34,7 @@ export interface MultiParserProps
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
+  onRender?: (elm: HTMLElement) => void;
 }
 
 export interface MultiParserReplaceProps {
@@ -65,6 +66,7 @@ export function MultiParser({
   replaceFunction,
   useEffectFunction,
   preventScrollResetSearches,
+  onRender,
   children,
 }: MultiParserProps) {
   const nav = useNavigate();
@@ -89,6 +91,7 @@ export function MultiParser({
       existCode.current = false;
     }
     if (useEffectFunction) useEffectFunction();
+    if (onRender) onRender(ref.current!);
   }, [children]);
   let { text: childString, list } = useMemo(() => {
     let text = typeof children === "string" ? children : "";

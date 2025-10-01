@@ -7,7 +7,7 @@ import {
   KeyValueRenderProps,
 } from "~/components/state/KeyValueDBState";
 import { EnvLinksMap } from "~/Env";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function AboutPage() {
   return (
@@ -60,6 +60,7 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+      <AuthorHistory />
       <div className="container">
         <h3 className="color-main" id="guideline">
           <Link to="#guideline">ガイドライン</Link>
@@ -74,6 +75,168 @@ export default function AboutPage() {
         />
       </div>
       <WebsiteFramework className="container" />
+    </div>
+  );
+}
+
+interface AuthorHistoryProps {
+  defaultYear?: number;
+  defaultCategory?: string;
+}
+export function AuthorHistory({
+  defaultYear = NaN,
+  defaultCategory = "",
+}: AuthorHistoryProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [yearList, setYearList] = useState<valueCountType<number>[]>([]);
+  const [year, setYear] = useState<number>(defaultYear);
+  const [categoriesList, setCategoriesList] = useState<valueCountType[]>([]);
+  const [category, setCategory] = useState<string>(defaultCategory);
+  useEffect(() => {
+    const elms = ref.current?.querySelectorAll<HTMLElement>("[data-year]");
+    if (elms) {
+      elms.forEach((e) => {
+        e.hidden = false;
+      });
+      if (!isNaN(year)) {
+        const yearStr = String(year);
+        elms.forEach((e) => {
+          if (e.dataset.year !== yearStr) e.hidden = true;
+        });
+      }
+      if (category) {
+        elms.forEach((e) => {
+          if (e.dataset.category !== category) e.hidden = true;
+        });
+      }
+    }
+  }, [year, category]);
+  return (
+    <div className="history container" ref={ref}>
+      <h3 className="color-main" id="history">
+        <Link className="en-title-font" to="#history">
+          History
+        </Link>
+        <KeyValueEditButton
+          editEnvKey="VITE_KVDB_KEY_AUTHOR_HISTORY"
+          editType="textarea"
+        />
+      </h3>
+      <div>
+        <select
+          name="year"
+          title="Year filter"
+          className="noBorder year"
+          value={year}
+          onChange={(e) => {
+            setYear(Number((e.target as HTMLSelectElement).value));
+          }}
+        >
+          {yearList.map(({ value, label }, i) => (
+            <option key={i} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <select
+          name="category"
+          title="Category filter"
+          className="noBorder year"
+          onChange={(e) => {
+            setCategory((e.target as HTMLSelectElement).value);
+          }}
+          value={category}
+        >
+          {categoriesList.map(({ value, label }, i) => (
+            <option key={i} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <KeyValueRenderProps
+        editEnvKey="VITE_KVDB_KEY_AUTHOR_HISTORY"
+        editType="textarea"
+        onRender={(elm) => {
+          if (elm.children.length > 0) {
+            const table = elm.querySelector<HTMLTableElement>("table");
+            if (table) {
+              const trElms = Array.from(
+                table.tBodies[0]?.querySelectorAll<HTMLTableRowElement>("tr") ||
+                  []
+              );
+              const yearMap = trElms.reduce<Map<number, number>>((m, r) => {
+                const d = r.children[0] as HTMLElement;
+                const year = Number(
+                  d.innerText.slice(0, d.innerText.indexOf("/"))
+                );
+                r.dataset.year = String(year);
+                if (m.has(year)) {
+                  m.set(year, m.get(year)! + 1);
+                } else {
+                  m.set(year, 1);
+                }
+                return m;
+              }, new Map());
+              const yearAllCount = Array.from(yearMap.values()).reduce(
+                (a, v) => a + v,
+                0
+              );
+              const yearList: valueCountType<number>[] = [
+                {
+                  value: NaN,
+                  count: yearAllCount,
+                  label: `Year (${yearAllCount})`,
+                },
+              ];
+              yearList.push(
+                ...Array.from(yearMap.entries()).map<valueCountType<number>>(
+                  ([value, count]) => ({
+                    value,
+                    count,
+                    label: `${value} (${count})`,
+                  })
+                )
+              );
+              setYearList(yearList);
+              const categoriesMap = trElms.reduce<Map<string, number>>(
+                (m, r) => {
+                  const d = r.children[1] as HTMLElement;
+                  const category = d.innerText;
+                  r.dataset.category = String(category);
+                  if (m.has(category)) {
+                    m.set(category, m.get(category)! + 1);
+                  } else {
+                    m.set(category, 1);
+                  }
+                  return m;
+                },
+                new Map()
+              );
+              const categoriesAllCount = Array.from(
+                categoriesMap.values()
+              ).reduce((a, v) => a + v, 0);
+              const categoriesList: valueCountType[] = [
+                {
+                  value: "",
+                  count: categoriesAllCount,
+                  label: `Category (${categoriesAllCount})`,
+                },
+              ];
+              categoriesList.push(
+                ...Array.from(categoriesMap.entries()).map<valueCountType>(
+                  ([category, count]) => ({
+                    value: category,
+                    count,
+                    label: `${category} (${count})`,
+                  })
+                )
+              );
+              setCategoriesList(categoriesList);
+            }
+          }
+        }}
+      />
     </div>
   );
 }

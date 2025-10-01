@@ -3640,6 +3640,12 @@ label,
   @extend %a-line-none;
 }
 
+.history {
+  h3 {
+    margin-bottom: 0;
+  }
+}
+
 .changeLog {
   margin: 2rem 0.5rem 1rem;
   h3 {

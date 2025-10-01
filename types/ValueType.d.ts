@@ -21,3 +21,9 @@ interface Vector {
   x: number;
   y: number;
 }
+
+interface valueCountType<T = string> {
+  value: T;
+  label?: string;
+  count: number;
+}
