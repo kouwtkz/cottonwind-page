@@ -539,7 +539,22 @@ table:not([class^="fc-"]) {
   th,
   td {
     border: solid 1px;
-    padding: 0.25rem 1rem;
+    padding: 0.25rem 0.25rem;
+    @media (min-width: $mobileWidth) {
+      padding: 0.25rem 1rem;
+    }
+  }
+}
+table {
+  .history & {
+    @media (max-width: $tabletWidth) {
+      th,
+      td {
+        &:nth-child(n + 4) {
+          display: none;
+        }
+      }
+    }
   }
   .price & {
     th {
@@ -587,7 +602,8 @@ ol {
   &.flex {
     padding: 0;
   }
-  &.files, &.redirects {
+  &.files,
+  &.redirects {
     display: flex;
     flex-direction: column;
     align-items: center;
