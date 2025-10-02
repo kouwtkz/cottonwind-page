@@ -565,7 +565,22 @@ table {
       }
     }
   }
-  .history .modal & {
+  .price & {
+    th {
+      color: var(--text-background);
+      background-color: var(--main-color-dark-grayish);
+    }
+    td:first-child {
+      background-color: var(--main-color-pale);
+    }
+  }
+}
+
+.history {
+  .modalEntire {
+    z-index: 35;
+  }
+  .modal table {
     tr {
       display: flex;
       flex-direction: column;
@@ -585,15 +600,6 @@ table {
         pointer-events: none;
         color: var(--text-color);
       }
-    }
-  }
-  .price & {
-    th {
-      color: var(--text-background);
-      background-color: var(--main-color-dark-grayish);
-    }
-    td:first-child {
-      background-color: var(--main-color-pale);
     }
   }
 }
