@@ -200,6 +200,7 @@ export function MultiParser({
                         preventScrollReset =
                           (url.startsWith("?") &&
                             (Url.searchParams.has("modal") ||
+                              Url.searchParams.has("image") ||
                               preventScrollResetSearches?.some((v) =>
                                 Url.searchParams.has(v)
                               ))) ||
