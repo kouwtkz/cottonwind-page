@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { createSearchParams, useNavigate } from "react-router";
+import {
+  createSearchParams,
+  useNavigate,
+  type NavigateFunction,
+} from "react-router";
 import HTMLReactParser, {
   type HTMLReactParserOptions,
   htmlToDOM,
@@ -44,6 +48,84 @@ export interface MultiParserReplaceProps {
 }
 
 const searchParamsRelative = "search-params-relative";
+
+interface SetLinkPushProps {
+  a: HTMLAnchorElement;
+  nav: NavigateFunction;
+  preventScrollReset?: boolean;
+  preventScrollResetSearches?: string[];
+}
+export function SetLinkPush({
+  a,
+  nav,
+  preventScrollReset,
+  preventScrollResetSearches,
+}: SetLinkPushProps) {
+  let url = a.getAttribute("href");
+  if (url) {
+    if (/^\w+:\/\//.test(url)) {
+      a.target = "_blank";
+      if (Array.from(a.childNodes).some((node) => node.nodeType === 3))
+        a.classList.add("external");
+    } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
+      const baseHref = location.href;
+      const doubleQuestion = url.startsWith("??");
+      let searchParams: URLSearchParams | undefined;
+      if (url.startsWith("?")) {
+        searchParams = new URLSearchParams(doubleQuestion ? url.slice(1) : url);
+      }
+      if (searchParams) {
+        let isRelative = doubleQuestion;
+        if (searchParams.has(searchParamsRelative)) {
+          searchParams.delete(searchParamsRelative);
+          isRelative = true;
+        }
+        if (isRelative) {
+          const BaseUrl = new URL(baseHref);
+          searchParams.forEach((v, k) => {
+            if (!BaseUrl.searchParams.has(k)) BaseUrl.searchParams.set(k, v);
+          });
+          url = BaseUrl.search;
+          a.href = url;
+        }
+      }
+      const Url = new URL(url, baseHref);
+      if (typeof preventScrollReset !== "boolean") {
+        preventScrollReset = Url.searchParams.has("prevent-scroll-reset");
+        if (preventScrollReset) {
+          Url.searchParams.delete("prevent-scroll-reset");
+        } else {
+          preventScrollReset =
+            (url.startsWith("?") &&
+              (Url.searchParams.has("modal") ||
+                Url.searchParams.has("image") ||
+                preventScrollResetSearches?.some((v) =>
+                  Url.searchParams.has(v)
+                ))) ||
+            Boolean(Url.hash) ||
+            a.hasAttribute("prevent-scroll-reset");
+        }
+      }
+      if (Url.searchParams.has("search-params-relative")) {
+        Url.searchParams.delete("search-params-relative");
+        const BaseUrl = new URL(baseHref);
+        BaseUrl.searchParams.forEach((v, k) => {
+          if (!Url.searchParams.has(k)) Url.searchParams.set(k, v);
+        });
+        a.href = Url.href;
+      }
+      a.onclick = ((e: any) => {
+        if (Url.href !== baseHref || window.scrollY > 0) {
+          nav(Url.pathname + Url.search + Url.hash, {
+            preventScrollReset,
+            state: { from: location.href },
+          });
+        }
+        e.preventDefault();
+      }) as any;
+    }
+  }
+}
 
 export function MultiParser({
   markdown = true,

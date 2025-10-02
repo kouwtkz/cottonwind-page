@@ -1,5 +1,5 @@
 import { CopyWithToast } from "~/components/functions/toastFunction";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { BiGitBranch } from "react-icons/bi";
 import {
   KeyValueEditable,
@@ -9,6 +9,7 @@ import {
 import { EnvLinksMap } from "~/Env";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "~/components/layout/Modal";
+import { SetLinkPush } from "~/components/parse/MultiParser";
 
 export default function AboutPage() {
   return (
@@ -95,6 +96,7 @@ export function AuthorHistory({
   const [categoriesList, setCategoriesList] = useState<valueCountType[]>([]);
   const [category, setCategory] = useState<string>(defaultCategory);
   const [modal, setModal] = useState<Node | null>(null);
+  const nav = useNavigate();
   useEffect(() => {
     const elms = ref.current?.querySelectorAll<HTMLElement>("[data-year]");
     if (elms) {
@@ -193,6 +195,10 @@ export function AuthorHistory({
                   extendAnchor.onclick = () => {
                     const table = document.createElement("table");
                     table.appendChild(r.cloneNode(true));
+                    const ta = table.querySelectorAll("a");
+                    ta.forEach((a) => {
+                      SetLinkPush({ a, nav });
+                    });
                     setModal(table);
                   };
                   extendAnchor.innerText = d.innerText;
