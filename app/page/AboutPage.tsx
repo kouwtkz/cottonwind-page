@@ -131,7 +131,7 @@ export function AuthorHistory({
     <div className="history container" ref={ref}>
       <Modal
         ref={modalRef}
-        hidden={!Boolean(modal)}
+        isOpen={Boolean(modal)}
         onClose={() => {
           setModal(null);
         }}
