@@ -14,19 +14,24 @@ import { MdDeleteForever } from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
 import { filesDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
+import { fileDialog } from "~/components/utils/FileTool";
+import { getExtension } from "~/components/functions/doc/PathParse";
 
 const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
 export async function FilesUploadProcess({
   files,
+  key,
   send = SEND_API,
   sleepTime = 10,
   minTime,
 }: FilesUploadProps) {
+  const keys = key ? (Array.isArray(key) ? key : [key]) : [];
   const url = concatOriginUrl(apiOrigin, send);
-  const formDataList = files.map((file) => {
+  const formDataList = files.map((file, i) => {
     const formData = new FormData();
     formData.append("file", file);
+    if (i in keys) formData.append("key", keys[i]);
     return formData;
   });
   const fetchList = formDataList.map(
@@ -89,6 +94,7 @@ export function FilesEdit({
     [files, edit]
   );
   const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
+  const ext = useMemo(() => (item?.src ? getExtension(item.src) : ""), [item]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
@@ -153,8 +159,8 @@ export function FilesEdit({
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
   return (
-    <Modal onClose={Close}>
-      <div className="text-left">
+    <Modal className="filesEdit" onClose={Close}>
+      <div className="header">
         <button
           title="削除"
           type="button"
@@ -174,6 +180,20 @@ export function FilesEdit({
           }}
         >
           <MdDeleteForever />
+        </button>
+        <button
+          type="button"
+          className="send"
+          onClick={() => {
+            fileDialog(`.${ext}`, true)
+              .then((files) => Array.from(files))
+              .then((files) => FilesUpload({ files, key: item?.key }))
+              .then(() => {
+                filesDataIndexed.load("no-cache");
+              });
+          }}
+        >
+          差し替える
         </button>
       </div>
       <form className="flex" onSubmit={handleSubmit(Submit)}>

@@ -37,8 +37,10 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
             if (file) {
-              const src = "files/" + file.name;
-              const key = getBasename(file.name);
+              const key = (formData.get("key") || getBasename(file.name)) as string;
+              const selectValue = await TableObject.Select({ db, where: { key } })
+              const value = selectValue[0];
+              const src = value?.src ? value.src : "files/" + file.name;
               const time = new Date(file.lastModified);
               const mtime = time.toISOString();
               const entry = TableObject.getInsertEntry({
@@ -46,9 +48,11 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 mtime,
                 lastmod: new Date().toISOString()
               });
-              const selectValue = await TableObject.Select({ db, where: { key } })
-              const value = selectValue[0];
-              if (!value || value.mtime !== entry.mtime) {
+              if (value && env.BUCKET) {
+                await env.BUCKET.delete(src);
+                await env.BUCKET.put(src, file);
+              }
+              else if (!value || value.mtime !== entry.mtime) {
                 if (env.BUCKET) await env.BUCKET.put(src, file);
               }
               if (value) {

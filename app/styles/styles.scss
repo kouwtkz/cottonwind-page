@@ -3785,6 +3785,15 @@ label,
   }
 }
 
+.modal.filesEdit {
+  .header {
+    margin: 0 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
 .h1h4Page {
   text-align: center;
   &.middle {
