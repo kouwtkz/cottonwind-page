@@ -540,6 +540,7 @@ table:not([class^="fc-"]) {
   td {
     border: solid 1px;
     padding: 0.25rem 0.25rem;
+    height: fit-content;
     @media (min-width: $mobileWidth) {
       padding: 0.25rem 1rem;
     }
@@ -547,12 +548,42 @@ table:not([class^="fc-"]) {
 }
 table {
   .history & {
+    a.date {
+      pointer-events: none;
+      color: var(--text-color);
+    }
     @media (max-width: $tabletWidth) {
       th,
       td {
         &:nth-child(n + 4) {
           display: none;
         }
+      }
+      a.date {
+        pointer-events: all;
+        color: var(--link-color);
+      }
+    }
+  }
+  .history .modal & {
+    tr {
+      display: flex;
+      flex-direction: column;
+    }
+    th,
+    td {
+      padding: 0.25rem 1rem;
+      display: table-cell;
+      border-bottom: 0;
+      border-left: 0;
+      border-right: 0;
+      &:first-child {
+        border-top: 0;
+        background-color: var(--main-color-pale);
+      }
+      a.date {
+        pointer-events: none;
+        color: var(--text-color);
       }
     }
   }

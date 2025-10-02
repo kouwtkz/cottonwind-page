@@ -25,6 +25,7 @@ interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   scrollLock?: boolean;
   switchWidth?: boolean;
   disableHotkeys?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 export const Modal = memo(function Modal({
   children,
@@ -41,6 +42,7 @@ export const Modal = memo(function Modal({
   scrollLock: isScrollLock = true,
   switchWidth,
   disableHotkeys,
+  hidden,
   ...props
 }: ModalProps) {
   const isOpen = useMemo(() => {
@@ -99,7 +101,12 @@ export const Modal = memo(function Modal({
       in={isOpen}
       {...{ classNames, timeout, unmountOnExit, nodeRef, onExited }}
     >
-      <div ref={nodeRef} className={ClassNameEntire} style={timeoutStyle}>
+      <div
+        ref={nodeRef}
+        className={ClassNameEntire}
+        style={timeoutStyle}
+        hidden={hidden}
+      >
         <div className={ClassName} {...props} onClick={onClick}>
           {children}
         </div>

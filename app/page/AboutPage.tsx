@@ -8,6 +8,7 @@ import {
 } from "~/components/state/KeyValueDBState";
 import { EnvLinksMap } from "~/Env";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Modal } from "~/components/layout/Modal";
 
 export default function AboutPage() {
   return (
@@ -88,10 +89,12 @@ export function AuthorHistory({
   defaultCategory = "",
 }: AuthorHistoryProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [yearList, setYearList] = useState<valueCountType<number>[]>([]);
   const [year, setYear] = useState<number>(defaultYear);
   const [categoriesList, setCategoriesList] = useState<valueCountType[]>([]);
   const [category, setCategory] = useState<string>(defaultCategory);
+  const [modal, setModal] = useState<Node | null>(null);
   useEffect(() => {
     const elms = ref.current?.querySelectorAll<HTMLElement>("[data-year]");
     if (elms) {
@@ -111,8 +114,26 @@ export function AuthorHistory({
       }
     }
   }, [year, category]);
+  useEffect(() => {
+    if (modalRef.current) {
+      const modalElm = modalRef.current;
+      modalElm.childNodes.forEach((c) => {
+        modalElm.removeChild(c);
+      });
+      if (modal) {
+        modalElm.appendChild(modal);
+      }
+    }
+  }, [modal]);
   return (
     <div className="history container" ref={ref}>
+      <Modal
+        ref={modalRef}
+        hidden={!Boolean(modal)}
+        onClose={() => {
+          setModal(null);
+        }}
+      />
       <h3 className="color-main" id="history">
         <Link className="en-title-font" to="#history">
           History
@@ -127,13 +148,13 @@ export function AuthorHistory({
           name="year"
           title="Year filter"
           className="noBorder year"
-          value={year}
+          value={String(year)}
           onChange={(e) => {
             setYear(Number((e.target as HTMLSelectElement).value));
           }}
         >
           {yearList.map(({ value, label }, i) => (
-            <option key={i} value={value}>
+            <option key={i} value={String(value)}>
               {label}
             </option>
           ))}
@@ -167,6 +188,18 @@ export function AuthorHistory({
               );
               const yearMap = trElms.reduce<Map<number, number>>((m, r) => {
                 const d = r.children[0] as HTMLElement;
+                if (d.children.length === 0 && d.innerText) {
+                  const extendAnchor = document.createElement("a");
+                  extendAnchor.onclick = () => {
+                    const table = document.createElement("table");
+                    table.appendChild(r.cloneNode(true));
+                    setModal(table);
+                  };
+                  extendAnchor.innerText = d.innerText;
+                  extendAnchor.classList.add("date");
+                  d.innerText = "";
+                  d.appendChild(extendAnchor);
+                }
                 const year = Number(
                   d.innerText.slice(0, d.innerText.indexOf("/"))
                 );
