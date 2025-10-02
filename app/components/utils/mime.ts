@@ -19,7 +19,7 @@ export const getMimeType = (
   return mimeType
 }
 
-export const getExtension = (mimeType: string): string | undefined => {
+export const getMimeExtension = (mimeType: string): string | undefined => {
   for (const ext in baseMimes) {
     if (baseMimes[ext] === mimeType) {
       return ext
