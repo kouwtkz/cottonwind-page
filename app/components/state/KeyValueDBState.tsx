@@ -535,9 +535,8 @@ export function KeyValueEditButton({
     <>
       {isLogin ? (
         <KeyValueEditableMain
-          {...{ editKey: useKey, editDefault: value }}
-          editDefault={props.editDefault}
-          editKey={props.editKey}
+          editKey={useKey}
+          editDefault={value}
           editType={props.editType}
         >
           {typeof children === "object" ? (
