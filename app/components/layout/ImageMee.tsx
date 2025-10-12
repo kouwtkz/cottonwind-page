@@ -42,7 +42,8 @@ export interface ImageMeeProps
   v?: string | number;
   autoPixel?: boolean | number;
   showMessage?: boolean;
-  autoPosition?: boolean;
+  autoPosition?: boolean | string;
+  isCover?: boolean;
   ref?: React.RefObject<HTMLImageElement | null>;
 }
 export function ImageMee({
@@ -60,6 +61,7 @@ export function ImageMee({
   autoPixel = true,
   loadingScreen = false,
   autoPosition = true,
+  isCover,
   showMessage,
   style,
   onLoad,
@@ -198,16 +200,25 @@ export function ImageMee({
       imgStyle.background = "var(--main-color-grayish-fluo)";
     }
     if (imageItem) {
-      if (autoPosition && imageItem.position) {
-        if (imageItem.position === "contain") {
-          imgStyle.objectFit = "contain";
-        } else {
-          imgStyle.objectPosition = imageItem.position;
+      const autoPositionIsString = typeof autoPosition === "string";
+      if (autoPosition && (imageItem.position || autoPositionIsString)) {
+        let splited = (
+          autoPositionIsString ? autoPosition : imageItem.position!
+        ).split(" ");
+        splited = splited.filter((v) => {
+          if (v === "null") return false;
+          if (v === "contain") {
+            if (!isCover) imgStyle!.objectFit = "contain";
+            return false;
+          } else return true;
+        });
+        if (splited.length !== 0) {
+          if (!imgStyle!.objectFit) imgStyle.objectPosition = splited.join(" ");
         }
       }
     }
     return imgStyle;
-  }, [imageItem, autoPosition, loadingScreen, style]);
+  }, [imageItem, autoPosition, loadingScreen, style, isCover]);
 
   return (
     <img

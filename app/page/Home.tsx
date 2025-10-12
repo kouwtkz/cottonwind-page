@@ -320,6 +320,7 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
                 imageItem={topImage}
                 loading="eager"
                 className="image"
+                isCover
               />
               <div
                 className="gage"

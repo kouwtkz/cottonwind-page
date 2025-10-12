@@ -362,7 +362,7 @@ export default function ImageEditForm({
     control,
     name: "position",
   });
-  const positionValue = useMemo(
+  const positionValue = useMemo<string>(
     () => positionField.value,
     [positionField.value]
   );
@@ -380,10 +380,14 @@ export default function ImageEditForm({
     if (positionValue) {
       style = {};
       if (positionValue && positionValue !== "null") {
-        if (positionValue === "contain") {
-          style.objectFit = "contain";
-        } else {
-          style.objectPosition = positionValue;
+        let splited = positionValue.split(" ");
+        splited = splited.filter((v) => {
+          if (v === "contain") {
+            return false;
+          } else return true;
+        });
+        if (splited.length !== 0) {
+          style.objectPosition = splited.join(" ");
         }
       }
     }
@@ -418,7 +422,8 @@ export default function ImageEditForm({
   }
   function replacePositionToPercent(value: any) {
     let _v = String(value);
-    if (_v === "null" || _v === "contain") return "50% 50%";
+    if (_v === "null") return "50% 50%";
+    else if (_v === "contain") return "50% 50% contain";
     else {
       return _v
         .replaceAll("center", "50%")
@@ -438,7 +443,7 @@ export default function ImageEditForm({
     moving?: boolean;
   }) {
     const str = replacePositionToPercent(positionField.value);
-    let [sx, sy] = str.split(" ");
+    let [sx, sy, option] = str.split(" ");
     if (x)
       sx = sx.replace(/[\-\.\d]+/, (m) =>
         String(LimitValue(Number(m) + Math.round(x), { min: 0, max: 100 }))
@@ -447,7 +452,9 @@ export default function ImageEditForm({
       sy = sy.replace(/[\-\.\d]+/, (m) =>
         String(LimitValue(Number(m) + Math.round(y), { min: 0, max: 100 }))
       );
-    const value = [sx, sy].join(" ");
+    const arr = [sx, sy];
+    if (option) arr.push(option);
+    const value = arr.join(" ");
     if (moving) setValue("position", value);
     else setPositionSelect(value);
   }
@@ -808,6 +815,9 @@ export default function ImageEditForm({
                 {...registerPosition}
                 ref={psRefPassthrough}
                 disabled={isBusy}
+                style={{
+                  minWidth: "11em",
+                }}
                 onChange={(e) => {
                   SetPositionPreview(true);
                   if (positionSelectRef.current?.value === "any") {
@@ -844,23 +854,22 @@ export default function ImageEditForm({
                     imageItem={image}
                     mode="simple"
                     className="vertical"
-                    autoPosition={false}
-                    style={previewImgStyle}
+                    autoPosition={positionValue}
+                    isCover
                   />
                   <div>
                     <ImageMee
                       imageItem={image}
                       mode="simple"
                       className="square"
-                      autoPosition={false}
-                      style={previewImgStyle}
+                      autoPosition={positionValue}
                     />
                     <ImageMee
                       imageItem={image}
                       mode="simple"
                       className="landscape"
-                      autoPosition={false}
-                      style={previewImgStyle}
+                      autoPosition={positionValue}
+                      isCover
                     />
                   </div>
                 </div>
