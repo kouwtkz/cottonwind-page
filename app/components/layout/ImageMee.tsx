@@ -149,13 +149,14 @@ export function ImageMee({
       showPng && pngURL
         ? pngURL
         : mode === "simple"
-        ? src
-        : mode === "thumbnail" && thumbnail
-        ? thumbnail
-        : imageItem && mode
-        ? MediaOrigin((imageItem as unknown as KeyValueType<string>)[mode]) ||
-          src
-        : src,
+          ? src
+          : mode === "thumbnail" && thumbnail
+            ? thumbnail
+            : imageItem && mode
+              ? MediaOrigin(
+                  (imageItem as unknown as KeyValueType<string>)[mode]
+                ) || src
+              : src,
     [imageItem, mode, src, thumbnail, showPng, pngURL]
   );
   const enableTempThumbnail = useMemo(
@@ -198,7 +199,11 @@ export function ImageMee({
     }
     if (imageItem) {
       if (autoPosition && imageItem.position) {
-        imgStyle.objectPosition = imageItem.position;
+        if (imageItem.position === "contain") {
+          imgStyle.objectFit = "contain";
+        } else {
+          imgStyle.objectPosition = imageItem.position;
+        }
       }
     }
     return imgStyle;

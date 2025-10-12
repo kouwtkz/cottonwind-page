@@ -111,6 +111,7 @@ interface optionElementInterface {
 }
 const defPositions: optionElementInterface[] = [
   { value: "null", inner: "自動 (中央)" },
+  { value: "contain", inner: "全体縮小" },
   { value: "center top", inner: "上" },
   { value: "center bottom", inner: "下" },
   { value: "left center", inner: "左" },
@@ -379,7 +380,11 @@ export default function ImageEditForm({
     if (positionValue) {
       style = {};
       if (positionValue && positionValue !== "null") {
-        style.objectPosition = positionValue;
+        if (positionValue === "contain") {
+          style.objectFit = "contain";
+        } else {
+          style.objectPosition = positionValue;
+        }
       }
     }
     return style;
@@ -413,7 +418,7 @@ export default function ImageEditForm({
   }
   function replacePositionToPercent(value: any) {
     let _v = String(value);
-    if (_v === "null") return "50% 50%";
+    if (_v === "null" || _v === "contain") return "50% 50%";
     else {
       return _v
         .replaceAll("center", "50%")
