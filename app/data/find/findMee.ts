@@ -239,8 +239,9 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     case "every": {
       const inVal = (fval as unknown[]).map(v => typeof v === "string" ? v.toLowerCase() : v);
       if (Array.isArray(innerValue)) {
-        if (fkey === "every") return inVal.every(v => innerValue.some(c => v == c));
-        else return inVal.some(v => innerValue.some(c => v == c));
+        const innerValuesLc = innerValue.map(v => v.toLowerCase());
+        if (fkey === "every") return inVal.every(v => innerValuesLc.some(c => v == c));
+        else return inVal.some(v => innerValuesLc.some(c => v == c));
       }
       else return inVal.some(v => v == innerValue);
     }
