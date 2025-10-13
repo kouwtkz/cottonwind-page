@@ -3,21 +3,34 @@ import { useEnv } from "~/components/state/EnvState";
 import { RiLinksFill } from "react-icons/ri";
 import { Link } from "react-router";
 import { CopyWithToast } from "~/components/functions/toastFunction";
+import { useLang } from "~/components/multilingual/LangState";
+import { DEFAULT_LANG, TITLE, TITLE_EN } from "~/Env";
 
 export default function ContactPage() {
   const env = useEnv()[0];
+  const lang = useLang()[0];
+  const title = useMemo(
+    () =>
+      (lang === DEFAULT_LANG ? TITLE : TITLE_EN) ??
+      (typeof document !== "undefined" ? document.title : ""),
+    [lang]
+  );
   return (
     <>
       <h2 className="color-main en-title-font line-none">
         <Link to="/contact">CONTACT</Link>
       </h2>
       <div className="p-br-2">
-        <p>このサイトのコンテンツやご依頼、</p>
-        <p>「わたかぜっこ」についてのお問い合わせは</p>
+        <p>ご依頼や「{title}」関連についてのお問い合わせは</p>
         <p>
           以下の<a href="#form">フォーム</a>
           {env?.EMAIL ? <>かメールアドレス</> : null}にて承っています！
         </p>
+        {env?.EMAIL ? (
+          <p>
+            （メールアドレスは受付用のため、Gmailのアドレスに案内する場合もあります）
+          </p>
+        ) : null}
       </div>
       {env?.EMAIL ? (
         <p>
