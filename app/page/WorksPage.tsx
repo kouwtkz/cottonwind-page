@@ -16,7 +16,7 @@ export default function WorksPage() {
     if (images) {
       return findMee(images, {
         where: {
-          OR: [{ album: "works" }, { tags: { contains: "comission" } }],
+          OR: [{ album: "works" }, { tags: { contains: "commission" } }],
         },
       });
     } else return [];
