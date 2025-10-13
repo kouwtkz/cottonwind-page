@@ -322,16 +322,23 @@ export function GalleryObject({
       }),
     [qParam]
   );
-  const whereTags = useMemo(() => {
+  const whereTagsValue = useMemo(() => {
     const tags = tagsParam?.split(",");
     if (tags) return tags;
   }, [tagsParam]);
-  const everyTags = useMemo(() => {
+  const someTags = useMemo(() => {
     const tags: Array<string> = [];
-    if (whereMonthTags) tags.push(...whereMonthTags);
-    if (whereTags) tags.push(...whereTags);
-    if (tags.length > 0) return { tags: { every: tags } };
-  }, [whereMonthTags, whereTags]);
+  }, []);
+  const someTagsWhere = useMemo(() => {
+    const sometags: Array<string> = [];
+    if (whereMonthTags) sometags.push(...whereMonthTags);
+    if (sometags.length > 0) return { tags: { some: sometags } };
+  }, [whereMonthTags]);
+  const everyTagsWhere = useMemo(() => {
+    const everytags: Array<string> = [];
+    if (whereTagsValue) everytags.push(...whereTagsValue);
+    if (everytags.length > 0) return { tags: { every: everytags } };
+  }, [whereTagsValue]);
   const copyrightWhere = useMemo(() => {
     const list = copyrightParam?.split(",");
     if (list) return { copyright: { every: list } };
@@ -353,7 +360,8 @@ export function GalleryObject({
   const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
     const wheres = [where];
-    if (everyTags) wheres.push(everyTags);
+    if (someTagsWhere) wheres.push(someTagsWhere);
+    if (everyTagsWhere) wheres.push(everyTagsWhere);
     if (copyrightWhere) wheres.push(copyrightWhere);
     if (charactersWhere) wheres.push(charactersWhere);
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
@@ -364,7 +372,8 @@ export function GalleryObject({
     return wheres;
   }, [
     where,
-    everyTags,
+    someTagsWhere,
+    everyTagsWhere,
     copyrightWhere,
     charactersWhere,
     hasTopImage,
@@ -597,6 +606,22 @@ function GalleryBody({
   showCount = true,
   submitPreventScrollReset,
 }: GalleryBodyProps) {
+  const search = useSearchParams()[0];
+  const getSearchParamMap = useCallback(
+    (key: string) =>
+      (search.get(key) || "").split(",").reduce<Map<string, void>>((a, c) => {
+        a.set(c);
+        return a;
+      }, new Map()),
+    [search]
+  );
+  const tagsParam = useMemo(() => getSearchParamMap("tags"), [search]);
+  const copyrightParam = useMemo(
+    () => getSearchParamMap("copyright"),
+    [search]
+  );
+  const typeParam = useMemo(() => search.get("type"), [search]);
+  const filterParam = useMemo(() => getSearchParamMap("filter"), [search]);
   const { group } = useParams();
   const args = {
     showInPageMenu,
@@ -667,6 +692,7 @@ function GalleryBody({
   );
   const callbackOptions = useCallback(
     (options: ContentsTagsOption[]) => {
+      const cloneTagsParam = new Map(tagsParam);
       const otherTags = tagsList.filter(({ value: tag }) =>
         simpleDefaultTags.every(({ value }) => value !== tag)
       );
@@ -690,6 +716,7 @@ function GalleryBody({
               option = { ...option };
               if (parent?.name === "type") {
                 const name = option.value!.replace("type:", "");
+                option.name = name;
                 const type = typeMap.get(name);
                 if (type) {
                   option.valueCount = type;
@@ -711,6 +738,15 @@ function GalleryBody({
             return option;
           })
           .filter((option) => {
+            if (option.value) {
+              if (cloneTagsParam.has(option.value)) {
+                cloneTagsParam.delete(option.value);
+                return true;
+              }
+            }
+            if (option.name === "liked" && filterParam.has("like")) return true;
+            if (parent?.name === "type" && typeParam === option.name)
+              return true;
             if (option.options || option.valueCount) return true;
             switch (option.name) {
               case "showAll":
@@ -724,19 +760,48 @@ function GalleryBody({
           });
       }
       options = defaultReplace(options);
-      options.push({
-        label: "タグ",
-        options: CountToContentsTagsOption(otherTags),
+      const otherTagsOptions = CountToContentsTagsOption(otherTags);
+      otherTags.forEach((v) => {
+        if (v.value && cloneTagsParam.has(v.value))
+          cloneTagsParam.delete(v.value);
       });
-      if (copyrightList.length > 0) {
+      cloneTagsParam.forEach((v, k) => {
+        if (k) otherTagsOptions.push({ value: k, label: k });
+      });
+      if (otherTagsOptions.length > 0)
+        options.push({
+          label: "タグ",
+          options: otherTagsOptions,
+        });
+      const copyrightOptions = CountToContentsTagsOption(
+        copyrightList,
+        "copyright"
+      );
+      const cloneCopyrightParam = new Map(copyrightParam);
+      copyrightList.forEach((v) => {
+        if (v.value && cloneCopyrightParam.has(v.value))
+          cloneCopyrightParam.delete(v.value);
+      });
+      cloneCopyrightParam.forEach((v, k) => {
+        if (k) copyrightOptions.push({ value: `copyright:${k}`, label: k });
+      });
+      if (copyrightOptions.length > 0)
         options.push({
           label: "コピーライト",
-          options: CountToContentsTagsOption(copyrightList, "copyright"),
+          options: copyrightOptions,
         });
-      }
       return options;
     },
-    [tagsList, copyrightList, typeMap, likedCountValue]
+    [
+      tagsList,
+      copyrightList,
+      typeMap,
+      likedCountValue,
+      tagsParam,
+      copyrightParam,
+      typeParam,
+      filterParam,
+    ]
   );
   const inPageList = useMemo(
     () =>
