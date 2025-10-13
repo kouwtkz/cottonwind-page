@@ -210,8 +210,9 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     case "like":
     case "contains":
       if (Array.isArray(innerValue)) {
+        const fvalL = fval.toLocaleLowerCase();
         return innerValue.some((x) => {
-          return x.toLocaleLowerCase() === fval.toLocaleLowerCase()
+          return x.toLocaleLowerCase() === fvalL;
         });
       }
       else {
