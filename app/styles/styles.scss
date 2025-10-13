@@ -4226,6 +4226,10 @@ form.blogEdit {
   }
 }
 
+.select__group > div:nth-child(2) > div:nth-child(n + 50) {
+  display: none;
+}
+
 .fc {
   font-size: 1.2rem;
   --fc-event-bg-color: var(--def-main-color-strong);
