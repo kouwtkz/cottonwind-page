@@ -637,14 +637,14 @@ function GalleryBody({
         .filter((group) => {
           return !group.hide && group.name !== "pickup" && group.list;
         })
-        .map((group) => group.list!)
+        .map((group, i) => yfList[i])
         .reduce<ImageType[]>((a, images) => {
           images.forEach((image) => {
             a.push(image);
           });
           return a;
         }, []),
-    [items]
+    [items, yfList]
   );
   const { likeCategoryMap } = useLikeState();
   const likeCheckedMap = useMemo(() => {
