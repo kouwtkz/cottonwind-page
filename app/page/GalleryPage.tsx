@@ -1315,7 +1315,7 @@ export function GalleryCharactersSelect({
   const isModal = searchParams.has("modal");
   const currentChara = params["charaName"];
   const enableCharaFilter = Boolean(currentChara && !isModal);
-  const { characters } = useCharacters();
+  const { characters, charactersMap } = useCharacters();
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
@@ -1335,7 +1335,6 @@ export function GalleryCharactersSelect({
       list?.some((item) => item === value)
     );
   }, [searchParams, charaLabelOptions]);
-  const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap, lang);
   }, [charactersMap, lang]);

@@ -155,7 +155,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
         return formatOptionLabel(argsData, formatOptionLabelMeta);
       };
     } else return formatOptionLabel;
-  }, []);
+  }, [formatOptionLabel]);
   return (
     <ReactSelect
       isSearchable={isSearchable}
