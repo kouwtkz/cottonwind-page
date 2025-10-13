@@ -16,7 +16,7 @@ export default function WorksPage() {
     if (images) {
       return findMee(images, {
         where: {
-          OR: [{ album: "works" }, { tags: { contains: "commission" } }],
+          OR: [{ album: "works" }, { tags: { some: ["commission", "prize"] } }],
         },
       });
     } else return [];
@@ -31,7 +31,7 @@ export default function WorksPage() {
       {
         name: "Results",
         list: galleryResults,
-        linkLabel: "/gallery?q=tags%3Acommission+OR+album%3Aworks",
+        linkLabel: "/gallery?q=tags%3Acommission%2Cprize+OR+album%3Aworks",
       },
     ];
     if (gallery3D) {

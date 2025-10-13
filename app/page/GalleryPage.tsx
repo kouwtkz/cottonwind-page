@@ -257,17 +257,16 @@ export function GalleryObject({
       filterGalleryMonthList.find((v) => String(v.month) === month),
     [filterGalleryMonthList]
   );
-  const whereMonth = useMemo<findWhereType<ImageType> | null>(() => {
+  const whereMonthTags = useMemo(() => {
     if (monthParam) {
       switch (monthModeParam) {
         case "event":
           const monthly = filterMonthly(monthParam);
-          if (monthly) return { tags: { in: monthly.tags } };
-          break;
+          if (monthly) return monthly.tags;
         case "tag":
           const _monthly = filterMonthly(monthParam);
           const monthTags = _monthly?.tags.find((v, i) => i === 0);
-          if (monthTags) return { tags: { contains: monthTags } };
+          if (monthTags) return [monthTags];
           break;
       }
     }
@@ -323,27 +322,24 @@ export function GalleryObject({
       }),
     [qParam]
   );
-  const tagsWhere = useMemo(
-    () =>
-      tagsParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
-        tags: { contains: value },
-      })),
-    [tagsParam]
-  );
-  const copyrightWhere = useMemo(
-    () =>
-      copyrightParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
-        copyright: { contains: value },
-      })),
-    [copyrightParam]
-  );
-  const charactersWhere = useMemo(
-    () =>
-      charactersParam?.split(",")?.map<findWhereType<ImageType>>((value) => ({
-        characters: { contains: value },
-      })),
-    [charactersParam]
-  );
+  const whereTags = useMemo(() => {
+    const tags = tagsParam?.split(",");
+    if (tags) return tags;
+  }, [tagsParam]);
+  const everyTags = useMemo(() => {
+    const tags: Array<string> = [];
+    if (whereMonthTags) tags.push(...whereMonthTags);
+    if (whereTags) tags.push(...whereTags);
+    if (tags.length > 0) return { tags: { every: tags } };
+  }, [whereMonthTags, whereTags]);
+  const copyrightWhere = useMemo(() => {
+    const list = copyrightParam?.split(",");
+    if (list) return { copyright: { every: list } };
+  }, [copyrightParam]);
+  const charactersWhere = useMemo(() => {
+    const list = charactersParam?.split(",");
+    if (list) return { characters: { every: list } };
+  }, [charactersParam]);
   const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
   const linkStateUpdated = useLikeStateUpdated()[0];
   const draftOnly = useMemo(
@@ -357,10 +353,9 @@ export function GalleryObject({
   const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
     const wheres = [where];
-    if (tagsWhere) wheres.push(...tagsWhere);
-    if (charactersWhere) wheres.push(...charactersWhere);
-    if (copyrightWhere) wheres.push(...copyrightWhere);
-    if (whereMonth) wheres.push(whereMonth);
+    if (everyTags) wheres.push(everyTags);
+    if (copyrightWhere) wheres.push(copyrightWhere);
+    if (charactersWhere) wheres.push(charactersWhere);
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
     if (likeWhere) wheres.push({ like: { checked: true } });
@@ -369,10 +364,9 @@ export function GalleryObject({
     return wheres;
   }, [
     where,
-    tagsWhere,
+    everyTags,
     copyrightWhere,
     charactersWhere,
-    whereMonth,
     hasTopImage,
     hasPickup,
     likeWhere,

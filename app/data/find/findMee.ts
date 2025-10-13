@@ -235,9 +235,15 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     case "lte":
       return innerValue <= fval;
     case "in":
-      const inVal = fval as unknown[];
-      if (Array.isArray(innerValue)) return inVal.some(v => innerValue.some(c => v == c));
+    case "some":
+    case "every": {
+      const inVal = (fval as unknown[]).map(v => typeof v === "string" ? v.toLowerCase() : v);
+      if (Array.isArray(innerValue)) {
+        if (fkey === "every") return inVal.every(v => innerValue.some(c => v == c));
+        else return inVal.some(v => innerValue.some(c => v == c));
+      }
       else return inVal.some(v => v == innerValue);
+    }
     case "between":
       const betweenVal = fval as any[];
       return betweenVal[0] <= innerValue && innerValue <= betweenVal[1];
@@ -361,8 +367,15 @@ function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceCont
               return { gte: value };
             case "<=":
               return { lte: value };
-            default:
-              return { contains: value };
+            default: {
+              const str = String(value);
+              const m = str.match(/^\[(.*)\]$/);
+              const s = (m ? m[1] : str).split(",")
+              if (s.length > 1) {
+                if (m) return { every: s };
+                else return { some: s }
+              } else return { contains: value };
+            }
           }
       }
     }
