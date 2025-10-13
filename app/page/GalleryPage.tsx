@@ -647,6 +647,17 @@ function GalleryBody({
     () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
     [images]
   );
+  const typeMap = useMemo(
+    () =>
+      getCountList(images, "type").reduce<Map<string, ValueCountType>>(
+        (a, c) => {
+          a.set(c.value, c);
+          return a;
+        },
+        new Map()
+      ),
+    [images]
+  );
   const likedCountValue = useMemo<ValueCountType>(
     () => ({
       value: "liked",
@@ -677,15 +688,22 @@ function GalleryBody({
               option.options = defaultReplace(option.options!, option);
             } else if (option.value) {
               option = { ...option };
-              if (option.name === "liked") {
+              if (parent?.name === "type") {
+                const name = option.value!.replace("type:", "");
+                const type = typeMap.get(name);
+                if (type) {
+                  option.valueCount = type;
+                  option.label = `${option.label} (${type.count})`;
+                }
+              } else if (option.name === "liked") {
                 if (likedCountValue.count) {
                   option.label = `${option.label} (${likedCountValue.count})`;
-                  option.tag = likedCountValue;
+                  option.valueCount = likedCountValue;
                 }
               } else {
                 const tag = defaultTagsMap.get(option.value!);
                 if (tag) {
-                  option.tag = tag;
+                  option.valueCount = tag;
                   option.label = `${option.label} (${tag.count})`;
                 }
               }
@@ -693,7 +711,7 @@ function GalleryBody({
             return option;
           })
           .filter((option) => {
-            if (option.options || option.tag) return true;
+            if (option.options || option.valueCount) return true;
             switch (option.name) {
               case "showAll":
                 return true;
@@ -718,7 +736,7 @@ function GalleryBody({
       }
       return options;
     },
-    [tagsList, copyrightList, likedCountValue]
+    [tagsList, copyrightList, typeMap, likedCountValue]
   );
   const inPageList = useMemo(
     () =>
