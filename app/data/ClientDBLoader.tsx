@@ -81,7 +81,7 @@ export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 
 export let dbClass: MeeIndexedDB;
 
-export const INDEXEDDB_VERSION = 4;
+export const INDEXEDDB_VERSION = 5;
 
 export async function MeeIndexedDBCreate() {
   return MeeIndexedDB.create({

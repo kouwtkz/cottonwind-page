@@ -7,10 +7,11 @@
   "vs-browser.url": "http://localhost:51730/",
   "VsCodeTaskButtons.tasks": [
     { "task": "npm" },
+    { "label": "update", "task": "npm: update" },
     { "label": "build", "task": "npm: build" },
     { "label": "start", "task": "npm: start" },
     { "label": "deploy", "task": "npm: deploy" },
-    { "label": "dev", "task": "npm: dev" }
+    { "label": "dev", "task": "npm: dev" },
   ],
   // Explorer で非表示にするもの
   "files.exclude": {
