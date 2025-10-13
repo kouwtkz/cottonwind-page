@@ -15,6 +15,17 @@ export const TimeframeTagMap = new Map<string, ContentsTagsOptionTimeframe>(Time
 
 export const defaultGalleryTags: ContentsTagsOption[] = [
   {
+    label: "フィルタ",
+    name: "filter",
+    options: [
+      {
+        label: "♥️いいね済み",
+        name: "liked",
+        value: "filter:like",
+      },
+    ],
+  },
+  {
     label: "タイプ",
     name: "type",
     editable: false,
@@ -174,6 +185,7 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
   });
   return {
     label: "ソート",
+    name: "sort",
     options,
   } as ContentsTagsOption;
 }

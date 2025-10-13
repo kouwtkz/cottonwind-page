@@ -621,6 +621,24 @@ function GalleryBody({
         }, []),
     [items]
   );
+  const { likeCategoryMap } = useLikeState();
+  const likeCheckedMap = useMemo(() => {
+    const imageLikeMap = likeCategoryMap?.get("image");
+    if (imageLikeMap) {
+      const likedList = findMee(Array.from(imageLikeMap.values()), {
+        where: { checked: true },
+      });
+      return likedList.reduce<Map<string, LikeType>>((a, c) => {
+        if (c.path?.startsWith("?")) {
+          const params = new URLSearchParams(c.path);
+          const key = params.get("image");
+          if (key) a.set(key, c);
+        }
+        return a;
+      }, new Map());
+    }
+  }, [likeCategoryMap]);
+
   const tagsList = useMemo(
     () => getCountList(images, "tags").sort((a, b) => b.count - a.count),
     [images]
@@ -629,42 +647,69 @@ function GalleryBody({
     () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
     [images]
   );
+  const likedCountValue = useMemo<ValueCountType>(
+    () => ({
+      value: "liked",
+      count: images.filter((image) => likeCheckedMap?.has(image.key)).length,
+    }),
+    [images, likeCheckedMap]
+  );
   const callbackOptions = useCallback(
     (options: ContentsTagsOption[]) => {
-      if (tagsList.length > 0) {
-        const otherTags = tagsList.filter(({ value: tag }) =>
-          simpleDefaultTags.every(({ value }) => value !== tag)
-        );
-        const defaultTagsMap = new Map(
-          tagsList
-            .filter(({ value }) =>
-              otherTags.every(({ value: ov }) => value !== ov)
-            )
-            .map((v) => [v.value, v])
-        );
-        function defaultReplace(
-          options: ContentsTagsOption[]
-        ): ContentsTagsOption[] {
-          return options.map((option) => {
+      const otherTags = tagsList.filter(({ value: tag }) =>
+        simpleDefaultTags.every(({ value }) => value !== tag)
+      );
+      const defaultTagsMap = new Map(
+        tagsList
+          .filter(({ value }) =>
+            otherTags.every(({ value: ov }) => value !== ov)
+          )
+          .map((v) => [v.value, v])
+      );
+      function defaultReplace(
+        options: ContentsTagsOption[],
+        parent?: ContentsTagsOption
+      ): ContentsTagsOption[] {
+        return options
+          .map((option) => {
             if (option.options) {
               option = { ...option };
-              option.options = defaultReplace(option.options!);
+              option.options = defaultReplace(option.options!, option);
             } else if (option.value) {
               option = { ...option };
-              const tag = defaultTagsMap.get(option.value!);
-              if (tag) {
-                option.label = `${option.label} (${tag.count})`;
+              if (option.name === "liked") {
+                if (likedCountValue.count) {
+                  option.label = `${option.label} (${likedCountValue.count})`;
+                  option.tag = likedCountValue;
+                }
+              } else {
+                const tag = defaultTagsMap.get(option.value!);
+                if (tag) {
+                  option.tag = tag;
+                  option.label = `${option.label} (${tag.count})`;
+                }
               }
             }
             return option;
+          })
+          .filter((option) => {
+            if (option.options || option.tag) return true;
+            switch (option.name) {
+              case "showAll":
+                return true;
+            }
+            switch (parent?.name) {
+              case "sort":
+              case "monthly":
+                return true;
+            }
           });
-        }
-        options = defaultReplace(options);
-        options.push({
-          label: "タグ",
-          options: CountToContentsTagsOption(otherTags),
-        });
       }
+      options = defaultReplace(options);
+      options.push({
+        label: "タグ",
+        options: CountToContentsTagsOption(otherTags),
+      });
       if (copyrightList.length > 0) {
         options.push({
           label: "コピーライト",
@@ -673,7 +718,7 @@ function GalleryBody({
       }
       return options;
     },
-    [tagsList, copyrightList]
+    [tagsList, copyrightList, likedCountValue]
   );
   const inPageList = useMemo(
     () =>
@@ -1274,35 +1319,15 @@ export function GalleryTagsSelect({
   ...args
 }: SelectAreaProps) {
   const isLogin = useIsLogin()[0];
-  const searchParams = useSearchParams()[0];
-  const filterParam = searchParams.get("filter");
-  const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
-  const { likeCategoryMap } = useLikeState();
-  const hasLikeChecked = useMemo(() => {
-    const imageLikeMap = likeCategoryMap?.get("image");
-    return imageLikeMap
-      ? findMee(Array.from(imageLikeMap.values()), { where: { checked: true } })
-          .length > 0
-      : false;
-  }, [likeCategoryMap]);
-
   const tags = useMemo(() => {
-    const filterOptions: ContentsTagsOption[] = [];
-    if (likeWhere || hasLikeChecked)
-      filterOptions.push({ label: "♥️いいね済み", value: "filter:like" });
-    const options = [
+    const options: ContentsTagsOption[] = [
       ...gallerySortTags,
-      {
-        label: "フィルタ",
-        name: "filter",
-        options: filterOptions,
-      },
       ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
       ...(addOptions ? addOptions : []),
     ];
     if (callbackOptions) return callbackOptions(options);
     else return options;
-  }, [isLogin, likeWhere, hasLikeChecked, addOptions, callbackOptions]);
+  }, [isLogin, addOptions, callbackOptions]);
   return <ContentsTagsSelect {...args} tags={tags} />;
 }
 export function GalleryCharactersSelect({

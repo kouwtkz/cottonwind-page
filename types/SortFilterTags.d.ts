@@ -9,6 +9,7 @@ interface ContentsTagsOption {
   editable?: boolean;
   nameGuide?: string | string[];
   query?: { [k: string]: string };
+  tag?: valueCountType;
   options?: ContentsTagsOption[];
   rawValue?: string;
 }

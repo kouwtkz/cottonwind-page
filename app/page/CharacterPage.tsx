@@ -755,7 +755,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
       name: "filter",
       options: [
         { label: "♥️いいね済み", value: "filter:like" },
-        { label: "🔬全て表示", value: "filter:showAll" },
+        { label: "🔬全て表示", name: "showAll", value: "filter:showAll" },
       ],
     };
     if (isLogin) {
