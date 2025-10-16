@@ -19,6 +19,10 @@ import {
 } from "~/components/functions/arrayFunction";
 import { ScheduleContainer } from "./SchedulePage";
 import type { OmittedEnv } from "types/custom-configuration";
+import {
+  KeyValueEditButton,
+  KeyValueRenderProps,
+} from "~/components/state/KeyValueDBState";
 
 export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
   const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
@@ -88,6 +92,20 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
             </Link>
           </li>
         </ul>
+      </div>
+      <div className="topPage article">
+        <KeyValueEditButton
+          editEnvKey="VITE_KVDB_KEY_TOPPAGE_ARTICLE"
+          editType="textarea"
+        >
+          トップページの記事の編集
+        </KeyValueEditButton>
+        <KeyValueRenderProps
+          editEnvKey="VITE_KVDB_KEY_TOPPAGE_ARTICLE"
+          editType="textarea"
+        />
+      </div>
+      <div className="topPage wide">
         <MeeLinks category="top" banner className="links" />
         <PostsView />
         <ScheduleContainer

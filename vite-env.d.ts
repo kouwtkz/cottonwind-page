@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaKVKeyEnv {
+  readonly VITE_KVDB_KEY_TOPPAGE_ARTICLE: string;
   readonly VITE_KVDB_KEY_AUTHOR_NAME: string;
   readonly VITE_KVDB_KEY_AUTHOR_NAME_EN: string;
   readonly VITE_KVDB_KEY_AUTHOR_NAME_EN_PROP: string;

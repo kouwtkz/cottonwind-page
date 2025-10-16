@@ -1157,7 +1157,7 @@ button,
     font-size: 1em;
     margin: 0 0.5em;
     display: inline-flex;
-    align-items: end;
+    align-items: center;
     svg {
       margin: 0.25em;
     }
@@ -2009,6 +2009,10 @@ footer {
     justify-content: center;
   }
   @extend %a-line-none;
+  &.article img {
+    max-height: 90dvh;
+    object-fit: contain;
+  }
   ul {
     width: auto;
     margin: auto;
