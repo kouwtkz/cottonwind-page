@@ -80,6 +80,7 @@ export const useKeyValueEdit = CreateObjectState<{
   default?: string;
   title?: string;
   placeholder?: string;
+  isFirstSelection?: boolean;
 }>({ edit: null, type: "text" });
 
 const schema = z.object({
@@ -88,11 +89,6 @@ const schema = z.object({
 });
 function KeyValueEdit() {
   const ref = useRef<HTMLFormElement | null>(null);
-  useEffect(() => {
-    ref.current
-      ?.querySelector<HTMLElement>(`textarea,input[type="text"]`)
-      ?.focus();
-  }, []);
   let { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   let {
@@ -102,7 +98,20 @@ function KeyValueEdit() {
     type: editType,
     title = "値",
     placeholder,
+    isFirstSelection,
   } = useKeyValueEdit();
+  useEffect(() => {
+    const textElement = ref.current?.querySelector<
+      HTMLTextAreaElement | HTMLInputElement
+    >(`textarea,input[type="text"]`);
+    if (textElement) {
+      textElement.focus();
+      if (isFirstSelection) {
+        textElement.setSelectionRange(0, 0);
+        textElement.scrollTo(0, 0);
+      }
+    }
+  }, [isFirstSelection]);
   placeholder = useMemo(
     () => placeholder || edit || "設定したい値",
     [placeholder, edit]
@@ -331,6 +340,7 @@ export interface KeyValueEditableBaseProps {
   editType?: EditType;
   editKey?: string;
   editDefault?: string;
+  isFirstSelection?: boolean;
 }
 export interface KeyValueEditableMainProps
   extends React.HTMLAttributes<HTMLButtonElement>,
@@ -538,6 +548,7 @@ export function KeyValueEditButton({
           editKey={useKey}
           editDefault={value}
           editType={props.editType}
+          isFirstSelection={props.isFirstSelection}
         >
           {typeof children === "object" ? (
             children
@@ -562,6 +573,7 @@ function KeyValueEditableMain({
   className = "keyValueEdit",
   title,
   placeholder,
+  isFirstSelection,
   ...props
 }: KeyValueEditableMainProps) {
   const { Set } = useKeyValueEdit();
@@ -574,9 +586,18 @@ function KeyValueEditableMain({
         type: editType,
         title,
         placeholder,
+        isFirstSelection,
       });
     },
-    [onClick, editKey, editDefault, editType, title, placeholder]
+    [
+      onClick,
+      editKey,
+      editDefault,
+      editType,
+      title,
+      placeholder,
+      isFirstSelection,
+    ]
   );
   return (
     <button className={className} onClick={OnClick} {...props}>

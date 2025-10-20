@@ -143,6 +143,7 @@ export function AuthorHistory({
         <KeyValueEditButton
           editEnvKey="VITE_KVDB_KEY_AUTHOR_HISTORY"
           editType="textarea"
+          isFirstSelection
         />
       </h3>
       <div>
