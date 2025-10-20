@@ -139,7 +139,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               imageBuffer = await file.arrayBuffer();
               const arr = new Uint8Array(imageBuffer);
               const meta = imageDimensionsFromData(arr);
-              if (meta) metaSize = meta;
+              if (meta) metaSize = { width: meta.width, height: meta.height };
             }
             const pathes = Object.fromEntries(
               Object.entries(images).map(([k, v]) => [k, v.path || null])
