@@ -137,7 +137,7 @@ export function MultiParser({
   quoteNumberReply = false,
   detailsOpen = false,
   detailsClosable = true,
-  widget = true,
+  widget,
   only,
   className,
   tag = "div",

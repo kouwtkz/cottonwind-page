@@ -181,7 +181,6 @@ export function AuthorHistory({
       <KeyValueRenderProps
         editEnvKey="VITE_KVDB_KEY_AUTHOR_HISTORY"
         editType="textarea"
-        widget={false}
         onRender={(elm) => {
           if (elm.children.length > 0) {
             const table = elm.querySelector<HTMLTableElement>("table");
