@@ -28,7 +28,10 @@ import { fileDialog } from "~/components/utils/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 import { ImageMee, type ImageMeeProps } from "~/components/layout/ImageMee";
 import { useSelectedImage } from "./ImageState";
-import { MultiParserWithMedia as MultiParser } from "~/components/parse/MultiParserWithMedia";
+import {
+  MultiParserWithMedia as MultiParser,
+  type MultiParserWithMediaProps,
+} from "~/components/parse/MultiParserWithMedia";
 import { TextareaWithPreview } from "~/components/parse/PostTextarea";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -497,7 +500,8 @@ export function KeyValueEditable({
 
 interface KeyValueRenderProps
   extends KeyValueEditableBaseProps,
-    KeyValueEditableBaseCaseEnvProps {
+    KeyValueEditableBaseCaseEnvProps,
+    MultiParserWithMediaProps {
   childrenOutParse?: boolean;
   onRender?: (elm: HTMLElement) => void;
 }
@@ -517,7 +521,9 @@ export function KeyValueRenderProps({
   return (
     <>
       {childrenOutParse ? (
-        <MultiParser onRender={onRender}>{value}</MultiParser>
+        <MultiParser onRender={onRender} {...props}>
+          {value}
+        </MultiParser>
       ) : (
         value
       )}

@@ -545,8 +545,8 @@ export function CalendarMee({
     return isLoading
       ? "読み込み中…"
       : disableSyncWhenHTTP
-      ? "HTTPSのみデータを受信できます"
-      : `この${view === "week" ? "週" : "期間"}はイベントはありません`;
+        ? "HTTPSのみデータを受信できます"
+        : `この${view === "week" ? "週" : "期間"}はイベントはありません`;
   }, [isLoading, disableSyncWhenHTTP, view]);
   if (height !== undefined) style.height = height;
   const EventToDayFunc = useCallback(
@@ -1042,7 +1042,9 @@ export function CalendarMeeEventViewer({
             ) : null}
             {event.description ? (
               <div className="description">
-                <MultiParser only={{ toDom: true, markdown: true }}>
+                <MultiParser
+                  only={{ toDom: true, markdown: true, linkPush: true, widget: true }}
+                >
                   {event.description}
                 </MultiParser>
               </div>

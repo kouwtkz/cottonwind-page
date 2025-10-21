@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   createSearchParams,
   useNavigate,
@@ -25,6 +25,7 @@ export interface MultiParserOptions {
   linkSame?: boolean;
   hashtag?: boolean | Replacer;
   quoteNumberReply?: boolean | Replacer;
+  widget?: boolean;
 }
 export interface MultiParserProps
   extends MultiParserOptions,
@@ -136,6 +137,7 @@ export function MultiParser({
   quoteNumberReply = false,
   detailsOpen = false,
   detailsClosable = true,
+  widget = true,
   only,
   className,
   tag = "div",
@@ -157,7 +159,8 @@ export function MultiParser({
   if (only) {
     markdown = only.markdown ?? false;
     toDom = only.toDom ?? false;
-    linkPush = only.linkPush ?? false;
+    widget = only.widget ?? false;
+    linkPush = only.linkPush ?? only.widget ?? false;
     hashtag = only.hashtag ?? false;
     detailsClosable = only.detailsClosable ?? false;
   }
@@ -192,7 +195,7 @@ export function MultiParser({
           ? hashtag
           : (m, m1, m2) => {
               const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" class="hashtag">${m2}</a>`;
+              return `${m1}<a href="?${s.toString()}" className="hashtag">${m2}</a>`;
             }
       );
     } else return childString;
@@ -219,12 +222,14 @@ export function MultiParser({
     let str = childString;
     if (str && markdown) {
       str = str.replace(/:::(.+)\n([\s\S]+):::/g, (m, m1, m2) => {
-        return `<p class="${m1}">${m2}</p>`;
+        return `<p className="${m1}">${m2}</p>`;
       });
       str = parse(str, { async: false }) as string;
     }
     return str;
   }, [childString, markdown]);
+  let isTwitterWidget = false;
+
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   let parsedChildren = useMemo((): React.ReactNode => {
     if (childString && toDom) {
@@ -244,9 +249,10 @@ export function MultiParser({
                     if (/^\w+:\/\//.test(url)) {
                       v.attribs.target = "_blank";
                       if (v.childNodes.some((node) => node.type === "text"))
-                        v.attribs.class =
-                          (v.attribs.class ? `${v.attribs.class} ` : "") +
-                          "external";
+                        v.attribs.className =
+                          (v.attribs.className
+                            ? `${v.attribs.className} `
+                            : "") + "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
                       const baseHref = location.href;
                       const doubleQuestion = url.startsWith("??");
@@ -346,6 +352,27 @@ export function MultiParser({
                       }
                     });
                   }
+                  if (widget && v.type === "tag" && v.name !== "blockquote") {
+                    v.children.forEach((c, i) => {
+                      if (c.type === "tag" && c.name === "a" && c.attribs.href.startsWith("https://")) {
+                        const Url = new URL(c.attribs.href);
+                        if (Url.hostname === "x.com") {
+                          Url.hostname = "twitter.com";
+                          c.attribs.href = Url.href;
+                        }
+                        if (Url.hostname === "twitter.com") {
+                          isTwitterWidget = true;
+                          v.children[i] = v.children[i] = new NodeElement(
+                            "blockquote",
+                            {
+                              className: "twitter-tweet",
+                            },
+                            [c]
+                          );
+                        }
+                      }
+                    });
+                  }
                   if (typeof location !== "undefined" && linkPush) {
                     const newChildren = v.children.reduce((a, n) => {
                       let _n: ChildNode | undefined = n;
@@ -373,6 +400,7 @@ export function MultiParser({
     detailsOpen,
     detailsClosable,
     preventScrollResetSearches,
+    isTwitterWidget,
   ]);
   parsedChildren = useMemo(() => {
     function setBodyInner(node: React.ReactNode) {
@@ -398,5 +426,13 @@ export function MultiParser({
     else return <>{nodes}</>;
   }, [parsedChildren]);
   className = (className ? `${className} ` : "") + parsedClassName;
-  return <>{React.createElement(tag, { className, ref }, parsedChildren)}</>;
+  useEffect(() => {
+    if (isTwitterWidget) {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://platform.twitter.com/widgets.js";
+      ref.current?.appendChild(script);
+    }
+  }, [isTwitterWidget]);
+  return React.createElement(tag, { className, ref }, parsedChildren);
 }

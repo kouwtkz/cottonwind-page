@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 
-interface MultiParserWithMediaProps
+export interface MultiParserWithMediaProps
   extends Omit<MultiParserProps, "replaceFunctions"> {}
 
 export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
