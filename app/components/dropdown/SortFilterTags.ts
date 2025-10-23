@@ -17,6 +17,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
   {
     label: "フィルタ",
     name: "filter",
+    editable: false,
     options: [
       {
         label: "♥️いいね済み",
