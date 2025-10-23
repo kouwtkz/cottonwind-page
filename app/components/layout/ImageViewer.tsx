@@ -191,7 +191,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
             {image.time ? (
               <span className="time">
                 {image.draft ? <span className="mr">（下書き）</span> : null}
-                <span>{image.time.toLocaleString("ja", opt)}</span>
+                <span>{image.time.toLocaleString("ja-JP", opt)}</span>
               </span>
             ) : null}
             {image.embed && image.type === "ebook" ? (

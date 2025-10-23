@@ -1,7 +1,7 @@
 const siteTimeZones = ["JST", "+09:00", "UTC"];
 export const siteTimeZone = siteTimeZones.find((timeZone) => {
   try {
-    new Date().toLocaleString("ja", { timeZone });
+    new Date().toLocaleString("ja-JP", { timeZone });
     return true;
   } catch { }
 });

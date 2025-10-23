@@ -233,7 +233,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
     [isLogin, post]
   );
   const formattedDate = useMemo(
-    () => (post?.time ? post.time.toLocaleString("ja", opt) : ""),
+    () => (post?.time ? post.time.toLocaleString("ja-JP", opt) : ""),
     [post]
   );
   if (!post) return null;

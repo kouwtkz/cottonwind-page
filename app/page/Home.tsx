@@ -162,7 +162,7 @@ function PostsView() {
       <div className="list">
         {posts.slice(0, 3).map(({ time, title, postId }, i) => (
           <Link to={"/blog?postId=" + postId} className="article" key={i}>
-            <div className="date">{time?.toLocaleDateString("ja")}</div>
+            <div className="date">{time?.toLocaleDateString("ja-JP")}</div>
             <div className="title">{title?.slice(0, 32)}</div>
           </Link>
         ))}
