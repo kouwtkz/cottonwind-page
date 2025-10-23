@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { isRouteErrorResponse, Link } from "react-router";
 
 interface ErrorBoundaryContentProps {
@@ -17,11 +17,17 @@ export function ErrorBoundaryContent({
   let message = "めぇ！（エラー）";
   let details: string | undefined;
   let stack: string | undefined;
+  useEffect(() => {
+    console.log(error);
+  }, [error]);
   if (isRouteErrorResponse(error)) {
     message = `${error.status} ${error.statusText}`;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+  } else {
+    if (import.meta.env.DEV && error && error instanceof Error) {
+      details = error.message;
+      stack = error.stack;
+    }
+    if (!details) details = String(error);
   }
   return (
     <div className={className}>
