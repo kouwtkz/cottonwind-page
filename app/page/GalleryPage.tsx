@@ -634,14 +634,18 @@ function GalleryBody({
   const images = useMemo(
     () =>
       items
-        .filter((group) => {
-          return !group.hide && group.name !== "pickup" && group.list;
+        .map((group, i) => {
+          return {
+            images: yfList[i],
+            flag: !group.hide && group.name !== "pickup" && group.list,
+          };
         })
-        .map((group, i) => yfList[i])
-        .reduce<ImageType[]>((a, images) => {
-          images.forEach((image) => {
-            a.push(image);
-          });
+        .reduce<ImageType[]>((a, { images, flag }) => {
+          if (flag) {
+            images.forEach((image) => {
+              a.push(image);
+            });
+          }
           return a;
         }, []),
     [items, yfList]
