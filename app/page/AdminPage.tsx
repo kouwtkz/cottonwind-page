@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useIsLogin } from "~/components/state/EnvState";
 import { Link, useNavigate, useParams } from "react-router";
-import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
-import { fileDialog, fileDownload } from "~/components/utils/FileTool";
+import { fileDownload } from "~/components/utils/FileTool";
 import {
-  filesDataIndexed,
   IdbStateClassList,
   apiOrigin,
   mediaOrigin,
@@ -18,8 +16,8 @@ import {
   ImportBlogPostJson,
 } from "~/data/ClientDBFunctions";
 
-import { MdAdd, MdFileUpload, MdOpenInNew } from "react-icons/md";
-import { FilesEdit, FilesUpload, useEditFileID } from "./edit/FilesEdit";
+import { MdAdd } from "react-icons/md";
+import { FilesManager } from "./edit/FilesEdit";
 import { useFiles } from "~/components/state/FileState";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { ImagesManager } from "./edit/ImagesManager";
@@ -118,64 +116,6 @@ export function AdminDetailPage({ param }: { param: string }) {
     default:
       return <></>;
   }
-}
-
-function FilesManager() {
-  const [edit, setEdit] = useEditFileID();
-  const { files } = useFiles();
-  return (
-    <>
-      {edit ? <FilesEdit edit={edit} setEdit={setEdit} /> : null}
-      <RbButtonArea>
-        <button
-          type="button"
-          className="color round font-larger"
-          title="ファイルのアップロード"
-          onClick={async () => {
-            fileDialog("*", true)
-              .then((files) => Array.from(files))
-              .then((files) => FilesUpload({ files }))
-              .then(() => {
-                filesDataIndexed.load("no-cache");
-              });
-          }}
-        >
-          <MdFileUpload />
-        </button>
-      </RbButtonArea>
-      <main>
-        <h2 className="color-main en-title-font">File Manager</h2>
-        <ul className="files">
-          {files?.map((file, i) => {
-            return (
-              <li key={i} tabIndex={-1}>
-                <div className="name">{file.key}</div>
-                <button
-                  type="button"
-                  title="編集する"
-                  className="color-main miniIcon margin"
-                  onClick={(e) => {
-                    setEdit(file.id);
-                    e.preventDefault();
-                  }}
-                >
-                  <AiFillEdit />
-                </button>
-                <a
-                  className="open"
-                  title="ファイルを開く"
-                  target="file"
-                  href={concatOriginUrl(mediaOrigin, file.src)}
-                >
-                  <MdOpenInNew />
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </main>
-    </>
-  );
 }
 
 const useRedirectEdit = CreateState<{ path?: string } | null>(null);

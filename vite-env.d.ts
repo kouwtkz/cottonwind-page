@@ -26,6 +26,7 @@ interface ImportMetaEnv extends ImportMetaKVKeyEnv {
   readonly VITE_PATH_WK_COUNTDOWN: string;
   readonly VITE_THEME_COLOR_KEY: string;
   readonly VITE_THEME_DARK_KEY: string;
+  readonly VITE_FILES_DEFAULT_DIR: string;
   readonly VITE_LOCAL_TEST_DOMAIN?: string;
   readonly VITE_LOCAL_TEST_DOMAIN_2?: string;
   readonly VITE_STORAGE_KEY_SW?: string;

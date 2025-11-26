@@ -2,7 +2,7 @@ import { LoginCheck } from "~/components/utils/Admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
 import { getBasename } from "~/components/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
-import { filesDataOptions } from "~/data/DataEnv";
+import { filesDataOptions, filesDefaultDir } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/file";
 import { getCfDB } from "~/data/cf/getEnv";
@@ -40,7 +40,10 @@ async function next({ params, request, context, env }: WithEnvProps) {
               const key = (formData.get("key") || getBasename(file.name)) as string;
               const selectValue = await TableObject.Select({ db, where: { key } })
               const value = selectValue[0];
-              const src = value?.src ? value.src : "files/" + file.name;
+              const dirParam = (formData.get("dir") as string) ?? filesDefaultDir;
+              const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
+              const updateSrc = uploadDir + file.name;
+              const src = value?.src ? value.src : updateSrc;
               const time = new Date(file.lastModified);
               const mtime = time.toISOString();
               const entry = TableObject.getInsertEntry({
@@ -50,12 +53,15 @@ async function next({ params, request, context, env }: WithEnvProps) {
               });
               if (value && env.BUCKET) {
                 await env.BUCKET.delete(src);
-                await env.BUCKET.put(src, file);
+                await env.BUCKET.put(updateSrc, file);
               }
               else if (!value || value.mtime !== entry.mtime) {
                 if (env.BUCKET) await env.BUCKET.put(src, file);
               }
               if (value) {
+                if (src !== updateSrc) {
+                  entry.src = updateSrc;
+                }
                 await TableObject.Update({ db, entry, where: { key } });
               } else {
                 entry.key = key;

@@ -11,10 +11,12 @@ interface FilesRecordType extends FilesRecordDataType, WithRawDataType<FilesReco
   private?: boolean;
   mtime?: Date;
   lastmod?: Date;
+  dir?: string;
 }
 
 interface UploadBaseProps {
   files: File[];
+  dir?: string;
   key?: string | string[];
 }
 

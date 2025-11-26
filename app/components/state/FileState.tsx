@@ -38,6 +38,7 @@ export default function FileState() {
               typeof v.private === "number" ? Boolean(v.private) : undefined,
             mtime: v.mtime ? new Date(v.mtime) : undefined,
             lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
+            dir: v.src.replace(/\/?[^\/]+$/, "").replace(/^\/+/, ""),
           };
           const key = item.key;
           if (!filesMap.has(key)) {

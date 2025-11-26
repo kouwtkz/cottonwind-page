@@ -68,6 +68,7 @@ export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType
 }
 
 const filesDataDataName = "files";
+export const filesDefaultDir = import.meta.env.VITE_FILES_DEFAULT_DIR;
 export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordType, FilesRecordDataType> = {
   name: filesDataDataName,
   src: "/files",

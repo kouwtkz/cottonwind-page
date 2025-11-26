@@ -3,24 +3,259 @@ import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { Modal } from "~/components/layout/Modal";
 import { CreateState } from "~/components/state/CreateState";
-import { apiOrigin, filesDataIndexed } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  filesDataIndexed,
+  mediaOrigin,
+} from "~/data/ClientDBLoader";
 import { UploadToast } from "~/data/ClientDBFunctions";
 import { useFiles } from "~/components/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
-import { MdDeleteForever } from "react-icons/md";
+import {
+  MdDeleteForever,
+  MdFileUpload,
+  MdOpenInNew,
+  MdOutlineContentCopy,
+} from "react-icons/md";
 import { toast } from "react-toastify";
 import * as z from "zod";
-import { filesDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
+import {
+  filesDataOptions,
+  filesDefaultDir,
+  GetAPIFromOptions,
+} from "~/data/DataEnv";
 import { fileDialog } from "~/components/utils/FileTool";
 import { getExtension } from "~/components/functions/doc/PathParse";
+import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
+import { AiFillEdit } from "react-icons/ai";
+import { FormatDate } from "~/components/functions/DateFunction";
+import { Link, useSearchParams } from "react-router";
+import { CopyWithToast } from "~/components/functions/toastFunction";
 
 const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
+type DirListType = { [s: string]: DirListType };
+export function SrclistToDir(list: string[]): DirListType {
+  return list.reduce<DirListType>((dir, src) => {
+    src
+      .split("/")
+      .slice(0, -1)
+      .reduce((dir, name) => {
+        if (name) {
+          if (!dir[name]) dir[name] = { "..": dir };
+          return dir[name];
+        } else return dir;
+      }, dir);
+    return dir;
+  }, {});
+}
+
+export function FilesManager() {
+  const [edit, setEdit] = useEditFileID();
+  const { files: rawFiles } = useFiles();
+  const dir = useMemo(() => {
+    const list = rawFiles?.filter((file) => file.src).map((file) => file.src!);
+    if (list) return SrclistToDir(list);
+    return null;
+  }, [rawFiles]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const dirParam = useMemo(
+    () => (searchParams.get("dir") || filesDefaultDir).replace(/^\/+/, ""),
+    [searchParams]
+  );
+  const viewAll = useMemo(() => searchParams.has("all"), [searchParams]);
+  const currentDir = useMemo(() => {
+    return dirParam.split("/").reduce((dir, c) => {
+      if (!c) return dir;
+      else if (dir) return dir[c] || null;
+      return dir;
+    }, dir);
+  }, [dirParam, dir]);
+  const dirList = useMemo(() => {
+    if (!viewAll) {
+      if (currentDir) return Object.entries(currentDir);
+      else return [[".."]];
+    } else return [];
+  }, [currentDir, viewAll]);
+  const files = useMemo(() => {
+    if (!rawFiles) return [];
+    else if (viewAll) return rawFiles.concat();
+    else if (dirParam)
+      return rawFiles.filter((file) => {
+        return file.dir === dirParam;
+      });
+    else return rawFiles.filter((file) => !file.dir);
+  }, [rawFiles, dirParam]);
+  const dirBreadcrumbList = useMemo(() => {
+    return (dirParam ? "/" + dirParam : "")
+      .split("/")
+      .reduce<{ path: string; name: string }[]>((a, c, i) => {
+        if (!c) a.push({ path: "/", name: "Root" });
+        else {
+          const j = a.length - 1;
+          const path = j >= 0 && a[j].path !== "/" ? a[j].path + "/" + c : c;
+          a.push({ path, name: c });
+        }
+        return a;
+      }, []);
+  }, [dirParam]);
+
+  return (
+    <>
+      {edit ? <FilesEdit edit={edit} setEdit={setEdit} /> : null}
+      <RbButtonArea>
+        <button
+          type="button"
+          className="color round font-larger"
+          title="ファイルのアップロード"
+          onClick={async () => {
+            fileDialog("*", true)
+              .then((files) => Array.from(files))
+              .then((files) => FilesUpload({ files, dir: dirParam }))
+              .then(() => {
+                filesDataIndexed.load("no-cache");
+              });
+          }}
+        >
+          <MdFileUpload />
+        </button>
+      </RbButtonArea>
+      <main className="fileManagePage">
+        <h2 className="color-main en-title-font">File Manager</h2>
+        <div className="dirBreadcrumb">
+          {dirBreadcrumbList.reduce<ReactNode[]>((a, c, i) => {
+            if (a.length) a.push(<span key={i + "-slash"}>/</span>);
+            if (dirBreadcrumbList.length > i + 1) {
+              const newSearchParams = new URLSearchParams();
+              if (c.path !== filesDefaultDir)
+                newSearchParams.set("dir", c.path);
+              a.push(
+                <Link key={i} to={{ search: newSearchParams.toString() }}>
+                  {c.name}
+                </Link>
+              );
+            } else {
+              a.push(<span>{c.name}</span>);
+            }
+            return a;
+          }, [])}
+          <span>/</span>
+          <form
+            autoComplete="off"
+            onSubmit={(e) => {
+              const form = e.target as HTMLFormElement;
+              const value = form.path.value;
+              if (value) {
+                const newDir = dirParam
+                  ? dirParam + "/" + form.path.value
+                  : form.path.value;
+                setSearchParams({ dir: newDir });
+                form.path.value = "";
+              }
+              e.preventDefault();
+            }}
+          >
+            <input title="Child directory" name="path" type="text" />
+          </form>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>更新日</th>
+              <th>ボタン</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dirList.map((dir, i) => {
+              const newSearchParams = new URLSearchParams();
+              let link =
+                dir[0] === ".."
+                  ? dirParam.replace(/\/?[^\/]+$/, "")
+                  : (dirParam ? `${dirParam}/` : "") + dir[0];
+              if (link !== filesDefaultDir) {
+                if (link) newSearchParams.set("dir", link);
+                else newSearchParams.set("dir", "/");
+              }
+              return (
+                <tr key={i} tabIndex={-1}>
+                  <td className="name">
+                    <Link
+                      to={{ search: newSearchParams.toString() }}
+                      title={link || "Root"}
+                    >
+                      {dir[0]}
+                    </Link>
+                  </td>
+                  <td />
+                  <td />
+                </tr>
+              );
+            })}
+            {files?.map((file, i) => {
+              const dateStr = file.mtime
+                ? FormatDate(file.mtime, "Y-m-d H:i:s")
+                : "";
+              const dateShortStr = dateStr?.split(" ", 1)[0];
+              const Url = new URL(
+                concatOriginUrl(mediaOrigin, file.src),
+                location.href
+              );
+              const url = Url.toString();
+              return (
+                <tr key={i} tabIndex={-1}>
+                  <td className="name">{file.key}</td>
+                  <td title={dateStr}>{dateShortStr}</td>
+                  <td className="buttons">
+                    <div className="buttons">
+                      <button
+                        type="button"
+                        title="編集する"
+                        className="color-main miniIcon margin"
+                        onClick={(e) => {
+                          setEdit(file.id);
+                          e.preventDefault();
+                        }}
+                      >
+                        <AiFillEdit />
+                      </button>
+                      <button
+                        title="ファイルパスのコピー"
+                        type="button"
+                        className="color-main miniIcon margin"
+                        onClick={() => {
+                          CopyWithToast(url);
+                        }}
+                      >
+                        <MdOutlineContentCopy />
+                      </button>
+                      <a
+                        className="button color-main miniIcon margin"
+                        title="ファイルを開く"
+                        target="file"
+                        href={url}
+                      >
+                        <MdOpenInNew />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <ul className="files"></ul>
+      </main>
+    </>
+  );
+}
+
 export async function FilesUploadProcess({
   files,
+  dir,
   key,
   send = SEND_API,
   sleepTime = 10,
@@ -31,6 +266,7 @@ export async function FilesUploadProcess({
   const formDataList = files.map((file, i) => {
     const formData = new FormData();
     formData.append("file", file);
+    if (typeof dir === "string") formData.append("dir", dir);
     if (i in keys) formData.append("key", keys[i]);
     return formData;
   });
