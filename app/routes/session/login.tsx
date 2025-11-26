@@ -74,6 +74,7 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   action.then(({ type, message }: ResponseType) => {
     if (type === "success") {
       dbClass.deleteDatabase();
+      dbClass.close();
       location.href = message;
     }
   });

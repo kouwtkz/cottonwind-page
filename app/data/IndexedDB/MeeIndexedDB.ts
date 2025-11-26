@@ -105,15 +105,19 @@ export class MeeIndexedDBTable<T> {
   }
   async usingTransaction({ mode = "readonly", callback }: Props_MeeIndexedDB_UsingTransaction) {
     if (!this.db) console.error(this.options.name + "のdbが定義されていません");
-    const transaction = this.db?.transaction(this.options.name, mode)
-    if (transaction) {
-      try {
-        await callback(transaction);
-        transaction.commit();
-      } catch (e) {
-        console.error(e);
-        transaction.abort();
+    try {
+      const transaction = this.db?.transaction(this.options.name, mode)
+      if (transaction) {
+        try {
+          await callback(transaction);
+          transaction.commit();
+        } catch (e) {
+          console.error(e);
+          transaction.abort();
+        }
       }
+    } catch (e) {
+      console.error(e);
     }
   }
   getStore(transaction: IDBTransaction) {
