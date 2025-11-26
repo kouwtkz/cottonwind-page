@@ -17,6 +17,7 @@ interface FilesRecordType extends FilesRecordDataType, WithRawDataType<FilesReco
 interface UploadBaseProps {
   files: File[];
   dir?: string;
+  private?: boolean;
   key?: string | string[];
 }
 

@@ -1,6 +1,7 @@
 import { CreateState } from "./CreateState";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { OmittedEnv } from "types/custom-configuration";
+import { clientDBLoader, dbClass, IdbLoadMap } from "~/data/ClientDBLoader";
 
 export const useEnv = CreateState<Partial<OmittedEnv>>();
 export const useIsLogin = CreateState<boolean>();
@@ -15,12 +16,8 @@ export function EnvState({ env, isLogin }: EnvStateProps) {
     if (env) setEnv(env);
   }, [env]);
   const SetIsLoginState = useIsLogin()[1];
-  const isLoginValue = useMemo(() => {
-    let isLoginValue = isLogin;
-    return isLoginValue;
-  }, [isLogin]);
   useEffect(() => {
-    SetIsLoginState(isLoginValue);
-  }, [isLoginValue]);
+    SetIsLoginState(isLogin);
+  }, [isLogin]);
   return <></>;
 }

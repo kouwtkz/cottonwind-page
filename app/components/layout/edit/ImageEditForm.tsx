@@ -157,7 +157,7 @@ export default function ImageEditForm({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { files } = useFiles();
   const embedList = useMemo(() => {
-    const list = (files || []).concat();
+    const list = (files || []).filter((file) => !file.private);
     list.sort(
       (a, b) => (b.lastmod?.getTime() || 0) - (a.lastmod?.getTime() || 0)
     );

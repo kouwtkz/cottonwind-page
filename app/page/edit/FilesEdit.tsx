@@ -11,7 +11,14 @@ import {
 import { UploadToast } from "~/data/ClientDBFunctions";
 import { useFiles } from "~/components/state/FileState";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
@@ -34,6 +41,8 @@ import { AiFillEdit } from "react-icons/ai";
 import { FormatDate } from "~/components/functions/DateFunction";
 import { Link, useSearchParams } from "react-router";
 import { CopyWithToast } from "~/components/functions/toastFunction";
+import { RiGitRepositoryPrivateLine } from "react-icons/ri";
+import { useDropzone } from "react-dropzone";
 
 const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
@@ -102,6 +111,53 @@ export function FilesManager() {
         return a;
       }, []);
   }, [dirParam]);
+  const privateRef = useRef<HTMLInputElement>(null);
+  const onUpload = useCallback(
+    async (files: File[]) => {
+      let isPrivate: boolean | undefined;
+      if (privateRef.current?.checked) isPrivate = true;
+      FilesUpload({ files, dir: dirParam, private: isPrivate }).then(() => {
+        filesDataIndexed.load("no-cache");
+      });
+    },
+    [dirParam]
+  );
+  const onUploadSelect = useCallback(async () => {
+    fileDialog("*", true)
+      .then((files) => Array.from(files))
+      .then((files) => {
+        onUpload(files);
+      });
+  }, [dirParam]);
+  const defaultPrivate = useMemo(() => {
+    const latest = files.reduce<FilesRecordType | null>((a, c) => {
+      if (a && (a.lastmod?.getTime() || 0) > (c.lastmod?.getTime() || 0))
+        return a;
+      else return c;
+    }, null);
+    return latest?.private || false;
+  }, [files]);
+  useEffect(() => {
+    if (privateRef.current && !privateRef.current.dataset.touched) {
+      privateRef.current.checked = defaultPrivate;
+    }
+  }, [defaultPrivate]);
+  const { getRootProps, rootRef } = useDropzone({
+    onDragEnter(e) {
+      rootRef.current.classList.add("drag");
+    },
+    onDragLeave(e) {
+      rootRef.current.classList.remove("drag");
+    },
+    onDropRejected(fileRejections, event) {
+      rootRef.current.classList.remove("drag");
+    },
+    onDropAccepted(files, event) {
+      rootRef.current.classList.remove("drag");
+      onUpload(files);
+    },
+    noClick: true,
+  });
 
   return (
     <>
@@ -111,143 +167,163 @@ export function FilesManager() {
           type="button"
           className="color round font-larger"
           title="ファイルのアップロード"
-          onClick={async () => {
-            fileDialog("*", true)
-              .then((files) => Array.from(files))
-              .then((files) => FilesUpload({ files, dir: dirParam }))
-              .then(() => {
-                filesDataIndexed.load("no-cache");
-              });
-          }}
+          onClick={onUploadSelect}
         >
           <MdFileUpload />
         </button>
       </RbButtonArea>
       <main className="fileManagePage">
-        <h2 className="color-main en-title-font">File Manager</h2>
-        <div className="dirBreadcrumb">
-          {dirBreadcrumbList.reduce<ReactNode[]>((a, c, i) => {
-            if (a.length) a.push(<span key={i + "-slash"}>/</span>);
-            if (dirBreadcrumbList.length > i + 1) {
-              const newSearchParams = new URLSearchParams();
-              if (c.path !== filesDefaultDir)
-                newSearchParams.set("dir", c.path);
-              a.push(
-                <Link key={i} to={{ search: newSearchParams.toString() }}>
-                  {c.name}
-                </Link>
-              );
-            } else {
-              a.push(<span>{c.name}</span>);
-            }
-            return a;
-          }, [])}
-          <span>/</span>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              const form = e.target as HTMLFormElement;
-              const value = form.path.value;
-              if (value) {
-                const newDir = dirParam
-                  ? dirParam + "/" + form.path.value
-                  : form.path.value;
-                setSearchParams({ dir: newDir });
-                form.path.value = "";
-              }
-              e.preventDefault();
-            }}
-          >
-            <input title="Child directory" name="path" type="text" />
-          </form>
+        <div {...getRootProps()}>
+          <h2 className="color-main en-title-font">File Manager</h2>
+          <div className="managerHeader">
+            {viewAll ? null : (
+              <>
+                {dirBreadcrumbList.reduce<ReactNode[]>((a, c, i) => {
+                  if (dirBreadcrumbList.length > i + 1) {
+                    const newSearchParams = new URLSearchParams();
+                    if (c.path !== filesDefaultDir)
+                      newSearchParams.set("dir", c.path);
+                    a.push(
+                      <Link key={i} to={{ search: newSearchParams.toString() }}>
+                        {c.name}
+                      </Link>
+                    );
+                  } else {
+                    a.push(<span key={i}>{c.name}</span>);
+                  }
+                  a.push(<span key={i + "-slash"}>/</span>);
+                  return a;
+                }, [])}
+                <form
+                  autoComplete="off"
+                  onSubmit={(e) => {
+                    const form = e.target as HTMLFormElement;
+                    const value = form.path.value;
+                    if (value) {
+                      const newDir = dirParam
+                        ? dirParam + "/" + form.path.value
+                        : form.path.value;
+                      setSearchParams({ dir: newDir });
+                      form.path.value = "";
+                    }
+                    e.preventDefault();
+                  }}
+                >
+                  <input title="Child directory" name="path" type="text" />
+                </form>
+              </>
+            )}
+            <button
+              type="button"
+              className="color-main miniIcon"
+              title="ファイルのアップロード"
+              onClick={onUploadSelect}
+            >
+              {viewAll ? <span>upload</span> : null}
+              <MdFileUpload />
+            </button>
+            <label className="private link">
+              <input
+                name="private"
+                type="checkbox"
+                title="非公開"
+                defaultChecked={defaultPrivate}
+                ref={privateRef}
+                onChange={(e) => {
+                  const checkbox = e.target as HTMLInputElement;
+                  checkbox.dataset.touched = "1";
+                }}
+              />
+              <RiGitRepositoryPrivateLine />
+            </label>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>更新日</th>
+                <th>ボタン</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dirList.map((dir, i) => {
+                const newSearchParams = new URLSearchParams();
+                let link =
+                  dir[0] === ".."
+                    ? dirParam.replace(/\/?[^\/]+$/, "")
+                    : (dirParam ? `${dirParam}/` : "") + dir[0];
+                if (link !== filesDefaultDir) {
+                  if (link) newSearchParams.set("dir", link);
+                  else newSearchParams.set("dir", "/");
+                }
+                return (
+                  <tr key={i} tabIndex={-1}>
+                    <td className="name">
+                      <Link
+                        to={{ search: newSearchParams.toString() }}
+                        title={link || "Root"}
+                      >
+                        {dir[0] === ".." ? "<< back" : dir[0]}
+                      </Link>
+                    </td>
+                    <td />
+                    <td />
+                  </tr>
+                );
+              })}
+              {files?.map((file, i) => {
+                const dateStr = file.mtime
+                  ? FormatDate(file.mtime, "Y-m-d H:i:s")
+                  : "";
+                const dateShortStr = dateStr?.split(" ", 1)[0];
+                const Url = new URL(
+                  concatOriginUrl(mediaOrigin, file.src),
+                  location.href
+                );
+                const url = Url.toString();
+                return (
+                  <tr key={i} tabIndex={-1}>
+                    <td className="name">{file.key}</td>
+                    <td title={dateStr}>{dateShortStr}</td>
+                    <td className="buttons">
+                      <div className="buttons">
+                        <button
+                          type="button"
+                          title="編集する"
+                          className="color-main miniIcon margin"
+                          onClick={(e) => {
+                            setEdit(file.id);
+                            e.preventDefault();
+                          }}
+                        >
+                          <AiFillEdit />
+                        </button>
+                        <button
+                          title="ファイルパスのコピー"
+                          type="button"
+                          className="color-main miniIcon margin"
+                          onClick={() => {
+                            CopyWithToast(url);
+                          }}
+                        >
+                          <MdOutlineContentCopy />
+                        </button>
+                        <a
+                          className="button color-main miniIcon margin"
+                          title="ファイルを開く"
+                          target="file"
+                          href={url}
+                        >
+                          <MdOpenInNew />
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>名前</th>
-              <th>更新日</th>
-              <th>ボタン</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dirList.map((dir, i) => {
-              const newSearchParams = new URLSearchParams();
-              let link =
-                dir[0] === ".."
-                  ? dirParam.replace(/\/?[^\/]+$/, "")
-                  : (dirParam ? `${dirParam}/` : "") + dir[0];
-              if (link !== filesDefaultDir) {
-                if (link) newSearchParams.set("dir", link);
-                else newSearchParams.set("dir", "/");
-              }
-              return (
-                <tr key={i} tabIndex={-1}>
-                  <td className="name">
-                    <Link
-                      to={{ search: newSearchParams.toString() }}
-                      title={link || "Root"}
-                    >
-                      {dir[0]}
-                    </Link>
-                  </td>
-                  <td />
-                  <td />
-                </tr>
-              );
-            })}
-            {files?.map((file, i) => {
-              const dateStr = file.mtime
-                ? FormatDate(file.mtime, "Y-m-d H:i:s")
-                : "";
-              const dateShortStr = dateStr?.split(" ", 1)[0];
-              const Url = new URL(
-                concatOriginUrl(mediaOrigin, file.src),
-                location.href
-              );
-              const url = Url.toString();
-              return (
-                <tr key={i} tabIndex={-1}>
-                  <td className="name">{file.key}</td>
-                  <td title={dateStr}>{dateShortStr}</td>
-                  <td className="buttons">
-                    <div className="buttons">
-                      <button
-                        type="button"
-                        title="編集する"
-                        className="color-main miniIcon margin"
-                        onClick={(e) => {
-                          setEdit(file.id);
-                          e.preventDefault();
-                        }}
-                      >
-                        <AiFillEdit />
-                      </button>
-                      <button
-                        title="ファイルパスのコピー"
-                        type="button"
-                        className="color-main miniIcon margin"
-                        onClick={() => {
-                          CopyWithToast(url);
-                        }}
-                      >
-                        <MdOutlineContentCopy />
-                      </button>
-                      <a
-                        className="button color-main miniIcon margin"
-                        title="ファイルを開く"
-                        target="file"
-                        href={url}
-                      >
-                        <MdOpenInNew />
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <ul className="files"></ul>
       </main>
     </>
   );
@@ -256,6 +332,7 @@ export function FilesManager() {
 export async function FilesUploadProcess({
   files,
   dir,
+  private: isPrivate,
   key,
   send = SEND_API,
   sleepTime = 10,
@@ -267,6 +344,7 @@ export async function FilesUploadProcess({
     const formData = new FormData();
     formData.append("file", file);
     if (typeof dir === "string") formData.append("dir", dir);
+    if (isPrivate) formData.append("private", "1");
     if (i in keys) formData.append("key", keys[i]);
     return formData;
   });
@@ -349,6 +427,7 @@ export function FilesEdit({
     defaultValues: {
       key: dataItem?.key,
       src: dataItem?.src,
+      private: dataItem?.private || false,
     },
     resolver: zodResolver(schema),
   });
@@ -382,7 +461,7 @@ export function FilesEdit({
     );
   }
   useHotkeys(
-    "ctrl+enter",
+    "enter",
     (e) => {
       if (isDirty) handleSubmit(Submit)();
     },
@@ -396,43 +475,47 @@ export function FilesEdit({
   useHotkeys("escape", Close, { enableOnFormTags: true });
   return (
     <Modal className="filesEdit" onClose={Close}>
-      <div className="header">
-        <button
-          title="削除"
-          type="button"
-          className="color-warm miniIcon margin"
-          onClick={async () => {
-            const id = item?.id;
-            if (id && confirm("本当に削除しますか？")) {
-              customFetch(concatOriginUrl(apiOrigin, send), {
-                method: "DELETE",
-                body: { id },
-                cors: true,
-              }).then(() => {
-                filesDataIndexed.load("no-cache");
-                setEdit();
-              });
-            }
-          }}
-        >
-          <MdDeleteForever />
-        </button>
-        <button
-          type="button"
-          className="send"
-          onClick={() => {
-            fileDialog(`.${ext}`, true)
-              .then((files) => Array.from(files))
-              .then((files) => FilesUpload({ files, key: item?.key }))
-              .then(() => {
-                filesDataIndexed.load("no-cache");
-              });
-          }}
-        >
-          差し替える
-        </button>
-      </div>
       <form className="flex" onSubmit={handleSubmit(Submit)}>
+        <div className="header">
+          <button
+            title="削除"
+            type="button"
+            className="color-warm miniIcon margin"
+            onClick={async () => {
+              const id = item?.id;
+              if (id && confirm("本当に削除しますか？")) {
+                customFetch(concatOriginUrl(apiOrigin, send), {
+                  method: "DELETE",
+                  body: { id },
+                  cors: true,
+                }).then(() => {
+                  filesDataIndexed.load("no-cache");
+                  setEdit();
+                });
+              }
+            }}
+          >
+            <MdDeleteForever />
+          </button>
+          <button
+            type="button"
+            className="send"
+            onClick={() => {
+              fileDialog(`.${ext}`, true)
+                .then((files) => Array.from(files))
+                .then((files) => FilesUpload({ files, key: item?.key }))
+                .then(() => {
+                  filesDataIndexed.load("no-cache");
+                });
+            }}
+          >
+            差し替える
+          </button>
+          <label className="private link">
+            <input type="checkbox" title="非公開" {...register("private")} />
+            <RiGitRepositoryPrivateLine />
+          </label>
+        </div>
         <input
           title="ファイルID"
           placeholder="ファイルのID"

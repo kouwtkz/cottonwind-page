@@ -34,8 +34,6 @@ export default function FileState() {
           if (!v.src) return;
           const item: FilesRecordType = {
             ...v,
-            private:
-              typeof v.private === "number" ? Boolean(v.private) : undefined,
             mtime: v.mtime ? new Date(v.mtime) : undefined,
             lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
             dir: v.src.replace(/\/?[^\/]+$/, "").replace(/^\/+/, ""),

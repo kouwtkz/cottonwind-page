@@ -730,6 +730,12 @@ ol {
       margin: 0.5rem;
     }
   }
+  &.middle {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+  }
 }
 .flex-1 {
   flex: 1;
@@ -1120,6 +1126,7 @@ button,
     &.margin {
       padding: 0.25rem;
     }
+    span,
     svg {
       font-size: 1.25rem;
     }
@@ -1200,6 +1207,7 @@ a,
   text-decoration: underline;
   word-break: break-all;
   color: var(--link-color);
+  cursor: pointer;
   &:hover {
     color: var(--link-color-hover);
     &.external::after {
@@ -1757,6 +1765,9 @@ code {
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
+    }
+    > .flex.middle {
+      min-height: 40vh;
     }
   }
 }
@@ -3794,7 +3805,7 @@ label,
 }
 
 .fileManagePage {
-  .dirBreadcrumb {
+  .managerHeader {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -3802,9 +3813,19 @@ label,
     & > * {
       margin: 0 0.25em;
     }
-    form input {
+    form input[type="text"] {
       width: 5rem;
     }
+    button span {
+      margin-right: 0.25rem;
+    }
+    label.private {
+      margin-left: 0;
+    }
+  }
+  label.private {
+    display: inline-flex;
+    align-items: center;
   }
   table {
     min-width: 50%;
@@ -3827,14 +3848,28 @@ label,
     align-items: center;
     justify-content: center;
   }
+  .drag {
+    background-color: var(--main-color-fluo);
+  }
 }
 
 .modal.filesEdit {
+  min-width: 20rem;
+  font-size: 1em;
   .header {
-    margin: 0 0.5rem;
+    margin: 0.25em 0.5em 0.5em;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    button {
+      font-size: 1em;
+      svg {
+        font-size: 1.5em;
+      }
+      &.send {
+        padding: 0.25em 0.75em;
+      }
+    }
   }
 }
 

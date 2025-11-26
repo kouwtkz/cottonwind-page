@@ -1,12 +1,8 @@
 import { getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/login";
-import { waitIdb } from "~/data/ClientDBLoader";
+import { dbClass, waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
-import {
-  rootClientServerData,
-  SetMetaDefault,
-  type SetRootProps,
-} from "~/components/utils/SetMeta";
+import { SetMetaDefault, type SetRootProps } from "~/components/utils/SetMeta";
 import { Form, redirect } from "react-router";
 import { commitSession, getSession } from "~/sessions.server";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
@@ -27,13 +23,15 @@ export function meta({ matches }: Route.MetaArgs) {
   });
 }
 
-function redirectAction(request: Request, headers?: HeadersInit) {
+function getRedirectUrl(request: Request) {
   const Url = new URL(request.url);
   let redirectUrl =
     Url.searchParams.get("redirect") || request.headers.get("referer") || "";
   if (!redirectUrl || /login/.test(redirectUrl)) redirectUrl = "/";
-  return redirect(redirectUrl, { headers });
+  return redirectUrl;
 }
+
+type ResponseType = { type: "success" | "error"; message: string };
 
 export async function action({ request, context }: Route.ActionArgs) {
   const env = getCfEnv({ context });
@@ -43,26 +41,50 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (password) {
     if (password === env?.LOGIN_TOKEN) {
       session.set("LoginToken", password as string);
-      return redirectAction(request, {
-        "Set-Cookie": await commitSession(session),
-      });
+      return Response.json(
+        { type: "success", message: getRedirectUrl(request) } as ResponseType,
+        {
+          status: 200,
+          headers: {
+            "Set-Cookie": await commitSession(session),
+          },
+        }
+      );
     } else {
-      return "パスワードが間違ってます！";
+      return Response.json(
+        {
+          type: "error",
+          message: "パスワードが間違ってます！",
+        } as ResponseType,
+        { status: 401 }
+      );
     }
-  } else return "パスワードが入力されていません！";
+  } else
+    return Response.json(
+      {
+        type: "error",
+        message: "パスワードが入力されていません！",
+      } as ResponseType,
+      { status: 401 }
+    );
 }
 
 export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   const action = serverAction();
-  action.catch((r: Response) => {
-    if (r.status === 302 && rootClientServerData.data) {
-      rootClientServerData.data.isLogin = true;
+  action.then(({ type, message }: ResponseType) => {
+    if (type === "success") {
+      dbClass.deleteDatabase();
+      location.href = message;
     }
   });
   return action;
 }
 
-export default function Page({ actionData }: Route.ComponentProps) {
+interface PageProps extends Omit<Route.ComponentProps, "actionData"> {
+  actionData: ResponseType | null;
+}
+export default function Page({ actionData }: PageProps) {
+  const message = actionData?.type === "error" ? actionData.message : "";
   return (
     <div className="h1h4Page">
       <h1 className="color-main">めぇのログインページ</h1>
@@ -73,7 +95,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
           title="パスワード（ログイントークン）"
           placeholder="パスワード"
         />
-        {actionData ? <div className="color-warm">{actionData}</div> : null}
+        {message ? <div className="color-warm">{message}</div> : null}
         <button className="color" type="submit">
           送信
         </button>

@@ -6,6 +6,7 @@ import { filesDataOptions, filesDefaultDir } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/file";
 import { getCfDB } from "~/data/cf/getEnv";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass<FilesRecordDataType>({
   table: filesDataOptions.name,
@@ -40,6 +41,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               const key = (formData.get("key") || getBasename(file.name)) as string;
               const selectValue = await TableObject.Select({ db, where: { key } })
               const value = selectValue[0];
+              const privateParam = (formData.get("private") as string);
               const dirParam = (formData.get("dir") as string) ?? filesDefaultDir;
               const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
               const updateSrc = uploadDir + file.name;
@@ -51,6 +53,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 mtime,
                 lastmod: new Date().toISOString()
               });
+              if (privateParam) entry.private = Number(privateParam);
               if (value && env.BUCKET) {
                 await env.BUCKET.delete(src);
                 await env.BUCKET.put(updateSrc, file);
@@ -158,7 +161,9 @@ export async function ServerFilesGetData({ searchParams, db, isLogin }: GetDataP
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...TableObject.getFillNullEntry, private: v.private } : v))
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => v.private ? { ...v, ...TableObject.getFillNullEntry, private: v.private, key: await sha256(v.key) } : v))
+      )
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: filesDataOptions }))
