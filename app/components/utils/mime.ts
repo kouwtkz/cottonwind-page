@@ -4,15 +4,16 @@
  */
 
 export const getMimeType = (
-  filename: string,
+  name: string,
   mimes: Record<string, string> = baseMimes
 ): string | undefined => {
+  let ext = name;
   const regexp = /\.([a-zA-Z0-9]+?)$/
-  const match = filename.match(regexp)
-  if (!match) {
-    return
+  const match = name.match(regexp)
+  if (match) {
+    ext = match[1];
   }
-  let mimeType = mimes[match[1]]
+  let mimeType = mimes[ext]
   if (mimeType && mimeType.startsWith('text')) {
     mimeType += '; charset=utf-8'
   }

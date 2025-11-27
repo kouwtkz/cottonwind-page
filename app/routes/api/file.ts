@@ -37,49 +37,19 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "POST": {
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
-            if (file) {
-              const key = (formData.get("key") || getBasename(file.name)) as string;
-              const selectValue = await TableObject.Select({ db, where: { key } })
-              const value = selectValue[0];
-              const privateParam = (formData.get("private") as string);
-              const dirParam = (formData.get("dir") as string) ?? filesDefaultDir;
-              const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
-              const updateSrc = uploadDir + file.name;
-              const src = value?.src ? value.src : updateSrc;
-              const time = new Date(file.lastModified);
-              const mtime = time.toISOString();
-              const entry = TableObject.getInsertEntry({
-                src,
-                mtime,
-                lastmod: new Date().toISOString()
-              });
-              if (privateParam) entry.private = Number(privateParam);
-              if (value && env.BUCKET) {
-                await env.BUCKET.delete(src);
-                await env.BUCKET.put(updateSrc, file);
-              }
-              else if (!value || value.mtime !== entry.mtime) {
-                if (env.BUCKET) await env.BUCKET.put(src, file);
-              }
-              if (value) {
-                if (src !== updateSrc) {
-                  entry.src = updateSrc;
-                }
-                await TableObject.Update({ db, entry, where: { key } });
-              } else {
-                entry.key = key;
-                await TableObject.Insert({ db, entry });
-              }
-            }
-            return new Response("");
-          }
-          case "PATCH": {
-            const rawData = await request.json();
-            const data = Array.isArray(rawData) ? rawData : [rawData];
-            const now = new Date();
-            return Promise.all(
-              data.map(async item => {
-                const { id, ...data } = item as KeyValueType<unknown>;
+            if (formData.has("update")) {
+              const idStr = formData.get("id") as string | null;
+              const id = idStr ? Number(idStr) : NaN;
+              if (!isNaN(id)) {
+                const data = {} as KeyValueType<unknown>;
+                const key = formData.get("key") as string | null;
+                if (key !== null) data.key = key;
+                const src = formData.get("src") as string | null;
+                if (src !== null) data.src = src;
+                const privateParam = formData.get("private") as string | null;
+                const isPrivate = privateParam ? Boolean(Number(privateParam)) : null;
+                if (isPrivate !== null) data.private = isPrivate;
+                const now = new Date();
                 const entry = TableObject.getInsertEntry(data);
                 entry.lastmod = now.toISOString();
                 now.setMilliseconds(now.getMilliseconds() + 1);
@@ -97,12 +67,47 @@ async function next({ params, request, context, env }: WithEnvProps) {
                     }
                   }
                   await TableObject.Update({ db, entry, take: 1, where: { id: id! } });
-                  return { type: "update", entry: { ...target, ...entry } };
+                  return Response.json({ type: "update", entry: { ...target, ...entry } });
                 }
-              })
-            ).then(results => {
-              return Response.json(results);
-            });
+              }
+              return Response.json({ type: "error" }, { status: 403 });
+            } else {
+              if (file) {
+                const key = (formData.get("key") || getBasename(file.name)) as string;
+                const selectValue = await TableObject.Select({ db, where: { key } })
+                const value = selectValue[0];
+                const privateParam = (formData.get("private") as string);
+                const dirParam = (formData.get("dir") as string) ?? filesDefaultDir;
+                const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
+                const updateSrc = uploadDir + file.name;
+                const src = value?.src ? value.src : updateSrc;
+                const time = new Date(file.lastModified);
+                const mtime = time.toISOString();
+                const entry = TableObject.getInsertEntry({
+                  src,
+                  mtime,
+                  lastmod: new Date().toISOString()
+                });
+                if (privateParam) entry.private = Number(privateParam);
+                if (value && env.BUCKET) {
+                  await env.BUCKET.delete(src);
+                  await env.BUCKET.put(updateSrc, file);
+                }
+                else if (!value || value.mtime !== entry.mtime) {
+                  if (env.BUCKET) await env.BUCKET.put(src, file);
+                }
+                if (value) {
+                  if (src !== updateSrc) {
+                    entry.src = updateSrc;
+                  }
+                  await TableObject.Update({ db, entry, where: { key } });
+                } else {
+                  entry.key = key;
+                  await TableObject.Insert({ db, entry });
+                }
+              }
+              return new Response("");
+            }
           }
           case "DELETE": {
             const data: any = await request.json();

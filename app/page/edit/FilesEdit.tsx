@@ -43,6 +43,7 @@ import { Link, useSearchParams } from "react-router";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { RiGitRepositoryPrivateLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
+import { getMimeType } from "~/components/utils/mime";
 
 const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
@@ -409,6 +410,10 @@ export function FilesEdit({
   );
   const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
   const ext = useMemo(() => (item?.src ? getExtension(item.src) : ""), [item]);
+  const isTextFile = useMemo(() => {
+    const mime = getMimeType(ext);
+    return Boolean(mime && /(^text|json|xml)/.test(mime));
+  }, [ext]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
@@ -438,16 +443,31 @@ export function FilesEdit({
   }, [errors]);
   function Submit() {
     const values = getValues();
-    const entry = Object.fromEntries(
-      Object.entries(dirtyFields)
-        .filter((v) => v[1])
-        .map((v) => [v[0], values[v[0]]])
-    ) as SiteLink;
-    entry.id = dataItem?.id;
+    const formData = new FormData();
+    formData.append("update", "");
+    Object.entries(dirtyFields)
+      .filter((v) => v[1])
+      .forEach((v) => {
+        const key = v[0];
+        const value = values[key];
+        switch (typeof value) {
+          case "string":
+            formData.append(key, value);
+            break;
+          case "boolean":
+            formData.append(key, value ? "1" : "0");
+            break;
+          default:
+            formData.append(key, String(value));
+            break;
+        }
+      });
+    if (typeof dataItem?.id !== "undefined")
+      formData.append("id", dataItem.id.toString());
     toast.promise(
       customFetch(concatOriginUrl(apiOrigin, send), {
-        method: "PATCH",
-        body: entry,
+        method: "POST",
+        body: formData,
         cors: true,
       }).then(() => {
         filesDataIndexed.load("no-cache");
@@ -461,7 +481,7 @@ export function FilesEdit({
     );
   }
   useHotkeys(
-    "enter",
+    "ctrl+enter",
     (e) => {
       if (isDirty) handleSubmit(Submit)();
     },
