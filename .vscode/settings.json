@@ -39,5 +39,8 @@
         "cmd": "npm run update-image"
       }
     ]
-  }
+  },
+  "markdown.styles": [
+    "https://cottonwind.com/styles/styles.css"
+  ]
 }
