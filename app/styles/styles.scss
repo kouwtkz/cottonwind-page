@@ -3810,6 +3810,7 @@ label,
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     & > * {
       margin: 0 0.25em;
     }
