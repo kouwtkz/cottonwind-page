@@ -3872,6 +3872,11 @@ label,
       }
     }
   }
+  textarea {
+    min-width: 30em;
+    height: 20em;
+    min-height: 8em;
+  }
 }
 
 .h1h4Page {

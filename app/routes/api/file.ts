@@ -1,12 +1,13 @@
 import { LoginCheck } from "~/components/utils/Admin";
 import { DBTableClass, DBTableImport } from "./DBTableClass";
-import { getBasename } from "~/components/functions/doc/PathParse";
+import { getBasename, getName } from "~/components/functions/doc/PathParse";
 import { UpdateTablesDataObject } from "./DBTablesObject";
 import { filesDataOptions, filesDefaultDir } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/file";
 import { getCfDB } from "~/data/cf/getEnv";
 import { sha256 } from "~/components/functions/crypto";
+import { getMimeType } from "~/components/utils/mime";
 
 const TableObject = new DBTableClass<FilesRecordDataType>({
   table: filesDataOptions.name,
@@ -25,6 +26,11 @@ export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });
 }
 
+function getMtimeFromLastModified(lastModified: number) {
+  const time = new Date(lastModified);
+  return time.toISOString();
+}
+
 interface WithEnvProps extends Route.ActionArgs {
   env: Partial<Env>;
 }
@@ -40,7 +46,8 @@ async function next({ params, request, context, env }: WithEnvProps) {
             if (formData.has("update")) {
               const idStr = formData.get("id") as string | null;
               const id = idStr ? Number(idStr) : NaN;
-              if (!isNaN(id)) {
+              const text = formData.get("text") as string | null;
+              if (!isNaN(id) || text) {
                 const data = {} as KeyValueType<unknown>;
                 const key = formData.get("key") as string | null;
                 if (key !== null) data.key = key;
@@ -53,22 +60,34 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 const entry = TableObject.getInsertEntry(data);
                 entry.lastmod = now.toISOString();
                 now.setMilliseconds(now.getMilliseconds() + 1);
-                const target = id
+                const target = typeof id === "number" && id >= 0
                   ? (await TableObject.Select({ db, where: { id }, take: 1 }))[0]
                   : undefined;
-                if (target) {
-                  entry.key = data.key;
-                  if (env.BUCKET && entry.src && target.src && entry.src !== target.src) {
-                    const rename = String(entry.src);
-                    const object = await env.BUCKET.get(target.src);
-                    if (object) {
-                      await env.BUCKET.put(rename, await object.arrayBuffer());
-                      await env.BUCKET.delete(target.src);
-                    }
-                  }
-                  await TableObject.Update({ db, entry, take: 1, where: { id: id! } });
-                  return Response.json({ type: "update", entry: { ...target, ...entry } });
+                const targetSrc = target?.src || src;
+                let newFile: R2ObjectBody | File | null = null;
+                if (text !== null && targetSrc) {
+                  const mime = getMimeType(targetSrc);
+                  const textFile = new File([text], getName(targetSrc), { type: mime })
+                  entry.mtime = getMtimeFromLastModified(textFile.lastModified);
+                  newFile = textFile;
                 }
+                if (env.BUCKET) {
+                  if (!newFile && src && target?.src && src !== target.src) {
+                    newFile = await env.BUCKET.get(target.src);
+                  }
+                  const uploadSrc = src || target?.src;
+                  if (newFile && uploadSrc) {
+                    if (target?.src) await env.BUCKET.delete(target.src);
+                    await env.BUCKET.put(uploadSrc, await newFile.arrayBuffer());
+                  }
+                }
+                entry.key = data.key;
+                if (target) {
+                  await TableObject.Update({ db, entry, take: 1, where: { id: id! } });
+                } else {
+                  await TableObject.Insert({ db, entry });
+                }
+                return Response.json({ type: target ? "update" : "create", entry: { ...target, ...entry } }, { status: target ? 200 : 201 });
               }
               return Response.json({ type: "error" }, { status: 403 });
             } else {
@@ -81,8 +100,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
                 const updateSrc = uploadDir + file.name;
                 const src = value?.src ? value.src : updateSrc;
-                const time = new Date(file.lastModified);
-                const mtime = time.toISOString();
+                const mtime = getMtimeFromLastModified(file.lastModified);
                 const entry = TableObject.getInsertEntry({
                   src,
                   mtime,

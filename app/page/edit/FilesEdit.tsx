@@ -22,6 +22,7 @@ import {
 import { useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
+  MdAddComment,
   MdDeleteForever,
   MdFileUpload,
   MdOpenInNew,
@@ -63,8 +64,10 @@ export function SrclistToDir(list: string[]): DirListType {
   }, {});
 }
 
+const useDirParam = CreateState<string>("");
+
 export function FilesManager() {
-  const [edit, setEdit] = useEditFileID();
+  const setEdit = useEditFileID()[1];
   const { files: rawFiles } = useFiles();
   const dir = useMemo(() => {
     const list = rawFiles?.filter((file) => file.src).map((file) => file.src!);
@@ -76,6 +79,10 @@ export function FilesManager() {
     () => (searchParams.get("dir") || filesDefaultDir).replace(/^\/+/, ""),
     [searchParams]
   );
+  const setDirParam = useDirParam()[1];
+  useEffect(() => {
+    setDirParam(dirParam);
+  }, [dirParam]);
   const viewAll = useMemo(() => searchParams.has("all"), [searchParams]);
   const currentDir = useMemo(() => {
     return dirParam.split("/").reduce((dir, c) => {
@@ -130,6 +137,9 @@ export function FilesManager() {
         onUpload(files);
       });
   }, [dirParam]);
+  const onNewTextfile = useCallback(async () => {
+    setEdit(-1);
+  }, []);
   const defaultPrivate = useMemo(() => {
     const latest = files.reduce<FilesRecordType | null>((a, c) => {
       if (a && (a.lastmod?.getTime() || 0) > (c.lastmod?.getTime() || 0))
@@ -159,11 +169,18 @@ export function FilesManager() {
     },
     noClick: true,
   });
-
   return (
     <>
-      {edit ? <FilesEdit edit={edit} setEdit={setEdit} /> : null}
+      <FilesEdit />
       <RbButtonArea>
+        <button
+          type="button"
+          className="color round font-larger"
+          title="新規テキストファイル"
+          onClick={onNewTextfile}
+        >
+          <MdAddComment />
+        </button>
         <button
           type="button"
           className="color round font-larger"
@@ -394,26 +411,27 @@ const schema = z.object({
   src: z.string().min(1, { message: "ファイルパスを入力してください" }),
 });
 
-export function FilesEdit({
-  send = SEND_API,
-  edit,
-  setEdit,
-}: {
-  send?: string;
-  edit?: number;
-  setEdit(v?: number): void;
-}) {
+export function FilesEdit({ send = SEND_API }: { send?: string }) {
+  const [edit, setEdit] = useEditFileID();
+  const dirParam = useDirParam()[0];
   const { files } = useFiles();
-  const dataItem = useMemo(
-    () => files?.find((v) => v.id === edit),
+  const fileIndex = useMemo(
+    () => files?.findIndex((v) => v.id === edit),
     [files, edit]
+  );
+  const fileItem = useMemo(
+    () => (files && typeof fileIndex === "number" ? files[fileIndex] : null),
+    [files, fileIndex]
   );
   const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
   const ext = useMemo(() => (item?.src ? getExtension(item.src) : ""), [item]);
   const isTextFile = useMemo(() => {
-    const mime = getMimeType(ext);
-    return Boolean(mime && /(^text|json|xml)/.test(mime));
-  }, [ext]);
+    if (edit === -1) return true;
+    else {
+      const mime = getMimeType(ext);
+      return Boolean(mime && /(^text|json|xml)/.test(mime));
+    }
+  }, [ext, edit]);
   const targetLastmod = useRef<string | null>(null);
   useEffect(() => {
     if (targetLastmod.current) {
@@ -423,19 +441,35 @@ export function FilesEdit({
       targetLastmod.current = null;
     }
   }, [files]);
+  const getDefaultValuesFromFile = useCallback(
+    () => ({
+      key: fileItem?.key || "",
+      src: fileItem?.src || dirParam + "/",
+      private: fileItem?.private || false,
+      text: "",
+    }),
+    [fileItem, dirParam]
+  );
   const {
     register,
     handleSubmit,
     getValues,
     formState: { isDirty, dirtyFields, errors },
+    reset,
   } = useForm<any>({
-    defaultValues: {
-      key: dataItem?.key,
-      src: dataItem?.src,
-      private: dataItem?.private || false,
-    },
     resolver: zodResolver(schema),
   });
+  useEffect(() => {
+    reset(getDefaultValuesFromFile());
+    if (isTextFile && fileItem?.src) {
+      fetch(concatOriginUrl(mediaOrigin, fileItem.src))
+        .then((r) => r.text())
+        .then((text) => {
+          reset({ text }, { keepDirty: true });
+        });
+    }
+  }, [fileItem, isTextFile, reset]);
+
   useEffect(() => {
     Object.values(errors).forEach((error) => {
       toast.error(String(error?.message));
@@ -462,8 +496,8 @@ export function FilesEdit({
             break;
         }
       });
-    if (typeof dataItem?.id !== "undefined")
-      formData.append("id", dataItem.id.toString());
+    if (typeof fileItem?.id !== "undefined")
+      formData.append("id", fileItem.id.toString());
     toast.promise(
       customFetch(concatOriginUrl(apiOrigin, send), {
         method: "POST",
@@ -494,7 +528,7 @@ export function FilesEdit({
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
   return (
-    <Modal className="filesEdit" onClose={Close}>
+    <Modal className="filesEdit" onClose={Close} isOpen={Boolean(edit)}>
       <form className="flex" onSubmit={handleSubmit(Submit)}>
         <div className="header">
           <button
@@ -545,6 +579,11 @@ export function FilesEdit({
           title="ファイルパス"
           placeholder="ファイルパス"
           {...register("src")}
+        />
+        <textarea
+          title="ファイルの内容"
+          hidden={!isTextFile}
+          {...register("text")}
         />
         <button
           type="button"

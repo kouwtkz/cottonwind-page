@@ -42,6 +42,7 @@ export const Modal = memo(function Modal({
   scrollLock: isScrollLock = true,
   switchWidth,
   disableHotkeys,
+  hidden,
   ...props
 }: ModalProps) {
   const isOpen = useMemo(() => {
@@ -98,7 +99,7 @@ export const Modal = memo(function Modal({
   return (
     <CSSTransition
       in={isOpen}
-      {...{ classNames, timeout, unmountOnExit, nodeRef, onExited }}
+      {...{ classNames, timeout, unmountOnExit, nodeRef, onExited, hidden }}
     >
       <div
         ref={nodeRef}
