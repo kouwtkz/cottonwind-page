@@ -479,23 +479,25 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
     const values = getValues();
     const formData = new FormData();
     formData.append("update", "");
-    Object.entries(dirtyFields)
-      .filter((v) => v[1])
-      .forEach((v) => {
-        const key = v[0];
-        const value = values[key];
-        switch (typeof value) {
-          case "string":
-            formData.append(key, value);
-            break;
-          case "boolean":
-            formData.append(key, value ? "1" : "0");
-            break;
-          default:
-            formData.append(key, String(value));
-            break;
-        }
-      });
+    const allMode = edit === -1;
+    (allMode
+      ? Object.entries(getValues())
+      : Object.entries(dirtyFields)
+          .filter((v) => v[1])
+          .map((v) => [v[0], values[v[0]]])
+    ).forEach(([key, value]) => {
+      switch (typeof value) {
+        case "string":
+          formData.append(key, value);
+          break;
+        case "boolean":
+          formData.append(key, value ? "1" : "0");
+          break;
+        default:
+          formData.append(key, String(value));
+          break;
+      }
+    });
     if (typeof fileItem?.id !== "undefined")
       formData.append("id", fileItem.id.toString());
     toast.promise(

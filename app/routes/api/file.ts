@@ -49,9 +49,19 @@ async function next({ params, request, context, env }: WithEnvProps) {
               const text = formData.get("text") as string | null;
               if (!isNaN(id) || text) {
                 const data = {} as KeyValueType<unknown>;
-                const key = formData.get("key") as string | null;
+                let key = formData.get("key") as string | null;
                 if (key !== null) data.key = key;
-                const src = formData.get("src") as string | null;
+                let src = formData.get("src") as string | null;
+                if (src && /\/$/.test(src)) {
+                  if (key) {
+                    src = src + key;
+                  } else {
+                    src = null;
+                  }
+                }
+                if (src && !/\.[^\/]+$/.test(src)) {
+                  src = src + ".txt";
+                }
                 if (src !== null) data.src = src;
                 const privateParam = formData.get("private") as string | null;
                 const isPrivate = privateParam ? Boolean(Number(privateParam)) : null;
@@ -85,7 +95,11 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 if (target) {
                   await TableObject.Update({ db, entry, take: 1, where: { id: id! } });
                 } else {
-                  await TableObject.Insert({ db, entry });
+                  if (src) {
+                    await TableObject.Insert({ db, entry });
+                  } else {
+                    return Response.json({ type: "error" }, { status: 403 });
+                  }
                 }
                 return Response.json({ type: target ? "update" : "create", entry: { ...target, ...entry } }, { status: target ? 200 : 201 });
               }
