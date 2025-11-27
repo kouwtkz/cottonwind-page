@@ -575,11 +575,13 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
         <input
           title="ファイルID"
           placeholder="ファイルのID"
+          autoComplete="off"
           {...register("key")}
         />
         <input
           title="ファイルパス"
           placeholder="ファイルパス"
+          autoComplete="off"
           {...register("src")}
         />
         <textarea
