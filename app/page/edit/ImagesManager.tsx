@@ -9,7 +9,7 @@ import {
 import { ImportImagesJson } from "~/data/ClientDBFunctions";
 import { MdDriveFileRenameOutline, MdFileUpload } from "react-icons/md";
 import { useCharacters } from "~/components/state/CharacterState";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { fileDialog } from "~/components/utils/FileTool";
 import {
   ImagesUpload,
@@ -285,17 +285,20 @@ export function ThumbnailResetButton({
   ...props
 }: ThumbnailResetButtonProps) {
   const { images } = useGalleryObject();
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q");
   const { addProgress, setMax } = useToastProgress();
   const noThumbnailList = useMemo(
-    () => images.filter((image) => image.src && !image.thumbnail),
-    [images]
+    () =>
+      q ? images : images.filter((image) => image.src && !image.thumbnail),
+    [images, q]
   );
   const onClick = useCallback(() => {
     if (noThumbnailList.length === 0) {
       toast("未設定のサムネイルはありません", toastLoadingShortOptions);
     } else if (
       confirm(
-        `未設定だったギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`
+        `${q ? "現在の" : "未設定だった"}ギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`
       )
     ) {
       setMax(noThumbnailList.length, {
