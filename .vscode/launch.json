@@ -5,7 +5,7 @@
       "name": "dev",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev"
+      "command": "bun run dev"
     },
     {
       "name": "Launch Chrome",
@@ -38,7 +38,7 @@
       "name": "dev-calendar",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev-calendar"
+      "command": "bun run dev-calendar"
     }
   ],
   "compounds": [
