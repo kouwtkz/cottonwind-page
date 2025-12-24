@@ -2,40 +2,29 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "update",
-      "problemMatcher": [],
-      "label": "npm: update",
-      "detail": "DataUpdate"
+      "type": "shell",
+      "label": "bun: update",
+      "command": "bun update"
     },
     {
-      "type": "npm",
-      "script": "start",
-      "problemMatcher": [],
-      "label": "npm: start",
-      "detail": "wrangler pages dev dist"
+      "type": "shell",
+      "label": "bun: start",
+      "command": "bun run start"
     },
     {
-      "type": "npm",
-      "script": "dev",
-      "problemMatcher": [],
-      "label": "npm: dev",
-      "detail": "vite"
+      "type": "shell",
+      "label": "bun: dev",
+      "command": "bun run vite"
     },
     {
-      "type": "npm",
-      "script": "build",
-      "group": "build",
-      "problemMatcher": [],
-      "label": "npm: build",
-      "detail": "vite build --mode client && vite build"
+      "type": "shell",
+      "label": "bun: build",
+      "command": "bun run build"
     },
     {
-      "type": "npm",
-      "script": "deploy",
-      "problemMatcher": [],
-      "label": "npm: deploy",
-      "detail": "npm run build && wrangler pages deploy dist --commit-dirty true --branch master"
+      "type": "shell",
+      "label": "bun: deploy",
+      "command": "bun run build && wrangler deploy"
     },
     {
       "type": "shell",
@@ -53,17 +42,6 @@
       "type": "shell",
       "command": "wrangler ${input:wranglerSelect} ${input:text}",
       "label": "wrangler"
-    },
-    {
-      "type": "shell",
-      "command": "npm run init-db-schema",
-      "label": "db:schema.sql"
-    },
-    {
-      "type": "npm",
-      "script": "dev-sv",
-      "problemMatcher": [],
-      "label": "npm: dev-sv",
     },
     {
       "type": "shell",
