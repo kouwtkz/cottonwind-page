@@ -3642,8 +3642,12 @@ label,
   .gallery h2 {
     margin-bottom: 0;
   }
+  .gallery h2,
   .linkPage h3 {
-    font-size: 2.5em;
+    font-size: 2em;
+    @media (min-width: #{$tabletWidth}) {
+      font-size: 2.5em;
+    }
   }
 }
 
