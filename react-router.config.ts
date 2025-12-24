@@ -11,7 +11,7 @@ const calendarMode = includeModes("calendar");
 let config = {
   ssr: true,
   future: {
-    unstable_viteEnvironmentApi: true,
+    v8_viteEnvironmentApi: true,
   },
 } as Config;
 
