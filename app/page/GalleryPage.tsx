@@ -127,13 +127,16 @@ export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
 
 function GalleryGroupPage() {
   const { group } = useParams();
-  const album = useMemo(
-    () =>
-      ArrayEnv.IMAGE_ALBUMS?.find(
-        (album) => (typeof album === "string" ? album : album.name) === group
-      ),
-    [group]
-  );
+  const { imageAlbums } = useImageState();
+  const album = useMemo(() => {
+    if (group) {
+      return (
+        ArrayEnv.IMAGE_ALBUMS?.find(
+          (album) => (typeof album === "string" ? album : album.name) === group
+        ) || imageAlbums?.get(group)
+      );
+    } else return {} as KeyValueAnyType;
+  }, [group, imageAlbums]);
   const items = album ? { ...album?.gallery?.generate, ...album } : undefined;
   return (
     <>
@@ -299,6 +302,7 @@ export function GalleryObject({
         ...item,
         hideWhenEmpty: hideWhenEmpty,
         hide: false,
+        linkLabel: true,
       }));
     else return items;
   }, [items, showAllAlbum, hideWhenEmpty, isLogin, imageAlbums]);
@@ -622,6 +626,7 @@ function GalleryBody({
   );
   const typeParam = useMemo(() => search.get("type"), [search]);
   const filterParam = useMemo(() => getSearchParamMap("filter"), [search]);
+  const nav = useNavigate();
   const { group } = useParams();
   const args = {
     showInPageMenu,
@@ -927,9 +932,16 @@ function GalleryBody({
                 </IconsFoldButton>
                 <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
-                  toEnableTitle="全てのアルバムを表示する"
-                  toDisableTitle="アルバム表示を元に戻す"
+                  toEnableTitle={"全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"}
+                  toDisableTitle={"アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"}
                   searchKey="showAllAlbum"
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    const group = prompt("任意のアルバム名");
+                    if (group) {
+                      nav({ pathname: "/gallery/" + group });
+                    }
+                  }}
                 >
                   <BiPhotoAlbum />
                 </ModeSearchSwitch>
