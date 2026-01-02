@@ -100,7 +100,8 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const thumbnail = formData.get("thumbnail") as File | null;
             const filename = (file || thumbnail)?.name;
             const mtime = formData.get("mtime") as string | null;
-            const album = formData.get("album") as string | null;
+            let album = formData.get("album") as string | null;
+            if (album === "pickup") album = null;
             const albumOverwrite = (formData.get("albumOverwrite") || "true") === "true";
             const tags = formData.get("tags") as string | null;
             const characters = formData.get("characters") as string | null;
