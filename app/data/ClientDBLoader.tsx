@@ -81,7 +81,8 @@ export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 
 export let dbClass: MeeIndexedDB;
 
-export const INDEXEDDB_VERSION = 5;
+// IndexedDBのバージョン指定、変わる毎に更新される
+export const INDEXEDDB_VERSION = 6;
 
 export async function MeeIndexedDBCreate() {
   return MeeIndexedDB.create({

@@ -80,6 +80,6 @@ export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<str
   } else if (albumType) {
     return albumType;
   } else {
-    return "illust";
+    return "other";
   }
 }

@@ -130,6 +130,7 @@ export const ArrayEnv: ArrayEnvType = {
       description: "オリジナルキャラクターのイラストです！",
       name: "main",
       title: "Main art",
+      type: "illust",
       latest: true,
       gallery: {
         pages: {},
@@ -155,6 +156,7 @@ export const ArrayEnv: ArrayEnvType = {
     {
       description: "案件などのイラストです！",
       name: "works",
+      type: "illust",
       latest: true,
       gallery: {
         pages: {},
@@ -182,6 +184,7 @@ export const ArrayEnv: ArrayEnvType = {
     {
       description: "ファンアートとして描いたイラストです！",
       name: "parody",
+      type: "illust",
       latest: true,
       gallery: {
         pages: {

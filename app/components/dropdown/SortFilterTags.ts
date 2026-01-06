@@ -38,6 +38,7 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
       { value: "type:picture", label: "📷写真・VRC", nameGuide: ["しゃしん", "ぶいあーる"] },
       { value: "type:3d", label: "🧶3Dモデル" },
       { value: "type:material", label: "📦素材", nameGuide: "そざい" },
+      { value: "type:other", label: "🖼️その他の画像" },
     ],
   },
   {
@@ -121,7 +122,11 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
 ];
 
 export function addExtentionGalleryTagsOptions(options: ContentsTagsOption[]) {
-  options.push(...[{ value: "type:banner", label: "🖼バナー" }]);
+  const index = options.findIndex(v => v.value === "type:other");
+  const add: ContentsTagsOption = { value: "type:banner", label: "🎫バナー" };
+  if (index >= 0) {
+    options.splice(index, 0, add);
+  } else options.push(...[add]);
   return options;
 }
 
