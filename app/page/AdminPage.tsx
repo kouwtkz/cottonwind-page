@@ -164,6 +164,25 @@ function RedirectManagerEdit() {
       }
     );
   }
+  function Delete() {
+    if (edit?.path && confirm(`本当に削除しますか？\n削除対象:${edit.path}`)) {
+      toast.promise(
+        customFetch(concatOriginUrl(apiOrigin, SEND_REDIRECT_DATA_API), {
+          method: "DELETE",
+          body: { path: edit.path },
+          cors: true,
+        }).then(() => {
+          redirectDataIndexed.load("no-cache");
+          setEdit(null);
+        }),
+        {
+          pending: "削除中",
+          success: "削除しました",
+          error: "削除に失敗しました",
+        }
+      );
+    }
+  }
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
       setEdit(null);
@@ -185,14 +204,24 @@ function RedirectManagerEdit() {
               placeholder="リダイレクト先"
               {...register("redirect")}
             />
-            <button
-              type="button"
-              className="send"
-              onClick={handleSubmit(Submit)}
-              disabled={!isDirty}
-            >
-              送信
-            </button>
+            <div className="actions">
+              <button
+                type="button"
+                className="color-warm"
+                onClick={Delete}
+                disabled={!edit.path}
+              >
+                削除
+              </button>
+              <button
+                type="button"
+                className="send"
+                onClick={handleSubmit(Submit)}
+                disabled={!isDirty}
+              >
+                送信
+              </button>
+            </div>
           </form>
         </Modal>
       ) : null}
@@ -207,41 +236,55 @@ function RedirectManager() {
       {edit ? <RedirectManagerEdit /> : null}
       <main>
         <h2 className="color-main en-title-font">Redirect Manager</h2>
-        <ul className="redirects">
-          {redirects?.map((item, i) => {
-            return (
-              <li key={i} tabIndex={-1}>
-                <div className="name">{item.path}</div>
-                <div>&gt;</div>
-                <div className="to">{item.redirect}</div>
+        <table className="redirects">
+          <thead>
+            <tr>
+              <th>リダイレクト元</th>
+              <th>リダイレクト先</th>
+              <th>ボタン</th>
+            </tr>
+          </thead>
+          <tbody>
+            {redirects?.map((item, i) => {
+              return (
+                <tr key={i} tabIndex={-1}>
+                  <td className="name">{item.path}</td>
+                  <td className="to">{item.redirect}</td>
+                  <td>
+                    <button
+                      type="button"
+                      title="編集する"
+                      className="color-main miniIcon margin"
+                      onClick={(e) => {
+                        setEdit(item);
+                        e.preventDefault();
+                      }}
+                    >
+                      <AiFillEdit />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            <tr>
+              <td />
+              <td />
+              <td>
                 <button
                   type="button"
-                  title="編集する"
+                  title="追加する"
                   className="color-main miniIcon margin"
                   onClick={(e) => {
-                    setEdit(item);
                     e.preventDefault();
+                    setEdit({});
                   }}
                 >
-                  <AiFillEdit />
+                  <MdAdd />
                 </button>
-              </li>
-            );
-          })}
-          <li>
-            <button
-              type="button"
-              title="追加する"
-              className="color-main miniIcon margin"
-              onClick={(e) => {
-                e.preventDefault();
-                setEdit({});
-              }}
-            >
-              <MdAdd />
-            </button>
-          </li>
-        </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </main>
     </>
   );
