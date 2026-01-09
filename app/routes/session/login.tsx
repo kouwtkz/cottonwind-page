@@ -73,8 +73,10 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   const action = serverAction();
   action.then(({ type, message }: ResponseType) => {
     if (type === "success") {
-      dbClass.deleteDatabase();
-      dbClass.close();
+      try {
+        dbClass.deleteDatabase();
+        dbClass.close();
+      } catch {}
       location.href = message;
     }
   });
