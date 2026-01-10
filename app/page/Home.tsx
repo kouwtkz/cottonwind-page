@@ -11,7 +11,7 @@ import { usePosts } from "~/components/state/PostState";
 import { findMee } from "~/data/find/findMee";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { MeeLinks } from "./LinksPage";
-import { EmbedBluesky, EmbedTwitter } from "~/components/embed/EmbedSNS";
+import { EmbedBluesky } from "~/components/embed/EmbedSNS";
 import useSchedule from "~/components/hook/useSchedule";
 import {
   compareArray,
@@ -134,7 +134,6 @@ const EmbedSNS = React.memo(function EmbedSNS() {
       <h3 className="leaf">つぶやき</h3>
       <div className="flex center row wrap m-c-s mb-c">
         <EmbedBluesky pin />
-        <EmbedTwitter />
       </div>
     </div>
   );
