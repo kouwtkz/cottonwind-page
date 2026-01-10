@@ -1617,6 +1617,13 @@ details {
   details {
     margin-left: 1em;
   }
+  summary.h3 {
+    background-color: transparent;
+    font-size: 1.75em;
+    width: inherit;
+    padding: inherit;
+    margin: 2rem auto;
+  }
 }
 
 code {

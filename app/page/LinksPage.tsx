@@ -57,21 +57,23 @@ const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 export default function LinksPage() {
   const env = useEnv()[0];
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
+  const isLogin = useIsLogin()[0];
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
       <MeeLinks title="Top Link" category="top" banner />
       <MeeLinks
-        title="My Links"
-        category={null}
-        banner
-        linkStyle={{ minHeight: "3em" }}
-      />
-      <MeeLinks
         title="Commission"
         category="commission"
         banner
         linkStyle={{ minHeight: "3em" }}
+      />
+      <MeeLinks
+        title="My Links"
+        category={null}
+        banner
+        linkStyle={{ minHeight: "3em" }}
+        fold
       />
       <div>
         <h3 className="color-main en-title-font">Others</h3>
@@ -282,6 +284,7 @@ interface LinksContainerProps
   indexedDB: LinksIndexedDBType;
   defaultCategories?: string[];
   linkStyle?: CSSProperties;
+  fold?: boolean;
 }
 function LinksContainer({
   category = null,
@@ -294,6 +297,7 @@ function LinksContainer({
   dropdown,
   defaultCategories,
   linkStyle,
+  fold,
   ...props
 }: LinksContainerProps) {
   const send = LINKS_API + dir + "/send";
@@ -352,6 +356,69 @@ function LinksContainer({
     [isEditable, banner, linkStyle]
   );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
+  const Inner = function () {
+    return (
+      <>
+        {isLogin ? (
+          <LinksEditButtons
+            state={state}
+            indexedDB={indexedDB}
+            setEdit={setEdit}
+            album={album}
+            move={move}
+            setMove={setMove}
+            dropdown={dropdown}
+            dir={dir}
+          />
+        ) : null}
+        <ul className={ulClassName}>
+          {move ? (
+            <Movable
+              items={links}
+              Inner={LinkInner}
+              submit={move === 2}
+              onSubmit={(items) => {
+                const dirty = items
+                  .map((item, i) => ({
+                    ...item,
+                    newOrder: i + 1,
+                  }))
+                  .filter((item, i) => item.newOrder !== item.order)
+                  .map(({ id, newOrder }) => {
+                    return { id, order: newOrder };
+                  });
+                if (dirty.length > 0) {
+                  toast.promise(
+                    customFetch(concatOriginUrl(apiOrigin, send), {
+                      data: dirty,
+                      method: "POST",
+                      cors: true,
+                    }).then(() => {
+                      indexedDB.load("no-cache");
+                      setMove(0);
+                    }),
+                    {
+                      pending: "送信中",
+                      success: "送信しました",
+                      error: "送信に失敗しました",
+                    }
+                  );
+                } else setMove(0);
+              }}
+            />
+          ) : (
+            <>
+              {links?.map((v, i) => (
+                <li key={i}>
+                  <LinkInner item={v} />
+                </li>
+              ))}
+            </>
+          )}
+        </ul>
+      </>
+    );
+  };
   return (
     <>
       {visible ? (
@@ -368,64 +435,21 @@ function LinksContainer({
               defaultCategories={defaultCategories}
             />
           ) : null}
-          {title ? <h3 className="color-main en-title-font">{title || "Links"}</h3> : null}
-          {isLogin ? (
-            <LinksEditButtons
-              state={state}
-              indexedDB={indexedDB}
-              setEdit={setEdit}
-              album={album}
-              move={move}
-              setMove={setMove}
-              dropdown={dropdown}
-              dir={dir}
-            />
-          ) : null}
-          <ul className={ulClassName}>
-            {move ? (
-              <Movable
-                items={links}
-                Inner={LinkInner}
-                submit={move === 2}
-                onSubmit={(items) => {
-                  const dirty = items
-                    .map((item, i) => ({
-                      ...item,
-                      newOrder: i + 1,
-                    }))
-                    .filter((item, i) => item.newOrder !== item.order)
-                    .map(({ id, newOrder }) => {
-                      return { id, order: newOrder };
-                    });
-                  if (dirty.length > 0) {
-                    toast.promise(
-                      customFetch(concatOriginUrl(apiOrigin, send), {
-                        data: dirty,
-                        method: "POST",
-                        cors: true,
-                      }).then(() => {
-                        indexedDB.load("no-cache");
-                        setMove(0);
-                      }),
-                      {
-                        pending: "送信中",
-                        success: "送信しました",
-                        error: "送信に失敗しました",
-                      }
-                    );
-                  } else setMove(0);
-                }}
-              />
-            ) : (
-              <>
-                {links?.map((v, i) => (
-                  <li key={i}>
-                    <LinkInner item={v} />
-                  </li>
-                ))}
-              </>
-            )}
-          </ul>
+          {fold ? (
+            <details>
+              <summary className="h3 color-main en-title-font">
+                {title || "Links"}
+              </summary>
+              <Inner />
+            </details>
+          ) : (
+            <>
+              {title ? (
+                <h3 className="color-main en-title-font">{title || "Links"}</h3>
+              ) : null}
+              <Inner />
+            </>
+          )}
         </div>
       ) : null}
     </>

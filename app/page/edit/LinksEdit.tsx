@@ -308,7 +308,7 @@ export function LinksEdit({
             >
               {categories.map((category) => (
                 <option value={category} key={category}>
-                  {category || "未分類"}
+                  {category || "draft"}
                 </option>
               ))}
             </select>
