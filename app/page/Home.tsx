@@ -138,7 +138,8 @@ const EmbedSNS = React.memo(function EmbedSNS() {
           height={900}
           rp={false}
           prof="minimum"
-          ui="minimum"
+          ui="compact"
+          thread={true}
         />
       </div>
     </div>
