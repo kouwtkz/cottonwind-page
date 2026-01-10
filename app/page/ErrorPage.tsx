@@ -18,6 +18,12 @@ export function ErrorBoundaryContent({
   let details: string | undefined;
   let stack: string | undefined;
   useEffect(() => {
+    if (error) {
+      const html = document.querySelector("html");
+      if (html) {
+        html.classList.remove("loading", "dummy");
+      }
+    }
     console.log(error);
   }, [error]);
   if (isRouteErrorResponse(error)) {
