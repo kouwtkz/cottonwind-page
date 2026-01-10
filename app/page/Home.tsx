@@ -133,7 +133,13 @@ const EmbedSNS = React.memo(function EmbedSNS() {
     <div>
       <h3 className="leaf">つぶやき</h3>
       <div className="embedSNS">
-        <EmbedBluesky pin width={700} height={900} />
+        <EmbedBluesky
+          width={700}
+          height={900}
+          rp={false}
+          prof="minimum"
+          ui="minimum"
+        />
       </div>
     </div>
   );

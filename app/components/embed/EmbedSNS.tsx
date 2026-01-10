@@ -1,7 +1,7 @@
 import { useEnv } from "~/components/state/EnvState";
 import { EmbedScript } from "./EmbedScript";
 import { useDarkMode } from "~/components/theme/Theme";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_LANG } from "~/Env";
 
 interface EmbedSNSprops {
@@ -9,21 +9,68 @@ interface EmbedSNSprops {
   height?: number;
   lang?: string;
 }
+type BlueskyThemeType = "light" | "gray" | "dark";
+type BlueskyUIType = 0 | 1 | 2 | "default" | "compact" | "minimum";
+type BlueskyPropType = 0 | 1 | 2 | "hide" | "default" | "minimum";
 interface EmbedBlueskyProps extends EmbedSNSprops {
-  pin?: boolean;
   q?: string;
   id?: string;
+  pin?: boolean;
+  theme?: BlueskyThemeType;
+  ui?: BlueskyUIType;
+  prof?: BlueskyPropType;
+  rp?: boolean;
+  thread?: boolean;
 }
 export function EmbedBluesky({
   width = 420,
   height = 500,
   lang = DEFAULT_LANG,
-  pin,
   q,
   id,
+  pin = false,
+  theme,
+  ui = 0,
+  prof = 0,
+  rp = true,
+  thread = false,
 }: EmbedBlueskyProps) {
   const handle = useEnv()[0]?.BLUESKY_HANDLE;
   const isDark = useDarkMode()[0];
+  const dataTheme = useMemo(() => {
+    if (typeof theme === "undefined") return isDark ? "dark" : "light";
+    else return theme;
+  }, [theme, isDark]);
+  const dataPin = useMemo(() => (pin ? 1 : 0), [pin]);
+  const dataUI = useMemo(() => {
+    if (typeof ui === "number") return ui;
+    else if (ui === "default") return 0;
+    else if (ui === "compact") return 1;
+    else return 2;
+  }, [ui]);
+  const dataProf = useMemo(() => {
+    if (typeof prof === "number") return prof;
+    else if (prof === "hide") return 0;
+    else if (prof === "default") return 1;
+    else return 2;
+  }, [prof]);
+  const dataRepost = useMemo(() => (rp ? 0 : 1), [rp]);
+  const dataThread = useMemo(() => (thread ? 1 : 0), [thread]);
+  const refIFrame = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    if (refIFrame.current) {
+      const iframe = refIFrame.current;
+      const Url = new URL(iframe.src);
+      Url.searchParams.set("theme", dataTheme);
+      Url.searchParams.set("pin", String(dataPin));
+      Url.searchParams.set("q", q || "");
+      Url.searchParams.set("rp", String(dataRepost));
+      Url.searchParams.set("thread", String(dataThread));
+      Url.searchParams.set("ui", String(dataUI));
+      Url.searchParams.set("prof", String(dataProf));
+      iframe.src = Url.href;
+    }
+  }, [dataTheme, dataPin, q, dataUI, dataProf, dataRepost, dataThread]);
   return (
     <>
       {handle ? (
@@ -31,14 +78,19 @@ export function EmbedBluesky({
           async
           src="https://bst.heion.net/timeline.js"
           data-handle={handle}
-          data-theme={isDark ? "dark" : "light"}
           style={{ width, height }}
+          data-theme={dataTheme}
           data-width={width}
           data-height={height}
           data-lang={lang}
-          data-pin={pin ? 1 : 0}
+          data-pin={dataPin}
+          data-ui={dataUI}
+          data-prof={dataProf}
+          data-rp={dataRepost}
+          data-thread={dataThread}
           {...(q ? { "data-q": q } : {})}
           {...(id ? { "data-id": id } : {})}
+          refIFrame={refIFrame}
         />
       ) : null}
     </>
