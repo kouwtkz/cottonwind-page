@@ -122,7 +122,7 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
           }
           defaultView="agenda"
         />
-        {!import.meta.env.DEV && enableHandle ? <EmbedSNS /> : null}
+        {enableHandle ? <EmbedSNS /> : null}
       </div>
     </>
   );
@@ -132,8 +132,8 @@ const EmbedSNS = React.memo(function EmbedSNS() {
   return (
     <div>
       <h3 className="leaf">つぶやき</h3>
-      <div className="flex center row wrap m-c-s mb-c">
-        <EmbedBluesky pin />
+      <div className="embedSNS">
+        <EmbedBluesky pin width={700} height={900} />
       </div>
     </div>
   );
