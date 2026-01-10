@@ -2104,6 +2104,28 @@ footer {
       }
     }
   }
+  .info2 {
+    margin: 2rem auto;
+    display: flex;
+    justify-content: center;
+    max-width: 100rem;
+    flex-wrap: wrap;
+    margin: auto;
+    h3 {
+      margin: 1em;
+    }
+    .fc {
+      width: 95%;
+      max-width: 50rem;
+      // margin: auto;
+    }
+    .embedSNS {
+      &,
+      [data-handle] {
+        max-width: 100%;
+      }
+    }
+  }
 }
 
 .HomeImage {
@@ -2143,7 +2165,7 @@ footer {
   }
 }
 
-.embedSNS {
+.embedSNSList {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -4443,11 +4465,6 @@ form.blogEdit {
   .fc-event-main-frame {
     display: flex;
     align-items: center;
-  }
-  .topPage > & {
-    margin: 2rem auto;
-    width: 95%;
-    max-width: 72rem;
   }
   @media (max-width: #{$mobileWidth - 1}) {
     font-size: 1rem;

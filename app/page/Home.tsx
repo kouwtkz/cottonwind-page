@@ -108,21 +108,24 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
       <div className="topPage wide">
         <MeeLinks category="top" banner className="links" />
         <PostsView />
-        <ScheduleContainer
-          header={
-            <h3>
-              <Link
-                className="title en-title-font"
-                to="/schedule"
-                title="スケジュール"
-              >
-                Schedule
-              </Link>
-            </h3>
-          }
-          defaultView="agenda"
-        />
-        {enableHandle ? <EmbedSNS /> : null}
+        <div className="info2">
+          <ScheduleContainer
+            header={
+              <h3>
+                <Link
+                  className="title en-title-font"
+                  to="/schedule"
+                  title="スケジュール"
+                >
+                  Schedule
+                </Link>
+              </h3>
+            }
+            defaultView="agenda"
+            height={800}
+          />
+          {enableHandle ? <EmbedSNS /> : null}
+        </div>
       </div>
     </>
   );
@@ -130,18 +133,16 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
 
 const EmbedSNS = React.memo(function EmbedSNS() {
   return (
-    <div>
-      <h3 className="leaf">つぶやき</h3>
-      <div className="embedSNS">
-        <EmbedBluesky
-          width={700}
-          height={900}
-          rp={false}
-          prof="minimum"
-          ui="compact"
-          thread={true}
-        />
-      </div>
+    <div className="embedSNS">
+      <h3 className="title en-title-font color-main">Bluesky</h3>
+      <EmbedBluesky
+        width={700}
+        height={800}
+        rp={false}
+        prof="minimum"
+        ui="compact"
+        thread={true}
+      />
     </div>
   );
 });
