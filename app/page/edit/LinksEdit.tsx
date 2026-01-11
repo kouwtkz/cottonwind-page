@@ -1,6 +1,7 @@
 import {
   type HTMLAttributes,
   type ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -338,43 +339,59 @@ export type setEditMoveLinkType = (v: editMoveLinkType) => void;
 export type SendLinksDir = "" | "/fav";
 
 interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
-  setEdit: setEditLinksType;
-  album: string;
+  album?: string;
+  setEdit?: setEditLinksType;
   dropdown?: ReactNode;
-  state: LinksStateType;
-  indexedDB: LinksIndexedDBType;
-  move: editMoveLinkType;
-  setMove: setEditMoveLinkType;
+  indexedDB?: LinksIndexedDBType;
+  move?: editMoveLinkType;
+  setMove?: setEditMoveLinkType;
   dir?: SendLinksDir;
 }
 export function LinksEditButtons({
   setEdit,
-  album,
+  album = "",
   dropdown,
   children,
   className,
-  state,
   indexedDB,
   move,
   setMove,
   dir,
   ...props
 }: LinksEditButtonsProps) {
-  const ImageManageButtonSearch = useMemo(
-    () =>
-      new URLSearchParams({
-        q: "album:" + album,
-      }).toString(),
-    [album]
-  );
   className = useMemo(() => {
     const list = ["icons flex center mb-1"];
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
+  const ShowLinksGalleryButton = useCallback(
+    ({ icon }: { icon?: boolean }) => (
+      <Link
+        className="button squared item flex items-center"
+        title="画像の管理"
+        to={{
+          pathname: `/gallery/${album}`,
+        }}
+        state={{ backUrl: getBackURL() }}
+      >
+        {icon ? (
+          <MdOutlineImage />
+        ) : (
+          <>
+            <span>
+              <MdOutlineImage />
+            </span>
+            <span>アルバムの表示</span>
+          </>
+        )}
+      </Link>
+    ),
+    [album]
+  );
+
   return (
     <div className={className} {...props}>
-      {move ? (
+      {setMove && move ? (
         <>
           <CancelButton
             onClick={() => {
@@ -389,61 +406,58 @@ export function LinksEditButtons({
         </>
       ) : (
         <>
-          <DropdownButton
-            classNames={{
-              dropMenuButton: "iconSwitch",
-              dropItemList: "flex column font-small",
-            }}
-          >
-            <ObjectIndexedDBDownloadButton
-              className="squared item"
-              indexedDB={indexedDB}
-            >
-              JSONデータのダウンロード
-            </ObjectIndexedDBDownloadButton>
-            <ObjectCommonButton
-              icon={<TbDatabaseImport />}
-              className="squared item"
-              onClick={() => {
-                ImportLinksJson({ dir }).then(() => {
-                  indexedDB.load("no-cache-reload");
-                });
+          {indexedDB ? (
+            <DropdownButton
+              classNames={{
+                dropMenuButton: "iconSwitch",
+                dropItemList: "flex column font-small",
               }}
             >
-              JSONデータのインポート
-            </ObjectCommonButton>
-            <Link
-              className="button squared item flex items-center"
-              title="画像の管理"
-              to={{
-                pathname: "/admin/images",
-                search: ImageManageButtonSearch,
-              }}
-              state={{ backUrl: getBackURL() }}
-            >
-              <span>
-                <MdOutlineImage />
-              </span>
-              <span>アルバムの表示</span>
-            </Link>
-            {dropdown}
-          </DropdownButton>
+              <ObjectIndexedDBDownloadButton
+                className="squared item"
+                indexedDB={indexedDB}
+              >
+                JSONデータのダウンロード
+              </ObjectIndexedDBDownloadButton>
+              <ObjectCommonButton
+                icon={<TbDatabaseImport />}
+                className="squared item"
+                onClick={() => {
+                  ImportLinksJson({ dir }).then(() => {
+                    indexedDB.load("no-cache-reload");
+                  });
+                }}
+              >
+                JSONデータのインポート
+              </ObjectCommonButton>
+              <ShowLinksGalleryButton />
+              {dropdown}
+            </DropdownButton>
+          ) : (
+            <>
+              <ShowLinksGalleryButton icon />
+            </>
+          )}
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
             useSwitch={useLinksEditMode}
           >
             <AiFillEdit />
           </ModeSwitch>
-          <AddButton
-            onClick={() => {
-              setEdit(true);
-            }}
-          />
-          <MoveButton
-            onClick={() => {
-              setMove(1);
-            }}
-          />
+          {setEdit ? (
+            <AddButton
+              onClick={() => {
+                setEdit(true);
+              }}
+            />
+          ) : null}
+          {setMove ? (
+            <MoveButton
+              onClick={() => {
+                setMove(1);
+              }}
+            />
+          ) : null}
           {children}
         </>
       )}

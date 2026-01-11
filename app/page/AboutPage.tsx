@@ -383,12 +383,12 @@ export function WebsiteFramework({
               <span className="label">マンガ</span>
               <span>Laymic, Epub.js</span>
             </li>
-            <li>
+            {/* <li>
               <span className="label">SNS埋め込み</span>
               <a href="https://blueskytimeline.com/" target="_blank">
                 BlueskyTimeline
               </a>
-            </li>
+            </li> */}
           </ul>
         </li>
       </ul>

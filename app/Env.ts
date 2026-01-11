@@ -35,20 +35,18 @@ export const ArrayEnv: ArrayEnvType = {
       url: "/about"
     },
     {
-      name: "blog",
-      url: "/blog"
-    },
-    {
       name: "schedule",
       url: "/schedule"
     },
   ],
   LINKS: [
     {
-      key: "x",
-      mask: "#mask_twitter",
-      name: "𝕏 (Twitter)",
-      url: "https://x.com/kouwtkz"
+      key: "bluesky",
+      mask: "#mask_bluesky",
+      name: "Bluesky",
+      rel: "me",
+      row: 2,
+      url: "https://bsky.app/profile/kouwtkz.cottonwind.com"
     },
     {
       key: "youtube",
@@ -88,12 +86,10 @@ export const ArrayEnv: ArrayEnvType = {
       url: "https://mascodon.jp/@kouwtkz"
     },
     {
-      key: "bluesky",
-      mask: "#mask_bluesky",
-      name: "Bluesky",
-      rel: "me",
-      row: 2,
-      url: "https://bsky.app/profile/kouwtkz.cottonwind.com"
+      key: "x",
+      mask: "#mask_twitter",
+      name: "𝕏 (Twitter)",
+      url: "https://x.com/kouwtkz"
     },
     {
       key: "note",

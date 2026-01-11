@@ -10,8 +10,8 @@ import { ImageMee, ImgSwitch } from "~/components/layout/ImageMee";
 import { usePosts } from "~/components/state/PostState";
 import { findMee } from "~/data/find/findMee";
 import { CreateObjectState } from "~/components/state/CreateState";
-import { MeeLinks } from "./LinksPage";
-import { EmbedBluesky } from "~/components/embed/EmbedSNS";
+import { Linkat, MeeLinks } from "./LinksPage";
+import { EmbedBlueskyTimeline } from "~/components/embed/EmbedSNS";
 import useSchedule from "~/components/hook/useSchedule";
 import {
   compareArray,
@@ -23,6 +23,8 @@ import {
   KeyValueEditButton,
   KeyValueRenderProps,
 } from "~/components/state/KeyValueDBState";
+import { BlueskyFeed } from "~/components/state/ATProtocolState";
+import { useLinks } from "~/components/state/LinksState";
 
 export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
   const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
@@ -106,7 +108,7 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
         />
       </div>
       <div className="topPage wide">
-        <MeeLinks category="top" banner className="links" />
+        <TopLinks />
         <PostsView />
         <div className="info2">
           <ScheduleContainer
@@ -124,9 +126,26 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
             defaultView="agenda"
             height={800}
           />
-          {enableHandle ? <EmbedSNS /> : null}
+          <BlueskyFeed />
         </div>
       </div>
+    </>
+  );
+}
+
+function TopLinks() {
+  const { links } = useLinks();
+  const MeeLinkFlag = useMemo(
+    () => links && links.findIndex((link) => link.category === "top") >= 0,
+    [links]
+  );
+  return (
+    <>
+      {MeeLinkFlag ? (
+        <MeeLinks category="top" banner className="links" />
+      ) : (
+        <Linkat hideHeader />
+      )}
     </>
   );
 }
@@ -135,7 +154,7 @@ const EmbedSNS = React.memo(function EmbedSNS() {
   return (
     <div className="embedSNS">
       <h3 className="title en-title-font color-main">Bluesky</h3>
-      <EmbedBluesky
+      <EmbedBlueskyTimeline
         width={700}
         height={800}
         rp={false}

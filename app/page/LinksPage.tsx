@@ -13,12 +13,11 @@ import { Link, useSearchParams } from "react-router";
 import { MakeRelativeURL } from "~/components/functions/doc/MakeURL";
 import {
   useLinks,
-  type LinksMapType,
   type LinksStateType,
   useFavLinks,
   type LinksIndexedDBType,
 } from "~/components/state/LinksState";
-import { useEnv, useIsLogin } from "~/components/state/EnvState";
+import { useIsLogin } from "~/components/state/EnvState";
 import { ImageMee } from "~/components/layout/ImageMee";
 import { CreateState } from "~/components/state/CreateState";
 import {
@@ -50,31 +49,25 @@ import {
   linksDataOptions,
 } from "~/data/DataEnv";
 import { EnvLinksMap } from "~/Env";
+import { useATProtoState } from "~/components/state/ATProtocolState";
+import { Modal } from "~/components/layout/Modal";
 
 const LINKS_API = GetAPIFromOptions(linksDataOptions);
 const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
+export const ArchiveLinks: Array<SiteLink> = [
+  { title: "サイト内ブログ", url: "/blog" },
+];
+
 export default function LinksPage() {
-  const env = useEnv()[0];
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
-  const isLogin = useIsLogin()[0];
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
-      <MeeLinks title="Top Link" category="top" banner />
-      <MeeLinks
-        title="Commission"
-        category="commission"
-        banner
-        linkStyle={{ minHeight: "3em" }}
-      />
-      <MeeLinks
-        title="My Links"
-        category={null}
-        banner
-        linkStyle={{ minHeight: "3em" }}
-        fold
-      />
+      <Linkat />
+      <MeeLinks title="Commission" category="commission" banner fold open />
+      <MeeLinks title="Top Link" category="top" banner fold />
+      <MeeLinks title="Archive" category={null} banner fold />
       <div>
         <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">
@@ -281,10 +274,12 @@ interface LinksContainerProps
   dir?: SendLinksDir;
   dropdown?: ReactNode;
   state: LinksStateType;
-  indexedDB: LinksIndexedDBType;
+  indexedDB?: LinksIndexedDBType;
   defaultCategories?: string[];
   linkStyle?: CSSProperties;
   fold?: boolean;
+  open?: boolean;
+  editable?: boolean;
 }
 function LinksContainer({
   category = null,
@@ -298,22 +293,24 @@ function LinksContainer({
   defaultCategories,
   linkStyle,
   fold,
+  open,
+  editable = true,
   ...props
 }: LinksContainerProps) {
   const send = LINKS_API + dir + "/send";
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
-  const links = useMemo(
-    () =>
-      state.links
-        ? findMee(state.links, {
-            where: { category },
-            orderBy: [{ id: "asc", order: "asc" }],
-          })
-        : [],
-    [category, state.links]
-  );
   const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useState(0);
+  const links = useMemo(() => {
+    const links = state.links
+      ? findMee(state.links, {
+          where: { category },
+          orderBy: [{ id: "asc", order: "asc" }],
+        })
+      : [];
+    if (!category && !move) return ArchiveLinks.concat(links);
+    else return links;
+  }, [category, state.links, move]);
   const isLogin = useIsLogin()[0];
   const isEditable = useLinksEditMode()[0];
   const ulClassName = useMemo(() => {
@@ -329,27 +326,51 @@ function LinksContainer({
   }, [className]);
   const LinkInner = useCallback(
     ({ item }: { item: SiteLink }) => {
-      return banner ? (
-        <BannerItem
-          item={item}
-          isEdit={isEditable}
-          setEditLink={setEdit}
-          style={linkStyle}
-        />
+      const titleWithDsc = getTitleWithDsc(item);
+      const prop = {
+        title: titleWithDsc,
+        className: "overlay",
+        style: linkStyle,
+        onClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
+          if (isEditable) {
+            setEdit(item.id);
+            e.preventDefault();
+          }
+        },
+      };
+      <a
+        href={item.url || ""}
+        title={titleWithDsc}
+        target="_blank"
+        className="overlay"
+        onClick={(e) => {
+          if (isEditable) {
+            setEdit(item.id);
+            e.preventDefault();
+          }
+        }}
+      >
+        <BannerInner item={item} alt={titleWithDsc} />
+      </a>;
+      function Inner() {
+        return (
+          <>
+            {banner ? (
+              <BannerInner item={item} alt={titleWithDsc} />
+            ) : (
+              item.title
+            )}
+          </>
+        );
+      }
+
+      return item.url?.startsWith("/") ? (
+        <Link to={item.url} {...prop}>
+          <Inner />
+        </Link>
       ) : (
-        <a
-          href={item.url || ""}
-          className="overlay"
-          target="_blank"
-          style={linkStyle}
-          onClick={(e) => {
-            if (isEditable) {
-              setEdit(item.id);
-              e.preventDefault();
-            }
-          }}
-        >
-          {item.title}
+        <a href={item.url || ""} target="_blank" {...prop}>
+          <Inner />
         </a>
       );
     },
@@ -359,9 +380,8 @@ function LinksContainer({
   const Inner = function () {
     return (
       <>
-        {isLogin ? (
+        {editable && isLogin ? (
           <LinksEditButtons
-            state={state}
             indexedDB={indexedDB}
             setEdit={setEdit}
             album={album}
@@ -394,7 +414,7 @@ function LinksContainer({
                       method: "POST",
                       cors: true,
                     }).then(() => {
-                      indexedDB.load("no-cache");
+                      indexedDB?.load("no-cache");
                       setMove(0);
                     }),
                     {
@@ -423,7 +443,7 @@ function LinksContainer({
     <>
       {visible ? (
         <div className={className} {...props}>
-          {edit ? (
+          {edit && indexedDB ? (
             <LinksEdit
               state={state}
               indexedDB={indexedDB}
@@ -436,7 +456,7 @@ function LinksContainer({
             />
           ) : null}
           {fold ? (
-            <details>
+            <details open={open}>
               <summary className="h3 color-main en-title-font">
                 {title || "Links"}
               </summary>
@@ -469,7 +489,7 @@ export function MeeLinks(props: MeeLinksProps) {
         <LinksContainer
           state={state}
           indexedDB={linksDataIndexed}
-          defaultCategories={["commission"]}
+          defaultCategories={["top", "commission"]}
           {...props}
         />
       ) : null}
@@ -478,26 +498,22 @@ export function MeeLinks(props: MeeLinksProps) {
 }
 export function FavoriteLinks(props: MeeLinksProps) {
   return (
-    <>
-      {favLinksDataIndexed ? (
-        <LinksContainer
-          title="Favorite Site"
-          dir="/fav"
-          state={useFavLinks()}
-          indexedDB={favLinksDataIndexed}
-          dropdown={
-            <CompatGalleryButton
-              className="item"
-              from="favBanner"
-              to="linkBanner"
-            />
-          }
-          banner
-          defaultCategories={["event", "search"]}
-          {...props}
+    <LinksContainer
+      title="Favorite Site"
+      dir="/fav"
+      state={useFavLinks()}
+      indexedDB={favLinksDataIndexed}
+      dropdown={
+        <CompatGalleryButton
+          className="item"
+          from="favBanner"
+          to="linkBanner"
         />
-      ) : null}
-    </>
+      }
+      banner
+      defaultCategories={["event", "search"]}
+      {...props}
+    />
   );
 }
 
@@ -573,5 +589,93 @@ export function BannerItem({
     >
       <BannerInner item={item} alt={titleWithDsc} style={style} />
     </a>
+  );
+}
+
+export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
+  const { linkat, handle } = useATProtoState();
+  const list = useMemo(() => {
+    return (linkat || []).filter((v) => {
+      const Url = new URL(v.url);
+      return Url.host !== import.meta.env.VITE_DOMAIN;
+    });
+  }, [linkat]);
+  const { imageAlbums } = useImageState();
+  const linkatAlbum = useMemo(
+    () => imageAlbums?.get("linkBanner") || null,
+    [imageAlbums]
+  );
+  const isEditable = useLinksEditMode()[0];
+  const [edit, setEdit] = useState<LinkatType | null>(null);
+  const isLogin = useIsLogin()[0];
+  return (
+    <>
+      {edit ? (
+        <Modal
+          onClose={() => {
+            setEdit(null);
+          }}
+        >
+          <form className="flex">
+            <div>{edit!.url}</div>
+            <div className="actions">
+              <button type="button" className="color">
+                画像の設定
+              </button>
+            </div>
+          </form>
+        </Modal>
+      ) : null}
+      {list.length > 0 ? (
+        <div>
+          {hideHeader ? null : (
+            <h3 className="color-main en-title-font">
+              <a href={"https://linkat.blue/" + handle!} target="_blank">
+                Linkat
+              </a>
+            </h3>
+          )}
+          {isLogin ? <LinksEditButtons album="linkBanner" /> : null}
+          <ul className="linksArea bannerArea">
+            {list.map((item, i) => {
+              const image = linkatAlbum?.list.find((v) => v.link === item.url);
+              return (
+                <li key={i}>
+                  <a
+                    href={item.url}
+                    title={item.text}
+                    target="_blank"
+                    className="overlay"
+                    onClick={(e) => {
+                      if (isEditable) {
+                        e.preventDefault();
+                        setEdit(item);
+                      }
+                    }}
+                  >
+                    {image ? (
+                      <ImageMee
+                        alt={`${image.width}×${image.height}バナー`}
+                        className="banner"
+                        imageItem={image}
+                        autoPixel={false}
+                        title={item.text}
+                      />
+                    ) : (
+                      <div className="banner">
+                        <span className="plane">
+                          <span>{item.emoji}</span>
+                          <span>{item.text}</span>
+                        </span>
+                      </div>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+    </>
   );
 }

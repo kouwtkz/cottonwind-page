@@ -31,6 +31,7 @@ import { FaviconState } from "./FaviconState";
 import { rootClientServerData } from "../utils/SetMeta";
 import { MiniCharacterPage } from "~/page/CharacterPage";
 import RedirectState from "./redirectState";
+import { ATPState, useATProtoState } from "./ATProtocolState";
 
 export function SetState({
   env,
@@ -44,6 +45,7 @@ export function SetState({
       <CheckIsComplete />
       <EnvState env={env} isLogin={isLogin} />
       <ClickEventState />
+      <ATPState />
       {/* <FaviconState /> */}
       <SoundPlayer />
       <ImageViewer />
@@ -80,6 +82,16 @@ function CheckIsComplete() {
   const loadedPosts = Boolean(usePosts().posts);
   const loadedSounds = Boolean(useSounds().sounds);
   const loadedLinks = Boolean(useLinks().links);
+  const { didInfo, describe, linkat } = useATProtoState();
+  const loadedATProto = useMemo(
+    () => typeof didInfo !== "undefined",
+    [didInfo]
+  );
+  const loadedATProtoDescribe = useMemo(
+    () => typeof describe !== "undefined",
+    [describe]
+  );
+  const loadedATProtoLinkat = useMemo(() => Boolean(linkat), [linkat]);
 
   const isSetList = useMemo(
     () => [
@@ -89,6 +101,9 @@ function CheckIsComplete() {
       loadedPosts,
       loadedSounds,
       loadedLinks,
+      loadedATProto,
+      loadedATProtoDescribe,
+      loadedATProtoLinkat,
     ],
     [
       loadedEnv,
@@ -97,6 +112,9 @@ function CheckIsComplete() {
       loadedPosts,
       loadedSounds,
       loadedLinks,
+      loadedATProto,
+      loadedATProtoDescribe,
+      loadedATProtoLinkat,
     ]
   );
   const setIsLoaded = useIsLoaded()[1];

@@ -2039,7 +2039,13 @@ footer {
     }
     li {
       margin: 0.25rem;
-      display: inline;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      .plane {
+        font-size: 1.5rem;
+      }
+      @extend %banner;
       img {
         width: 100%;
       }
@@ -2121,7 +2127,7 @@ footer {
     h3 {
       margin: 1em;
     }
-    .fc {
+    & > .fc {
       width: 95%;
       max-width: 50rem;
       margin: auto;
@@ -2184,6 +2190,49 @@ footer {
     max-height: #{$maxHeight};
     iframe {
       max-height: #{$maxHeight};
+    }
+  }
+}
+
+.BlueskyFeed {
+  .feedBox {
+    overflow: hidden auto;
+    border: 1px solid var(--main-color-light-grayish);
+    height: 500px;
+    height: 700px;
+    width: 95%;
+    max-width: 40rem;
+    margin: auto;
+    text-align: left;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 0;
+    border: none;
+    td {
+      border: 1px solid var(--main-color-grayish);
+      border-left: none;
+      border-right: none;
+      .embed {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+        overflow: hidden;
+        width: 100%;
+        img {
+          border-radius: 5.5px;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          max-height: 85svh;
+          max-width: 550px;
+        }
+      }
+      .time {
+        text-align: right;
+      }
     }
   }
 }
@@ -4205,12 +4254,30 @@ form.blogEdit {
   }
 }
 
+%banner {
+  .banner {
+    width: 100%;
+    .plane {
+      min-height: 3em;
+      width: 400px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  a .banner:hover {
+    background-color: var(--main-color-pale-fluo);
+  }
+}
+
 .linkPage {
   font-size: 1.125rem;
   margin: auto;
   h3 {
     font-size: 1.75em;
     color: var(--main-color-strong);
+    @extend %a-line-none;
   }
   ul {
     text-align: left;
@@ -4238,23 +4305,11 @@ form.blogEdit {
       > * {
         width: 100%;
       }
+      @extend %banner;
     }
     @include GridList("li", 1, $mobileWidth, $tabletWidth, $desktopWidth);
     > * {
       padding: 0rem;
-    }
-    .banner {
-      width: 100%;
-      .plane {
-        width: 200px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-    a .banner:hover {
-      background-color: var(--main-color-pale-fluo);
     }
   }
 }
