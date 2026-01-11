@@ -296,17 +296,25 @@ export function HomeImageState() {
   }, [images, timeframeTag]);
   return <></>;
 }
-export function HomeImage({ interval = 10000 }: { interval?: number }) {
+export const HomeImage = React.memo(function HomeImage({
+  interval = 10000,
+}: {
+  interval?: number;
+}) {
   const { topImage, Next, topImages } = useTopImage();
   const nodeRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
     if (topImages.length > 0) {
+      let enableLeaveNext = false;
+      setTimeout(() => {
+        enableLeaveNext = true;
+      }, 20);
       const timer = setInterval(() => {
         Next();
       }, interval);
       return () => {
         if (timer) {
-          Next(true);
+          if (enableLeaveNext) Next(true);
           return clearInterval(timer);
         }
       };
@@ -361,4 +369,4 @@ export function HomeImage({ interval = 10000 }: { interval?: number }) {
       )}
     </div>
   );
-}
+});
