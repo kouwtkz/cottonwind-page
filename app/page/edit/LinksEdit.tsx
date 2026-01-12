@@ -42,7 +42,10 @@ import {
 import { TbDatabaseImport } from "react-icons/tb";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { RiImageAddFill } from "react-icons/ri";
-import { useSelectImageState } from "~/components/state/ImageState";
+import {
+  useImageState,
+  useSelectImageState,
+} from "~/components/state/ImageState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import {
@@ -53,6 +56,7 @@ import {
 import { findMee } from "~/data/find/findMee";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
+import { IMAGE_SEND_API } from "./ImagesManager";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -194,27 +198,6 @@ export function LinksEdit({
   return (
     <Modal onClose={Close}>
       <form className="flex" onSubmit={handleSubmit(Submit)}>
-        <button
-          title="削除"
-          type="button"
-          className="color-warm absolute miniIcon"
-          onClick={async () => {
-            const id = item?.id;
-            if (id && confirm("本当に削除しますか？")) {
-              customFetch(concatOriginUrl(apiOrigin, send), {
-                method: "DELETE",
-                body: { id },
-                cors: true,
-              }).then(() => {
-                toast.success("削除しました");
-                indexedDB.load("no-cache");
-                setEdit(false);
-              });
-            }
-          }}
-        >
-          <MdDeleteForever />
-        </button>
         <SetLinksImage
           image={item ? item.Image || item.image : null}
           album={album}
@@ -273,6 +256,27 @@ export function LinksEdit({
         </div>
         <div className="actions">
           <button
+            title="削除"
+            type="button"
+            className="color-warm"
+            onClick={async () => {
+              const id = item?.id;
+              if (id && confirm("本当に削除しますか？")) {
+                customFetch(concatOriginUrl(apiOrigin, send), {
+                  method: "DELETE",
+                  body: { id },
+                  cors: true,
+                }).then(() => {
+                  toast.success("削除しました");
+                  indexedDB.load("no-cache");
+                  setEdit(false);
+                });
+              }
+            }}
+          >
+            削除
+          </button>
+          <button
             type="button"
             className="color"
             onClick={handleSubmit(Submit)}
@@ -285,20 +289,46 @@ export function LinksEdit({
     </Modal>
   );
 }
-function SetLinksImage({
+export function SetLinksImage({
   album = "linkBanner",
   image,
   link,
-  onSelected,
   onUploadedImage,
+  innerNoButton,
 }: {
   album?: string;
   image?: ImageType | string | null;
   link?: string | null;
   onSelected?: Function;
   onUploadedImage?(data: ImageDataType): void;
+  innerNoButton?: boolean;
 }) {
-  const { open } = useSelectImageState();
+  const ID = "links";
+  const { open, id, image: selectedImage } = useSelectImageState();
+  useEffect(() => {
+    if (selectedImage && ID === id && link) {
+      if (image && typeof image === "object" && selectedImage.link !== link) {
+        (async () =>
+          image.link
+            ? customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND_API), {
+                method: "PATCH",
+                body: { id: image.id, link: null },
+                cors: true,
+              })
+            : null)()
+          .then(() => {
+            return customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND_API), {
+              method: "PATCH",
+              body: { id: selectedImage.id, link: link },
+              cors: true,
+            });
+          })
+          .then(() => {
+            imageDataIndexed.load("no-cache");
+          });
+      }
+    }
+  }, [selectedImage, id, link, image]);
   return (
     <div className="setterImage">
       <button
@@ -311,37 +341,41 @@ function SetLinksImage({
       >
         <RiImageAddFill />
       </button>
-      <button
-        title="画像の設定"
-        type="button"
-        className="overlay flex p-0 m-lr-auto"
-        onClick={() => {
-          fileDialog("image/*")
-            .then((fileList) => fileList.item(0)!)
-            .then((src) => {
-              return ImagesUploadWithToast({
-                src,
-                links: link,
-                album,
-                albumOverwrite: false,
-                notDraft: true,
-                webp: true,
-                thumbnail: false,
+      {innerNoButton ? (
+        <BannerInner image={image} />
+      ) : (
+        <button
+          title="画像の設定"
+          type="button"
+          className="overlay flex p-0 m-lr-auto"
+          onClick={() => {
+            fileDialog("image/*")
+              .then((fileList) => fileList.item(0)!)
+              .then((src) => {
+                return ImagesUploadWithToast({
+                  src,
+                  links: link,
+                  album,
+                  albumOverwrite: false,
+                  notDraft: true,
+                  webp: true,
+                  thumbnail: false,
+                });
+              })
+              .then(async (r) => {
+                imageDataIndexed.load("no-cache");
+                return (r?.[0].data || null) as ImageDataType | null;
+              })
+              .then(async (o) => {
+                if (o && typeof o.key === "string") {
+                  if (onUploadedImage) onUploadedImage(o);
+                }
               });
-            })
-            .then(async (r) => {
-              imageDataIndexed.load("no-cache");
-              return (r?.[0].data || null) as ImageDataType | null;
-            })
-            .then(async (o) => {
-              if (o && typeof o.key === "string") {
-                if (onUploadedImage) onUploadedImage(o);
-              }
-            });
-        }}
-      >
-        <BannerInner image={image} title="画像の設定" />
-      </button>
+          }}
+        >
+          <BannerInner image={image} title="画像の設定" />
+        </button>
+      )}
     </div>
   );
 }

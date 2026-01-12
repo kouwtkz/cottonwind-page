@@ -38,7 +38,7 @@ import { RiVideoUploadLine } from "react-icons/ri";
 import { customFetch } from "~/components/functions/fetch";
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 
-const SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
+export const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
 export function ImagesManager() {
   const { imageAlbums: albums } = useImageState();
@@ -132,7 +132,7 @@ export function CompatGalleryButton({
       {...props}
       beforeConfirm={`${from}アルバムを${to}アルバムに変更しますか？`}
       onClick={() => {
-        const url = concatOriginUrl(apiOrigin, SEND_API);
+        const url = concatOriginUrl(apiOrigin, IMAGE_SEND_API);
         const list = albums
           ?.get(from)
           ?.list.map((image) => ({ id: image.id, album: to }));
@@ -165,7 +165,7 @@ export function CompatMendingThumbnailButton({
   children,
   ...props
 }: CompatMendingThumbnailButtonProps) {
-  const url = concatOriginUrl(apiOrigin, SEND_API);
+  const url = concatOriginUrl(apiOrigin, IMAGE_SEND_API);
   const { addProgress, setMax } = useToastProgress();
   return (
     <ObjectCommonButton

@@ -27,6 +27,7 @@ import {
   LinksEditButtons,
   type editLinksType,
   type SendLinksDir,
+  SetLinksImage,
 } from "./edit/LinksEdit";
 import { useImageEditSwitchHold } from "~/components/layout/edit/ImageEditForm";
 import { useImageState } from "~/components/state/ImageState";
@@ -619,6 +620,10 @@ export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
   const isEditable = useLinksEditMode()[0];
   const [edit, setEdit] = useState<LinkatType | null>(null);
   const isLogin = useIsLogin()[0];
+  function Edit({ item }: { item: LinkatType }) {
+    const image = linkatAlbum?.list.find((v) => v.link === item.url);
+    return <SetLinksImage image={image} link={item?.url} innerNoButton />;
+  }
   return (
     <>
       {edit ? (
@@ -628,12 +633,9 @@ export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
           }}
         >
           <form className="flex">
+            <Edit item={edit} />
             <div>{edit!.url}</div>
-            <div className="actions">
-              <button type="button" className="color">
-                画像の設定
-              </button>
-            </div>
+            <div className="actions"></div>
           </form>
         </Modal>
       ) : null}
