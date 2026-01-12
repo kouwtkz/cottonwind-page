@@ -717,6 +717,13 @@ ol {
 ul.flex {
   li {
     display: block;
+    a {
+      display: inline-flex;
+      flex-wrap: wrap;
+    }
+  }
+  &.center li a {
+    justify-content: center;
   }
 }
 .flex-1 {
@@ -1629,8 +1636,18 @@ details {
     font-size: 1.75em;
     width: inherit;
     padding: inherit;
-    margin: 2rem auto;
   }
+}
+.linkPage {
+  h3,
+  summary.h3 {
+    margin: 2.5rem auto 1.5rem;
+  }
+}
+.icons.edit {
+  margin-bottom: 1rem;
+  @include FlexCenter;
+  // display: none;
 }
 
 code {
@@ -2177,13 +2194,13 @@ footer {
 
 .BlueskyFeed {
   .feedBox {
+    text-align: left;
     overflow: hidden auto;
     border: 1px solid var(--main-color-light-grayish);
-    height: 500px;
     height: 700px;
     width: 100%;
     max-width: 40rem;
-    text-align: left;
+    max-height: 80vh;
   }
   table {
     border-collapse: collapse;

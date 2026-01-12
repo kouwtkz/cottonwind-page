@@ -75,15 +75,18 @@ export default function LinksPage() {
       ) : (
         <>
           <MeeLinks title="Top Link" category="top" banner fold open />
-          <MeeLinks title="Commission" category="commission" banner fold open />
           <MeeLinks title="My Link" category={null} banner fold open />
+          <MeeLinks title="Commission" category="commission" banner fold open />
         </>
       )}
       <div>
         <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">
           <li>
-            <Link to="/suggest">Suggest page (links for miss typo)</Link>
+            <Link to="/suggest">
+              <span className="mr-2">Suggest page</span>
+              <span>(links for miss typo)</span>
+            </Link>
           </li>
           {githubLink ? (
             <li>
@@ -92,7 +95,8 @@ export default function LinksPage() {
                 title={githubLink.title || githubLink.name}
                 target="_blank"
               >
-                サイトの更新詳細 (GitHub)
+                <span className="mr-2">サイトの更新詳細</span>
+                <span>(GitHub)</span>
               </a>
             </li>
           ) : null}

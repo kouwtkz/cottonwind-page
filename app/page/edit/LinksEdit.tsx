@@ -427,7 +427,7 @@ export function LinksEditButtons({
   ...props
 }: LinksEditButtonsProps) {
   className = useMemo(() => {
-    const list = ["icons flex center mb-1"];
+    const list = ["icons edit"];
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
@@ -538,7 +538,7 @@ export function MyBannerEditButtons() {
   const webp = useUploadWebp()[0];
   const thumbnail = !useNoUploadThumbnail()[0];
   return (
-    <div className="icons">
+    <div className="icons edit">
       {move ? (
         <>
           <CancelButton
