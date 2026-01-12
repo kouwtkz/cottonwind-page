@@ -123,7 +123,7 @@ export function MyBanners() {
     setImageViewer({ images: album?.list || null });
   }, [album]);
   const className = useMemo(() => {
-    const classes = ["bannerArea"];
+    const classes = ["bannerArea", "up"];
     return classes.join(" ");
   }, []);
   return (

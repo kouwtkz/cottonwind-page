@@ -2026,28 +2026,6 @@ footer {
         $desktopWidth
       );
     }
-    &.bannerArea {
-      @include GridList(
-        "li",
-        1,
-        $mobileWidth,
-        $miniDesktopWidth,
-        $desktopWidth
-      );
-    }
-    li {
-      margin: 0.25rem;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      .plane {
-        font-size: 1.5rem;
-      }
-      @extend %banner;
-      img {
-        width: 100%;
-      }
-    }
   }
   @media (min-width: $desktopWidth) {
     ul {
@@ -4263,39 +4241,48 @@ form.blogEdit {
     color: var(--main-color-strong);
     @extend %a-line-none;
   }
-  ul {
-    text-align: left;
-    max-width: 100%;
-    min-width: 12rem;
-    margin: auto;
-    &.font-larger {
-      width: max-content;
-    }
-    li {
-      margin: 0.25rem;
-      padding: 0;
-      display: block;
-    }
+}
+ul.bannerArea {
+  @include GridList("li", 1, $mobileWidth, $tabletWidth, $desktopWidth);
+  width: 100%;
+  text-align: left;
+  max-width: 100%;
+  min-width: 12rem;
+  margin: auto;
+  > * {
+    padding: 0rem;
   }
-  .linksArea {
-    @include GridList("li", 1);
+  &.font-larger {
+    width: max-content;
   }
-  .bannerArea {
-    li {
-      text-align: center;
-      @include FlexCenter;
-      > * {
-        width: 100%;
-      }
-      @extend %banner;
-    }
-    @include GridList("li", 1, $mobileWidth, $tabletWidth, $desktopWidth);
+  li {
+    @extend %banner;
+    @include FlexCenter;
+    text-align: center;
+    margin: 0.25rem;
+    padding: 0;
     > * {
-      padding: 0rem;
+      width: 100%;
     }
+  }
+  &.up li {
+    align-items: flex-start;
   }
 }
 
+.topButtons li {
+  margin: 0.25rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  .plane {
+    font-size: 1.5rem;
+  }
+  @extend %banner;
+  img {
+    width: 100%;
+  }
+}
 .stickyLine {
   display: inline-block;
   color: var(--main-color-text);
