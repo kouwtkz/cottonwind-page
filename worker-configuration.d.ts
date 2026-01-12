@@ -48,6 +48,7 @@ declare namespace Cloudflare {
 		X_CLIENT_ID: string;
 		X_CLIENT_SECRET: string;
 		WORKERS_API_TOKEN: string;
+        INDEXEDDB_VERSION: number;
 		BUCKET: R2Bucket;
 		DB: D1Database;
 	}

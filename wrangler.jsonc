@@ -36,33 +36,34 @@
     "DISCORD_INVITE_QUESTION": "わたかぜコウの代理キャラクターの名前は？",
     "WORKERS_ACCOUNT_ID": "95737cecb3c443e0b8979d9679110507",
     "WORKERS_CLEAN_PROJECT_NAME": "cottonwind,cottonwind-calendar",
-    "WORKERS_CLEAN_EXPIRATION_DAYS": 7
+    "WORKERS_CLEAN_EXPIRATION_DAYS": 7,
+    "INDEXEDDB_VERSION": 7
   },
   "kv_namespaces": [
     {
       "binding": "KV",
       "id": "c4d890a161dc4d8abc299dd09d8b3165",
-      "preview_id": "baf0b24ce5014aa4b8fcd5a6774bc026"
+      "preview_id": "baf0b24ce5014aa4b8fcd5a6774bc026",
     },
     {
       "binding": "NOTICE_FEED_KV",
-      "id": "ded0df1afdc3450ca2baab60314fa9dd"
+      "id": "ded0df1afdc3450ca2baab60314fa9dd",
     }
   ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_id": "8d8bef89-42a4-436d-991a-ebdbd3b252a5",
-      "database_name": "cottonwind-db"
+      "database_name": "cottonwind-db",
     }
   ],
   "r2_buckets": [
     {
       "binding": "BUCKET",
-      "bucket_name": "cottonwind-bucket"
+      "bucket_name": "cottonwind-bucket",
     }
   ],
   "triggers": {
-    "crons": ["0 15 * * tue"]
+    "crons": ["0 15 * * tue"],
   }
 }

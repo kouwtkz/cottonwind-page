@@ -86,7 +86,7 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
   name: linksDataName,
   src: "/links",
   api: "/links",
-  version: "1.0.1",
+  version: "1.1.0",
   preLoad: false,
   jsonFromDataOptions: linksJsonFromDataOptions,
   primary: "id",

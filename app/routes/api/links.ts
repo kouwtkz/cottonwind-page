@@ -12,7 +12,7 @@ interface SiteLinkServerClassProps extends Props_LastmodMHClass_Options<SiteLink
   table?: string;
   album?: string;
 }
-export class SiteLinkServerClass<A> {
+export class SiteLinkServerClass {
   static template: DBTableClassTemplateProps<SiteLinkData> = {
     createEntry: {
       id: { primary: true },
@@ -21,12 +21,13 @@ export class SiteLinkServerClass<A> {
       description: { type: "TEXT" },
       image: { type: "TEXT" },
       category: { type: "TEXT" },
-      style: { type: "TEXT" },
       draft: { type: "INTEGER" },
       order: { type: "INTEGER" },
+      prompt: { type: "TEXT" },
+      password: { type: "TEXT" },
       lastmod: { createAt: true, unique: true },
     },
-    insertEntryKeys: ["url", "title", "description", "image", "category", "style", "order", "draft"],
+    insertEntryKeys: ["url", "title", "description", "image", "category", "order", "draft", "prompt", "password"],
     insertEntryTimes: ["lastmod"]
   };
   object: DBTableClass<SiteLinkData>;
@@ -58,7 +59,7 @@ export class SiteLinkServerClass<A> {
       .then(() => UpdateTablesDataObject({ db, options: linksDataOptions }))
       .then(() => Select()));
   }
-  async next({ params, request, context, env }: RouteBasePropsWithEnvProps<{ action: string }>) {
+  async next({ params, request, context }: RouteBasePropsWithEnvProps<{ action: string }>) {
     const TableObject = this.object;
     switch (params.action) {
       case "send":
@@ -149,7 +150,7 @@ export class SiteLinkServerClass<A> {
   }
 }
 
-export const SiteLinkServer = new SiteLinkServerClass<Route.ActionArgs>(linksDataOptions);
+export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions);
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next: SiteLinkServer.next.bind(SiteLinkServer), trueWhenDev: true });
 }

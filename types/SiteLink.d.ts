@@ -8,6 +8,8 @@ interface SiteLinkData {
   style?: string | null;
   order?: number | null;
   draft?: number | null;
+  prompt?: number | null;
+  password?: number | null;
   lastmod?: string;
 }
 

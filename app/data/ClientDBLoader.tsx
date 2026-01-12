@@ -81,12 +81,9 @@ export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 
 export let dbClass: MeeIndexedDB;
 
-// IndexedDBのバージョン指定、変わる毎に更新される
-export const INDEXEDDB_VERSION = 6;
-
-export async function MeeIndexedDBCreate() {
+export async function MeeIndexedDBCreate({ env }: ClientDBLoaderProps) {
   return MeeIndexedDB.create({
-    version: INDEXEDDB_VERSION,
+    version: env.INDEXEDDB_VERSION,
     dbName: INDEXEDDB_NAME,
     onupgradeneeded(e, db) {
       IdbStateClassList.map((props) => {
@@ -189,7 +186,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
       IdbStateClassMap!.set(item.options.name, item);
     });
     IdbStateClassList = Array.from(IdbStateClassMap.values());
-    await MeeIndexedDBCreate();
+    await MeeIndexedDBCreate({ env });
     IdbStateClassList.forEach((item) => {
       IdbClassMap.set(item.key as TableNameTypes, item);
     });
