@@ -56,9 +56,9 @@ import { Modal } from "~/components/layout/Modal";
 const LINKS_API = GetAPIFromOptions(linksDataOptions);
 const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 
-export const ArchiveLinks: Array<SiteLink> = [
-  { title: "サイト内ブログ", url: "/blog" },
-];
+export const ArchiveLinks: Array<SiteLink> = [];
+if (ATProtocolEnv.getBlog)
+  ArchiveLinks.push({ title: "サイト内ブログ", url: "/blog" });
 
 export default function LinksPage() {
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
@@ -319,7 +319,7 @@ function LinksContainer({
           orderBy: [{ id: "asc", order: "asc" }],
         })
       : [];
-    if (!category && !move) return ArchiveLinks.concat(links);
+    if (!category && !move) return links.concat(ArchiveLinks);
     else return links;
   }, [category, state.links, move]);
   const isLogin = useIsLogin()[0];

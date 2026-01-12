@@ -21,7 +21,7 @@ type SiteMyLinksItemType = {
 }
 
 interface ArrayEnvType {
-  NAV?: Array<SiteMenuItemType>;
-  LINKS?: Array<SiteMyLinksItemType>;
-  IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
+  readonly NAV?: Array<SiteMenuItemType>;
+  readonly LINKS?: Array<SiteMyLinksItemType>;
+  readonly IMAGE_ALBUMS?: Array<ImageAlbumEnvType>;
 }
