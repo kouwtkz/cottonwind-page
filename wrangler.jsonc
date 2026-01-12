@@ -33,7 +33,6 @@
     "GOOGLE_CALENDAR_ID": "1a26c5b4aa8352785869e51bf3d4fbf10a71ad8e67e260fda2e0f52dcb86adc1@group.calendar.google.com",
     "UPLOAD_SERVICE": "https://f.hatena.ne.jp/kour/BlogPic/",
     "IMAGE_ALBUM_BLOG": "blog",
-    "DISCORD_INVITE_QUESTION": "わたかぜコウの代理キャラクターの名前は？",
     "WORKERS_ACCOUNT_ID": "95737cecb3c443e0b8979d9679110507",
     "WORKERS_CLEAN_PROJECT_NAME": "cottonwind,cottonwind-calendar",
     "WORKERS_CLEAN_EXPIRATION_DAYS": 7,

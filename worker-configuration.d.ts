@@ -35,15 +35,12 @@ declare namespace Cloudflare {
 		GOOGLE_CALENDAR_ID: string;
 		UPLOAD_SERVICE: string;
 		IMAGE_ALBUM_BLOG: string;
-		DISCORD_INVITE_QUESTION: string;
 		WORKERS_ACCOUNT_ID: string;
 		WORKERS_CLEAN_PROJECT_NAME: string;
 		WORKERS_CLEAN_EXPIRATION_DAYS: number;
 		LOGIN_TOKEN: string;
 		GOOGLE_CALENDAR_API: string;
 		CONTACT_FORM_GOOGLE: string;
-		DISCORD_INVITE_ANSWER: string;
-		DISCORD_INVITE_URL: string;
 		AUTHOR_EMAIL: string;
 		X_CLIENT_ID: string;
 		X_CLIENT_SECRET: string;

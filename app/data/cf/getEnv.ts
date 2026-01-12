@@ -16,8 +16,6 @@ export function getCfOmitEnv<E = Partial<Env>>(params: getCfProps = {}): E {
     DB,
     KV,
     NOTICE_FEED_KV,
-    DISCORD_INVITE_ANSWER,
-    DISCORD_INVITE_URL,
     X_CLIENT_ID,
     X_CLIENT_SECRET,
     LOGIN_TOKEN,

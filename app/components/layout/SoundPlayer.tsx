@@ -7,11 +7,7 @@ import ShuffleButton from "~/components/svg/audio/ShuffleButton";
 import PrevButton from "~/components/svg/audio/PrevButton";
 import PlayPauseButton from "~/components/svg/audio/PlayPauseButton";
 import NextButton from "~/components/svg/audio/NextButton";
-import {
-  CreateObjectState,
-  CreateState,
-  type setTypeProps,
-} from "~/components/state/CreateState";
+import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import ReactSlider from "react-slider";
 
 import {
@@ -700,7 +696,7 @@ function SoundControllerTime() {
           const jumpTime = Math.round((duration * jump) / 100) / 10;
           Play({ jumpTime });
         }}
-        renderThumb={({ key, ...props }, state) => {
+        renderThumb={({ key, ref, ...props }, state) => {
           return <div {...props} key="audio-slider-thumb" />;
         }}
       />

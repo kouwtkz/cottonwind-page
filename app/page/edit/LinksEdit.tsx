@@ -122,6 +122,8 @@ export function LinksEdit({
       url: item?.url,
       category: item?.category ?? category,
       draft: item?.draft ?? null,
+      prompt: item?.prompt,
+      password: item?.password,
     },
     resolver: zodResolver(schema),
   });
@@ -255,6 +257,24 @@ export function LinksEdit({
             <span>下書き</span>
           </label>
         </div>
+        <details>
+          <summary className="text-left">合言葉の設定</summary>
+          <div className="flex column">
+            <input
+              title="ポップアップ文"
+              placeholder="質問"
+              autoComplete="off"
+              className="mb-1"
+              {...register("prompt")}
+            />
+            <input
+              title="合言葉"
+              placeholder="合言葉"
+              autoComplete="off"
+              {...register("password")}
+            />
+          </div>
+        </details>
         <div className="actions">
           <button
             title="削除"

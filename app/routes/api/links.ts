@@ -5,7 +5,7 @@ import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
 import { linksDataOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import type { RouteBasePropsWithEnvProps } from "~/components/utils/RoutesUtils";
-import { getCfDB } from "~/data/cf/getEnv";
+import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/links";
 
 interface SiteLinkServerClassProps extends Props_LastmodMHClass_Options<SiteLink, SiteLinkData> {
@@ -53,11 +53,37 @@ export class SiteLinkServerClass {
     if (id) wheres.push({ id: Number(id) });
     async function Select() {
       return ThisObject.Select({ db, where: { AND: wheres } })
-        .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...ThisObject.getFillNullEntry, draft: v.draft } : v));
+        .then(data => isLogin ? data : data.map((v) => {
+          if (v.draft) {
+            return { ...v, ...ThisObject.getFillNullEntry, draft: v.draft };
+          } else {
+            if (v.password) {
+              v.url = null;
+              v.password = "true";
+            }
+            return v;
+          }
+        }));
     }
     return Select().catch(() => ThisObject.CreateTable({ db })
       .then(() => UpdateTablesDataObject({ db, options: linksDataOptions }))
       .then(() => Select()));
+  }
+  async verify(props: Route.ActionArgs) {
+    if (props.request.method === "POST") {
+      const db = getCfDB(props);
+      const data = await props.request.json<any>();
+      if (db && data) {
+        const id = data.id;
+        const results = await this.object.Select({ db, where: { AND: [{ id }] }, take: 1 })
+        const entry = results[0];
+        if (entry) {
+          if (entry.password === data.password)
+            return new Response(entry.url);
+        }
+      }
+    }
+    return new Response("failed", { status: 401 })
   }
   async next({ params, request, context }: RouteBasePropsWithEnvProps<{ action: string }>) {
     const TableObject = this.object;
@@ -152,5 +178,6 @@ export class SiteLinkServerClass {
 
 export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions);
 export async function action(props: Route.ActionArgs) {
-  return LoginCheck({ ...props, next: SiteLinkServer.next.bind(SiteLinkServer), trueWhenDev: true });
+  if (props.params.action === "verify") return SiteLinkServer.verify.bind(SiteLinkServer)(props);
+  else return LoginCheck({ ...props, next: SiteLinkServer.next.bind(SiteLinkServer), trueWhenDev: true });
 }

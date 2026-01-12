@@ -41,7 +41,7 @@ import {
   apiOrigin,
   mediaOrigin,
 } from "~/data/ClientDBLoader";
-import { CompatGalleryButton } from "./edit/ImagesManager";
+import { CompatGalleryButton, IMAGE_SEND_API } from "./edit/ImagesManager";
 import { findMee } from "~/data/find/findMee";
 import { customFetch } from "~/components/functions/fetch";
 import {
@@ -54,7 +54,7 @@ import { useATProtoState } from "~/components/state/ATProtocolState";
 import { Modal } from "~/components/layout/Modal";
 
 const LINKS_API = GetAPIFromOptions(linksDataOptions);
-const IMAGE_SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
+const LINKS_VERIFY_API = GetAPIFromOptions(linksDataOptions, "/verify");
 
 export const ArchiveLinks: Array<SiteLink> = [];
 if (ATProtocolEnv.getBlog)
@@ -83,9 +83,6 @@ export default function LinksPage() {
         <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">
           <li>
-            <InviteDiscordLink />
-          </li>
-          <li>
             <Link to="/suggest">Suggest page (links for miss typo)</Link>
           </li>
           {githubLink ? (
@@ -106,69 +103,6 @@ export default function LinksPage() {
       <FavoriteLinks title="Joining Event" category="event" />
       <FavoriteLinks title="Joined Search" category="search" />
     </div>
-  );
-}
-
-function InviteDiscordLink({
-  children = "Discordのコミュニティサーバー",
-}: {
-  children?: React.ReactNode;
-}) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const anchorRef = useRef<HTMLAnchorElement>(null);
-  const invite = searchParams.get("invite");
-  const [question, setQuestion] = useState<string>();
-  useEffect(() => {
-    fetch("/api/discord/invite")
-      .then((r) => r.text())
-      .then((value) => {
-        setQuestion(value);
-      });
-  }, []);
-  useEffect(() => {
-    if (invite === "discord") {
-      anchorRef.current!.click();
-      searchParams.delete("invite");
-      setSearchParams(searchParams, {
-        replace: true,
-        preventScrollReset: true,
-      });
-    }
-  }, [invite]);
-  return (
-    <a
-      title="Discordの招待リンク（合言葉入力式）"
-      href="?invite=discord"
-      target="discord"
-      ref={anchorRef}
-      onClick={async (e) => {
-        const element = anchorRef.current!;
-        if (!element.hasAttribute("invited")) {
-          e.preventDefault();
-          const answer = prompt(await question);
-          if (answer) {
-            fetch(
-              MakeRelativeURL({
-                pathname: "/api/discord/invite",
-                query: { invite_password: answer },
-              })
-            )
-              .then((r) => r.text())
-              .then((data) => {
-                element.title = "Discordの招待リンク";
-                element.href = data;
-                element.setAttribute("invited", "");
-                element.click();
-              })
-              .catch((e) => {
-                toast.error(`認証に失敗しました [${e}]`);
-              });
-          }
-        }
-      }}
-    >
-      {children}
-    </a>
   );
 }
 
@@ -284,7 +218,7 @@ interface LinksContainerProps
   banner?: boolean;
   dir?: SendLinksDir;
   dropdown?: ReactNode;
-  state: LinksStateType;
+  state: WithSet<LinksStateType>;
   indexedDB?: LinksIndexedDBType;
   defaultCategories?: string[];
   linkStyle?: CSSProperties;
@@ -346,6 +280,40 @@ function LinksContainer({
           if (isEditable) {
             setEdit(item.id);
             e.preventDefault();
+          } else if (!item.url) {
+            e.preventDefault();
+            if (item.prompt) {
+              const answer = prompt(item.prompt);
+              if (answer)
+                customFetch(concatOriginUrl(apiOrigin, LINKS_VERIFY_API), {
+                  method: "POST",
+                  body: { id: item.id, password: answer },
+                  cors: true,
+                })
+                  .then((r) => {
+                    if (r.status === 200) {
+                      return r.text();
+                    } else {
+                      throw r;
+                    }
+                  })
+                  .then((url) => {
+                    toast.success("認証に成功しました", { autoClose: 1500 });
+                    item.url = url;
+                    state.Set(({ links, linksMap }) => ({
+                      links: links?.concat(),
+                      linksMap: new Map(linksMap),
+                    }));
+                  })
+                  .catch((e) => {
+                    const r = e as Response;
+                    toast.error(`認証に失敗しました [${r.status}]`);
+                  });
+            }
+          } else if (item.prompt && !item.password) {
+            if (!confirm(item.prompt)) {
+              e.preventDefault();
+            }
           }
         },
       };
@@ -389,7 +357,7 @@ function LinksContainer({
         </a>
       );
     },
-    [isEditable, banner, linkStyle]
+    [isEditable, banner, linkStyle, state]
   );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
   const inner = (
@@ -574,41 +542,6 @@ export function BannerInner({
         </div>
       )}
     </>
-  );
-}
-
-export function BannerItem({
-  item,
-  isEdit,
-  setEditLink,
-  style,
-}: {
-  item: SiteLink;
-  isEdit?: boolean;
-  setEditLink: (v?: number | boolean) => void;
-  style?: CSSProperties;
-}) {
-  const titleWithDsc = getTitleWithDsc(item);
-  return (
-    <a
-      href={item.url || ""}
-      title={titleWithDsc}
-      target="_blank"
-      className="overlay"
-      onClick={(e) => {
-        if (isEdit) {
-          setEditLink(item.id);
-          e.preventDefault();
-        }
-      }}
-    >
-      <BannerInner
-        image={item.Image}
-        title={item.title || titleWithDsc}
-        alt={titleWithDsc}
-        style={style}
-      />
-    </a>
   );
 }
 
