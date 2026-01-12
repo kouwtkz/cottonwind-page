@@ -215,13 +215,13 @@ export function BlueskyFeed() {
   const profileUrl = useMemo(() => {
     const Url = new URL(profileBaseUrl);
     if (handle) {
-      Url.pathname += handle + "/";
+      Url.pathname += handle;
     }
     return Url;
   }, [profileBaseUrl, handle]);
   const postBaseUrl = useMemo(() => {
     const Url = new URL(profileUrl);
-    Url.pathname += "post/";
+    Url.pathname += "/post/";
     return Url;
   }, [profileUrl]);
   useEffect(() => {

@@ -150,7 +150,7 @@ function TopLinks() {
   );
 }
 
-const EmbedSNS = React.memo(function EmbedSNS() {
+export const EmbedScriptSNS = React.memo(function EmbedSNS() {
   return (
     <div className="embedSNS">
       <h3 className="title en-title-font color-main">Bluesky</h3>
