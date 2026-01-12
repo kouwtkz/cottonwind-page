@@ -2109,9 +2109,11 @@ footer {
       margin: 1em;
     }
     & > .fc {
-      width: 95%;
+      width: 100%;
       max-width: 50rem;
-      margin: auto;
+    }
+    & > * {
+      margin: 0 1rem;
     }
     .embedSNS {
       &,
@@ -2179,9 +2181,8 @@ footer {
     border: 1px solid var(--main-color-light-grayish);
     height: 500px;
     height: 700px;
-    width: 95%;
+    width: 100%;
     max-width: 40rem;
-    margin: auto;
     text-align: left;
   }
   table {
@@ -2189,6 +2190,7 @@ footer {
     margin: 0;
     border: none;
     td {
+      padding: 1rem;
       border: 1px solid var(--main-color-grayish);
       border-left: none;
       border-right: none;
@@ -2211,6 +2213,17 @@ footer {
       }
       .time {
         text-align: right;
+        margin-top: 0.5rem;
+      }
+    }
+    tr:first-child {
+      td {
+        border-top: none;
+      }
+    }
+    tr:last-child {
+      td {
+        border-bottom: none;
       }
     }
   }
