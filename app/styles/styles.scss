@@ -714,6 +714,11 @@ ol {
     align-items: center;
   }
 }
+ul.flex {
+  li {
+    display: block;
+  }
+}
 .flex-1 {
   flex: 1;
 }
