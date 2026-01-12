@@ -392,68 +392,66 @@ function LinksContainer({
     [isEditable, banner, linkStyle]
   );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
-  const Inner = function () {
-    return (
-      <>
-        {editable && isLogin ? (
-          <LinksEditButtons
-            indexedDB={indexedDB}
-            setEdit={setEdit}
-            album={album}
-            move={move}
-            setMove={setMove}
-            dropdown={dropdown}
-            dir={dir}
+  const inner = (
+    <>
+      {editable && isLogin ? (
+        <LinksEditButtons
+          indexedDB={indexedDB}
+          setEdit={setEdit}
+          album={album}
+          move={move}
+          setMove={setMove}
+          dropdown={dropdown}
+          dir={dir}
+        />
+      ) : null}
+      <ul className={ulClassName}>
+        {move ? (
+          <Movable
+            items={links}
+            Inner={LinkInner}
+            submit={move === 2}
+            onSubmit={(items) => {
+              const dirty = items
+                .map((item, i) => ({
+                  ...item,
+                  newOrder: i + 1,
+                }))
+                .filter((item, i) => item.newOrder !== item.order)
+                .map(({ id, newOrder }) => {
+                  return { id, order: newOrder };
+                });
+              if (dirty.length > 0) {
+                toast.promise(
+                  customFetch(concatOriginUrl(apiOrigin, send), {
+                    data: dirty,
+                    method: "POST",
+                    cors: true,
+                  }).then(() => {
+                    indexedDB?.load("no-cache");
+                    setMove(0);
+                  }),
+                  {
+                    pending: "送信中",
+                    success: "送信しました",
+                    error: "送信に失敗しました",
+                  }
+                );
+              } else setMove(0);
+            }}
           />
-        ) : null}
-        <ul className={ulClassName}>
-          {move ? (
-            <Movable
-              items={links}
-              Inner={LinkInner}
-              submit={move === 2}
-              onSubmit={(items) => {
-                const dirty = items
-                  .map((item, i) => ({
-                    ...item,
-                    newOrder: i + 1,
-                  }))
-                  .filter((item, i) => item.newOrder !== item.order)
-                  .map(({ id, newOrder }) => {
-                    return { id, order: newOrder };
-                  });
-                if (dirty.length > 0) {
-                  toast.promise(
-                    customFetch(concatOriginUrl(apiOrigin, send), {
-                      data: dirty,
-                      method: "POST",
-                      cors: true,
-                    }).then(() => {
-                      indexedDB?.load("no-cache");
-                      setMove(0);
-                    }),
-                    {
-                      pending: "送信中",
-                      success: "送信しました",
-                      error: "送信に失敗しました",
-                    }
-                  );
-                } else setMove(0);
-              }}
-            />
-          ) : (
-            <>
-              {links?.map((v, i) => (
-                <li key={i}>
-                  <LinkInner item={v} />
-                </li>
-              ))}
-            </>
-          )}
-        </ul>
-      </>
-    );
-  };
+        ) : (
+          <>
+            {links?.map((v, i) => (
+              <li key={i}>
+                <LinkInner item={v} />
+              </li>
+            ))}
+          </>
+        )}
+      </ul>
+    </>
+  );
   return (
     <>
       {visible ? (
@@ -475,14 +473,14 @@ function LinksContainer({
               <summary className="h3 color-main en-title-font">
                 {title || "Links"}
               </summary>
-              <Inner />
+              {inner}
             </details>
           ) : (
             <>
               {title ? (
                 <h3 className="color-main en-title-font">{title || "Links"}</h3>
               ) : null}
-              <Inner />
+              {inner}
             </>
           )}
         </div>
