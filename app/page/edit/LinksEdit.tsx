@@ -57,6 +57,7 @@ import { findMee } from "~/data/find/findMee";
 import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 import { IMAGE_SEND_API } from "./ImagesManager";
+import { ATProtocolEnv } from "~/Env";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -244,7 +245,7 @@ export function LinksEdit({
             >
               {categories.map((category) => (
                 <option value={category} key={category}>
-                  {category || "draft"}
+                  {category || "default"}
                 </option>
               ))}
             </select>

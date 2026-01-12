@@ -270,3 +270,17 @@ export const ArrayEnv: ArrayEnvType = {
 }
 
 export const EnvLinksMap = new Map(ArrayEnv.LINKS?.map((v) => [v.key, v]) || []);
+
+export const ATProtocolEnv: {
+  readonly setDid: boolean;
+  readonly setDidInfo: boolean;
+  readonly setDescribe: boolean;
+  readonly setLinkat: boolean;
+  readonly getPosts: boolean;
+} = {
+  setDid: false,
+  setDidInfo: false,
+  setDescribe: false,
+  setLinkat: false,
+  getPosts: true,
+}

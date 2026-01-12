@@ -49,7 +49,7 @@ import {
   ImageDataOptions,
   linksDataOptions,
 } from "~/data/DataEnv";
-import { EnvLinksMap } from "~/Env";
+import { ATProtocolEnv, EnvLinksMap } from "~/Env";
 import { useATProtoState } from "~/components/state/ATProtocolState";
 import { Modal } from "~/components/layout/Modal";
 
@@ -65,10 +65,20 @@ export default function LinksPage() {
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
-      <Linkat />
-      <MeeLinks title="Commission" category="commission" banner fold open />
-      <MeeLinks title="Top Link" category="top" banner fold />
-      <MeeLinks title="Archive" category={null} banner fold />
+      {ATProtocolEnv.setLinkat ? (
+        <>
+          <Linkat />
+          <MeeLinks title="Top Link" category="top" banner fold />
+          <MeeLinks title="Commission" category="commission" banner fold open />
+          <MeeLinks title="Archive" category={null} banner fold />
+        </>
+      ) : (
+        <>
+          <MeeLinks title="Top Link" category="top" banner fold open />
+          <MeeLinks title="Commission" category="commission" banner fold open />
+          <MeeLinks title="My Link" category={null} banner fold open />
+        </>
+      )}
       <div>
         <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">

@@ -32,6 +32,7 @@ import { rootClientServerData } from "../utils/SetMeta";
 import { MiniCharacterPage } from "~/page/CharacterPage";
 import RedirectState from "./redirectState";
 import { ATPState, useATProtoState } from "./ATProtocolState";
+import { ATProtocolEnv } from "~/Env";
 
 export function SetState({
   env,
@@ -82,8 +83,9 @@ function CheckIsComplete() {
   const loadedPosts = Boolean(usePosts().posts);
   const loadedSounds = Boolean(useSounds().sounds);
   const loadedLinks = Boolean(useLinks().links);
-  const { didInfo, describe, linkat } = useATProtoState();
-  const loadedATProto = useMemo(
+  const { did, didInfo, describe, linkat } = useATProtoState();
+  const loadedATProtoDid = useMemo(() => typeof did !== "undefined", [did]);
+  const loadedATProtoDidInfo = useMemo(
     () => typeof didInfo !== "undefined",
     [didInfo]
   );
@@ -92,31 +94,32 @@ function CheckIsComplete() {
     [describe]
   );
   const loadedATProtoLinkat = useMemo(() => Boolean(linkat), [linkat]);
-
-  const isSetList = useMemo(
-    () => [
+  const isSetList = useMemo(() => {
+    const list = [
       loadedEnv,
       loadedImages,
       loadedCharacters,
       loadedPosts,
       loadedSounds,
       loadedLinks,
-      loadedATProto,
-      loadedATProtoDescribe,
-      loadedATProtoLinkat,
-    ],
-    [
-      loadedEnv,
-      loadedImages,
-      loadedCharacters,
-      loadedPosts,
-      loadedSounds,
-      loadedLinks,
-      loadedATProto,
-      loadedATProtoDescribe,
-      loadedATProtoLinkat,
-    ]
-  );
+    ];
+    if (ATProtocolEnv.setDid) list.push(loadedATProtoDid);
+    if (ATProtocolEnv.setDidInfo) list.push(loadedATProtoDidInfo);
+    if (ATProtocolEnv.setDescribe) list.push(loadedATProtoDescribe);
+    if (ATProtocolEnv.setLinkat) list.push(loadedATProtoLinkat);
+    return list;
+  }, [
+    loadedEnv,
+    loadedImages,
+    loadedCharacters,
+    loadedPosts,
+    loadedSounds,
+    loadedLinks,
+    loadedATProtoDid,
+    loadedATProtoDidInfo,
+    loadedATProtoDescribe,
+    loadedATProtoLinkat,
+  ]);
   const setIsLoaded = useIsLoaded()[1];
   useEffect(() => {
     setIsLoaded(isSetList);

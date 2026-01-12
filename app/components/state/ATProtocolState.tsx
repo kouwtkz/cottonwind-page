@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
+import { ATProtocolEnv } from "~/Env";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -14,11 +15,10 @@ export function ATPState() {
     <>
       <_ATPState />
       <_SetHandle />
-      <_SetDidInfo />
-      <_SetEndpoint />
-      <_SetDescribe />
-      <_SetLinkat />
-      <_GetPosts />
+      {ATProtocolEnv.setDidInfo ? <_SetDidInfo /> : null}
+      {ATProtocolEnv.setDescribe ? <_SetDescribe /> : null}
+      {ATProtocolEnv.setLinkat ? <_SetLinkat /> : null}
+      {ATProtocolEnv.getPosts ? <_GetPosts /> : null}
     </>
   );
 }
@@ -72,29 +72,22 @@ function _SetDidInfo() {
           }
         })
         .then((didInfo) => {
-          Set({ didInfo });
+          let endpoint: string;
+          if (didInfo) {
+            const dataServer = didInfo?.service.find(
+              ({ type: Type }) => Type === "AtprotoPersonalDataServer"
+            );
+            if (dataServer) {
+              endpoint = dataServer.serviceEndpoint;
+              Set({ endpoint: dataServer.serviceEndpoint });
+            } else endpoint = "";
+          } else endpoint = "";
+          Set({ didInfo, endpoint });
         });
     } else if (did === "") {
-      Set({ didInfo: null });
+      Set({ didInfo: null, endpoint: "" });
     }
   }, [did]);
-  return <></>;
-}
-
-function _SetEndpoint() {
-  const { Set, didInfo } = useATProtoState();
-  useEffect(() => {
-    if (didInfo) {
-      const dataServer = didInfo.service.find(
-        ({ type: Type }) => Type === "AtprotoPersonalDataServer"
-      );
-      if (dataServer) {
-        Set({ endpoint: dataServer.serviceEndpoint });
-      }
-    } else if (didInfo === null) {
-      Set({ endpoint: "" });
-    }
-  }, [didInfo]);
   return <></>;
 }
 function _SetDescribe() {
