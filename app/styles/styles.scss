@@ -912,6 +912,12 @@ li {
   }
 }
 
+@mixin FlexCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -958,10 +964,8 @@ body {
     max-width: var(--ct-width);
     background-color: var(--background);
     z-index: 1500;
-    display: flex;
+    @include FlexCenter;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     font-family: sans-serif;
     text-align: center;
     .loadingNow {
@@ -1083,9 +1087,7 @@ button,
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
     &:disabled {
       opacity: 0.6;
     }
@@ -1783,9 +1785,7 @@ html {
     height: 2.25rem;
     padding: 0;
     min-width: 33.33%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
     color: var(--main-color-strong);
     &:hover,
     &:focus {
@@ -1815,9 +1815,7 @@ header.siteHeader {
   z-index: 30;
   > *:not(.list) {
     height: 3.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
   }
   @extend %windowMinWidth;
   .backButton,
@@ -2179,10 +2177,8 @@ footer {
 }
 
 .embedSNSList {
-  display: flex;
+  @include FlexCenter;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
   $maxHeight: 70vh;
   & > * {
     margin: 0.5rem;
@@ -2472,9 +2468,7 @@ form {
         }
       }
       .title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include FlexCenter;
         font-weight: bold;
         font-size: 1.875rem;
         height: 2.5rem;
@@ -2719,9 +2713,11 @@ select {
 }
 
 div.banner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include FlexCenter;
+  div.setterImage & {
+    width: 400px;
+    height: 80px;
+  }
 }
 
 .galleryPage {
@@ -2982,9 +2978,7 @@ $soundBoxHeight: 10rem;
             height: #{$height};
             width: 8rem;
             border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include FlexCenter;
             button {
               margin-right: 0.25rem;
               svg {
@@ -3551,9 +3545,7 @@ label,
         padding-left: 0.5rem;
         padding-right: 0.5rem;
         flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include FlexCenter;
         overflow: hidden;
         &:first-child {
           justify-content: flex-start;
@@ -3881,10 +3873,8 @@ label,
 
 .fileManagePage {
   .managerHeader {
-    display: flex;
+    @include FlexCenter;
     flex-direction: row;
-    align-items: center;
-    justify-content: center;
     flex-wrap: wrap;
     & > * {
       margin: 0 0.25em;
@@ -3920,9 +3910,7 @@ label,
     }
   }
   div.buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
   }
   .drag {
     background-color: var(--main-color-fluo);
@@ -3958,9 +3946,7 @@ label,
   text-align: center;
   &.middle {
     min-height: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
     flex-direction: column;
   }
   h1 {
@@ -4261,9 +4247,7 @@ form.blogEdit {
       min-height: 3em;
       width: 400px;
       height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include FlexCenter;
     }
   }
   a .banner:hover {
@@ -4299,9 +4283,7 @@ form.blogEdit {
   .bannerArea {
     li {
       text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include FlexCenter;
       > * {
         width: 100%;
       }
@@ -4590,9 +4572,7 @@ form.blogEdit {
     @extend %auto-phrase;
     font-size: 1.75em;
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include FlexCenter;
     text-align: center;
     padding: 0 2rem;
     margin: 0.5rem auto 0.75rem;
@@ -4653,9 +4633,7 @@ form.blogEdit {
     }
     h3 {
       margin: 0 1em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include FlexCenter;
       text-align: center;
       font-size: 1.6em;
       a {
