@@ -978,6 +978,7 @@ export interface ImagesUploadOptions {
   thumbnail?: boolean | number;
   webpOptions?: resizeImageCanvasProps;
   notDraft?: boolean;
+  links?: string | string[] | null;
 }
 type srcType = string | File;
 export type srcObjectType = {
@@ -1004,6 +1005,7 @@ export async function MakeImagesUploadList({
   thumbnail = true,
   webpOptions,
   notDraft: direct,
+  links,
 }: MakeImagesUploadListProps) {
   const checkTime = new Date().getTime();
   const files = Array.isArray(src) ? src : [src];
@@ -1021,7 +1023,7 @@ export async function MakeImagesUploadList({
   });
   if (targetFiles.length === 0) return [];
   const formDataList = await Promise.all(
-    targetFiles.map(async (v) => {
+    targetFiles.map(async (v, i) => {
       const object =
         typeof v === "string"
           ? { src: v, name: v }
@@ -1081,6 +1083,11 @@ export async function MakeImagesUploadList({
           break;
       }
       if (direct) formData.append("direct", "");
+      if (links) {
+        if (Array.isArray(links)) {
+          if (links[i]) formData.append("link", links[i]);
+        } else formData.append("link", links);
+      }
       if (typeof object.src === "object")
         formData.append("mtime", String(object.src.lastModified));
       return formData;

@@ -1,12 +1,17 @@
 import {
   Link,
+  type NavigateOptions,
   type To,
+  type URLSearchParamsInit,
   useLocation,
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router";
-import { useImageState, useSelectedImage } from "~/components/state/ImageState";
+import {
+  useImageState,
+  useSelectImageState,
+} from "~/components/state/ImageState";
 import React, {
   type ReactNode,
   createRef,
@@ -932,8 +937,12 @@ function GalleryBody({
                 </IconsFoldButton>
                 <ImageMeeShowPngSwitch />
                 <ModeSearchSwitch
-                  toEnableTitle={"全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"}
-                  toDisableTitle={"アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"}
+                  toEnableTitle={
+                    "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
+                  }
+                  toDisableTitle={
+                    "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
+                  }
                   searchKey="showAllAlbum"
                   onContextMenu={(e) => {
                     e.preventDefault();
@@ -1118,14 +1127,14 @@ function GalleryContent({
   );
   const { state, search, hash } = useLocation();
   const nav = useNavigate();
-  const setSelectedImage = useSelectedImage()[1];
+  const { Set } = useSelectImageState();
   const isModal = useMemo(
     () => searchParams.get("modal") === "gallery",
     [searchParams]
   );
   const imageOnClick = isModal
     ? function (image: ImageType) {
-        setSelectedImage(image);
+        Set({ image });
       }
     : undefined;
   const [w] = useWindowSize();
@@ -1519,15 +1528,38 @@ function GalleryItemRibbon({ image }: { image: ImageType }) {
 }
 
 export function MiniGallery() {
-  const [selectedImage, setSelectedImage] = useSelectedImage();
+  const { Set, image, _openArgs } = useSelectImageState();
   const [searchParams, setSearchParams] = useSearchParams();
   const nav = useNavigate();
-  const { state } = useLocation();
+  let { state } = useLocation();
+  useEffect(() => {
+    if (_openArgs) {
+      if (!state) state = {};
+      state.from = location.href;
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("modal", "gallery");
+      if (_openArgs.showAll) newSearchParams.set("showAllAlbum", "on");
+      if (_openArgs.topAlbum)
+        newSearchParams.set("topAlbum", _openArgs.topAlbum);
+      if (_openArgs.query) {
+        const entry = Object.entries(_openArgs.query);
+        entry.forEach(([k, v]) => {
+          if (v) newSearchParams.set(k, v);
+        });
+      }
+      setSearchParams(Object.fromEntries(newSearchParams), {
+        state,
+        preventScrollReset: true,
+      });
+      Set({ _openArgs: null, id: _openArgs.id });
+    }
+  }, [_openArgs, state, searchParams]);
   const enable = useMemo(
     () => searchParams.get("modal") === "gallery",
     [searchParams]
   );
   const closeHandler = useCallback(() => {
+    Set({ image: null, id: "" });
     if (state?.from) {
       delete state.from;
       nav(-1);
@@ -1537,11 +1569,8 @@ export function MiniGallery() {
     }
   }, [state, searchParams]);
   useEffect(() => {
-    if (selectedImage) {
-      setSelectedImage(null);
-      closeHandler();
-    }
-  }, [selectedImage, setSelectedImage]);
+    if (image) closeHandler();
+  }, [image]);
   return (
     <>
       <Modal

@@ -3,7 +3,7 @@ import { DropdownObject, type DropdownObjectBaseProps } from "./DropdownMenu";
 import { useEnv } from "~/components/state/EnvState";
 import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { useLocation, useSearchParams } from "react-router";
-import { useSelectedImage } from "~/components/state/ImageState";
+import { useSelectImageState } from "~/components/state/ImageState";
 import { fileDialog } from "~/components/utils/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 interface PostEditSelectBaseProps extends DropdownObjectBaseProps {
@@ -334,15 +334,15 @@ export function PostEditSelectMedia({
   const [env] = useEnv();
   const [searchParams, setSearchParams] = useSearchParams();
   let { state } = useLocation();
-  const selectedImage = useSelectedImage()[0];
+  const { image: selectedImage, id, open: OpenSelectImage } = useSelectImageState();
   useEffect(() => {
-    if (selectedImage)
+    if (selectedImage && id === "post")
       replacePostTextareaFromImage({
         image: selectedImage,
         textarea,
         setValue,
       });
-  }, [selectedImage]);
+  }, [selectedImage, id]);
   function setMedia(value: string) {
     if (!value || !textarea || !apiOrigin) return;
     if (actionOverwrite && typeof actionOverwrite[value] === "function")
@@ -388,11 +388,7 @@ export function PostEditSelectMedia({
           window.open(env?.UPLOAD_SERVICE, "uploadExternal");
           break;
         case "gallery":
-          searchParams.set("modal", "gallery");
-          if (album) searchParams.set("topAlbum", album);
-          if (!state) state = {};
-          state.from = location.href;
-          setSearchParams(searchParams, { state });
+          OpenSelectImage({topAlbum: album, id: "post"});
           break;
         case "link":
           replacePostTextarea({

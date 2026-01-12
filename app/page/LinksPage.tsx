@@ -350,13 +350,17 @@ function LinksContainer({
           }
         }}
       >
-        <BannerInner item={item} alt={titleWithDsc} />
+        <BannerInner image={item.Image || item.image} alt={titleWithDsc} />
       </a>;
       function Inner() {
         return (
           <>
             {banner ? (
-              <BannerInner item={item} alt={titleWithDsc} />
+              <BannerInner
+                image={item.Image || item.image}
+                title={item.title || titleWithDsc}
+                alt={titleWithDsc}
+              />
             ) : (
               item.title
             )}
@@ -522,39 +526,41 @@ export function getTitleWithDsc(item: SiteLink) {
 }
 
 export function BannerInner({
-  item,
+  image,
   title,
   alt,
   style,
 }: {
-  item?: SiteLink | null;
+  image?: ImageType | string | null;
   title?: string;
   alt?: string;
   style?: CSSProperties;
 }) {
   return (
     <>
-      {item?.Image ? (
-        <ImageMee
-          className="banner"
-          imageItem={item.Image}
-          alt={alt || getTitleWithDsc(item)}
-          autoPixel={false}
-          style={style}
-        />
-      ) : item?.image ? (
-        <img
-          className="banner"
-          src={item.image}
-          width={200}
-          height={40}
-          alt={item.image}
-          style={style}
-        />
+      {image ? (
+        typeof image === "object" ? (
+          <ImageMee
+            className="banner"
+            imageItem={image}
+            alt={alt || title}
+            autoPixel={false}
+            style={style}
+          />
+        ) : (
+          <img
+            className="banner"
+            src={image}
+            width={200}
+            height={40}
+            alt={image}
+            style={style}
+          />
+        )
       ) : (
         <div className="banner">
           <span className="plane" style={style}>
-            {title || item?.title}
+            {title || alt}
           </span>
         </div>
       )}
@@ -587,7 +593,12 @@ export function BannerItem({
         }
       }}
     >
-      <BannerInner item={item} alt={titleWithDsc} style={style} />
+      <BannerInner
+        image={item.Image}
+        title={item.title || titleWithDsc}
+        alt={titleWithDsc}
+        style={style}
+      />
     </a>
   );
 }

@@ -27,7 +27,7 @@ import { concatOriginUrl } from "~/components/functions/originUrl";
 import { fileDialog } from "~/components/utils/FileTool";
 import { ImagesUploadWithToast } from "~/components/layout/edit/ImageEditForm";
 import { ImageMee, type ImageMeeProps } from "~/components/layout/ImageMee";
-import { useSelectedImage } from "./ImageState";
+import { useSelectImageState } from "./ImageState";
 import {
   MultiParserWithMedia as MultiParser,
   type MultiParserWithMediaProps,
@@ -93,6 +93,7 @@ const schema = z.object({
 function KeyValueEdit() {
   const ref = useRef<HTMLFormElement | null>(null);
   let { state } = useLocation();
+  const { open: OpenSelectImage } = useSelectImageState();
   const [searchParams, setSearchParams] = useSearchParams();
   let {
     edit,
@@ -184,7 +185,7 @@ function KeyValueEdit() {
   }, [item, dirtyFields]);
 
   const [isSelectedImage, setIsSelectedImage] = useState<boolean>();
-  const selectedImage = useSelectedImage()[0];
+  const { image: selectedImage, open: selectImageOpen } = useSelectImageState();
   useEffect(() => {
     if (selectedImage && isSelectedImage) {
       customFetch(concatOriginUrl(apiOrigin, SEND_API), {
@@ -257,16 +258,7 @@ function KeyValueEdit() {
                   type="button"
                   className="selectGallery translucent-button"
                   onClick={() => {
-                    if (!state) state = {};
-                    state.from = location.href;
-                    const newSearchParams = new URLSearchParams(searchParams);
-                    newSearchParams.set("modal", "gallery");
-                    newSearchParams.set("showAllAlbum", "on");
-                    setSearchParams(Object.fromEntries(newSearchParams), {
-                      state,
-                      preventScrollReset: true,
-                    });
-                    setIsSelectedImage(true);
+                    selectImageOpen({ id: "links" });
                   }}
                 >
                   <RiImageAddFill />

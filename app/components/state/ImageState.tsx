@@ -124,4 +124,27 @@ export function ImageState() {
   return <></>;
 }
 
-export const useSelectedImage = CreateState<ImageType | null>(null);
+interface SelectImageStateOpenArgs {
+  id?: string;
+  showAll?: boolean;
+  topAlbum?: string;
+  query?: {
+    [k: string]: string | undefined;
+  };
+}
+interface SelectImageState {
+  id: string;
+  image: ImageType | null;
+  open(args: SelectImageStateOpenArgs): void;
+  _openArgs: SelectImageStateOpenArgs | null;
+}
+export const useSelectImageState = CreateObjectState<SelectImageState>(
+  (set) => ({
+    id: "",
+    image: null,
+    open(args) {
+      set({ _openArgs: args });
+    },
+    _openArgs: null,
+  })
+);

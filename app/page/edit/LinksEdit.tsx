@@ -42,7 +42,7 @@ import {
 import { TbDatabaseImport } from "react-icons/tb";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { RiImageAddFill } from "react-icons/ri";
-import { useSelectedImage } from "~/components/state/ImageState";
+import { useSelectImageState } from "~/components/state/ImageState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import {
@@ -88,8 +88,6 @@ export function LinksEdit({
   defaultCategories,
 }: LinksEditProps) {
   const { links } = linksState;
-  let { state } = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
     let item: SiteLink | undefined;
@@ -171,10 +169,9 @@ export function LinksEdit({
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
 
-  const [isSelectedImage, setIsSelectedImage] = useState<boolean>();
-  const selectedImage = useSelectedImage()[0];
+  const { image: selectedImage, id: selectedImageID } = useSelectImageState();
   useEffect(() => {
-    if (selectedImage && isSelectedImage) {
+    if (selectedImage && selectedImageID === "links") {
       customFetch(concatOriginUrl(apiOrigin, send), {
         data: {
           id: item?.id,
@@ -191,9 +188,8 @@ export function LinksEdit({
           }
           indexedDB.load("no-cache");
         });
-      setIsSelectedImage(false);
     }
-  }, [selectedImage, isSelectedImage]);
+  }, [selectedImage, selectedImageID]);
 
   return (
     <Modal onClose={Close}>
@@ -219,76 +215,32 @@ export function LinksEdit({
         >
           <MdDeleteForever />
         </button>
-        <div className="setterImage">
-          <button
-            title="アルバムから画像を設定する"
-            type="button"
-            className="selectGallery translucent-button"
-            onClick={() => {
-              if (!state) state = {};
-              state.from = location.href;
-              const newSearchParams = new URLSearchParams(searchParams);
-              newSearchParams.set("modal", "gallery");
-              newSearchParams.set("showAllAlbum", "on");
-              newSearchParams.set("topAlbum", album);
-              setSearchParams(Object.fromEntries(newSearchParams), {
-                state,
-                preventScrollReset: true,
+        <SetLinksImage
+          image={item ? item.Image || item.image : null}
+          album={album}
+          link={item?.url}
+          onUploadedImage={(data) => {
+            customFetch(concatOriginUrl(apiOrigin, send), {
+              data: {
+                id: item?.id,
+                image: data.key,
+                category,
+              } as SiteLinkData,
+              method: "POST",
+              cors: true,
+            })
+              .then(async (r) => ({
+                ...r,
+                data: (await r.json()) as any,
+              }))
+              .then((r) => {
+                if (r.status === 201) {
+                  targetLastmod.current = r.data[0].entry.lastmod;
+                }
+                indexedDB.load("no-cache");
               });
-              setIsSelectedImage(true);
-            }}
-          >
-            <RiImageAddFill />
-          </button>
-          <button
-            title="画像の設定"
-            type="button"
-            className="overlay flex p-0 m-lr-auto"
-            onClick={() => {
-              fileDialog("image/*")
-                .then((fileList) => fileList.item(0)!)
-                .then((src) => {
-                  return ImagesUploadWithToast({
-                    src,
-                    album,
-                    albumOverwrite: false,
-                    notDraft: true,
-                    webp: true,
-                    thumbnail: false,
-                  });
-                })
-                .then(async (r) => {
-                  imageDataIndexed.load("no-cache");
-                  return (r?.[0].data || null) as ImageDataType | null;
-                })
-                .then(async (o) => {
-                  if (o && typeof o.key === "string") {
-                    return customFetch(concatOriginUrl(apiOrigin, send), {
-                      data: {
-                        id: item?.id,
-                        image: o.key,
-                        category,
-                      } as SiteLinkData,
-                      method: "POST",
-                      cors: true,
-                    })
-                      .then(async (r) => ({
-                        ...r,
-                        data: (await r.json()) as any,
-                      }))
-                      .then((r) => {
-                        if (r.status === 201) {
-                          targetLastmod.current = r.data[0].entry.lastmod;
-                        }
-                        indexedDB.load("no-cache");
-                      });
-                  }
-                });
-            }}
-          >
-            <BannerInner item={item} title="画像の設定" />
-          </button>
-        </div>
+          }}
+        />
         <input title="サイト名" placeholder="サイト名" {...register("title")} />
         <textarea
           title="サイトの説明文"
@@ -331,6 +283,66 @@ export function LinksEdit({
         </div>
       </form>
     </Modal>
+  );
+}
+function SetLinksImage({
+  album = "linkBanner",
+  image,
+  link,
+  onSelected,
+  onUploadedImage,
+}: {
+  album?: string;
+  image?: ImageType | string | null;
+  link?: string | null;
+  onSelected?: Function;
+  onUploadedImage?(data: ImageDataType): void;
+}) {
+  const { open } = useSelectImageState();
+  return (
+    <div className="setterImage">
+      <button
+        title="アルバムから画像を設定する"
+        type="button"
+        className="selectGallery translucent-button"
+        onClick={() => {
+          open({ id: "links", topAlbum: album });
+        }}
+      >
+        <RiImageAddFill />
+      </button>
+      <button
+        title="画像の設定"
+        type="button"
+        className="overlay flex p-0 m-lr-auto"
+        onClick={() => {
+          fileDialog("image/*")
+            .then((fileList) => fileList.item(0)!)
+            .then((src) => {
+              return ImagesUploadWithToast({
+                src,
+                links: link,
+                album,
+                albumOverwrite: false,
+                notDraft: true,
+                webp: true,
+                thumbnail: false,
+              });
+            })
+            .then(async (r) => {
+              imageDataIndexed.load("no-cache");
+              return (r?.[0].data || null) as ImageDataType | null;
+            })
+            .then(async (o) => {
+              if (o && typeof o.key === "string") {
+                if (onUploadedImage) onUploadedImage(o);
+              }
+            });
+        }}
+      >
+        <BannerInner image={image} title="画像の設定" />
+      </button>
+    </div>
   );
 }
 

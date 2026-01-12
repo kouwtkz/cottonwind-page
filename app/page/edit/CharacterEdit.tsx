@@ -65,7 +65,10 @@ import { DropdownObject } from "~/components/dropdown/DropdownMenu";
 import { BiBomb } from "react-icons/bi";
 import { SendDelete } from "~/components/functions/sendFunction";
 import { ObjectIndexedDBDownloadButton } from "~/components/button/ObjectDownloadButton";
-import { useImageState, useSelectedImage } from "~/components/state/ImageState";
+import {
+  useImageState,
+  useSelectImageState,
+} from "~/components/state/ImageState";
 import { findMee } from "~/data/find/findMee";
 import { RiImageAddFill, RiUserAddFill } from "react-icons/ri";
 import { CreateObjectState } from "~/components/state/CreateState";
@@ -249,9 +252,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     }
   }
 
-  const selectedImage = useSelectedImage()[0];
-  const [selectedImageMode, setSelectedImageMode] =
-    useState<characterImageMode>();
+  const {
+    image: selectedImage,
+    open: selectImageOpen,
+    id: selectedId,
+  } = useSelectImageState();
   function setDescription(v: any) {
     setValue("description", v, {
       shouldDirty: true,
@@ -259,35 +264,39 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   }
   const [previewMode, setPreviewMode] = useState(false);
   useEffect(() => {
-    if (selectedImage && selectedImageMode && chara) {
-      if (selectedImageMode !== "body") {
-        customFetch(concatOriginUrl(apiOrigin, SEND_API), {
-          body: {
-            target: chara.key,
-            [selectedImageMode]:
-              selectedImageMode === "icon" && chara.key === selectedImage.key
-                ? ""
-                : selectedImage.key,
-          },
-          method: "POST",
-          cors: true,
-        }).then(() => {
-          switch (selectedImageMode) {
-            case "icon":
-              toast("アイコンに設定しました");
-              break;
-            case "headerImage":
-              toast("ヘッダーに設定しました");
-              break;
-            case "image":
-              toast("メイン画像に設定しました");
-              break;
-          }
-          charactersDataIndexed.load("no-cache");
-        });
+    if (selectedImage && chara) {
+      const idParsed = selectedId.split(",");
+      if (idParsed[0] === "character") {
+        const selectedImageMode = String(idParsed[1]) as characterImageMode;
+        if (selectedImageMode !== "body") {
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+            body: {
+              target: chara.key,
+              [selectedImageMode]:
+                selectedImageMode === "icon" && chara.key === selectedImage.key
+                  ? ""
+                  : selectedImage.key,
+            },
+            method: "POST",
+            cors: true,
+          }).then(() => {
+            switch (selectedImageMode) {
+              case "icon":
+                toast("アイコンに設定しました");
+                break;
+              case "headerImage":
+                toast("ヘッダーに設定しました");
+                break;
+              case "image":
+                toast("メイン画像に設定しました");
+                break;
+            }
+            charactersDataIndexed.load("no-cache");
+          });
+        }
       }
     }
-  }, [selectedImage, selectedImageMode, chara]);
+  }, [selectedId, selectedImage, chara]);
 
   const characterModalAction = useCallback(() => {
     if (!state) state = {};
@@ -321,27 +330,25 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
 
   const imageModalAction = useCallback(
     ({ mode }: { mode: characterImageMode }) => {
-      if (!state) state = {};
-      state.from = location.href;
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set("modal", "gallery");
-      newSearchParams.set("showAllAlbum", "on");
+      let topAlbum: string;
       switch (mode) {
         case "icon":
         case "image":
         case "headerImage":
-          newSearchParams.set("topAlbum", charaMediaKindMap.get(mode)!);
+          topAlbum = charaMediaKindMap.get(mode)!;
           break;
         default:
-          newSearchParams.set("topAlbum", charaMediaKindValues.join(","));
+          topAlbum = charaMediaKindValues.join(",");
           break;
       }
-      if (chara) newSearchParams.set("characters", chara.key);
-      setSearchParams(Object.fromEntries(newSearchParams), {
-        state,
-        preventScrollReset: true,
+
+      selectImageOpen({
+        id: ["character", mode].join(","),
+        topAlbum,
+        query: {
+          characters: chara?.key,
+        },
       });
-      setSelectedImageMode(mode);
     },
     [searchParams, state, chara]
   );
