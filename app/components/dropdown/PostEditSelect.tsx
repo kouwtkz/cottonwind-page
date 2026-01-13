@@ -406,6 +406,14 @@ export function PostEditSelectMedia({
             after: ")",
           });
           break;
+        case "specialLink":
+          replacePostTextarea({
+            textarea,
+            setValue,
+            before: "[](link:",
+            after: ")",
+          });
+          break;
       }
   }
   return (
@@ -421,6 +429,7 @@ export function PostEditSelectMedia({
       <MenuItem value="link">リンク</MenuItem>
       <MenuItem value="gallery">ギャラリー</MenuItem>
       <MenuItem value="copy">コピー可能化</MenuItem>
+      <MenuItem value="specialLink">特殊リンク</MenuItem>
       {album ? <MenuItem value="upload">アップロード</MenuItem> : null}
       {env?.UPLOAD_SERVICE ? (
         <MenuItem value="external">外部アップロード</MenuItem>

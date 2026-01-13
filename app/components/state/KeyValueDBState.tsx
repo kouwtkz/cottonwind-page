@@ -501,13 +501,16 @@ export function KeyValueRenderProps({
   editType,
   childrenOutParse,
   onRender,
+  editEnvKey,
+  editDefault,
   ...props
 }: KeyValueRenderProps) {
   const env = useEnv()[0];
   const { kvMap } = useKeyValueDB();
   childrenOutParse = childrenOutParse ?? editType === "textarea";
   const { value } = useMemo(
-    () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
+    () =>
+      getKeyValueFromEnvKey({ env, kvMap, editEnvKey, editDefault, ...props }),
     [env, kvMap, props]
   );
   return (

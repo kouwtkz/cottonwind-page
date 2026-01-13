@@ -314,17 +314,22 @@ export function MultiParser({
                         });
                         v.attribs.href = Url.href;
                       }
-                      v.attribs.onClick = ((e: any) => {
-                        if (
-                          Url.href !== baseHref ||
-                          (linkSame && window.scrollY > 0)
-                        ) {
-                          nav(Url.pathname + Url.search + Url.hash, {
-                            preventScrollReset,
-                            state: { from: location.href },
-                          });
+                      const onClick: ((e: MouseEvent) => void) | undefined = v
+                        .attribs.onClick as any;
+                      v.attribs.onClick = ((e: MouseEvent) => {
+                        if (onClick) onClick(e);
+                        if (!e.defaultPrevented) {
+                          if (
+                            Url.href !== baseHref ||
+                            (linkSame && window.scrollY > 0)
+                          ) {
+                            nav(Url.pathname + Url.search + Url.hash, {
+                              preventScrollReset,
+                              state: { from: location.href },
+                            });
+                          }
+                          e.preventDefault();
                         }
-                        e.preventDefault();
                       }) as any;
                     }
                   }
