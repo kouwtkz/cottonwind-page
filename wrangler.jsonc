@@ -23,6 +23,7 @@
     "TWITTER_HANDLE": "kouwtkz",
     "EMAIL": "contact@cottonwind.com",
     "SINCE": "2017",
+    "FOOTER_LINKS": ["bluesky", "booth", "pixiv", "instagram", "youtube", "github"],
     "SITE_IMAGE": "siteImage",
     "WAVEBOX": "https://wavebox.me/wave/2l8tqqpnqjdccg85/",
     "ORIGIN_HOST": "cottonwind.com",

@@ -7,8 +7,7 @@ type SiteMenuItemType = {
   switch?: "theme";
 }
 
-type SiteMyLinksItemType = {
-  key: string;
+interface SiteMyLinksItemEnvType {
   name: string
   url: string
   title?: string
@@ -16,8 +15,11 @@ type SiteMyLinksItemType = {
   image?: string
   row?: number
   rel?: string
-  hidden?: boolean
   none?: boolean
+}
+interface SiteMyLinksItemType extends SiteMyLinksItemEnvType {
+  key: string;
+  hidden?: boolean
 }
 
 interface ArrayEnvType {

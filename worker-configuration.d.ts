@@ -25,6 +25,7 @@ declare namespace Cloudflare {
 		TWITTER_HANDLE: string;
 		EMAIL: string;
 		SINCE: string;
+        FOOTER_LINKS: string[];
 		SITE_IMAGE: string;
 		WAVEBOX: string;
 		ORIGIN_HOST: string;

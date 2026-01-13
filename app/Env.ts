@@ -64,45 +64,34 @@ if (ATProtocolEnv.getBlog) {
   if (blogIndex >= 0) NAV.splice(blogIndex, 1)
 }
 
-const LINKS: Array<SiteMyLinksItemType> = [
-  {
-    key: "bluesky",
+export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
+  bluesky: {
     mask: "#mask_bluesky",
     name: "Bluesky",
     rel: "me",
     row: 2,
     url: "https://bsky.app/profile/kouwtkz.cottonwind.com"
   },
-  {
-    key: "youtube",
-    mask: "#mask_youtube",
-    name: "youtube",
-    url: "https://www.youtube.com/@kouwtkz"
-  },
-  {
-    key: "pixiv",
+  pixiv: {
     mask: "#mask_pixiv",
     name: "pixiv",
     url: "https://www.pixiv.net/users/5577703"
   },
+  instagram:
   {
-    key: "instagram",
     mask: "#mask_instagram",
     name: "instagram",
     url: "https://www.instagram.com/kouwtkz/"
   },
-  {
-    key: "misskey.design",
-    hidden: true,
-    mask: "#mask_misskey_design",
+  "misskey.design": {
     name: "MisskeyDesign",
+    mask: "#mask_misskey",
     rel: "me",
     row: 2,
     title: "Misskey design",
     url: "https://misskey.design/@kouwtkz"
   },
-  {
-    key: "mascodon",
+  mascodon: {
     mask: "#mask_mascodon",
     name: "Mascodon",
     rel: "me",
@@ -110,33 +99,28 @@ const LINKS: Array<SiteMyLinksItemType> = [
     title: "マスコどん！",
     url: "https://mascodon.jp/@kouwtkz"
   },
-  {
-    key: "x",
+  x: {
     mask: "#mask_twitter",
     name: "𝕏 (Twitter)",
     url: "https://x.com/kouwtkz"
   },
-  {
-    key: "note",
-    hidden: true,
+  note: {
     name: "Note",
     url: "https://note.com/kouwtkz/"
   },
-  {
-    key: "booth",
+  booth: {
     mask: "#mask_booth",
     name: "BOOTH",
     rel: "me",
     row: 2,
     url: "https://cottonwind.booth.pm/"
   },
-  {
-    key: "github",
+  github: {
     mask: "#mask_github",
     name: "このサイトプロジェクトのGitHub",
     url: "https://github.com/kouwtkz/cottonwind-page"
-  },
-];
+  }
+};
 
 const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
   {
@@ -294,10 +278,14 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
   }
 ];
 
+export const EnvLINKS = Object.entries(EnvLinks).reduce<SiteMyLinksItemType[]>((a, [key, value]) => {
+  a.push({ key, ...value });
+  return a;
+}, []);
+export const EnvLinksMap = new Map(EnvLINKS.map((v) => [v.key, v]) || []);
+
 export const ArrayEnv: ArrayEnvType = {
   NAV,
-  LINKS,
+  LINKS: EnvLINKS,
   IMAGE_ALBUMS
 }
-
-export const EnvLinksMap = new Map(ArrayEnv.LINKS?.map((v) => [v.key, v]) || []);
