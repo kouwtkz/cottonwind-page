@@ -77,19 +77,23 @@ export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
     name: "pixiv",
     url: "https://www.pixiv.net/users/5577703"
   },
+  booth: {
+    mask: "#mask_booth",
+    name: "BOOTH",
+    rel: "me",
+    row: 2,
+    url: "https://cottonwind.booth.pm/"
+  },
   instagram:
   {
     mask: "#mask_instagram",
     name: "instagram",
     url: "https://www.instagram.com/kouwtkz/"
   },
-  "misskey.design": {
-    name: "MisskeyDesign",
-    mask: "#mask_misskey",
-    rel: "me",
-    row: 2,
-    title: "Misskey design",
-    url: "https://misskey.design/@kouwtkz"
+  youtube: {
+    mask: "#mask_youtube",
+    name: "youtube",
+    url: "https://www.youtube.com/@kouwtkz"
   },
   mascodon: {
     mask: "#mask_mascodon",
@@ -99,6 +103,14 @@ export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
     title: "マスコどん！",
     url: "https://mascodon.jp/@kouwtkz"
   },
+  "misskey.design": {
+    name: "MisskeyDesign",
+    mask: "#mask_misskey",
+    rel: "me",
+    row: 2,
+    title: "Misskey design",
+    url: "https://misskey.design/@kouwtkz"
+  },
   x: {
     mask: "#mask_twitter",
     name: "𝕏 (Twitter)",
@@ -107,13 +119,6 @@ export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
   note: {
     name: "Note",
     url: "https://note.com/kouwtkz/"
-  },
-  booth: {
-    mask: "#mask_booth",
-    name: "BOOTH",
-    rel: "me",
-    row: 2,
-    url: "https://cottonwind.booth.pm/"
   },
   github: {
     mask: "#mask_github",
