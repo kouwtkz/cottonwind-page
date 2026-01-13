@@ -378,8 +378,6 @@ export function SoundPlayer() {
     [sound, mediaOrigin]
   );
 
-  useEffect(() => {}, []);
-
   return (
     <>
       <SoundController />
