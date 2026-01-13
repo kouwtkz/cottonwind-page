@@ -250,7 +250,7 @@ export function BlueskyFeed() {
                       {images.length > 0 ? (
                         <div className="embed">
                           {images.map((image, i) => (
-                            <img alt={image.alt} src={image.thumb} />
+                            <img key={i} alt={image.alt} src={image.thumb} />
                           ))}
                         </div>
                       ) : null}

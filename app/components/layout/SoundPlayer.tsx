@@ -404,6 +404,9 @@ export function SoundPlayer() {
         onLoadedMetadata={() => {
           Set({ isLoading: false, duration: audioRef.current!.duration });
         }}
+        onTimeUpdateCapture={(e) => {
+          e.preventDefault();
+        }}
       />
     </>
   );
@@ -484,12 +487,6 @@ export function SoundController() {
     }
   }, [volumeSliderElm]);
   const currentVolume = useMemo(() => volume * 100, [volume]);
-  // const [isVolumeSwitch, setVolumeSwitch] = useState(false);
-  // const volumeSliderBoxClass = useMemo(() => {
-  //   const classNames = [];
-  //   if (!isVolumeSwitch) classNames.push("disabled");
-  //   return classNames.join(" ");
-  // }, [isVolumeSwitch]);
   const VolumeIcon = useCallback(
     () => (
       <>
@@ -697,7 +694,15 @@ function SoundControllerTime() {
           Play({ jumpTime });
         }}
         renderThumb={({ key, ref, ...props }, state) => {
-          return <div {...props} key="audio-slider-thumb" />;
+          return (
+            <div
+              {...props}
+              ref={(e) => {
+                ref(e);
+              }}
+              key="audio-slider-thumb"
+            />
+          );
         }}
       />
     </div>
