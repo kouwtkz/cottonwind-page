@@ -34,8 +34,15 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
         if (pagenameFlag && !/^\w+:\/\//.test(src)) {
           const imageItem = imageKey ? imagesMap.get(imageKey) : null;
           if (imageItem) {
-            const src = imageItem.src;
-            n.attribs.src = src ? concatOriginUrl(mediaOrigin, src) : "";
+            const srcUrl = imageItem.src
+              ? new URL(concatOriginUrl(mediaOrigin, imageItem.src))
+              : null;
+            if (srcUrl) {
+              if (typeof imageItem.version === "number") {
+                srcUrl.searchParams.set("v", imageItem.version.toString());
+              }
+              n.attribs.src = srcUrl.href;
+            }
             n.attribs.title = n.attribs.alt || imageItem.title || "";
             n.attribs.alt = n.attribs.title;
             if (imageItem.width) n.attribs.width = String(imageItem.width);
