@@ -54,7 +54,6 @@ import { useATProtoState } from "~/components/state/ATProtocolState";
 import { Modal } from "~/components/layout/Modal";
 
 const LINKS_API = GetAPIFromOptions(linksDataOptions);
-const LINKS_VERIFY_API = GetAPIFromOptions(linksDataOptions, "/verify");
 
 export const ArchiveLinks: Array<SiteLink> = [];
 if (ATProtocolEnv.getBlog)
@@ -241,7 +240,8 @@ function LinksContainer({
   editable = true,
   ...props
 }: LinksContainerProps) {
-  const send = LINKS_API + dir + "/send";
+  const apiBase = LINKS_API + dir;
+  const sendPath = apiBase + "/send";
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useState(0);
@@ -281,34 +281,7 @@ function LinksContainer({
             e.preventDefault();
           } else if (!item.url) {
             e.preventDefault();
-            if (item.prompt) {
-              const answer = prompt(item.prompt);
-              if (answer)
-                customFetch(concatOriginUrl(apiOrigin, LINKS_VERIFY_API), {
-                  method: "POST",
-                  body: { id: item.id, password: answer },
-                  cors: true,
-                })
-                  .then((r) => {
-                    if (r.status === 200) {
-                      return r.text();
-                    } else {
-                      throw r;
-                    }
-                  })
-                  .then((url) => {
-                    toast.success("認証に成功しました", { autoClose: 1500 });
-                    item.url = url;
-                    state.Set(({ links, linksCategoryMap }) => ({
-                      links: links?.concat(),
-                      linksCategoryMap: new Map(linksCategoryMap),
-                    }));
-                  })
-                  .catch((e) => {
-                    const r = e as Response;
-                    toast.error(`認証に失敗しました [${r.status}]`);
-                  });
-            }
+            if (item.id) state.verify(item.id);
           } else if (item.prompt && !item.password) {
             if (!confirm(item.prompt)) {
               e.preventDefault();
@@ -391,7 +364,7 @@ function LinksContainer({
                 });
               if (dirty.length > 0) {
                 toast.promise(
-                  customFetch(concatOriginUrl(apiOrigin, send), {
+                  customFetch(concatOriginUrl(apiOrigin, sendPath), {
                     data: dirty,
                     method: "POST",
                     cors: true,
@@ -428,7 +401,7 @@ function LinksContainer({
             <LinksEdit
               state={state}
               indexedDB={indexedDB}
-              send={send}
+              send={sendPath}
               edit={edit}
               setEdit={setEdit}
               album={album}

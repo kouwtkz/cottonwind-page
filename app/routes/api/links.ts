@@ -84,9 +84,9 @@ export class SiteLinkServerClass {
           if (v.draft) {
             return { ...v, ...ThisObject.getFillNullEntry, draft: v.draft };
           } else {
-            if (v.password) {
+            if (v.password || v.category === "secret") {
               v.url = null;
-              v.password = "true";
+              v.password = String(Boolean(v.password));
             }
             return v;
           }
