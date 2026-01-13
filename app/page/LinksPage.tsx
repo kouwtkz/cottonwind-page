@@ -25,9 +25,9 @@ import {
   MyBannerEditButtons,
   useMoveMyBanner,
   LinksEditButtons,
-  type editLinksType,
-  type SendLinksDir,
   SetLinksImage,
+  useLinksEdit,
+  useLinksEditMode,
 } from "./edit/LinksEdit";
 import { useImageEditSwitchHold } from "~/components/layout/edit/ImageEditForm";
 import { useImageState } from "~/components/state/ImageState";
@@ -52,8 +52,6 @@ import {
 import { ATProtocolEnv, EnvLinksMap } from "~/Env";
 import { useATProtoState } from "~/components/state/ATProtocolState";
 import { Modal } from "~/components/layout/Modal";
-
-const LINKS_API = GetAPIFromOptions(linksDataOptions);
 
 export const ArchiveLinks: Array<SiteLink> = [];
 if (ATProtocolEnv.getBlog)
@@ -208,13 +206,90 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
   );
 }
 
-export const useLinksEditMode = CreateState(false);
+function LinksInner({
+  item,
+  state,
+  style,
+  banner,
+}: {
+  item: SiteLink;
+  state: WithSet<LinksStateType>;
+  banner?: boolean;
+  style?: CSSProperties;
+}) {
+  state.options.name;
+  const { Set } = useLinksEdit();
+  const isEditable = useLinksEditMode()[0];
+  const titleWithDsc = getTitleWithDsc(item);
+  const prop = {
+    title: titleWithDsc,
+    className: "overlay",
+    style: style,
+    onClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
+      if (isEditable) {
+        Set({ src: state.options.src, edit: item.id });
+        e.preventDefault();
+      } else if (!item.url) {
+        e.preventDefault();
+        if (item.id) state.verify(item.id);
+      } else if (item.prompt && !item.password) {
+        if (!confirm(item.prompt)) {
+          e.preventDefault();
+        }
+      }
+    },
+  };
+  <a
+    href={item.url || ""}
+    title={titleWithDsc}
+    target="_blank"
+    className="overlay"
+    onClick={(e) => {
+      if (isEditable) {
+        Set({ src: state.options.src, edit: item.id });
+        e.preventDefault();
+      }
+    }}
+  >
+    <BannerInner image={item.Image || item.image} alt={titleWithDsc} />
+  </a>;
+  function Inner() {
+    const title = item.title || item.key;
+    return (
+      <>
+        {banner ? (
+          <BannerInner
+            image={item.Image || item.image}
+            title={title || titleWithDsc}
+            alt={titleWithDsc}
+          />
+        ) : (
+          title
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {item.url?.startsWith("/") ? (
+        <Link to={item.url} {...prop}>
+          <Inner />
+        </Link>
+      ) : (
+        <a href={item.url || ""} target="_blank" {...prop}>
+          <Inner />
+        </a>
+      )}
+    </>
+  );
+}
+
 interface LinksContainerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: string;
   category?: string | null;
   banner?: boolean;
-  dir?: SendLinksDir;
   dropdown?: ReactNode;
   state: WithSet<LinksStateType>;
   indexedDB?: LinksIndexedDBType;
@@ -229,7 +304,6 @@ function LinksContainer({
   title,
   className,
   banner,
-  dir = "",
   state,
   indexedDB,
   dropdown,
@@ -240,10 +314,8 @@ function LinksContainer({
   editable = true,
   ...props
 }: LinksContainerProps) {
-  const apiBase = LINKS_API + dir;
-  const sendPath = apiBase + "/send";
+  const send = GetAPIFromOptions(state.options, "/send");
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
-  const [edit, setEdit] = useState<editLinksType>();
   const [move, setMove] = useState(0);
   const links = useMemo(() => {
     const links = state.links
@@ -256,7 +328,6 @@ function LinksContainer({
     else return links;
   }, [category, state.links, move]);
   const isLogin = useIsLogin()[0];
-  const isEditable = useLinksEditMode()[0];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
     if (banner) list.push("bannerArea");
@@ -268,89 +339,31 @@ function LinksContainer({
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
-  const LinkInner = useCallback(
-    ({ item }: { item: SiteLink }) => {
-      const titleWithDsc = getTitleWithDsc(item);
-      const prop = {
-        title: titleWithDsc,
-        className: "overlay",
-        style: linkStyle,
-        onClick(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
-          if (isEditable) {
-            setEdit(item.id);
-            e.preventDefault();
-          } else if (!item.url) {
-            e.preventDefault();
-            if (item.id) state.verify(item.id);
-          } else if (item.prompt && !item.password) {
-            if (!confirm(item.prompt)) {
-              e.preventDefault();
-            }
-          }
-        },
-      };
-      <a
-        href={item.url || ""}
-        title={titleWithDsc}
-        target="_blank"
-        className="overlay"
-        onClick={(e) => {
-          if (isEditable) {
-            setEdit(item.id);
-            e.preventDefault();
-          }
-        }}
-      >
-        <BannerInner image={item.Image || item.image} alt={titleWithDsc} />
-      </a>;
-      function Inner() {
-        const title = item.title || item.key;
-        return (
-          <>
-            {banner ? (
-              <BannerInner
-                image={item.Image || item.image}
-                title={title || titleWithDsc}
-                alt={titleWithDsc}
-              />
-            ) : (
-              title
-            )}
-          </>
-        );
-      }
-
-      return item.url?.startsWith("/") ? (
-        <Link to={item.url} {...prop}>
-          <Inner />
-        </Link>
-      ) : (
-        <a href={item.url || ""} target="_blank" {...prop}>
-          <Inner />
-        </a>
-      );
-    },
-    [isEditable, banner, linkStyle, state]
-  );
   const visible = useMemo(() => isLogin || links.length > 0, [isLogin, links]);
   const inner = (
     <>
       {editable && isLogin ? (
         <LinksEditButtons
           indexedDB={indexedDB}
-          setEdit={setEdit}
           album={album}
           move={move}
           setMove={setMove}
           dropdown={dropdown}
-          dir={dir}
+          state={state}
         />
       ) : null}
       <ul className={ulClassName}>
         {move ? (
           <Movable
             items={links}
-            Inner={LinkInner}
+            Inner={({ item }: { item: SiteLink }) => (
+              <LinksInner
+                item={item}
+                state={state}
+                banner={banner}
+                style={linkStyle}
+              />
+            )}
             submit={move === 2}
             onSubmit={(items) => {
               const dirty = items
@@ -364,7 +377,7 @@ function LinksContainer({
                 });
               if (dirty.length > 0) {
                 toast.promise(
-                  customFetch(concatOriginUrl(apiOrigin, sendPath), {
+                  customFetch(concatOriginUrl(apiOrigin, send), {
                     data: dirty,
                     method: "POST",
                     cors: true,
@@ -385,7 +398,12 @@ function LinksContainer({
           <>
             {links?.map((v, i) => (
               <li key={i}>
-                <LinkInner item={v} />
+                <LinksInner
+                  item={v}
+                  state={state}
+                  banner={banner}
+                  style={linkStyle}
+                />
               </li>
             ))}
           </>
@@ -397,13 +415,11 @@ function LinksContainer({
     <>
       {visible ? (
         <div className={className} {...props}>
-          {edit && indexedDB ? (
+          {indexedDB ? (
             <LinksEdit
               state={state}
               indexedDB={indexedDB}
-              send={sendPath}
-              edit={edit}
-              setEdit={setEdit}
+              send={send}
               album={album}
               category={category}
               defaultCategories={defaultCategories}
@@ -454,7 +470,6 @@ export function FavoriteLinks(props: MeeLinksProps) {
   return (
     <LinksContainer
       title="Favorite Site"
-      dir="/fav"
       state={useFavLinks()}
       indexedDB={favLinksDataIndexed}
       dropdown={

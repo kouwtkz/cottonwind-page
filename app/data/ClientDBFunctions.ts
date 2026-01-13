@@ -8,6 +8,7 @@ import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";
 import type { SendLinksDir } from "~/page/edit/LinksEdit";
+import { linksDataOptions } from "./DataEnv";
 
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
@@ -304,11 +305,11 @@ export async function ImportBlogPostJson({
 }
 
 interface ImportLinksJsonProps extends DataUploadBaseProps {
-  dir?: SendLinksDir;
+  src?: string;
 }
 export async function ImportLinksJson({
   partition,
-  dir = "",
+  src,
   json,
 }: ImportLinksJsonProps = {}) {
   return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
@@ -317,8 +318,9 @@ export async function ImportLinksJson({
     const { data: _data, ..._entry } = json as dataBaseType<SiteLinkData>;
     object = _entry;
     data = _data ? _data : [];
+    if (!src) src = linksDataOptions.src;
     const fetchList = makeImportFetchList({
-      src: `/links${dir}/import`,
+      src: `${src}/import`,
       partition,
       data,
       object,

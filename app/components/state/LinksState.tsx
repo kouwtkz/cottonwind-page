@@ -32,6 +32,7 @@ export interface LinksStateType {
   linksMap?: LinksMapType;
   linksCategoryMap?: LinksCategoryMapType;
   linksData?: MeeIndexedDBTable<SiteLink>;
+  options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>;
   verify(id: string | number): void;
 }
 
@@ -40,6 +41,7 @@ function createLinksState(
   options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>
 ): LinksStateType {
   return {
+    options,
     verify(id: string | number) {
       const verifyPath = GetAPIFromOptions(options, "/verify");
       set(({ linksMap }) => {

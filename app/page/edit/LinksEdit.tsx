@@ -8,14 +8,14 @@ import {
   useState,
 } from "react";
 import { Modal } from "~/components/layout/Modal";
-import { CreateState } from "~/components/state/CreateState";
+import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import {
   ImagesUploadWithToast,
   useImageEditSwitchHold,
   useNoUploadThumbnail,
   useUploadWebp,
 } from "~/components/layout/edit/ImageEditForm";
-import { BannerInner, myBannerName, useLinksEditMode } from "../LinksPage";
+import { BannerInner, myBannerName } from "../LinksPage";
 import { fileDialog } from "~/components/utils/FileTool";
 import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
 import { ImportLinksJson } from "~/data/ClientDBFunctions";
@@ -65,29 +65,43 @@ type fileIndexedDBType = IndexedDataLastmodMH<
   MeeIndexedDBTable<FilesRecordType>
 >;
 
-export type editLinksType = number | boolean | undefined;
-export type setEditLinksType = (v: editLinksType) => void;
+export type editLinksType = number | boolean;
+export type setEditLinksType = (v: [string, editLinksType]) => void;
+
+export const useLinksEditMode = CreateState(false);
+export const useLinksEdit = CreateObjectState<{
+  src?: string;
+  edit?: editLinksType;
+}>();
 
 interface LinksEditProps {
   state: LinksStateType;
   indexedDB: LinksIndexedDBType;
   send: string;
   edit?: number | boolean;
-  setEdit: setEditLinksType;
   album: string;
   category?: string | null;
   defaultCategories?: string[];
 }
-export function LinksEdit({
+export function LinksEdit(args: LinksEditProps) {
+  const { edit, src } = useLinksEdit();
+  return (
+    <>
+      {edit && args.state.options.src === src ? (
+        <LinksEditMain {...args} />
+      ) : null}
+    </>
+  );
+}
+function LinksEditMain({
   state: linksState,
   indexedDB,
   send,
-  edit,
-  setEdit,
   album,
   category,
   defaultCategories,
 }: LinksEditProps) {
+  const { edit, Set } = useLinksEdit();
   const { links, linksMap } = linksState;
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
@@ -160,7 +174,7 @@ export function LinksEdit({
         cors: true,
       }).then(() => {
         indexedDB.load("no-cache");
-        setEdit(false);
+        Set({ edit: false });
       }),
       {
         pending: "送信中",
@@ -178,7 +192,7 @@ export function LinksEdit({
   );
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
-      setEdit(false);
+      Set({ edit: false });
     }
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
@@ -298,7 +312,7 @@ export function LinksEdit({
                 }).then(() => {
                   toast.success("削除しました");
                   indexedDB.load("no-cache");
-                  setEdit(false);
+                  Set({ edit: false });
                 });
               }
             }}
@@ -415,15 +429,13 @@ export type SendLinksDir = "" | "/fav";
 
 interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   album?: string;
-  setEdit?: setEditLinksType;
   dropdown?: ReactNode;
   indexedDB?: LinksIndexedDBType;
   move?: editMoveLinkType;
   setMove?: setEditMoveLinkType;
-  dir?: SendLinksDir;
+  state?: WithSet<LinksStateType>;
 }
 export function LinksEditButtons({
-  setEdit,
   album = "",
   dropdown,
   children,
@@ -431,9 +443,10 @@ export function LinksEditButtons({
   indexedDB,
   move,
   setMove,
-  dir,
+  state,
   ...props
 }: LinksEditButtonsProps) {
+  const { Set } = useLinksEdit();
   className = useMemo(() => {
     const list = ["icons edit"];
     if (className) list.push(className);
@@ -488,23 +501,27 @@ export function LinksEditButtons({
                 dropItemList: "flex column font-small",
               }}
             >
-              <ObjectIndexedDBDownloadButton
-                className="squared item"
-                indexedDB={indexedDB}
-              >
-                JSONデータのダウンロード
-              </ObjectIndexedDBDownloadButton>
-              <ObjectCommonButton
-                icon={<TbDatabaseImport />}
-                className="squared item"
-                onClick={() => {
-                  ImportLinksJson({ dir }).then(() => {
-                    indexedDB.load("no-cache-reload");
-                  });
-                }}
-              >
-                JSONデータのインポート
-              </ObjectCommonButton>
+              {state ? (
+                <>
+                  <ObjectIndexedDBDownloadButton
+                    className="squared item"
+                    indexedDB={indexedDB}
+                  >
+                    JSONデータのダウンロード
+                  </ObjectIndexedDBDownloadButton>
+                  <ObjectCommonButton
+                    icon={<TbDatabaseImport />}
+                    className="squared item"
+                    onClick={() => {
+                      ImportLinksJson({ src: state.options.src }).then(() => {
+                        indexedDB.load("no-cache-reload");
+                      });
+                    }}
+                  >
+                    JSONデータのインポート
+                  </ObjectCommonButton>
+                </>
+              ) : null}
               <ShowLinksGalleryButton />
               {dropdown}
             </DropdownButton>
@@ -519,10 +536,10 @@ export function LinksEditButtons({
           >
             <AiFillEdit />
           </ModeSwitch>
-          {setEdit ? (
+          {state ? (
             <AddButton
               onClick={() => {
-                setEdit(true);
+                Set({ src: state.options.src, edit: true });
               }}
             />
           ) : null}
