@@ -38,7 +38,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
               ? new URL(concatOriginUrl(mediaOrigin, imageItem.src))
               : null;
             if (srcUrl) {
-              if (typeof imageItem.version === "number") {
+              if (imageItem.version && imageItem.version > 1) {
                 srcUrl.searchParams.set("v", imageItem.version.toString());
               }
               n.attribs.src = srcUrl.href;
