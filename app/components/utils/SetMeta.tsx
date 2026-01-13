@@ -22,7 +22,10 @@ export interface SetRootProps {
   apiOrigin?: string;
   mediaOrigin?: string;
   noIndex?: boolean;
-  noai?: boolean;
+  noFollow?: boolean;
+  noSnippet?: boolean;
+  noAI?: boolean;
+  noImageAI?: boolean;
   isLogin?: boolean;
   isBot?: boolean;
   card?: "summary" | "summary_large_image" | "app" | "player";
@@ -120,7 +123,10 @@ export function SetMetaDefault({
   charaList,
   root,
   noIndex,
-  noai = true,
+  noFollow,
+  noSnippet,
+  noAI = true,
+  noImageAI = true,
   card = "summary_large_image",
   location,
 }: SetRootProps = {}): MetaValuesType[] {
@@ -168,8 +174,14 @@ export function SetMetaDefault({
     list.push({ name: "og:keywords", content: env.ALTERNATE });
   if (Url) list.push({ name: "og:url", content: Url.href });
   if (card) list.push({ name: "twitter:card", content: card });
-  if (noIndex) list.push({ name: "robots", content: "noindex" });
-  if (noai) list.push({ name: "robots", content: "noai, noimageai" });
+  const robots: string[] = [];
+  if (noIndex) robots.push("noindex");
+  if (noFollow) robots.push("nofollow");
+  if (noSnippet) robots.push("nosnippet");
+  if (noAI) robots.push("noai");
+  if (noImageAI) robots.push("noimageai");
+  if (robots.length > 0)
+    list.push({ name: "robots", content: robots.join(", ") });
   return list;
 }
 
