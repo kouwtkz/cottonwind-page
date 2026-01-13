@@ -226,6 +226,7 @@ function LinksEditMain({
           image={item ? item.Image || item.image : null}
           album={album}
           link={item?.url}
+          setImageLink={!Boolean(item?.password) && item?.category !== "secret"}
           onUploadedImage={(data) => {
             customFetch(concatOriginUrl(apiOrigin, send), {
               data: {
@@ -338,6 +339,7 @@ export function SetLinksImage({
   link,
   onUploadedImage,
   innerNoButton,
+  setImageLink,
 }: {
   album?: string;
   image?: ImageType | string | null;
@@ -345,12 +347,18 @@ export function SetLinksImage({
   onSelected?: Function;
   onUploadedImage?(data: ImageDataType): void;
   innerNoButton?: boolean;
+  setImageLink?: boolean;
 }) {
   const ID = "links";
   const { open, id, image: selectedImage } = useSelectImageState();
   useEffect(() => {
     if (selectedImage && ID === id && link) {
-      if (image && typeof image === "object" && selectedImage.link !== link) {
+      if (
+        setImageLink &&
+        image &&
+        typeof image === "object" &&
+        selectedImage.link !== link
+      ) {
         (async () =>
           image.link
             ? customFetch(concatOriginUrl(apiOrigin, IMAGE_SEND_API), {
@@ -371,7 +379,7 @@ export function SetLinksImage({
           });
       }
     }
-  }, [selectedImage, id, link, image]);
+  }, [setImageLink, selectedImage, id, link, image]);
   return (
     <div className="setterImage">
       <button
