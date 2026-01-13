@@ -1,5 +1,6 @@
 interface SiteLinkData {
   id?: number;
+  key?: string;
   url?: string | null;
   title?: string | null;
   description?: string | null;

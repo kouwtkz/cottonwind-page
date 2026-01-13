@@ -13,10 +13,12 @@ export type LinksIndexedDBType = IndexedDataLastmodMH<
   SiteLinkData,
   MeeIndexedDBTable<SiteLink>
 >;
-export type LinksMapType = Map<string, SiteLink[]>;
+export type LinksMapType = Map<string, SiteLink>;
+export type LinksCategoryMapType = Map<string, SiteLink[]>;
 export interface LinksStateType {
   links?: SiteLink[];
   linksMap?: LinksMapType;
+  linksCategoryMap?: LinksCategoryMapType;
   linksData?: MeeIndexedDBTable<SiteLink>;
 }
 export const useLinks = CreateObjectState<LinksStateType>({});
@@ -40,9 +42,11 @@ async function callSetLinks({
         return data;
       });
   });
-  const linksMap = links
-    .filter((v) => v.url || v.title || v.image)
-    .reduce<LinksMapType>((a, c) => {
+  const linksMap: LinksMapType = new Map();
+  const linksCategoryMap = links
+    .filter((v) => v.key || v.url || v.title || v.image)
+    .reduce<LinksCategoryMapType>((a, c) => {
+      if (c.key) linksMap.set(c.key, c);
       const category = c.category || "";
       if (a.has(category)) a.get(category)!.push(c);
       else a.set(category, [c]);
@@ -52,6 +56,7 @@ async function callSetLinks({
     linksData,
     links,
     linksMap,
+    linksCategoryMap,
   };
 }
 export function LinksState() {

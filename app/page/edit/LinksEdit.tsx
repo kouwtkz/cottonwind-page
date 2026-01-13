@@ -65,10 +65,6 @@ type fileIndexedDBType = IndexedDataLastmodMH<
   MeeIndexedDBTable<FilesRecordType>
 >;
 
-const schema = z.object({
-  title: z.string().min(1, { message: "サイト名を入力してください" }),
-});
-
 export type editLinksType = number | boolean | undefined;
 export type setEditLinksType = (v: editLinksType) => void;
 
@@ -92,7 +88,7 @@ export function LinksEdit({
   category,
   defaultCategories,
 }: LinksEditProps) {
-  const { links } = linksState;
+  const { links, linksMap } = linksState;
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
     let item: SiteLink | undefined;
@@ -117,15 +113,26 @@ export function LinksEdit({
     formState: { isDirty, dirtyFields, errors },
   } = useForm<any>({
     defaultValues: {
-      title: item?.title,
-      description: item?.description,
-      url: item?.url,
-      category: item?.category ?? category,
+      key: item?.key || "",
+      title: item?.title || "",
+      description: item?.description || "",
+      url: item?.url || "",
+      category: item?.category || category,
       draft: item?.draft ?? null,
-      prompt: item?.prompt,
-      password: item?.password,
+      prompt: item?.prompt || "",
+      password: item?.password || "",
     },
-    resolver: zodResolver(schema),
+    resolver: zodResolver(
+      z.object({
+        key: z
+          .string()
+          .min(1, { message: "リンクIDを入力してください" })
+          .refine(
+            (v) => v === item?.key || (linksMap ? !linksMap.has(v) : true),
+            { message: "リンクIDが重複してます" }
+          ),
+      })
+    ),
   });
   useEffect(() => {
     Object.values(errors).forEach((error) => {
@@ -227,6 +234,7 @@ export function LinksEdit({
               });
           }}
         />
+        <input title="リンクID" placeholder="リンクID" {...register("key")} />
         <input title="サイト名" placeholder="サイト名" {...register("title")} />
         <textarea
           title="サイトの説明文"

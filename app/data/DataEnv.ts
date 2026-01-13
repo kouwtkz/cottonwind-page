@@ -86,27 +86,23 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
   name: linksDataName,
   src: "/links",
   api: "/links",
-  version: "1.1.0",
+  version: "1.2.1",
   preLoad: false,
   jsonFromDataOptions: linksJsonFromDataOptions,
   primary: "id",
-  secondary: ["lastmod", "category"],
-  convert: { date: ["lastmod"], boolean: ["draft"] }
+  secondary: ["lastmod", "category", "key"],
+  convert: { date: ["lastmod"], boolean: ["draft"] },
+  insertEntryKeys: ["url", "key", "title", "description", "image", "category", "order", "draft", "prompt", "password"],
+  insertEntryTimes: ["lastmod"]
 }
 
 const linksFavDataName = "linksFav";
 export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
+  ...linksDataOptions,
   name: linksFavDataName,
   src: "/links/fav",
   api: "/links/fav",
-  version: "1.0.3",
-  preLoad: false,
   oldServerKeys: ["favorite_links"],
-  jsonFromDataOptions: linksJsonFromDataOptions,
-  primary: "id",
-  secondary: ["lastmod", "category"],
-  convert: { date: ["lastmod"], boolean: ["draft"] }
-
 }
 
 const likeDataName = "likeData";

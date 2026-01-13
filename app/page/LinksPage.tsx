@@ -62,23 +62,18 @@ if (ATProtocolEnv.getBlog)
 
 export default function LinksPage() {
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
+  const isLogin = useIsLogin()[0];
+  const linkat = ATProtocolEnv.setLinkat;
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>
-      {ATProtocolEnv.setLinkat ? (
-        <>
-          <Linkat />
-          <MeeLinks title="Top Link" category="top" banner fold />
-          <MeeLinks title="Commission" category="commission" banner fold open />
-          <MeeLinks title="Archive" category={null} banner fold />
-        </>
-      ) : (
-        <>
-          <MeeLinks title="Top Link" category="top" banner fold open />
-          <MeeLinks title="My Link" category={null} banner fold open />
-          <MeeLinks title="Commission" category="commission" banner fold open />
-        </>
-      )}
+      {linkat ? <Linkat /> : null}
+      <MeeLinks title="Top Link" category="top" banner fold open={!linkat} />
+      <MeeLinks title="My Link" category={null} banner fold open={!linkat} />
+      <MeeLinks title="Commission" category="commission" banner fold open />
+      {isLogin ? (
+        <MeeLinks title="Secret" category="secret" banner fold />
+      ) : null}
       <div>
         <h3 className="color-main en-title-font">Others</h3>
         <ul className="flex center column font-larger">
@@ -304,9 +299,9 @@ function LinksContainer({
                   .then((url) => {
                     toast.success("認証に成功しました", { autoClose: 1500 });
                     item.url = url;
-                    state.Set(({ links, linksMap }) => ({
+                    state.Set(({ links, linksCategoryMap }) => ({
                       links: links?.concat(),
-                      linksMap: new Map(linksMap),
+                      linksCategoryMap: new Map(linksCategoryMap),
                     }));
                   })
                   .catch((e) => {
@@ -336,16 +331,17 @@ function LinksContainer({
         <BannerInner image={item.Image || item.image} alt={titleWithDsc} />
       </a>;
       function Inner() {
+        const title = item.title || item.key;
         return (
           <>
             {banner ? (
               <BannerInner
                 image={item.Image || item.image}
-                title={item.title || titleWithDsc}
+                title={title || titleWithDsc}
                 alt={titleWithDsc}
               />
             ) : (
-              item.title
+              title
             )}
           </>
         );
@@ -474,7 +470,7 @@ export function MeeLinks(props: MeeLinksProps) {
         <LinksContainer
           state={state}
           indexedDB={linksDataIndexed}
-          defaultCategories={["top", "commission"]}
+          defaultCategories={["top", "commission", "secret"]}
           {...props}
         />
       ) : null}
@@ -503,7 +499,10 @@ export function FavoriteLinks(props: MeeLinksProps) {
 }
 
 export function getTitleWithDsc(item: SiteLink) {
-  return item.title + (item.description ? " - " + item.description : "");
+  return (
+    (item.title || item.key) +
+    (item.description ? " - " + item.description : "")
+  );
 }
 
 export function BannerInner({

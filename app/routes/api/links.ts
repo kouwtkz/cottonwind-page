@@ -2,7 +2,7 @@ import { LoginCheck } from "~/components/utils/Admin";
 import { lastModToUniqueNow } from "~/components/functions/doc/ToFunction";
 import { DBTableClass, type DBTableClassTemplateProps } from "./DBTableClass";
 import { TablesDataObject, UpdateTablesDataObject } from "./DBTablesObject";
-import { linksDataOptions } from "~/data/DataEnv";
+import { linksDataOptions as ThisOptions } from "~/data/DataEnv";
 import type { GetDataProps } from "./propsDef";
 import type { RouteBasePropsWithEnvProps } from "~/components/utils/RoutesUtils";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
@@ -16,6 +16,7 @@ export class SiteLinkServerClass {
   static template: DBTableClassTemplateProps<SiteLinkData> = {
     createEntry: {
       id: { primary: true },
+      key: { type: "TEXT" },
       url: { type: "TEXT" },
       title: { type: "TEXT" },
       description: { type: "TEXT" },
@@ -27,8 +28,8 @@ export class SiteLinkServerClass {
       password: { type: "TEXT" },
       lastmod: { createAt: true, unique: true },
     },
-    insertEntryKeys: ["url", "title", "description", "image", "category", "order", "draft", "prompt", "password"],
-    insertEntryTimes: ["lastmod"]
+    insertEntryKeys: ThisOptions.insertEntryKeys,
+    insertEntryTimes: ThisOptions.insertEntryTimes
   };
   object: DBTableClass<SiteLinkData>;
   album?: string;
@@ -41,6 +42,32 @@ export class SiteLinkServerClass {
     });
     this.options = options;
     this.album = album;
+  }
+  static autoSetLinkKey(links: SiteLinkData | SiteLinkData[]) {
+    const list = Array.isArray(links) ? links : [links];
+    const map = new Map<string, void>();
+    list.forEach(v => {
+      if (!v.key && v.url) {
+        let Url: URL | undefined;
+        if (v.url) {
+          try {
+            Url = new URL(v.url);
+          } catch { }
+          if (Url) {
+            let handle = Url.hostname.replace(/\.?[^\.]+$/, "").replace(/^www\./, "");
+            if (!handle) handle = Url.hostname;
+            if (map.has(handle)) handle += Url.pathname;
+            v.key = handle;
+          }
+        }
+        if (!Url) {
+          if (v.url) v.key = v.url;
+          else if (v.title) v.key = v.title;
+        }
+        if (v.key) map.set(v.key);
+      }
+    })
+    return list;
   }
   async getData({ searchParams, db, isLogin }: GetDataProps) {
     const ThisObject = this.object;
@@ -66,7 +93,7 @@ export class SiteLinkServerClass {
         }));
     }
     return Select().catch(() => ThisObject.CreateTable({ db })
-      .then(() => UpdateTablesDataObject({ db, options: linksDataOptions }))
+      .then(() => UpdateTablesDataObject({ db, options: ThisOptions }))
       .then(() => Select()));
   }
   async verify(props: Route.ActionArgs) {
@@ -109,6 +136,7 @@ export class SiteLinkServerClass {
                     await TableObject.Update({ db, entry, take: 1, where: { id } });
                     return { type: "update", entry: { ...target, ...entry } };
                   } else {
+                    SiteLinkServerClass.autoSetLinkKey(entry);
                     await TableObject.Insert({ db, entry });
                     return { type: "create", entry }
                   }
@@ -143,13 +171,14 @@ export class SiteLinkServerClass {
           const db = getCfDB({ context });
           if (db) {
             const lastmod = new Date().toISOString();
-            const object = await request.json() as importEntryDataType<CharacterDataType>;
+            const object = await request.json() as importEntryDataType<SiteLinkData>;
             if (object.data) {
               if (object.overwrite && object.first) {
                 await TableObject.Drop({ db });
                 await TableObject.CreateTable({ db });
               }
               const list = object.data;
+              SiteLinkServerClass.autoSetLinkKey(list);
               if (Array.isArray(list)) {
                 lastModToUniqueNow(list as KeyValueType<any>);
                 for (const item of list) {
@@ -176,7 +205,7 @@ export class SiteLinkServerClass {
   }
 }
 
-export const SiteLinkServer = new SiteLinkServerClass(linksDataOptions);
+export const SiteLinkServer = new SiteLinkServerClass(ThisOptions);
 export async function action(props: Route.ActionArgs) {
   if (props.params.action === "verify") return SiteLinkServer.verify.bind(SiteLinkServer)(props);
   else return LoginCheck({ ...props, next: SiteLinkServer.next.bind(SiteLinkServer), trueWhenDev: true });
