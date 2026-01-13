@@ -23,7 +23,8 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
     ({ linkPush, n }: MultiParserReplaceProps) => {
       if (imagesMap && linkPush && n.type === "tag" && n.name === "img") {
         let src = n.attribs.src;
-        const Url = new URL(location.href);
+        const baseHref = location.href;
+        const Url = new URL(baseHref);
         const srcSearchParams = new URLSearchParams(src);
         srcSearchParams.forEach((v, k) => {
           Url.searchParams.append(k, v);
@@ -35,7 +36,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
           const imageItem = imageKey ? imagesMap.get(imageKey) : null;
           if (imageItem) {
             const srcUrl = imageItem.src
-              ? new URL(concatOriginUrl(mediaOrigin, imageItem.src))
+              ? new URL(concatOriginUrl(mediaOrigin, imageItem.src), baseHref)
               : null;
             if (srcUrl) {
               if (imageItem.version && imageItem.version > 1) {
