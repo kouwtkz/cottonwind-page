@@ -241,8 +241,8 @@ export function BlueskyFeed() {
                       <div>
                         {post.record.text
                           .split("\n")
-                          .reduce<Array<React.ReactNode>>((a, c) => {
-                            if (a.length > 0) a.push(<br />);
+                          .reduce<Array<React.ReactNode>>((a, c, i) => {
+                            if (a.length > 0) a.push(<br key={`br_${i}`} />);
                             a.push(c);
                             return a;
                           }, [])}
