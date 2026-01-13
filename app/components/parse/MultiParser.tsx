@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   createSearchParams,
   useNavigate,
@@ -29,17 +35,17 @@ export interface MultiParserOptions {
 }
 export interface MultiParserProps
   extends MultiParserOptions,
-    HTMLReactParserOptions {
+    HTMLReactParserOptions,
+    React.HTMLAttributes<HTMLElement> {
   only?: MultiParserOptions;
-  className?: string;
   detailsOpen?: boolean;
   tag?: string;
-  children?: React.ReactNode;
   parsedClassName?: string;
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
   onRender?: (elm: HTMLElement) => void;
+  ref?: React.Ref<HTMLElement>;
 }
 
 export interface MultiParserReplaceProps {
@@ -152,9 +158,13 @@ export function MultiParser({
   preventScrollResetSearches,
   onRender,
   children,
+  ref,
+  hidden,
+  ...props
 }: MultiParserProps) {
+  const inRef = useRef<HTMLElement>(null);
+  useImperativeHandle(ref, () => inRef.current!);
   const nav = useNavigate();
-  const ref = useRef<HTMLElement>(null);
   const existCode = useRef(false);
   if (only) {
     markdown = only.markdown ?? false;
@@ -167,7 +177,7 @@ export function MultiParser({
   useEffect(() => {
     if (existCode.current) {
       (
-        ref.current?.querySelectorAll(
+        inRef.current?.querySelectorAll(
           `code[parsed]:not([data-highlighted])`
         ) as NodeListOf<HTMLElement>
       ).forEach((el) => {
@@ -176,7 +186,7 @@ export function MultiParser({
       existCode.current = false;
     }
     if (useEffectFunction) useEffectFunction();
-    if (onRender) onRender(ref.current!);
+    if (onRender) onRender(inRef.current!);
   }, [children]);
   let { text: childString, list } = useMemo(() => {
     let text = typeof children === "string" ? children : "";
@@ -232,7 +242,7 @@ export function MultiParser({
 
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   let parsedChildren = useMemo((): React.ReactNode => {
-    if (childString && toDom) {
+    if (!hidden && childString && toDom) {
       return HTMLReactParser(childString, {
         ...ReactParserArgs,
         replace: (v) => {
@@ -354,7 +364,11 @@ export function MultiParser({
                   }
                   if (widget && v.type === "tag" && v.name !== "blockquote") {
                     v.children.forEach((c, i) => {
-                      if (c.type === "tag" && c.name === "a" && c.attribs.href.startsWith("https://")) {
+                      if (
+                        c.type === "tag" &&
+                        c.name === "a" &&
+                        c.attribs.href.startsWith("https://")
+                      ) {
                         const Url = new URL(c.attribs.href);
                         if (Url.hostname === "x.com") {
                           Url.hostname = "twitter.com";
@@ -392,6 +406,7 @@ export function MultiParser({
       });
     } else return children;
   }, [
+    hidden,
     children,
     childString,
     toDom,
@@ -431,8 +446,12 @@ export function MultiParser({
       const script = document.createElement("script");
       script.async = true;
       script.src = "https://platform.twitter.com/widgets.js";
-      ref.current?.appendChild(script);
+      inRef.current?.appendChild(script);
     }
   }, [isTwitterWidget]);
-  return React.createElement(tag, { className, ref }, parsedChildren);
+  return React.createElement(
+    tag,
+    { className, ref: inRef, hidden, ...props },
+    parsedChildren
+  );
 }

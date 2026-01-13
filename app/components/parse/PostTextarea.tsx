@@ -24,11 +24,18 @@ type PreviewModeStateType = PreviewModeType & {
   togglePreviewMode: (body?: string) => void;
 };
 
+export type PostTextareaPreviewMode =
+  | boolean
+  | "true"
+  | "false"
+  | "both"
+  | "details";
 interface PostTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   registed?: SetRegisterReturn;
-  mode?: boolean | "true" | "false" | "both";
+  mode?: PostTextareaPreviewMode;
   body?: string;
+  open?: boolean;
 }
 export function PostTextarea({
   registed,
@@ -39,14 +46,18 @@ export function PostTextarea({
   className,
   mode: previewMode = false,
   body: previewBody,
+  contentEditable = true,
+  open,
   ...props
 }: PostTextareaProps) {
   className = useMemo(() => {
     const divClassNames = ["postTextarea"];
+    if (previewMode === "details") divClassNames.push("details");
+    else if (previewMode === "both") divClassNames.push("both");
     if (className) divClassNames.push(className);
     return divClassNames.join(" ");
-  }, [className]);
-  const previewRef = useRef<HTMLDivElement>(null);
+  }, [className, previewMode]);
+  const previewRef = useRef<HTMLElement>(null);
   const previewClassName = useMemo(() => {
     const classNames: string[] = ["preview-area"];
     return classNames.join(" ");
@@ -58,9 +69,19 @@ export function PostTextarea({
   }, [previewMode]);
   const hiddenParsed = useMemo(() => {
     return typeof previewMode === "string"
-      ? previewMode !== "true" && previewMode !== "both"
+      ? previewMode === "false"
       : !previewMode;
   }, [previewMode]);
+  const multiParser = (
+    <MultiParser
+      ref={previewRef}
+      className={previewClassName}
+      hidden={hiddenParsed}
+    >
+      {previewBody}
+    </MultiParser>
+  );
+
   return (
     <div className={className}>
       <textarea
@@ -72,15 +93,20 @@ export function PostTextarea({
         {...props}
         {...registed}
       />
-      <div ref={previewRef} hidden={hiddenParsed} className={previewClassName}>
-        {hiddenParsed ? null : <MultiParser>{previewBody}</MultiParser>}
-      </div>
+      {previewMode === "details" ? (
+        <details open={open}>
+          <summary>プレビュー</summary>
+          {multiParser}
+        </details>
+      ) : (
+        multiParser
+      )}
     </div>
   );
 }
 
 interface TextareaWithPreviewProps<
-  TFieldValues extends FieldValues = FieldValues
+  TFieldValues extends FieldValues = FieldValues,
 > {
   name: FieldPath<TFieldValues>;
   title?: string;
@@ -90,7 +116,7 @@ interface TextareaWithPreviewProps<
   register: UseFormRegister<TFieldValues>;
 }
 export function TextareaWithPreview<
-  TFieldValues extends FieldValues = FieldValues
+  TFieldValues extends FieldValues = FieldValues,
 >({
   name,
   title,

@@ -581,7 +581,7 @@ export function PostForm() {
           id="post_body_area"
           placeholder="ブログの本文"
           className="body"
-          mode={"both"}
+          mode="details"
           body={watch("body")}
         />
         <div className="action">
@@ -591,7 +591,7 @@ export function PostForm() {
             disabled={!isDirty}
             onClick={(e) => {
               e.preventDefault();
-              reset(values);
+              if (confirm("本当にリセットしますか？")) reset(values);
             }}
           >
             リセット
