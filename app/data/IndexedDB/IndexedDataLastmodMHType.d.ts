@@ -10,6 +10,7 @@ interface Props_LastmodMHClass_Options<T, D = T> extends Props_LastmodMH_TableVe
   scheduleEnable?: boolean;
   jsonFromDataOptions?: JsonFromDataObjectOptionFields<keyof D>;
   convert?: DataConvertListType<D>;
+  createEntry?: MeeSqlCreateTableEntryType<D>;
   insertEntryKeys?: (keyof D)[];
   insertEntryTimes?: (keyof D)[];
 }

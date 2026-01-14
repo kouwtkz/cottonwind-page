@@ -8,40 +8,12 @@ import type { RouteBasePropsWithEnvProps } from "~/components/utils/RoutesUtils"
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/links";
 
-interface SiteLinkServerClassProps extends Props_LastmodMHClass_Options<SiteLink, SiteLinkData> {
-  table?: string;
-  album?: string;
-}
 export class SiteLinkServerClass {
-  static template: DBTableClassTemplateProps<SiteLinkData> = {
-    createEntry: {
-      id: { primary: true },
-      key: { type: "TEXT" },
-      url: { type: "TEXT" },
-      title: { type: "TEXT" },
-      description: { type: "TEXT" },
-      image: { type: "TEXT" },
-      category: { type: "TEXT" },
-      draft: { type: "INTEGER" },
-      order: { type: "INTEGER" },
-      prompt: { type: "TEXT" },
-      password: { type: "TEXT" },
-      lastmod: { createAt: true, unique: true },
-    },
-    insertEntryKeys: ThisOptions.insertEntryKeys,
-    insertEntryTimes: ThisOptions.insertEntryTimes
-  };
-  object: DBTableClass<SiteLinkData>;
-  album?: string;
+  object: DBTableClass<SiteLink, SiteLinkData>;
   options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>;
-  constructor({ table, album, ...options }: SiteLinkServerClassProps) {
-    if (!table) table = options.name;
-    this.object = new DBTableClass({
-      table,
-      ...SiteLinkServerClass.template
-    });
-    this.options = options;
-    this.album = album;
+  constructor(props: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>) {
+    this.options = props;
+    this.object = new DBTableClass(props);
   }
   static autoSetLinkKey(links: SiteLinkData | SiteLinkData[]) {
     const list = Array.isArray(links) ? links : [links];

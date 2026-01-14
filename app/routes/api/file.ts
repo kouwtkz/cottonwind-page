@@ -9,19 +9,8 @@ import { getCfDB } from "~/data/cf/getEnv";
 import { sha256 } from "~/components/functions/crypto";
 import { getMimeType } from "~/components/utils/mime";
 
-const TableObject = new DBTableClass<FilesRecordDataType>({
-  table: filesDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    key: { type: "TEXT", unique: true, notNull: true },
-    src: { type: "TEXT" },
-    private: { type: "INTEGER" },
-    mtime: { type: "TEXT" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "src", "private"],
-  insertEntryTimes: ["mtime", "lastmod"]
-});
+const TableObject = new DBTableClass(filesDataOptions);
+
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });
 }

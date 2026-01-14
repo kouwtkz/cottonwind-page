@@ -11,38 +11,7 @@ import type { Route } from "./+types/image";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<ImageDataType>({
-  table: ImageDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    key: { type: "TEXT", unique: true, notNull: true },
-    title: { type: "TEXT" },
-    album: { type: "TEXT" },
-    description: { type: "TEXT" },
-    src: { type: "TEXT" },
-    thumbnail: { type: "TEXT" },
-    width: { type: "INTEGER" },
-    height: { type: "INTEGER" },
-    tags: { type: "TEXT" },
-    characters: { type: "TEXT" },
-    copyright: { type: "TEXT" },
-    link: { type: "TEXT" },
-    embed: { type: "TEXT" },
-    type: { type: "TEXT" },
-    order: { type: "INTEGER" },
-    topImage: { type: "INTEGER" },
-    pickup: { type: "INTEGER" },
-    position: { type: "TEXT" },
-    draft: { type: "INTEGER" },
-    time: { type: "TEXT", index: true },
-    mtime: { type: "TEXT" },
-    lastmod: { createAt: true, unique: true },
-    version: { type: "INTEGER" },
-  },
-  insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height",
-    "tags", "characters", "copyright", "link", "embed", "type", "order", "topImage", "pickup", "draft", "version"],
-  insertEntryTimes: ["time", "mtime", "lastmod"]
-});
+const TableObject = new DBTableClass(ImageDataOptions);
 export const ImageTableObject = TableObject;
 
 export async function action(props: Route.ActionArgs) {

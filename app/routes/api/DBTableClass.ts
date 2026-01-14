@@ -2,67 +2,65 @@ import { KeyValueConvertDBEntry } from "~/components/functions/doc/ToFunction";
 import { MeeSqlClass } from "~/data/functions/MeeSqlClass";
 import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
 
-export class DBTableClass<T extends Object = any> {
+export class DBTableClass<T extends Object = any, D extends Object = T> {
   table: string;
-  createEntry: MeeSqlCreateTableEntryType<T>;
+  createEntry?: MeeSqlCreateTableEntryType<D>;
   errorEnable?: boolean;
-  insertEntryKeys?: (keyof T)[];
-  insertEntryTimes?: (keyof T)[];
-  constructor({
-    table,
-    createEntry,
-    insertEntryKeys,
-    insertEntryTimes,
-  }: DBTableClassProps<T>) {
-    this.table = table;
-    this.createEntry = createEntry;
-    this.insertEntryKeys = insertEntryKeys;
-    this.insertEntryTimes = insertEntryTimes;
+  options?: Props_LastmodMHClass_Options<T, D>;
+  insertEntryKeys?: (keyof D)[];
+  insertEntryTimes?: (keyof D)[];
+  constructor(props: Props_LastmodMHClass_Options<T, D>) {
+    this.table = props.name;
+    this.options = props;
+    this.createEntry = props.createEntry;
+    this.insertEntryKeys = props.insertEntryKeys;
+    this.insertEntryTimes = props.insertEntryTimes;
   }
   async CreateTable<D extends MeeSqlClass<any>>({ db }: { db: D }) {
-    await db
-      .createTable({
-        table: this.table,
-        entry: this.createEntry,
-      })
-      .catch((e) => {
-        if (this.errorEnable) console.error(e);
-      });
+    if (this.createEntry)
+      await db
+        .createTable({
+          table: this.table,
+          entry: this.createEntry,
+        })
+        .catch((e) => {
+          if (this.errorEnable) console.error(e);
+        });
   }
-  async Select<D extends MeeSqlClass<any>>({
+  async Select<S extends MeeSqlClass<any>>({
     db,
     ...args
-  }: Omit<MeeSqlSelectProps<T>, "table"> & { db: D }) {
+  }: Omit<MeeSqlSelectProps<D>, "table"> & { db: S }) {
     const _s = () => {
-      return db.select<T>({ table: this.table, ...args });
+      return db.select({ table: this.table, ...args }) || [];
     };
     return _s().catch(() => this.CreateTable({ db }).then(() => _s()));
   }
-  async Update<D extends MeeSqlClass<any>>({
+  async Update<S extends MeeSqlClass<any>>({
     db,
     ...args
-  }: Omit<MeeSqlUpdateProps<T>, "table"> & { db: D }) {
-    return db.update<T>({ table: this.table, ...args });
+  }: Omit<MeeSqlUpdateProps<D>, "table"> & { db: S }) {
+    return db.update<D>({ table: this.table, ...args });
   }
-  async Insert<D extends MeeSqlClass<any>>({
+  async Insert<S extends MeeSqlClass<any>>({
     db,
     ...args
-  }: Omit<MeeSqlInsertProps<T>, "table"> & { db: D }) {
-    return db.insert<T>({ table: this.table, ...args });
+  }: Omit<MeeSqlInsertProps<D>, "table"> & { db: S }) {
+    return db.insert({ table: this.table, ...args });
   }
-  async Drop<D extends MeeSqlClass<any>>({
+  async Drop<S extends MeeSqlClass<any>>({
     db,
     viewSql,
-  }: Omit<MeeSqlBaseProps, "table"> & { db: D }) {
+  }: Omit<MeeSqlBaseProps, "table"> & { db: S }) {
     return db.dropTable({ table: this.table, viewSql }).catch(() => { });
   }
   async Rename<D extends MeeSqlClass<any>>({ db, from, table, viewSql }: Omit<MeeSqlBaseProps, "table"> & { db: D, from?: string, table: string }) {
     return db.renameTable({ from: from ?? this.table, table, viewSql }).catch(() => { });
   }
   getInsertEntry(
-    data: { [k in keyof T]?: any },
-    options?: getInsertEntryOptionsProps<T>
-  ): MeeSqlEntryType<T> {
+    data: { [k in keyof D]?: any },
+    options?: getInsertEntryOptionsProps<D>
+  ): MeeSqlEntryType<D> {
     const {
       keys = this.insertEntryKeys,
       times = this.insertEntryTimes,
@@ -78,18 +76,18 @@ export class DBTableClass<T extends Object = any> {
       });
     return Object.fromEntries(entries);
   }
-  async getTimeFieldLatest<D extends MeeSqlClass<any>>({
+  async getTimeFieldLatest<S extends MeeSqlClass = MeeSqlClass<any>>({
     db,
     field = "lastmod",
     value,
     ...args
-  }: getTimeFieldLatestProps<T, D>) {
+  }: getTimeFieldLatestProps<D, S>) {
     const time = new Date(value);
     const since = time.toISOString();
     time.setSeconds(time.getSeconds() + 1);
     const until = time.toISOString();
     return (
-      await this.Select({
+      await this.Select<S>({
         db,
         where: {
           AND: [{ [field]: { gte: since } }, { [field]: { lt: until } }] as any,
@@ -98,13 +96,13 @@ export class DBTableClass<T extends Object = any> {
         orderBy: { [field]: "desc" } as any,
         ...args,
       })
-    )[0] as T | undefined;
+    )[0];
   }
-  async getTimeFieldLatestAddTime<D extends MeeSqlClass<any>>({
+  async getTimeFieldLatestAddTime({
     field = "lastmod",
     value,
     ...args
-  }: getTimeFieldLatestProps<T, D>) {
+  }: getTimeFieldLatestProps<D>) {
     const latest: any = await this.getTimeFieldLatest({
       field,
       value,
@@ -116,14 +114,14 @@ export class DBTableClass<T extends Object = any> {
       return latestLastmod.toISOString();
     } else return value;
   }
-  async getClassifyScheduleValue<D extends MeeSqlClass<any>>({
+  async getClassifyScheduleValue({
     now = new Date().toISOString(),
     value,
     time,
     existTime,
     field = "lastmod",
     ...args
-  }: classifyScheduleEntryProps<T, D>) {
+  }: classifyScheduleEntryProps<D>) {
     if (time) {
       if (time > now) value = time;
       else value = now;
@@ -135,19 +133,17 @@ export class DBTableClass<T extends Object = any> {
     } else return;
   }
   get getFillNullEntry() {
-    return MeeSqlClass.fillNullEntry(this.createEntry);
+    return this.createEntry ? MeeSqlClass.fillNullEntry(this.createEntry) : {};
   }
 }
 
-export interface DBTableClassProps<T> {
-  table: string;
-  createEntry: MeeSqlCreateTableEntryType<T>;
-  insertEntryKeys?: (keyof T)[];
-  insertEntryTimes?: (keyof T)[];
+export interface DBTableClassProps<T, D> {
+  table?: string;
+  options: Props_LastmodMHClass_Options<T, D>;
 }
 
-export interface DBTableClassTemplateProps<T>
-  extends Omit<DBTableClassProps<T>, "table"> { }
+export interface DBTableClassTemplateProps<T, D = T>
+  extends Omit<DBTableClassProps<T, D>, "table"> { }
 
 interface getInsertEntryOptionsProps<T> {
   keys?: (keyof T)[];
@@ -155,37 +151,37 @@ interface getInsertEntryOptionsProps<T> {
   enableKVConvert?: boolean;
 }
 
-interface getTimeFieldLatestProps<T, D>
-  extends Omit<MeeSqlSelectProps<T>, "table" | "take" | "where" | "orderBy"> {
-  db: D;
+interface getTimeFieldLatestProps<D extends Object, S extends MeeSqlClass = MeeSqlClass<any>>
+  extends Omit<MeeSqlSelectProps<D>, "table" | "take" | "where" | "orderBy"> {
+  db: S;
   field?: string;
   value: string;
 }
 
-interface classifyScheduleEntryProps<T, D>
-  extends Omit<getTimeFieldLatestProps<T, D>, "value"> {
+interface classifyScheduleEntryProps<D extends Object, S extends MeeSqlClass = MeeSqlClass<any>>
+  extends Omit<getTimeFieldLatestProps<D, S>, "value"> {
   now?: string;
   value?: unknown;
   time?: string | null;
   existTime?: string | null;
 }
 
-interface DBTableImportProps<T extends Object> {
+interface DBTableImportProps<T extends Object, D extends Object = T> {
   db: MeeSqlD1;
   object: importEntryDataType<KeyValueType<unknown>>;
-  TableObject: DBTableClass<T>;
+  TableObject: DBTableClass<T, D>;
   kvConvertEntry?: boolean;
-  idKey?: keyof T;
+  idKey?: keyof D;
   lastmodKey?: string;
 }
-export async function DBTableImport<T extends Object>({
+export async function DBTableImport<T extends Object, D extends Object = T>({
   db,
   object,
   TableObject,
   kvConvertEntry,
   idKey: _idKey,
   lastmodKey: lastmod = "lastmod",
-}: DBTableImportProps<T>) {
+}: DBTableImportProps<T, D>) {
   const idKey = _idKey || "key";
   if (object.data) {
     if (object.overwrite && object.first) {

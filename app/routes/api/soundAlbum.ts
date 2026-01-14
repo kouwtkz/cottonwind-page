@@ -6,25 +6,7 @@ import type { Route } from "./+types/soundAlbum";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<SoundAlbumDataType>({
-  table: soundAlbumsDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    key: { type: "TEXT", unique: true, notNull: true },
-    title: { type: "TEXT" },
-    description: { type: "TEXT" },
-    cover: { type: "TEXT" },
-    artist: { type: "TEXT" },
-    order: { type: "TEXT" },
-    category: { type: "TEXT" },
-    setup: { type: "INTEGER" },
-    draft: { type: "INTEGER" },
-    time: { createAt: true, index: true },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "title", "description", "cover", "artist", "order", "category", "setup", "draft"],
-  insertEntryTimes: ["time", "lastmod"]
-});
+const TableObject = new DBTableClass(soundAlbumsDataOptions);
 export const soundAlbumTableObject = TableObject;
 
 export async function ServerSoundAlbumsGetData({ searchParams, db, isLogin }: GetDataProps) {

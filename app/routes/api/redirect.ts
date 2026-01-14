@@ -6,18 +6,7 @@ import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/redirect";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<redirectType>({
-  table: redirectDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    path: { type: "TEXT", unique: true, notNull: true },
-    redirect: { type: "TEXT" },
-    private: { type: "NUMERIC" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["path", "redirect", "private"],
-  insertEntryTimes: ["lastmod"]
-});
+const TableObject = new DBTableClass(redirectDataOptions);
 
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });
@@ -35,7 +24,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "POST": {
             const now = new Date();
             let { update, id, redirect, path } = await request.json() as redirectSendType;
-            let target: redirectType | undefined;
+            let target: redirectDataType | undefined;
             const entry = TableObject.getInsertEntry({ redirect, path });
             if (update || typeof id === "number")
               if (update) {

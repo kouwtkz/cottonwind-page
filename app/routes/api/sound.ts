@@ -10,29 +10,7 @@ import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import MP3Tag from 'mp3tag.js';
 import type { MP3TagTags } from "mp3tag.js/types/tags";
 
-const TableObject = new DBTableClass<SoundDataType>({
-  table: soundsDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    key: { type: "TEXT", unique: true, notNull: true },
-    src: { type: "TEXT" },
-    track: { type: "INTEGER" },
-    title: { type: "TEXT" },
-    description: { type: "TEXT" },
-    album: { type: "TEXT" },
-    cover: { type: "TEXT" },
-    artist: { type: "TEXT" },
-    composer: { type: "TEXT" },
-    grouping: { type: "TEXT" },
-    genre: { type: "TEXT" },
-    draft: { type: "INTEGER" },
-    time: { createAt: true, index: true },
-    mtime: { type: "TEXT" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "composer", "grouping", "genre", "draft"],
-  insertEntryTimes: ["time", "mtime", "lastmod"]
-});
+const TableObject = new DBTableClass(soundsDataOptions);
 export const soundTableObject = TableObject;
 
 export async function ServerSoundsGetData({ searchParams, db, isLogin }: GetDataProps) {

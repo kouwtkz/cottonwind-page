@@ -8,33 +8,7 @@ import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { ImageTableObject } from "./image";
 
-const TableObject = new DBTableClass<CharacterDataType>({
-  table: charactersDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    key: { type: "TEXT", unique: true, notNull: true },
-    name: { type: "TEXT" },
-    enName: { type: "TEXT" },
-    honorific: { type: "TEXT" },
-    nameGuide: { type: "TEXT" },
-    defEmoji: { type: "TEXT" },
-    overview: { type: "TEXT" },
-    description: { type: "TEXT" },
-    tags: { type: "TEXT" },
-    order: { type: "INTEGER" },
-    draft: { type: "INTEGER" },
-    playlist: { type: "TEXT" },
-    icon: { type: "TEXT" },
-    image: { type: "TEXT" },
-    headerImage: { type: "TEXT" },
-    embed: { type: "TEXT" },
-    birthday: { type: "TEXT" },
-    time: { type: "TEXT" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "name", "enName", "nameGuide", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
-  insertEntryTimes: ["time", "birthday", "lastmod"]
-});
+const TableObject = new DBTableClass(charactersDataOptions);
 
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });

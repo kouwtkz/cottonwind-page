@@ -3,6 +3,7 @@ interface redirectDataType {
   path: string;
   redirect: string;
   lastmod: string;
+  private: number;
 }
 
 interface redirectType extends redirectDataType, WithRawDataType<redirectDataType> {

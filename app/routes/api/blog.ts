@@ -8,24 +8,7 @@ import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/blog";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<PostDataType>({
-  table: postsDataOptions.name,
-  createEntry: {
-    id: { primary: true },
-    postId: { type: "TEXT", unique: true, notNull: true },
-    title: { type: "TEXT" },
-    body: { type: "TEXT" },
-    category: { type: "TEXT" },
-    pin: { type: "INTEGER" },
-    noindex: { type: "INTEGER" },
-    draft: { type: "INTEGER" },
-    memo: { type: "INTEGER" },
-    time: { createAt: true, index: true },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["postId", "title", "body", "category", "pin", "draft", "noindex", "memo"],
-  insertEntryTimes: ["time", "lastmod"]
-});
+const TableObject = new DBTableClass(postsDataOptions);
 export const postTableObject = TableObject;
 
 export async function ServerPostsGetData({ searchParams, db, isLogin }: GetDataProps) {

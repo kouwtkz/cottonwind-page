@@ -3,16 +3,7 @@ import { DBTableClass } from "./DBTableClass";
 import { TableVersionDataOptions } from "~/data/DataEnv";
 import { type GetDataProps } from "./propsDef";
 
-export const TableObject = new DBTableClass<Props_LastmodMH_Tables_Data>({
-  table: "tables",
-  createEntry: {
-    key: { primary: true, type: "TEXT" },
-    version: { type: "TEXT" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "version"],
-  insertEntryTimes: ["lastmod"],
-});
+export const TableObject = new DBTableClass(TableVersionDataOptions);
 interface UpdateTablesDataObjectProps {
   db: MeeSqlD1;
   options: Props_LastmodMH_TableVersion;

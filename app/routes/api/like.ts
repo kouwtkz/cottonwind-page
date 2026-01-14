@@ -8,17 +8,7 @@ import { getIpAddress } from "./serverFunction";
 import type { Route } from "./+types/like";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<LikeDataType>({
-  table: likeDataOptions.name,
-  createEntry: {
-    path: { primary: true, type: "TEXT" },
-    count: { default: 0, notNull: true },
-    registed: { type: "TEXT", notNull: true },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["path", "count", "registed"],
-  insertEntryTimes: ["lastmod"]
-});
+const TableObject = new DBTableClass(likeDataOptions);
 
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });

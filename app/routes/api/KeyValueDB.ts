@@ -6,17 +6,7 @@ import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/KeyValueDB";
 import { getCfDB } from "~/data/cf/getEnv";
 
-const TableObject = new DBTableClass<KeyValueDBType>({
-  table: KeyValueDBDataOptions.name,
-  createEntry: {
-    key: { primary: true, type: "TEXT" },
-    value: { type: "TEXT" },
-    private: { type: "NUMERIC" },
-    lastmod: { createAt: true, unique: true },
-  },
-  insertEntryKeys: ["key", "value", "private"],
-  insertEntryTimes: ["lastmod"]
-});
+const TableObject = new DBTableClass(KeyValueDBDataOptions);
 
 export async function action(props: Route.ActionArgs) {
   return LoginCheck({ ...props, next, trueWhenDev: true });
