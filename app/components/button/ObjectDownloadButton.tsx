@@ -3,6 +3,7 @@ import { fileDownload } from "../utils/FileTool";
 import { RiDownloadFill } from "react-icons/ri";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
+import { FormatDate } from "../functions/DateFunction";
 
 export function JsonFromDataObject<T>({
   data: TData,
@@ -47,7 +48,7 @@ export function DownloadDataObject<T>({
   ...props
 }: DownloadDataObjectProps<T>) {
   fileDownload(
-    (name || props.key.toString()) + ".json",
+    `${name || props.key.toString()}_${FormatDate(new Date(), "Ymd_His")}.json`,
     JSON.stringify(JsonFromDataObject(props))
   );
 }

@@ -742,7 +742,7 @@ function CalendarSettingForm() {
               if (confirm("JSONファイルでエクスポートしますか？")) {
                 ExportData().then((data) => {
                   fileDownload(
-                    `calendar_${FormatDate(new Date(), "Ymd_his")}.json`,
+                    `calendar_${FormatDate(new Date(), "Ymd_His")}.json`,
                     JSON.stringify(data)
                   );
                 });

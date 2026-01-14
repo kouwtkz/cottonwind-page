@@ -465,7 +465,7 @@ function DBDownloadMethod() {
   )
     .then(() => zip.generateAsync({ type: "blob" }))
     .then((content) => {
-      fileDownload(`data_${FormatDate(new Date(), "Ymd_his")}.zip`, content);
+      fileDownload(`data_${FormatDate(new Date(), "Ymd_His")}.zip`, content);
     });
 }
 function DBDownload() {
@@ -530,7 +530,7 @@ function DBPage() {
                     const json = await getIndexedDBJsonOptions(object);
                     DownloadDataObject({
                       ...json,
-                      name: object.key + "_" + FormatDate(currentDate, "Ymd"),
+                      name: object.key + "_" + FormatDate(currentDate, "Ymd_His"),
                     });
                     return { json, object };
                   });
