@@ -92,7 +92,7 @@ export function AdminMainPage() {
       <Link to="/admin/files">ファイル管理ページ</Link>
       <Link to="/admin/zip">Zipアーカイブ</Link>
       <Link to="/admin/redirect">リダイレクト設定</Link>
-      <Link to="/admin/db">データベース設定</Link>
+      <Link to="/admin/db">データベース管理</Link>
       <Link to="/admin/schedule">スケジュール設定</Link>
       <Link to="/logout">ログアウト</Link>
     </>
@@ -454,13 +454,41 @@ function DBUpdate() {
   });
 }
 
+function DBDownloadMethod() {
+  const zip = new JSZip();
+  Promise.all(
+    IdbStateClassList.map((v) => {
+      return getIndexedDBJsonOptions(v).then((data) => {
+        zip.file(data.key + ".json", JSON.stringify(data));
+      });
+    })
+  )
+    .then(() => zip.generateAsync({ type: "blob" }))
+    .then((content) => {
+      fileDownload(`data_${FormatDate(new Date(), "Ymd_his")}.zip`, content);
+    });
+}
+function DBDownload() {
+  return (
+    <LinkButton
+      onClick={async () => {
+        if (confirm("データベースを全てダウンロードしますか？")) {
+          DBDownloadMethod();
+        }
+      }}
+    >
+      データベースのダウンロード
+    </LinkButton>
+  );
+}
+
 function DBPage() {
   const { charactersMap } = useCharacters();
   const nav = useNavigate();
   return (
     <>
       <h2 className="color-main en-title-font">DB Setting</h2>
-      <h4>データベースの設定ページ</h4>
+      <h4>データベースの管理ページ</h4>
       <div className="flex center column font-larger">
         <a
           href="./"
@@ -534,12 +562,18 @@ function DBPage() {
                         case linksFavDataOptions.name:
                           await ImportLinksJson({
                             json,
-                            dir: "/fav",
+                            src: linksFavDataOptions.src,
                           });
                           break;
                         case KeyValueDBDataOptions.name:
                           await ImportCommonJson({
                             options: KeyValueDBDataOptions,
+                            json,
+                          });
+                          break;
+                        case redirectDataOptions.name:
+                          await ImportCommonJson({
+                            options: redirectDataOptions,
                             json,
                           });
                           break;
@@ -565,6 +599,7 @@ function DBPage() {
         >
           現在のテーブルのバージョンを全て更新する
         </a>
+        <DBDownload />
       </div>
     </>
   );
