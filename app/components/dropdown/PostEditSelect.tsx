@@ -410,7 +410,7 @@ export function PostEditSelectMedia({
           replacePostTextarea({
             textarea,
             setValue,
-            before: "[](link:",
+            before: "![](link:",
             after: ")",
           });
           break;

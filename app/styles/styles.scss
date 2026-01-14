@@ -3289,7 +3289,8 @@ label,
         align-items: center;
       }
       .postTextarea {
-        textarea, .preview-area {
+        textarea,
+        .preview-area {
           width: 36rem;
           min-height: 12rem;
           max-width: 100%;
@@ -4321,6 +4322,12 @@ ul.bannerArea {
   &.up li {
     align-items: flex-start;
   }
+}
+div.bannerArea {
+  display: inline-block;
+  margin: 0.25em;
+  width: 16em;
+  @extend %banner;
 }
 
 .topButtons li {

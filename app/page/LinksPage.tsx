@@ -243,7 +243,7 @@ function LinksInner({
     href={item.url || ""}
     title={titleWithDsc}
     target="_blank"
-    className="overlay"
+    className={item.Image || item.image ? "overlay" : ""}
     onClick={(e) => {
       if (isEditable) {
         Set({ src: state.options.src, edit: item.id });
@@ -590,7 +590,7 @@ export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
                     href={item.url}
                     title={item.text}
                     target="_blank"
-                    className="overlay"
+                    className={image ? "overlay" : ""}
                     onClick={(e) => {
                       if (isEditable) {
                         e.preventDefault();
