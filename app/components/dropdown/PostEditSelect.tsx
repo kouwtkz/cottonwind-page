@@ -332,8 +332,6 @@ export function PostEditSelectMedia({
   ...args
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
-  const [searchParams, setSearchParams] = useSearchParams();
-  let { state } = useLocation();
   const { image: selectedImage, id, open: OpenSelectImage } = useSelectImageState();
   useEffect(() => {
     if (selectedImage && id === "post")

@@ -92,9 +92,6 @@ const schema = z.object({
 });
 function KeyValueEdit() {
   const ref = useRef<HTMLFormElement | null>(null);
-  let { state } = useLocation();
-  const { open: OpenSelectImage } = useSelectImageState();
-  const [searchParams, setSearchParams] = useSearchParams();
   let {
     edit,
     Set,

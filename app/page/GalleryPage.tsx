@@ -1096,7 +1096,28 @@ interface GalleryContentProps
   list: ImageType[];
   ref?: React.RefObject<HTMLDivElement | null>;
 }
-function GalleryContent({
+function GalleryContent({ item, ...args }: GalleryContentProps) {
+  const { state } = useLocation();
+  const curMaxStateName = useMemo(() => "galleryMax-" + item.name, [item.name]);
+  const max = state?.[curMaxStateName];
+  const Main = useMemo(
+    () => (
+      <GalleryContentMain
+        item={item}
+        stateMax={max}
+        curMaxStateName={curMaxStateName}
+        {...args}
+      />
+    ),
+    [item, curMaxStateName, args]
+  );
+  return Main;
+}
+interface GalleryContentMainProps extends GalleryContentProps {
+  stateMax?: number;
+  curMaxStateName: string;
+}
+function GalleryContentMain({
   item,
   list,
   className,
@@ -1105,20 +1126,20 @@ function GalleryContent({
   showGalleryHeader,
   showInPageMenu,
   ref,
+  stateMax,
+  curMaxStateName,
   ...args
-}: GalleryContentProps) {
+}: GalleryContentMainProps) {
   let {
     name,
     linkLabel,
     h2,
     h4,
     label,
-    max: maxFromArgs = 20,
     step = 20,
+    max: maxFromArgs = 20,
     maxWhenSearch = 40,
   } = item;
-  const CurMaxStateName = useMemo(() => "galleryMax-" + name, [name]);
-  const { state } = useLocation();
   const [searchParams] = useSearchParams();
   const q = searchParams.get("q");
   const tags = searchParams.get("tags");
@@ -1132,18 +1153,18 @@ function GalleryContent({
     () => (searchMode ? maxWhenSearch : maxFromArgs),
     [maxFromArgs, maxWhenSearch, searchMode]
   );
-  const [curMaxState, setCurMax] = useState(state?.[CurMaxStateName] ?? max);
+  const [curMaxState, setCurMax] = useState(stateMax ?? max);
   const befCurMax = useRef(curMaxState);
   useEffect(() => {
     if (befCurMax.current !== curMaxState) {
       nav(location, {
-        state: { keep: true, [CurMaxStateName]: curMaxState },
+        state: { keep: true, [curMaxStateName]: curMaxState },
         replace: true,
         preventScrollReset: true,
       });
       befCurMax.current = curMaxState;
     }
-  }, [curMaxState, CurMaxStateName]);
+  }, [curMaxState, curMaxStateName]);
   const curMax = useMemo(() => {
     let curMax = curMaxState;
     if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
@@ -1357,7 +1378,6 @@ export function GallerySearchArea({
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
-  const { state } = useLocation();
   useEffect(() => {
     if (searchRef.current) {
       const q = searchParams.get("q") ?? "";
@@ -1373,7 +1393,7 @@ export function GallerySearchArea({
         setSearchParams(searchParams, {
           preventScrollReset: submitPreventScrollReset,
           replace: isModal,
-          state,
+          state: { keep: true },
         });
         (document.activeElement as HTMLElement).blur();
         e?.preventDefault();
@@ -1461,7 +1481,6 @@ export function GalleryCharactersSelect({
         (chara.nameGuide ? "," + chara.nameGuide : ""),
     }));
   }, [characters, currentChara, enableCharaFilter]);
-  const { state } = useLocation();
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
     return charaLabelOptions.filter(({ value }) =>
@@ -1494,7 +1513,7 @@ export function GalleryCharactersSelect({
         setSearchParams(searchParams, {
           preventScrollReset: true,
           replace: isModal,
-          state,
+          state: { keep: true },
         });
       }}
     />

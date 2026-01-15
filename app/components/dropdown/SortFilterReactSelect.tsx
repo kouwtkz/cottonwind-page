@@ -16,7 +16,6 @@ export function ContentsTagsSelect({
   className,
   submitPreventScrollReset = true,
 }: SelectAreaProps) {
-  const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
   const searchTags = searchParams.get("tags")?.split(",") || [];
@@ -122,7 +121,7 @@ export function ContentsTagsSelect({
       setSearchParams(searchParams, {
         preventScrollReset: submitPreventScrollReset,
         replace: isModal,
-        state,
+        state: {keep: true},
       });
     },
     [searchParams]

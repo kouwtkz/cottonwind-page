@@ -102,7 +102,6 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const { charactersMap, charactersTags } = useCharacters();
   const nav = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  let { state } = useLocation();
   const { images } = useImageState();
   const { sounds } = useSounds();
   const getDefaultValues = useMemo(
@@ -299,15 +298,13 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   }, [selectedId, selectedImage, chara]);
 
   const characterModalAction = useCallback(() => {
-    if (!state) state = {};
-    state.from = location.href;
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("modal", "character");
     setSearchParams(Object.fromEntries(newSearchParams), {
-      state,
+      state: { keep: true, from: location.href },
       preventScrollReset: true,
     });
-  }, [searchParams, state, chara]);
+  }, [searchParams, chara]);
   const selectedCharacter = useSelectedCharacter()[0];
   useEffect(() => {
     if (selectedCharacter) {
@@ -350,7 +347,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         },
       });
     },
-    [searchParams, state, chara]
+    [searchParams, chara]
   );
   const ImageModalSetter = useCallback(
     ({
@@ -375,7 +372,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </button>
       );
     },
-    [searchParams, state, chara]
+    [searchParams, chara]
   );
 
   const ImageSetter = useCallback(

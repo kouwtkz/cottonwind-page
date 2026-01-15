@@ -311,7 +311,6 @@ const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const { parts } = useCharacterPageState();
-  const { state } = useLocation();
   const extendMode = useExtendMode()[0];
   const [move, setMove] = useMoveCharacters();
   const searchParams = useSearchParams()[0];
@@ -326,7 +325,7 @@ function CharaListPage() {
         <Link
           to={move ? "" : `/character/${item.key}`}
           state={{
-            ...(state ?? {}),
+            keep: true,
             backUrl: getBackURL(),
           }}
           onClick={(e) => {
@@ -436,7 +435,6 @@ export function CharaBeforeAfter({
     () => charactersMap?.get(charaName || ""),
     [charactersMap, charaName]
   );
-  const { state } = useLocation();
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
   const { parts } = useCharacterPageState();
@@ -489,7 +487,7 @@ export function CharaBeforeAfter({
     (e) => {
       if (beforeTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
         if (onClick) onClick();
-        nav(beforeTo, { state });
+        nav(beforeTo, { state: { keep: true } });
       }
     },
     { ignoreModifiers: true, enableOnFormTags: false }
@@ -499,7 +497,7 @@ export function CharaBeforeAfter({
     (e) => {
       if (afterTo && !isModalMode && !(e.ctrlKey || e.altKey)) {
         if (onClick) onClick();
-        nav(afterTo, { state });
+        nav(afterTo, { state: { keep: true } });
       }
     },
     { ignoreModifiers: true, enableOnFormTags: false }
@@ -508,7 +506,7 @@ export function CharaBeforeAfter({
     <div className={"beforeAfter" + (className ? " " + className : "")}>
       <div className="before" {...props}>
         {beforeChara ? (
-          <Link to={beforeTo} state={state} onClick={OnClick}>
+          <Link to={beforeTo} state={{ keep: true }} onClick={OnClick}>
             <span className="cursor">＜</span>
             {beforeChara.icon ? (
               <ImageMeeIcon
@@ -523,7 +521,7 @@ export function CharaBeforeAfter({
       </div>
       <div className="after" {...props}>
         {afterChara ? (
-          <Link to={afterTo} state={state} onClick={OnClick}>
+          <Link to={afterTo} state={{ keep: true }} onClick={OnClick}>
             {afterChara.icon ? (
               <ImageMeeIcon
                 imageItem={afterChara.icon}
@@ -694,7 +692,6 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
-  const { state } = useLocation();
   const isLogin = useIsLogin()[0];
   const [confirmUrl, setConfirmUrl] = useConfirmUrl();
   const [extendMode, setExtendMode] = useExtendMode();
@@ -732,18 +729,16 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
     else newSearchParams.delete("q");
     const addReplace: { replace: boolean; state?: any } = {
       replace: isModal || location.href !== confirmUrl,
+      state: { keep: true },
     };
     if (!addReplace.replace) {
-      const _state = state ? { ...state } : {};
-      addReplace.state = _state;
-      _state.beforeSearchParams = searchParams.toString();
+      addReplace.state.beforeSearchParams = searchParams.toString();
     }
-    if (state?.beforeSearchParams === newSearchParams.toString()) {
+    if (addReplace.state?.beforeSearchParams === newSearchParams.toString()) {
       nav(-1);
     } else {
       setSearchParams(newSearchParams, {
         preventScrollReset: true,
-        state,
         ...addReplace,
       });
     }
@@ -829,7 +824,7 @@ export function MiniCharacterPage() {
     () => searchParams.get("modal") === "character",
     [searchParams]
   );
-  const closeHandler = useCallback(() => {
+  function closeHandler() {
     if (state?.from) {
       delete state.from;
       nav(-1);
@@ -837,7 +832,7 @@ export function MiniCharacterPage() {
       searchParams.delete("modal");
       setSearchParams(searchParams, { state, preventScrollReset: true });
     }
-  }, [state, searchParams]);
+  }
   useEffect(() => {
     if (selectedCharacter) {
       setSelectedCharacter(null);

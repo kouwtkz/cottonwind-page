@@ -342,7 +342,6 @@ export const HomeImage = React.memo(function HomeImage({
       };
     }
   }, [interval, topImages]);
-  const { pathname, state } = useLocation();
   const [searchParams] = useSearchParams();
   const toStatehandler = useCallback((): {
     to: To;
@@ -355,7 +354,7 @@ export const HomeImage = React.memo(function HomeImage({
     searchParams.set("image", topImage.key);
     return {
       to: new URL("?" + searchParams.toString(), location.href).href,
-      state: { ...state, from: pathname },
+      state: { keep: true, from: location.pathname },
       preventScrollReset: true,
       title: topImage.title || undefined,
     };
