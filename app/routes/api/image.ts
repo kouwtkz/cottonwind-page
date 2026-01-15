@@ -146,6 +146,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 version: (value.version ?? 0) + 1,
               };
               if (!value.title) entry.title = title;
+              if (formData.has("link")) entry.link = formData.get("link");
               await TableObject.Update({ db, where: { key: title }, entry });
               return { ...value, ...entry };
             } else {
@@ -163,6 +164,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 characters,
                 version: 1,
               };
+              if (formData.has("link")) entry.link = formData.get("link");
               await TableObject.Insert({ db, entry });
               return entry;
             }
