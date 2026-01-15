@@ -289,7 +289,7 @@ function LinksInner({
 interface LinksContainerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: string;
-  category?: string | null;
+  category?: Array<string | null> | string | null;
   banner?: boolean;
   dropdown?: ReactNode;
   state: WithSet<LinksStateType>;
@@ -318,16 +318,24 @@ function LinksContainer({
   const send = GetAPIFromOptions(state.options, "/send");
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const [move, setMove] = useState(0);
+  const categories = useMemo(() => {
+    return category
+      ? Array.isArray(category)
+        ? category
+        : [category]
+      : [null, ""];
+  }, [category]);
   const links = useMemo(() => {
     const links = state.links
       ? findMee(state.links, {
-          where: { category },
+          where: { OR: categories.map((category) => ({ category })) },
           orderBy: [{ id: "asc", order: "asc" }],
         })
       : [];
-    if (!category && !move) return links.concat(ArchiveLinks);
+    if (categories.length === 1 && !categories[0] && !move)
+      return links.concat(ArchiveLinks);
     else return links;
-  }, [category, state.links, move]);
+  }, [categories, state.links, move]);
   const isLogin = useIsLogin()[0];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
@@ -347,7 +355,7 @@ function LinksContainer({
         <LinksEditButtons
           indexedDB={indexedDB}
           album={album}
-          category={category}
+          category={categories[0] || null}
           move={move}
           setMove={setMove}
           dropdown={dropdown}

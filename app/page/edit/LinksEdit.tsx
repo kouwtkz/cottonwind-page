@@ -130,7 +130,7 @@ function LinksEditMain({
       title: item?.title || "",
       description: item?.description || "",
       url: item?.url || "",
-      category: item?.category || category || "",
+      category: item?.category || category || null,
       draft: item?.draft ?? null,
       prompt: item?.prompt || "",
       password: item?.password || "",
