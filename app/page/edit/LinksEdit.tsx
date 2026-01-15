@@ -14,6 +14,7 @@ import {
   useImageEditSwitchHold,
   useNoUploadThumbnail,
   useUploadWebp,
+  type ImagesUploadProps,
 } from "~/components/layout/edit/ImageEditForm";
 import { BannerInner, myBannerName } from "../LinksPage";
 import { fileDialog } from "~/components/utils/FileTool";
@@ -219,7 +220,7 @@ function LinksEditMain({
           indexedDB.load("no-cache");
         });
     }
-  }, [selectedImage, selectedImageID,category]);
+  }, [selectedImage, selectedImageID, category]);
 
   return (
     <Modal onClose={Close}>
@@ -234,7 +235,7 @@ function LinksEditMain({
               data: {
                 id: item?.id,
                 image: data.key,
-                category: item?.category
+                category: item?.category,
               } as SiteLinkData,
               method: "POST",
               cors: true,
@@ -405,15 +406,16 @@ export function SetLinksImage({
             fileDialog("image/*")
               .then((fileList) => fileList.item(0)!)
               .then((src) => {
-                return ImagesUploadWithToast({
+                const entry: ImagesUploadProps = {
                   src,
-                  links: link,
                   album,
                   albumOverwrite: false,
                   notDraft: true,
                   webp: true,
                   thumbnail: false,
-                });
+                };
+                if (setImageLink) entry.links = link;
+                return ImagesUploadWithToast(entry);
               })
               .then(async (r) => {
                 imageDataIndexed.load("no-cache");
