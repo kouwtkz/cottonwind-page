@@ -33,6 +33,7 @@ import { MiniCharacterPage } from "~/page/CharacterPage";
 import RedirectState from "./redirectState";
 import { ATPState, useATProtoState } from "./ATProtocolState";
 import { ATProtocolEnv } from "~/Env";
+import { NavKeepState } from "./NavState";
 
 export function SetState({
   env,
@@ -45,6 +46,7 @@ export function SetState({
     <>
       <CheckIsComplete />
       <EnvState env={env} isLogin={isLogin} />
+      <NavKeepState />
       <ClickEventState />
       <ATPState />
       {/* <FaviconState /> */}

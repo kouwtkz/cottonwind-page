@@ -19,6 +19,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -1005,87 +1006,87 @@ function GalleryImageItem({
       searchParams.set("album", image.albumObject.name);
     return {
       to: new URL("?" + searchParams.toString(), location.href).href,
-      state: { ...state, from: pathname },
+      state: { from: pathname, keep: true },
       preventScrollReset: true,
       title: image.title || undefined,
     };
-  }, [searchParams, image, state]);
+  }, [searchParams, image]);
   const ImageTimeFrameTag = useMemo(() => {
     return TimeframeTags.find((tt) =>
       image.tags?.some((tag) => tt.value === tag)
     )?.value;
   }, [image]);
-  return (
-    <Link
-      className="item"
-      {...toStatehandler()}
-      onClick={useCallback(
-        (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+  const Item = useMemo(() => {
+    return (
+      <Link
+        className="item"
+        {...toStatehandler()}
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
           if (onClick) {
             e.preventDefault();
             onClick(image);
           }
-        },
-        [onClick]
-      )}
-    >
-      <GalleryItemRibbon image={image} />
-      {image.type === "ebook" || image.type === "goods" ? (
-        image.embed ? (
+        }}
+      >
+        <GalleryItemRibbon image={image} />
+        {image.type === "ebook" || image.type === "goods" ? (
+          image.embed ? (
+            <div className="translucent-special-button">
+              <RiBook2Fill />
+            </div>
+          ) : image.link ? (
+            <div className="translucent-special-button">
+              <RiStore3Fill />
+            </div>
+          ) : null
+        ) : image.type === "movie" ? (
           <div className="translucent-special-button">
-            <RiBook2Fill />
+            <RiPlayLargeFill />
           </div>
-        ) : image.link ? (
+        ) : image.type === "3d" && (image.embed || image.link) ? (
           <div className="translucent-special-button">
-            <RiStore3Fill />
+            <Md3dRotation />
           </div>
-        ) : null
-      ) : image.type === "movie" ? (
-        <div className="translucent-special-button">
-          <RiPlayLargeFill />
-        </div>
-      ) : image.type === "3d" && (image.embed || image.link) ? (
-        <div className="translucent-special-button">
-          <Md3dRotation />
-        </div>
-      ) : image.embed ? (
-        <div className="translucent-special-button">
-          {image.type === "material" ? (
-            <MdMoveToInbox />
-          ) : image.type === "pdf" ? (
-            <RiFilePdf2Fill />
-          ) : (
-            <MdInsertDriveFile />
-          )}
-        </div>
-      ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
-        <div className="translucent-special-button">
-          {ImageTimeFrameTag === "morning" ? (
-            <RiHazeFill />
-          ) : ImageTimeFrameTag === "forenoon" ? (
-            <RiLandscapeFill />
-          ) : ImageTimeFrameTag === "midday" ? (
-            <RiSunFill />
-          ) : ImageTimeFrameTag === "afternoon" ? (
-            <RiCupFill />
-          ) : ImageTimeFrameTag === "evening" ? (
-            <RiKeynoteFill />
-          ) : ImageTimeFrameTag === "night" ? (
-            <RiMoonFill />
-          ) : ImageTimeFrameTag === "midnight" ? (
-            <RiMoonFoggyFill />
-          ) : (
-            <RiTimeLine />
-          )}
-        </div>
-      ) : null}
-      <ImageMeeThumbnail
-        imageItem={image}
-        loadingScreen={true}
-        showMessage={true}
-      />
-    </Link>
-  );
+        ) : image.embed ? (
+          <div className="translucent-special-button">
+            {image.type === "material" ? (
+              <MdMoveToInbox />
+            ) : image.type === "pdf" ? (
+              <RiFilePdf2Fill />
+            ) : (
+              <MdInsertDriveFile />
+            )}
+          </div>
+        ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
+          <div className="translucent-special-button">
+            {ImageTimeFrameTag === "morning" ? (
+              <RiHazeFill />
+            ) : ImageTimeFrameTag === "forenoon" ? (
+              <RiLandscapeFill />
+            ) : ImageTimeFrameTag === "midday" ? (
+              <RiSunFill />
+            ) : ImageTimeFrameTag === "afternoon" ? (
+              <RiCupFill />
+            ) : ImageTimeFrameTag === "evening" ? (
+              <RiKeynoteFill />
+            ) : ImageTimeFrameTag === "night" ? (
+              <RiMoonFill />
+            ) : ImageTimeFrameTag === "midnight" ? (
+              <RiMoonFoggyFill />
+            ) : (
+              <RiTimeLine />
+            )}
+          </div>
+        ) : null}
+        <ImageMeeThumbnail
+          imageItem={image}
+          loadingScreen={true}
+          showMessage={true}
+        />
+      </Link>
+    );
+  }, [image, galleryName, onClick, toStatehandler, ImageTimeFrameTag]);
+  return Item;
 }
 
 interface GalleryContentProps
@@ -1116,7 +1117,8 @@ function GalleryContent({
     step = 20,
     maxWhenSearch = 40,
   } = item;
-  const labelString = useMemo(() => label || name, [name, label]);
+  const CurMaxStateName = useMemo(() => "galleryMax-" + name, [name]);
+  const { state } = useLocation();
   const [searchParams] = useSearchParams();
   const q = searchParams.get("q");
   const tags = searchParams.get("tags");
@@ -1125,7 +1127,30 @@ function GalleryContent({
     () => Boolean(q || tags || characters),
     [q, tags, characters]
   );
-  const { state, search, hash } = useLocation();
+  const [w] = useWindowSize();
+  const max = useMemo(
+    () => (searchMode ? maxWhenSearch : maxFromArgs),
+    [maxFromArgs, maxWhenSearch, searchMode]
+  );
+  const [curMaxState, setCurMax] = useState(state?.[CurMaxStateName] ?? max);
+  const befCurMax = useRef(curMaxState);
+  useEffect(() => {
+    if (befCurMax.current !== curMaxState) {
+      nav(location, {
+        state: { keep: true, [CurMaxStateName]: curMaxState },
+        replace: true,
+        preventScrollReset: true,
+      });
+      befCurMax.current = curMaxState;
+    }
+  }, [curMaxState, CurMaxStateName]);
+  const curMax = useMemo(() => {
+    let curMax = curMaxState;
+    if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
+    else curMax = Math.ceil(curMax / 4) * 4;
+    return curMax;
+  }, [curMaxState, w]);
+  const labelString = useMemo(() => label || name, [name, label]);
   const nav = useNavigate();
   const { Set } = useSelectImageState();
   const isModal = useMemo(
@@ -1137,17 +1162,6 @@ function GalleryContent({
         Set({ image });
       }
     : undefined;
-  const [w] = useWindowSize();
-  const max = useMemo(
-    () => (searchMode ? maxWhenSearch : maxFromArgs),
-    [maxFromArgs, maxWhenSearch, searchMode]
-  );
-  const curMax = useMemo(() => {
-    let curMax = state?.galleryMax?.[name] ?? max;
-    if (w >= 768) curMax = Math.ceil(curMax / 5) * 5;
-    else curMax = Math.ceil(curMax / 4) * 4;
-    return curMax;
-  }, [name, max, state, w]);
   const showMoreButton = curMax < (list.length || 0);
   const visibleMax = showMoreButton ? curMax - 1 : curMax;
   const HeadingElm = useCallback(
@@ -1193,23 +1207,9 @@ function GalleryContent({
     return classes.join(" ");
   }, [item]);
   const ShowMore = useCallback(() => {
-    nav(
-      { search, hash },
-      {
-        state: {
-          ...state,
-          ...{
-            galleryMax: {
-              ...state?.galleryMax,
-              [name]: curMax + step,
-            },
-          },
-        },
-        replace: true,
-        preventScrollReset: true,
-      }
-    );
-  }, [nav, state, search, hash]);
+    const max = curMax + step;
+    setCurMax(max);
+  }, [curMax, name, step]);
   const _className = useMemo(() => {
     const list = ["galleryContainer"];
     if (className) list.push(className);
