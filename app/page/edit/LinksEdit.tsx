@@ -72,6 +72,7 @@ export const useLinksEditMode = CreateState(false);
 export const useLinksEdit = CreateObjectState<{
   src?: string;
   edit?: editLinksType;
+  category?: string | null;
 }>();
 
 interface LinksEditProps {
@@ -80,7 +81,6 @@ interface LinksEditProps {
   send: string;
   edit?: number | boolean;
   album: string;
-  category?: string | null;
   defaultCategories?: string[];
 }
 export function LinksEdit(args: LinksEditProps) {
@@ -98,10 +98,9 @@ function LinksEditMain({
   indexedDB,
   send,
   album,
-  category,
   defaultCategories,
 }: LinksEditProps) {
-  const { edit, Set } = useLinksEdit();
+  const { edit, category, Set } = useLinksEdit();
   const { links, linksMap } = linksState;
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
@@ -131,7 +130,7 @@ function LinksEditMain({
       title: item?.title || "",
       description: item?.description || "",
       url: item?.url || "",
-      category: item?.category || category,
+      category: item?.category || category || "",
       draft: item?.draft ?? null,
       prompt: item?.prompt || "",
       password: item?.password || "",
@@ -153,6 +152,9 @@ function LinksEditMain({
       toast.error(String(error?.message));
     });
   }, [errors]);
+  function CloseSetEdit() {
+    Set({ edit: false, category: "" });
+  }
   function Submit() {
     const values = getValues();
     const entry = Object.fromEntries(
@@ -174,7 +176,7 @@ function LinksEditMain({
         cors: true,
       }).then(() => {
         indexedDB.load("no-cache");
-        Set({ edit: false });
+        CloseSetEdit();
       }),
       {
         pending: "送信中",
@@ -192,7 +194,7 @@ function LinksEditMain({
   );
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
-      Set({ edit: false });
+      CloseSetEdit();
     }
   }
   useHotkeys("escape", Close, { enableOnFormTags: true });
@@ -437,6 +439,7 @@ export type SendLinksDir = "" | "/fav";
 
 interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   album?: string;
+  category?: string | null;
   dropdown?: ReactNode;
   indexedDB?: LinksIndexedDBType;
   move?: editMoveLinkType;
@@ -445,6 +448,7 @@ interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
 }
 export function LinksEditButtons({
   album = "",
+  category,
   dropdown,
   children,
   className,
@@ -547,7 +551,7 @@ export function LinksEditButtons({
           {state ? (
             <AddButton
               onClick={() => {
-                Set({ src: state.options.src, edit: true });
+                Set({ src: state.options.src, edit: true, category });
               }}
             />
           ) : null}

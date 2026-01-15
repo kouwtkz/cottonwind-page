@@ -346,6 +346,7 @@ function LinksContainer({
         <LinksEditButtons
           indexedDB={indexedDB}
           album={album}
+          category={category}
           move={move}
           setMove={setMove}
           dropdown={dropdown}
@@ -421,7 +422,6 @@ function LinksContainer({
               indexedDB={indexedDB}
               send={send}
               album={album}
-              category={category}
               defaultCategories={defaultCategories}
             />
           ) : null}
