@@ -2060,6 +2060,14 @@ footer {
   .links {
     margin: 1rem auto;
   }
+  ul.bannerArea {
+    @include FlexList(1, $mobileWidth, $tabletWidth, $desktopWidth);
+    @include FlexCenter;
+    li {
+      margin: 0;
+      padding: 0.25rem;
+    }
+  }
   h3 {
     margin: 1rem;
     font-size: 1.75rem;
