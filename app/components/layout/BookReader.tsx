@@ -10,6 +10,7 @@ import { useFiles } from "../state/FileState";
 import { concatOriginUrl } from "../functions/originUrl";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { useImageViewer } from "./ImageViewer";
+import { toast } from "react-toastify";
 
 export function BookReader() {
   const { hash, state } = useLocation();
@@ -36,7 +37,9 @@ export function BookReader() {
       if (isHashLaymic && /\.epub/i.test(url) && backRenderElm.current) {
         const book = ePub(url);
         const rendition = book.renderTo(backRenderElm.current);
+        const reading = toast("読み込み中…");
         rendition.display().then(() => {
+          toast.dismiss(reading);
           setMetadata(book.packaging.metadata);
           const resources = book.resources;
           if ("assets" in resources) {

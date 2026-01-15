@@ -990,7 +990,8 @@ function GalleryImageItem({
   image: ImageType;
   onClick?: (image: ImageType) => void;
 }) {
-  const { pathname, state } = useLocation();
+  const { pathname, hash } = useLocation();
+  const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
   const [searchParams] = useSearchParams();
   const toStatehandler = useCallback((): {
     to: To;
@@ -1028,64 +1029,75 @@ function GalleryImageItem({
           }
         }}
       >
-        <GalleryItemRibbon image={image} />
-        {image.type === "ebook" || image.type === "goods" ? (
-          image.embed ? (
-            <div className="translucent-special-button">
-              <RiBook2Fill />
-            </div>
-          ) : image.link ? (
-            <div className="translucent-special-button">
-              <RiStore3Fill />
-            </div>
-          ) : null
-        ) : image.type === "movie" ? (
-          <div className="translucent-special-button">
-            <RiPlayLargeFill />
-          </div>
-        ) : image.type === "3d" && (image.embed || image.link) ? (
-          <div className="translucent-special-button">
-            <Md3dRotation />
-          </div>
-        ) : image.embed ? (
-          <div className="translucent-special-button">
-            {image.type === "material" ? (
-              <MdMoveToInbox />
-            ) : image.type === "pdf" ? (
-              <RiFilePdf2Fill />
-            ) : (
-              <MdInsertDriveFile />
-            )}
-          </div>
-        ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
-          <div className="translucent-special-button">
-            {ImageTimeFrameTag === "morning" ? (
-              <RiHazeFill />
-            ) : ImageTimeFrameTag === "forenoon" ? (
-              <RiLandscapeFill />
-            ) : ImageTimeFrameTag === "midday" ? (
-              <RiSunFill />
-            ) : ImageTimeFrameTag === "afternoon" ? (
-              <RiCupFill />
-            ) : ImageTimeFrameTag === "evening" ? (
-              <RiKeynoteFill />
-            ) : ImageTimeFrameTag === "night" ? (
-              <RiMoonFill />
-            ) : ImageTimeFrameTag === "midnight" ? (
-              <RiMoonFoggyFill />
-            ) : (
-              <RiTimeLine />
-            )}
-          </div>
+        {visibleImage ? (
+          <>
+            <GalleryItemRibbon image={image} />
+            {image.type === "ebook" || image.type === "goods" ? (
+              image.embed ? (
+                <div className="translucent-special-button">
+                  <RiBook2Fill />
+                </div>
+              ) : image.link ? (
+                <div className="translucent-special-button">
+                  <RiStore3Fill />
+                </div>
+              ) : null
+            ) : image.type === "movie" ? (
+              <div className="translucent-special-button">
+                <RiPlayLargeFill />
+              </div>
+            ) : image.type === "3d" && (image.embed || image.link) ? (
+              <div className="translucent-special-button">
+                <Md3dRotation />
+              </div>
+            ) : image.embed ? (
+              <div className="translucent-special-button">
+                {image.type === "material" ? (
+                  <MdMoveToInbox />
+                ) : image.type === "pdf" ? (
+                  <RiFilePdf2Fill />
+                ) : (
+                  <MdInsertDriveFile />
+                )}
+              </div>
+            ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
+              <div className="translucent-special-button">
+                {ImageTimeFrameTag === "morning" ? (
+                  <RiHazeFill />
+                ) : ImageTimeFrameTag === "forenoon" ? (
+                  <RiLandscapeFill />
+                ) : ImageTimeFrameTag === "midday" ? (
+                  <RiSunFill />
+                ) : ImageTimeFrameTag === "afternoon" ? (
+                  <RiCupFill />
+                ) : ImageTimeFrameTag === "evening" ? (
+                  <RiKeynoteFill />
+                ) : ImageTimeFrameTag === "night" ? (
+                  <RiMoonFill />
+                ) : ImageTimeFrameTag === "midnight" ? (
+                  <RiMoonFoggyFill />
+                ) : (
+                  <RiTimeLine />
+                )}
+              </div>
+            ) : null}
+            <ImageMeeThumbnail
+              imageItem={image}
+              loadingScreen={true}
+              showMessage={true}
+            />
+          </>
         ) : null}
-        <ImageMeeThumbnail
-          imageItem={image}
-          loadingScreen={true}
-          showMessage={true}
-        />
       </Link>
     );
-  }, [image, galleryName, onClick, toStatehandler, ImageTimeFrameTag]);
+  }, [
+    image,
+    galleryName,
+    onClick,
+    toStatehandler,
+    ImageTimeFrameTag,
+    visibleImage,
+  ]);
   return Item;
 }
 
