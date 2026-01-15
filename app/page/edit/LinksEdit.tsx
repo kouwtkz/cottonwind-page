@@ -153,7 +153,7 @@ function LinksEditMain({
     });
   }, [errors]);
   function CloseSetEdit() {
-    Set({ edit: false, category: "" });
+    Set({ edit: false, category: null });
   }
   function Submit() {
     const values = getValues();
@@ -219,7 +219,7 @@ function LinksEditMain({
           indexedDB.load("no-cache");
         });
     }
-  }, [selectedImage, selectedImageID]);
+  }, [selectedImage, selectedImageID,category]);
 
   return (
     <Modal onClose={Close}>
@@ -234,7 +234,7 @@ function LinksEditMain({
               data: {
                 id: item?.id,
                 image: data.key,
-                category,
+                category: item?.category
               } as SiteLinkData,
               method: "POST",
               cors: true,
