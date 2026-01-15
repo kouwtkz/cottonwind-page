@@ -50,7 +50,9 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
           alt = link.title || link.key || value;
         }
         a.children = [new NodeText(alt)];
-        a.attribs.title = getTitleWithDsc(link);
+        const isPassLock = !link.url && link.password;
+        const titleWithDsc = (isPassLock ? "🔒" : "") + getTitleWithDsc(link);
+        a.attribs.title = titleWithDsc;
         a.attribs.href = link.url || "";
         if (!a.attribs.href) {
           a.attribs.onClick = ((e: MouseEvent) => {

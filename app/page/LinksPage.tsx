@@ -220,7 +220,8 @@ function LinksInner({
   state.options.name;
   const { Set } = useLinksEdit();
   const isEditable = useLinksEditMode()[0];
-  const titleWithDsc = getTitleWithDsc(item);
+  const isPassLock = !item.url && item.password;
+  const titleWithDsc = (isPassLock ? "🔒" : "") + getTitleWithDsc(item);
   const prop = {
     title: titleWithDsc,
     className: "overlay",
