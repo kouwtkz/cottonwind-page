@@ -2243,6 +2243,7 @@ footer {
         video {
           max-width: 100%;
           height: auto;
+          @extend %cursor-pointer;
         }
       }
       .time {

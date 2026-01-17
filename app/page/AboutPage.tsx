@@ -187,7 +187,7 @@ export function AuthorHistory({
             if (table) {
               const trElms = Array.from(
                 table.tBodies[0]?.querySelectorAll<HTMLTableRowElement>("tr") ||
-                  []
+                  [],
               );
               const yearMap = trElms.reduce<Map<number, number>>((m, r) => {
                 const d = r.children[0] as HTMLElement;
@@ -208,7 +208,7 @@ export function AuthorHistory({
                   d.appendChild(extendAnchor);
                 }
                 const year = Number(
-                  d.innerText.slice(0, d.innerText.indexOf("/"))
+                  d.innerText.slice(0, d.innerText.indexOf("/")),
                 );
                 r.dataset.year = String(year);
                 if (m.has(year)) {
@@ -220,7 +220,7 @@ export function AuthorHistory({
               }, new Map());
               const yearAllCount = Array.from(yearMap.values()).reduce(
                 (a, v) => a + v,
-                0
+                0,
               );
               const yearList: valueCountType<number>[] = [
                 {
@@ -235,8 +235,8 @@ export function AuthorHistory({
                     value,
                     count,
                     label: `${value} (${count})`,
-                  })
-                )
+                  }),
+                ),
               );
               setYearList(yearList);
               const categoriesMap = trElms.reduce<Map<string, number>>(
@@ -251,10 +251,10 @@ export function AuthorHistory({
                   }
                   return m;
                 },
-                new Map()
+                new Map(),
               );
               const categoriesAllCount = Array.from(
-                categoriesMap.values()
+                categoriesMap.values(),
               ).reduce((a, v) => a + v, 0);
               const categoriesList: valueCountType[] = [
                 {
@@ -269,8 +269,8 @@ export function AuthorHistory({
                     value: category,
                     count,
                     label: `${category} (${count})`,
-                  })
-                )
+                  }),
+                ),
               );
               setCategoriesList(categoriesList);
             }
@@ -382,6 +382,10 @@ export function WebsiteFramework({
             <li>
               <span className="label">マンガ</span>
               <span>Laymic, Epub.js</span>
+            </li>
+            <li>
+              <span className="label">動画読み込み</span>
+              <span>hls.js</span>
             </li>
             {/* <li>
               <span className="label">SNS埋め込み</span>

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
 import { ATProtocolEnv } from "~/Env";
-import Hls from "hls.js";
+import Hls, { Events as hlsEvents } from "hls.js";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -39,7 +39,7 @@ function _SetHandle() {
     if (handle) {
       Set({ handle });
       const didReqUrl = new URL(
-        "https://bsky.social/xrpc/com.atproto.identity.resolveHandle"
+        "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
       );
       didReqUrl.searchParams.set("handle", handle);
       fetch(didReqUrl, { mode: "cors" })
@@ -76,7 +76,7 @@ function _SetDidInfo() {
           let endpoint: string;
           if (didInfo) {
             const dataServer = didInfo?.service.find(
-              ({ type: Type }) => Type === "AtprotoPersonalDataServer"
+              ({ type: Type }) => Type === "AtprotoPersonalDataServer",
             );
             if (dataServer) {
               endpoint = dataServer.serviceEndpoint;
@@ -240,21 +240,15 @@ export function BlueskyFeed() {
         }
         return a;
       },
-      [new Map(), new Map()]
+      [new Map(), new Map()],
     );
     if (mapList) {
-      const list = Array.from(mapList[0].values()).reduce<
-        BlueskyFeedPostType[]
-      >((a, posts) => {
-        if (posts) {
-          posts
-            .sort((a, b) => (a.record.createdAt > b.record.createdAt ? 1 : -1))
-            .forEach((post) => {
-              a.push(post);
-            });
-        }
-        return a;
-      }, []);
+      const list = Array.from(mapList[0].values());
+      list.forEach((posts) => {
+        posts.sort((a, b) =>
+          a.record.createdAt > b.record.createdAt ? 1 : -1,
+        );
+      });
       return list;
     } else return [];
   }, [posts]);
@@ -263,14 +257,21 @@ export function BlueskyFeed() {
       <div className="feedBox">
         <table>
           <tbody>
-            {list.map((post, i) => (
-              <PostItem post={post} postBaseUrl={postBaseUrl} key={i} />
-            ))}
+            {list.map((tree, i) =>
+              tree.map((post, j) => (
+                <PostItem
+                  post={post}
+                  postBaseUrl={postBaseUrl}
+                  isTree={j > 0}
+                  key={`${i}-${j}`}
+                />
+              )),
+            )}
           </tbody>
         </table>
       </div>
     ),
-    [list, postBaseUrl]
+    [list, postBaseUrl],
   );
   return (
     <div className="BlueskyFeed">
@@ -291,16 +292,17 @@ export function BlueskyFeed() {
 function PostItem({
   post,
   postBaseUrl,
+  isTree,
 }: {
   post: BlueskyFeedPostType;
   postBaseUrl: URL;
+  isTree?: boolean;
 }) {
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
   const time = new Date(post.record.createdAt);
-  const tdClass = useMemo(() => {
-    if (post.record.reply) return "tree";
-  }, [post]);
+  let tdClass: string | undefined;
+  if (isTree) tdClass = "tree";
   return (
     <tr className="item">
       <td className={tdClass}>
@@ -342,16 +344,22 @@ interface EmbedVideoProps
 }
 function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (Hls.isSupported()) {
-      const videoRef = ref.current!;
-      var hls = new Hls();
-      hls.loadSource(video.playlist); // Load the HLS manifest
-      hls.attachMedia(videoRef); // Attach to video element
-      // hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      // });
-    }
-  }, [video]);
+  const Play = useCallback(
+    (callback?: (e: hlsEvents.MANIFEST_PARSED) => void) => {
+      if (Hls.isSupported()) {
+        console.log(video);
+        const videoRef = ref.current!;
+        var hls = new Hls();
+        hls.loadSource(video.playlist); // Load the HLS manifest
+        hls.attachMedia(videoRef); // Attach to video element
+        hls.on(Hls.Events.MANIFEST_PARSED, (e) => {
+          videoRef.play();
+          if (callback) callback(e);
+        });
+      }
+    },
+    [video],
+  );
   return (
     <video
       ref={ref}
@@ -359,6 +367,10 @@ function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
       controls
       width={video.aspectRatio.width}
       height={video.aspectRatio.height}
+      poster={video.thumbnail}
+      onClick={(e) => {
+        if (!ref.current?.src) Play();
+      }}
       {...props}
     />
   );
