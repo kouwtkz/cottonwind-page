@@ -28,6 +28,7 @@
     "@fullcalendar/react": "^6.1.20",
     "@fullcalendar/timegrid": "^6.1.20",
     "@hookform/resolvers": "^5.2.2",
+    "hls.js": "^1.6.15",
     "html-react-parser": "^5.2.11",
     "image-dimensions": "^2.5.0",
     "isbot": "^5.1.32",

@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
 import { ATProtocolEnv } from "~/Env";
+import Hls from "hls.js";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -218,56 +219,39 @@ export function BlueskyFeed() {
     return Url;
   }, [profileUrl]);
   useEffect(() => {
-    if (!posts) GetPosts({ filter: "posts_no_replies" });
+    if (!posts) GetPosts({ filter: "posts_with_replies" });
   }, [posts]);
-  function FeedBox() {
-    return (
+  const filteredMap = useMemo(() => {
+    return posts?.reduce<Map<string, BlueskyFeedPostType>>((map, c) => {
+      if (!map.has(c.cid)) map.set(c.cid, c);
+      return map;
+    }, new Map());
+  }, [posts]);
+  const Feed = useMemo(
+    () => (
       <div className="feedBox">
         <table>
           <tbody>
-            {posts
-              ?.filter((post) => post.author.did === did)
-              .map((post, i) => {
-                const Url = new URL(postBaseUrl);
-                Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
-                const images =
-                  post.embed?.$type === "app.bsky.embed.images#view"
-                    ? post.embed.images
-                    : [];
-                const time = new Date(post.record.createdAt);
-                return (
-                  <tr key={i} className="item">
-                    <td>
-                      <div>
-                        {post.record.text
-                          .split("\n")
-                          .reduce<Array<React.ReactNode>>((a, c, i) => {
-                            if (a.length > 0) a.push(<br key={`br_${i}`} />);
-                            a.push(c);
-                            return a;
-                          }, [])}
-                      </div>
-                      {images.length > 0 ? (
-                        <div className="embed">
-                          {images.map((image, i) => (
-                            <img key={i} alt={image.alt} src={image.thumb} />
-                          ))}
-                        </div>
-                      ) : null}
-                      <div className="time">
-                        <a href={Url.href} target="_blank">
-                          {FormatDate(time)}
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+            {filteredMap
+              ? Array.from(filteredMap.values())
+                  .filter(
+                    (post) =>
+                      post.author.did === did &&
+                      (!post.record.reply ||
+                        post.record.reply.parent.uri.match(
+                          post.author.did + "/"
+                        ))
+                  )
+                  .map((post, i) => (
+                    <PostItem post={post} postBaseUrl={postBaseUrl} key={i} />
+                  ))
+              : null}
           </tbody>
         </table>
       </div>
-    );
-  }
+    ),
+    [filteredMap, postBaseUrl]
+  );
   return (
     <div className="BlueskyFeed">
       {posts ? (
@@ -277,9 +261,82 @@ export function BlueskyFeed() {
               Bluesky
             </a>
           </h3>
-          <FeedBox />
+          {Feed}
         </>
       ) : null}
     </div>
+  );
+}
+
+function PostItem({
+  post,
+  postBaseUrl,
+}: {
+  post: BlueskyFeedPostType;
+  postBaseUrl: URL;
+}) {
+  const Url = new URL(postBaseUrl);
+  Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
+  const time = new Date(post.record.createdAt);
+  return (
+    <tr className="item">
+      <td>
+        <div>
+          {post.record.text
+            .split("\n")
+            .reduce<Array<React.ReactNode>>((a, c, i) => {
+              if (a.length > 0) a.push(<br key={`br_${i}`} />);
+              a.push(c);
+              return a;
+            }, [])}
+        </div>
+        {post.embed ? (
+          <div className="embed">
+            {post.embed.$type === "app.bsky.embed.images#view" &&
+            post.embed.images.length > 0
+              ? post.embed.images.map((image, i) => (
+                  <img key={i} alt={image.alt} src={image.thumb} />
+                ))
+              : null}
+            {post.embed.$type === "app.bsky.embed.video#view" ? (
+              <EmbedVideoProps video={post.embed} />
+            ) : null}
+          </div>
+        ) : null}
+        <div className="time">
+          <a href={Url.href} target="_blank">
+            {FormatDate(time)}
+          </a>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+interface EmbedVideoProps
+  extends Omit<React.VideoHTMLAttributes<HTMLVideoElement>, "src"> {
+  video: BlueskyFeedPostEmbedVideoViewType;
+}
+function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (Hls.isSupported()) {
+      const videoRef = ref.current!;
+      var hls = new Hls();
+      hls.loadSource(video.playlist); // Load the HLS manifest
+      hls.attachMedia(videoRef); // Attach to video element
+      // hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      // });
+    }
+  }, [video]);
+  return (
+    <video
+      ref={ref}
+      loop
+      controls
+      width={video.aspectRatio.width}
+      height={video.aspectRatio.height}
+      {...props}
+    />
   );
 }

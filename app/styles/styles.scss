@@ -2238,6 +2238,10 @@ footer {
           max-height: 85svh;
           max-width: 550px;
         }
+        video {
+          max-width: 100%;
+          height: auto;
+        }
       }
       .time {
         text-align: right;

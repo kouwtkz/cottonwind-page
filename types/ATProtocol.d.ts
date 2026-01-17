@@ -70,13 +70,38 @@ interface ATBaseType<T extends string = string> {
 interface LinkatRecordType extends ATBaseType<"blue.linkat.board"> {
   cards: Array<LinkatType>
 }
-interface BlueskyFeedPostEmbedType extends ATBaseType<"app.bsky.embed.images#view"> {
+interface BlueskyEmbedBlobType<T extends string = string> {
+  $type: "blob";
+  mimeType: T;
+  ref: {
+    $link: string;
+  }
+  size: number;
+}
+interface BlueskyFeedPostEmbedImageViewType extends ATBaseType<"app.bsky.embed.images#view"> {
   images: Array<{
     alt: string;
     aspectRatio: { width: number; height: number };
     fullsize: string;
     thumb: string;
   }>;
+}
+interface BlueskyFeedPostEmbedVideoViewType extends ATBaseType<"app.bsky.embed.video#view"> {
+  aspectRatio: { width: number; height: number };
+  cid: string;
+  playlist: string;
+  thumbnail: string;
+}
+interface BlueskyFeedPostEmbedImageType extends ATBaseType<"app.bsky.embed.images"> {
+  images: [{
+    alt: string;
+    aspectRatio: { width: number; height: number };
+    image: BlueskyEmbedBlobType;
+  }];
+}
+interface BlueskyFeedPostEmbedVideoType extends ATBaseType<"app.bsky.embed.video"> {
+  aspectRatio: { width: number; height: number };
+  video: BlueskyEmbedBlobType<"video/mp4">;
 }
 interface CidUriType {
   cid: string;
@@ -107,6 +132,7 @@ interface BlueskyFeedPostRecordType extends ATBaseType<"app.bsky.feed.post"> {
     root: CidUriType;
   }
   text: string;
+  embed?: BlueskyFeedPostEmbedImageType | BlueskyFeedPostEmbedVideoType;
 }
 
 interface BlueskyFeedAuthorType {
@@ -131,7 +157,7 @@ interface BlueskyFeedPostType {
   author: BlueskyFeedAuthorType;
   bookmarkCount: 0;
   cid: string;
-  embed?: BlueskyFeedPostEmbedType;
+  embed?: BlueskyFeedPostEmbedImageViewType | BlueskyFeedPostEmbedVideoViewType;
   indexedAt: string;
   labels: Array;
   likeCount: number;
