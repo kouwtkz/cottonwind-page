@@ -221,36 +221,56 @@ export function BlueskyFeed() {
   useEffect(() => {
     if (!posts) GetPosts({ filter: "posts_with_replies" });
   }, [posts]);
-  const filteredMap = useMemo(() => {
-    return posts?.reduce<Map<string, BlueskyFeedPostType>>((map, c) => {
-      if (!map.has(c.cid)) map.set(c.cid, c);
-      return map;
-    }, new Map());
+  const list = useMemo(() => {
+    const mapList = posts?.reduce<
+      [Map<string, BlueskyFeedPostType[]>, Map<string, void>]
+    >(
+      (a, post) => {
+        if (
+          post.author.did === did &&
+          (!post.record.reply ||
+            post.record.reply.parent.uri.match(post.author.did + "/")) &&
+          !a[1].has(post.cid)
+        ) {
+          a[1].set(post.cid);
+          const tree_cid = post.record.reply?.root.cid || post.cid;
+          const treeList = a[0].get(tree_cid);
+          if (treeList) treeList.push(post);
+          else a[0].set(tree_cid, [post]);
+        }
+        return a;
+      },
+      [new Map(), new Map()]
+    );
+    if (mapList) {
+      const list = Array.from(mapList[0].values()).reduce<
+        BlueskyFeedPostType[]
+      >((a, posts) => {
+        if (posts) {
+          posts
+            .sort((a, b) => (a.record.createdAt > b.record.createdAt ? 1 : -1))
+            .forEach((post) => {
+              a.push(post);
+            });
+        }
+        return a;
+      }, []);
+      return list;
+    } else return [];
   }, [posts]);
   const Feed = useMemo(
     () => (
       <div className="feedBox">
         <table>
           <tbody>
-            {filteredMap
-              ? Array.from(filteredMap.values())
-                  .filter(
-                    (post) =>
-                      post.author.did === did &&
-                      (!post.record.reply ||
-                        post.record.reply.parent.uri.match(
-                          post.author.did + "/"
-                        ))
-                  )
-                  .map((post, i) => (
-                    <PostItem post={post} postBaseUrl={postBaseUrl} key={i} />
-                  ))
-              : null}
+            {list.map((post, i) => (
+              <PostItem post={post} postBaseUrl={postBaseUrl} key={i} />
+            ))}
           </tbody>
         </table>
       </div>
     ),
-    [filteredMap, postBaseUrl]
+    [list, postBaseUrl]
   );
   return (
     <div className="BlueskyFeed">
@@ -278,9 +298,12 @@ function PostItem({
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
   const time = new Date(post.record.createdAt);
+  const tdClass = useMemo(() => {
+    if (post.record.reply) return "tree";
+  }, [post]);
   return (
     <tr className="item">
-      <td>
+      <td className={tdClass}>
         <div>
           {post.record.text
             .split("\n")

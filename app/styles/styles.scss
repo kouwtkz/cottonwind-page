@@ -2219,9 +2219,11 @@ footer {
     border: none;
     td {
       padding: 1rem;
-      border: 1px solid var(--main-color-grayish);
-      border-left: none;
-      border-right: none;
+      border: none;
+      border-top: 1px solid var(--main-color-grayish);
+      &.tree {
+        border-top: 1px dashed var(--main-color-soft);
+      }
       .embed {
         margin-top: 1rem;
         display: flex;
@@ -2251,11 +2253,6 @@ footer {
     tr:first-child {
       td {
         border-top: none;
-      }
-    }
-    tr:last-child {
-      td {
-        border-bottom: none;
       }
     }
   }
