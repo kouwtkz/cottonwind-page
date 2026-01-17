@@ -4,6 +4,7 @@ import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
 import { ATProtocolEnv } from "~/Env";
 import Hls, { Events as hlsEvents } from "hls.js";
+import { BiRepost } from "react-icons/bi";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -180,10 +181,13 @@ function _GetPosts() {
           }
         })
         .then((json) => {
-          return json.feed.reduce<Array<BlueskyFeedPostType>>((a, { post }) => {
-            a.push(post);
-            return a;
-          }, []);
+          return json.feed.reduce<Array<BlueskyFeedPostType>>(
+            (a, { post, reason }) => {
+              a.push({ ...post, reason });
+              return a;
+            },
+            [],
+          );
         })
         .then((posts) => {
           Set({ posts });
@@ -223,7 +227,7 @@ export function BlueskyFeed() {
   }, [posts]);
   const list = useMemo(() => {
     const mapList = posts?.reduce<
-      [Map<string, BlueskyFeedPostType[]>, Map<string, void>]
+      [Map<string, BlueskyFeedPostRawType[]>, Map<string, void>]
     >(
       (a, post) => {
         if (
@@ -301,6 +305,7 @@ function PostItem({
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
   const time = new Date(post.record.createdAt);
+  const isRepost = post.reason?.$type === "app.bsky.feed.defs#reasonRepost";
   let tdClass: string | undefined;
   if (isTree) tdClass = "tree";
   return (
@@ -329,6 +334,7 @@ function PostItem({
           </div>
         ) : null}
         <div className="time">
+          {isRepost ? <BiRepost className="repost" /> : null}
           <a href={Url.href} target="_blank">
             {FormatDate(time)}
           </a>

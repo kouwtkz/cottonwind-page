@@ -2249,6 +2249,14 @@ footer {
       .time {
         text-align: right;
         margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        .repost {
+          color: var(--main-color-grayish);
+          font-size: 1.5rem;
+          margin-right: 0.5rem;
+        }
       }
     }
     tr:first-child {

@@ -5,7 +5,7 @@ interface ATProtoStateType {
   describe?: ATDescribeType | null;
   endpoint?: string;
   linkat?: Array<LinkatType>;
-  posts?: Array<BlueskyFeedPostType>;
+  posts?: Array<BlueskyFeedPostRawType>;
   _getPostProps?: BlueskyFeedGetPostProps;
   GetPosts(props?: BlueskyFeedGetPostProps): void;
 }
@@ -153,7 +153,7 @@ interface BlueskyFeedAuthorType {
   pronouns: string;
 }
 
-interface BlueskyFeedPostType {
+interface BlueskyFeedPostRawType {
   author: BlueskyFeedAuthorType;
   bookmarkCount: 0;
   cid: string;
@@ -167,14 +167,23 @@ interface BlueskyFeedPostType {
   repostCount: number;
   uri: string;
 }
+interface BlueskyFeedPostReasonRepostType extends ATBaseType<"app.bsky.feed.defs#reasonRepost"> {
+  by: BlueskyFeedAuthorType;
+  cid: string;
+  indexedAt: string;
+  uri: string;
+}
+interface BlueskyFeedPostType extends BlueskyFeedPostRawType {
+  reason?: BlueskyFeedPostReasonRepostType;
+}
 
 interface BlueskyFeedItemType {
-  post: BlueskyFeedPostType;
+  post: BlueskyFeedPostRawType;
   reply?: {
     parent: CidUriType;
     root: CidUriType;
   }
-  reason?: any;
+  reason?: BlueskyFeedPostReasonRepostType;
 }
 
 interface BlueskyFeedType {
