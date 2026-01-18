@@ -5,6 +5,7 @@ import { FormatDate } from "../functions/DateFunction";
 import { ATProtocolEnv } from "~/Env";
 import Hls, { Events as hlsEvents } from "hls.js";
 import { BiRepost } from "react-icons/bi";
+import { toast } from "react-toastify";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -353,7 +354,6 @@ function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
   const Play = useCallback(
     (callback?: (e: hlsEvents.MANIFEST_PARSED) => void) => {
       if (Hls.isSupported()) {
-        console.log(video);
         const videoRef = ref.current!;
         var hls = new Hls();
         hls.loadSource(video.playlist); // Load the HLS manifest
@@ -362,10 +362,15 @@ function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
           videoRef.play();
           if (callback) callback(e);
         });
+      } else {
+        toast("hls.js is not support.")
       }
     },
     [video],
   );
+  let startTime: number = 0;
+  let x: number = 0;
+  let y: number = 0;
   return (
     <video
       ref={ref}
@@ -376,6 +381,23 @@ function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
       poster={video.thumbnail}
       onClick={(e) => {
         if (!ref.current?.src) Play();
+      }}
+      onTouchStart={(e) => {
+        if (!ref.current?.src) {
+          startTime = e.timeStamp;
+          x = e.touches[0].clientX;
+          y = e.touches[0].clientY;
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (!ref.current?.src) {
+          const duration = e.timeStamp - startTime;
+          if (duration < 200) {
+            const dx = e.changedTouches[0].clientX - x;
+            const dy = e.changedTouches[0].clientY - y;
+            if (dx < 4 && dy < 4) Play();
+          }
+        }
       }}
       {...props}
     />
