@@ -44,6 +44,7 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "copyrig
   schedule?: boolean;
   like?: LikeType;
   data?: ImageDataType;
+  hideInfo?: boolean;
 }
 /** @comments ひとつのアルバムの変数 */
 interface ImageAlbumType {

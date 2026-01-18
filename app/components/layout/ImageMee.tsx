@@ -46,7 +46,7 @@ export interface ImageMeeProps
   isCover?: boolean;
   ref?: React.RefObject<HTMLImageElement | null>;
 }
-export function ImageMee({
+export const ImageMee = React.memo(function ImageMee({
   imageItem: _imageItem,
   mode = "simple",
   alt: _alt,
@@ -88,12 +88,17 @@ export function ImageMee({
       if (url) url = url + versionString;
       return url;
     },
-    [mediaOrigin, versionString]
+    [mediaOrigin, versionString],
   );
 
   const { addProgress, addMax } = useToastProgress();
   const ext = getExtension(imageItem?.src || _src || "");
-  const src = (imageItem ? MediaOrigin(imageItem.src) : null) || _src || "";
+  const src = useMemo(() => {
+    if (imageItem?.src) {
+      if (/https?:\/\//.test(imageItem.src)) return imageItem.src;
+      else return MediaOrigin(imageItem.src);
+    } else return _src || "";
+  }, [imageItem, _src]);
   const alt = _alt || imageItem?.title || imageItem?.src || "";
 
   [width, height] = useMemo(() => {
@@ -117,7 +122,7 @@ export function ImageMee({
       (Number(imageItem?.width || width) +
         Number(imageItem?.height || height)) /
       2,
-    [imageItem, width, height]
+    [imageItem, width, height],
   );
 
   const [statePngURL, setPngURL] = useState<string>();
@@ -142,10 +147,12 @@ export function ImageMee({
     }
   }, [showMessage, showPng, pngURL, setPngURL, addProgress, addMax]);
 
-  const thumbnail = useMemo(
-    () => (imageItem?.thumbnail ? MediaOrigin(imageItem?.thumbnail) : null),
-    [imageItem, MediaOrigin]
-  );
+  const thumbnail = useMemo(() => {
+    if (imageItem?.thumbnail) {
+      if (/https?:\/\//.test(imageItem.thumbnail)) return imageItem.thumbnail;
+      else return MediaOrigin(imageItem.thumbnail);
+    } else return null;
+  }, [imageItem, MediaOrigin]);
   const imageSrc = useMemo(
     () =>
       showPng && pngURL
@@ -156,23 +163,23 @@ export function ImageMee({
             ? thumbnail
             : imageItem && mode
               ? MediaOrigin(
-                  (imageItem as unknown as KeyValueType<string>)[mode]
+                  (imageItem as unknown as KeyValueType<string>)[mode],
                 ) || src
               : src,
-    [imageItem, mode, src, thumbnail, showPng, pngURL]
+    [imageItem, mode, src, thumbnail, showPng, pngURL],
   );
   const enableTempThumbnail = useMemo(
     () => Boolean(mode === "simple" && thumbnail),
-    [mode, thumbnail]
+    [mode, thumbnail],
   );
   const [tempThumbnail, setTempThumbnail] = useState(true);
   const currentTempThumbnail = useMemo(
     () => enableTempThumbnail && tempThumbnail,
-    [enableTempThumbnail, tempThumbnail]
+    [enableTempThumbnail, tempThumbnail],
   );
   const mainImgSrc = useMemo(
     () => (currentTempThumbnail ? thumbnail : imageSrc),
-    [imageSrc, thumbnail, currentTempThumbnail]
+    [imageSrc, thumbnail, currentTempThumbnail],
   );
 
   useEffect(
@@ -180,7 +187,7 @@ export function ImageMee({
       setPngURL(undefined);
       setTempThumbnail(true);
     },
-    [imageItem, setPngURL, setTempThumbnail]
+    [imageItem, setPngURL, setTempThumbnail],
   );
 
   const _className = useMemo(() => {
@@ -239,7 +246,7 @@ export function ImageMee({
       {...attributes}
     />
   );
-}
+});
 
 interface ImageMeeSimpleProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {

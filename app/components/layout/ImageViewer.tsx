@@ -51,20 +51,37 @@ interface ImageViewerParamType {
 interface ImageViewerType extends ImageViewerParamType {
   image: ImageType | null;
   images: ImageType[] | null;
+  editMode?: boolean;
   isOpen: boolean;
-  setOpen: () => void;
-  setClose: () => void;
+  setOpen(props?: setTypeProps<ImageViewerType>): void;
+  setClose(): void;
+  clear(close?: boolean): void;
 }
 export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   image: null,
   images: null,
   isOpen: false,
-  setOpen: () => {
-    set(() => ({ isOpen: true }));
+  setOpen(props) {
+    set({ ...props, isOpen: true });
   },
-  setClose: () => {
-    set(() => ({ isOpen: false, editMode: false }));
-    scrollLock(false);
+  setClose() {
+    set(({ isOpen }) => {
+      if (!isOpen) return {};
+      scrollLock(false);
+      return { isOpen: false, editMode: false };
+    });
+  },
+  clear(close = true) {
+    const options: Partial<ImageViewerType> = {
+      image: null,
+      imageParam: null,
+      albumParam: null,
+      groupParam: null,
+    };
+    set((set) => {
+      if (close) set.setClose();
+      return options;
+    });
   },
 }));
 
@@ -82,10 +99,10 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
   const isLogin = useIsLogin()[0];
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
-    [stateIsEdit, stateIsEditHold]
+    [stateIsEdit, stateIsEditHold],
   );
   const tagsOptions = autoFixGalleryTagsOptions(
-    getTagsOptions(defaultGalleryTags)
+    getTagsOptions(defaultGalleryTags),
   );
   const tags = image.tags ?? [];
   const charaTags = useMemo(() => {
@@ -96,10 +113,10 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
     }
   }, [image.characters, charactersMap]);
   const registeredTags = tags.filter((tag) =>
-    tagsOptions.some(({ value }) => value === tag)
+    tagsOptions.some(({ value }) => value === tag),
   );
   const othertags = tags.filter((tag) =>
-    registeredTags.every((rt) => rt !== tag)
+    registeredTags.every((rt) => rt !== tag),
   );
   const tagsBaseURL = (globalThis.window?.location.origin || "") + "/gallery";
   return (
@@ -143,7 +160,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
               const item = tagsOptions.find(({ value }) => value === tag);
               if (!item) return item;
               const search = createSearchParams(
-                item.query ?? { tags: item.value ?? "" }
+                item.query ?? { tags: item.value ?? "" },
               );
               switch (item.name) {
                 case "monthly":
@@ -170,7 +187,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                       createSearchParams({
                         tags: tag,
                       }),
-                    tagsBaseURL
+                    tagsBaseURL,
                   ).href
                 }
                 key={i}
@@ -211,7 +228,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                           createSearchParams({
                             copyright: value,
                           }),
-                        tagsBaseURL
+                        tagsBaseURL,
                       ).href
                     }
                     key={i}
@@ -241,7 +258,14 @@ function PreviewArea({ image }: PreviewAreaProps) {
   function MediaOrigin(src?: string) {
     return concatOriginUrl(mediaOrigin, src);
   }
-  const imageUrl = useMemo(() => image.src || "", [image]);
+  const imageUrl = useMemo(() => {
+    const src = image.src || "";
+    if (/^https?:\/\//.test(src)) return src;
+    else
+      return MediaOrigin(
+        src + ((image.version || 1) > 1 ? "?v=" + image.version : ""),
+      );
+  }, [image]);
   return (
     <div className="preview">
       {image ? (
@@ -254,10 +278,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
             <div className="wh-fill">
               <a
                 title="別タブで画像を開く"
-                href={MediaOrigin(
-                  imageUrl +
-                    ((image.version || 1) > 1 ? "?v=" + image.version : "")
-                )}
+                href={imageUrl}
                 target="_blank"
                 className="translucent-button hover-visible fullscreen"
               >
@@ -358,58 +379,22 @@ function EmbedOpen({ embed, type, title }: EmbedOpenProps) {
 }
 
 export function ImageViewer() {
-  const { imagesMap } = useImageState();
-  const {
-    isOpen,
-    setOpen,
-    setClose,
-    image,
-    imageParam,
-    groupParam,
-    Set: setImageViewer,
-  } = useImageViewer();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const nav = useNavigate();
-  const l = useLocation();
-  const state = l.state;
-  const { isDirty, Set: setEdit } = useImageEditState();
-  const ebookMode = useMemo(() => l.hash === "#laymic", [l.hash]);
-  const disableHotkeys = useMemo(() => ebookMode, [ebookMode]);
-
-  function backAction() {
-    if (
-      !isDirty ||
-      confirm("フォームが保存されていません。\n本当に戻りますか？")
-    ) {
-      setEdit({ isDirty: false, isEdit: false });
-      if (state?.from) nav(-1);
-      else {
-        searchParams.delete("image");
-        searchParams.delete("pic");
-        searchParams.delete("group");
-        searchParams.delete("album");
-        searchParams.delete("ebook");
-        setSearchParams(searchParams, { preventScrollReset: true, state });
-      }
-    }
-  }
-
-  useHotkeys(
-    "escape",
-    (e) => {
-      if (isOpen) {
-        backAction();
-        e.preventDefault();
-      }
-    },
-    { enabled: !disableHotkeys }
+  return (
+    <>
+      <ImageViewerSetParams />
+      <ImageViewerMain />
+    </>
   );
+}
 
+export function ImageViewerSetParams() {
+  const searchParams = useSearchParams()[0];
+  const { setOpen, Set: setImageViewer, setClose } = useImageViewer();
   const imageSParam = useMemo(() => searchParams.get("image"), [searchParams]);
   const albumSParam = useMemo(() => searchParams.get("album"), [searchParams]);
   const groupSParam = useMemo(
     () => searchParams.get("group") ?? albumSParam,
-    [searchParams, albumSParam]
+    [searchParams, albumSParam],
   );
   useEffect(() => {
     if (imageSParam) {
@@ -423,15 +408,70 @@ export function ImageViewer() {
       setClose();
     }
   }, [imageSParam, albumSParam, groupSParam]);
+  return <></>;
+}
+
+function ImageViewerMain() {
+  const { imagesMap } = useImageState();
+  const {
+    isOpen,
+    image,
+    imageParam,
+    groupParam,
+    Set: setImageViewer,
+    setClose,
+    setOpen,
+  } = useImageViewer();
+  const setSearchParams = useSearchParams()[1];
+  const nav = useNavigate();
+  const l = useLocation();
+  const state = l.state;
+  const { isDirty, Set: setEdit } = useImageEditState();
+  const ebookMode = useMemo(() => l.hash === "#laymic", [l.hash]);
+  const disableHotkeys = useMemo(() => ebookMode, [ebookMode]);
+
+  function backAction() {
+    if (
+      !isDirty ||
+      confirm("フォームが保存されていません。\n本当に戻りますか？")
+    ) {
+      setEdit({ isDirty: false, isEdit: false });
+      setClose();
+      if (state?.from) nav(-1);
+      else {
+        const searchParams = new URLSearchParams(location.search);
+        if (searchParams.has("image")) {
+          searchParams.delete("image");
+          searchParams.delete("pic");
+          searchParams.delete("group");
+          searchParams.delete("album");
+          searchParams.delete("ebook");
+          setSearchParams(searchParams, { preventScrollReset: true, state });
+        }
+      }
+    }
+  }
+
+  useHotkeys(
+    "escape",
+    (e) => {
+      if (isOpen) {
+        backAction();
+        e.preventDefault();
+      }
+    },
+    { enabled: !disableHotkeys },
+  );
 
   const { filteredYearGroups } = useGalleryObject();
   const galleryItemIndex = useMemo(
-    () => filteredYearGroups?.findIndex((item) => item.name === groupParam) ?? -1,
-    [filteredYearGroups, groupParam]
+    () =>
+      filteredYearGroups?.findIndex((item) => item.name === groupParam) ?? -1,
+    [filteredYearGroups, groupParam],
   );
   const images = useMemo(
     () => filteredYearGroups[galleryItemIndex]?.list || [],
-    [filteredYearGroups, galleryItemIndex]
+    [filteredYearGroups, galleryItemIndex],
   );
   useEffect(() => {
     setImageViewer({ images });
@@ -479,7 +519,9 @@ export function ImageViewer() {
         {image ? (
           <>
             <PreviewArea image={image} />
-            <InfoArea image={image} disableHotkeys={disableHotkeys} />
+            {image.hideInfo ? null : (
+              <InfoArea image={image} disableHotkeys={disableHotkeys} />
+            )}
           </>
         ) : null}
       </Modal>
@@ -523,7 +565,7 @@ export function GalleryViewerPaging({
       before: images[imageIndex - 1],
       after: images[imageIndex + 1],
     }),
-    [images, imageIndex]
+    [images, imageIndex],
   );
   const prevNextToHandler = function (image: ImageType) {
     const SearchParams = new URLSearchParams(searchParams);
@@ -540,11 +582,11 @@ export function GalleryViewerPaging({
             ...Object.fromEntries(searchParams),
             image: prevNextImage.before.key,
           },
-          { preventScrollReset: true, state: escapeState }
+          { preventScrollReset: true, state: escapeState },
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys }
+    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys },
   );
   useHotkeys(
     "ArrowRight",
@@ -556,11 +598,11 @@ export function GalleryViewerPaging({
             ...Object.fromEntries(searchParams),
             image: prevNextImage.after.key,
           },
-          { preventScrollReset: true, state: escapeState }
+          { preventScrollReset: true, state: escapeState },
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys }
+    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys },
   );
   return (
     <div className={"paging" + (className ? ` ${className}` : "")} {...args}>

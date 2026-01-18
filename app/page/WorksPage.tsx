@@ -2,7 +2,7 @@ import { useImageState } from "~/components/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
 import ContactPage from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { findMee } from "~/data/find/findMee";
 import {
   KeyValueEditable,
@@ -10,7 +10,56 @@ import {
   KeyValueRenderProps,
 } from "~/components/state/KeyValueDBState";
 
+const LinksStyle: React.CSSProperties = {
+  minHeight: "3em",
+};
 export default function WorksPage() {
+  return (
+    <div className="worksPage">
+      <div className="color-main en-title-font">
+        <h2>WORKS</h2>
+        <h4>おしごとページ</h4>
+      </div>
+      <div className="status">
+        <h2 className="color-main en-title-font">
+          Status
+          <KeyValueEditButton
+            editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
+            editType="textarea"
+          />
+        </h2>
+        <KeyValueRenderProps
+          editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
+          editType="textarea"
+        />
+      </div>
+      <WorksGallery />
+      <MeeLinks
+        title="Commission"
+        category="commission"
+        className="linkPage"
+        banner
+        linkStyle={LinksStyle}
+      />
+      <div className="price">
+        <h2 className="color-main en-title-font">
+          Price
+          <KeyValueEditButton
+            editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
+            editType="textarea"
+          />
+        </h2>
+        <KeyValueRenderProps
+          editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
+          editType="textarea"
+        />
+      </div>
+      <ContactPage />
+    </div>
+  );
+}
+
+function WorksGallery() {
   const { images, galleryAlbums } = useImageState();
   const galleryResults = useMemo(() => {
     if (images) {
@@ -35,58 +84,18 @@ export default function WorksPage() {
       },
     ];
     if (gallery3D) {
-      list.push({...gallery3D, label: "3D Sample"});
+      list.push({ ...gallery3D, label: "3D Sample" });
     }
     return list;
   }, [galleryResults, gallery3D]);
   return (
-    <div className="worksPage">
-      <div className="color-main en-title-font">
-        <h2>WORKS</h2>
-        <h4>おしごとページ</h4>
-      </div>
-      <div className="status">
-        <h2 className="color-main en-title-font">
-          Status
-          <KeyValueEditButton
-            editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
-            editType="textarea"
-          />
-        </h2>
-        <KeyValueRenderProps
-          editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
-          editType="textarea"
-        />
-      </div>
-      <div className="gallery">
-        <h2 className="color-main en-title-font">Gallery</h2>
-        <GalleryObject
-          items={groups}
-          showInPageMenu={false}
-          showGalleryHeader={false}
-        />
-      </div>
-      <MeeLinks
-        title="Commission"
-        category="commission"
-        className="linkPage"
-        banner
-        linkStyle={{ minHeight: "3em" }}
+    <div className="gallery">
+      <h2 className="color-main en-title-font">Gallery</h2>
+      <GalleryObject
+        items={groups}
+        showInPageMenu={false}
+        showGalleryHeader={false}
       />
-      <div className="price">
-        <h2 className="color-main en-title-font">
-          Price
-          <KeyValueEditButton
-            editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
-            editType="textarea"
-          />
-        </h2>
-        <KeyValueRenderProps
-          editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
-          editType="textarea"
-        />
-      </div>
-      <ContactPage />
     </div>
   );
 }

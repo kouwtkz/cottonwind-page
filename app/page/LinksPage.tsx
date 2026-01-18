@@ -156,7 +156,7 @@ export function MyBanners() {
                     pending: "送信中",
                     success: "送信しました",
                     error: "送信に失敗しました",
-                  }
+                  },
                 );
               } else setMove(0);
             }}
@@ -206,7 +206,7 @@ function MyBannerInner({ item, move }: { item: ImageType; move?: boolean }) {
   );
 }
 
-function LinksInner({
+const LinksInner = React.memo(function LinksInner({
   item,
   state,
   style,
@@ -217,7 +217,6 @@ function LinksInner({
   banner?: boolean;
   style?: CSSProperties;
 }) {
-  state.options.name;
   const { Set } = useLinksEdit();
   const isEditable = useLinksEditMode()[0];
   const isPassLock = !item.url && item.password;
@@ -240,21 +239,7 @@ function LinksInner({
       }
     },
   };
-  <a
-    href={item.url || ""}
-    title={titleWithDsc}
-    target="_blank"
-    className={item.Image || item.image ? "overlay" : ""}
-    onClick={(e) => {
-      if (isEditable) {
-        Set({ src: state.options.src, edit: item.id });
-        e.preventDefault();
-      }
-    }}
-  >
-    <BannerInner image={item.Image || item.image} alt={titleWithDsc} />
-  </a>;
-  function Inner() {
+  const Inner = React.memo(function Inner() {
     const title = item.title || item.key;
     return (
       <>
@@ -269,7 +254,7 @@ function LinksInner({
         )}
       </>
     );
-  }
+  });
 
   return (
     <>
@@ -284,7 +269,7 @@ function LinksInner({
       )}
     </>
   );
-}
+});
 
 interface LinksContainerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
@@ -300,7 +285,7 @@ interface LinksContainerProps
   open?: boolean;
   editable?: boolean;
 }
-function LinksContainer({
+const LinksContainer = React.memo(function LinksContainer({
   category = null,
   title,
   className,
@@ -342,7 +327,7 @@ function LinksContainer({
     if (banner) list.push("bannerArea");
     else list.push("font-larger");
     return list.join(" ");
-  }, [links, banner]);
+  }, [links]);
   className = useMemo(() => {
     const list = [];
     if (className) list.push(className);
@@ -399,7 +384,7 @@ function LinksContainer({
                     pending: "送信中",
                     success: "送信しました",
                     error: "送信に失敗しました",
-                  }
+                  },
                 );
               } else setMove(0);
             }}
@@ -453,14 +438,14 @@ function LinksContainer({
       ) : null}
     </>
   );
-}
+});
 
 interface MeeLinksProps
   extends Omit<
     LinksContainerProps,
     "send" | "dataObject" | "state" | "indexedDB"
   > {}
-export function MeeLinks(props: MeeLinksProps) {
+export const MeeLinks = React.memo(function MeeLinks(props: MeeLinksProps) {
   const state = useLinks();
   return (
     <>
@@ -474,7 +459,7 @@ export function MeeLinks(props: MeeLinksProps) {
       ) : null}
     </>
   );
-}
+});
 export function FavoriteLinks(props: MeeLinksProps) {
   return (
     <LinksContainer
@@ -502,7 +487,7 @@ export function getTitleWithDsc(item: SiteLink) {
   );
 }
 
-export function BannerInner({
+export const BannerInner = React.memo(function BannerInner({
   image,
   title,
   alt,
@@ -543,7 +528,7 @@ export function BannerInner({
       )}
     </>
   );
-}
+});
 
 export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
   const { linkat, handle } = useATProtoState();
@@ -556,7 +541,7 @@ export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
   const { imageAlbums } = useImageState();
   const linkatAlbum = useMemo(
     () => imageAlbums?.get("linkBanner") || null,
-    [imageAlbums]
+    [imageAlbums],
   );
   const isEditable = useLinksEditMode()[0];
   const [edit, setEdit] = useState<LinkatType | null>(null);
