@@ -28,6 +28,11 @@
     },
     {
       "type": "shell",
+      "label": "wrangler: update",
+      "command": "npm update wrangler -g"
+    },
+    {
+      "type": "shell",
       "command": "curl http://localhost:51730",
       "label": "curl: home",
       "group": "test"

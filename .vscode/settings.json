@@ -7,6 +7,7 @@
   "vs-browser.url": "http://localhost:51730/",
   "VsCodeTaskButtons.tasks": [
     { "label": "update", "task": "bun: update" },
+    { "label": "wrangler update", "task": "wrangler: update" },
     { "label": "build", "task": "bun: build" },
     { "label": "start", "task": "bun: start" },
     { "label": "deploy", "task": "bun: deploy" },
