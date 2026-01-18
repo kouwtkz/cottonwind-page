@@ -1,7 +1,8 @@
+import React from "react";
 import { SimpleSlider } from "../SimpleSlider";
 import { useIsLoaded } from "../state/SetState";
 
-export function Loading() {
+export const Loading = React.memo(function Loading() {
   const list = useIsLoaded()[0]!;
   return (
     <div className="loadingWindow">
@@ -21,4 +22,4 @@ export function Loading() {
       </noscript>
     </div>
   );
-}
+});

@@ -39,7 +39,7 @@ export function ImageState() {
   const { likeCategoryMap } = useLikeState();
   const { charactersMap } = useCharacters();
   const imagesData = useSyncExternalStore(
-    ...ExternalStoreProps(imageDataIndexed)
+    ...ExternalStoreProps(imageDataIndexed),
   );
   useEffect(() => {
     if (
@@ -55,7 +55,7 @@ export function ImageState() {
         images.forEach((image) => {
           if (lastmod)
             image.update = Boolean(
-              image.lastmod!.getTime() > lastmod.getTime()
+              image.lastmod!.getTime() > lastmod.getTime(),
             );
           image.new =
             image.update &&
@@ -146,5 +146,5 @@ export const useSelectImageState = CreateObjectState<SelectImageState>(
       set({ _openArgs: args });
     },
     _openArgs: null,
-  })
+  }),
 );

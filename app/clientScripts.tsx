@@ -1,3 +1,5 @@
+import React from "react";
+
 const scripts = {
   jszip: "/static/scripts/jszip.min.js",
   epub: "/static/scripts/epub.min.js",
@@ -7,7 +9,7 @@ const scripts = {
 type jsFileNames = keyof typeof scripts;
 type jsFileNamesArgs = "all" | jsFileNames;
 
-export function DefaultImportScripts({
+export const DefaultImportScripts = React.memo(function DefaultImportScripts({
   names = "all",
 }: {
   names?: jsFileNamesArgs | jsFileNames[];
@@ -16,8 +18,8 @@ export function DefaultImportScripts({
     names === "all"
       ? Object.entries(scripts)
       : Array.isArray(names)
-      ? names.map((k) => [k, scripts[k]])
-      : [[names, scripts[names]]];
+        ? names.map((k) => [k, scripts[k]])
+        : [[names, scripts[names]]];
   return (
     <>
       {list.map(([k, v]) => (
@@ -25,7 +27,7 @@ export function DefaultImportScripts({
       ))}
     </>
   );
-}
+});
 
 export function DOMContentLoaded(call: Function) {
   if (document.readyState !== "loading") {

@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { isRouteErrorResponse, Link } from "react-router";
 
 interface ErrorBoundaryContentProps {
   error?: unknown;
   className?: string;
 }
-export function ErrorBoundaryContent({
+export const ErrorBoundaryContent = React.memo(function ErrorBoundaryContent({
   error,
   className,
 }: ErrorBoundaryContentProps) {
@@ -49,4 +49,4 @@ export function ErrorBoundaryContent({
       </main>
     </div>
   );
-}
+});

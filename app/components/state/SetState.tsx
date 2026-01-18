@@ -3,7 +3,7 @@ import { SoundPlayer } from "~/components/layout/SoundPlayer";
 import { ImageViewer } from "~/components/layout/ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
-import { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CharacterState, useCharacters } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
@@ -20,7 +20,7 @@ import { CalendarMeeState, useCalendarMee } from "~/calendar/CalendarMee";
 // import { FaviconState } from "./FaviconState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";
-import { ClientDBState } from "~/data/ClientDBLoader";
+import { ClientDBState, IdbStateClassList } from "~/data/ClientDBLoader";
 import type {
   ImageIndexedDataStateClass,
   IndexedDataLastmodMH,
@@ -35,13 +35,24 @@ import { ATPState, useATProtoState } from "./ATProtocolState";
 import { ATProtocolEnv } from "~/Env";
 import { NavKeepState } from "./NavState";
 
-export function SetState({
+let count = 0;
+export const SetState = React.memo(function SetState({
   env,
   isLogin,
 }: {
   env?: Partial<OmittedEnv>;
   isLogin?: boolean;
 }) {
+  const loadedIndex = useState<boolean>()[1];
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (count++ > 100 || IdbStateClassList.length > 0) {
+        clearInterval(id);
+        loadedIndex(true);
+        count = 101;
+      }
+    }, 1);
+  }, []);
   return (
     <>
       <CheckIsComplete />
@@ -73,7 +84,7 @@ export function SetState({
       <FaviconState />
     </>
   );
-}
+});
 
 export const useIsComplete = CreateState(false);
 export const useIsLoaded = CreateState<boolean[]>([]);
@@ -89,11 +100,11 @@ function CheckIsComplete() {
   const loadedATProtoDid = useMemo(() => typeof did !== "undefined", [did]);
   const loadedATProtoDidInfo = useMemo(
     () => typeof didInfo !== "undefined",
-    [didInfo]
+    [didInfo],
   );
   const loadedATProtoDescribe = useMemo(
     () => typeof describe !== "undefined",
-    [describe]
+    [describe],
   );
   const loadedATProtoLinkat = useMemo(() => Boolean(linkat), [linkat]);
   const isSetList = useMemo(() => {

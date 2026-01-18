@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteLoaderData,
   type LinkDescriptor,
 } from "react-router";
@@ -26,7 +27,7 @@ import {
   imageDataIndexed,
   waitIdb,
 } from "./data/ClientDBLoader";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { waitEnvResolve } from "./data/ClientEnvLorder";
 import { useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
@@ -85,7 +86,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
             where: { OR: charaWhere },
           });
           charaList = characters3.map(
-            (k) => result.find(({ key }) => key === k) || k
+            (k) => result.find(({ key }) => key === k) || k,
           );
         }
         image = imageItem;
@@ -158,7 +159,7 @@ export async function clientLoader({
                   .then((v) => v?.rawdata);
               }
               return character || query;
-            })
+            }),
           );
         }
       }

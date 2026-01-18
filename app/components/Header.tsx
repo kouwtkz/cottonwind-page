@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router";
 import {
   DEFAULT_LANG,
@@ -21,7 +21,7 @@ export function SiteTitle() {
     () =>
       (lang === DEFAULT_LANG ? TITLE : TITLE_EN) ??
       (typeof document !== "undefined" ? document.title : ""),
-    [lang]
+    [lang],
   );
 
   return (
@@ -51,7 +51,10 @@ export function SiteTitle() {
   );
 }
 
-export function HeaderClient({ hideBackButton, hideSiteMenu }: HeaderProps) {
+export const HeaderClient = React.memo(function HeaderClient({
+  hideBackButton,
+  hideSiteMenu,
+}: HeaderProps) {
   return (
     <header id="header" className="siteHeader">
       {hideBackButton ? null : <BackButton className="backButton" />}
@@ -60,4 +63,4 @@ export function HeaderClient({ hideBackButton, hideSiteMenu }: HeaderProps) {
       <div className="headerBackground" />
     </header>
   );
-}
+});
