@@ -54,7 +54,7 @@ type EditType = "text" | "textarea" | "image";
 export function KeyValueDBState() {
   const { Set } = useKeyValueDB();
   const data = useSyncExternalStore(
-    ...ExternalStoreProps(keyValueDBDataIndexed)
+    ...ExternalStoreProps(keyValueDBDataIndexed),
   );
   useEffect(() => {
     if (data?.db) {
@@ -66,7 +66,7 @@ export function KeyValueDBState() {
         Set({
           kvList: parsedData,
           kvMap: new Map(
-            parsedData.filter((v) => v.key).map((v) => [v.key!, v])
+            parsedData.filter((v) => v.key).map((v) => [v.key!, v]),
           ),
           isLoading: false,
         });
@@ -115,7 +115,7 @@ function KeyValueEdit() {
   }, [isFirstSelection]);
   placeholder = useMemo(
     () => placeholder || edit || "設定したい値",
-    [placeholder, edit]
+    [placeholder, edit],
   );
   const { kvMap } = useKeyValueDB();
   const item = useMemo(() => {
@@ -127,7 +127,7 @@ function KeyValueEdit() {
       value: item?.value || defaultValue,
       private: item?.private ?? null,
     }),
-    [item, defaultValue]
+    [item, defaultValue],
   );
   const {
     register,
@@ -161,7 +161,7 @@ function KeyValueEdit() {
     const entry = Object.fromEntries(
       Object.entries(dirtyFields)
         .filter((v) => v[1])
-        .map((v) => [v[0], values[v[0]]])
+        .map((v) => [v[0], values[v[0]]]),
     );
     entry.key = edit;
     toast.promise(
@@ -177,7 +177,7 @@ function KeyValueEdit() {
         pending: "送信中",
         success: "送信しました",
         error: "送信に失敗しました",
-      }
+      },
     );
   }, [item, dirtyFields]);
 
@@ -204,7 +204,7 @@ function KeyValueEdit() {
     (e) => {
       if (isDirty) Submit();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   useHotkeys(
     "escape",
@@ -214,7 +214,7 @@ function KeyValueEdit() {
         e.preventDefault();
       }
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
 
   return (
@@ -292,7 +292,7 @@ function KeyValueEdit() {
                               } as SiteLinkData,
                               method: "POST",
                               cors: true,
-                            }
+                            },
                           ).then((r) => {
                             keyValueDBDataIndexed.load("no-cache");
                           });
@@ -409,15 +409,15 @@ export function KeyValueEditable({
         editEnvKey,
         editEnvDefault,
       }),
-    [env, kvMap, editKey, editDefault, editEnvKey, editEnvDefault]
+    [env, kvMap, editKey, editDefault, editEnvKey, editEnvDefault],
   );
   childrenOutDefault = useMemo(
     () => childrenOutDefault ?? Boolean(value),
-    [childrenOutDefault, value]
+    [childrenOutDefault, value],
   );
   childrenOutParse = useMemo(
     () => childrenOutParse ?? editType === "textarea",
-    [childrenOutParse, editType]
+    [childrenOutParse, editType],
   );
   children = useMemo(() => {
     if (!children && childrenOutDefault && value) {
@@ -439,7 +439,7 @@ export function KeyValueEditable({
   let defaultValue: ReactNode = useMemo(
     () =>
       replaceValue && value ? value.replace(/^(.*)$/, replaceValue) : value,
-    [value, replaceValue]
+    [value, replaceValue],
   );
   defaultValue = useMemo(
     () =>
@@ -448,7 +448,7 @@ export function KeyValueEditable({
       ) : (
         defaultValue
       ),
-    [defaultValue, childrenOutParse]
+    [defaultValue, childrenOutParse],
   );
   let defaultBefore = useMemo(() => {
     if (childrenOutDefault) {
@@ -508,7 +508,7 @@ export function KeyValueRenderProps({
   const { value } = useMemo(
     () =>
       getKeyValueFromEnvKey({ env, kvMap, editEnvKey, editDefault, ...props }),
-    [env, kvMap, props]
+    [env, kvMap, props],
   );
   return (
     <>
@@ -536,7 +536,7 @@ export function KeyValueEditButton({
   const { kvMap } = useKeyValueDB();
   const { useKey, value } = useMemo(
     () => getKeyValueFromEnvKey({ env, kvMap, ...props }),
-    [env, kvMap, props]
+    [env, kvMap, props],
   );
   const isLogin = useIsLogin()[0];
   return (
@@ -595,7 +595,7 @@ function KeyValueEditableMain({
       title,
       placeholder,
       isFirstSelection,
-    ]
+    ],
   );
   return (
     <button className={className} onClick={OnClick} {...props}>

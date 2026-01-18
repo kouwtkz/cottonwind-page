@@ -3,7 +3,7 @@ import { SoundPlayer } from "~/components/layout/SoundPlayer";
 import { ImageViewer } from "~/components/layout/ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CharacterState, useCharacters } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
@@ -20,11 +20,7 @@ import { CalendarMeeState, useCalendarMee } from "~/calendar/CalendarMee";
 // import { FaviconState } from "./FaviconState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";
-import { ClientDBState, IdbStateClassList } from "~/data/ClientDBLoader";
-import type {
-  ImageIndexedDataStateClass,
-  IndexedDataLastmodMH,
-} from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { ClientDBState, IdbStateIsLoaded } from "~/data/ClientDBLoader";
 import { Theme } from "../theme/Theme";
 import { LangState } from "../multilingual/LangState";
 import { FaviconState } from "./FaviconState";
@@ -46,10 +42,10 @@ export const SetState = React.memo(function SetState({
   const loadedIndex = useState<boolean>()[1];
   useEffect(() => {
     const id = setInterval(() => {
-      if (count++ > 100 || IdbStateClassList.length > 0) {
+      if (count++ > 3000 || IdbStateIsLoaded) {
         clearInterval(id);
         loadedIndex(true);
-        count = 101;
+        count = 3001;
       }
     }, 1);
   }, []);

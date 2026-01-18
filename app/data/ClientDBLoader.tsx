@@ -78,6 +78,7 @@ export let tableVersionDataIndexed: IndexedDataLastmodMH<
 export let IdbStateClassList: anyIdbStateClass[] = [];
 export const IdbClassMap: Map<TableNameTypes, anyIdbStateClass> = new Map();
 export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
+export let IdbStateIsLoaded = false;
 
 export let dbClass: MeeIndexedDB;
 
@@ -95,7 +96,7 @@ export async function MeeIndexedDBCreate({ env }: ClientDBLoaderProps) {
         IdbStateClassList.map(async (props) => {
           await props.dbSuccess(db);
           await props.setBeforeLastmod();
-        })
+        }),
       );
     },
   }).then((db) => {
@@ -112,7 +113,7 @@ export let mediaOrigin: string | undefined;
 async function setSearchParamsOptionUrl(
   Url: URL,
   isLoading?: LoadStateType,
-  idb?: anyIdbStateClass
+  idb?: anyIdbStateClass,
 ) {
   function set(obj: anyIdbStateClass) {
     let prefix: string | undefined;
@@ -133,7 +134,7 @@ const allDataSrc = "/data/all";
 export async function getDataFromApi<T = any>(
   src: string,
   isLoading?: LoadStateType,
-  idb?: anyIdbStateClass
+  idb?: anyIdbStateClass,
 ) {
   let Url = new URL(concatOriginUrl(apiOrigin || location.origin, src));
   Url = await setSearchParamsOptionUrl(Url, isLoading, idb);
@@ -154,7 +155,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     tableVersionDataIndexed = new IndexedDataLastmodMH(TableVersionDataOptions);
     imageDataIndexed = new ImageIndexedDataStateClass(
       ImageDataOptions,
-      new ImageMeeIndexedDBTable(ImageDataOptions)
+      new ImageMeeIndexedDBTable(ImageDataOptions),
     );
     charactersDataIndexed = new IndexedDataLastmodMH(charactersDataOptions);
     postsDataIndexed = new IndexedDataLastmodMH(postsDataOptions);
@@ -206,12 +207,12 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
           const key = k as TableNameTypes;
           const idb = IdbClassMap.get(key);
           return { key, result: await getDataFromApi<any>(idb!.src, v) };
-        })
+        }),
       ).then((v) =>
         v.reduce<Partial<JSONAllDataTypes>>((a, { key, result }) => {
           a[key] = result;
           return a;
-        }, {})
+        }, {}),
       );
     }
     IdbLoadMap.clear();
@@ -221,7 +222,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
           IdbStateClassList.map(async (obj) => {
             const data = items[obj.key as JSONAllDataKeys] as any;
             await obj.save({ data });
-          })
+          }),
         );
       })
       .then(async () => {
@@ -230,7 +231,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
             await tableVersionDataIndexed?.table.find({
               where: { key: { not: "tables" } },
             })
-          ).map((v) => [v.key, v])
+          ).map((v) => [v.key, v]),
         );
         indexedList!.forEach((indexedItem) => {
           const currentTable = currentVersionMap.get(indexedItem.key);
@@ -239,6 +240,9 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
       })
       .then(() => {
         waitIdbResolve();
+      })
+      .finally(() => {
+        IdbStateIsLoaded = true;
       });
   }
 }
@@ -252,7 +256,7 @@ export function ClientDBState() {
     }) => {
       const isSoloLoad = useSyncExternalStore(
         obj.subscribeToLoad,
-        () => obj.isLoad
+        () => obj.isLoad,
       );
       useEffect(() => {
         if (isSoloLoad) {
@@ -267,7 +271,7 @@ export function ClientDBState() {
       }, [data]);
       return <></>;
     },
-    []
+    [],
   );
   return (
     <>
