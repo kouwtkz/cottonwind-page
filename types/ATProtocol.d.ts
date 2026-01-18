@@ -174,8 +174,9 @@ interface BlueskyFeedPostReasonRepostType extends ATBaseType<"app.bsky.feed.defs
   indexedAt: string;
   uri: string;
 }
+type BlueskyFeedPostReasonType = BlueskyFeedPostReasonRepostType | ATBaseType<"app.bsky.feed.defs#reasonPin">;
 interface BlueskyFeedPostType extends BlueskyFeedPostRawType {
-  reason?: BlueskyFeedPostReasonRepostType;
+  reason?: BlueskyFeedPostReasonType;
 }
 
 interface BlueskyFeedItemType {
@@ -184,7 +185,7 @@ interface BlueskyFeedItemType {
     parent: CidUriType;
     root: CidUriType;
   }
-  reason?: BlueskyFeedPostReasonRepostType;
+  reason?: BlueskyFeedPostReasonType;
 }
 
 interface BlueskyFeedType {

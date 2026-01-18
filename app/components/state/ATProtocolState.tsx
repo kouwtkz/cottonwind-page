@@ -4,7 +4,7 @@ import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
 import { ATProtocolEnv } from "~/Env";
 import Hls, { Events as hlsEvents } from "hls.js";
-import { BiRepost } from "react-icons/bi";
+import { BiPin, BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";
 import { useImageViewer } from "../layout/ImageViewer";
 
@@ -309,7 +309,6 @@ function PostItem({
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
   const time = new Date(post.record.createdAt);
-  const isRepost = post.reason?.$type === "app.bsky.feed.defs#reasonRepost";
   let tdClass: string | undefined;
   if (isTree) tdClass = "tree";
   function ImageOnClick(image: BlueskyFeedPostEmbedImageViewItemType) {
@@ -360,7 +359,12 @@ function PostItem({
           </div>
         ) : null}
         <div className="time">
-          {isRepost ? <BiRepost className="repost" /> : null}
+          {post.reason?.$type === "app.bsky.feed.defs#reasonRepost" ? (
+            <BiRepost className="repost" />
+          ) : null}
+          {post.reason?.$type === "app.bsky.feed.defs#reasonPin" ? (
+            <BiPin className="pin" />
+          ) : null}
           <a href={Url.href} target="_blank">
             {FormatDate(time)}
           </a>
