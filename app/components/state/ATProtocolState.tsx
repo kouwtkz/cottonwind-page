@@ -6,6 +6,7 @@ import { ATProtocolEnv } from "~/Env";
 import Hls, { Events as hlsEvents } from "hls.js";
 import { BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";
+import { useImageViewer } from "../layout/ImageViewer";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -172,7 +173,8 @@ function _GetPosts() {
         Url.searchParams.set("cursor", _getPostProps.cursor);
       if (_getPostProps.filter)
         Url.searchParams.set("filter", _getPostProps.filter);
-      if (_getPostProps.pin) Url.searchParams.set("includePins", "1");
+      if (_getPostProps.pin)
+        Url.searchParams.set("includePins", String(_getPostProps.pin));
       fetch(Url, { mode: "cors" })
         .then<BlueskyFeedType>((r) => {
           if (r.status === 200) {
@@ -224,7 +226,7 @@ export function BlueskyFeed() {
     return Url;
   }, [profileUrl]);
   useEffect(() => {
-    if (!posts) GetPosts({ filter: "posts_with_replies" });
+    if (!posts) GetPosts({ filter: "posts_with_replies", pin: true });
   }, [posts]);
   const list = useMemo(() => {
     const mapList = posts?.reduce<
@@ -303,12 +305,25 @@ function PostItem({
   postBaseUrl: URL;
   isTree?: boolean;
 }) {
+  const { setOpen: setOpenImageViewer } = useImageViewer();
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
   const time = new Date(post.record.createdAt);
   const isRepost = post.reason?.$type === "app.bsky.feed.defs#reasonRepost";
   let tdClass: string | undefined;
   if (isTree) tdClass = "tree";
+  function ImageOnClick(image: BlueskyFeedPostEmbedImageViewItemType) {
+    setOpenImageViewer({
+      image: {
+        id: -1,
+        key: post.cid,
+        title: image.alt,
+        src: image.fullsize,
+        thumbnail: image.thumb,
+        hideInfo: true,
+      },
+    });
+  }
   return (
     <tr className="item">
       <td className={tdClass}>
@@ -326,7 +341,17 @@ function PostItem({
             {post.embed.$type === "app.bsky.embed.images#view" &&
             post.embed.images.length > 0
               ? post.embed.images.map((image, i) => (
-                  <img key={i} alt={image.alt} src={image.thumb} />
+                  <div className="imageItem" key={i}>
+                    <img
+                      alt={image.alt}
+                      src={image.thumb}
+                      tabIndex={0}
+                      onClick={() => ImageOnClick(image)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") ImageOnClick(image);
+                      }}
+                    />
+                  </div>
                 ))
               : null}
             {post.embed.$type === "app.bsky.embed.video#view" ? (
@@ -363,7 +388,7 @@ function EmbedVideoProps({ video, ...props }: EmbedVideoProps) {
           if (callback) callback(e);
         });
       } else {
-        toast("hls.js is not support.")
+        toast("hls.js is not support.");
       }
     },
     [video],

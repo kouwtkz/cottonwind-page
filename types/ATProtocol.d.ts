@@ -78,13 +78,14 @@ interface BlueskyEmbedBlobType<T extends string = string> {
   }
   size: number;
 }
+interface BlueskyFeedPostEmbedImageViewItemType {
+  alt: string;
+  aspectRatio: { width: number; height: number };
+  fullsize: string;
+  thumb: string;
+}
 interface BlueskyFeedPostEmbedImageViewType extends ATBaseType<"app.bsky.embed.images#view"> {
-  images: Array<{
-    alt: string;
-    aspectRatio: { width: number; height: number };
-    fullsize: string;
-    thumb: string;
-  }>;
+  images: Array<BlueskyFeedPostEmbedImageViewItemType>;
 }
 interface BlueskyFeedPostEmbedVideoViewType extends ATBaseType<"app.bsky.embed.video#view"> {
   aspectRatio: { width: number; height: number };

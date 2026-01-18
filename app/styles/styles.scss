@@ -2233,12 +2233,19 @@ footer {
         overflow: hidden;
         width: 100%;
         img {
-          border-radius: 5.5px;
           width: 100%;
-          height: 100%;
+          max-height: 20rem;
+          border-radius: 5.5px;
           object-fit: cover;
-          max-height: 85svh;
-          max-width: 550px;
+          padding: 0.1rem;
+          box-sizing: border-box;
+          @extend %cursor-pointer;
+        }
+        .imageItem {
+          width: 50%;
+          @media (width < $mobileWidth) {
+            width: 100%;
+          }
         }
         video {
           max-width: 100%;
