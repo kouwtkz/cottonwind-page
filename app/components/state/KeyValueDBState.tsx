@@ -181,10 +181,9 @@ function KeyValueEdit() {
     );
   }, [item, dirtyFields]);
 
-  const [isSelectedImage, setIsSelectedImage] = useState<boolean>();
   const { image: selectedImage, open: selectImageOpen } = useSelectImageState();
   useEffect(() => {
-    if (selectedImage && isSelectedImage) {
+    if (selectedImage) {
       customFetch(concatOriginUrl(apiOrigin, SEND_API), {
         data: {
           key: edit,
@@ -195,9 +194,8 @@ function KeyValueEdit() {
       }).then((r) => {
         keyValueDBDataIndexed.load("no-cache");
       });
-      setIsSelectedImage(false);
     }
-  }, [selectedImage, isSelectedImage]);
+  }, [selectedImage]);
 
   useHotkeys(
     "ctrl+enter",

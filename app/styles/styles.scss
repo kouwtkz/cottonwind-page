@@ -3326,7 +3326,10 @@ label,
       }
       .setterImage {
         img {
-          height: 16rem;
+          max-height: 36rem;
+          object-fit: contain;
+          width: min-content;
+          height: min-content;
         }
         .selectGallery {
           margin: 0.5rem 1rem;
