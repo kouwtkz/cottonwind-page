@@ -17,7 +17,7 @@ import { CustomReactSelect } from "./CustomReactSelect";
 type setValueFunctionType = (
   name: string,
   value: any,
-  options: SetValueConfig
+  options: SetValueConfig,
 ) => void;
 
 interface EditTagsReactSelectType {
@@ -119,7 +119,7 @@ export function EditTagsReactSelect({
               styles={styles}
               options={tags}
               value={(field.value as string[]).map((fv) =>
-                searchTagsList.find((ci) => ci.value === fv)
+                searchTagsList.find((ci) => ci.value === fv),
               )}
               formatOptionLabel={formatOptionLabel}
               placeholder={placeholder}
@@ -127,13 +127,11 @@ export function EditTagsReactSelect({
                 isEnterAction.current = false;
                 field.onChange(
                   (newValues as MultiValue<ContentsTagsOption | undefined>).map(
-                    (v) => v?.value
-                  )
+                    (v) => v?.value,
+                  ),
                 );
               }}
-              onKeyDown={(e) => {
-                addKeydownEnter(e);
-              }}
+              onKeyDown={addKeydownEnter}
               onBlur={field.onBlur}
               isDisabled={isBusy}
             />

@@ -1,12 +1,8 @@
-import ReactSelect, {
-  components,
-} from "react-select";
+import ReactSelect, { components } from "react-select";
 import type {
   Props,
-  GroupBase,
   OnChangeValue,
   ActionMeta,
-  PropsValue,
   FormatOptionLabelMeta,
   StylesConfig,
 } from "react-select";
@@ -37,13 +33,13 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   const [stateIsSearchable, setIsSearchable] = useState(false);
   const enablePropsIsSearchable = useMemo(
     () => typeof propsIsSearchable === "boolean",
-    [propsIsSearchable]
+    [propsIsSearchable],
   );
   const isSearchable = useMemo(
     () =>
       (enablePropsIsSearchable ? propsIsSearchable : stateIsSearchable) ||
       false,
-    [enablePropsIsSearchable, propsIsSearchable, stateIsSearchable]
+    [enablePropsIsSearchable, propsIsSearchable, stateIsSearchable],
   );
   function ES_P(e: HTMLElement) {
     if (/select/.test(e.className)) return e;
@@ -96,7 +92,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
               if (base !== hira) values.push(hira);
               if (v.nameGuide)
                 values.push(
-                  ...(Array.isArray(v.nameGuide) ? v.nameGuide : [v.nameGuide])
+                  ...(Array.isArray(v.nameGuide) ? v.nameGuide : [v.nameGuide]),
                 );
               v.value = values.join(",");
               return v;
@@ -110,14 +106,14 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   const changeHandler = useCallback(
     (
       newValue: OnChangeValue<ContentsTagsOption, IsMulti>,
-      actionMeta: ActionMeta<ContentsTagsOption>
+      actionMeta: ActionMeta<ContentsTagsOption>,
     ) => {
       const isMulti = Array.isArray(newValue);
       const splitValues = (
         (isMulti ? newValue : [newValue]) as ContentsTagsOption[]
       ).map(
         (v) =>
-          optionsMap.get((v.value || v.label || "").split(",", 1)[0])!.value
+          optionsMap.get((v.value || v.label || "").split(",", 1)[0])!.value,
       );
       if (onChange)
         onChange(
@@ -125,10 +121,10 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
             ContentsTagsOption,
             IsMulti
           >,
-          actionMeta
+          actionMeta,
         );
     },
-    [onChange, optionsMap]
+    [onChange, optionsMap],
   );
   const customValue = useMemo(() => {
     function find(v: ContentsTagsOption) {
@@ -148,7 +144,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
     if (formatOptionLabel) {
       return (
         data: ContentsTagsOption,
-        formatOptionLabelMeta: FormatOptionLabelMeta<ContentsTagsOption>
+        formatOptionLabelMeta: FormatOptionLabelMeta<ContentsTagsOption>,
       ) => {
         const { rawValue, ...argsData } = data;
         if (rawValue) argsData.value = rawValue;
@@ -167,6 +163,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
       {...props}
       components={{
         ...propsComponents,
+        Input: (rest) => <components.Input {...rest} enterKeyHint="enter" />,
         ValueContainer: (rest) => (
           <div onTouchStart={EnableSearchable} onMouseDown={EnableSearchable}>
             {ValueContainer ? (
@@ -187,13 +184,13 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
 
 export function CountToContentsTagsOption(
   value: ValueCountType[],
-  property?: string
+  property?: string,
 ) {
   return value.map(
     (v) =>
-    ({
-      label: `${v.value} (${v.count})`,
-      value: property ? `${property}:${v.value}` : v.value,
-    } as ContentsTagsOption)
+      ({
+        label: `${v.value} (${v.count})`,
+        value: property ? `${property}:${v.value}` : v.value,
+      }) as ContentsTagsOption,
   );
 }
