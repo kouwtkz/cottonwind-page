@@ -122,11 +122,11 @@ interface FacetsType {
     byteStart: number,
     byteEnd: number
   },
-  features: Array<ATUriType | ATFacetMentionType | ATFacetTagType>;
+  features: Array<ATFacetLinkType | ATFacetMentionType | ATFacetTagType>;
 }
 interface BlueskyFeedPostRecordType extends ATBaseType<"app.bsky.feed.post"> {
   createdAt: string;
-  facets: Array<FacetsType>;
+  facets?: Array<FacetsType>;
   langs: Array<string>;
   reply?: {
     parent: CidUriType;

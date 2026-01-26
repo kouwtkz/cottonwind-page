@@ -7,6 +7,7 @@ import Hls, { Events as hlsEvents } from "hls.js";
 import { BiPin, BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";
 import { useImageViewer } from "../layout/ImageViewer";
+import { MultiParser, type MultiParserProps } from "../parse/MultiParser";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -296,6 +297,82 @@ export function BlueskyFeed() {
   );
 }
 
+export interface MultiParserWithFacetsProps
+  extends Omit<MultiParserProps, "children"> {
+  children: BlueskyFeedPostRecordType;
+}
+export function MultiParserWithFacets({
+  children: record,
+  replaceChildStringFunction,
+  ...props
+}: MultiParserWithFacetsProps) {
+  const newReplaceChildStringFunction = useCallback(
+    (text: string) => {
+      let cursor = 0;
+      if (record.facets) {
+        const encoder = new TextEncoder();
+        const binText = Array.from(encoder.encode(text));
+        const bin = record.facets.reduce<Array<number>>((bin, facet) => {
+          bin.push(...binText.slice(cursor, facet.index.byteStart));
+          const value = binText.slice(
+            facet.index.byteStart,
+            facet.index.byteEnd,
+          );
+          facet.features.forEach((feature) => {
+            switch (feature.$type) {
+              case "app.bsky.richtext.facet#mention":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(
+                      `<a href="https://bsky.app/profile/${feature.did}" target="_blank">`,
+                    ),
+                  ),
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+              case "app.bsky.richtext.facet#tag":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(
+                      `<a href="https://bsky.app/hashtag/${feature.tag}" target="_blank">`,
+                    ),
+                  ),
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+              case "app.bsky.richtext.facet#link":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(`<a href="${feature.uri}" target="_blank">`),
+                  ),
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+            }
+          });
+          bin.push(...value);
+          cursor = facet.index.byteEnd;
+          return bin;
+        }, []);
+        bin.push(...binText.slice(cursor));
+        text = new TextDecoder().decode(new Uint8Array(bin));
+      }
+      if (replaceChildStringFunction) text = replaceChildStringFunction(text);
+      return text;
+    },
+    [record],
+  );
+  return (
+    <MultiParser
+      replaceChildStringFunction={newReplaceChildStringFunction}
+      simpleBreak
+      {...props}
+    >
+      {record.text}
+    </MultiParser>
+  );
+}
+
 function PostItem({
   post,
   postBaseUrl,
@@ -327,13 +404,7 @@ function PostItem({
     <tr className="item">
       <td className={tdClass}>
         <div>
-          {post.record.text
-            .split("\n")
-            .reduce<Array<React.ReactNode>>((a, c, i) => {
-              if (a.length > 0) a.push(<br key={`br_${i}`} />);
-              a.push(c);
-              return a;
-            }, [])}
+          <MultiParserWithFacets>{post.record}</MultiParserWithFacets>
         </div>
         {post.embed ? (
           <div className="embed">

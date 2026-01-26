@@ -30,8 +30,10 @@ export interface MultiParserOptions {
   linkPush?: boolean;
   linkSame?: boolean;
   hashtag?: boolean | Replacer;
+  mention?: boolean | Replacer;
   quoteNumberReply?: boolean | Replacer;
   widget?: boolean;
+  simpleBreak?: boolean;
 }
 export interface MultiParserProps
   extends MultiParserOptions,
@@ -40,6 +42,7 @@ export interface MultiParserProps
   detailsOpen?: boolean;
   tag?: string;
   parsedClassName?: string;
+  replaceChildStringFunction?: (text: string) => string;
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
@@ -139,6 +142,8 @@ export function MultiParser({
   linkPush,
   linkSame,
   hashtag,
+  mention,
+  simpleBreak,
   quoteNumberReply,
   detailsOpen = false,
   detailsClosable = true,
@@ -151,6 +156,7 @@ export function MultiParser({
   htmlparser2,
   library,
   transform,
+  replaceChildStringFunction,
   replaceFunction,
   useEffectFunction,
   preventScrollResetSearches,
@@ -188,6 +194,16 @@ export function MultiParser({
     return { text, list };
   }, [children]);
   childString = useMemo(() => {
+    if (childString && replaceChildStringFunction)
+      return replaceChildStringFunction(childString);
+    else return childString;
+  }, [childString, simpleBreak]);
+  childString = useMemo(() => {
+    if (childString && simpleBreak)
+      return childString.replaceAll("\n", "<br />");
+    else return childString;
+  }, [childString, replaceChildStringFunction]);
+  childString = useMemo(() => {
     if (childString && hashtag) {
       return childString.replace(
         /(^|\s?)(#[^\s#]+)/g,
@@ -195,11 +211,24 @@ export function MultiParser({
           ? hashtag
           : (m, m1, m2) => {
               const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" className="hashtag">${m2}</a>`;
+              return `${m1}<a href="?${s.toString()}" class="hashtag">${m2}</a>`;
             },
       );
     } else return childString;
   }, [childString, hashtag]);
+  childString = useMemo(() => {
+    if (childString && mention) {
+      return childString.replace(
+        /(^|\s?)(@[^\s#]+)/g,
+        typeof mention === "function"
+          ? mention
+          : (m, m1, m2) => {
+              const s = createSearchParams({ q: m2 });
+              return `${m1}<a href="?${s.toString()}" class="mention">${m2}</a>`;
+            },
+      );
+    } else return childString;
+  }, [childString, mention]);
   childString = useMemo(() => {
     if (childString && quoteNumberReply) {
       return childString.replace(
@@ -395,6 +424,7 @@ export function MultiParser({
                   }
                   break;
               }
+              break;
           }
           if (replace) replace(v, 0);
         },
