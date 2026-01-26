@@ -122,7 +122,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
   return (
     <div className="infoArea">
       {isEdit ? null : (
-        <div className="info window">
+        <div className="info">
           {(albumObject?.visible ? albumObject.visible.title : true) ? (
             <h2 className="title">{image.title || image.key}</h2>
           ) : null}
@@ -432,8 +432,9 @@ function ImageViewerMain() {
 
   function backAction() {
     if (
-      !isDirty ||
-      confirm("フォームが保存されていません。\n本当に戻りますか？")
+      isOpen &&
+      (!isDirty ||
+        confirm("フォームが保存されていません。\n本当に戻りますか？"))
     ) {
       setEdit({ isDirty: false, isEdit: false });
       setClose();
