@@ -42,7 +42,6 @@ export interface MultiParserProps
   detailsOpen?: boolean;
   tag?: string;
   parsedClassName?: string;
-  replaceChildStringFunction?: (text: string) => string;
   replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
@@ -156,7 +155,6 @@ export function MultiParser({
   htmlparser2,
   library,
   transform,
-  replaceChildStringFunction,
   replaceFunction,
   useEffectFunction,
   preventScrollResetSearches,
@@ -194,15 +192,10 @@ export function MultiParser({
     return { text, list };
   }, [children]);
   childString = useMemo(() => {
-    if (childString && replaceChildStringFunction)
-      return replaceChildStringFunction(childString);
-    else return childString;
-  }, [childString, simpleBreak]);
-  childString = useMemo(() => {
     if (childString && simpleBreak)
       return childString.replaceAll("\n", "<br />");
     else return childString;
-  }, [childString, replaceChildStringFunction]);
+  }, [childString, simpleBreak]);
   childString = useMemo(() => {
     if (childString && hashtag) {
       return childString.replace(

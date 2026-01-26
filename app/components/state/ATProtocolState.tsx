@@ -303,72 +303,60 @@ export interface MultiParserWithFacetsProps
 }
 export function MultiParserWithFacets({
   children: record,
-  replaceChildStringFunction,
   ...props
 }: MultiParserWithFacetsProps) {
-  const newReplaceChildStringFunction = useCallback(
-    (text: string) => {
-      let cursor = 0;
-      if (record.facets) {
-        const encoder = new TextEncoder();
-        const binText = Array.from(encoder.encode(text));
-        const bin = record.facets.reduce<Array<number>>((bin, facet) => {
-          bin.push(...binText.slice(cursor, facet.index.byteStart));
-          const value = binText.slice(
-            facet.index.byteStart,
-            facet.index.byteEnd,
-          );
-          facet.features.forEach((feature) => {
-            switch (feature.$type) {
-              case "app.bsky.richtext.facet#mention":
-                value.unshift(
-                  ...Array.from(
-                    encoder.encode(
-                      `<a href="https://bsky.app/profile/${feature.did}" target="_blank">`,
-                    ),
+  const children = useMemo(() => {
+    const text = record.text;
+    let cursor = 0;
+    if (record.facets) {
+      const encoder = new TextEncoder();
+      const binText = Array.from(encoder.encode(text));
+      const bin = record.facets.reduce<Array<number>>((bin, facet) => {
+        bin.push(...binText.slice(cursor, facet.index.byteStart));
+        const value = binText.slice(facet.index.byteStart, facet.index.byteEnd);
+        facet.features.forEach((feature) => {
+          switch (feature.$type) {
+            case "app.bsky.richtext.facet#mention":
+              value.unshift(
+                ...Array.from(
+                  encoder.encode(
+                    `<a href="https://bsky.app/profile/${feature.did}" target="_blank">`,
                   ),
-                );
-                value.push(...Array.from(encoder.encode(`</a>`)));
-                break;
-              case "app.bsky.richtext.facet#tag":
-                value.unshift(
-                  ...Array.from(
-                    encoder.encode(
-                      `<a href="https://bsky.app/hashtag/${feature.tag}" target="_blank">`,
-                    ),
+                ),
+              );
+              value.push(...Array.from(encoder.encode(`</a>`)));
+              break;
+            case "app.bsky.richtext.facet#tag":
+              value.unshift(
+                ...Array.from(
+                  encoder.encode(
+                    `<a href="https://bsky.app/hashtag/${feature.tag}" target="_blank">`,
                   ),
-                );
-                value.push(...Array.from(encoder.encode(`</a>`)));
-                break;
-              case "app.bsky.richtext.facet#link":
-                value.unshift(
-                  ...Array.from(
-                    encoder.encode(`<a href="${feature.uri}" target="_blank">`),
-                  ),
-                );
-                value.push(...Array.from(encoder.encode(`</a>`)));
-                break;
-            }
-          });
-          bin.push(...value);
-          cursor = facet.index.byteEnd;
-          return bin;
-        }, []);
-        bin.push(...binText.slice(cursor));
-        text = new TextDecoder().decode(new Uint8Array(bin));
-      }
-      if (replaceChildStringFunction) text = replaceChildStringFunction(text);
-      return text;
-    },
-    [record],
-  );
+                ),
+              );
+              value.push(...Array.from(encoder.encode(`</a>`)));
+              break;
+            case "app.bsky.richtext.facet#link":
+              value.unshift(
+                ...Array.from(
+                  encoder.encode(`<a href="${feature.uri}" target="_blank">`),
+                ),
+              );
+              value.push(...Array.from(encoder.encode(`</a>`)));
+              break;
+          }
+        });
+        bin.push(...value);
+        cursor = facet.index.byteEnd;
+        return bin;
+      }, []);
+      bin.push(...binText.slice(cursor));
+      return new TextDecoder().decode(new Uint8Array(bin));
+    } else return text;
+  }, [record]);
   return (
-    <MultiParser
-      replaceChildStringFunction={newReplaceChildStringFunction}
-      simpleBreak
-      {...props}
-    >
-      {record.text}
+    <MultiParser simpleBreak {...props}>
+      {children}
     </MultiParser>
   );
 }
