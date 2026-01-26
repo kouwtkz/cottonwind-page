@@ -76,18 +76,18 @@ function CharacterPageState() {
   const isLogin = useIsLogin()[0];
   const filters = useMemo(
     () => searchParams.get("filter")?.split(","),
-    [searchParams]
+    [searchParams],
   );
   const showAll = useMemo(
     () => filters?.some((v) => v === "showAll"),
-    [filters, isLogin]
+    [filters, isLogin],
   );
   const clientShowAll = useMemo(() => isLogin || showAll, [showAll, isLogin]);
   const liked = useMemo(() => filters?.some((v) => v === "like"), [filters]);
   const searchParamsTags = useMemo(
     () =>
       searchParams.has("tags") ? searchParams.get("tags")!.split(",") : null,
-    [searchParams]
+    [searchParams],
   );
   const text = useMemo(() => {
     const textArray: Array<string> = [];
@@ -115,12 +115,12 @@ function CharacterPageState() {
         hashtag: { key: "tags" },
         kanaReplace: ["name"],
       }),
-    [text]
+    [text],
   );
   const { orderBy } = whereOptions;
   const filterDraft = useMemo(
     () => filters?.some((v) => v === "draft"),
-    [filters]
+    [filters],
   );
   const where: findWhereType<CharacterType> = useMemo(() => {
     const wheres = [whereOptions.where];
@@ -217,7 +217,7 @@ export function CharacterPage({
   const searchParams = useSearchParams()[0];
   const isEdit = useMemo(
     () => searchParams.get("edit") === "on",
-    [searchParams]
+    [searchParams],
   );
   const isLogin = useIsLogin()[0];
   return (
@@ -250,7 +250,7 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
 
 export function translateCharaLangName(
   chara: CharacterType,
-  lang = DEFAULT_LANG
+  lang = DEFAULT_LANG,
 ) {
   const toEn = lang !== DEFAULT_LANG && chara.enName;
   const returnValue = {
@@ -317,7 +317,7 @@ function CharaListPage() {
   const setSelectedCharacter = useSelectedCharacter()[1];
   const isModal = useMemo(
     () => searchParams.get("modal") === "character",
-    [searchParams]
+    [searchParams],
   );
   const Inner = useCallback(
     ({ item }: { item: CharacterType }) => {
@@ -341,7 +341,7 @@ function CharaListPage() {
         </Link>
       );
     },
-    [move]
+    [move],
   );
   const charaListClassName = useMemo(() => {
     const classList = ["charaList", "wide"];
@@ -389,7 +389,7 @@ function CharaListPage() {
                             pending: "送信中",
                             success: "送信しました",
                             error: "送信に失敗しました",
-                          }
+                          },
                         );
                       } else {
                         setMove(0);
@@ -428,12 +428,12 @@ export function CharaBeforeAfter({
     (e) => {
       if (onClick) onClick(e);
     },
-    [onClick]
+    [onClick],
   );
   const { charactersMap } = useCharacters();
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
-    [charactersMap, charaName]
+    [charactersMap, charaName],
   );
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "on";
@@ -449,7 +449,7 @@ export function CharaBeforeAfter({
   }, [parts]);
   const charaIndex = useMemo(
     () => (chara ? items.findIndex(({ key: id }) => id === chara?.key) : -1),
-    [items, chara]
+    [items, chara],
   );
   const { beforeChara, afterChara } = useMemo(() => {
     if (charaIndex >= 0) {
@@ -466,21 +466,21 @@ export function CharaBeforeAfter({
       beforeChara
         ? "/character/" + beforeChara.key + (isEdit ? "?edit=on" : "")
         : "",
-    [beforeChara, isEdit]
+    [beforeChara, isEdit],
   );
   const afterTo = useMemo(
     () =>
       afterChara
         ? "/character/" + afterChara.key + (isEdit ? "?edit=on" : "")
         : "",
-    [afterChara, isEdit]
+    [afterChara, isEdit],
   );
   const isModalMode = useMemo(
     () =>
       searchParams.has("modal") ||
       searchParams.has("image") ||
       searchParams.has("fc-event-id"),
-    [searchParams]
+    [searchParams],
   );
   useHotkeys(
     "ArrowLeft",
@@ -490,7 +490,7 @@ export function CharaBeforeAfter({
         nav(beforeTo, { state: { keep: true } });
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: false }
+    { ignoreModifiers: true, enableOnFormTags: false },
   );
   useHotkeys(
     "ArrowRight",
@@ -500,7 +500,7 @@ export function CharaBeforeAfter({
         nav(afterTo, { state: { keep: true } });
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: false }
+    { ignoreModifiers: true, enableOnFormTags: false },
   );
   return (
     <div className={"beforeAfter" + (className ? " " + className : "")}>
@@ -565,7 +565,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
   const { RegistPlaylist } = useSoundPlayer();
   const chara = useMemo(
     () => charactersMap?.get(charaName),
-    [charactersMap, charaName]
+    [charactersMap, charaName],
   );
   useEffect(() => {
     if (chara?.soundPlaylist && chara.soundPlaylist.list.length > 0) {
@@ -630,7 +630,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                 {chara.tags
                   .map<ContentsTagsOption>((tag) => {
                     const found = charactersTags?.find(
-                      (cTag) => cTag.value === tag
+                      (cTag) => cTag.value === tag,
                     );
                     if (found) return found;
                     else return { value: tag };
@@ -648,7 +648,9 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                 <span>{chara.time.getFullYear()}年</span>
               </p>
             ) : null}
-            <MultiParserWithMedia>{chara.description}</MultiParserWithMedia>
+            <MultiParserWithMedia markdown linkPush linkSame hashtag>
+              {chara.description}
+            </MultiParserWithMedia>
             <LikeButton
               className="font-larger"
               url={"/character/" + chara.key}
@@ -662,7 +664,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                   character: chara.key,
                   list:
                     albumImages.filter((image) =>
-                      image.characters?.some((name) => name === chara.key)
+                      image.characters?.some((name) => name === chara.key),
                     ) ?? [],
                 } as GalleryItemObjectType;
               })}
@@ -721,7 +723,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
         e.preventDefault();
       }
     },
-    { enableOnFormTags: ["INPUT"] }
+    { enableOnFormTags: ["INPUT"] },
   );
   function setText(value: string) {
     const newSearchParams = createSearchParams(searchParams);
@@ -822,7 +824,7 @@ export function MiniCharacterPage() {
   const { state } = useLocation();
   const enable = useMemo(
     () => searchParams.get("modal") === "character",
-    [searchParams]
+    [searchParams],
   );
   function closeHandler() {
     if (state?.from) {

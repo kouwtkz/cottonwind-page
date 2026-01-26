@@ -37,7 +37,6 @@ export interface MultiParserProps
   extends MultiParserOptions,
     HTMLReactParserOptions,
     React.HTMLAttributes<HTMLElement> {
-  only?: MultiParserOptions;
   detailsOpen?: boolean;
   tag?: string;
   parsedClassName?: string;
@@ -107,7 +106,7 @@ export function SetLinkPush({
               (Url.searchParams.has("modal") ||
                 Url.searchParams.has("image") ||
                 preventScrollResetSearches?.some((v) =>
-                  Url.searchParams.has(v)
+                  Url.searchParams.has(v),
                 ))) ||
             Boolean(Url.hash) ||
             a.hasAttribute("prevent-scroll-reset");
@@ -135,16 +134,15 @@ export function SetLinkPush({
 }
 
 export function MultiParser({
-  markdown = true,
   toDom = true,
-  linkPush = true,
-  linkSame = true,
-  hashtag = true,
-  quoteNumberReply = false,
+  markdown,
+  linkPush,
+  linkSame,
+  hashtag,
+  quoteNumberReply,
   detailsOpen = false,
   detailsClosable = true,
   widget,
-  only,
   className,
   tag = "div",
   parsedClassName = "parsed",
@@ -166,19 +164,11 @@ export function MultiParser({
   useImperativeHandle(ref, () => inRef.current!);
   const nav = useNavigate();
   const existCode = useRef(false);
-  if (only) {
-    markdown = only.markdown ?? false;
-    toDom = only.toDom ?? false;
-    widget = only.widget ?? false;
-    linkPush = only.linkPush ?? only.widget ?? false;
-    hashtag = only.hashtag ?? false;
-    detailsClosable = only.detailsClosable ?? false;
-  }
   useEffect(() => {
     if (existCode.current) {
       (
         inRef.current?.querySelectorAll(
-          `code[parsed]:not([data-highlighted])`
+          `code[parsed]:not([data-highlighted])`,
         ) as NodeListOf<HTMLElement>
       ).forEach((el) => {
         hljs.highlightElement(el);
@@ -206,7 +196,7 @@ export function MultiParser({
           : (m, m1, m2) => {
               const s = createSearchParams({ q: m2 });
               return `${m1}<a href="?${s.toString()}" className="hashtag">${m2}</a>`;
-            }
+            },
       );
     } else return childString;
   }, [childString, hashtag]);
@@ -216,7 +206,7 @@ export function MultiParser({
         />(\d+)(\s|$)/g,
         typeof quoteNumberReply === "function"
           ? quoteNumberReply
-          : (m, m1, m2) => `<a href="?id=${m1}">&#62;${m1}</a>${m2}`
+          : (m, m1, m2) => `<a href="?id=${m1}">&#62;${m1}</a>${m2}`,
       );
     } else return childString;
   }, [childString, quoteNumberReply]);
@@ -269,7 +259,7 @@ export function MultiParser({
                       let searchParams: URLSearchParams | undefined;
                       if (url.startsWith("?")) {
                         searchParams = new URLSearchParams(
-                          doubleQuestion ? url.slice(1) : url
+                          doubleQuestion ? url.slice(1) : url,
                         );
                       }
                       if (searchParams) {
@@ -290,7 +280,7 @@ export function MultiParser({
                       }
                       const Url = new URL(url, baseHref);
                       let preventScrollReset = Url.searchParams.has(
-                        "prevent-scroll-reset"
+                        "prevent-scroll-reset",
                       );
                       if (preventScrollReset) {
                         Url.searchParams.delete("prevent-scroll-reset");
@@ -300,7 +290,7 @@ export function MultiParser({
                             (Url.searchParams.has("modal") ||
                               Url.searchParams.has("image") ||
                               preventScrollResetSearches?.some((v) =>
-                                Url.searchParams.has(v)
+                                Url.searchParams.has(v),
                               ))) ||
                           Boolean(Url.hash) ||
                           "prevent-scroll-reset" in v.attribs;
@@ -349,8 +339,8 @@ export function MultiParser({
                           title: "折りたたむ",
                           type: "button",
                         },
-                        [new NodeText("たたむ")]
-                      )
+                        [new NodeText("たたむ")],
+                      ),
                     );
                   break;
                 default:
@@ -362,7 +352,7 @@ export function MultiParser({
                           {
                             className: "text",
                           },
-                          [new NodeText(c.data)]
+                          [new NodeText(c.data)],
                         );
                       }
                     });
@@ -386,7 +376,7 @@ export function MultiParser({
                             {
                               className: "twitter-tweet",
                             },
-                            [c]
+                            [c],
                           );
                         }
                       }
@@ -457,6 +447,6 @@ export function MultiParser({
   return React.createElement(
     tag,
     { className, ref: inRef, hidden, ...props },
-    parsedChildren
+    parsedChildren,
   );
 }

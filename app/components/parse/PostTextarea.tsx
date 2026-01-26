@@ -74,6 +74,10 @@ export function PostTextarea({
   }, [previewMode]);
   const multiParser = (
     <MultiParser
+      markdown
+      linkPush
+      linkSame
+      hashtag
       ref={previewRef}
       className={previewClassName}
       hidden={hiddenParsed}

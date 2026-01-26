@@ -127,7 +127,9 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
             <h2 className="title">{image.title || image.key}</h2>
           ) : null}
           <div className="description">
-            <MultiParserWithMedia>{image.description}</MultiParserWithMedia>
+            <MultiParserWithMedia markdown linkPush linkSame hashtag>
+              {image.description}
+            </MultiParserWithMedia>
           </div>
           <div className="tagList">
             {charaTags?.map((chara, i) => {

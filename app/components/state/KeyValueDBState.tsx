@@ -442,7 +442,9 @@ export function KeyValueEditable({
   defaultValue = useMemo(
     () =>
       childrenOutParse ? (
-        <MultiParser>{defaultValue}</MultiParser>
+        <MultiParser markdown linkPush linkSame hashtag>
+          {defaultValue}
+        </MultiParser>
       ) : (
         defaultValue
       ),
@@ -511,7 +513,14 @@ export function KeyValueRenderProps({
   return (
     <>
       {childrenOutParse ? (
-        <MultiParser onRender={onRender} {...props}>
+        <MultiParser
+          markdown
+          linkPush
+          linkSame
+          hashtag
+          onRender={onRender}
+          {...props}
+        >
           {value}
         </MultiParser>
       ) : (

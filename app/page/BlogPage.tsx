@@ -230,11 +230,11 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         </Link>
       );
     },
-    [isLogin, post]
+    [isLogin, post],
   );
   const formattedDate = useMemo(
     () => (post?.time ? post.time.toLocaleString("ja-JP", opt) : ""),
-    [post]
+    [post],
   );
   if (!post) return null;
 
@@ -251,7 +251,13 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       ) : null}
       <div className="header">
         {post.title ? (
-          <MultiParserWithMedia className="title">
+          <MultiParserWithMedia
+            markdown
+            linkPush
+            linkSame
+            hashtag
+            className="title"
+          >
             {detail ? (
               <h1>{post.title}</h1>
             ) : (
@@ -297,8 +303,11 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         )}
       </div>
       <MultiParserWithMedia
+        markdown
+        linkPush
+        linkSame
+        hashtag
         className="blog"
-        hashtag={true}
         detailsOpen={detail}
       >
         {post.body}
@@ -513,7 +522,7 @@ export function PagingArea({ max, className, ...args }: PagingAreaProps) {
         e.preventDefault();
       }
     },
-    { enableOnFormTags: ["INPUT"] }
+    { enableOnFormTags: ["INPUT"] },
   );
   const p = Number(searchParams.get("p")) || 1;
   const pRef = useRef(p);
@@ -635,7 +644,7 @@ export function SearchArea({ className, ...args }: SearchAreaProps) {
         e.preventDefault();
       }
     },
-    { enableOnFormTags: ["INPUT"] }
+    { enableOnFormTags: ["INPUT"] },
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get("q") || "";

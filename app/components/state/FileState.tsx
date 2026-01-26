@@ -24,7 +24,7 @@ export default function FileState() {
   const { Set } = useFiles();
   const env = useEnv()[0];
   const filesData = useSyncExternalStore(
-    ...ExternalStoreProps(filesDataIndexed)
+    ...ExternalStoreProps(filesDataIndexed),
   );
   useEffect(() => {
     if (filesData?.db && env) {
@@ -84,9 +84,7 @@ export function EmbedNode({ embed, ...args }: EmbedNodeProps) {
   }, [embed, mediaOrigin]);
   return element ? (
     <div {...args}>
-      <MultiParserWithMedia only={{ toDom: true }}>
-        {element}
-      </MultiParserWithMedia>
+      <MultiParserWithMedia>{element}</MultiParserWithMedia>
     </div>
   ) : (
     <></>

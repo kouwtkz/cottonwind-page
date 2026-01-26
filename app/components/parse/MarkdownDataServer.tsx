@@ -10,6 +10,6 @@ export function MdServerNode({
   parsedClassName?: string;
 }) {
   const data = GetMarkdownData(name);
-  if (data) return <MultiParser {...args}>{data}</MultiParser>;
+  if (data) return <MultiParser markdown {...args}>{data}</MultiParser>;
   else return null;
 }

@@ -94,7 +94,7 @@ function openWindow(url: string) {
 
 const [defaultEnableCountdown, defaultEndModeCountdown] = (() => {
   const searchParams = new URLSearchParams(
-    globalThis.window?.location.search || ""
+    globalThis.window?.location.search || "",
   );
   const mode = searchParams.get("countdown");
   return [Boolean(mode), mode === "endTime"];
@@ -111,7 +111,7 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     stateLock: false,
     view: null,
     date: dateFromSearchParams(
-      new URLSearchParams(globalThis.document?.location.search || "")
+      new URLSearchParams(globalThis.document?.location.search || ""),
     ),
     dateLock: false,
     timeRanges: [],
@@ -172,12 +172,12 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
     enableCountdown: defaultEnableCountdown,
     endModeCountdown: defaultEndModeCountdown,
     isDesktopSize: false,
-  })
+  }),
 );
 
 function dateFromSearchParams(
   searchParams: URLSearchParams,
-  date = new Date()
+  date = new Date(),
 ) {
   const newDate = new Date(date);
   if (searchParams.has(FC_SP_DAY)) {
@@ -198,7 +198,7 @@ function dateFromSearchParams(
 function setDateUrl(
   date: Date,
   setSearchParams: SetURLSearchParams,
-  replace?: boolean
+  replace?: boolean,
 ) {
   const beforeSearch = location.search;
   const searchParams = new URLSearchParams(beforeSearch);
@@ -248,7 +248,7 @@ export function CalendarMeeState({
   const [searchParams, setSearchParams] = useSearchParams();
   const eventIdParam = useMemo(
     () => searchParams.get(FC_SP_EVENT_ID),
-    [searchParams]
+    [searchParams],
   );
   const {
     add,
@@ -328,7 +328,7 @@ export function CalendarMeeState({
             });
           } else if (list) return list;
           return [];
-        })
+        }),
       )
         .then((events) => {
           Set(({ eventsMap, syncOverwrite, eventsOverwrite }) => {
@@ -416,7 +416,7 @@ export function CalendarMeeState({
         }
       }
     },
-    [state]
+    [state],
   );
 
   const setStateLock = useCallback((value: boolean) => {
@@ -453,7 +453,7 @@ export interface CalendarMeeProps
   eventOpen?: (e: EventClickArg) => void | boolean;
   openAddEvents?: (
     ev: MouseEvent | React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    element?: HTMLElement
+    element?: HTMLElement,
   ) => void;
   openSetting?: (ev: MouseEvent, element: HTMLElement) => void;
   linkMoveReplace?: boolean;
@@ -483,7 +483,7 @@ export function CalendarMee({
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
-    [searchParams, defaultView]
+    [searchParams, defaultView],
   ) as Type_VIEW_FC;
   const initialView = useMemo(() => view, []);
   const setView = useCallback(
@@ -503,7 +503,7 @@ export function CalendarMee({
         });
       }
     },
-    [defaultView, linkMoveReplace]
+    [defaultView, linkMoveReplace],
   );
   useEffect(() => {
     Set({ view });
@@ -523,7 +523,7 @@ export function CalendarMee({
       if (calendar) {
         const elm = e.target as HTMLInputElement;
         let c = elm.parentElement!.querySelector(
-          "input#dateSelector"
+          "input#dateSelector",
         ) as HTMLInputElement | null;
         if (!c) {
           const nc = document.createElement("input");
@@ -539,7 +539,7 @@ export function CalendarMee({
         }
       }
     },
-    [calendar]
+    [calendar],
   );
   const noEventsText = useMemo(() => {
     return isLoading
@@ -559,7 +559,7 @@ export function CalendarMee({
         e.jsEvent.preventDefault();
       }
     },
-    [calendar]
+    [calendar],
   );
   const onChangeHandle = useCallback(
     (arg: DatesSetArg) => {
@@ -573,7 +573,7 @@ export function CalendarMee({
         }
       }
     },
-    [calendar, eventId, linkMoveReplace]
+    [calendar, eventId, linkMoveReplace],
   );
   const eventOpen = useCallback(
     (e: EventClickArg) => {
@@ -582,7 +582,7 @@ export function CalendarMee({
       }
       e.jsEvent.preventDefault();
     },
-    [eventOpenProps]
+    [eventOpenProps],
   );
   const headerToolbarEnd = useMemo(() => {
     const list: string[] = [];
@@ -764,7 +764,7 @@ export function CalendarMeeEventViewer({
             weekday: "narrow",
           })
         : "",
-    [startDate]
+    [startDate],
   );
   const startTimeString = useMemo(
     () =>
@@ -775,7 +775,7 @@ export function CalendarMeeEventViewer({
             minute: "numeric",
           })
         : "",
-    [startDate, event?.allDay]
+    [startDate, event?.allDay],
   );
   const endDateString = useMemo(() => {
     const endFormat: FormatDateOptions = {
@@ -814,7 +814,7 @@ export function CalendarMeeEventViewer({
             minute: "numeric",
           })
         : "",
-    [startDate, endDate, event?.allDay]
+    [startDate, endDate, event?.allDay],
   );
   const ModalCloseHandler = useCallback(() => {
     Set({ isOpenEvent: false });
@@ -851,7 +851,7 @@ export function CalendarMeeEventViewer({
         CopyWithToast(`[](??${searchParams})`);
       }
     },
-    [eventId, startDate]
+    [eventId, startDate],
   );
   const { state } = useLocation();
   const setSearchParams = useSearchParams()[1];
@@ -868,7 +868,7 @@ export function CalendarMeeEventViewer({
       }
       setSearchParams(searchParams, options);
     },
-    [enableCountdown, endModeCountdown, state]
+    [enableCountdown, endModeCountdown, state],
   );
   const timeClassName = useMemo(() => {
     const classNames = ["time"];
@@ -913,7 +913,7 @@ export function CalendarMeeEventViewer({
   const { isEnable: _iENC, keyValues, setNotification } = useNotification();
   const countdownNotification = useMemo(
     () => _iENC && Boolean(keyValues[NOTICE_KEY_COUNTDOWN]),
-    [_iENC, keyValues]
+    [_iENC, keyValues],
   );
   const CountDownButton = useCallback(
     () => (
@@ -935,7 +935,7 @@ export function CalendarMeeEventViewer({
         <RiTimerFill />
       </button>
     ),
-    [enableCountdown, endModeCountdown, state]
+    [enableCountdown, endModeCountdown, state],
   );
   const SwitchNotificationButton = useCallback(
     () => (
@@ -957,7 +957,7 @@ export function CalendarMeeEventViewer({
         )}
       </button>
     ),
-    [countdownNotification]
+    [countdownNotification],
   );
   const BlogCopyButton = useCallback(
     () => (
@@ -965,7 +965,7 @@ export function CalendarMeeEventViewer({
         <RiFileCopyLine />
       </button>
     ),
-    [copyAction]
+    [copyAction],
   );
   const LinkButton = useMemo(
     () =>
@@ -979,7 +979,7 @@ export function CalendarMeeEventViewer({
           <RiCalendar2Line />
         </a>
       ) : null,
-    [event]
+    [event],
   );
   viewerClassName = useMemo(() => {
     const classNames = viewerClassName?.split(" ") || [];
@@ -1042,9 +1042,7 @@ export function CalendarMeeEventViewer({
             ) : null}
             {event.description ? (
               <div className="description">
-                <MultiParser
-                  only={{ toDom: true, markdown: true, linkPush: true, widget: true }}
-                >
+                <MultiParser markdown linkPush widget>
                   {event.description}
                 </MultiParser>
               </div>
@@ -1123,7 +1121,7 @@ export const CountDown = memo(function CountDown({
   }, [end, date, allDay]);
   const duringTime = useMemo(
     () => (endTime || 864e5) - startTime,
-    [startTime, endTime]
+    [startTime, endTime],
   );
   const firstTime = useMemo(() => startTime - current.getTime(), [startTime]);
   const onTheDayTime = useMemo(
@@ -1131,7 +1129,7 @@ export const CountDown = memo(function CountDown({
       ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
         1000 +
       date.getMilliseconds(),
-    [date]
+    [date],
   );
 
   const [time, setTime] = useState<number>(firstTime);
@@ -1173,7 +1171,7 @@ export const CountDown = memo(function CountDown({
 
   const dtime = useMemo(
     () => (time >= 0 && !endMode ? time : time + duringTime),
-    [time, duringTime, endMode]
+    [time, duringTime, endMode],
   );
   const isDuringTime = useMemo(() => time < 0 && dtime >= 0, [time, dtime]);
 
@@ -1183,7 +1181,7 @@ export const CountDown = memo(function CountDown({
     () =>
       `・${title}\n` +
       (isDuringTime ? "期間が終了しました！" : "時間になりました！"),
-    [title, isDuringTime]
+    [title, isDuringTime],
   );
 
   useEffect(() => {
