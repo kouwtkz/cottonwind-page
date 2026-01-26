@@ -37,7 +37,7 @@
     "WORKERS_ACCOUNT_ID": "95737cecb3c443e0b8979d9679110507",
     "WORKERS_CLEAN_PROJECT_NAME": "cottonwind,cottonwind-calendar",
     "WORKERS_CLEAN_EXPIRATION_DAYS": 7,
-    "INDEXEDDB_VERSION": 8
+    "INDEXEDDB_VERSION": 9
   },
   "kv_namespaces": [
     {

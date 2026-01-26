@@ -48,14 +48,17 @@ export class IndexedDataClass<
   async updateData(): Promise<any> {
   }
   async save({ store, data, callback, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
+    const thisTable = this.table;
     if (data.length > 0) {
       this.isBusy = true;
-      return await Promise.all(
-        data.map(async (value, i) => {
-          if (callback) value = await callback(value, i);
-          return await this.table.put({ value, store })
-        })
-      ).then(async v => {
+      return thisTable.usingStore({
+        async callback(store) {
+          return Promise.all(data.map(async (value, i) => {
+            if (callback) value = await callback(value, i);
+            return await thisTable.put({ value, store })
+          }))
+        }, store, mode: "readwrite"
+      }).then(async v => {
         if (onsuccess) await onsuccess(v);
         return v;
       }).then((v) => {
