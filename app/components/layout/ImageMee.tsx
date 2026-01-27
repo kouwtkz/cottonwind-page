@@ -45,6 +45,9 @@ export interface ImageMeeProps
   autoPosition?: boolean | string;
   isCover?: boolean;
   ref?: React.RefObject<HTMLImageElement | null>;
+  wideImageClass?: string;
+  longImageClass?: string;
+  squareImageClass?: string;
 }
 export const ImageMee = React.memo(function ImageMee({
   imageItem: _imageItem,
@@ -65,6 +68,9 @@ export const ImageMee = React.memo(function ImageMee({
   showMessage,
   style,
   onLoad,
+  wideImageClass = "wideImage",
+  longImageClass = "longImage",
+  squareImageClass = "squareImage",
   className,
   ref,
   ...attributes
@@ -197,10 +203,30 @@ export const ImageMee = React.memo(function ImageMee({
     if (
       autoPixel &&
       (typeof autoPixel === "number" ? autoPixel : 64) >= avgSize
-    )
+    ) {
       list.push("pixel");
+    }
+    if (width && height) {
+      if (width === height) {
+        list.push(squareImageClass);
+      } else if (width > height) {
+        list.push(wideImageClass);
+      } else {
+        list.push(longImageClass);
+      }
+    }
     return list.length > 0 ? list.join(" ") : undefined;
-  }, [className, mainImgSrc, avgSize, autoPixel]);
+  }, [
+    className,
+    mainImgSrc,
+    avgSize,
+    autoPixel,
+    wideImageClass,
+    longImageClass,
+    squareImageClass,
+    width,
+    height,
+  ]);
   const imgStyle = useMemo(() => {
     const imgStyle: React.CSSProperties = { ...style };
     if (loadingScreen) {
