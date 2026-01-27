@@ -3417,6 +3417,20 @@ label,
         height: 100%;
       }
     }
+    div.hideInfo {
+      width: auto;
+      height: auto;
+      img {
+        max-width: 1800px;
+        &.wideImage {
+          width: 100vw;
+        }
+        &.longImage,
+        &.squareImage {
+          height: 90vh;
+        }
+      }
+    }
   }
   .modal {
     width: 100%;

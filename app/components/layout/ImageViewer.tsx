@@ -422,7 +422,6 @@ function ImageViewerMain() {
     groupParam,
     Set: setImageViewer,
     setClose,
-    setOpen,
   } = useImageViewer();
   const setSearchParams = useSearchParams()[1];
   const nav = useNavigate();
@@ -493,6 +492,11 @@ function ImageViewerMain() {
     }
   }, [image]);
   const timeout = 80;
+  const modalClass = useMemo(() => {
+    const classNames = ["large full"];
+    if (image?.hideInfo) classNames.push("hideInfo");
+    return classNames.join(" ");
+  }, [image?.hideInfo]);
 
   return (
     <div id="image_viewer">
@@ -509,7 +513,7 @@ function ImageViewerMain() {
         timeout={timeout}
         // unmountOnExit
         classNameEntire="viewer"
-        className="large full"
+        className={modalClass}
         isOpen={isOpen}
         scroll
         switchWidth

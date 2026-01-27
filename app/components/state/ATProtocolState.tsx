@@ -385,6 +385,7 @@ function PostItem({
         src: image.fullsize,
         thumbnail: image.thumb,
         hideInfo: true,
+        ...image.aspectRatio,
       },
     });
   }
