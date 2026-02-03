@@ -268,7 +268,9 @@ export function MultiParser({
                 case "a":
                   if (linkPush) {
                     let url = v.attribs.href;
-                    if (/^\w+:\/\//.test(url)) {
+                    const baseHref = location.href;
+                    const Url = new URL(url, baseHref);
+                    if (Url.origin !== location.origin) {
                       v.attribs.target = "_blank";
                       if (v.childNodes.some((node) => node.type === "text"))
                         v.attribs.className =
@@ -276,7 +278,6 @@ export function MultiParser({
                             ? `${v.attribs.className} `
                             : "") + "external";
                     } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
-                      const baseHref = location.href;
                       const doubleQuestion = url.startsWith("??");
                       let searchParams: URLSearchParams | undefined;
                       if (url.startsWith("?")) {
@@ -300,7 +301,6 @@ export function MultiParser({
                           v.attribs.href = url;
                         }
                       }
-                      const Url = new URL(url, baseHref);
                       let preventScrollReset = Url.searchParams.has(
                         "prevent-scroll-reset",
                       );
