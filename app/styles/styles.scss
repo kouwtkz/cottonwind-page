@@ -2273,6 +2273,37 @@ footer {
       }
     }
   }
+  .embed a.feedView {
+    height: 5em;
+    width: 100%;
+    border: solid 1px var(--main-color-grayish);
+    border-radius: 12px;
+    display: flex;
+    &:hover {
+      background-color: var(--main-color-pale-fluo);
+    }
+    img {
+      height: 5em;
+      width: auto;
+      border-right: solid 1px var(--main-color-grayish);
+      border-radius: 12px 0 0 12px;
+    }
+    > *:nth-child(2) {
+      flex: 1;
+      padding: 0.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      h4 {
+        font-size: 1.3em;
+        margin: 0;
+      }
+      p {
+        font-size: 1em;
+        margin: 0;
+      }
+    }
+  }
 }
 
 .laymic_root {

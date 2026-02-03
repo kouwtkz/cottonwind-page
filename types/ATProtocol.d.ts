@@ -93,6 +93,21 @@ interface BlueskyFeedPostEmbedVideoViewType extends ATBaseType<"app.bsky.embed.v
   playlist: string;
   thumbnail: string;
 }
+interface BlueskyFeedGeneratorViewType extends ATBaseType<"app.bsky.feed.defs#generatorView"> {
+  avatar: string;
+  cid: string;
+  creator: BlueskyFeedAuthorType;
+  description: string;
+  did: string;
+  displayName: string;
+  indexedAt: string;
+  labels: string[];
+  likeCount: number;
+  uri: string;
+}
+interface BlueskyFeedPostEmbedRecordViewType extends ATBaseType<"app.bsky.embed.record#view"> {
+  record: BlueskyFeedGeneratorViewType;
+}
 interface BlueskyFeedPostEmbedImageType extends ATBaseType<"app.bsky.embed.images"> {
   images: [{
     alt: string;
@@ -154,11 +169,13 @@ interface BlueskyFeedAuthorType {
   pronouns: string;
 }
 
+type BlueskyFeedPostEmbedTypes = BlueskyFeedPostEmbedImageViewType | BlueskyFeedPostEmbedVideoViewType | BlueskyFeedPostEmbedRecordViewType;
+
 interface BlueskyFeedPostRawType {
   author: BlueskyFeedAuthorType;
   bookmarkCount: 0;
   cid: string;
-  embed?: BlueskyFeedPostEmbedImageViewType | BlueskyFeedPostEmbedVideoViewType;
+  embed?: BlueskyFeedPostEmbedTypes;
   indexedAt: string;
   labels: Array;
   likeCount: number;
