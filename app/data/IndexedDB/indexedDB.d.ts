@@ -1,4 +1,4 @@
-type Type_MeeIndexedDB_Event = "update" | "dbSet";
+type Type_MeeIndexedDB_Event = "update" | "dbSet" | "onput" | "loadingNext";
 
 interface Props_DataStateOptions<T> {
   key: string;
@@ -47,7 +47,10 @@ interface Props_IndexedDataClass_DataStore<T = any> {
 
 interface Props_IndexedDataClass_Save<T = any> extends Props_IndexedDataClass_DataStore<any[]> {
   callback?(item: T, index?: number): any | Promise<any>;
-  onsuccess?(item: any): any | Promise<any>;
+  onput?(args: { value: any, key?: IDBValidKey, index: number }): void;
+  onerror?(e: any): void;
+  next?(index?: number): void;
+  onsuccess?(item?: IDBValidKey): any | Promise<any>;
 }
 
 interface Props_Indexed_KV_Save<T = any> extends Props_IndexedDataClass_DataStore<Map<string, T> | Array<[string, T]>> { }

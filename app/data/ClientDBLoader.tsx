@@ -32,9 +32,10 @@ import {
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { customFetch } from "~/components/functions/fetch";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { SubscribeEventsClass } from "~/components/hook/SubscribeEvents";
 
 export let waitIdbResolve: (value?: unknown) => void;
-export let waitIdb = new Promise((resolve, reject) => {
+export const waitIdb = new Promise((resolve, reject) => {
   waitIdbResolve = resolve;
 });
 
@@ -145,6 +146,23 @@ export async function getDataFromApi<T = any>(
   }).then(async (r) => (await r.json()) as T);
 }
 
+type ClientDBLoaderHandlerNType = "onnext" | "onadd" | "nodata";
+class ClientDBLoaderHandlerClass extends SubscribeEventsClass<ClientDBLoaderHandlerNType> {
+  length = 0;
+  count = 0;
+  nodata = false;
+  override emitSwitchEvents(name: ClientDBLoaderHandlerNType) {
+    switch (name) {
+      case "onnext":
+        this.emitEvent("onadd", ++this.count);
+        break;
+      case "nodata":
+        this.nodata = true;
+        break;
+    }
+  }
+}
+export const ClientDBLoaderHandler = new ClientDBLoaderHandlerClass();
 interface ClientDBLoaderProps {
   env: EnvWithCfOriginOptions;
 }
@@ -218,10 +236,22 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     IdbLoadMap.clear();
     await results
       .then(async (items) => {
+        ClientDBLoaderHandler.length = Object.values(items).reduce(
+          (a, c) => a + c.length,
+          0,
+        );
+        if (ClientDBLoaderHandler.length === 0) {
+          ClientDBLoaderHandler.emitEvent("nodata");
+        }
         Promise.all(
           IdbStateClassList.map(async (obj) => {
             const data = items[obj.key as JSONAllDataKeys] as any;
-            await obj.save({ data });
+            await obj.save({
+              data,
+              next(i) {
+                ClientDBLoaderHandler.emitEvent("onnext", obj, i);
+              },
+            });
           }),
         );
       })

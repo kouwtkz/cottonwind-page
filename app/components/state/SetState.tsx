@@ -3,7 +3,7 @@ import { SoundPlayer } from "~/components/layout/SoundPlayer";
 import { ImageViewer } from "~/components/layout/ImageViewer";
 import { ImageState, useImageState } from "./ImageState";
 import { useEnv, EnvState, useIsLogin } from "./EnvState";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { CharacterState, useCharacters } from "./CharacterState";
 import PostState, { usePosts } from "./PostState";
 import { SoundState, useSounds } from "./SoundState";
@@ -20,7 +20,11 @@ import { CalendarMeeState, useCalendarMee } from "~/calendar/CalendarMee";
 // import { FaviconState } from "./FaviconState";
 import type { OmittedEnv } from "types/custom-configuration";
 import { ClickEventState } from "../click/useClickEvent";
-import { ClientDBState, IdbStateIsLoaded } from "~/data/ClientDBLoader";
+import {
+  ClientDBState,
+  IdbStateIsLoaded,
+  ClientDBLoaderHandler,
+} from "~/data/ClientDBLoader";
 import { Theme } from "../theme/Theme";
 import { LangState } from "../multilingual/LangState";
 import { FaviconState } from "./FaviconState";
@@ -83,7 +87,7 @@ export const SetState = React.memo(function SetState({
 });
 
 export const useIsComplete = CreateState(false);
-export const useIsLoaded = CreateState<boolean[]>([]);
+export const useIsLoadedFloat = CreateState(0);
 
 function CheckIsComplete() {
   const loadedEnv = Boolean(useEnv()[0]);
@@ -129,10 +133,33 @@ function CheckIsComplete() {
     loadedATProtoDescribe,
     loadedATProtoLinkat,
   ]);
-  const setIsLoaded = useIsLoaded()[1];
+  const [clientDBLoading, setClientDBLoading] = useState(0);
   useEffect(() => {
-    setIsLoaded(isSetList);
-  }, [isSetList]);
+    if (ClientDBLoaderHandler.nodata) setClientDBLoading(-1);
+    else {
+      ClientDBLoaderHandler.addEventListener("nodata", () => {
+        setClientDBLoading(-1);
+      });
+    }
+    ClientDBLoaderHandler.addEventListener("onadd", () => {
+      setClientDBLoading(
+        Math.round(
+          (50 * ClientDBLoaderHandler.count) / ClientDBLoaderHandler.length,
+        ) / 50,
+      );
+    });
+  }, []);
+  const isSetListPer = useMemo(
+    () => isSetList.reduce((a, c) => (c ? a + 1 : a), 0) / isSetList.length,
+    [isSetList],
+  );
+
+  const setIsLoadedFloat = useIsLoadedFloat()[1];
+  useEffect(() => {
+    if (clientDBLoading >= 0)
+      setIsLoadedFloat((isSetListPer + clientDBLoading) / 2);
+    else setIsLoadedFloat(isSetListPer);
+  }, [isSetListPer, clientDBLoading]);
   const setIsComplete = useIsComplete()[1];
   const isComplete = useMemo(() => isSetList.every((v) => v), [isSetList]);
   useEffect(() => {

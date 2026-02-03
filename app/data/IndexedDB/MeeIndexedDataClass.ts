@@ -47,16 +47,29 @@ export class IndexedDataClass<
   }
   async updateData(): Promise<any> {
   }
-  async save({ store, data, callback, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
+  async save({ store, data, callback, onput, onerror, next, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
     const thisTable = this.table;
+    const emit = this.emitEvent.bind(this);
     if (data.length > 0) {
       this.isBusy = true;
       return thisTable.usingStore({
         async callback(store) {
           return Promise.all(data.map(async (value, i) => {
             if (callback) value = await callback(value, i);
-            return await thisTable.put({ value, store })
-          }))
+            await thisTable.put({ value, store })
+              .then((key) => {
+                if (onput) onput({ key, value, index: i });
+                emit("onput", key, value, i);
+                return key;
+              })
+              .catch((e) => {
+                if (onerror) onerror(e);
+              })
+              .finally(async () => {
+                if (next) next(i);
+                emit("loadingNext", i);
+              })
+          })).then<IDBValidKey[]>(a => a.filter(v => v) as any)
         }, store, mode: "readwrite"
       }).then(async v => {
         if (onsuccess) await onsuccess(v);
@@ -64,7 +77,7 @@ export class IndexedDataClass<
       }).then((v) => {
         this.table.clone().then((table) => {
           this.table = table as TABLE_CLASS;
-          this.emitEvent("update");
+          emit("update");
         })
         return (v ? Promise.all(v) : [])
       })

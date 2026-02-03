@@ -146,15 +146,21 @@ export class IndexedDataLastmodMH<
   load(load?: LoadStateType) {
     this.emitEvent("load", load);
   }
-  override async save({ store, data }: Props_IndexedDataClass_NoCallback_Save<D>) {
-    let callback: ((item: any) => Promise<T>) | undefined;
-    if (this.options.convert) callback = (async (item) => {
-      return await convertToMeeIndexedData<T, D>({ item, convert: this.options.convert! });
-    })
+  override async save({ callback: argsCallback, onsuccess, ...args }: Props_IndexedDataClass_Save<D | T>) {
+    const thisOption = this.options;
+    async function callback(item: T | D, i: number): Promise<T> {
+      if (thisOption.convert) {
+        item = await convertToMeeIndexedData<T, D>({ item: item as D, convert: thisOption.convert! }) as T;
+      } else item = item as T;
+      if (argsCallback) argsCallback(item, i);
+      return item;
+    }
     if (this.isUpgrade) this.isUpgrade = false;
     return super.save({
-      store, data, callback,
-      onsuccess: () => this.updateData(),
+      ...args, callback,
+      onsuccess: (item) => this.updateData().then(async () => {
+        if (onsuccess) await onsuccess(item);
+      }),
     });
   }
   static getCacheOption(loadAtomValue?: LoadStateType) {
@@ -164,7 +170,6 @@ export class IndexedDataLastmodMH<
 
 export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, ImageDataType, ImageMeeIndexedDBTable> {
   override async updateData() {
-    console.log(this, "updateData");
     return this.table.updateData({ lastmod: this.beforeLastmod });
   }
   override async dbSuccess(db: IDBDatabase) {
@@ -205,7 +210,7 @@ type EventCallback = (callback: () => void) => () => void;
 export function ExternalStoreProps<
   T = any,
   D = T,
-  TABLE_CLASS extends MeeIndexedDBTable<T> = MeeIndexedDBTable<T>,
+  TABLE_CLASS extends MeeIndexedDBTable<any> = MeeIndexedDBTable<T>,
 >(
   dataIndexed?: IndexedDataClass<T, D, TABLE_CLASS>
 ): [EventCallback, () => TABLE_CLASS | null, () => null] {
