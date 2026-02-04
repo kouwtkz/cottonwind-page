@@ -11,6 +11,8 @@ import {
   type NavigateFunction,
 } from "react-router";
 import HTMLReactParser, {
+  type DOMNode,
+  domToReact,
   type HTMLReactParserOptions,
   htmlToDOM,
 } from "html-react-parser";
@@ -255,176 +257,190 @@ export function MultiParser({
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   let parsedChildren = useMemo((): React.ReactNode => {
     if (!hidden && childString && toDom) {
-      return HTMLReactParser(childString, {
+      const options: HTMLReactParserOptions = {
         ...ReactParserArgs,
-        replace: (v) => {
-          switch (v.type) {
-            case "tag":
-              switch (v.name) {
-                case "code":
-                  v.attribs["parsed"] = "";
-                  existCode.current = true;
-                  break;
-                case "a":
-                  if (v.children.length === 0) {
-                    v.children.push(new NodeText(v.attribs.href));
-                  }
-                  if (linkPush) {
-                    let url = v.attribs.href;
-                    const baseHref = location.href;
-                    const Url = new URL(url, baseHref);
-                    if (Url.origin !== location.origin) {
-                      v.attribs.target = "_blank";
-                      if (v.childNodes.some((node) => node.type === "text"))
-                        v.attribs.className =
-                          (v.attribs.className
-                            ? `${v.attribs.className} `
-                            : "") + "external";
-                    } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
-                      const doubleQuestion = url.startsWith("??");
-                      let searchParams: URLSearchParams | undefined;
-                      if (url.startsWith("?")) {
-                        searchParams = new URLSearchParams(
-                          doubleQuestion ? url.slice(1) : url,
-                        );
-                      }
-                      if (searchParams) {
-                        let isRelative = doubleQuestion;
-                        if (searchParams.has(searchParamsRelative)) {
-                          searchParams.delete(searchParamsRelative);
-                          isRelative = true;
-                        }
-                        if (isRelative) {
-                          const BaseUrl = new URL(baseHref);
-                          searchParams.forEach((v, k) => {
-                            if (!BaseUrl.searchParams.has(k))
-                              BaseUrl.searchParams.set(k, v);
-                          });
-                          url = BaseUrl.search;
-                          v.attribs.href = url;
-                        }
-                      }
-                      let preventScrollReset = Url.searchParams.has(
-                        "prevent-scroll-reset",
-                      );
-                      if (preventScrollReset) {
-                        Url.searchParams.delete("prevent-scroll-reset");
-                      } else {
-                        preventScrollReset =
-                          (url.startsWith("?") &&
-                            (Url.searchParams.has("modal") ||
-                              Url.searchParams.has("image") ||
-                              preventScrollResetSearches?.some((v) =>
-                                Url.searchParams.has(v),
-                              ))) ||
-                          Boolean(Url.hash) ||
-                          "prevent-scroll-reset" in v.attribs;
-                      }
-                      if (Url.searchParams.has("search-params-relative")) {
-                        Url.searchParams.delete("search-params-relative");
-                        const BaseUrl = new URL(baseHref);
-                        BaseUrl.searchParams.forEach((v, k) => {
-                          if (!Url.searchParams.has(k))
-                            Url.searchParams.set(k, v);
-                        });
-                        v.attribs.href = Url.href;
-                      }
-                      const onClick: ((e: MouseEvent) => void) | undefined = v
-                        .attribs.onClick as any;
-                      v.attribs.onClick = ((e: MouseEvent) => {
-                        if (onClick) onClick(e);
-                        if (!e.defaultPrevented) {
-                          if (
-                            Url.href !== baseHref ||
-                            (linkSame && window.scrollY > 0)
-                          ) {
-                            nav(Url.pathname + Url.search + Url.hash, {
-                              preventScrollReset,
-                              state: { from: location.href },
-                            });
-                          }
-                          e.preventDefault();
-                        }
-                      }) as any;
-                    }
-                  }
-                  break;
-                case "details":
-                  if (detailsOpen && !("manual" in v.attribs))
-                    v.attribs.open = "";
-                  if (detailsClosable)
-                    v.children.push(
-                      new NodeElement(
-                        "button",
-                        {
-                          className: "close",
-                          onClick: ((e: any) => {
-                            e.target.parentElement.removeAttribute("open");
-                          }) as any,
-                          title: "折りたたむ",
-                          type: "button",
-                        },
-                        [new NodeText("たたむ")],
-                      ),
-                    );
-                  break;
-                default:
-                  if (v.name === "li") {
-                    v.children.forEach((c, i) => {
-                      if (c.type === "text" && !/^\s*$/.test(c.data)) {
-                        v.children[i] = new NodeElement(
-                          "div",
-                          {
-                            className: "text",
-                          },
-                          [new NodeText(c.data)],
-                        );
-                      }
-                    });
-                  }
-                  if (widget && v.type === "tag" && v.name !== "blockquote") {
-                    v.children.forEach((c, i) => {
-                      if (
-                        c.type === "tag" &&
-                        c.name === "a" &&
-                        c.attribs.href.startsWith("https://")
-                      ) {
-                        const Url = new URL(c.attribs.href);
-                        if (Url.hostname === "x.com") {
-                          Url.hostname = "twitter.com";
-                          c.attribs.href = Url.href;
-                        }
-                        if (Url.hostname === "twitter.com") {
-                          isTwitterWidget = true;
-                          v.children[i] = v.children[i] = new NodeElement(
-                            "blockquote",
-                            {
-                              className: "twitter-tweet",
-                            },
-                            [c],
-                          );
-                        }
-                      }
-                    });
-                  }
-                  if (typeof location !== "undefined" && linkPush) {
-                    const newChildren = v.children.reduce((a, n) => {
-                      let _n: ChildNode | undefined = n;
-                      if (replaceFunction) {
-                        _n = replaceFunction({ linkPush, a, n });
-                      }
-                      if (_n) a.push(_n);
-                      return a;
-                    }, [] as ChildNode[]);
-                    v.children = newChildren;
-                  }
-                  break;
-              }
-              break;
+        transform(reactNode, domNode, index) {
+          if (domNode.type === "tag") {
           }
-          if (replace) replace(v, 0);
+          return reactNode as React.JSX.Element;
         },
-      });
+        replace(domNode, index) {
+          if (domNode.type === "tag") {
+            switch (domNode.name) {
+              case "code":
+                domNode.attribs["parsed"] = "";
+                existCode.current = true;
+                break;
+              case "p":
+                if (
+                  !domNode.parent &&
+                  !domNode.children.some((c) => c.type === "text")
+                ) {
+                  return (
+                    <div>
+                      {domToReact(domNode.children as DOMNode[], options)}
+                    </div>
+                  );
+                }
+                break;
+              case "a":
+                if (domNode.children.length === 0) {
+                  domNode.children.push(new NodeText(domNode.attribs.href));
+                }
+                if (linkPush) {
+                  let url = domNode.attribs.href;
+                  const baseHref = location.href;
+                  const Url = new URL(url, baseHref);
+                  if (Url.origin !== location.origin) {
+                    domNode.attribs.target = "_blank";
+                    if (domNode.childNodes.some((node) => node.type === "text"))
+                      domNode.attribs.className =
+                        (domNode.attribs.className
+                          ? `${domNode.attribs.className} `
+                          : "") + "external";
+                  } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
+                    const doubleQuestion = url.startsWith("??");
+                    let searchParams: URLSearchParams | undefined;
+                    if (url.startsWith("?")) {
+                      searchParams = new URLSearchParams(
+                        doubleQuestion ? url.slice(1) : url,
+                      );
+                    }
+                    if (searchParams) {
+                      let isRelative = doubleQuestion;
+                      if (searchParams.has(searchParamsRelative)) {
+                        searchParams.delete(searchParamsRelative);
+                        isRelative = true;
+                      }
+                      if (isRelative) {
+                        const BaseUrl = new URL(baseHref);
+                        searchParams.forEach((v, k) => {
+                          if (!BaseUrl.searchParams.has(k))
+                            BaseUrl.searchParams.set(k, v);
+                        });
+                        url = BaseUrl.search;
+                        domNode.attribs.href = url;
+                      }
+                    }
+                    let preventScrollReset = Url.searchParams.has(
+                      "prevent-scroll-reset",
+                    );
+                    if (preventScrollReset) {
+                      Url.searchParams.delete("prevent-scroll-reset");
+                    } else {
+                      preventScrollReset =
+                        (url.startsWith("?") &&
+                          (Url.searchParams.has("modal") ||
+                            Url.searchParams.has("image") ||
+                            preventScrollResetSearches?.some((v) =>
+                              Url.searchParams.has(v),
+                            ))) ||
+                        Boolean(Url.hash) ||
+                        "prevent-scroll-reset" in domNode.attribs;
+                    }
+                    if (Url.searchParams.has("search-params-relative")) {
+                      Url.searchParams.delete("search-params-relative");
+                      const BaseUrl = new URL(baseHref);
+                      BaseUrl.searchParams.forEach((v, k) => {
+                        if (!Url.searchParams.has(k))
+                          Url.searchParams.set(k, v);
+                      });
+                      domNode.attribs.href = Url.href;
+                    }
+                    const onClick: ((e: MouseEvent) => void) | undefined =
+                      domNode.attribs.onClick as any;
+                    domNode.attribs.onClick = ((e: MouseEvent) => {
+                      if (onClick) onClick(e);
+                      if (!e.defaultPrevented) {
+                        if (
+                          Url.href !== baseHref ||
+                          (linkSame && window.scrollY > 0)
+                        ) {
+                          nav(Url.pathname + Url.search + Url.hash, {
+                            preventScrollReset,
+                            state: { from: location.href },
+                          });
+                        }
+                        e.preventDefault();
+                      }
+                    }) as any;
+                  }
+                }
+                if (
+                  domNode.attribs.href.startsWith("https://") &&
+                  (widget || domNode.attribs.title === "widget")
+                ) {
+                  const Url = new URL(domNode.attribs.href);
+                  switch (Url.hostname) {
+                    case "x.com":
+                    case "twitter.com":
+                      isTwitterWidget = true;
+                      Url.hostname = "twitter.com";
+                      return (
+                        <blockquote className="twitter-tweet">
+                          <a href={Url.href}>
+                            {domToReact(domNode.children as DOMNode[], options)}
+                          </a>
+                        </blockquote>
+                      );
+                      break;
+                  }
+                }
+                break;
+              case "details":
+                if (detailsOpen && !("manual" in domNode.attribs))
+                  domNode.attribs.open = "";
+                if (detailsClosable)
+                  domNode.children.push(
+                    new NodeElement(
+                      "button",
+                      {
+                        className: "close",
+                        onClick: ((e: any) => {
+                          e.target.parentElement.removeAttribute("open");
+                        }) as any,
+                        title: "折りたたむ",
+                        type: "button",
+                      },
+                      [new NodeText("たたむ")],
+                    ),
+                  );
+                break;
+              default:
+                if (domNode.name === "li") {
+                  domNode.children.forEach((c, i) => {
+                    if (c.type === "text" && !/^\s*$/.test(c.data)) {
+                      domNode.children[i] = new NodeElement(
+                        "div",
+                        {
+                          className: "text",
+                        },
+                        [new NodeText(c.data)],
+                      );
+                    }
+                  });
+                }
+                if (typeof location !== "undefined" && linkPush) {
+                  const newChildren = domNode.children.reduce((a, n) => {
+                    let _n: ChildNode | undefined = n;
+                    if (replaceFunction) {
+                      _n = replaceFunction({ linkPush, a, n });
+                    }
+                    if (_n) a.push(_n);
+                    return a;
+                  }, [] as ChildNode[]);
+                  domNode.children = newChildren;
+                }
+                break;
+            }
+          }
+          if (replace) {
+            const result = replace(domNode, 0);
+            if (result) return result;
+          }
+        },
+      };
+      return HTMLReactParser(childString, options);
     } else return children;
   }, [
     hidden,

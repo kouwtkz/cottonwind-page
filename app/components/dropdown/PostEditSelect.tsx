@@ -131,6 +131,7 @@ export function PostEditSelectInsert({
       <MenuItem value="code">コード</MenuItem>
       <MenuItem value="table">テーブル</MenuItem>
       <MenuItem value="commentOut">コメントアウト</MenuItem>
+      <MenuItem value="widget">ウィジェット</MenuItem>
     </DropdownObject>
   );
 }
@@ -197,6 +198,14 @@ export function setPostInsert({
           setValue,
           before: "<!-- ",
           after: " -->",
+        });
+        break;
+      case "widget":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: `[](`,
+          after: ` "widget")`,
         });
         break;
     }

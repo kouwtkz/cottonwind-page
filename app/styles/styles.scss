@@ -2414,6 +2414,9 @@ form {
   img {
     max-width: 100%;
   }
+  & > div {
+    display: inline-block;
+  }
 }
 
 .characterPage {
