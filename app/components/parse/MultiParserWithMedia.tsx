@@ -38,7 +38,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
         return srcUrl.href;
       } else return "";
     },
-    []
+    [],
   );
   const Link = useCallback(
     ({ src, alt, banner }: { src: string; alt: string; banner?: boolean }) => {
@@ -82,7 +82,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
         return b;
       } else return a;
     },
-    [linksMap]
+    [linksMap],
   );
   const MultiParserReplace = useCallback(
     ({ linkPush, n }: MultiParserReplaceProps) => {
@@ -124,7 +124,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
                 return new NodeElement(
                   "a",
                   { href: Url.search, "prevent-scroll-reset": "" },
-                  [n]
+                  [n],
                 );
               }
             }
@@ -135,7 +135,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
                 src: n.attribs.href,
                 alt: n.children.reduce(
                   (a, c) => (c.type === "text" ? a + c.data : a),
-                  ""
+                  "",
                 ),
                 banner: false,
               });
@@ -148,7 +148,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
                   onClick: copyAction as any,
                   "data-copy": value,
                 },
-                n.children.length ? n.children : [new NodeText(value)]
+                n.children.length ? n.children : [new NodeText(value)],
               );
             }
             break;
@@ -156,7 +156,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
       }
       return n;
     },
-    [imagesMap, linksMap]
+    [imagesMap, linksMap],
   );
   return MultiParser({
     ...args,

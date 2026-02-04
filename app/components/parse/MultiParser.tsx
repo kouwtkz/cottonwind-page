@@ -48,6 +48,7 @@ export interface MultiParserProps
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
   onRender?: (elm: HTMLElement) => void;
+  embedTheme?: string;
   ref?: React.Ref<HTMLElement>;
 }
 
@@ -137,6 +138,8 @@ export function SetLinkPush({
   }
 }
 
+const BskyHandleMap = new Map<any, string>();
+
 export function MultiParser({
   toDom = true,
   markdown,
@@ -206,7 +209,7 @@ export function MultiParser({
           ? hashtag
           : (m, m1, m2) => {
               const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" class="hashtag">${m2}</a>`;
+              return `${m1}<a href="?${s.toString()}" className="hashtag">${m2}</a>`;
             },
       );
     } else return childString;
@@ -219,7 +222,7 @@ export function MultiParser({
           ? mention
           : (m, m1, m2) => {
               const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" class="mention">${m2}</a>`;
+              return `${m1}<a href="?${s.toString()}" className="mention">${m2}</a>`;
             },
       );
     } else return childString;
@@ -253,6 +256,7 @@ export function MultiParser({
     return str;
   }, [childString, markdown]);
   let isTwitterWidget = false;
+  let isBskyWidget = false;
 
   const ReactParserArgs = { trim, htmlparser2, library, transform };
   let parsedChildren = useMemo((): React.ReactNode => {
@@ -274,7 +278,9 @@ export function MultiParser({
               case "p":
                 if (
                   !domNode.parent &&
-                  !domNode.children.some((c) => c.type === "text")
+                  !domNode.children.some(
+                    (c) => c.type === "text" && !/^\s*$/.test(c.data),
+                  )
                 ) {
                   return (
                     <div>
@@ -366,24 +372,58 @@ export function MultiParser({
                     }) as any;
                   }
                 }
-                if (
-                  domNode.attribs.href.startsWith("https://") &&
-                  (widget || domNode.attribs.title === "widget")
-                ) {
-                  const Url = new URL(domNode.attribs.href);
-                  switch (Url.hostname) {
-                    case "x.com":
-                    case "twitter.com":
-                      isTwitterWidget = true;
-                      Url.hostname = "twitter.com";
-                      return (
-                        <blockquote className="twitter-tweet">
-                          <a href={Url.href}>
+                if (widget || domNode.attribs.title === "widget") {
+                  const Url = domNode.attribs.href.startsWith("https://")
+                    ? new URL(domNode.attribs.href)
+                    : null;
+                  if (Url) {
+                    switch (Url.hostname) {
+                      case "x.com":
+                      case "twitter.com":
+                        isTwitterWidget = true;
+                        Url.hostname = "twitter.com";
+                        return (
+                          <blockquote className="twitter-tweet">
+                            <a href={Url.href} target="_blank">
+                              {domToReact(
+                                domNode.children as DOMNode[],
+                                options,
+                              )}
+                            </a>
+                          </blockquote>
+                        );
+                    }
+                  }
+                  if (
+                    Url?.hostname === "bsky.app" ||
+                    domNode.attribs.href.startsWith("at://")
+                  ) {
+                    let resolveHandle: string | undefined;
+                    let resolvePost: string | undefined;
+                    if (Url) {
+                      const m = Url.pathname.match(
+                        /\/profile\/([^\/]+)\/post\/([^\/]+)/,
+                      );
+                      if (m) {
+                        resolveHandle = m[1];
+                        resolvePost = m[2];
+                      }
+                    }
+                    isBskyWidget = true;
+                    return (
+                      <>
+                        <blockquote
+                          className="bluesky-embed"
+                          data-bluesky-uri={Url ? "" : domNode.attribs.href}
+                          data-resolve-handle={resolveHandle}
+                          data-resolve-post={resolvePost}
+                        >
+                          <a href={Url?.href} target="_blank">
                             {domToReact(domNode.children as DOMNode[], options)}
                           </a>
                         </blockquote>
-                      );
-                      break;
+                      </>
+                    );
                   }
                 }
                 break;
@@ -452,7 +492,6 @@ export function MultiParser({
     detailsOpen,
     detailsClosable,
     preventScrollResetSearches,
-    isTwitterWidget,
   ]);
   parsedChildren = useMemo(() => {
     function setBodyInner(node: React.ReactNode) {
@@ -479,16 +518,79 @@ export function MultiParser({
   }, [parsedChildren]);
   className = (className ? `${className} ` : "") + parsedClassName;
   useEffect(() => {
-    if (isTwitterWidget) {
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://platform.twitter.com/widgets.js";
-      inRef.current?.appendChild(script);
+    if (inRef.current && isTwitterWidget) {
+      inRef.current.appendChild(
+        createScript("https://platform.twitter.com/widgets.js"),
+      );
     }
-  }, [isTwitterWidget]);
+  }, [isTwitterWidget, childString]);
+  useEffect(() => {
+    (async () => {
+      if (inRef.current && isBskyWidget) {
+        const htmlClass = document.querySelector("html")?.classList;
+        let theme: string | undefined;
+        if (htmlClass) {
+          theme = "dark";
+          if (htmlClass.contains("dark")) {
+          } else if (
+            htmlClass.contains("auto") ||
+            htmlClass.contains("system")
+          ) {
+            theme = "system";
+          } else {
+            theme = "light";
+          }
+        }
+        await Promise.all(
+          Array.from(
+            inRef.current.querySelectorAll<HTMLElement>(
+              "blockquote[data-bluesky-uri]",
+            ),
+          ).map(async (e) => {
+            if (e.dataset.resolveHandle) {
+              if (!BskyHandleMap.has(e.dataset.resolveHandle)) {
+                await fetch(
+                  "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=" +
+                    e.dataset.resolveHandle,
+                  { mode: "cors" },
+                )
+                  .then((r) => {
+                    if (r.status === 200) {
+                      return r.json() as unknown as { did: string };
+                    } else {
+                      return { did: "" };
+                    }
+                  })
+                  .then(({ did }) => {
+                    BskyHandleMap.set(e.dataset.resolveHandle, did);
+                  });
+                const did = BskyHandleMap.get(e.dataset.resolveHandle);
+                if (did) {
+                  e.dataset.blueskyUri = `at://${did}/app.bsky.feed.post/${e.dataset.resolvePost}`;
+                  delete e.dataset.resolveHandle;
+                  delete e.dataset.resolvePost;
+                }
+              }
+            }
+            e.dataset.blueskyEmbedColorMode = theme;
+          }),
+        );
+        inRef.current.appendChild(
+          createScript("https://embed.bsky.app/static/embed.js"),
+        );
+      }
+    })();
+  }, [isBskyWidget, childString]);
   return React.createElement(
     tag,
     { className, ref: inRef, hidden, ...props },
     parsedChildren,
   );
+}
+
+function createScript(src: string) {
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = src;
+  return script;
 }
