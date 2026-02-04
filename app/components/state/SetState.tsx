@@ -135,17 +135,11 @@ function CheckIsComplete() {
   ]);
   const [clientDBLoading, setClientDBLoading] = useState(0);
   useEffect(() => {
-    if (ClientDBLoaderHandler.nodata) setClientDBLoading(-1);
-    else {
-      ClientDBLoaderHandler.addEventListener("nodata", () => {
-        setClientDBLoading(-1);
-      });
-    }
     ClientDBLoaderHandler.addEventListener("onadd", () => {
       setClientDBLoading(
         Math.round(
-          (50 * ClientDBLoaderHandler.count) / ClientDBLoaderHandler.length,
-        ) / 50,
+          (10 * ClientDBLoaderHandler.count) / ClientDBLoaderHandler.length,
+        ) / 10,
       );
     });
   }, []);
@@ -156,9 +150,11 @@ function CheckIsComplete() {
 
   const setIsLoadedFloat = useIsLoadedFloat()[1];
   useEffect(() => {
-    if (clientDBLoading >= 0)
-      setIsLoadedFloat((isSetListPer + clientDBLoading) / 2);
-    else setIsLoadedFloat(isSetListPer);
+    const value =
+      (isSetListPer +
+        Math.sqrt(clientDBLoading) * ClientDBLoaderHandler.denominator) /
+      (1 + ClientDBLoaderHandler.denominator);
+    setIsLoadedFloat(value);
   }, [isSetListPer, clientDBLoading]);
   const setIsComplete = useIsComplete()[1];
   const isComplete = useMemo(() => isSetList.every((v) => v), [isSetList]);

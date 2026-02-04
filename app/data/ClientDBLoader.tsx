@@ -146,9 +146,10 @@ export async function getDataFromApi<T = any>(
   }).then(async (r) => (await r.json()) as T);
 }
 
-type ClientDBLoaderHandlerNType = "onnext" | "onadd" | "nodata";
+type ClientDBLoaderHandlerNType = "onnext" | "onadd" | "onlength";
 class ClientDBLoaderHandlerClass extends SubscribeEventsClass<ClientDBLoaderHandlerNType> {
   length = 0;
+  denominator = 0;
   count = 0;
   nodata = false;
   override emitSwitchEvents(name: ClientDBLoaderHandlerNType) {
@@ -156,8 +157,12 @@ class ClientDBLoaderHandlerClass extends SubscribeEventsClass<ClientDBLoaderHand
       case "onnext":
         this.emitEvent("onadd", ++this.count);
         break;
-      case "nodata":
-        this.nodata = true;
+      case "onlength":
+        if (this.length === 0) this.nodata = true;
+        else {
+          this.denominator =
+            Math.round(Math.min(this.length / 1000, 1) * 10) / 10;
+        }
         break;
     }
   }
@@ -240,9 +245,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
           (a, c) => a + c.length,
           0,
         );
-        if (ClientDBLoaderHandler.length === 0) {
-          ClientDBLoaderHandler.emitEvent("nodata");
-        }
+        ClientDBLoaderHandler.emitEvent("onlength");
         Promise.all(
           IdbStateClassList.map(async (obj) => {
             const data = items[obj.key as JSONAllDataKeys] as any;
