@@ -37,7 +37,7 @@ export function replacePostTextarea({
   textarea.setRangeText(
     `${before}${selection}${after}`,
     selectionStart,
-    selectionEnd
+    selectionEnd,
   );
   if (selectionStart === selectionEnd) {
     if (insertWhenBlank) {
@@ -46,7 +46,7 @@ export function replacePostTextarea({
     } else {
       textarea.setSelectionRange(
         selectionStart,
-        selectionStart + before.length + after.length
+        selectionStart + before.length + after.length,
       );
     }
   }
@@ -128,13 +128,9 @@ export function PostEditSelectInsert({
       <MenuItem value="br">改行</MenuItem>
       <MenuItem value="separator">区切り線</MenuItem>
       <MenuItem value="more">もっと読む</MenuItem>
-      <MenuItem value="h2">見出し2</MenuItem>
-      <MenuItem value="h3">見出し3</MenuItem>
-      <MenuItem value="h4">見出し4</MenuItem>
-      <MenuItem value="li">リスト</MenuItem>
-      <MenuItem value="ol">数字リスト</MenuItem>
       <MenuItem value="code">コード</MenuItem>
       <MenuItem value="table">テーブル</MenuItem>
+      <MenuItem value="commentOut">コメントアウト</MenuItem>
     </DropdownObject>
   );
 }
@@ -179,21 +175,6 @@ export function setPostInsert({
           after: "\n</details>",
         });
         break;
-      case "h2":
-        replacePostTextarea({ textarea, setValue, before: "## ", after: "" });
-        break;
-      case "h3":
-        replacePostTextarea({ textarea, setValue, before: "### ", after: "" });
-        break;
-      case "h4":
-        replacePostTextarea({ textarea, setValue, before: "#### ", after: "" });
-        break;
-      case "li":
-        replacePostTextarea({ textarea, setValue, before: "- ", after: "" });
-        break;
-      case "ol":
-        replacePostTextarea({ textarea, setValue, before: "+ ", after: "" });
-        break;
       case "code":
         replacePostTextarea({
           textarea,
@@ -208,6 +189,14 @@ export function setPostInsert({
           setValue,
           before: `|  |  |  |\n| ---- | ---- | ---- |\n|  |  |  |\n`,
           after: "",
+        });
+        break;
+      case "commentOut":
+        replacePostTextarea({
+          textarea,
+          setValue,
+          before: "<!-- ",
+          after: " -->",
         });
         break;
     }
@@ -257,6 +246,11 @@ export function PostEditSelectDecoration({
         <MenuItem value="bold">強調</MenuItem>
         <MenuItem value="strikethrough">打消し線</MenuItem>
         <MenuItem value="italic">イタリック体</MenuItem>
+        <MenuItem value="h2">見出し2</MenuItem>
+        <MenuItem value="h3">見出し3</MenuItem>
+        <MenuItem value="h4">見出し4</MenuItem>
+        <MenuItem value="li">リスト</MenuItem>
+        <MenuItem value="ol">数字リスト</MenuItem>
       </DropdownObject>
     </>
   );
@@ -295,6 +289,21 @@ export function setDecoration({
       case "strikethrough":
         replacePostTextarea({ textarea, setValue, before: "~~" });
         break;
+      case "h2":
+        replacePostTextarea({ textarea, setValue, before: "## ", after: "" });
+        break;
+      case "h3":
+        replacePostTextarea({ textarea, setValue, before: "### ", after: "" });
+        break;
+      case "h4":
+        replacePostTextarea({ textarea, setValue, before: "#### ", after: "" });
+        break;
+      case "li":
+        replacePostTextarea({ textarea, setValue, before: "- ", after: "" });
+        break;
+      case "ol":
+        replacePostTextarea({ textarea, setValue, before: "+ ", after: "" });
+        break;
     }
 }
 
@@ -332,7 +341,11 @@ export function PostEditSelectMedia({
   ...args
 }: PostEditSelectMediaProps) {
   const [env] = useEnv();
-  const { image: selectedImage, id, open: OpenSelectImage } = useSelectImageState();
+  const {
+    image: selectedImage,
+    id,
+    open: OpenSelectImage,
+  } = useSelectImageState();
   useEffect(() => {
     if (selectedImage && id === "post")
       replacePostTextareaFromImage({
@@ -358,7 +371,7 @@ export function PostEditSelectMedia({
                 src: files,
                 album,
                 notDraft: true,
-              })
+              }),
             )
             .then((list) => {
               imageDataIndexed.load("no-cache");
@@ -386,7 +399,7 @@ export function PostEditSelectMedia({
           window.open(env?.UPLOAD_SERVICE, "uploadExternal");
           break;
         case "gallery":
-          OpenSelectImage({topAlbum: album, id: "post"});
+          OpenSelectImage({ topAlbum: album, id: "post" });
           break;
         case "link":
           replacePostTextarea({
