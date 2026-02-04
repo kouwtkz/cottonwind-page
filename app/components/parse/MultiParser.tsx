@@ -548,28 +548,33 @@ export function MultiParser({
             ),
           ).map(async (e) => {
             if (e.dataset.resolveHandle) {
-              if (!BskyHandleMap.has(e.dataset.resolveHandle)) {
-                await fetch(
-                  "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=" +
-                    e.dataset.resolveHandle,
-                  { mode: "cors" },
-                )
-                  .then((r) => {
-                    if (r.status === 200) {
-                      return r.json() as unknown as { did: string };
-                    } else {
-                      return { did: "" };
-                    }
-                  })
-                  .then(({ did }) => {
-                    BskyHandleMap.set(e.dataset.resolveHandle, did);
-                  });
-                const did = BskyHandleMap.get(e.dataset.resolveHandle);
-                if (did) {
-                  e.dataset.blueskyUri = `at://${did}/app.bsky.feed.post/${e.dataset.resolvePost}`;
-                  delete e.dataset.resolveHandle;
-                  delete e.dataset.resolvePost;
+              let did: string | undefined;
+              if (e.dataset.resolveHandle.startsWith("did:"))
+                did = e.dataset.resolveHandle;
+              else {
+                if (!BskyHandleMap.has(e.dataset.resolveHandle)) {
+                  await fetch(
+                    "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=" +
+                      e.dataset.resolveHandle,
+                    { mode: "cors" },
+                  )
+                    .then((r) => {
+                      if (r.status === 200) {
+                        return r.json() as unknown as { did: string };
+                      } else {
+                        return { did: "" };
+                      }
+                    })
+                    .then(({ did }) => {
+                      BskyHandleMap.set(e.dataset.resolveHandle, did);
+                    });
                 }
+                did = BskyHandleMap.get(e.dataset.resolveHandle);
+              }
+              if (did) {
+                e.dataset.blueskyUri = `at://${did}/app.bsky.feed.post/${e.dataset.resolvePost}`;
+                delete e.dataset.resolveHandle;
+                delete e.dataset.resolvePost;
               }
             }
             e.dataset.blueskyEmbedColorMode = theme;
