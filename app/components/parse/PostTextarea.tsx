@@ -80,17 +80,18 @@ export function PostTextarea({
     (e) => {
       if ((e.target as HTMLElement)?.tagName === "TEXTAREA") {
         const textarea = e.target as HTMLTextAreaElement;
-        const selectionStart =
-          textarea.value.lastIndexOf("\n", textarea.selectionStart - 1) + 1;
-        const selectionEnd = textarea.value.indexOf(
-          "\n",
-          textarea.selectionEnd,
-        );
+        let selectionStart =
+          textarea.value.lastIndexOf("\n", textarea.selectionStart) + 1;
+        if (textarea.selectionStart < selectionStart)
+          selectionStart = textarea.selectionStart;
+        let selectionEnd = textarea.value.indexOf("\n", textarea.selectionEnd);
+        if (selectionEnd < 0) selectionEnd = textarea.value.length;
         const text = textarea.value.slice(selectionStart, selectionEnd);
+        const sp = /(\S\n|\s\S)/.test(text) ? "\n" : " ";
         const m = text.match(/^\<!--\s?([\S\s]*)-->$/);
         let replaced: string;
         if (m) replaced = m[1].replace(/\s$/, "");
-        else replaced = `<!-- ${text} -->`;
+        else replaced = `<!--${sp}${text}${sp}-->`;
         const value =
           textarea.value.slice(0, selectionStart) +
           replaced +
