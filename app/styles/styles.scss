@@ -2282,14 +2282,14 @@ footer {
     &:hover {
       background-color: var(--main-color-pale-fluo);
     }
-    img {
+    img.icon {
       height: 5em;
       width: auto;
       border-right: solid 1px var(--main-color-grayish);
       border-radius: 12px 0 0 12px;
       padding: 0;
     }
-    > *:nth-child(2) {
+    div.content {
       flex: 1;
       padding: 0.25rem 1.5rem;
       display: flex;

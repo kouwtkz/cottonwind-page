@@ -105,8 +105,21 @@ interface BlueskyFeedGeneratorViewType extends ATBaseType<"app.bsky.feed.defs#ge
   likeCount: number;
   uri: string;
 }
+interface BlueskyFeedViewRecordType extends ATBaseType<"app.bsky.embed.record#viewRecord"> {
+  author: BlueskyFeedAuthorType;
+  cid: string;
+  embeds?: BlueskyFeedPostEmbedTypes[];
+  indexedAt: string;
+  labels: string[];
+  likeCount: number;
+  quoteCount: number;
+  replyCount: number;
+  repostCount: number;
+  uri: string;
+  value: BlueskyFeedPostRecordType;
+}
 interface BlueskyFeedPostEmbedRecordViewType extends ATBaseType<"app.bsky.embed.record#view"> {
-  record: BlueskyFeedGeneratorViewType;
+  record: BlueskyFeedGeneratorViewType | BlueskyFeedViewRecordType;
 }
 interface BlueskyFeedPostEmbedImageType extends ATBaseType<"app.bsky.embed.images"> {
   images: [{
@@ -165,7 +178,7 @@ interface BlueskyFeedAuthorType {
   did: string;
   displayName: string;
   handle: string;
-  labels: Array;
+  labels: string[];
   pronouns: string;
 }
 
@@ -173,11 +186,11 @@ type BlueskyFeedPostEmbedTypes = BlueskyFeedPostEmbedImageViewType | BlueskyFeed
 
 interface BlueskyFeedPostRawType {
   author: BlueskyFeedAuthorType;
-  bookmarkCount: 0;
+  bookmarkCount: number;
   cid: string;
   embed?: BlueskyFeedPostEmbedTypes;
   indexedAt: string;
-  labels: Array;
+  labels: string[];
   likeCount: number;
   quoteCount: number;
   record: BlueskyFeedPostRecordType;

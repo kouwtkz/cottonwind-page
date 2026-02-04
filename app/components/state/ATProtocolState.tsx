@@ -363,9 +363,18 @@ export function MultiParserWithFacets({
 
 function ATUriToBskyFeedUrl(uri: string) {
   return uri.replace(
-    /^at:\/\/([^\/]+)\/app.bsky.feed.generator\/(.+)$/,
-    (m, m1, m2) => {
-      return "https://bsky.app/profile/" + m1 + "/feed/" + m2;
+    /^at:\/\/([^\/]+)\/app.bsky.feed.(generator|post)\/(.+)$/,
+    (m, m1, m2, m3) => {
+      let mode: string;
+      switch (m2) {
+        case "generator":
+          mode = "feed";
+          break;
+        default:
+          mode = "post";
+          break;
+      }
+      return `https://bsky.app/profile/${m1}/${mode}/${m3}`;
     },
   );
 }
@@ -426,20 +435,40 @@ function PostItem({
               <EmbedVideoProps video={post.embed} />
             ) : null}
             {post.embed.$type === "app.bsky.embed.record#view" ? (
-              <a
-                href={ATUriToBskyFeedUrl(post.embed.record.uri)}
-                target="_blank"
-                className="feedView"
-              >
-                <img
-                  src={post.embed.record.avatar}
-                  alt={post.embed.record.description}
-                />
-                <div>
-                  <h4>{post.embed.record.displayName}</h4>
-                  <p>{post.embed.record.description}</p>
-                </div>
-              </a>
+              post.embed.record.$type === "app.bsky.embed.record#viewRecord" ? (
+                <a
+                  href={ATUriToBskyFeedUrl(post.embed.record.uri)}
+                  target="_blank"
+                  className="feedView"
+                >
+                  {post.author.did !== post.embed.record.author.did ? (
+                    <img
+                      src={post.embed.record.author.avatar}
+                      alt={post.embed.record.author.handle}
+                      className="icon"
+                    />
+                  ) : null}
+                  <MultiParserWithFacets className="content">
+                    {post.embed.record.value}
+                  </MultiParserWithFacets>
+                </a>
+              ) : (
+                <a
+                  href={ATUriToBskyFeedUrl(post.embed.record.uri)}
+                  target="_blank"
+                  className="feedView"
+                >
+                  <img
+                    src={post.embed.record.avatar}
+                    alt={post.embed.record.description}
+                    className="icon"
+                  />
+                  <div className="content">
+                    <h4>{post.embed.record.displayName}</h4>
+                    <p>{post.embed.record.description}</p>
+                  </div>
+                </a>
+              )
             ) : null}
           </div>
         ) : null}
