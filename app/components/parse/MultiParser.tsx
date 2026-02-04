@@ -266,6 +266,9 @@ export function MultiParser({
                   existCode.current = true;
                   break;
                 case "a":
+                  if (v.children.length === 0) {
+                    v.children.push(new NodeText(v.attribs.href));
+                  }
                   if (linkPush) {
                     let url = v.attribs.href;
                     const baseHref = location.href;
