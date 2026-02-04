@@ -92,9 +92,9 @@ export const useIsLoadedFloat = CreateState(0);
 function CheckIsComplete() {
   const loadedEnv = Boolean(useEnv()[0]);
   const loadedImages = Boolean(useImageState().images);
-  const loadedCharacters = Boolean(useCharacters().characters);
+  const loadedCharacters = Boolean(useCharacters().charactersData);
   const loadedPosts = Boolean(usePosts().posts);
-  const loadedSounds = Boolean(useSounds().sounds);
+  const loadedSounds = Boolean(useSounds().soundsData);
   const loadedLinks = Boolean(useLinks().links);
   const { did, didInfo, describe, linkat } = useATProtoState();
   const loadedATProtoDid = useMemo(() => typeof did !== "undefined", [did]);
