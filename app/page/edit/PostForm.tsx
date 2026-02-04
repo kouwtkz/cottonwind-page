@@ -582,6 +582,7 @@ export function PostForm() {
           placeholder="ブログの本文"
           className="body"
           mode="details"
+          setValue={setBody}
           body={watch("body")}
         />
         <div className="action">

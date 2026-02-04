@@ -133,7 +133,7 @@ export default function ImageEditForm({
   const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
   const allTagsOptions = useMemo(
     () => (tagsList ? CountToContentsTagsOption(tagsList) : []),
-    [tagsList]
+    [tagsList],
   );
 
   const { characters } = useCharacters();
@@ -147,7 +147,7 @@ export default function ImageEditForm({
   const [stateIsEditHold] = useImageEditSwitchHold();
   const isEdit = useMemo(
     () => stateIsEdit || stateIsEditHold,
-    [stateIsEdit, stateIsEditHold]
+    [stateIsEdit, stateIsEditHold],
   );
 
   const nav = useNavigate();
@@ -159,7 +159,7 @@ export default function ImageEditForm({
   const embedList = useMemo(() => {
     const list = (files || []).filter((file) => !file.private);
     list.sort(
-      (a, b) => (b.lastmod?.getTime() || 0) - (a.lastmod?.getTime() || 0)
+      (a, b) => (b.lastmod?.getTime() || 0) - (a.lastmod?.getTime() || 0),
     );
     return list;
   }, [files]);
@@ -169,7 +169,7 @@ export default function ImageEditForm({
     (e) => {
       if (isEdit && isDirty) SubmitImage();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   useHotkeys(
     "escape",
@@ -179,31 +179,31 @@ export default function ImageEditForm({
         e.preventDefault();
       }
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
 
   const [charaLabelTags, setCharaLabelTags] = useState<ContentsTagsOption[]>(
-    []
+    [],
   );
   useEffect(() => {
     setCharaLabelTags(
       characters.map(({ name, key: id }) => ({
         label: name,
         value: id,
-      }))
+      })),
     );
   }, [characters]);
   const unregisteredTagsOptions = useMemo(
     () =>
       [
         ...(image?.tags?.map(
-          (v) => ({ label: v, value: v }) as ContentsTagsOption
+          (v) => ({ label: v, value: v }) as ContentsTagsOption,
         ) || []),
         ...allTagsOptions,
       ].filter(({ value: tag }) =>
-        simpleDefaultTags.every(({ value }) => value !== tag)
+        simpleDefaultTags.every(({ value }) => value !== tag),
       ),
-    [image?.tags, defaultGalleryTags, allTagsOptions]
+    [image?.tags, defaultGalleryTags, allTagsOptions],
   );
   const values = useMemo(
     () => ({
@@ -223,7 +223,7 @@ export default function ImageEditForm({
       album: image?.album || "",
       rename: image?.key || "",
     }),
-    [image]
+    [image],
   );
 
   const {
@@ -322,7 +322,7 @@ export default function ImageEditForm({
   }, []);
   const autoImageItemType = useMemo(
     () => AutoImageItemType(image?.embed, image?.albumObject?.type),
-    [image?.embed, image?.albumObject?.type]
+    [image?.embed, image?.albumObject?.type],
   );
 
   const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
@@ -348,8 +348,8 @@ export default function ImageEditForm({
     if (copyrightList)
       setCopyrightTags(
         copyrightList.map(
-          ({ value }) => ({ label: value, value }) as ContentsTagsOption
-        )
+          ({ value }) => ({ label: value, value }) as ContentsTagsOption,
+        ),
       );
   }, [copyrightList]);
   const { charactersMap } = useCharacters();
@@ -364,7 +364,7 @@ export default function ImageEditForm({
   });
   const positionValue = useMemo<string>(
     () => positionField.value,
-    [positionField.value]
+    [positionField.value],
   );
   const positionOptionList = useMemo(() => {
     const list: optionElementInterface[] = defPositions.concat();
@@ -446,11 +446,11 @@ export default function ImageEditForm({
     let [sx, sy, option] = str.split(" ");
     if (x)
       sx = sx.replace(/[\-\.\d]+/, (m) =>
-        String(LimitValue(Number(m) + Math.round(x), { min: 0, max: 100 }))
+        String(LimitValue(Number(m) + Math.round(x), { min: 0, max: 100 })),
       );
     if (y)
       sy = sy.replace(/[\-\.\d]+/, (m) =>
-        String(LimitValue(Number(m) + Math.round(y), { min: 0, max: 100 }))
+        String(LimitValue(Number(m) + Math.round(y), { min: 0, max: 100 })),
       );
     const arr = [sx, sy];
     if (option) arr.push(option);
@@ -485,28 +485,28 @@ export default function ImageEditForm({
     () => {
       movePosition({ x: -1 });
     },
-    optionsPP
+    optionsPP,
   );
   useHotkeys(
     "ArrowRight",
     () => {
       movePosition({ x: 1 });
     },
-    optionsPP
+    optionsPP,
   );
   useHotkeys(
     "ArrowUp",
     () => {
       movePosition({ y: -1 });
     },
-    optionsPP
+    optionsPP,
   );
   useHotkeys(
     "ArrowDown",
     () => {
       movePosition({ y: 1 });
     },
-    optionsPP
+    optionsPP,
   );
 
   return (
@@ -527,7 +527,7 @@ export default function ImageEditForm({
                         src: { src: file, name: image.key },
                         webp,
                         thumbnail,
-                      })
+                      }),
                     )
                     .then(() => {
                       imageDataIndexed.load("no-cache");
@@ -549,7 +549,7 @@ export default function ImageEditForm({
                         src: { src: file, name: image.key },
                         original: false,
                         thumbnail: true,
-                      })
+                      }),
                     )
                     .then(() => {
                       imageDataIndexed.load("no-cache");
@@ -569,9 +569,9 @@ export default function ImageEditForm({
                       imageDataIndexed.load("no-cache");
                       toast(
                         "サムネイルを設定しました",
-                        toastLoadingShortOptions
+                        toastLoadingShortOptions,
                       );
-                    }
+                    },
                   );
                 }
               }}
@@ -703,6 +703,7 @@ export default function ImageEditForm({
             })}
             disabled={isBusy}
             mode={previewMode}
+            setValue={setDescription}
             body={getValues("description")}
           />
         </div>
@@ -822,11 +823,11 @@ export default function ImageEditForm({
                   SetPositionPreview(true);
                   if (positionSelectRef.current?.value === "any") {
                     const promptDefault: string = replacePositionToPercent(
-                      positionField.value
+                      positionField.value,
                     );
                     const inputValue = prompt(
                       "画像の中心を入力してください (object-position)",
-                      promptDefault
+                      promptDefault,
                     );
                     setPositionSelect(inputValue);
                   } else {
@@ -1057,7 +1058,7 @@ export async function MakeImagesUploadList({
                   type: "webp",
                   ...webpOptions,
                 }),
-                webpName
+                webpName,
               );
             } else {
               if (typeof object.src !== "string") {
@@ -1091,7 +1092,7 @@ export async function MakeImagesUploadList({
       if (typeof object.src === "object")
         formData.append("mtime", String(object.src.lastModified));
       return formData;
-    })
+    }),
   );
   return formDataList.map(
     (data) => () =>
@@ -1118,7 +1119,7 @@ export async function MakeImagesUploadList({
             src: data.get("src") as string,
           };
           return r;
-        })
+        }),
   );
 }
 
@@ -1231,7 +1232,7 @@ export async function ImagesUpload({
   ...args
 }: ImagesUploadProps) {
   return MakeImagesUploadList(args).then((list) =>
-    PromiseOrder(list, { sleepTime })
+    PromiseOrder(list, { sleepTime }),
   );
 }
 

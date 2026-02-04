@@ -14,6 +14,7 @@ import {
   PostEditSelectInsert,
   PostEditSelectMedia,
 } from "../dropdown/PostEditSelect";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type PreviewModeType = {
   previewMode: boolean;
@@ -36,6 +37,7 @@ interface PostTextareaProps
   mode?: PostTextareaPreviewMode;
   body?: string;
   open?: boolean;
+  setValue?(v: any): void;
 }
 export function PostTextarea({
   registed,
@@ -48,6 +50,7 @@ export function PostTextarea({
   body: previewBody,
   contentEditable = true,
   open,
+  setValue,
   ...props
 }: PostTextareaProps) {
   className = useMemo(() => {
@@ -72,6 +75,37 @@ export function PostTextarea({
       ? previewMode === "false"
       : !previewMode;
   }, [previewMode]);
+  useHotkeys<HTMLElement>(
+    "ctrl+slash",
+    (e) => {
+      if ((e.target as HTMLElement)?.tagName === "TEXTAREA") {
+        const textarea = e.target as HTMLTextAreaElement;
+        const selectionStart =
+          textarea.value.lastIndexOf("\n", textarea.selectionStart - 1) + 1;
+        const selectionEnd = textarea.value.indexOf(
+          "\n",
+          textarea.selectionEnd,
+        );
+        const text = textarea.value.slice(selectionStart, selectionEnd);
+        const m = text.match(/^\<!--\s?([\S\s]*)-->$/);
+        let replaced: string;
+        if (m) replaced = m[1].replace(/\s$/, "");
+        else replaced = `<!-- ${text} -->`;
+        const value =
+          textarea.value.slice(0, selectionStart) +
+          replaced +
+          textarea.value.slice(selectionEnd);
+        if (setValue) setValue(value);
+        else textarea.value = value;
+        textarea.setSelectionRange(
+          selectionStart,
+          selectionEnd + replaced.length - text.length,
+        );
+        e.preventDefault();
+      }
+    },
+    { enableOnFormTags: ["TEXTAREA"] },
+  );
   const multiParser = (
     <MultiParser
       markdown
@@ -166,6 +200,7 @@ export function TextareaWithPreview<
           title={title}
           placeholder={placeholder}
           mode={previewMode}
+          setValue={setTextarea}
           body={watch(name)}
         />
       </div>

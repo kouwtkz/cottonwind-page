@@ -89,7 +89,7 @@ export function CharacterEdit() {
   const { charactersMap } = useCharacters();
   const chara = useMemo(
     () => charactersMap?.get(charaName || ""),
-    [charactersMap, charaName]
+    [charactersMap, charaName],
   );
   return (
     <>
@@ -123,7 +123,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       playlist: chara?.playlist || [],
       draft: chara?.draft ?? null,
     }),
-    [chara]
+    [chara],
   );
 
   const playlistOptions = useMemo(
@@ -132,9 +132,9 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         (sounds || []).map((s) => ({
           label: s.title || s.key,
           value: s.key,
-        }))
+        })),
       ) as ContentsTagsOption[],
-    [sounds]
+    [sounds],
   );
 
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
@@ -154,7 +154,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             charactersMap.has(key)
           );
         },
-        { message: "既に使用しているIDです！" }
+        { message: "既に使用しているIDです！" },
       ),
     name: z.string().min(1, { message: "名前は1文字以上必要です！" }),
   });
@@ -239,7 +239,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               },
             },
             error: "送信に失敗しました",
-          }
+          },
         )
         .then(() => {
           charactersDataIndexed.load("no-cache");
@@ -347,7 +347,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         },
       });
     },
-    [searchParams, chara]
+    [searchParams, chara],
   );
   const ImageModalSetter = useCallback(
     ({
@@ -372,7 +372,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </button>
       );
     },
-    [searchParams, chara]
+    [searchParams, chara],
   );
 
   const ImageSetter = useCallback(
@@ -451,7 +451,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         </button>
       );
     },
-    [chara]
+    [chara],
   );
 
   useHotkeys(
@@ -459,7 +459,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     (e) => {
       if (isDirty) onSubmit(true);
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
 
   return (
@@ -656,7 +656,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                   option: (style) => ({ ...style, paddingLeft: "1em" }),
                 }}
                 value={(field.value as string[]).map((fv) =>
-                  playlistOptions.find(({ value }) => value === fv)
+                  playlistOptions.find(({ value }) => value === fv),
                 )}
                 placeholder="プレイリスト"
                 onChange={(newValues) => {
@@ -712,6 +712,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             placeholder="詳細"
             className="description"
             mode={previewMode}
+            setValue={setDescription}
             body={getValues("description")}
           />
         </div>
@@ -793,7 +794,7 @@ export function CharaEditButton() {
   const { orderBySort } = useCharacterPageState();
   const sortMode = useMemo(
     () => (orderBySort ? orderBySort.length > 0 : false),
-    [orderBySort]
+    [orderBySort],
   );
   const Url: UrlObject = { pathname: "/character" };
   Url.query = charaName ? { mode: "edit", name: charaName } : { mode: "add" };
@@ -820,14 +821,14 @@ export function CharaEditButton() {
                       src,
                       character: charactersMap?.has(name) ? name : null,
                     } as srcObjectType;
-                  })
+                  }),
                 )
                 .then((files) =>
                   ImagesUploadWithToast({
                     src: files,
                     album: charaMediaKindMap.get("icon"),
                     ...iconImagesUploadOptions,
-                  })
+                  }),
                 )
                 .then(() => {
                   imageDataIndexed.load("no-cache");
@@ -902,7 +903,7 @@ export function CharaImageSettingRbButtons({
   if (params.charaName) {
     async function toastPromise(
       promise: Promise<unknown>,
-      mode: characterImageMode
+      mode: characterImageMode,
     ) {
       return toast.promise(promise, {
         pending: "送信中",
@@ -936,7 +937,7 @@ export function CharaImageSettingRbButtons({
             method: "POST",
             cors: true,
           }),
-          mode
+          mode,
         );
         charactersDataIndexed.load("no-cache");
       }
@@ -977,7 +978,7 @@ export function CharaImageSettingRbButtons({
                   .then(() => {
                     charactersDataIndexed.load("no-cache");
                   }),
-                "icon"
+                "icon",
               );
             }
           }}
