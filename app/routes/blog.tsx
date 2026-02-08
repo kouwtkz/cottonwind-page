@@ -6,6 +6,7 @@ import { parse } from "marked";
 import { getCfDB } from "~/data/cf/getEnv";
 import { postTableObject } from "./api/blog";
 import { postsDataIndexed, waitIdb } from "~/data/ClientDBLoader";
+import { FormatDate } from "~/components/functions/DateFunction";
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const db = getCfDB({ context });
@@ -46,7 +47,13 @@ export function meta({ matches, data, location }: Route.MetaArgs) {
   const post = data?.post;
   metaData.title = "ブログ";
   if (post) {
-    metaData.title = post.title + " - " + metaData.title;
+    metaData.title =
+      (post.title ||
+        (post.time
+          ? FormatDate(new Date(post.time), "Y-n-j")
+          : String(post.id))) +
+      " - " +
+      metaData.title;
     const parsed = String(parse(post.body || "", { async: false }))
       .replace(/\<.+\>/g, "")
       .replace(/\s+/g, " ");
