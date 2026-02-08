@@ -149,12 +149,12 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
                     domNode.attribs.height = String(imageItem.height);
                   Url.searchParams.delete("pic");
                   Url.searchParams.set("image", imageItem.key);
+                  return (
+                    <Link to={Url.search} preventScrollReset>
+                      {domToReact([domNode], options)}
+                    </Link>
+                  );
                 }
-                return (
-                  <Link to={Url.search} preventScrollReset>
-                    {domToReact([domNode], options)}
-                  </Link>
-                );
               }
             }
             break;
