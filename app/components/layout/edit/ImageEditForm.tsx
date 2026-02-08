@@ -652,7 +652,7 @@ export default function ImageEditForm({
           Set({ isEdit: !isEdit });
           e.preventDefault();
         })}
-        className={"edit window" + (className ? ` ${className}` : "")}
+        className={"edit" + (className ? ` ${className}` : "")}
         style={isEdit ? {} : { display: "none" }}
       >
         <label>
