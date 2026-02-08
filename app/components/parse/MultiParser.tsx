@@ -3,7 +3,7 @@ import React, {
   useImperativeHandle,
   useMemo,
   useRef,
-  useState,
+  type JSX,
 } from "react";
 import {
   createSearchParams,
@@ -44,7 +44,7 @@ export interface MultiParserProps
   detailsOpen?: boolean;
   tag?: string;
   parsedClassName?: string;
-  replaceFunction?: (args: MultiParserReplaceProps) => ChildNode | undefined;
+  replaceFunction?(arg: MultiParserReplaceProps): ReplaceReturnType | void;
   useEffectFunction?: () => void | Promise<void>;
   preventScrollResetSearches?: string[];
   onRender?: (elm: HTMLElement) => void;
@@ -52,10 +52,19 @@ export interface MultiParserProps
   ref?: React.Ref<HTMLElement>;
 }
 
+export type ReplaceReturnType =
+  | JSX.Element
+  | string
+  | null
+  | boolean
+  | object
+  | void;
+
 export interface MultiParserReplaceProps {
-  linkPush: boolean;
-  a: ChildNode[];
-  n: ChildNode;
+  options: HTMLReactParserOptions;
+  linkPush?: boolean;
+  domNode: DOMNode;
+  index: number;
 }
 
 const searchParamsRelative = "search-params-relative";
@@ -269,6 +278,15 @@ export function MultiParser({
           return reactNode as React.JSX.Element;
         },
         replace(domNode, index) {
+          if (replaceFunction) {
+            const result = replaceFunction({
+              options,
+              linkPush,
+              domNode,
+              index,
+            });
+            if (result) return result;
+          }
           if (domNode.type === "tag") {
             switch (domNode.name) {
               case "code":
@@ -459,17 +477,6 @@ export function MultiParser({
                       );
                     }
                   });
-                }
-                if (typeof location !== "undefined" && linkPush) {
-                  const newChildren = domNode.children.reduce((a, n) => {
-                    let _n: ChildNode | undefined = n;
-                    if (replaceFunction) {
-                      _n = replaceFunction({ linkPush, a, n });
-                    }
-                    if (_n) a.push(_n);
-                    return a;
-                  }, [] as ChildNode[]);
-                  domNode.children = newChildren;
                 }
                 break;
             }

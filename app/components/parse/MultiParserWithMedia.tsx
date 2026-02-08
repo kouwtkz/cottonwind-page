@@ -3,6 +3,7 @@ import {
   MultiParser,
   type MultiParserProps,
   type MultiParserReplaceProps,
+  type ReplaceReturnType,
 } from "./MultiParser";
 import {
   Element as NodeElement,
@@ -10,11 +11,14 @@ import {
   type ChildNode,
 } from "domhandler";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { useCallback } from "react";
+import { useCallback, type ReactNode } from "react";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { useLinks } from "../state/LinksState";
 import { getTitleWithDsc } from "~/page/LinksPage";
+import type { JSX } from "@fullcalendar/core/preact.js";
+import { Link } from "react-router";
+import { domToReact, type DOMNode } from "html-react-parser";
 
 export interface MultiParserWithMediaProps
   extends Omit<MultiParserProps, "replaceFunctions"> {}
@@ -22,10 +26,13 @@ export interface MultiParserWithMediaProps
 export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   const { imagesMap } = useImageState();
   const { linksMap, verify } = useLinks();
-  const copyAction = useCallback((e: MouseEvent) => {
-    const elm = e.target as HTMLElement;
-    if (elm?.dataset.copy) CopyWithToast(elm.dataset.copy);
-  }, []);
+  const copyAction = useCallback(
+    (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+      const elm = e.target as HTMLElement;
+      if (elm?.dataset.copy) CopyWithToast(elm.dataset.copy);
+    },
+    [],
+  );
   const getImageSrc = useCallback(
     (imageItem: ImageType, baseHref = location.href) => {
       const srcUrl = imageItem.src
@@ -40,63 +47,84 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
     },
     [],
   );
-  const Link = useCallback(
+  const LinkCallback = useCallback(
     ({ src, alt, banner }: { src: string; alt: string; banner?: boolean }) => {
       const value = decodeURI(src.slice(5));
       const link = linksMap?.get(value);
-      const a = new NodeElement("a", { href: src }, []);
-      if (link) {
-        if (!alt) {
-          alt = link.title || link.key || value;
+      if (link && !alt) {
+        alt = link.title || link.key || value;
+      }
+      function A({
+        className,
+        children,
+      }: {
+        className?: string;
+        children?: ReactNode;
+      }) {
+        if (link) {
+          const isPassLock = !link.url && link.password;
+          const titleWithDsc = (isPassLock ? "🔒" : "") + getTitleWithDsc(link);
+          if (!src) {
+            return (
+              <a
+                href={link.url || ""}
+                title={titleWithDsc}
+                target="_blank"
+                className={className}
+                onClick={(e) => {
+                  if (typeof link.id === "number") verify(link.id);
+                  e.preventDefault();
+                }}
+              >
+                {children || alt}
+              </a>
+            );
+          }
         }
-        a.children = [new NodeText(alt)];
-        const isPassLock = !link.url && link.password;
-        const titleWithDsc = (isPassLock ? "🔒" : "") + getTitleWithDsc(link);
-        a.attribs.title = titleWithDsc;
-        a.attribs.href = link.url || "";
-        if (!a.attribs.href) {
-          a.attribs.onClick = ((e: MouseEvent) => {
-            if (typeof link.id === "number") verify(link.id);
-            e.preventDefault();
-          }) as any;
-        } else {
-          a.attribs.target = "_blank";
-        }
+        return (
+          <a className={className} href={src} title={alt} target="_blank">
+            {children || alt}
+          </a>
+        );
       }
       if (banner) {
-        const b = new NodeElement("div", { class: "bannerArea" }, [a]);
-        if (link?.Image) {
-          const c = new NodeElement("img", {
-            src: getImageSrc(link.Image),
-            class: "banner",
-            alt,
-          });
-          a.attribs.class = "overlay";
-          a.children = [c];
-        } else {
-          const c = new NodeElement("div", { class: "banner" }, [
-            new NodeElement("span", { class: "plane" }, a.children),
-          ]);
-          a.children = [c];
-        }
-        return b;
-      } else return a;
+        return (
+          <A className="overlay">
+            <div className="bannerArea">
+              {link?.Image ? (
+                <img
+                  src={getImageSrc(link.Image)}
+                  className="banner"
+                  alt={alt}
+                />
+              ) : (
+                <div className="banner">
+                  <span className="plane" />
+                </div>
+              )}
+            </div>
+          </A>
+        );
+      }
+      return <A />;
     },
     [linksMap],
   );
-  const MultiParserReplace = useCallback(
-    ({ linkPush, n }: MultiParserReplaceProps) => {
-      if (n.type === "tag") {
-        switch (n.name) {
+  const MultiParserReplace = useCallback<
+    (a: MultiParserReplaceProps) => ReplaceReturnType
+  >(
+    ({ options, linkPush, domNode, index }) => {
+      if (domNode.type === "tag") {
+        switch (domNode.name) {
           case "img":
-            if (n.attribs.src.startsWith("link:")) {
-              return Link({
-                src: n.attribs.src,
-                alt: n.attribs.alt,
+            if (domNode.attribs.src.startsWith("link:")) {
+              return LinkCallback({
+                src: domNode.attribs.src,
+                alt: domNode.attribs.alt,
                 banner: true,
               });
             } else if (linkPush && imagesMap) {
-              let src = n.attribs.src;
+              let src = domNode.attribs.src;
               const baseHref = location.href;
               const Url = new URL(baseHref);
               const srcSearchParams = new URLSearchParams(src);
@@ -110,51 +138,56 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
               if (pagenameFlag && !/^\w+:\/\//.test(src)) {
                 const imageItem = imageKey ? imagesMap.get(imageKey) : null;
                 if (imageItem) {
-                  n.attribs.src =
-                    getImageSrc(imageItem, baseHref) || n.attribs.src;
-                  n.attribs.title = n.attribs.alt || imageItem.title || "";
-                  n.attribs.alt = n.attribs.title;
+                  domNode.attribs.src =
+                    getImageSrc(imageItem, baseHref) || domNode.attribs.src;
+                  domNode.attribs.title =
+                    domNode.attribs.alt || imageItem.title || "";
+                  domNode.attribs.alt = domNode.attribs.title;
                   if (imageItem.width)
-                    n.attribs.width = String(imageItem.width);
+                    domNode.attribs.width = String(imageItem.width);
                   if (imageItem.height)
-                    n.attribs.height = String(imageItem.height);
+                    domNode.attribs.height = String(imageItem.height);
                   Url.searchParams.delete("pic");
                   Url.searchParams.set("image", imageItem.key);
                 }
-                return new NodeElement(
-                  "a",
-                  { href: Url.search, "prevent-scroll-reset": "" },
-                  [n],
+                return (
+                  <Link to={Url.search} preventScrollReset>
+                    {domToReact([domNode], options)}
+                  </Link>
                 );
               }
             }
             break;
           case "a":
-            if (n.attribs.href.startsWith("link:")) {
-              return Link({
-                src: n.attribs.href,
-                alt: n.children.reduce(
-                  (a, c) => (c.type === "text" ? a + c.data : a),
-                  "",
-                ),
-                banner: false,
-              });
-            } else if (n.attribs.href.startsWith("copy:")) {
-              const value = decodeURI(n.attribs.href.slice(5));
-              return new NodeElement(
-                "span",
-                {
-                  class: "color-deep pointer pre",
-                  onClick: copyAction as any,
-                  "data-copy": value,
-                },
-                n.children.length ? n.children : [new NodeText(value)],
+            if (domNode.attribs.href.startsWith("link:")) {
+              return (
+                <LinkCallback
+                  src={domNode.attribs.href}
+                  alt={domNode.children.reduce(
+                    (a, c) => (c.type === "text" ? a + c.data : a),
+                    "",
+                  )}
+                  banner={false}
+                />
+              );
+            } else if (domNode.attribs.href.startsWith("copy:")) {
+              const value = decodeURI(domNode.attribs.href.slice(5));
+              return (
+                <span
+                  className="color-deep pointer pre"
+                  onClick={copyAction}
+                  data-copy={value}
+                >
+                  {domNode.children.length
+                    ? domToReact(domNode.children as DOMNode[], options)
+                    : value}
+                </span>
               );
             }
             break;
         }
       }
-      return n;
+      return domNode;
     },
     [imagesMap, linksMap],
   );
