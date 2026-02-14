@@ -18,7 +18,7 @@ export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
   ["headerImage", "headerImage"],
 ]);
 export const charaMediaKindValues = Object.values(
-  Object.fromEntries(charaMediaKindMap)
+  Object.fromEntries(charaMediaKindMap),
 );
 
 interface characterStateType {
@@ -50,7 +50,7 @@ function CharacterParamState() {
   const { charactersMap } = useCharacters();
   const character = useMemo(
     () => charactersMap.get(charaName) || null,
-    [charaName, charactersMap]
+    [charaName, charactersMap],
   );
   const images = useImageState().images;
   useEffect(() => {
@@ -70,7 +70,7 @@ function CharacterDataState() {
   const { sounds, defaultPlaylist } = useSounds();
   const { likeCategoryMap } = useLikeState();
   const charactersData = useSyncExternalStore(
-    ...ExternalStoreProps(charactersDataIndexed)
+    ...ExternalStoreProps(charactersDataIndexed),
   );
   useEffect(() => {
     if (
@@ -82,7 +82,7 @@ function CharacterDataState() {
     ) {
       charactersData.getAll().then(async (characters) => {
         const charactersMap = new Map(
-          characters.map((character) => [character.key, character])
+          characters.map((character) => [character.key, character]),
         );
         characters.sort((a, b) => (a.order || 0) - (b.order || 0));
         const charaLikeData = likeCategoryMap.get("character");
@@ -104,13 +104,13 @@ function CharacterDataState() {
                     if (c === "default") {
                       defaultPlaylist?.list.forEach(({ src }) => {
                         const foundIndex = sounds.findIndex(
-                          (item) => item.src === src
+                          (item) => item.src === src,
                         );
                         if (foundIndex >= 0) a.push(foundIndex);
                       });
                     } else {
                       const foundIndex = sounds.findIndex(
-                        (item) => item.key === c
+                        (item) => item.key === c,
                       );
                       if (foundIndex >= 0) a.push(foundIndex);
                     }
@@ -132,8 +132,21 @@ function CharacterDataState() {
           return a;
         }, new Map<string, ContentsTagsOption>());
         const charactersTags = Object.values(
-          Object.fromEntries(tagOptionsMap)
-        ).filter((v) => v.value !== "archive");
+          Object.fromEntries(tagOptionsMap),
+        ).reduce<ContentsTagsOption[]>((a, c) => {
+          switch (c.value) {
+            case "design":
+            case "collaboration":
+            case "archive":
+              break;
+            default:
+              a.push(c);
+              break;
+          }
+          return a;
+        }, []);
+        charactersTags.push({ value: "design", label: "デザイン担当" });
+        charactersTags.push({ value: "collaboration", label: "コラボ" });
         charactersTags.push({ value: "archive", label: "アーカイブ" });
         Set({ charactersData, characters, charactersMap, charactersTags });
       });

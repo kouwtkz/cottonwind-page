@@ -72,6 +72,7 @@ function CharacterPageState() {
     if (confirmUrl) return new URL(confirmUrl).searchParams;
     else return new URLSearchParams(search);
   }, [confirmUrl, search]);
+  const move = useMoveCharacters()[0];
 
   const isLogin = useIsLogin()[0];
   const filters = useMemo(
@@ -197,9 +198,42 @@ function CharacterPageState() {
         if (key) parts.push({ label: key.toString(), items: item });
         else parts.push({ items: item });
       });
-    } else parts.push({ items });
+    } else if (move) parts.push({ items });
+    else {
+      const splitItems = items.reduce<{
+        items: CharacterType[];
+        design: CharacterType[];
+        collaboration: CharacterType[];
+      }>(
+        (a, c) => {
+          const found = c.tags?.find(
+            (tag) => tag === "design" || tag === "collaboration",
+          );
+          switch (found) {
+            case "design":
+              a.design.push(c);
+              break;
+            case "collaboration":
+              a.collaboration.push(c);
+              break;
+            default:
+              a.items.push(c);
+              break;
+          }
+          return a;
+        },
+        { items: [], design: [], collaboration: [] },
+      );
+      parts.push({ items: splitItems.items });
+      if (splitItems.design.length > 0) {
+        parts.push({ label: "デザイン担当キャラ", items: splitItems.design });
+      }
+      if (splitItems.collaboration.length > 0) {
+        parts.push({ label: "コラボキャラ", items: splitItems.collaboration });
+      }
+    }
     setParts(parts);
-  }, [characters, orderBySort, clientShowAll, liked, where]);
+  }, [characters, orderBySort, clientShowAll, liked, where, move]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
     Set({ filters, orderBySort, showAll: clientShowAll, liked, where, parts });
