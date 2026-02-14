@@ -3,6 +3,8 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import {
@@ -23,27 +25,32 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { CSS as dndCSS } from "@dnd-kit/utilities";
+import type { RefObject } from "@fullcalendar/core/preact.js";
 
 type InnerElement<T> = (props: { item: T; move?: boolean }) => React.ReactNode;
 export function Movable<T>({
-  items: Items,
+  items: argsItems,
   Inner,
   key = "id",
   submit,
   onSubmit,
+  refItems,
 }: {
   items: T[];
   Inner: InnerElement<T>;
   key?: UniqueIdentifier;
   submit?: boolean;
   onSubmit?: (items: T[]) => unknown;
+  refItems?: React.Ref<T[]>;
 }) {
-  const [items, setItems] = useState<any[]>(Items);
+  const inRefItems = useRef<T[]>(argsItems);
+  useImperativeHandle(refItems, () => inRefItems.current);
+  const [items, setItems] = useState<any[]>(argsItems);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -54,14 +61,16 @@ export function Movable<T>({
       if (active.id !== over.id) {
         const oldIndex = items.findIndex((v) => v[key] === active.id);
         const newIndex = items.findIndex((v) => v[key] === over.id);
-        setItems(arrayMove(items, oldIndex, newIndex));
+        const moved = arrayMove(items, oldIndex, newIndex);
+        setItems(moved);
+        inRefItems.current = moved;
       }
     },
-    [items]
+    [items],
   );
   useEffect(() => {
-    if (submit && onSubmit) onSubmit(items);
-  }, [submit, onSubmit, items]);
+    if (submit && onSubmit) onSubmit(inRefItems.current);
+  }, [submit, onSubmit]);
   return (
     <DndContext
       sensors={sensors}

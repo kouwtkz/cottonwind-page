@@ -72,8 +72,6 @@ function CharacterPageState() {
     if (confirmUrl) return new URL(confirmUrl).searchParams;
     else return new URLSearchParams(search);
   }, [confirmUrl, search]);
-  const move = useMoveCharacters()[0];
-
   const isLogin = useIsLogin()[0];
   const filters = useMemo(
     () => searchParams.get("filter")?.split(","),
@@ -198,8 +196,7 @@ function CharacterPageState() {
         if (key) parts.push({ label: key.toString(), items: item });
         else parts.push({ items: item });
       });
-    } else if (move) parts.push({ items });
-    else {
+    } else {
       const splitItems = items.reduce<{
         items: CharacterType[];
         design: CharacterType[];
@@ -233,7 +230,7 @@ function CharacterPageState() {
       }
     }
     setParts(parts);
-  }, [characters, orderBySort, clientShowAll, liked, where, move]);
+  }, [characters, orderBySort, clientShowAll, liked, where]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
     Set({ filters, orderBySort, showAll: clientShowAll, liked, where, parts });
@@ -382,54 +379,67 @@ function CharaListPage() {
     if (extendMode) classList.push("extend");
     return classList.join(" ");
   }, [extendMode]);
+  const movedParts = useRef<CharacterType[][]>([]);
+  const isSubmit = useMemo(() => move === 2, [move === 2]);
+  useEffect(() => {
+    if (isSubmit) {
+      const dirty = movedParts.current.reduce<
+        {
+          target: string;
+          order: number;
+        }[]
+      >((a, items) => {
+        a.push(
+          ...items
+            .map((item, i) => ({
+              ...item,
+              newOrder: i + 1,
+            }))
+            .filter((item) => {
+              return item.newOrder !== item.order;
+            })
+            .map(({ key, newOrder }) => {
+              return { target: key, order: newOrder };
+            }),
+        );
+        return a;
+      }, []);
+      if (dirty.length > 0) {
+        toast.promise(
+          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+            data: dirty,
+            method: "POST",
+            cors: true,
+          }).then(() => {
+            charactersDataIndexed.load("no-cache");
+            setMove(0);
+          }),
+          {
+            pending: "送信中",
+            success: "送信しました",
+            error: "送信に失敗しました",
+          },
+        );
+      } else {
+        setMove(0);
+      }
+    }
+  }, [isSubmit]);
   return (
     <>
       <CharaSearchArea />
       {parts
         ?.filter(({ items }) => items.length > 0)
         .map(({ label, items }, i) => {
+          function refFn(items: CharacterType[] | null) {
+            if (items) movedParts.current[i] = items;
+          }
           return (
             <div key={i}>
               {label ? <h2 className="color-main">{label}</h2> : null}
               <ul className={charaListClassName}>
                 {move ? (
-                  <Movable
-                    items={items}
-                    Inner={Inner}
-                    submit={move === 2}
-                    onSubmit={(items) => {
-                      const dirty = items
-                        .map((item, i) => ({
-                          ...item,
-                          newOrder: i + 1,
-                        }))
-                        .filter((item) => {
-                          return item.newOrder !== item.order;
-                        })
-                        .map(({ key, newOrder }) => {
-                          return { target: key, order: newOrder };
-                        });
-                      if (dirty.length > 0) {
-                        toast.promise(
-                          customFetch(concatOriginUrl(apiOrigin, SEND_API), {
-                            data: dirty,
-                            method: "POST",
-                            cors: true,
-                          }).then(() => {
-                            charactersDataIndexed.load("no-cache");
-                            setMove(0);
-                          }),
-                          {
-                            pending: "送信中",
-                            success: "送信しました",
-                            error: "送信に失敗しました",
-                          },
-                        );
-                      } else {
-                        setMove(0);
-                      }
-                    }}
-                  />
+                  <Movable items={items} Inner={Inner} refItems={refFn} />
                 ) : (
                   <>
                     {items.map((chara, i) => (
