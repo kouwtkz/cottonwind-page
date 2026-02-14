@@ -346,23 +346,29 @@ export function MultiParser({
                         props.to = url;
                       }
                     }
+                    let isModal: boolean | undefined;
                     props.preventScrollReset = Url.searchParams.has(
                       "prevent-scroll-reset",
                     );
                     if (props.preventScrollReset) {
                       Url.searchParams.delete("prevent-scroll-reset");
                     } else {
+                      isModal =
+                        url.startsWith("?") &&
+                        (Url.searchParams.has("modal") ||
+                          Url.searchParams.has("image") ||
+                          preventScrollResetSearches?.some((v) =>
+                            Url.searchParams.has(v),
+                          ));
                       props.preventScrollReset =
-                        (url.startsWith("?") &&
-                          (Url.searchParams.has("modal") ||
-                            Url.searchParams.has("image") ||
-                            preventScrollResetSearches?.some((v) =>
-                              Url.searchParams.has(v),
-                            ))) ||
+                        isModal ||
                         Boolean(Url.hash) ||
                         "prevent-scroll-reset" in domNode.attribs;
                     }
-                    if (Url.searchParams.has("search-params-relative")) {
+                    if (
+                      isModal ||
+                      Url.searchParams.has("search-params-relative")
+                    ) {
                       Url.searchParams.delete("search-params-relative");
                       const BaseUrl = new URL(baseHref);
                       BaseUrl.searchParams.forEach((v, k) => {
