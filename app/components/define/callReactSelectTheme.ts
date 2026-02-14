@@ -6,9 +6,12 @@ export const callReactSelectTheme: ThemeConfig = (theme) => ({
   colors: {
     ...theme.colors,
     primary: "var(--main-color-deep)",
+    neutral10: "var(--main-color-pearl-grayish)",
+    neutral80: "var(--text-color)",
     primary25: "var(--main-color-pale)",
     primary50: "var(--main-color-soft)",
     primary75: "var(--main-color)",
     neutral0: "var(--form-background-color)",
+
   },
 });
