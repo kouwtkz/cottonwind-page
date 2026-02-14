@@ -7,20 +7,16 @@ import React, {
 } from "react";
 import {
   createSearchParams,
-  useNavigate,
+  Link,
+  type LinkProps,
   type NavigateFunction,
 } from "react-router";
 import HTMLReactParser, {
   type DOMNode,
   domToReact,
   type HTMLReactParserOptions,
-  htmlToDOM,
 } from "html-react-parser";
-import {
-  type ChildNode,
-  Element as NodeElement,
-  Text as NodeText,
-} from "domhandler";
+import { Element as NodeElement, Text as NodeText } from "domhandler";
 import { parse } from "marked";
 
 type Replacer = (substring: string, ...args: any[]) => string;
@@ -180,7 +176,6 @@ export function MultiParser({
 }: MultiParserProps) {
   const inRef = useRef<HTMLElement>(null);
   useImperativeHandle(ref, () => inRef.current!);
-  const nav = useNavigate();
   const existCode = useRef(false);
   useEffect(() => {
     if (existCode.current) {
@@ -312,7 +307,7 @@ export function MultiParser({
                   domNode.children.push(new NodeText(domNode.attribs.href));
                 }
                 if (linkPush) {
-                  let url = domNode.attribs.href;
+                  let { href: url, ...attribs } = domNode.attribs;
                   const baseHref = location.href;
                   const Url = new URL(url, baseHref);
                   if (Url.origin !== location.origin) {
@@ -323,6 +318,11 @@ export function MultiParser({
                           ? `${domNode.attribs.className} `
                           : "") + "external";
                   } else if (!/^[^\/]+@[^\/]+$/.test(url)) {
+                    const props: LinkProps &
+                      React.RefAttributes<HTMLAnchorElement> = {
+                      to: url,
+                      ...attribs,
+                    };
                     const doubleQuestion = url.startsWith("??");
                     let searchParams: URLSearchParams | undefined;
                     if (url.startsWith("?")) {
@@ -343,16 +343,16 @@ export function MultiParser({
                             BaseUrl.searchParams.set(k, v);
                         });
                         url = BaseUrl.search;
-                        domNode.attribs.href = url;
+                        props.to = url;
                       }
                     }
-                    let preventScrollReset = Url.searchParams.has(
+                    props.preventScrollReset = Url.searchParams.has(
                       "prevent-scroll-reset",
                     );
-                    if (preventScrollReset) {
+                    if (props.preventScrollReset) {
                       Url.searchParams.delete("prevent-scroll-reset");
                     } else {
-                      preventScrollReset =
+                      props.preventScrollReset =
                         (url.startsWith("?") &&
                           (Url.searchParams.has("modal") ||
                             Url.searchParams.has("image") ||
@@ -369,25 +369,13 @@ export function MultiParser({
                         if (!Url.searchParams.has(k))
                           Url.searchParams.set(k, v);
                       });
-                      domNode.attribs.href = Url.href;
+                      props.to = Url.href;
                     }
-                    const onClick: ((e: MouseEvent) => void) | undefined =
-                      domNode.attribs.onClick as any;
-                    domNode.attribs.onClick = ((e: MouseEvent) => {
-                      if (onClick) onClick(e);
-                      if (!e.defaultPrevented) {
-                        if (
-                          Url.href !== baseHref ||
-                          (linkSame && window.scrollY > 0)
-                        ) {
-                          nav(Url.pathname + Url.search + Url.hash, {
-                            preventScrollReset,
-                            state: { from: location.href },
-                          });
-                        }
-                        e.preventDefault();
-                      }
-                    }) as any;
+                    return (
+                      <Link {...props}>
+                        {domToReact(domNode.children as DOMNode[], options)}
+                      </Link>
+                    );
                   }
                 }
                 if (widget || domNode.attribs.title === "widget") {

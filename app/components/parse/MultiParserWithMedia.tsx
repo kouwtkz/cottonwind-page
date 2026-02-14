@@ -5,18 +5,12 @@ import {
   type MultiParserReplaceProps,
   type ReplaceReturnType,
 } from "./MultiParser";
-import {
-  Element as NodeElement,
-  Text as NodeText,
-  type ChildNode,
-} from "domhandler";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { useCallback, type ReactNode } from "react";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { useLinks } from "../state/LinksState";
 import { getTitleWithDsc } from "~/page/LinksPage";
-import type { JSX } from "@fullcalendar/core/preact.js";
 import { Link } from "react-router";
 import { domToReact, type DOMNode } from "html-react-parser";
 
@@ -187,7 +181,6 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
             break;
         }
       }
-      return domNode;
     },
     [imagesMap, linksMap],
   );
