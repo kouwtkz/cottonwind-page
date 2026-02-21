@@ -266,14 +266,16 @@ export function BlueskyFeed() {
         <table>
           <tbody>
             {list.map((tree, i) =>
-              tree.map((post, j) => (
-                <PostItem
-                  post={post}
-                  postBaseUrl={postBaseUrl}
-                  isTree={j > 0}
-                  key={`${i}-${j}`}
-                />
-              )),
+              tree.map((post, j) => {
+                return (
+                  <PostItem
+                    post={post}
+                    postBaseUrl={postBaseUrl}
+                    isTree={j > 0}
+                    key={`${i}-${j}`}
+                  />
+                );
+              }),
             )}
           </tbody>
         </table>
@@ -311,45 +313,50 @@ export function MultiParserWithFacets({
     if (record.facets) {
       const encoder = new TextEncoder();
       const binText = Array.from(encoder.encode(text));
-      const bin = record.facets.reduce<Array<number>>((bin, facet) => {
-        bin.push(...binText.slice(cursor, facet.index.byteStart));
-        const value = binText.slice(facet.index.byteStart, facet.index.byteEnd);
-        facet.features.forEach((feature) => {
-          switch (feature.$type) {
-            case "app.bsky.richtext.facet#mention":
-              value.unshift(
-                ...Array.from(
-                  encoder.encode(
-                    `<a href="https://bsky.app/profile/${feature.did}" target="_blank">`,
+      const bin = [...record.facets]
+        .sort((a, b) => a.index.byteStart - b.index.byteStart)
+        .reduce<Array<number>>((bin, facet) => {
+          bin.push(...binText.slice(cursor, facet.index.byteStart));
+          const value = binText.slice(
+            facet.index.byteStart,
+            facet.index.byteEnd,
+          );
+          facet.features.forEach((feature) => {
+            switch (feature.$type) {
+              case "app.bsky.richtext.facet#mention":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(
+                      `<a href="https://bsky.app/profile/${feature.did}" target="_blank">`,
+                    ),
                   ),
-                ),
-              );
-              value.push(...Array.from(encoder.encode(`</a>`)));
-              break;
-            case "app.bsky.richtext.facet#tag":
-              value.unshift(
-                ...Array.from(
-                  encoder.encode(
-                    `<a href="https://bsky.app/hashtag/${feature.tag}" target="_blank">`,
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+              case "app.bsky.richtext.facet#tag":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(
+                      `<a href="https://bsky.app/hashtag/${feature.tag}" target="_blank">`,
+                    ),
                   ),
-                ),
-              );
-              value.push(...Array.from(encoder.encode(`</a>`)));
-              break;
-            case "app.bsky.richtext.facet#link":
-              value.unshift(
-                ...Array.from(
-                  encoder.encode(`<a href="${feature.uri}" target="_blank">`),
-                ),
-              );
-              value.push(...Array.from(encoder.encode(`</a>`)));
-              break;
-          }
-        });
-        bin.push(...value);
-        cursor = facet.index.byteEnd;
-        return bin;
-      }, []);
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+              case "app.bsky.richtext.facet#link":
+                value.unshift(
+                  ...Array.from(
+                    encoder.encode(`<a href="${feature.uri}" target="_blank">`),
+                  ),
+                );
+                value.push(...Array.from(encoder.encode(`</a>`)));
+                break;
+            }
+          });
+          bin.push(...value);
+          cursor = facet.index.byteEnd;
+          return bin;
+        }, []);
       bin.push(...binText.slice(cursor));
       return new TextDecoder().decode(new Uint8Array(bin));
     } else return text;
