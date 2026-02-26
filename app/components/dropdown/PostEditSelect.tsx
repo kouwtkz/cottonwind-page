@@ -18,6 +18,7 @@ interface replacePostTextareaProps extends PostEditSelectBaseProps {
   replaceSelectionRegExp?: RegExp;
   replaceSelectionValue?: string;
   insertWhenBlank?: boolean;
+  setSelection?: number;
 }
 export function replacePostTextarea({
   textarea,
@@ -27,6 +28,7 @@ export function replacePostTextarea({
   replaceSelectionRegExp: reg,
   replaceSelectionValue,
   insertWhenBlank = true,
+  setSelection,
 }: replacePostTextareaProps) {
   if (!textarea) return;
   if (after === undefined) after = before;
@@ -39,7 +41,11 @@ export function replacePostTextarea({
     selectionStart,
     selectionEnd,
   );
-  if (selectionStart === selectionEnd) {
+  if (typeof setSelection === "number") {
+    let setValue = selectionStart + setSelection;
+    if (before.length < setSelection) setValue += selection.length;
+    textarea.setSelectionRange(setValue, setValue);
+  } else if (selectionStart === selectionEnd) {
     if (insertWhenBlank) {
       const selectionStartReset = selectionStart + before.length;
       textarea.setSelectionRange(selectionStartReset, selectionStartReset);
@@ -414,8 +420,9 @@ export function PostEditSelectMedia({
           replacePostTextarea({
             textarea,
             setValue,
-            before: "[](",
-            after: ")",
+            before: "[",
+            after: "]()",
+            setSelection: 3,
           });
           break;
         case "copy":
