@@ -31,7 +31,7 @@ import {
   ModeSwitch,
   MoveButton,
 } from "~/components/layout/edit/CommonSwitch";
-import { AiFillEdit } from "react-icons/ai";
+import { AiFillEdit, AiOutlineLink } from "react-icons/ai";
 import { MdDeleteForever, MdOutlineImage } from "react-icons/md";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -473,6 +473,7 @@ interface LinksEditButtonsProps extends HTMLAttributes<HTMLDivElement> {
   indexedDB?: LinksIndexedDBType;
   move?: editMoveLinkType;
   setMove?: setEditMoveLinkType;
+  isFixed?: boolean;
   state?: WithSet<LinksStateType>;
 }
 export function LinksEditButtons({
@@ -485,6 +486,7 @@ export function LinksEditButtons({
   move,
   setMove,
   state,
+  isFixed,
   ...props
 }: LinksEditButtonsProps) {
   const { Set } = useLinksEdit();
@@ -520,7 +522,7 @@ export function LinksEditButtons({
 
   return (
     <div className={className} {...props}>
-      {setMove && move ? (
+      {!isFixed && setMove && move ? (
         <>
           <CancelButton
             onClick={() => {
@@ -571,25 +573,34 @@ export function LinksEditButtons({
               <ShowLinksGalleryButton icon />
             </>
           )}
+          {isFixed ? (
+            <Link to="/links">
+              <AiOutlineLink />
+            </Link>
+          ) : null}
           <ModeSwitch
             toEnableTitle="編集モードに切り替え"
             useSwitch={useLinksEditMode}
           >
             <AiFillEdit />
           </ModeSwitch>
-          {state ? (
-            <AddButton
-              onClick={() => {
-                Set({ src: state.options.src, edit: true, category });
-              }}
-            />
-          ) : null}
-          {setMove ? (
-            <MoveButton
-              onClick={() => {
-                setMove(1);
-              }}
-            />
+          {!isFixed ? (
+            <>
+              {state ? (
+                <AddButton
+                  onClick={() => {
+                    Set({ src: state.options.src, edit: true, category });
+                  }}
+                />
+              ) : null}
+              {setMove ? (
+                <MoveButton
+                  onClick={() => {
+                    setMove(1);
+                  }}
+                />
+              ) : null}
+            </>
           ) : null}
           {children}
         </>

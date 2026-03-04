@@ -448,7 +448,9 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
           indexedDB={indexedDB}
           album={album}
           category={categories[0] || null}
-          {...(argLinks ? {} : { move, setMove })}
+          move={move}
+          setMove={setMove}
+          isFixed={Boolean(argLinks)}
           dropdown={dropdown}
           state={state}
         />
