@@ -118,7 +118,7 @@ export function EditTagsReactSelect({
               theme={theme}
               styles={styles}
               options={tags}
-              value={(field.value as string[]).map((fv) =>
+              value={((field.value as string[]) || []).map((fv) =>
                 searchTagsList.find((ci) => ci.value === fv),
               )}
               formatOptionLabel={formatOptionLabel}

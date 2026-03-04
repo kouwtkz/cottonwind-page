@@ -32,13 +32,14 @@ export interface LinksStateType {
   linksMap?: LinksMapType;
   linksCategoryMap?: LinksCategoryMapType;
   linksData?: MeeIndexedDBTable<SiteLink>;
+  linksTags?: ContentsTagsOption[];
   options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>;
   verify(id: string | number): void;
 }
 
 function createLinksState(
   set: SetStateType<LinksStateType>,
-  options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>
+  options: Props_LastmodMHClass_Options<SiteLink, SiteLinkData>,
 ): LinksStateType {
   return {
     options,
@@ -117,18 +118,38 @@ async function callSetLinks({
       else a.set(category, [c]);
       return a;
     }, new Map());
+  const tagOptionsMap = links.reduce((a, c) => {
+    c.tags?.forEach((tag) => {
+      if (a.has(tag)) {
+        const option = a.get(tag)!;
+        option.count!++;
+      } else if (tag) a.set(tag, { label: tag, value: tag, count: 1 });
+    });
+    return a;
+  }, new Map<string, ContentsTagsOption>());
+  const linksTags = Object.values(Object.fromEntries(tagOptionsMap)).reduce<
+    ContentsTagsOption[]
+  >((a, c) => {
+    switch (c.value) {
+      default:
+        a.push(c);
+        break;
+    }
+    return a;
+  }, []);
   return {
     linksData,
     links,
     linksMap,
     linksCategoryMap,
-  };
+    linksTags,
+  } as Partial<LinksStateType>;
 }
 export function LinksState() {
   const { imagesMap } = useImageState();
   const { Set: setLinks } = useLinks();
   const linksData = useSyncExternalStore(
-    ...ExternalStoreProps(linksDataIndexed)
+    ...ExternalStoreProps(linksDataIndexed),
   );
   useEffect(() => {
     if (linksData?.db && imagesMap) {
@@ -139,7 +160,7 @@ export function LinksState() {
   }, [linksData, imagesMap]);
   const { Set: setFavLinks } = useFavLinks();
   const favLinksData = useSyncExternalStore(
-    ...ExternalStoreProps(favLinksDataIndexed)
+    ...ExternalStoreProps(favLinksDataIndexed),
   );
   useEffect(() => {
     if (favLinksData?.db && imagesMap) {

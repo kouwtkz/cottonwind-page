@@ -6,6 +6,7 @@ interface SiteLinkData {
   description?: string | null;
   image?: string | null;
   category?: string | null;
+  tags?: string | null;
   style?: string | null;
   order?: number | null;
   draft?: number | null;
@@ -18,4 +19,5 @@ interface SiteLink extends SiteLinkData, WithRawDataType<SiteLinkData> {
   draft?: boolean;
   Image?: ImageType;
   lastmod?: Date;
+  tags?: string[] | null;
 }

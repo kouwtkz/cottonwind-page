@@ -59,6 +59,7 @@ import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 import { IMAGE_SEND_API } from "./ImagesManager";
 import { ATProtocolEnv } from "~/Env";
+import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 
 type fileIndexedDBType = IndexedDataLastmodMH<
   FilesRecordType,
@@ -102,7 +103,7 @@ function LinksEditMain({
   defaultCategories,
 }: LinksEditProps) {
   const { edit, category, Set } = useLinksEdit();
-  const { links, linksMap } = linksState;
+  const { links, linksMap, linksTags } = linksState;
   const targetLastmod = useRef<string | null>(null);
   const item = useMemo(() => {
     let item: SiteLink | undefined;
@@ -120,10 +121,17 @@ function LinksEditMain({
     });
     return list;
   }, [links, category, defaultCategories]);
+  const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
+  useEffect(() => {
+    if (linksTags) setTagsOptions(linksTags);
+  }, [linksTags]);
+
   const {
     register,
     handleSubmit,
     getValues,
+    setValue,
+    control,
     formState: { isDirty, dirtyFields, errors },
   } = useForm<any>({
     defaultValues: {
@@ -132,6 +140,7 @@ function LinksEditMain({
       description: item?.description || "",
       url: item?.url || "",
       category: item?.category || category || null,
+      tags: item?.tags || [],
       draft: item?.draft ?? null,
       prompt: item?.prompt || "",
       password: item?.password || "",
@@ -143,9 +152,9 @@ function LinksEditMain({
           .min(1, { message: "リンクIDを入力してください" })
           .refine(
             (v) => v === item?.key || (linksMap ? !linksMap.has(v) : true),
-            { message: "リンクIDが重複してます" }
+            { message: "リンクIDが重複してます" },
           ),
-      })
+      }),
     ),
   });
   useEffect(() => {
@@ -161,7 +170,7 @@ function LinksEditMain({
     const entry = Object.fromEntries(
       Object.entries(dirtyFields)
         .filter((v) => v[1])
-        .map((v) => [v[0], values[v[0]]])
+        .map((v) => [v[0], values[v[0]]]),
     ) as SiteLink;
     entry.id = item?.id;
     if (typeof item?.category === "undefined") {
@@ -183,7 +192,7 @@ function LinksEditMain({
         pending: "送信中",
         success: "送信しました",
         error: "送信に失敗しました",
-      }
+      },
     );
   }
   useHotkeys(
@@ -191,7 +200,7 @@ function LinksEditMain({
     (e) => {
       if (isDirty) handleSubmit(Submit)();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
@@ -264,6 +273,24 @@ function LinksEditMain({
           placeholder="サイトのURL"
           {...register("url")}
         />
+        <div>
+          <EditTagsReactSelect
+            name="tags"
+            tags={tagsOptions}
+            set={(v) => {
+              setTagsOptions(v);
+            }}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            placeholder="タグ"
+            enableEnterAdd
+            styles={{
+              menuList: (style) => ({ ...style, textAlign: "left" }),
+              option: (style) => ({ ...style, paddingLeft: "1em" }),
+            }}
+          />
+        </div>
         <div className="flex center">
           {categories.length ? (
             <select
@@ -488,7 +515,7 @@ export function LinksEditButtons({
         )}
       </Link>
     ),
-    [album]
+    [album],
   );
 
   return (

@@ -200,12 +200,12 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
   name: linksDataName,
   src: "/links",
   api: "/links",
-  version: "1.2.1",
+  version: "1.3.0",
   preLoad: false,
   jsonFromDataOptions: linksJsonFromDataOptions,
   primary: "id",
   secondary: ["lastmod", "category", "key"],
-  convert: { date: ["lastmod"], boolean: ["draft"] },
+  convert: { date: ["lastmod"], boolean: ["draft"], array: ["tags"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT" },
@@ -214,13 +214,14 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
     description: { type: "TEXT" },
     image: { type: "TEXT" },
     category: { type: "TEXT" },
+    tags: { type: "TEXT" },
     draft: { type: "INTEGER" },
     order: { type: "INTEGER" },
     prompt: { type: "TEXT" },
     password: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["url", "key", "title", "description", "image", "category", "order", "draft", "prompt", "password"],
+  insertEntryKeys: ["url", "key", "title", "description", "image", "category", "tags", "order", "draft", "prompt", "password"],
   insertEntryTimes: ["lastmod"]
 }
 
