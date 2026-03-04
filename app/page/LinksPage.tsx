@@ -273,20 +273,125 @@ const LinksInner = React.memo(function LinksInner({
 
 interface LinksContainerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+  links: SiteLink[];
   title?: string;
-  category?: Array<string | null> | string | null;
   banner?: boolean;
   dropdown?: ReactNode;
-  state: WithSet<LinksStateType>;
-  indexedDB?: LinksIndexedDBType;
-  defaultCategories?: string[];
   linkStyle?: CSSProperties;
   fold?: boolean;
   open?: boolean;
-  editable?: boolean;
 }
-const LinksContainer = React.memo(function LinksContainer({
+
+interface FoldInnerLinksContainerProps
+  extends InnerLinksContainerWithTitleProps {
+  open?: boolean;
+}
+function FoldInnerLinksContainer({
+  children,
+  open,
+  title,
+}: FoldInnerLinksContainerProps) {
+  return (
+    <details open={open}>
+      <summary className="h3 color-main en-title-font">
+        {title || "Links"}
+      </summary>
+      {children}
+    </details>
+  );
+}
+interface InnerLinksContainerWithTitleProps {
+  title?: string;
+  children?: React.ReactNode;
+}
+function InnerLinksContainerWithTitle({
+  children,
+  title,
+}: {
+  title?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <>
+      {title ? (
+        <h3 className="color-main en-title-font">{title || "Links"}</h3>
+      ) : null}
+      {children}
+    </>
+  );
+}
+interface InnerLinksContainerProps extends FoldInnerLinksContainerProps {
+  fold?: boolean;
+}
+function InnerLinksContainer({
+  title,
+  fold,
+  open,
+  children,
+}: InnerLinksContainerProps) {
+  return (
+    <>
+      {fold ? (
+        <FoldInnerLinksContainer open={open} title={title}>
+          {children}
+        </FoldInnerLinksContainer>
+      ) : (
+        <InnerLinksContainerWithTitle title={title}>
+          {children}
+        </InnerLinksContainerWithTitle>
+      )}
+    </>
+  );
+}
+interface SimpleLinksProps extends Omit<InnerLinksContainerProps, "children"> {
+  links: SiteLink[];
+  banner?: boolean;
+  className?: string;
+  innerStyle?: CSSProperties;
+}
+export function SimpleLinks({
+  links,
+  banner,
+  innerStyle,
+  className,
+  ...props
+}: SimpleLinksProps) {
+  className = useMemo(() => {
+    const list = className?.split(",") || [];
+    list.push("linksArea", "bannerArea");
+    return list.join(" ");
+  }, [className]);
+  const state = useLinks();
+  return (
+    <InnerLinksContainer {...props}>
+      <ul className={className}>
+        {links?.map((v, i) => (
+          <li key={i}>
+            <LinksInner
+              item={v}
+              state={state}
+              banner={banner}
+              style={innerStyle}
+            />
+          </li>
+        ))}
+      </ul>
+    </InnerLinksContainer>
+  );
+}
+
+interface EditableLinksContainerProps
+  extends Omit<LinksContainerProps, "links"> {
+  category?: Array<string | null> | string | null;
+  editable?: boolean;
+  state: WithSet<LinksStateType>;
+  defaultCategories?: string[];
+  indexedDB?: LinksIndexedDBType;
+  links?: SiteLink[];
+}
+export const EditableLinksContainer = React.memo(function LinksContainer({
   category = null,
+  links: argLinks,
   title,
   className,
   banner,
@@ -299,7 +404,7 @@ const LinksContainer = React.memo(function LinksContainer({
   open,
   editable = true,
   ...props
-}: LinksContainerProps) {
+}: EditableLinksContainerProps) {
   const send = GetAPIFromOptions(state.options, "/send");
   const album = useMemo(() => (banner ? "linkBanner" : "linksImage"), [banner]);
   const [move, setMove] = useState(0);
@@ -311,16 +416,18 @@ const LinksContainer = React.memo(function LinksContainer({
       : [null, ""];
   }, [category]);
   const links = useMemo(() => {
-    const links = state.links
-      ? findMee(state.links, {
-          where: { OR: categories.map((category) => ({ category })) },
-          orderBy: [{ id: "asc", order: "asc" }],
-        })
-      : [];
+    const links =
+      argLinks ||
+      (state.links
+        ? findMee(state.links, {
+            where: { OR: categories.map((category) => ({ category })) },
+            orderBy: [{ id: "asc", order: "asc" }],
+          })
+        : []);
     if (categories.length === 1 && !categories[0] && !move)
       return links.concat(ArchiveLinks);
     else return links;
-  }, [categories, state.links, move]);
+  }, [argLinks, categories, state.links, move]);
   const isLogin = useIsLogin()[0];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
@@ -341,8 +448,7 @@ const LinksContainer = React.memo(function LinksContainer({
           indexedDB={indexedDB}
           album={album}
           category={categories[0] || null}
-          move={move}
-          setMove={setMove}
+          {...(argLinks ? {} : { move, setMove })}
           dropdown={dropdown}
           state={state}
         />
@@ -419,21 +525,9 @@ const LinksContainer = React.memo(function LinksContainer({
               defaultCategories={defaultCategories}
             />
           ) : null}
-          {fold ? (
-            <details open={open}>
-              <summary className="h3 color-main en-title-font">
-                {title || "Links"}
-              </summary>
-              {inner}
-            </details>
-          ) : (
-            <>
-              {title ? (
-                <h3 className="color-main en-title-font">{title || "Links"}</h3>
-              ) : null}
-              {inner}
-            </>
-          )}
+          <InnerLinksContainer open={open} title={title} fold={fold}>
+            {inner}
+          </InnerLinksContainer>
         </div>
       ) : null}
     </>
@@ -442,7 +536,7 @@ const LinksContainer = React.memo(function LinksContainer({
 
 interface MeeLinksProps
   extends Omit<
-    LinksContainerProps,
+    EditableLinksContainerProps,
     "send" | "dataObject" | "state" | "indexedDB"
   > {}
 export const MeeLinks = React.memo(function MeeLinks(props: MeeLinksProps) {
@@ -450,7 +544,7 @@ export const MeeLinks = React.memo(function MeeLinks(props: MeeLinksProps) {
   return (
     <>
       {linksDataIndexed ? (
-        <LinksContainer
+        <EditableLinksContainer
           state={state}
           indexedDB={linksDataIndexed}
           defaultCategories={["top", "commission", "secret"]}
@@ -462,7 +556,7 @@ export const MeeLinks = React.memo(function MeeLinks(props: MeeLinksProps) {
 });
 export function FavoriteLinks(props: MeeLinksProps) {
   return (
-    <LinksContainer
+    <EditableLinksContainer
       title="Favorite Site"
       state={useFavLinks()}
       indexedDB={favLinksDataIndexed}

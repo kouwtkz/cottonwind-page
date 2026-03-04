@@ -74,7 +74,11 @@ import {
   useUploadWebp,
 } from "~/components/layout/edit/ImageEditForm";
 import { useIsLogin } from "~/components/state/EnvState";
-import { apiOrigin, imageDataIndexed } from "~/data/ClientDBLoader";
+import {
+  apiOrigin,
+  imageDataIndexed,
+  linksDataIndexed,
+} from "~/data/ClientDBLoader";
 import { useCharacters } from "~/components/state/CharacterState";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
 import { BiPhotoAlbum } from "react-icons/bi";
@@ -112,6 +116,8 @@ import {
 } from "~/components/dropdown/CustomReactSelect";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
+import { EditableLinksContainer } from "./LinksPage";
+import { useLinks } from "~/components/state/LinksState";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -138,7 +144,7 @@ function GalleryGroupPage() {
     if (group) {
       return (
         ArrayEnv.IMAGE_ALBUMS?.find(
-          (album) => (typeof album === "string" ? album : album.name) === group
+          (album) => (typeof album === "string" ? album : album.name) === group,
         ) || imageAlbums?.get(group)
       );
     } else return {} as KeyValueAnyType;
@@ -174,12 +180,12 @@ export function GalleryObjectConvert({
   const convertItemArrayType = useCallback(
     (items?: GalleryItemsType) =>
       items ? (Array.isArray(items) ? items : [items]) : [],
-    []
+    [],
   );
   const convertItemObjectType = useCallback(
     (item: GalleryItemType) =>
       typeof item === "string" ? { name: item } : item,
-    []
+    [],
   );
   const albums = useMemo(
     () =>
@@ -218,7 +224,7 @@ export function GalleryObjectConvert({
           }
           return item;
         }),
-    [items, pickupList, topImageList, imageAlbums]
+    [items, pickupList, topImageList, imageAlbums],
   );
 
   return (
@@ -258,13 +264,13 @@ export function GalleryObject({
   const { imageAlbums } = useImageState();
   const searchMode = useMemo(
     () => Boolean(qParam || tagsParam || copyrightParam || charactersParam),
-    [qParam, tagsParam, copyrightParam, charactersParam]
+    [qParam, tagsParam, copyrightParam, charactersParam],
   );
   const year = Number(yearParam);
   const filterMonthly = useCallback(
     (month: string | null) =>
       filterGalleryMonthList.find((v) => String(v.month) === month),
-    [filterGalleryMonthList]
+    [filterGalleryMonthList],
   );
   const whereMonthTags = useMemo(() => {
     if (monthParam) {
@@ -330,7 +336,7 @@ export function GalleryObject({
         },
         hashtag: { key: ["tags", "characters"], textKey: ["description"] },
       }),
-    [qParam]
+    [qParam],
   );
   const whereTagsValue = useMemo(() => {
     const tags = tagsParam?.split(",");
@@ -361,11 +367,11 @@ export function GalleryObject({
   const linkStateUpdated = useLikeStateUpdated()[0];
   const draftOnly = useMemo(
     () => searchParams.has("draftOnly"),
-    [searchParams]
+    [searchParams],
   );
   const hasTopImage = useMemo(
     () => searchParams.has("topImage"),
-    [searchParams]
+    [searchParams],
   );
   const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
@@ -469,7 +475,7 @@ export function GalleryObject({
             }
             return a;
           },
-          { name: "gallery", list: [] }
+          { name: "gallery", list: [] },
         ),
       ].map((v) => {
         v.list = findMee(v.list!, {
@@ -506,7 +512,7 @@ export function GalleryObject({
   }, [items]);
   const yfList = useMemo(
     () => filteredYearGroups.map<ImageType[]>(({ list }) => list || []),
-    [filteredYearGroups]
+    [filteredYearGroups],
   );
   return (
     <>
@@ -556,7 +562,7 @@ function UploadChain({
       const now = new Date();
       const nowTime = now.getTime();
       const list = acceptedFiles.filter(
-        (f) => Math.abs(nowTime - f.lastModified) > 10
+        (f) => Math.abs(nowTime - f.lastModified) > 10,
       );
       await ImagesUploadWithToast({
         src: list,
@@ -575,7 +581,7 @@ function UploadChain({
         imageDataIndexed.load("no-cache");
       });
     },
-    [item, character, apiOrigin, webp, thumbnail, notDraft, tags]
+    [item, character, apiOrigin, webp, thumbnail, notDraft, tags],
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
@@ -623,12 +629,12 @@ function GalleryBody({
         a.set(c);
         return a;
       }, new Map()),
-    [search]
+    [search],
   );
   const tagsParam = useMemo(() => getSearchParamMap("tags"), [search]);
   const copyrightParam = useMemo(
     () => getSearchParamMap("copyright"),
-    [search]
+    [search],
   );
   const typeParam = useMemo(() => search.get("type"), [search]);
   const filterParam = useMemo(() => getSearchParamMap("filter"), [search]);
@@ -659,7 +665,7 @@ function GalleryBody({
           }
           return a;
         }, []),
-    [items, yfList]
+    [items, yfList],
   );
   const { likeCategoryMap } = useLikeState();
   const likeCheckedMap = useMemo(() => {
@@ -681,11 +687,11 @@ function GalleryBody({
 
   const tagsList = useMemo(
     () => getCountList(images, "tags").sort((a, b) => b.count - a.count),
-    [images]
+    [images],
   );
   const copyrightList = useMemo(
     () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
-    [images]
+    [images],
   );
   const typeMap = useMemo(
     () =>
@@ -694,33 +700,33 @@ function GalleryBody({
           a.set(c.value, c);
           return a;
         },
-        new Map()
+        new Map(),
       ),
-    [images]
+    [images],
   );
   const likedCountValue = useMemo<ValueCountType>(
     () => ({
       value: "liked",
       count: images.filter((image) => likeCheckedMap?.has(image.key)).length,
     }),
-    [images, likeCheckedMap]
+    [images, likeCheckedMap],
   );
   const callbackOptions = useCallback(
     (options: ContentsTagsOption[]) => {
       const cloneTagsParam = new Map(tagsParam);
       const otherTags = tagsList.filter(({ value: tag }) =>
-        simpleDefaultTags.every(({ value }) => value !== tag)
+        simpleDefaultTags.every(({ value }) => value !== tag),
       );
       const defaultTagsMap = new Map(
         tagsList
           .filter(({ value }) =>
-            otherTags.every(({ value: ov }) => value !== ov)
+            otherTags.every(({ value: ov }) => value !== ov),
           )
-          .map((v) => [v.value, v])
+          .map((v) => [v.value, v]),
       );
       function defaultReplace(
         options: ContentsTagsOption[],
-        parent?: ContentsTagsOption
+        parent?: ContentsTagsOption,
       ): ContentsTagsOption[] {
         return options
           .map((option) => {
@@ -790,7 +796,7 @@ function GalleryBody({
         });
       const copyrightOptions = CountToContentsTagsOption(
         copyrightList,
-        "copyright"
+        "copyright",
       );
       const cloneCopyrightParam = new Map(copyrightParam);
       copyrightList.forEach((v) => {
@@ -816,7 +822,7 @@ function GalleryBody({
       copyrightParam,
       typeParam,
       filterParam,
-    ]
+    ],
   );
   const inPageList = useMemo(
     () =>
@@ -826,12 +832,12 @@ function GalleryBody({
           name: label || name || "",
           ref: refList[i],
         })),
-    [yfList, items]
+    [yfList, items],
   );
   const galleryItem = items
     .map((item, i) => ({ ...item, i }))
     .filter(({ hideWhenEmpty = true, i }) =>
-      hideWhenEmpty ? yfList[i].length : true
+      hideWhenEmpty ? yfList[i].length : true,
     )
     .map(({ i, ...item }) => (
       <div key={i}>
@@ -854,6 +860,12 @@ function GalleryBody({
         )}
       </div>
     ));
+  const linksState = useLinks();
+  const linksList = useMemo(() => {
+    return (linksState.links || []).filter((link) =>
+      link.tags?.some((v) => tagsParam.has(v)),
+    );
+  }, [linksState.links, tagsParam]);
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div className="galleryContainer">
@@ -969,6 +981,16 @@ function GalleryBody({
             ) : null}
           </div>
         ) : null}
+        {linksList.length > 0 ? (
+          <EditableLinksContainer
+            className="linksArea-parent"
+            title="Links"
+            banner
+            links={linksList}
+            state={linksState}
+            indexedDB={linksDataIndexed}
+          />
+        ) : null}
         {galleryItem.length > 0 ? (
           galleryItem
         ) : isLogin ? (
@@ -1014,7 +1036,7 @@ function GalleryImageItem({
   }, [searchParams, image]);
   const ImageTimeFrameTag = useMemo(() => {
     return TimeframeTags.find((tt) =>
-      image.tags?.some((tag) => tt.value === tag)
+      image.tags?.some((tag) => tt.value === tag),
     )?.value;
   }, [image]);
   const Item = useMemo(() => {
@@ -1121,7 +1143,7 @@ function GalleryContent({ item, ...args }: GalleryContentProps) {
         {...args}
       />
     ),
-    [item, curMaxStateName, args]
+    [item, curMaxStateName, args],
   );
   return Main;
 }
@@ -1158,12 +1180,12 @@ function GalleryContentMain({
   const characters = searchParams.get("characters");
   const searchMode = useMemo(
     () => Boolean(q || tags || characters),
-    [q, tags, characters]
+    [q, tags, characters],
   );
   const [w] = useWindowSize();
   const max = useMemo(
     () => (searchMode ? maxWhenSearch : maxFromArgs),
-    [maxFromArgs, maxWhenSearch, searchMode]
+    [maxFromArgs, maxWhenSearch, searchMode],
   );
   const [curMaxState, setCurMax] = useState(stateMax ?? max);
   const befCurMax = useRef(curMaxState);
@@ -1188,7 +1210,7 @@ function GalleryContentMain({
   const { Set } = useSelectImageState();
   const isModal = useMemo(
     () => searchParams.get("modal") === "gallery",
-    [searchParams]
+    [searchParams],
   );
   const imageOnClick = isModal
     ? function (image: ImageType) {
@@ -1204,7 +1226,7 @@ function GalleryContentMain({
           to={
             new URL(
               typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
-              location.href
+              location.href,
             ).href
           }
         >
@@ -1213,7 +1235,7 @@ function GalleryContentMain({
       ) : (
         <>{label}</>
       ),
-    [linkLabel, name]
+    [linkLabel, name],
   );
   const GalleryLabel = useMemo(
     () =>
@@ -1225,7 +1247,7 @@ function GalleryContentMain({
           {showCount ? <div className="count">({list.length})</div> : null}
         </div>
       ) : null,
-    [showGalleryLabel, labelString, list.length, showCount]
+    [showGalleryLabel, labelString, list.length, showCount],
   );
   const listClassName = useMemo(() => {
     const classes = ["galleryList"];
@@ -1304,9 +1326,9 @@ export function GalleryYearFilter({
               if (time) a.push(time);
             });
             return a;
-          }, [] as Date[])
+          }, [] as Date[]),
       ),
-    [filteredGroups]
+    [filteredGroups],
   );
   const yearListBase2 = useMemo(() => {
     const addedList =
@@ -1386,7 +1408,7 @@ export function GallerySearchArea({
         e.preventDefault();
       }
     },
-    { enableOnFormTags: ["INPUT"] }
+    { enableOnFormTags: ["INPUT"] },
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const isModal = searchParams.has("modal");
@@ -1411,7 +1433,7 @@ export function GallerySearchArea({
         e?.preventDefault();
       }
     },
-    [searchParams]
+    [searchParams],
   );
   return (
     <form className={className} {...args} onSubmit={submitHandler}>
@@ -1496,7 +1518,7 @@ export function GalleryCharactersSelect({
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
     return charaLabelOptions.filter(({ value }) =>
-      list?.some((item) => item === value)
+      list?.some((item) => item === value),
     );
   }, [searchParams, charaLabelOptions]);
   const charaFormatOptionLabel = useMemo(() => {
@@ -1587,7 +1609,7 @@ export function MiniGallery() {
   }, [_openArgs, state, searchParams]);
   const enable = useMemo(
     () => searchParams.get("modal") === "gallery",
-    [searchParams]
+    [searchParams],
   );
   const closeHandler = useCallback(() => {
     Set({ image: null, id: "" });
