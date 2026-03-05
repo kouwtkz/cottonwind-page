@@ -35,8 +35,8 @@ export default function WorksPage() {
       </div>
       <WorksGallery />
       <MeeLinks
-        title="Commission"
-        category="commission"
+        title="Request"
+        category="request"
         className="linkPage"
         banner
         linkStyle={LinksStyle}

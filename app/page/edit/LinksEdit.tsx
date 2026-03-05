@@ -114,13 +114,15 @@ function LinksEditMain({
     return item;
   }, [edit, links]);
   const categories = useMemo(() => {
-    const list = [""];
-    if (category && list.every((v) => v !== category)) list.push(category);
-    defaultCategories?.forEach((dc) => {
-      if (list.every((v) => v !== dc)) list.push(dc);
+    const map: Map<string, void> = new Map();
+    map.set("");
+    if (category && !map.has(category)) map.set(category);
+    if (item?.category && !map.has(item.category)) map.set(item.category);
+    defaultCategories?.forEach((category) => {
+      if (!map.has(category)) map.set(category);
     });
-    return list;
-  }, [links, category, defaultCategories]);
+    return Array.from(map.keys());
+  }, [item, category, defaultCategories]);
   const [tagsOptions, setTagsOptions] = useState([] as ContentsTagsOption[]);
   useEffect(() => {
     if (linksTags) setTagsOptions(linksTags);

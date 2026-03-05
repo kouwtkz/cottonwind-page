@@ -67,7 +67,13 @@ export default function LinksPage() {
       {linkat ? <Linkat /> : null}
       <MeeLinks title="Top Link" category="top" banner fold open={!linkat} />
       <MeeLinks title="My Link" category={null} banner fold open={!linkat} />
-      <MeeLinks title="Commission" category="commission" banner fold open />
+      <MeeLinks
+        title="Request"
+        category={["request", "commission"]}
+        banner
+        fold
+        open
+      />
       {isLogin ? (
         <MeeLinks title="Secret" category="secret" banner fold />
       ) : null}
@@ -549,7 +555,7 @@ export const MeeLinks = React.memo(function MeeLinks(props: MeeLinksProps) {
         <EditableLinksContainer
           state={state}
           indexedDB={linksDataIndexed}
-          defaultCategories={["top", "commission", "secret"]}
+          defaultCategories={["top", "request", "secret"]}
           {...props}
         />
       ) : null}
