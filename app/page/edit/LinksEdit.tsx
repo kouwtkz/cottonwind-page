@@ -576,7 +576,7 @@ export function LinksEditButtons({
             </>
           )}
           {isFixed ? (
-            <Link to="/links">
+            <Link to={"/links" + (category ? `#${category}` : "")}>
               <AiOutlineLink />
             </Link>
           ) : null}

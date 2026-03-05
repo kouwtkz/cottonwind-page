@@ -311,12 +311,9 @@ interface InnerLinksContainerWithTitleProps {
   children?: React.ReactNode;
 }
 function InnerLinksContainerWithTitle({
-  children,
   title,
-}: {
-  title?: string;
-  children?: React.ReactNode;
-}) {
+  children,
+}: InnerLinksContainerWithTitleProps) {
   return (
     <>
       {title ? (
@@ -537,7 +534,7 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
   return (
     <>
       {visible ? (
-        <div className={className} {...props}>
+        <div className={className} id={categories[0] || state?.options.name} {...props}>
           {indexedDB ? (
             <LinksEdit
               state={state}
