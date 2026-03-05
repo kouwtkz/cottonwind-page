@@ -389,6 +389,7 @@ export function SimpleLinks({
 interface EditableLinksContainerProps
   extends Omit<LinksContainerProps, "links"> {
   category?: Array<string | null> | string | null;
+  ignoreTag?: Array<string | null> | string;
   editable?: boolean;
   state: WithSet<LinksStateType>;
   defaultCategories?: string[];
@@ -397,6 +398,7 @@ interface EditableLinksContainerProps
 }
 export const EditableLinksContainer = React.memo(function LinksContainer({
   category = null,
+  ignoreTag,
   links: argLinks,
   title,
   className,
@@ -422,18 +424,30 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
       : [null, ""];
   }, [category]);
   const links = useMemo(() => {
+    const AND: findWhereType<SiteLink>[] = [
+      {
+        OR: categories.map((category) => ({ category })),
+      },
+    ];
+    if (ignoreTag) {
+      AND.push({
+        NOT: {
+          tags: { in: Array.isArray(ignoreTag) ? ignoreTag : [ignoreTag] },
+        },
+      });
+    }
     const links =
       argLinks ||
       (state.links
         ? findMee(state.links, {
-            where: { OR: categories.map((category) => ({ category })) },
+            where: { AND },
             orderBy: [{ id: "asc", order: "asc" }],
           })
         : []);
     if (categories.length === 1 && !categories[0] && !move)
       return links.concat(ArchiveLinks);
     else return links;
-  }, [argLinks, categories, state.links, move]);
+  }, [argLinks, categories, ignoreTag, state.links, move]);
   const isLogin = useIsLogin()[0];
   const ulClassName = useMemo(() => {
     const list = ["linksArea"];
@@ -456,7 +470,7 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
           category={categories[0] || null}
           move={move}
           setMove={setMove}
-          isFixed={Boolean(argLinks)}
+          isFixed={Boolean(argLinks || ignoreTag?.length)}
           dropdown={dropdown}
           state={state}
         />

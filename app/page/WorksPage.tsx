@@ -37,6 +37,7 @@ export default function WorksPage() {
       <MeeLinks
         title="Request"
         category="request"
+        ignoreTag="no-works"
         className="linkPage"
         banner
         linkStyle={LinksStyle}
