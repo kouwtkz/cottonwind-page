@@ -368,6 +368,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           className={classNames.join(" ")}
           title={title}
           type="button"
+          disabled={!chara}
           onClick={() => {
             imageModalAction({ mode });
           }}
@@ -405,6 +406,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           className={classNames.join(" ")}
           title={title}
           type="button"
+          disabled={!chara}
           onClick={() => {
             if (chara) {
               fileDialog("image/*")
