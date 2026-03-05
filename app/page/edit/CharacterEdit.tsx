@@ -121,7 +121,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       birthday: ToFormTime(chara?.birthday),
       tags: chara?.tags || [],
       playlist: chara?.playlist || [],
-      draft: chara?.draft ?? null,
+      draft: chara ? (chara.draft ?? null) : true,
     }),
     [chara],
   );
@@ -198,7 +198,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     if (!charactersMap) return;
     const data: any = {};
     Object.entries(formValues).forEach(([key, value]) => {
-      if (key in dirtyFields) {
+      let flag = key in dirtyFields;
+      if (!chara) {
+        if (key === "draft") flag = true;
+      }
+      if (flag) {
         switch (key as keyof CharacterDataType) {
           case "time":
           case "birthday":
