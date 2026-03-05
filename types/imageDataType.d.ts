@@ -154,6 +154,8 @@ interface GalleryBodyOptions extends SearchAreaOptionsProps {
   showGalleryLabel?: boolean;
   showCount?: boolean;
   hideWhenEmpty?: boolean;
+  h2?: string;
+  h4?: string;
 }
 
 interface GalleryObjectProps extends GalleryBodyOptions {

@@ -118,6 +118,7 @@ import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
 import { EditableLinksContainer } from "./LinksPage";
 import { useLinks } from "~/components/state/LinksState";
+import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -231,6 +232,7 @@ export function GalleryObjectConvert({
     <GalleryObject
       items={albums}
       submitPreventScrollReset={submitPreventScrollReset}
+      {...(Array.isArray(items) ? {} : { h2: items?.h2, h4: items?.h4 })}
       {...args}
     />
   );
@@ -621,23 +623,20 @@ function GalleryBody({
   showGalleryLabel = true,
   showCount = true,
   submitPreventScrollReset,
+  h2,
+  h4,
 }: GalleryBodyProps) {
   const search = useSearchParams()[0];
-  const getSearchParamMap = useCallback(
-    (key: string) =>
-      (search.get(key) || "").split(",").reduce<Map<string, void>>((a, c) => {
-        a.set(c);
-        return a;
-      }, new Map()),
-    [search],
-  );
-  const tagsParam = useMemo(() => getSearchParamMap("tags"), [search]);
+  const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
   const copyrightParam = useMemo(
-    () => getSearchParamMap("copyright"),
+    () => getSearchParamMap("copyright", search),
     [search],
   );
   const typeParam = useMemo(() => search.get("type"), [search]);
-  const filterParam = useMemo(() => getSearchParamMap("filter"), [search]);
+  const filterParam = useMemo(
+    () => getSearchParamMap("filter", search),
+    [search],
+  );
   const nav = useNavigate();
   const { group } = useParams();
   const args = {
@@ -863,9 +862,11 @@ function GalleryBody({
   const linksState = useLinks();
   const linksList = useMemo(() => {
     return (linksState.links || []).filter((link) =>
-      link.tags?.some((v) => tagsParam.has(v)),
+      link.tags?.some(
+        (v) => v === typeParam || group === v || tagsParam.has(v),
+      ),
     );
-  }, [linksState.links, tagsParam]);
+  }, [linksState.links, tagsParam, group, typeParam]);
   const SearchAreaOptions = { submitPreventScrollReset };
   return (
     <div className="galleryContainer">
@@ -979,6 +980,12 @@ function GalleryBody({
                 <GalleryUploadButton className="iconSwitch" group={group} />
               </div>
             ) : null}
+          </div>
+        ) : null}
+        {h2 || h4 ? (
+          <div className="galleryLabel outLabel">
+            {h2 ? <h2>{h2}</h2> : null}
+            {h4 ? <h4>{h4}</h4> : null}
           </div>
         ) : null}
         {linksList.length > 0 ? (
@@ -1167,16 +1174,14 @@ function GalleryContentMain({
   let {
     name,
     linkLabel,
-    h2,
-    h4,
     label,
     step = 20,
     max: maxFromArgs = 20,
     maxWhenSearch = 40,
   } = item;
   const [searchParams] = useSearchParams();
-  const q = searchParams.get("q");
   const tags = searchParams.get("tags");
+  const q = searchParams.get("q");
   const characters = searchParams.get("characters");
   const searchMode = useMemo(
     () => Boolean(q || tags || characters),
@@ -1272,12 +1277,6 @@ function GalleryContentMain({
   }, [className]);
   return (
     <div {...args} ref={ref} className={_className}>
-      {h2 || h4 ? (
-        <div className="galleryLabel outLabel">
-          {h2 ? <h2>{h2}</h2> : null}
-          {h4 ? <h4>{h4}</h4> : null}
-        </div>
-      ) : null}
       {GalleryLabel}
       <div className={listClassName}>
         {list

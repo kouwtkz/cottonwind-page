@@ -14,3 +14,12 @@ export function SetSearchParams({ nav, query, options }: SetSearchParamProps) {
 export function getSearchParams() {
   return Object.fromEntries(new URLSearchParams(location.search));
 }
+
+export function getSearchParamMap(search?: string | null, searchParams?: URLSearchParams) {
+  return (((search && searchParams) ? searchParams.get(search) : search) || "")
+    .split(",")
+    .reduce<Map<string, void>>((a, c) => {
+      a.set(c);
+      return a;
+    }, new Map());
+}
