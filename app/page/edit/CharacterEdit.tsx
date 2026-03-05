@@ -443,6 +443,9 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
                       });
                     }
                   }
+                })
+                .then(() => {
+                  charactersDataIndexed.load("no-cache");
                 });
             }
           }}
