@@ -33,7 +33,6 @@ export default function WorksPage() {
           editType="textarea"
         />
       </div>
-      <WorksGallery />
       <MeeLinks
         title="Request"
         category="request"
@@ -43,6 +42,7 @@ export default function WorksPage() {
         linkStyle={LinksStyle}
         titleLinkTo
       />
+      <WorksGallery />
       <div className="price">
         <h2 className="color-main en-title-font">
           Price
