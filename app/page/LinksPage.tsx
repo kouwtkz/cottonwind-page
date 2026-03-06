@@ -286,6 +286,7 @@ interface LinksContainerProps
   linkStyle?: CSSProperties;
   fold?: boolean;
   open?: boolean;
+  titleLinkTo?: string | boolean;
 }
 
 interface FoldInnerLinksContainerProps
@@ -309,16 +310,24 @@ function FoldInnerLinksContainer({
 interface InnerLinksContainerWithTitleProps {
   title?: string;
   children?: React.ReactNode;
+  to?: string;
 }
 function InnerLinksContainerWithTitle({
   title,
   children,
+  to,
 }: InnerLinksContainerWithTitleProps) {
+  let titleNode: ReactNode | null = null;
+  if (title) {
+    titleNode = <>{title || "Links"}</>;
+    if (to) {
+      titleNode = <Link to={to}>{titleNode}</Link>;
+    }
+    titleNode = <h3 className="color-main en-title-font">{titleNode}</h3>;
+  }
   return (
     <>
-      {title ? (
-        <h3 className="color-main en-title-font">{title || "Links"}</h3>
-      ) : null}
+      {titleNode}
       {children}
     </>
   );
@@ -330,6 +339,7 @@ function InnerLinksContainer({
   title,
   fold,
   open,
+  to,
   children,
 }: InnerLinksContainerProps) {
   return (
@@ -339,7 +349,7 @@ function InnerLinksContainer({
           {children}
         </FoldInnerLinksContainer>
       ) : (
-        <InnerLinksContainerWithTitle title={title}>
+        <InnerLinksContainerWithTitle title={title} to={to}>
           {children}
         </InnerLinksContainerWithTitle>
       )}
@@ -408,6 +418,7 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
   fold,
   open,
   editable = true,
+  titleLinkTo,
   ...props
 }: EditableLinksContainerProps) {
   const send = GetAPIFromOptions(state.options, "/send");
@@ -531,10 +542,21 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
       </ul>
     </>
   );
+  const to = useMemo(() => {
+    if (typeof titleLinkTo === "string") return titleLinkTo;
+    else if (titleLinkTo) {
+      if (category) return "/links#" + category;
+      else return "/links";
+    }
+  }, [category, titleLinkTo]);
   return (
     <>
       {visible ? (
-        <div className={className} id={categories[0] || state?.options.name} {...props}>
+        <div
+          className={className}
+          id={categories[0] || state?.options.name}
+          {...props}
+        >
           {indexedDB ? (
             <LinksEdit
               state={state}
@@ -544,7 +566,7 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
               defaultCategories={defaultCategories}
             />
           ) : null}
-          <InnerLinksContainer open={open} title={title} fold={fold}>
+          <InnerLinksContainer {...{ open, title, fold, to }}>
             {inner}
           </InnerLinksContainer>
         </div>

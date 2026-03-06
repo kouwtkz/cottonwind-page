@@ -41,6 +41,7 @@ export default function WorksPage() {
         className="linkPage"
         banner
         linkStyle={LinksStyle}
+        titleLinkTo
       />
       <div className="price">
         <h2 className="color-main en-title-font">
