@@ -23,6 +23,7 @@ interface CharacterDataType {
 
 interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod" | "icon" | "image" | "headerImage">, WithRawDataType<CharacterDataType> {
   tags?: string[],
+  tagsMap?: Map<string, void>,
   playlist?: string[],
   soundPlaylist?: SoundPlaylistType,
   draft?: boolean,

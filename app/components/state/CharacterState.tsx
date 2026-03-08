@@ -83,6 +83,23 @@ function CharacterDataState() {
       env
     ) {
       charactersData.getAll().then(async (characters) => {
+        characters.forEach((character) => {
+          character.tagsMap = character.tags?.reduce<Map<string, void>>(
+            (map, c) => {
+              map.set(c);
+              return map;
+            },
+            new Map(),
+          );
+          if (character.tagsMap) {
+            if (character.tagsMap.has("design")) {
+              character.order = (character.order || 0) + 0x100000;
+            }
+            if (character.tagsMap.has("collaboration")) {
+              character.order = (character.order || 0) + 0x1000000;
+            }
+          }
+        });
         const charactersMap = new Map(
           characters.map((character) => [character.key, character]),
         );

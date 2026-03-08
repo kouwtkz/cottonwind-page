@@ -396,7 +396,7 @@ function CharaListPage() {
               newOrder: i + 1,
             }))
             .filter((item) => {
-              return item.newOrder !== item.order;
+              return item.newOrder !== item.rawdata?.order;
             })
             .map(({ key, newOrder }) => {
               return { target: key, order: newOrder };
