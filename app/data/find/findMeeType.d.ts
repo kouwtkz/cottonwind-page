@@ -48,6 +48,7 @@ interface WhereOptionsType<T> {
 interface WhereOptionsHashtagType<T> {
   key?: KeyOfOrArray<T>;
   textKey?: KeyOfOrArray<T>;
+  map?: { [k in keyof T]?: Map<any, any> };
   [k: string]: any;
 }
 

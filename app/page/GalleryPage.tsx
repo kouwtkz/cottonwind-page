@@ -250,6 +250,7 @@ export function GalleryObject({
   hideWhenEmpty,
   ...args
 }: GalleryObjectProps) {
+  const { charactersMap, charactersNameMap } = useCharacters();
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
   const typeParam = searchParams.get("type");
@@ -336,9 +337,13 @@ export function GalleryObject({
             "characterNameGuides",
           ],
         },
-        hashtag: { key: ["tags", "characters"], textKey: ["description"] },
+        hashtag: {
+          map: { characters: charactersNameMap },
+          key: ["tags"],
+          textKey: ["description"],
+        },
       }),
-    [qParam],
+    [qParam, charactersNameMap],
   );
   const whereTagsValue = useMemo(() => {
     const tags = tagsParam?.split(",");
@@ -357,14 +362,29 @@ export function GalleryObject({
     if (whereTagsValue) everytags.push(...whereTagsValue);
     if (everytags.length > 0) return { tags: { every: everytags } };
   }, [whereTagsValue]);
+  const charactersWhere = useMemo(() => {
+    const charaListMap = new Map<string, void>();
+    charactersParam?.split(",").forEach((v) => charaListMap.set(v));
+    whereTagsValue?.forEach((v) => {
+      if (charactersMap.has(v)) charaListMap.set(v);
+      else if (charactersNameMap.has(v))
+        charaListMap.set(charactersNameMap.get(v)!);
+    });
+    const list = Array.from(charaListMap.keys());
+    if (list) return { characters: { every: list } };
+  }, [charactersParam, whereTagsValue, charactersMap, charactersNameMap]);
+  const kindTagsWhere = useMemo(() => {
+    const wheres: findWhereType<ImageType>[] = [];
+    if (someTagsWhere) wheres.push(someTagsWhere);
+    if (everyTagsWhere) wheres.push(everyTagsWhere);
+    if (charactersWhere) wheres.push(charactersWhere);
+    return { OR: wheres };
+  }, [someTagsWhere, everyTagsWhere, charactersWhere]);
+
   const copyrightWhere = useMemo(() => {
     const list = copyrightParam?.split(",");
     if (list) return { copyright: { every: list } };
   }, [copyrightParam]);
-  const charactersWhere = useMemo(() => {
-    const list = charactersParam?.split(",");
-    if (list) return { characters: { every: list } };
-  }, [charactersParam]);
   const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
   const linkStateUpdated = useLikeStateUpdated()[0];
   const draftOnly = useMemo(
@@ -378,10 +398,8 @@ export function GalleryObject({
   const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
     const wheres = [where];
-    if (someTagsWhere) wheres.push(someTagsWhere);
-    if (everyTagsWhere) wheres.push(everyTagsWhere);
+    if (kindTagsWhere) wheres.push(kindTagsWhere);
     if (copyrightWhere) wheres.push(copyrightWhere);
-    if (charactersWhere) wheres.push(charactersWhere);
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
     if (likeWhere) wheres.push({ like: { checked: true } });
@@ -390,10 +408,8 @@ export function GalleryObject({
     return wheres;
   }, [
     where,
-    someTagsWhere,
-    everyTagsWhere,
+    kindTagsWhere,
     copyrightWhere,
-    charactersWhere,
     hasTopImage,
     hasPickup,
     likeWhere,

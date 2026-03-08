@@ -389,6 +389,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
   const timeKey = getKeyFromOptions("time", options);
   const hashtagKey = options.hashtag?.key ? Array.isArray(options.hashtag.key) ? options.hashtag.key : [options.hashtag.key] : null;
   const hashtagTextKey = options.hashtag?.textKey ? Array.isArray(options.hashtag.textKey) ? options.hashtag.textKey : [options.hashtag.textKey] : null;
+  const hashtagMapEntries = Object.entries((options.hashtag?.map || {})) as [keyof T, Map<any, any>][];
   const allKanaReplace = options.kanaReplace === true;
   const kanaReplaceArray = typeof options.kanaReplace === "string" ? [options.kanaReplace] : Array.isArray(options.kanaReplace) ? options.kanaReplace : [];
   const kanaReplaceMap = new Map<KeyOfT<T>, boolean>(kanaReplaceArray.map(v => { return [v, true] }));
@@ -432,6 +433,13 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
                 `#${filterValue.replace(/(\+)/g, "\\$1")}(\\s|$)`,
                 "i"
               )
+            } as CommonCondition
+          })
+        })
+        hashtagMapEntries.forEach(([k, map]) => {
+          whereHashtags.push({
+            [k]: {
+              contains: map.has(filterValue) ? map.get(filterValue) : filterValue
             } as CommonCondition
           })
         })

@@ -29,10 +29,12 @@ interface characterStateType {
   charaFormatOptionLabel?: JSX.Element;
   characters: CharacterType[];
   charactersMap: Map<string, CharacterType>;
+  charactersNameMap: Map<string, string>;
 }
 export const useCharacters = CreateObjectState<characterStateType>((set) => ({
   characters: [],
   charactersMap: new Map(),
+  charactersNameMap: new Map(),
 }));
 
 export function CharacterState() {
@@ -83,6 +85,9 @@ function CharacterDataState() {
       charactersData.getAll().then(async (characters) => {
         const charactersMap = new Map(
           characters.map((character) => [character.key, character]),
+        );
+        const charactersNameMap = new Map(
+          characters.map((character) => [character.name, character.key]),
         );
         characters.sort((a, b) => (a.order || 0) - (b.order || 0));
         const charaLikeData = likeCategoryMap.get("character");
@@ -148,7 +153,13 @@ function CharacterDataState() {
         charactersTags.push({ value: "design", label: "デザイン担当" });
         charactersTags.push({ value: "collaboration", label: "コラボ" });
         charactersTags.push({ value: "archive", label: "アーカイブ" });
-        Set({ charactersData, characters, charactersMap, charactersTags });
+        Set({
+          charactersData,
+          characters,
+          charactersMap,
+          charactersNameMap,
+          charactersTags,
+        });
       });
     }
   }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env]);
