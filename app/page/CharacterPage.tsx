@@ -34,7 +34,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
 import { defineSortTags } from "~/components/dropdown/SortFilterTags";
-import { useIsLogin } from "~/components/state/EnvState";
+import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { Movable } from "~/components/layout/edit/Movable";
 import { toast } from "react-toastify";
@@ -66,6 +66,7 @@ interface CharacterStateType {
 }
 export const useCharacterPageState = CreateObjectState<CharacterStateType>({});
 function CharacterPageState() {
+  const env = useEnv()[0];
   const { search } = useLocation();
   const confirmUrl = useConfirmUrl()[0];
   const searchParams = useMemo(() => {
@@ -221,7 +222,7 @@ function CharacterPageState() {
         },
         { items: [], design: [], collaboration: [] },
       );
-      parts.push({ items: splitItems.items });
+      parts.push({ label: env?.CHARACTERS_MAIN_NAME, items: splitItems.items });
       if (splitItems.design.length > 0) {
         parts.push({ label: "デザイン担当キャラ", items: splitItems.design });
       }
@@ -230,7 +231,7 @@ function CharacterPageState() {
       }
     }
     setParts(parts);
-  }, [characters, orderBySort, clientShowAll, liked, where]);
+  }, [characters, orderBySort, clientShowAll, liked, where, env]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
     Set({ filters, orderBySort, showAll: clientShowAll, liked, where, parts });

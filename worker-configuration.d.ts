@@ -21,6 +21,7 @@ declare namespace Cloudflare {
 		AUTHOR_EN_PROP: string;
 		AUTHOR_IMAGE: string;
 		AUTHOR_DESCRIPTION: string;
+		CHARACTERS_MAIN_NAME?: string;
 		BLUESKY_HANDLE: string;
 		TWITTER_HANDLE: string;
 		EMAIL: string;
