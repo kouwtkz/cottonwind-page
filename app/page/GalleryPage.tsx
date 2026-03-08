@@ -371,16 +371,18 @@ export function GalleryObject({
         charaListMap.set(charactersNameMap.get(v)!);
     });
     const list = Array.from(charaListMap.keys());
-    if (list) return { characters: { every: list } };
+    if (list.length) return { characters: { every: list } };
   }, [charactersParam, whereTagsValue, charactersMap, charactersNameMap]);
   const kindTagsWhere = useMemo(() => {
-    const wheres: findWhereType<ImageType>[] = [];
-    if (someTagsWhere) wheres.push(someTagsWhere);
-    if (everyTagsWhere) wheres.push(everyTagsWhere);
-    if (charactersWhere) wheres.push(charactersWhere);
-    return { OR: wheres };
+    const OR: findWhereType<ImageType>[] = [];
+    const AND: findWhereType<ImageType>[] = [];
+    if (someTagsWhere) AND.push(someTagsWhere);
+    if (everyTagsWhere) AND.push(everyTagsWhere);
+    if (AND.length) OR.push({ AND });
+    if (charactersWhere) OR.push(charactersWhere);
+    if (OR.length) return { OR };
+    else return null;
   }, [someTagsWhere, everyTagsWhere, charactersWhere]);
-
   const copyrightWhere = useMemo(() => {
     const list = copyrightParam?.split(",");
     if (list) return { copyright: { every: list } };
