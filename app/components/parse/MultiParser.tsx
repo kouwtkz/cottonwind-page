@@ -259,6 +259,8 @@ export function MultiParser({
           }
           if (domNode.type === "tag") {
             switch (domNode.name) {
+              case "img":
+                return <img key={domNode.attribs.src} {...domNode.attribs} />;
               case "code":
                 domNode.attribs["parsed"] = "";
                 existCode.current = true;
