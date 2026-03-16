@@ -132,7 +132,11 @@ export function PostsPage({
   let { posts } = usePosts();
   posts = useMemo(() => {
     if (posts) {
-      return findMee(posts, setWhere(q, { text: { key: "body" } }));
+      const where = setWhere<PostType>(q, {
+        text: { key: "body" },
+        hashtag: { key: "category", textKey: "body" },
+      });
+      return findMee(posts, where);
     }
   }, [posts, q]);
   const {
