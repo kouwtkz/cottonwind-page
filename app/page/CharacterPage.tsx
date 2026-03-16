@@ -444,7 +444,7 @@ function CharaListPage() {
                 ) : (
                   <>
                     {items.map((chara, i) => (
-                      <li key={i}>
+                      <li key={chara.id}>
                         <Inner item={chara} />
                       </li>
                     ))}
@@ -558,6 +558,7 @@ export function CharaBeforeAfter({
                 imageItem={beforeChara.icon}
                 size={40}
                 className="charaIcon"
+                key={beforeChara.id + "_icon"}
               />
             ) : null}
             <CharacterName chara={beforeChara} />
@@ -572,6 +573,7 @@ export function CharaBeforeAfter({
                 imageItem={afterChara.icon}
                 size={40}
                 className="charaIcon"
+                key={afterChara.id + "_icon"}
               />
             ) : null}
             <CharacterName chara={afterChara} />
@@ -647,6 +649,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     imageItem={chara.icon}
                     size={40}
                     className="charaIcon"
+                    key={chara.id + "_icon"}
                   />
                 ) : null}
                 <span translate={chara.enName ? "no" : "yes"}>

@@ -259,6 +259,7 @@ export const ImageMee = React.memo(function ImageMee({
       alt={alt}
       ref={ref}
       data-origin-ext={ext}
+      key={imageSrc}
       {...{
         width,
         height,
