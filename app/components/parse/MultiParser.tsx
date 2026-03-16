@@ -1,4 +1,5 @@
 import React, {
+  Fragment,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -205,32 +206,6 @@ export function MultiParser({
       return childString.replaceAll("\n", "<br />");
     else return childString;
   }, [childString, simpleBreak]);
-  childString = useMemo(() => {
-    if (childString && hashtag) {
-      return childString.replace(
-        /(^|\s?)(#[^\s#]+)/g,
-        typeof hashtag === "function"
-          ? hashtag
-          : (m, m1, m2) => {
-              const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" className="hashtag">${m2}</a>`;
-            },
-      );
-    } else return childString;
-  }, [childString, hashtag]);
-  childString = useMemo(() => {
-    if (childString && mention) {
-      return childString.replace(
-        /(^|\s?)(@[^\s#]+)/g,
-        typeof mention === "function"
-          ? mention
-          : (m, m1, m2) => {
-              const s = createSearchParams({ q: m2 });
-              return `${m1}<a href="?${s.toString()}" className="mention">${m2}</a>`;
-            },
-      );
-    } else return childString;
-  }, [childString, mention]);
   childString = useMemo(() => {
     if (childString && quoteNumberReply) {
       return childString.replace(
@@ -474,6 +449,95 @@ export function MultiParser({
                 }
                 break;
             }
+          } else if (domNode.type === "text") {
+            let nodes: React.ReactNode[] = [domNode.data];
+            if (hashtag) {
+              nodes = nodes.reduce<React.ReactNode[]>((a, c) => {
+                if (typeof c === "string") {
+                  const matches = Array.from(c.matchAll(/(^|\s?)(#[^\s#]+)/g));
+                  const splits: Array<
+                    string | { text: string; m: RegExpExecArray }
+                  > = [];
+                  const n = matches.reduce<number>((n, m) => {
+                    splits.push(c.slice(n, m.index));
+                    const nextNum = m.index + m[0].length;
+                    splits.push({ text: c.slice(m.index, nextNum), m });
+                    return nextNum;
+                  }, 0);
+                  if (n < c.length) splits.push(c.slice(n));
+                  a.push(
+                    ...splits.reduce<React.ReactNode[]>((a, c, i) => {
+                      if (typeof c === "string") a.push(c);
+                      else {
+                        a.push(
+                          <Fragment key={"hashtag-" + i}>
+                            {" "}
+                            <Link
+                              to={{
+                                search: createSearchParams({
+                                  q: c.m[2],
+                                }).toString(),
+                              }}
+                              className="hashtag"
+                            >
+                              {c.m[2]}
+                            </Link>
+                          </Fragment>,
+                        );
+                      }
+                      return a;
+                    }, []),
+                  );
+                } else {
+                  a.push(c);
+                }
+                return a;
+              }, []);
+            }
+            if (mention) {
+              nodes = nodes.reduce<React.ReactNode[]>((a, c) => {
+                if (typeof c === "string") {
+                  const matches = Array.from(c.matchAll(/(^|\s?)(@[^\s#]+)/g));
+                  const splits: Array<
+                    string | { text: string; m: RegExpExecArray }
+                  > = [];
+                  const n = matches.reduce<number>((n, m) => {
+                    splits.push(c.slice(n, m.index));
+                    const nextNum = m.index + m[0].length;
+                    splits.push({ text: c.slice(m.index, nextNum), m });
+                    return nextNum;
+                  }, 0);
+                  if (n < c.length) splits.push(c.slice(n));
+                  a.push(
+                    ...splits.reduce<React.ReactNode[]>((a, c, i) => {
+                      if (typeof c === "string") a.push(c);
+                      else {
+                        a.push(
+                          <Fragment key={"mention-" + i}>
+                            {" "}
+                            <Link
+                              to={{
+                                search: createSearchParams({
+                                  q: c.m[2],
+                                }).toString(),
+                              }}
+                              className="mention"
+                            >
+                              {c.m[2]}
+                            </Link>
+                          </Fragment>,
+                        );
+                      }
+                      return a;
+                    }, []),
+                  );
+                } else {
+                  a.push(c);
+                }
+                return a;
+              }, []);
+            }
+            return <>{nodes}</>;
           }
           if (replace) {
             const result = replace(domNode, 0);
