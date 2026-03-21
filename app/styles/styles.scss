@@ -2403,8 +2403,14 @@ form {
     margin-top: 0.5em;
     @extend .color-deep;
   }
-  &.blog > * {
-    margin: 1.5rem auto;
+  &.blog {
+    & > * {
+      margin: 1.5rem auto;
+    }
+    & > ul,
+    & > ol {
+      margin: 1.5rem 1rem;
+    }
   }
   p {
     white-space: pre-line;
