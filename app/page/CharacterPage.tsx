@@ -343,6 +343,10 @@ const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
   const { parts } = useCharacterPageState();
+  const count = useMemo(
+    () => parts?.reduce((a, c) => a + c.items.length, 0) || 0,
+    [parts],
+  );
   const extendMode = useExtendMode()[0];
   const [move, setMove] = useMoveCharacters();
   const searchParams = useSearchParams()[0];
@@ -428,7 +432,9 @@ function CharaListPage() {
   }, [isSubmit]);
   return (
     <>
-      <CharaSearchArea />
+      <CharaSearchArea
+        headerBeforeInner={<div className="color-main">({count})</div>}
+      />
       {parts
         ?.filter(({ items }) => items.length > 0)
         .map(({ label, items }, i) => {
@@ -728,7 +734,9 @@ export function CharaDetail({ charaName }: { charaName: string }) {
 
 const useConfirmUrl = CreateState<string>();
 
-interface CharaSearchAreaProps {}
+interface CharaSearchAreaProps {
+  headerBeforeInner?: React.ReactNode;
+}
 const characterSortTags = [
   defineSortTags([
     "nameOrder",
@@ -738,7 +746,7 @@ const characterSortTags = [
     "likeCount",
   ]),
 ];
-export function CharaSearchArea({}: CharaSearchAreaProps) {
+export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
   const { charactersTags } = useCharacters();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -824,6 +832,7 @@ export function CharaSearchArea({}: CharaSearchAreaProps) {
 
   return (
     <div className="header">
+      {headerBeforeInner}
       <button
         type="button"
         title="切り替え"
