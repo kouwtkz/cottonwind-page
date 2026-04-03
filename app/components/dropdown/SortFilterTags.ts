@@ -33,12 +33,13 @@ export const defaultGalleryTags: ContentsTagsOption[] = [
     options: [
       { value: "type:illust", label: "🎨イラスト" },
       { value: "type:ebook", label: "📖漫画・小説", nameGuide: "まんが" },
+      { value: "type:multi", label: "🗂️複数画像", nameGuide: "ふくすうがぞう" },
       { value: "type:goods", label: "🛍️販売・グッズ", nameGuide: "はんばい" },
       { value: "type:movie", label: "🎬動画・アニメ", nameGuide: "どうが" },
       { value: "type:picture", label: "📷写真・VRC", nameGuide: ["しゃしん", "ぶいあーる"] },
       { value: "type:3d", label: "🧶3Dモデル" },
       { value: "type:material", label: "📦素材", nameGuide: "そざい" },
-      { value: "type:other", label: "🖼️その他の画像" },
+      { value: "type:other", label: "🖼️その他の画像", nameGuide: "そのた" },
     ],
   },
   {

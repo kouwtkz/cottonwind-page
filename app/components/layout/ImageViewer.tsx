@@ -42,6 +42,7 @@ import { Modal } from "./Modal";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { BookReader } from "./BookReader";
 import { TbHexagon3D } from "react-icons/tb";
+import { PiImagesFill } from "react-icons/pi";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -213,8 +214,15 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                 <span>{image.time.toLocaleString("ja-JP", opt)}</span>
               </span>
             ) : null}
-            {image.embed && image.type === "ebook" ? (
-              <span>本のマークから読むことができる作品です！</span>
+            {image.embed ? (
+              image.type === "ebook" || image.type === "multi" ? (
+                <span>
+                  {image.type === "ebook"
+                    ? "本のマークから読むことができる"
+                    : "画像マークから複数画像が見れる"}
+                  作品です！
+                </span>
+              ) : null
             ) : null}
             <ShareButton />
           </div>
@@ -316,7 +324,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
                   </a>
                 )
               ) : image.embed ? (
-                image.type === "ebook" ? (
+                image.type === "ebook" || image.type === "multi" ? (
                   <Link
                     title="よむ"
                     to={pathname + search + "#laymic"}
@@ -324,7 +332,11 @@ function PreviewArea({ image }: PreviewAreaProps) {
                     state={{ ...(state || {}), from: pathname + search }}
                     className="translucent-button open"
                   >
-                    <RiBook2Fill />
+                    {image.type === "ebook" ? (
+                      <RiBook2Fill />
+                    ) : (
+                      <PiImagesFill />
+                    )}
                   </Link>
                 ) : image.type ? (
                   <EmbedOpen embed={image.embed} type={image.type} />

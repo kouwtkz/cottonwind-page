@@ -119,6 +119,7 @@ import { getCountList } from "~/components/functions/arrayFunction";
 import { EditableLinksContainer } from "./LinksPage";
 import { useLinks } from "~/components/state/LinksState";
 import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
+import { PiImagesFill } from "react-icons/pi";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -1089,6 +1090,10 @@ function GalleryImageItem({
                   <RiStore3Fill />
                 </div>
               ) : null
+            ) : image.type === "multi" ? (
+              <div className="translucent-special-button">
+                <PiImagesFill />
+              </div>
             ) : image.type === "movie" ? (
               <div className="translucent-special-button">
                 <RiPlayLargeFill />

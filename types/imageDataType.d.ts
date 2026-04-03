@@ -78,7 +78,7 @@ interface imageUpdateJsonDataType extends Omit<ImageType, "width" | "height" | "
 }
 
 type imageModeType = "src" | "thumbnail";
-type imageKindType = "illust" | "ebook" | "goods" | "movie" | "picture" | "3d" | "material" | "embed" | "pdf" | "other";
+type imageKindType = "illust" | "ebook" | "multi" | "goods" | "movie" | "picture" | "3d" | "material" | "embed" | "pdf" | "other";
 
 /** @comments ひとつのアルバムの変数 */
 interface MediaImageAlbumType {

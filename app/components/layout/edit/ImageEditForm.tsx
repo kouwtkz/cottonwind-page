@@ -581,7 +581,7 @@ export default function ImageEditForm({
                       embed: json.key,
                     } as imageUpdateJsonDataType;
                     if (imageOnlyZip) {
-                      entryData.type = "ebook";
+                      entryData.type = "multi";
                     }
                     return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
                       data: entryData,
