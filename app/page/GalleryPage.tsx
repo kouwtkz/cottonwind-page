@@ -405,7 +405,7 @@ export function GalleryObject({
     if (hasTopImage) wheres.push({ topImage: { gte: 1 } });
     if (hasPickup) wheres.push({ pickup: true });
     if (likeWhere) wheres.push({ like: { checked: true } });
-    if (typeParam) wheres.push({ type: typeParam });
+    if (typeParam) wheres.push({ type: typeParam as imageKindType });
     if (draftOnly) wheres.push({ draft: true });
     return wheres;
   }, [

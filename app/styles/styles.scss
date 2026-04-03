@@ -2435,6 +2435,9 @@ form {
 .characterPage {
   max-width: 1400px;
   @include commonHeader();
+  .modal & h2 {
+    text-align: center;
+  }
   .charaList {
     margin: 0 auto;
     width: 95%;

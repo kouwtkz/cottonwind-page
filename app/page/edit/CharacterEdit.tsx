@@ -77,6 +77,7 @@ import {
   PostEditSelectInsert,
   PostEditSelectMedia,
   replacePostTextarea,
+  replacePostTextareaFromImage,
 } from "~/components/dropdown/PostEditSelect";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { PostTextarea } from "~/components/parse/PostTextarea";
@@ -266,6 +267,35 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
     });
   }
   const [previewMode, setPreviewMode] = useState(false);
+  const replaceDescription = useCallback(
+    (
+      args:
+        | { before?: string; after?: string }
+        | ((textarea: HTMLTextAreaElement) => {
+            before?: string;
+            after?: string;
+          }),
+    ) => {
+      const textarea = descriptionRef.current!;
+      let before: string | undefined;
+      let after: string | undefined;
+      if (typeof args === "function") {
+        const result = args(textarea);
+        before = result.before;
+        after = result.after;
+      } else {
+        before = args.before;
+        after = args.after;
+      }
+      replacePostTextarea({
+        before,
+        after,
+        textarea,
+        setValue: setDescription,
+      });
+    },
+    [],
+  );
   useEffect(() => {
     if (selectedImage && chara) {
       const idParsed = selectedId.split(",");
@@ -296,6 +326,11 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             }
             charactersDataIndexed.load("no-cache");
           });
+        } else {
+          replacePostTextareaFromImage({
+            image: selectedImage,
+            textarea: descriptionRef.current!,
+          });
         }
       }
     }
@@ -312,19 +347,15 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
   const selectedCharacter = useSelectedCharacter()[0];
   useEffect(() => {
     if (selectedCharacter) {
-      const textarea = descriptionRef.current!;
-      const { selectionStart, selectionEnd } = textarea;
-      let before = "[";
-      let after = `](/character/${selectedCharacter.key})`;
-      if (selectionStart === selectionEnd) {
-        before = before + selectedCharacter.name + after;
-        after = "";
-      }
-      replacePostTextarea({
-        before,
-        after,
-        textarea,
-        setValue: setDescription,
+      replaceDescription((textarea) => {
+        const { selectionStart, selectionEnd } = textarea;
+        let before = "[";
+        let after = `](/character/${selectedCharacter.key})`;
+        if (selectionStart === selectionEnd) {
+          before = before + selectedCharacter.name + after;
+          after = "";
+        }
+        return { before, after };
       });
     }
   }, [selectedCharacter]);
