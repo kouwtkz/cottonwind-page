@@ -937,10 +937,8 @@ body {
   background-color: transparent;
   overflow-x: hidden;
   overflow-y: scroll;
-  word-break: keep-all;
-  & > * {
-    overflow-wrap: break-word;
-  }
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 :root {
   &.loading {
@@ -3583,6 +3581,7 @@ label,
         text-align: center;
         color: var(--main-color-deep);
         font-size: 1.5rem;
+        word-break: keep-all;
       }
       .description {
         font-size: 1.25rem;
