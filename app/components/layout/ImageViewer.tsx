@@ -206,7 +206,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
               </Link>
             </div>
           ) : null}
-          <div className="gray right">
+          <div className="right">
             <LikeButton url={"?image=" + image.key} />
             {image.time ? (
               <span className="time">
@@ -214,18 +214,20 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                 <span>{image.time.toLocaleString("ja-JP", opt)}</span>
               </span>
             ) : null}
-            {image.embed ? (
-              image.type === "ebook" || image.type === "multi" ? (
+            <ShareButton />
+          </div>
+          {image.embed ? (
+            <div className="right">
+              {image.type === "ebook" || image.type === "multi" ? (
                 <span>
                   {image.type === "ebook"
                     ? "本のマークから読むことができる"
                     : "画像マークから複数画像が見れる"}
                   作品です！
                 </span>
-              ) : null
-            ) : null}
-            <ShareButton />
-          </div>
+              ) : null}
+            </div>
+          ) : null}
           {image.copyright ? (
             <div className="gray right">
               <div className="copyright">
