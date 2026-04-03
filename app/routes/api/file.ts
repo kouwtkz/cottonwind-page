@@ -126,8 +126,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   entry.key = key;
                   await TableObject.Insert({ db, entry });
                 }
+                return Response.json({...value, ...entry});
               }
-              return new Response("");
+              return Response.json({});
             }
           }
           case "DELETE": {

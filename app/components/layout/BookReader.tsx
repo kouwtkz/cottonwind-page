@@ -32,51 +32,91 @@ export function BookReader() {
     else return "";
   }, [file, mediaOrigin]);
   const isHashLaymic = useMemo(() => hash === "#laymic", [hash]);
+  const mode = useMemo(() => {
+    if (/\.epub/i.test(url)) return "epub";
+    else if (/\.zip/i.test(url)) return "zip";
+  }, [url]);
   useEffect(() => {
     (async () => {
-      if (isHashLaymic && /\.epub/i.test(url) && backRenderElm.current) {
-        const book = ePub(url);
-        const rendition = book.renderTo(backRenderElm.current);
-        const reading = toast("読み込み中…");
-        rendition.display().then(() => {
-          toast.dismiss(reading);
-          setMetadata(book.packaging.metadata);
-          const resources = book.resources;
-          if ("assets" in resources) {
-            const assets = resources.assets;
-            Promise.all(
-              assets
-                .filter(({ type }) => type !== "text/css")
-                .map(
-                  (item) =>
-                    new Promise<any>((resolve) => {
-                      resources.get(item.href).then((url) => {
-                        resolve({ url, ...item });
-                      });
+      if (isHashLaymic) {
+        if (mode === "epub" && backRenderElm.current) {
+          const book = ePub(url);
+          const rendition = book.renderTo(backRenderElm.current);
+          const reading = toast("読み込み中…");
+          rendition.display().then(() => {
+            toast.dismiss(reading);
+            setMetadata(book.packaging.metadata);
+            const resources = book.resources;
+            if ("assets" in resources) {
+              const assets = resources.assets;
+              Promise.all(
+                assets
+                  .filter(({ type }) => type !== "text/css")
+                  .map(
+                    (item) =>
+                      new Promise<any>((resolve) => {
+                        resources.get(item.href).then((url) => {
+                          resolve({ url, ...item });
+                        });
+                      }),
+                  ),
+              ).then((newAssets) => {
+                const pages = newAssets.map(({ type, url, href }, i) =>
+                  type.startsWith("image") ? (
+                    url
+                  ) : (
+                    <iframe
+                      style={{ width: "100%", height: "100%", margin: "auto" }}
+                      title={href}
+                      key={i}
+                      src={url}
+                    />
+                  ),
+                );
+                setSrcList(pages);
+              });
+            }
+          });
+        } else if (mode === "zip") {
+          const reading = toast("読み込み中…");
+          const zip = new JSZip();
+          fetch(url)
+            .then((r) => r.arrayBuffer())
+            .then((file) =>
+              zip.loadAsync(file).then((value) => {
+                Promise.all(
+                  Object.entries(value.files)
+                    .filter(
+                      ([K, v]) =>
+                        !v.dir && /\.(png|jpe?g|gif|webp)$/.test(v.name),
+                    )
+                    .map(([k, v], i) => {
+                      return { name: k, content: v.async("blob") };
                     })
-                )
-            ).then((newAssets) => {
-              const pages = newAssets.map(({ type, url, href }, i) =>
-                type.startsWith("image") ? (
-                  url
-                ) : (
-                  <iframe
-                    style={{ width: "100%", height: "100%", margin: "auto" }}
-                    title={href}
-                    key={i}
-                    src={url}
-                  />
-                )
-              );
-              setSrcList(pages);
+                    .map<Blob>((v) => v.content),
+                ).then((list) => {
+                  const pages = list.map((blob) => URL.createObjectURL(blob));
+                  setSrcList(pages);
+                });
+              }),
+            )
+            .finally(() => {
+              toast.dismiss(reading);
             });
-          }
-        });
+        }
       } else {
         setSrcList(null);
       }
     })();
-  }, [url, isHashLaymic]);
+  }, [url, mode, isHashLaymic]);
+  const viewerDirection = useMemo<"vertical" | "horizontal" | undefined>(() => {
+    switch (mode) {
+      case "epub":
+        return "horizontal";
+      case "zip":
+        return "vertical";
+    }
+  }, [mode]);
   const laymicContent = useMemo(() => {
     if (srcList) {
       const laymicContent = new laymic.Laymic(
@@ -84,17 +124,18 @@ export function BookReader() {
         {
           isInstantOpen: false,
           isLTR: metadata?.direction === "ltr",
+          viewerDirection,
           classNames: {
             thumbs: {
               ...defaultLaymicClassNames.thumbs,
               wrapper: "laymic_thumbsWrapper window",
             },
           },
-        }
+        },
       );
       return laymicContent;
     } else return null;
-  }, [srcList, metadata]);
+  }, [srcList, metadata, viewerDirection]);
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
     (globalThis as any).laymicContent = laymicContent;

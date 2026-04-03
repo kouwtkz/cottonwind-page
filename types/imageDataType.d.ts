@@ -24,12 +24,13 @@ interface ImageDataType {
   mtime?: string;
   lastmod: string;
 }
-interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawDataType<ImageDataType> {
+interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
   characterObjects?: CharacterType[];
   characterNameGuides?: string[];
+  type?: imageKindType;
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;
@@ -77,6 +78,7 @@ interface imageUpdateJsonDataType extends Omit<ImageType, "width" | "height" | "
 }
 
 type imageModeType = "src" | "thumbnail";
+type imageKindType = "illust" | "ebook" | "goods" | "movie" | "picture" | "3d" | "material" | "embed" | "other";
 
 /** @comments ひとつのアルバムの変数 */
 interface MediaImageAlbumType {

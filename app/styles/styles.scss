@@ -2310,6 +2310,12 @@ footer {
 
 .laymic_root {
   z-index: 10000;
+  &.laymic_isVertView {
+    .swiper-slide {
+      max-width: max-content;
+      width: 100vw;
+    }
+  }
 }
 
 input,

@@ -4,6 +4,7 @@ import {
   type HTMLAttributes,
   useMemo,
   useRef,
+  useCallback,
 } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
@@ -67,6 +68,7 @@ import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import {
   apiOrigin,
+  filesDataIndexed,
   imageDataIndexed,
   mediaOrigin,
 } from "~/data/ClientDBLoader";
@@ -88,6 +90,7 @@ import { RiVideoOnLine, RiVideoUploadLine } from "react-icons/ri";
 import { repostThumbnail } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
+import { FilesUpload } from "~/page/edit/FilesEdit";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -509,6 +512,94 @@ export default function ImageEditForm({
     },
     optionsPP,
   );
+  const UploadFileElm = useCallback(
+    ({
+      className,
+      children = <MdFileUpload />,
+    }: {
+      className?: string;
+      children?: React.ReactNode;
+    }) => (
+      <button
+        title="ファイルを埋め込む"
+        type="button"
+        className={className}
+        key="embedFile"
+        onClick={() => {
+          if (image)
+            fileDialog("*", true)
+              .then((files) => {
+                if (files.length > 0) {
+                  if (files.length === 1) {
+                    return files.item(0)!;
+                  } else {
+                    const zip = new JSZip();
+                    Array.from(files).forEach((file) => {
+                      zip.file(file.name, file);
+                    });
+                    return zip.generateAsync({ type: "blob" }).then((file) => {
+                      return new File([file], image.key + "_embed.zip", {
+                        type: file.type,
+                      });
+                    });
+                  }
+                } else {
+                  throw "";
+                }
+              })
+              .then(async (file) => {
+                let imageOnlyZip = false;
+                if (
+                  file.type === "application/zip" ||
+                  file.type === "application/x-zip-compressed"
+                ) {
+                  const zip = new JSZip();
+                  imageOnlyZip = true;
+                  await zip.loadAsync(file).then((value) => {
+                    const list = Object.entries(value.files).filter(
+                      ([K, v]) => {
+                        if (v.dir) return false;
+                        else {
+                          console.log(v);
+                          const f = /\.(png|jpe?g|gif|webp)$/.test(v.name);
+                          imageOnlyZip = imageOnlyZip && f;
+                          return f;
+                        }
+                      },
+                    );
+                    if (imageOnlyZip && list.length === 0) imageOnlyZip = false;
+                  });
+                }
+                return FilesUpload({ files: [file] })
+                  .then<FilesRecordDataType>((e) => {
+                    filesDataIndexed.load("no-cache");
+                    return e.results[0].json();
+                  })
+                  .then((json) => {
+                    const entryData = {
+                      id: image.id,
+                      embed: json.key,
+                    } as imageUpdateJsonDataType;
+                    if (imageOnlyZip) {
+                      entryData.type = "ebook";
+                    }
+                    return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+                      data: entryData,
+                      method: "PATCH",
+                      cors: true,
+                    });
+                  })
+                  .then(() => {
+                    imageDataIndexed.load("no-cache");
+                  });
+              });
+        }}
+      >
+        {children}
+      </button>
+    ),
+    [image],
+  );
 
   return (
     <>
@@ -519,6 +610,7 @@ export default function ImageEditForm({
               title="画像を置き換える"
               type="button"
               className="color round rb"
+              key="replaceImage"
               onClick={() => {
                 if (image)
                   fileDialog("image/*")
@@ -541,6 +633,7 @@ export default function ImageEditForm({
               title="サムネイルを置き換えアップロードする"
               type="button"
               className="color round rb"
+              key="replaceThumbnail"
               onClick={() => {
                 if (image)
                   fileDialog("image/*")
@@ -563,6 +656,7 @@ export default function ImageEditForm({
               title="サムネイルを設定しなおす"
               type="button"
               className="color round rb"
+              key="resetThumbnail"
               onClick={() => {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
                   repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
@@ -898,12 +992,16 @@ export default function ImageEditForm({
             />
           </div>
         </label>
-        <label>
-          <div className="label">埋め込み</div>
+        <label htmlFor="galleryEditEmbedList">
+          <div className="label">
+            <span>埋め込み</span>
+            <UploadFileElm />
+          </div>
           <div className="wide">
             <input
               title="埋め込み"
               type="text"
+              id="galleryEditEmbedList"
               list="galleryEditEmbedList"
               {...register("embed")}
               disabled={isBusy}
