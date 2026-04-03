@@ -20,13 +20,6 @@ export interface MultiParserWithMediaProps
 export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
   const { imagesMap } = useImageState();
   const { linksMap, verify } = useLinks();
-  const copyAction = useCallback(
-    (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-      const elm = e.target as HTMLElement;
-      if (elm?.dataset.copy) CopyWithToast(elm.dataset.copy);
-    },
-    [],
-  );
   const getImageSrc = useCallback(
     (imageItem: ImageType, baseHref = location.href) => {
       const srcUrl = imageItem.src
@@ -167,15 +160,13 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
             } else if (domNode.attribs.href.startsWith("copy:")) {
               const value = decodeURI(domNode.attribs.href.slice(5));
               return (
-                <span
-                  className="color-deep pointer pre"
-                  onClick={copyAction}
-                  data-copy={value}
+                <a
+                  onClick={() => {
+                    CopyWithToast(value);
+                  }}
                 >
-                  {domNode.children.length
-                    ? domToReact(domNode.children as DOMNode[], options)
-                    : value}
-                </span>
+                  {value}
+                </a>
               );
             }
             break;
