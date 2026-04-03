@@ -48,6 +48,7 @@ import {
   MdCleaningServices,
   MdDeleteForever,
   MdFileUpload,
+  MdFlip,
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
@@ -534,7 +535,7 @@ export default function ImageEditForm({
                     });
               }}
             >
-              <MdFileUpload />
+              <MdFlip />
             </button>
             <button
               title="サムネイルを置き換えアップロードする"
