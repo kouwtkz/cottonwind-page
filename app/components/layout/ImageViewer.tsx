@@ -424,6 +424,14 @@ export function ImageViewerSetParams() {
       setClose();
     }
   }, [imageSParam, albumSParam, groupSParam]);
+  useEffect(() => {
+    if (
+      imageCheckRef.current !== imageSParam ||
+      (imageCheckRef.current && imageParam === undefined)
+    ) {
+      callSetImageViewer();
+    }
+  }, [imageSParam, albumSParam, groupSParam, imageParam]);
   return <></>;
 }
 
