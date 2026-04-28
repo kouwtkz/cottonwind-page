@@ -11,6 +11,7 @@ import { TITLE } from "~/Env";
 export type MetaValuesType =
   | { title: string }
   | { name: string; content: string };
+import { parse } from "marked";
 
 export interface SetRootProps {
   Url?: URL;
@@ -60,7 +61,7 @@ function getMetaFromImage({
     }
     const title = image.title || image.key;
     const tagsOptions = autoFixGalleryTagsOptions(
-      getTagsOptions(defaultGalleryTags)
+      getTagsOptions(defaultGalleryTags),
     );
     const content = (image.tags || "")
       .split(",")
@@ -149,6 +150,9 @@ export function SetMetaDefault({
     list.push(v);
   });
   description = description || env?.DESCRIPTION;
+  if (description) {
+    description = parse(description, { async: false }).replace(/<[^>]+>/g, "");
+  }
   if (description) list.push({ name: "description", content: description });
   if (image) {
     if (typeof image === "string") {
