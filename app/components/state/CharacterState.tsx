@@ -179,7 +179,7 @@ function CharacterDataState() {
         });
       });
     }
-  }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env]);
+  }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env, Set]);
   useEffect(() => {
     if (imagesMap) {
       Set(({ charactersMap, characters }) => {
@@ -204,7 +204,7 @@ function CharacterDataState() {
         });
       });
     }
-  }, [imagesMap]);
+  }, [imagesMap, Set]);
   return <></>;
 }
 

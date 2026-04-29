@@ -231,11 +231,11 @@ function CharacterPageState() {
       }
     }
     setParts(parts);
-  }, [characters, orderBySort, clientShowAll, liked, where, env]);
+  }, [characters, orderBySort, clientShowAll, liked, where, env, setParts]);
   const { Set } = useCharacterPageState();
   useEffect(() => {
     Set({ filters, orderBySort, showAll: clientShowAll, liked, where, parts });
-  }, [filters, orderBySort, clientShowAll, liked, where, parts]);
+  }, [filters, orderBySort, clientShowAll, liked, where, parts, Set]);
   return <></>;
 }
 

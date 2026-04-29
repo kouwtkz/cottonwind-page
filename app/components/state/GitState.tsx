@@ -72,7 +72,7 @@ export default function GitState({ url = defaultUrl }: { url?: string }) {
           setLog(data);
         });
     }
-  }, []);
+  }, [setLog]);
   return <></>;
 }
 

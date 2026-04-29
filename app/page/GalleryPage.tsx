@@ -527,10 +527,10 @@ export function GalleryObject({
       return a;
     }, []);
     Set({ filteredGroups, filteredYearGroups, images });
-  }, [filteredGroups, filteredYearGroups]);
+  }, [filteredGroups, filteredYearGroups, Set]);
   useLayoutEffect(() => {
     Set({ items });
-  }, [items]);
+  }, [items, Set]);
   const yfList = useMemo(
     () => filteredYearGroups.map<ImageType[]>(({ list }) => list || []),
     [filteredYearGroups],

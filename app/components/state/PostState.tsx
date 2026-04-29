@@ -29,6 +29,6 @@ export default function PostState() {
           });
       }
     })();
-  }, [postsData]);
+  }, [postsData, Set]);
   return <></>;
 }

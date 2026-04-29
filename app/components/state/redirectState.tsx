@@ -43,7 +43,7 @@ export default function RedirectState() {
         });
       });
     }
-  }, [redirectsData, env]);
+  }, [redirectsData, env, Set]);
   return (
     <>
       <RedirectCheck />

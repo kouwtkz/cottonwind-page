@@ -44,7 +44,7 @@ export function LikeState() {
         });
       }
     })();
-  }, [likeData]);
+  }, [likeData, Set]);
 
   return <></>;
 }

@@ -58,7 +58,7 @@ function _SetHandle() {
           Set(json as object);
         });
     }
-  }, [handle]);
+  }, [handle, Set]);
   return <></>;
 }
 
@@ -92,7 +92,7 @@ function _SetDidInfo() {
     } else if (did === "") {
       Set({ didInfo: null, endpoint: "" });
     }
-  }, [did]);
+  }, [did, Set]);
   return <></>;
 }
 function _SetDescribe() {
@@ -117,7 +117,7 @@ function _SetDescribe() {
     } else if (did === "" || endpoint === "") {
       Set({ describe: null });
     }
-  }, [did, endpoint]);
+  }, [did, endpoint, Set]);
   return <></>;
 }
 
@@ -157,7 +157,7 @@ function _SetLinkat() {
     } else {
       Set({ linkat: [] });
     }
-  }, [did, endpoint, describe]);
+  }, [did, endpoint, describe, Set]);
   return <></>;
 }
 
@@ -202,7 +202,7 @@ function _GetPosts() {
     } else if (did === "") {
       Set({ posts: [] });
     }
-  }, [did, _getPostProps]);
+  }, [did, _getPostProps, Set]);
   return <></>;
 }
 

@@ -20,7 +20,7 @@ export function ClickEventState() {
     const { x, y, timeStamp } = e;
     const element = document.elementFromPoint(x, y);
     Set({ x, y, element, timeStamp, clicked: true });
-  }, []);
+  }, [Set]);
   useEffect(() => {
     window.addEventListener("click", onClick);
     return () => {

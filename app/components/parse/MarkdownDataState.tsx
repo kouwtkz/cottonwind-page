@@ -31,6 +31,6 @@ export default function MarkdownDataState({ url }: { url: string }) {
         });
       isSet.current = true;
     }
-  });
+  }, [setData]);
   return <></>;
 }

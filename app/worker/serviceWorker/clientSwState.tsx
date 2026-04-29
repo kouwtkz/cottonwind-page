@@ -18,7 +18,7 @@ export function SwState() {
         Set({ regist, sw: regist.active });
       }
     });
-  }, []);
+  }, [Set]);
   const receiveCallback = useCallback(
     (e: MessageEvent<any>) => {
       if (regist && e.source === regist.active) {
@@ -26,7 +26,7 @@ export function SwState() {
         Set(set);
       }
     },
-    [regist]
+    [regist, Set]
   );
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -35,6 +35,6 @@ export function SwState() {
         navigator.serviceWorker.removeEventListener("message", receiveCallback);
       };
     }
-  }, [regist]);
+  }, [regist, Set]);
   return <></>;
 }

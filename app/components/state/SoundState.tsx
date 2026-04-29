@@ -79,6 +79,6 @@ export function SoundState() {
         }
       }
     })();
-  }, [soundsData, soundAlbumsData, RegistPlaylist]);
+  }, [soundsData, soundAlbumsData, RegistPlaylist, Set]);
   return <></>;
 }

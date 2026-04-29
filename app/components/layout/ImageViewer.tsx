@@ -500,21 +500,14 @@ export function ImageViewer() {
 
 export function ImageViewerSetParams() {
   const searchParams = useSearchParams()[0];
-  const {
-    setOpen,
-    Set: setImageViewer,
-    setClose,
-    imageParam,
-  } = useImageViewer();
+  const { setOpen, Set: setImageViewer, setClose } = useImageViewer();
   const imageSParam = useMemo(() => searchParams.get("image"), [searchParams]);
   const albumSParam = useMemo(() => searchParams.get("album"), [searchParams]);
   const groupSParam = useMemo(
     () => searchParams.get("group") ?? albumSParam,
     [searchParams, albumSParam],
   );
-  const imageCheckRef = useRef<string | null>(null);
-  const callSetImageViewer = useCallback(() => {
-    imageCheckRef.current = imageSParam;
+  useEffect(() => {
     if (imageSParam) {
       setImageViewer({
         imageParam: imageSParam,
@@ -525,15 +518,7 @@ export function ImageViewerSetParams() {
     } else {
       setClose();
     }
-  }, [imageSParam, albumSParam, groupSParam]);
-  useEffect(() => {
-    if (
-      imageCheckRef.current !== imageSParam ||
-      (imageCheckRef.current && imageParam === undefined)
-    ) {
-      callSetImageViewer();
-    }
-  }, [imageSParam, albumSParam, groupSParam, imageParam]);
+  }, [imageSParam, albumSParam, groupSParam, setImageViewer, setOpen]);
   return <></>;
 }
 

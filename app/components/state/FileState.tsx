@@ -1,4 +1,4 @@
-import {
+import React, {
   type HTMLAttributes,
   useEffect,
   useState,
@@ -9,27 +9,26 @@ import { filesDataIndexed, mediaOrigin } from "~/data/ClientDBLoader";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
+import { type MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { customFetch } from "../functions/fetch";
 
+type IdbTableType = MeeIndexedDBTable<FilesRecordType>;
 interface FilesState {
   files?: FilesRecordType[];
   filesMap?: Map<string, FilesRecordType>;
-  filesData?: MeeIndexedDBTable<FilesRecordType>;
+  idbTable?: IdbTableType;
 }
 export const useFiles = CreateObjectState<FilesState>();
 
 export default function FileState() {
   const { Set } = useFiles();
   const env = useEnv()[0];
-  const filesData = useSyncExternalStore(
-    ...ExternalStoreProps(filesDataIndexed),
-  );
+  const data = useSyncExternalStore(...ExternalStoreProps(filesDataIndexed));
   useEffect(() => {
-    if (filesData?.db && env) {
+    if (data?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
-      filesData.getAll().then((items) => {
+      data.getAll().then((items) => {
         items.forEach((v) => {
           if (!v.src) return;
           const item: FilesRecordType = {
@@ -43,10 +42,10 @@ export default function FileState() {
             filesMap.set(key, item);
           }
         });
-        Set({ filesData, filesMap, files: Array.from(filesMap.values()) });
+        Set({ idbTable: data, filesMap, files: Array.from(filesMap.values()) });
       });
     }
-  }, [filesData, env]);
+  }, [data, env, Set]);
   return <></>;
 }
 

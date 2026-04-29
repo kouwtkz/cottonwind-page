@@ -1,4 +1,4 @@
-import {
+import React, {
   type ReactNode,
   useCallback,
   useEffect,
@@ -40,13 +40,16 @@ import { customFetch } from "../functions/fetch";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { GetAPIFromOptions, KeyValueDBDataOptions } from "~/data/DataEnv";
 import { useHotkeys } from "react-hotkeys-hook";
+import { type MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 
 const SEND_API = GetAPIFromOptions(KeyValueDBDataOptions, "/send");
 
+type IdbTableType = MeeIndexedDBTable<KeyValueDBType>;
 export const useKeyValueDB = CreateObjectState<{
   kvList?: KeyValueDBType[];
   kvMap?: Map<string, KeyValueDBType>;
   isLoading: boolean;
+  idbTable?: IdbTableType;
 }>({ isLoading: true });
 
 type EditType = "text" | "textarea" | "image";
@@ -69,10 +72,11 @@ export function KeyValueDBState() {
             parsedData.filter((v) => v.key).map((v) => [v.key!, v]),
           ),
           isLoading: false,
+          idbTable: data,
         });
       });
     }
-  }, [data]);
+  }, [Set, data]);
   const { edit } = useKeyValueEdit();
   return <>{edit ? <KeyValueEdit /> : null}</>;
 }
@@ -602,6 +606,7 @@ function KeyValueEditableMain({
       title,
       placeholder,
       isFirstSelection,
+      Set,
     ],
   );
   return (

@@ -315,7 +315,7 @@ export function HomeImageState() {
         }
       });
     }
-  }, [images, timeframeTag]);
+  }, [images, timeframeTag, setTopImage]);
   return <></>;
 }
 export const HomeImage = React.memo(function HomeImage({

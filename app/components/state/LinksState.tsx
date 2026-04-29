@@ -157,7 +157,7 @@ export function LinksState() {
         setLinks(result);
       });
     }
-  }, [linksData, imagesMap]);
+  }, [linksData, imagesMap, setLinks]);
   const { Set: setFavLinks } = useFavLinks();
   const favLinksData = useSyncExternalStore(
     ...ExternalStoreProps(favLinksDataIndexed),
@@ -168,6 +168,6 @@ export function LinksState() {
         setFavLinks(result);
       });
     }
-  }, [favLinksData, imagesMap]);
+  }, [favLinksData, imagesMap, setFavLinks]);
   return <></>;
 }

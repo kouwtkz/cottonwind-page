@@ -363,7 +363,7 @@ export function SoundPlayer() {
   }, [intervalState, stopped, audioElm]);
   useEffect(() => {
     Set({ sound });
-  }, [sound]);
+  }, [sound, Set]);
 
   const artwork = useMemo(
     () =>

@@ -1,7 +1,9 @@
 import {
   create,
   type StateCreator,
+  type StoreApi,
   type StoreMutatorIdentifier,
+  type UseBoundStore,
 } from "zustand";
 
 type SetStateAction<S> = S | ((prevState: S) => S);
@@ -10,11 +12,11 @@ type SetStateActionOptional<S> = S | ((prevState?: S) => S);
 type DispatchOptional<A> = (value?: A) => void;
 export type CreateStateFunctionType<T> = () => [
   T | undefined,
-  Dispatch<SetStateAction<T>>
+  Dispatch<SetStateAction<T>>,
 ];
 type CreateStateFunctionOptionalType<T> = () => [
   T | undefined,
-  DispatchOptional<SetStateActionOptional<T>>
+  DispatchOptional<SetStateActionOptional<T>>,
 ];
 
 export function CreateState<T = unknown>(): CreateStateFunctionOptionalType<T>;
@@ -45,9 +47,9 @@ type createType<T, Mos extends [StoreMutatorIdentifier, unknown][] = []> =
   | StateCreator<T, [], Mos>;
 
 export function CreateObjectState<T extends object>(
-  t: createType<T> = {} as T
-) {
-  return create<WithSet<T>>((set, e) => {
+  t: createType<T> = {} as T,
+): UseBoundStore<StoreApi<WithSet<T>>> {
+  const useState = create<WithSet<T>>((set, e) => {
     const _t = typeof t === "function" ? (t as Function)(set) : t;
     return {
       Set(v) {
@@ -60,4 +62,5 @@ export function CreateObjectState<T extends object>(
       ..._t,
     };
   });
+  return useState;
 }

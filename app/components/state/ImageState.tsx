@@ -144,7 +144,7 @@ export function ImageState() {
         });
       });
     }
-  }, [imagesData, imageDataIndexed, likeCategoryMap, charactersMap]);
+  }, [imagesData, imageDataIndexed, likeCategoryMap, charactersMap, Set]);
   return <></>;
 }
 
