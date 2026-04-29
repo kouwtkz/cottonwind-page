@@ -3658,17 +3658,18 @@ label,
       }
       .previousNext {
         font-size: 1.25rem;
-        margin: 0 0 0.5rem;
+        margin: 0 0 0.5em;
         display: flex;
         .icon {
-          font-size: 1.5rem;
-          margin: 0.25rem;
+          font-size: 1.25em;
+          margin: 0.1em;
         }
         a {
+          height: 5rem;
           margin: 0;
           padding-left: 0;
           padding-right: 0;
-          padding: 0.5rem 0;
+          padding: 0;
         }
         > * {
           display: flex;
@@ -3681,11 +3682,12 @@ label,
             flex-direction: column;
             align-items: center;
             span:first-child {
-              font-size: 1.25rem;
-              margin: 0.25rem;
+              font-size: 1.25em;
+              margin: 0.25em;
             }
             span:last-child {
-              font-size: 0.9rem;
+              font-size: 0.9em;
+              margin-bottom: 0.1em;
             }
           }
         }
@@ -3699,6 +3701,7 @@ label,
           flex: 1;
           padding: 0;
           word-break: break-word;
+          font-size: 0.7em;
         }
       }
 
@@ -3728,6 +3731,14 @@ label,
         .description {
           font-size: 1.125rem;
           margin: 0 1rem;
+        }
+        .previousNext {
+          a {
+            height: 5.5rem;
+          }
+          .text {
+            font-size: 1rem;
+          }
         }
       }
     }
