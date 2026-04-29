@@ -329,6 +329,7 @@
 );
 a[href],
 a[role="button"],
+a[data-navlink],
 .pointer,
 .readmore,
 select,
@@ -1214,11 +1215,12 @@ link_hover {
 
 a[href],
 a[role="button"],
+a[data-navlink],
 .link {
   @extend link_hover;
 }
 
-a:not([href]):not([role="button"]),
+a:not([href]):not([role="button"]):not([data-navlink]),
 a:disabled {
   --link-color: var(--main-color-grayish);
 }
