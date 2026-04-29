@@ -1203,8 +1203,11 @@ button,
 link_hover {
   &:hover {
     color: var(--link-color-hover);
-    &.external::after {
-      background-color: var(--link-color-hover);
+    &.external,
+    &.copyable {
+      &::after {
+        background-color: var(--link-color-hover);
+      }
     }
   }
 }
@@ -1220,6 +1223,27 @@ a:disabled {
   --link-color: var(--main-color-grayish);
 }
 
+@mixin afterIconTemplate($externalUrl) {
+  display: inline-flex;
+  align-items: center;
+  &::after {
+    display: inline-block;
+    margin-left: 0.2em;
+    content: "";
+    width: 1em;
+    height: 1em;
+    -webkit-mask-image: url($externalUrl);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-image: url($externalUrl);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: var(--link-color);
+  }
+}
+
 a,
 .link {
   color: var(--link-color);
@@ -1232,34 +1256,21 @@ a,
     padding: 0.4rem 1rem;
     border-radius: 1rem;
     background-color: var(--main-color);
-    &.external::after {
-      background-color: white;
+    &.external,
+    &.copyable {
+      &::after {
+        background-color: white;
+      }
     }
     &:hover {
       background-color: var(--main-color-soft);
     }
   }
   &.external {
-    display: inline-flex;
-    align-items: baseline;
-    &::after {
-      $externalUrl: url("/static/images/svg/external.svg");
-      display: inline-block;
-      margin-left: 0.2em;
-      content: "";
-      width: 1em;
-      height: 1em;
-      -webkit-mask-image: $externalUrl;
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      mask-image: $externalUrl;
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-position: center;
-      background-color: var(--main-color-strong);
-      font-size: 90%;
-    }
+    @include afterIconTemplate("/static/images/svg/external.svg");
+  }
+  &.copyable {
+    @include afterIconTemplate("/static/images/svg/copy.svg");
   }
 }
 
@@ -4817,7 +4828,7 @@ div.bannerArea {
   a {
     display: inline-flex;
     justify-content: center;
-    &:not(.external) {
+    &:not(.external):not(.copyable) {
       align-items: stretch;
     }
   }

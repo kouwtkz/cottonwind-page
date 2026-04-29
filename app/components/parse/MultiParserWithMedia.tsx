@@ -162,6 +162,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
               return (
                 <a
                   role="button"
+                  className="copyable"
                   onClick={() => {
                     CopyWithToast(value);
                   }}
