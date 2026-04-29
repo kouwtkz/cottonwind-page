@@ -161,6 +161,7 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
               const value = decodeURI(domNode.attribs.href.slice(5));
               return (
                 <a
+                  role="button"
                   onClick={() => {
                     CopyWithToast(value);
                   }}

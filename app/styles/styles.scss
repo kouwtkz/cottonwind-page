@@ -328,6 +328,7 @@
   "/static/images/cursor/わたかぜくんカーソル_テキスト選択_00.cur"
 );
 a[href],
+a[role="button"],
 .pointer,
 .readmore,
 select,
@@ -1200,7 +1201,7 @@ button,
 }
 
 link_hover {
-  &[href]:hover {
+  &:hover {
     color: var(--link-color-hover);
     &.external::after {
       background-color: var(--link-color-hover);
@@ -1209,11 +1210,12 @@ link_hover {
 }
 
 a[href],
+a[role="button"],
 .link {
   @extend link_hover;
 }
 
-a:not([href]),
+a:not([href]):not([role="button"]),
 a:disabled {
   --link-color: var(--main-color-grayish);
 }

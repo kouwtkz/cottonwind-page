@@ -35,6 +35,7 @@ export default function ContactPage() {
       {env?.EMAIL ? (
         <p>
           <a
+            role="button"
             onClick={() => {
               CopyWithToast(env.EMAIL!);
             }}
