@@ -71,7 +71,7 @@ export const InPageMenu = memo(function InPageMenu({
       {filterList.map(({ name, element, currentMode }, i) => {
         return (
           <div
-            key={i}
+            key={`inPageMenu_${name}`}
             className={"item cursor-pointer" + (currentMode ? " current" : "")}
             onClick={() => {
               const top = (element.offsetTop || 0) - adjust;

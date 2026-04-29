@@ -157,7 +157,7 @@ export function AuthorHistory({
           }}
         >
           {yearList.map(({ value, label }, i) => (
-            <option key={i} value={String(value)}>
+            <option key={`about_year_${value}`} value={String(value)}>
               {label}
             </option>
           ))}
@@ -172,7 +172,7 @@ export function AuthorHistory({
           value={category}
         >
           {categoriesList.map(({ value, label }, i) => (
-            <option key={i} value={value}>
+            <option key={`about_category_${value}`} value={value}>
               {label}
             </option>
           ))}

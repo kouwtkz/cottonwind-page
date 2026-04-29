@@ -13,7 +13,7 @@ export const useGitState = CreateObjectState<GitStateType>((set) => ({
   isSet: false,
   setLog: (value) => {
     value.list.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
     const lastUpdate = value.list[0].date;
     const list = value.list.map((item) => {
@@ -119,7 +119,7 @@ function GitlogItem({ item }: { item: GitItemJsonType }) {
       />
       <div className="body">
         {readMore ? (
-          item.messages.map((m, i) => <p key={i}>{m}</p>)
+          item.messages.map((m, i) => <p key={`git_${item.date}`}>{m}</p>)
         ) : (
           <>
             <p>
@@ -150,7 +150,7 @@ function MonthItem({
   };
   const monthDateCount = useMemo(
     () => value.reduce((a, c) => a + c.messages.length, 1),
-    [value]
+    [value],
   );
   return (
     <div className={"monthItem" + (readMore ? " open" : "")}>
@@ -160,7 +160,7 @@ function MonthItem({
         onClick={handleToggle}
       />
       {readMore
-        ? value.map((item, i) => <GitlogItem key={i} item={item} />)
+        ? value.map((item, i) => <GitlogItem key={`git_${item.date}`} item={item} />)
         : null}
     </div>
   );
@@ -186,7 +186,7 @@ function YearItem({
       />
       {readMore
         ? value.map((item, i) => (
-            <MonthItem item={item} key={i} opened={opened && i === 0} />
+            <MonthItem item={item} key={`git_month_${item.month}`} opened={opened && i === 0} />
           ))
         : null}
     </div>
@@ -223,7 +223,7 @@ export function ChangeLog() {
           </div>
           <div className="list">
             {git.ymlist.map((item, i) => (
-              <YearItem item={item} key={i} opened={i === 0} />
+              <YearItem item={item} key={`git_year_${item.year}`} opened={i === 0} />
             ))}
           </div>
         </>

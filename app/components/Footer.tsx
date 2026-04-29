@@ -61,7 +61,7 @@ export function LinksList({
           {myLinks
             .filter((link) => !link.none)
             .map((link, i) => (
-              <li key={i} hidden={link.hidden}>
+              <li key={`footer_${i}_${link}`} hidden={link.hidden}>
                 <a
                   title={link.title || link.name}
                   href={link.url}

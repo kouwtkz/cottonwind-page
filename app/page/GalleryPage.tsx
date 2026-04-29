@@ -858,7 +858,7 @@ function GalleryBody({
       hideWhenEmpty ? yfList[i].length : true,
     )
     .map(({ i, ...item }) => (
-      <div key={i}>
+      <div key={`gallery_item_${item.name}`}>
         {isLogin ? (
           <UploadChain item={item}>
             <GalleryContent
@@ -1396,7 +1396,7 @@ export function GalleryYearFilter({
       onChange={changeHandler}
     >
       {yearList.map(({ value, label }, i) => (
-        <option key={i} value={value}>
+        <option key={`gallery_year_${value}`} value={value}>
           {label}
         </option>
       ))}

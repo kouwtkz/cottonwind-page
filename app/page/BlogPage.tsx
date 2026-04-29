@@ -290,7 +290,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
               ? [post.category]
               : post.category
             ).map((category, i) => (
-              <div key={i}>
+              <div key={`post_category_${category}`}>
                 <Link
                   to={ToHref({
                     pathname: "/blog",

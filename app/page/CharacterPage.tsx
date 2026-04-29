@@ -442,7 +442,7 @@ function CharaListPage() {
             if (items) movedParts.current[i] = items;
           }
           return (
-            <div key={i}>
+            <div key={`character_label_${label}`}>
               {label ? <h2 className="color-main">{label}</h2> : null}
               <ul className={charaListClassName}>
                 {move ? (
@@ -691,7 +691,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     else return { value: tag };
                   })
                   .map((tag, i) => (
-                    <Link key={i} to={`/character?tags=${tag.value}`}>
+                    <Link key={`character_tag_${tag}`} to={`/character?tags=${tag.value}`}>
                       #{tag.label || tag.value}
                     </Link>
                   ))}

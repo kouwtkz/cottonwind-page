@@ -309,7 +309,7 @@ export function ClientDBState() {
   return (
     <>
       {IdbStateClassList.map((obj, i) => (
-        <Effect obj={obj} key={i} />
+        <Effect obj={obj} key={`idbObject_${obj.key}`} />
       ))}
     </>
   );

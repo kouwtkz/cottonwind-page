@@ -247,7 +247,7 @@ function RedirectManager() {
           <tbody>
             {redirects?.map((item, i) => {
               return (
-                <tr key={i} tabIndex={-1}>
+                <tr key={`redirect_${item.path}`} tabIndex={-1}>
                   <td className="name">{item.path}</td>
                   <td className="to">{item.redirect}</td>
                   <td>

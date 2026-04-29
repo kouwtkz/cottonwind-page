@@ -796,7 +796,7 @@ function CalendarSettingForm() {
             </li>
             <p>GoogleカレンダーIDの設定</p>
             {[1, 2, 3, 4].map((i) => (
-              <li key={i}>
+              <li key={`calenderId_${i}`}>
                 <label>
                   <span className="label-l">{i}つめのID</span>
                   <input

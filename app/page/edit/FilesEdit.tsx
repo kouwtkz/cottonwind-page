@@ -77,7 +77,7 @@ export function FilesManager() {
   const [searchParams, setSearchParams] = useSearchParams();
   const dirParam = useMemo(
     () => (searchParams.get("dir") || filesDefaultDir).replace(/^\/+/, ""),
-    [searchParams]
+    [searchParams],
   );
   const setDirParam = useDirParam()[1];
   useEffect(() => {
@@ -128,7 +128,7 @@ export function FilesManager() {
         filesDataIndexed.load("no-cache");
       });
     },
-    [dirParam]
+    [dirParam],
   );
   const onUploadSelect = useCallback(async () => {
     fileDialog("*", true)
@@ -202,14 +202,17 @@ export function FilesManager() {
                     if (c.path !== filesDefaultDir)
                       newSearchParams.set("dir", c.path);
                     a.push(
-                      <Link key={i} to={{ search: newSearchParams.toString() }}>
+                      <Link
+                        key={`dir_${c.path}`}
+                        to={{ search: newSearchParams.toString() }}
+                      >
                         {c.name}
-                      </Link>
+                      </Link>,
                     );
                   } else {
-                    a.push(<span key={i}>{c.name}</span>);
+                    a.push(<span key={`dir_${c.name}`}>{c.name}</span>);
                   }
-                  a.push(<span key={i + "-slash"}>/</span>);
+                  a.push(<span key={`dir_${i}-slash`}>/</span>);
                   return a;
                 }, [])}
                 <form
@@ -275,7 +278,7 @@ export function FilesManager() {
                   else newSearchParams.set("dir", "/");
                 }
                 return (
-                  <tr key={i} tabIndex={-1}>
+                  <tr key={`file_${link}`} tabIndex={-1}>
                     <td className="name">
                       <Link
                         to={{ search: newSearchParams.toString() }}
@@ -296,11 +299,11 @@ export function FilesManager() {
                 const dateShortStr = dateStr?.split(" ", 1)[0];
                 const Url = new URL(
                   concatOriginUrl(mediaOrigin, file.src),
-                  location.href
+                  location.href,
                 );
                 const url = Url.toString();
                 return (
-                  <tr key={i} tabIndex={-1}>
+                  <tr key={`file_${url}`} tabIndex={-1}>
                     <td className="name">{file.key}</td>
                     <td title={dateStr}>{dateShortStr}</td>
                     <td className="buttons">
@@ -367,7 +370,7 @@ export async function FilesUploadProcess({
     return formData;
   });
   const fetchList = formDataList.map(
-    (body) => () => customFetch(url, { method: "POST", body, cors: true })
+    (body) => () => customFetch(url, { method: "POST", body, cors: true }),
   );
   const results = await PromiseOrder(fetchList, { sleepTime, minTime });
   const successCount = results.filter((r) => r.status === 200).length;
@@ -417,11 +420,11 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
   const { files } = useFiles();
   const fileIndex = useMemo(
     () => files?.findIndex((v) => v.id === edit),
-    [files, edit]
+    [files, edit],
   );
   const fileItem = useMemo(
     () => (files && typeof fileIndex === "number" ? files[fileIndex] : null),
-    [files, fileIndex]
+    [files, fileIndex],
   );
   const item = useMemo(() => files?.find((v) => v.id === edit), [files, edit]);
   const ext = useMemo(() => (item?.src ? getExtension(item.src) : ""), [item]);
@@ -436,7 +439,7 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
   useEffect(() => {
     if (targetLastmod.current) {
       setEdit(
-        files?.find((v) => v.rawdata?.lastmod === targetLastmod.current)?.id
+        files?.find((v) => v.rawdata?.lastmod === targetLastmod.current)?.id,
       );
       targetLastmod.current = null;
     }
@@ -448,7 +451,7 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
       private: fileItem?.private || false,
       text: "",
     }),
-    [fileItem, dirParam]
+    [fileItem, dirParam],
   );
   const {
     register,
@@ -513,7 +516,7 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
         pending: "送信中",
         success: "送信しました",
         error: "送信に失敗しました",
-      }
+      },
     );
   }
   useHotkeys(
@@ -521,7 +524,7 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
     (e) => {
       if (isDirty) handleSubmit(Submit)();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {

@@ -170,7 +170,7 @@ export function MyBanners() {
         ) : (
           <>
             {myBanners.map((image, i) => (
-              <li key={i}>
+              <li key={`my_banner_${image.key}`}>
                 <MyBannerInner item={image} />
               </li>
             ))}
@@ -379,7 +379,7 @@ export function SimpleLinks({
     <InnerLinksContainer {...props}>
       <ul className={className}>
         {links?.map((v, i) => (
-          <li key={i}>
+          <li key={`simple_link_item_${v.id || v.key}`}>
             <LinksInner
               item={v}
               state={state}
@@ -528,7 +528,7 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
         ) : (
           <>
             {links?.map((v, i) => (
-              <li key={i}>
+              <li key={`editable_link_item_${v.id || v.key}`}>
                 <LinksInner
                   item={v}
                   state={state}
@@ -714,7 +714,7 @@ export function Linkat({ hideHeader }: { hideHeader?: boolean }) {
             {list.map((item, i) => {
               const image = linkatAlbum?.list.find((v) => v.link === item.url);
               return (
-                <li key={i}>
+                <li key={`linkat_item_${item.url}`}>
                   <a
                     href={item.url}
                     title={item.text}

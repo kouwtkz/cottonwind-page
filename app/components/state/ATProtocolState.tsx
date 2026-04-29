@@ -425,7 +425,7 @@ function PostItem({
             {post.embed.$type === "app.bsky.embed.images#view" &&
             post.embed.images.length > 0
               ? post.embed.images.map((image, i) => (
-                  <div className="imageItem" key={i}>
+                  <div className="imageItem" key={`image_${image.thumb}`}>
                     <img
                       alt={image.alt}
                       src={image.thumb}

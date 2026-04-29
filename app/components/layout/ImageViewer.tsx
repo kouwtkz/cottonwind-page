@@ -142,7 +142,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                     return true;
                   }}
                   className="character"
-                  key={i}
+                  key={`character_tag_${chara.key}`}
                 >
                   {chara?.icon ? (
                     <ImageMee
@@ -175,7 +175,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                   to={new URL("?" + search.toString(), tagsBaseURL).href}
                   className="other"
                   preventScrollReset={false}
-                  key={i}
+                  key={`other_tag_${item.label || i}`}
                 >
                   <span>{item.label}</span>
                 </Link>
@@ -193,7 +193,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                     tagsBaseURL,
                   ).href
                 }
-                key={i}
+                key={`tag_${tag}`}
               >
                 #{tag}
               </Link>
@@ -243,7 +243,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                         tagsBaseURL,
                       ).href
                     }
-                    key={i}
+                    key={`copyright_${value}`}
                   >
                     {value}
                   </Link>

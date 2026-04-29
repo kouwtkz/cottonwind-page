@@ -71,7 +71,7 @@ export function SoundPage() {
         .map((album, i) => {
           const playlist = album.playlist!;
           return (
-            <div key={i} className="playlist">
+            <div key={`sound_playlist_${album.key}`} className="playlist">
               <h3
                 className={"label" + (isEdit ? " cursor-pointer" : "")}
                 onClick={() => {
@@ -85,7 +85,7 @@ export function SoundPage() {
                   const itemPaused = sound.src === src ? paused : true;
                   return (
                     <div
-                      key={i}
+                      key={`sound_item_${sound.key}`}
                       className={
                         "item cursor-pointer" + (itemPaused ? " paused" : "")
                       }

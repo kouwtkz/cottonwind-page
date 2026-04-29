@@ -50,13 +50,13 @@ export function SiteMenu() {
           if (item.url) {
             if (item.out) {
               return (
-                <a key={i} href={item.url} className="item">
+                <a key={`tag_${item.name}`} href={item.url} className="item">
                   {(item.short || item.name).toUpperCase()}
                 </a>
               );
             } else {
               return (
-                <Link key={i} to={item.url} className="item">
+                <Link key={`tag_${item.name}`} to={item.url} className="item">
                   {(item.short || item.name).toUpperCase()}
                 </Link>
               );
@@ -66,18 +66,18 @@ export function SiteMenu() {
               switch (item.name) {
                 case "color":
                   return (
-                    <ThemeChangeButton key={i} className="item theme">
+                    <ThemeChangeButton key={`tag_${item.name}`} className="item theme">
                       {item.name}
                     </ThemeChangeButton>
                   );
                 case "dark":
                   return (
-                    <DarkThemeChangeButton key={i} className="item theme">
+                    <DarkThemeChangeButton key={`tag_${item.name}`} className="item theme">
                       {item.name}
                     </DarkThemeChangeButton>
                   );
                 default:
-                  return <SiteMenuSwitchButtons key={i} />;
+                  return <SiteMenuSwitchButtons key={`tag_${item.name}`} />;
               }
             }
           }

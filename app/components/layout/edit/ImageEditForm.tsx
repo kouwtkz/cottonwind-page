@@ -859,7 +859,7 @@ export default function ImageEditForm({
                 )
               </option>
               {TypeTagsOption.map((v, i) => (
-                <option value={v.value} key={i}>
+                <option value={v.value} key={`type_${i}_${v.value}`}>
                   {v.label}
                 </option>
               ))}
@@ -1009,7 +1009,7 @@ export default function ImageEditForm({
             <datalist id="galleryEditEmbedList">
               {embedList.map((file, i) => {
                 return (
-                  <option key={i} value={file.key}>
+                  <option key={`files_${i}_${file.key}`} value={file.key}>
                     {file.src || file.key}
                   </option>
                 );
@@ -1040,7 +1040,10 @@ export default function ImageEditForm({
               ? Object.values(Object.fromEntries(albums))
                   .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
                   .map((album, i) => (
-                    <option key={i} value={album.name}>
+                    <option
+                      key={`image_album_${i}_${album.name}`}
+                      value={album.name}
+                    >
                       {album.name}
                     </option>
                   ))

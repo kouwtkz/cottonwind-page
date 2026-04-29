@@ -68,7 +68,7 @@ export function BookReader() {
                     <iframe
                       style={{ width: "100%", height: "100%", margin: "auto" }}
                       title={href}
-                      key={i}
+                      key={`bookReader_iframe_${i}_${href}`}
                       src={url}
                     />
                   ),

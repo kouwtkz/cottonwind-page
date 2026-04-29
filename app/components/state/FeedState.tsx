@@ -42,7 +42,7 @@ export function NoteView() {
       </h3>
       <div className="list">
         {list?.slice(0, 3).map(({ date, link, title }, i) => (
-          <a href={link} className="article" target="note" key={i}>
+          <a href={link} className="article" target="note" key={`article_${link}`}>
             <div className="date">
               {new Date(date).toLocaleDateString("ja-JP")}
             </div>
