@@ -14,6 +14,8 @@ interface ImageDataType {
   link?: string | null;
   embed?: string | null;
   type?: string | null;
+  series?: string | null;
+  chapture?: number | null;
   order?: number | null;
   topImage?: number | null;
   pickup?: number | null;
@@ -31,6 +33,8 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "type" |
   characterObjects?: CharacterType[];
   characterNameGuides?: string[];
   type?: imageKindType;
+  next?: ImageType;
+  previous?: ImageType;
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;
@@ -47,6 +51,7 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "type" |
   data?: ImageDataType;
   hideInfo?: boolean;
 }
+
 /** @comments ひとつのアルバムの変数 */
 interface ImageAlbumType {
   name: string;

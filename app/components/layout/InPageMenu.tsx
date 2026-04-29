@@ -58,7 +58,7 @@ export const InPageMenu = memo(function InPageMenu({
   }, [parsedList, jy, isLastScroll]);
   const lastHide = useMemo(
     () => Math.ceil(y + wh) >= h - autoLastHide,
-    [y, h, wh, autoLastHide]
+    [y, h, wh, autoLastHide],
   );
   className = useMemo(() => {
     const list = ["InPageMenu en-title-font"];

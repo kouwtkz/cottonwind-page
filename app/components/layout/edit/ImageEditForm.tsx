@@ -34,7 +34,10 @@ import {
   RiFileUploadLine,
   RiFileWordLine,
 } from "react-icons/ri";
-import { GalleryViewerPaging } from "~/components/layout/ImageViewer";
+import {
+  GalleryViewerPaging,
+  useImageViewer,
+} from "~/components/layout/ImageViewer";
 import { useImageState } from "~/components/state/ImageState";
 import {
   defaultGalleryTags,
@@ -135,6 +138,7 @@ export default function ImageEditForm({
   ...args
 }: ImageEditFormProps) {
   const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
+  const { images } = useImageViewer();
   const allTagsOptions = useMemo(
     () => (tagsList ? CountToContentsTagsOption(tagsList) : []),
     [tagsList],
@@ -219,6 +223,8 @@ export default function ImageEditForm({
       tags: image?.tags || [],
       characters: image?.characters || [],
       type: image?.rawdata?.type || "",
+      series: image?.rawdata?.series || "",
+      chapture: image?.rawdata?.chapture || null,
       time: ToFormTime(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
@@ -356,6 +362,24 @@ export default function ImageEditForm({
         ),
       );
   }, [copyrightList]);
+
+  const seriesMap = useMemo(() => {
+    const map = new Map<string, number>();
+    images?.forEach((c) => {
+      if (c.series) {
+        if (map.has(c.series)) map.set(c.series, map.get(c.series)! + 1);
+        else map.set(c.series, 1);
+      }
+    });
+    return map;
+  }, [images]);
+
+  const seriesList = useMemo(() => {
+    return Array.from(seriesMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map((a) => a[0]);
+  }, [images]);
+
   const { charactersMap } = useCharacters();
   const charaFormatOptionLabel = useMemo(() => {
     if (charactersMap) return charaTagsLabel(charactersMap);
@@ -750,7 +774,7 @@ export default function ImageEditForm({
         className={"edit" + (className ? ` ${className}` : "")}
         style={isEdit ? {} : { display: "none" }}
       >
-        <label>
+        <label className="simple">
           <div className="label">タイトル</div>
           <div className="wide">
             <input
@@ -763,7 +787,7 @@ export default function ImageEditForm({
           </div>
         </label>
         <div>
-          <div className="label">
+          <div className="label simple">
             <span>説明文</span>
             <PostEditSelectMedia
               textarea={textareaRef.current}
@@ -780,7 +804,6 @@ export default function ImageEditForm({
             <button
               title="プレビューモードの切り替え"
               type="button"
-              className="color"
               onClick={() => {
                 setPreviewMode((v) => !v);
               }}
@@ -807,6 +830,7 @@ export default function ImageEditForm({
             name="characters"
             labelVisible
             label="キャラクタータグ"
+            labelClassName="simple"
             tags={charaLabelTags}
             control={control}
             setValue={setValue}
@@ -821,6 +845,7 @@ export default function ImageEditForm({
             name="tags"
             labelVisible
             label="その他のタグ"
+            labelClassName="simple"
             tags={currentTagsList}
             set={setStateTags}
             control={control}
@@ -837,6 +862,7 @@ export default function ImageEditForm({
             name="copyright"
             labelVisible
             label="版権タグ（コピーライト）"
+            labelClassName="simple"
             tags={copyrightTags}
             set={setCopyrightTags}
             control={control}
@@ -869,6 +895,31 @@ export default function ImageEditForm({
             <input {...register("draft")} type="checkbox" />
             <span>下書き</span>
           </label>
+        </div>
+        <div className="series">
+          <div className="label-l">シリーズの設定</div>
+          <input
+            title="シリーズ名"
+            type="text"
+            className="flex-1"
+            {...register("series")}
+            disabled={isBusy}
+            list="series-list"
+          />
+          <datalist id="series-list">
+            {seriesList.map((v, i) => (
+              <option key={`series_${i}_${v}`} value={v}>
+                {v}
+              </option>
+            ))}
+          </datalist>
+          <input
+            title="番号"
+            type="number"
+            {...register("chapture")}
+            disabled={isBusy}
+            placeholder="1"
+          />
         </div>
         <div>
           <div className="label">固定設定</div>
@@ -937,7 +988,7 @@ export default function ImageEditForm({
                 ))}
               </select>
             </label>
-            <div className="positionPreview label">
+            <div className="positionPreview label simple">
               {image ? (
                 <div
                   hidden={!isPositionPreview}
@@ -993,7 +1044,7 @@ export default function ImageEditForm({
           </div>
         </label>
         <label htmlFor="galleryEditEmbedList">
-          <div className="label">
+          <div className="label simple">
             <span>埋め込み</span>
             <UploadFileElm />
           </div>

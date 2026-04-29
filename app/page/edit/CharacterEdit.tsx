@@ -393,7 +393,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       title?: string;
     }) => {
       const classNames: string[] = ["color"];
-      if (mode !== "body") classNames.push("normal", "setter");
+      if (mode !== "body") classNames.push("usually", "setter");
       return (
         <button
           className={classNames.join(" ")}
@@ -423,7 +423,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
       if (mode) {
         if (mode === "body") classNames.push("color");
         else {
-          classNames.push("normal", "setter");
+          classNames.push("usually", "setter");
           if (!chara?.[mode]) classNames.push("color");
         }
       }
@@ -560,7 +560,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         <div className="flex column">
           <div className="flex center">
             <label className="inline-flex center flex-1">
-              <span className="label-l normal flex center around">
+              <span className="label-l usually flex center around">
                 アイコン
               </span>
               <input
@@ -579,7 +579,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
-              <span className="label-l normal flex center around">
+              <span className="label-l usually flex center around">
                 ヘッダー画像
               </span>
               <input
@@ -598,7 +598,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
           </div>
           <div className="flex center">
             <label className="inline-flex center flex-1">
-              <span className="label-l normal flex center around">
+              <span className="label-l usually flex center around">
                 メイン画像
               </span>
               <input
@@ -629,7 +629,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               />
             </label>
             <button
-              className="normal setter color"
+              className="usually setter color"
               title="最も古い投稿から自動的に設定する"
               type="button"
               onClick={() => {
@@ -675,6 +675,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
             getValues={getValues}
             placeholder="タグ"
             enableEnterAdd
+            addButtonClassName="color"
             styles={{
               menuList: (style) => ({ ...style, textAlign: "left" }),
               option: (style) => ({ ...style, paddingLeft: "1em" }),

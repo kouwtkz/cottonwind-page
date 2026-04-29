@@ -327,7 +327,7 @@
   "text",
   "/static/images/cursor/わたかぜくんカーソル_テキスト選択_00.cur"
 );
-a,
+a[href],
 .pointer,
 .readmore,
 select,
@@ -408,7 +408,10 @@ textarea,
 }
 
 @mixin SpacingInner($property, $size, $vector: "") {
-  $m: #{0.25 * $size}rem;
+  $m: 0;
+  @if $size != 0 {
+    $m: #{0.25 * $size}rem;
+  }
   @if $vector == "t" {
     #{$property}-top: #{$m};
   } @else if $vector == "b" {
@@ -435,7 +438,8 @@ textarea,
   height: $size;
 }
 
-$m-sizes: 1, 2, 3, 4;
+// mb-1 など
+$m-sizes: 0, 1, 2, 3, 4;
 $m-vectors: "", "t", "b", "l", "r";
 @each $m-vector in $m-vectors {
   @each $m-size in $m-sizes {
@@ -1195,19 +1199,31 @@ button,
   }
 }
 
-a,
-.link {
-  font: inherit;
-  text-decoration: underline;
-  word-break: break-all;
-  color: var(--link-color);
-  cursor: pointer;
-  &:hover {
+link_hover {
+  &[href]:hover {
     color: var(--link-color-hover);
     &.external::after {
       background-color: var(--link-color-hover);
     }
   }
+}
+
+a[href],
+.link {
+  @extend link_hover;
+}
+
+a:not([href]),
+a:disabled {
+  --link-color: var(--main-color-grayish);
+}
+
+a,
+.link {
+  color: var(--link-color);
+  font: inherit;
+  text-decoration: underline;
+  word-break: break-all;
   &.roundLink {
     color: white;
     display: inline-block;
@@ -1358,7 +1374,7 @@ h4 {
 
 .switch-img {
   position: relative;
-  img:not(.normal) {
+  img:not(.usually) {
     position: absolute;
     top: 0;
     left: 0;
@@ -1366,7 +1382,7 @@ h4 {
   }
   &:hover {
     img {
-      &.normal {
+      &.usually {
         opacity: 0;
       }
       &.hover {
@@ -2335,6 +2351,10 @@ select {
   }
 }
 
+::placeholder {
+  color: var(--main-color-grayish);
+}
+
 .button-general {
   line-height: 1em;
   padding: 0.5em 1em;
@@ -2653,7 +2673,7 @@ form {
         padding: 0.1em 0.2em;
       }
     }
-    button:not(.normal) {
+    button:not(.usually) {
       padding: 0.4em 1.2em;
       display: inline-flex;
       line-height: 1.25em;
@@ -3209,8 +3229,8 @@ $soundBoxHeight: 10rem;
   }
 }
 
-.label,
-.label-s {
+div.label,
+div.label-s {
   @include MarginInner(1, "b");
 }
 .label-l {
@@ -3244,8 +3264,8 @@ label,
     align-items: center;
     button {
       display: inline-block;
-      margin-left: 0.5rem;
-      padding: 0 0.5rem;
+      margin-left: 0.25rem;
+      padding: 0 0.25rem;
       color: var(--main-color-strong);
       background-color: transparent;
       border: none;
@@ -3615,6 +3635,56 @@ label,
           font-family: sans-serif;
         }
       }
+      .series {
+        text-align: center;
+        margin: 0.5rem;
+        font-size: 1.25rem;
+      }
+      .previousNext {
+        font-size: 1.25rem;
+        margin: 0 0 0.5rem;
+        display: flex;
+        .icon {
+          font-size: 1.5rem;
+          margin: 0.25rem;
+        }
+        a {
+          margin: 0;
+          padding-left: 0;
+          padding-right: 0;
+          padding: 0.5rem 0;
+        }
+        > * {
+          display: flex;
+          justify-content: center;
+          flex: 1;
+          align-items: center;
+          text-align: center;
+          > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            span:first-child {
+              font-size: 1.25rem;
+              margin: 0.25rem;
+            }
+            span:last-child {
+              font-size: 0.9rem;
+            }
+          }
+        }
+        .previous {
+          flex-direction: row;
+        }
+        .next {
+          flex-direction: row-reverse;
+        }
+        .text {
+          flex: 1;
+          padding: 0;
+          word-break: break-word;
+        }
+      }
 
       .right {
         color: var(--main-color-grayish);
@@ -3673,7 +3743,7 @@ label,
         &.next .cursor {
           margin-left: 0.5rem;
         }
-        &:hover {
+        &[href]:hover {
           color: var(--main-color-deep);
           background-color: var(--main-color-pale-fluo);
         }
@@ -3692,12 +3762,17 @@ label,
           margin-top: 1rem;
         }
       }
-      label,
-      .label {
-        @extend label, .simple;
+      button.color.usually {
+        padding: 0.25rem 0.4rem;
+        margin: 0.15rem 0.25rem;
       }
       input[type="text"] {
         padding: 0.25rem 0.5rem;
+      }
+      textarea,
+      .preview-area {
+        height: 16rem;
+        margin: 0rem;
       }
       input,
       select,
@@ -3723,6 +3798,13 @@ label,
       }
       .description {
         min-height: 8rem;
+      }
+      .series {
+        input[type="number"] {
+          padding: 0.25rem;
+          width: 3.5rem;
+          margin-left: 0.25rem;
+        }
       }
       .positionPreview {
         position: relative;
@@ -4167,7 +4249,6 @@ body.workers {
     margin-right: auto;
   }
   .preview-area {
-    height: 20rem;
     overflow-y: scroll;
     text-align: left;
     resize: vertical;

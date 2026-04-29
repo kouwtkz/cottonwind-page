@@ -31,6 +31,7 @@ interface imageStateType {
   copyrightList?: ValueCountType[];
   tagsList?: ValueCountType[];
   simpleDefaultTags?: ContentsTagsOption[];
+  seriesMap?: Map<string, ImageType[]>;
 }
 export const useImageState = CreateObjectState<imageStateType>();
 
@@ -103,11 +104,33 @@ export function ImageState() {
             found.list = v.list;
           }
         });
+        const seriesMap = new Map<string, ImageType[]>();
+        images?.forEach((c) => {
+          if (c.series) {
+            if (seriesMap.has(c.series)) {
+              const list = seriesMap.get(c.series)!;
+              list.push(c);
+              seriesMap.set(c.series, list);
+            } else seriesMap.set(c.series, [c]);
+          }
+        });
+        seriesMap.forEach((v, k, map) => {
+          v.sort((a, b) => (a.chapture || 0) - (b.chapture || 0));
+          map.set(k, v);
+        });
+
         images.forEach((image) => {
           if (image.album) image.albumObject = imageAlbums.get(image.album);
+          if (image.series) {
+            const list = seriesMap.get(image.series)!;
+            const i = list.findIndex((v) => v.key === image.key);
+            image.previous = list[i - 1];
+            image.next = list[i + 1];
+          }
         });
         const copyrightList = getCountList(images || [], "copyright");
         const tagsList = getCountList(images || [], "tags");
+
         Set({
           images,
           imagesMap,
@@ -117,6 +140,7 @@ export function ImageState() {
           imagesLikeData,
           copyrightList,
           tagsList,
+          seriesMap,
         });
       });
     }

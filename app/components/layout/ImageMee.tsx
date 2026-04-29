@@ -311,7 +311,7 @@ export function ImgSwitch({
   return (
     <div className="switch-img">
       {src ? (
-        <img src={src + queryStr} className={className + "normal"} {...args} />
+        <img src={src + queryStr} className={className + "usually"} {...args} />
       ) : null}
       {hoverSrc ? (
         <img

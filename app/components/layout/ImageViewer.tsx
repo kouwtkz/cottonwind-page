@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   createSearchParams,
   Link,
   useLocation,
   useNavigate,
   useSearchParams,
+  type LinkProps,
 } from "react-router";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { SiteDateOptions as opt } from "~/components/functions/DateFunction";
@@ -42,7 +43,11 @@ import { Modal } from "./Modal";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { BookReader } from "./BookReader";
 import { TbHexagon3D } from "react-icons/tb";
-import { PiImagesFill } from "react-icons/pi";
+import {
+  PiCaretLeftFill,
+  PiCaretRightFill,
+  PiImagesFill,
+} from "react-icons/pi";
 
 interface ImageViewerParamType {
   imageParam?: string | null;
@@ -86,6 +91,69 @@ export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   },
 }));
 
+export function ImageViewLink({
+  image,
+  children,
+  ...props
+}: Omit<LinkProps & React.RefAttributes<HTMLAnchorElement>, "to"> & {
+  image: ImageType;
+}) {
+  const searchParams = new URLSearchParams(location.search);
+  searchParams.set("image", image.key);
+  return (
+    <Link to={{ search: searchParams.toString() }} {...props}>
+      {children || image.title || image.key}
+    </Link>
+  );
+}
+
+export function PreviousNextBaseLink({
+  image,
+  mode,
+  type,
+}: {
+  image?: ImageType;
+  mode: "previous" | "next";
+  type?: imageKindType;
+}) {
+  type = useMemo(() => type || image?.type, [type, image]);
+  const typeName = useMemo(() => {
+    if (type === "ebook") return "お話";
+    else return "作品";
+  }, [type]);
+  const labelTitleHigh = useMemo(() => {
+    const prevNextText = mode === "previous" ? "前の" : "次の";
+    return prevNextText + typeName;
+  }, [typeName, mode]);
+  const labelTitleLow = useMemo(() => {
+    if (image) return image.title || image.key;
+    else if (mode === "previous") return `最初の${typeName}です！`;
+    else return `最新の${typeName}です！`;
+  }, [image, typeName]);
+  const inner = (
+    <>
+      <div className="icon">
+        {mode === "previous" ? <PiCaretLeftFill /> : <PiCaretRightFill />}
+      </div>
+      <div className="text">
+        {labelTitleHigh ? <span>{labelTitleHigh}</span> : null}
+        <span>{labelTitleLow}</span>
+      </div>
+    </>
+  );
+  return (
+    <>
+      {image ? (
+        <ImageViewLink image={image} className={mode}>
+          {inner}
+        </ImageViewLink>
+      ) : (
+        <a className={mode}>{inner}</a>
+      )}
+    </>
+  );
+}
+
 interface InfoAreaProps {
   image: ImageType;
   disableHotkeys?: boolean;
@@ -126,6 +194,33 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
         <div className="info">
           {(albumObject?.visible ? albumObject.visible.title : true) ? (
             <h2 className="title">{image.title || image.key}</h2>
+          ) : null}
+          {image.series ? (
+            <div className="series">
+              <span className="label">シリーズ</span>
+              <Link
+                to={{
+                  pathname: "gallery",
+                  search: `?q=series:${image.series}+sort:chapture`,
+                }}
+              >
+                {image.series}
+              </Link>
+            </div>
+          ) : null}
+          {image.previous || image.next ? (
+            <div className="previousNext paging">
+              <PreviousNextBaseLink
+                image={image.previous}
+                mode="previous"
+                type={image.type}
+              />
+              <PreviousNextBaseLink
+                image={image.next}
+                mode="next"
+                type={image.type}
+              />
+            </div>
           ) : null}
           <div className="description">
             <MultiParserWithMedia markdown linkPush linkSame hashtag>
@@ -175,7 +270,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
                   to={new URL("?" + search.toString(), tagsBaseURL).href}
                   className="other"
                   preventScrollReset={false}
-                  key={`other_tag_${item.label || i}`}
+                  key={`tag_${item.label || i}`}
                 >
                   <span>{item.label}</span>
                 </Link>
@@ -405,14 +500,21 @@ export function ImageViewer() {
 
 export function ImageViewerSetParams() {
   const searchParams = useSearchParams()[0];
-  const { setOpen, Set: setImageViewer, setClose } = useImageViewer();
+  const {
+    setOpen,
+    Set: setImageViewer,
+    setClose,
+    imageParam,
+  } = useImageViewer();
   const imageSParam = useMemo(() => searchParams.get("image"), [searchParams]);
   const albumSParam = useMemo(() => searchParams.get("album"), [searchParams]);
   const groupSParam = useMemo(
     () => searchParams.get("group") ?? albumSParam,
     [searchParams, albumSParam],
   );
-  useEffect(() => {
+  const imageCheckRef = useRef<string | null>(null);
+  const callSetImageViewer = useCallback(() => {
+    imageCheckRef.current = imageSParam;
     if (imageSParam) {
       setImageViewer({
         imageParam: imageSParam,
@@ -569,6 +671,7 @@ export function GalleryViewerPaging({
   className,
   onLinkEvent,
   disableHotkeys,
+  image: argsImage,
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();

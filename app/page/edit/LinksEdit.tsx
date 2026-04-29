@@ -287,6 +287,7 @@ function LinksEditMain({
             getValues={getValues}
             placeholder="タグ"
             enableEnterAdd
+            addButtonClassName="color"
             styles={{
               menuList: (style) => ({ ...style, textAlign: "left" }),
               option: (style) => ({ ...style, paddingLeft: "1em" }),

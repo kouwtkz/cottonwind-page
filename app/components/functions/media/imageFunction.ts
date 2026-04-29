@@ -43,7 +43,7 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
   const lastmod = data.lastmod ? new Date(data.lastmod) : undefined;
   return {
     ...data,
-    type: data.type ? data.type : AutoImageItemType(data.embed, albumObject?.type),
+    type: data.type ? data.type as imageKindType : AutoImageItemType(data.embed, albumObject?.type),
     albumObject,
     tags: data.tags?.split(","),
     characters: data.characters?.split(","),
@@ -58,12 +58,14 @@ export function toImageType(data: ImageDataType, albumsMap?: Map<string, ImageAl
     lastmod,
     update: undefined,
     new: undefined,
+    next: undefined,
+    previous: undefined,
     schedule: lastmod && lastmod.getTime() > Date.now(),
     data
   };
 }
 
-export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<string>) {
+export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<string>): imageKindType {
   if (embed) {
     if (/\.(epub)$/i.test(embed)) {
       return "ebook";
@@ -75,10 +77,10 @@ export function AutoImageItemType(embed?: OrNull<string>, albumType?: OrNull<str
     } else if (/素材|そざい|material/i.test(embed)) {
       return "material";
     } else {
-      return "file";
+      return "file" as imageKindType;
     }
   } else if (albumType) {
-    return albumType;
+    return albumType as imageKindType;
   } else {
     return "other";
   }

@@ -24,6 +24,7 @@ interface EditTagsReactSelectType {
   name: string;
   labelVisible?: boolean;
   label?: string;
+  labelClassName?: string;
   tags: ContentsTagsOption[];
   set?: (value: React.SetStateAction<ContentsTagsOption[]>) => void;
   control: Control<FieldValues, any>;
@@ -38,12 +39,14 @@ interface EditTagsReactSelectType {
   enableEnterAdd?: boolean;
   theme?: ThemeConfig;
   styles?: StylesConfig;
+  addButtonClassName?: string;
   formatOptionLabel?: (data: unknown) => ReactNode;
 }
 export function EditTagsReactSelect({
   name,
   labelVisible,
   label,
+  labelClassName,
   tags,
   set,
   control,
@@ -58,8 +61,14 @@ export function EditTagsReactSelect({
   enableEnterAdd,
   theme = callReactSelectTheme,
   styles,
+  addButtonClassName,
   formatOptionLabel,
 }: EditTagsReactSelectType) {
+  labelClassName = useMemo(() => {
+    const labelClassnames = ["label"];
+    if (labelClassName) labelClassnames.push(labelClassName);
+    return labelClassnames.join(" ");
+  }, [labelClassName]);
   const searchTagsList = useMemo(() => getTagsOptions(tags), [tags]);
   function addTags(value: string) {
     const newValues = { label: value, value };
@@ -91,13 +100,13 @@ export function EditTagsReactSelect({
   return (
     <>
       {labelVisible ? (
-        <div className="label">
+        <div className={labelClassName}>
           {label ? <span>{label}</span> : null}
           {addButtonVisible ? (
             <button
               title={addButtonTitle}
               type="button"
-              className="color"
+              className={addButtonClassName}
               onClick={() => addTagsPrompt()}
               disabled={isBusy}
             >
