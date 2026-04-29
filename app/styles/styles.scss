@@ -982,7 +982,7 @@ body {
   .loading & {
     @extend %fillCover;
     width: 100%;
-    max-width: var(--ct-width);
+    max-width: 100vw;
     background-color: var(--background);
     z-index: 1500;
     @include FlexCenter;
