@@ -16,3 +16,15 @@ interface ePubMetadataType {
   viewport?: string;
   spread?: string;
 }
+
+type BookReaderMode = "bookReader" | "laymic";
+type ViewerOrientationType = "vertical" | "horizontal";
+type ViewerDirectionType = "rtl" | "ltr";
+
+interface BookReaderStateType {
+  list?: (string | Element)[] | null;
+  orientation?: ViewerOrientationType;
+  direction?: ViewerDirectionType;
+  bookReaderMode?: BookReaderMode;
+  enabled?: boolean;
+}
