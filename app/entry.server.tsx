@@ -9,7 +9,7 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  _loadContext: AppLoadContext
+  _loadContext: AppLoadContext,
 ) {
   let shellRendered = false;
   const userAgent = request.headers.get("user-agent");
@@ -26,7 +26,7 @@ export default async function handleRequest(
           console.error(error);
         }
       },
-    }
+    },
   );
   shellRendered = true;
 
@@ -43,15 +43,31 @@ export default async function handleRequest(
     if (!Url.pathname.startsWith("/api")) {
       // const env = getCfEnv({ context: _loadContext });
       const db = getCfDB({ context: _loadContext })!;
+      const pathname = decodeURI(Url.pathname);
+      const search = decodeURI(Url.search);
       try {
+        const inQuery = [pathname];
+        if (search) inQuery.push(search, pathname + search);
         const redirectCheck = (
           await db.select<redirectDataType>({
             table: "redirect",
-            where: { path: Url.pathname },
+            where: {
+              path: {
+                in: inQuery,
+              },
+            },
           })
         )[0];
         if (redirectCheck) {
-          Url.pathname = redirectCheck.redirect;
+          const searchPos = redirectCheck.redirect.indexOf("?");
+          if (searchPos < 0) {
+            Url.pathname = redirectCheck.redirect;
+          } else if (searchPos === 0) {
+            Url.search = redirectCheck.redirect;
+          } else {
+            Url.pathname = redirectCheck.redirect.slice(0, searchPos);
+            Url.search = redirectCheck.redirect.slice(searchPos);
+          }
           return Response.redirect(Url.href);
         }
       } catch {}
