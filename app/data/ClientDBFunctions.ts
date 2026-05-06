@@ -150,9 +150,8 @@ export async function ImportImagesJson({
     let object: importEntryDataType<importEntryImageDataType>;
     let data: importEntryImageDataType[];
     const versionStr: string = json.version || "0";
-    const versions = versionStr.split(".");
-    const version = Number(versions[0]);
-    if (version === 0) {
+    const versions = versionStr.split(".").map(v => Number(v));
+    if (versions[0] === 0) {
       const oldData = json as YamlDataType[];
       const dataMap = new Map<string, importEntryImageDataType>();
       oldData.forEach((album) => {
@@ -196,6 +195,12 @@ export async function ImportImagesJson({
       data = Object.values(Object.fromEntries(dataMap));
     } else {
       const { data: _data, ..._entry } = json as dataBaseType<ImageDataType>;
+      if (versions[0] === 3 && versions[1] === 3) {
+        _data?.forEach((v) => {
+          v.chapter = (v as any).chapture;
+          delete (v as any).chapture;
+        })
+      }
       object = _entry;
       data = _data ? _data : [];
     }

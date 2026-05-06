@@ -115,7 +115,7 @@ export function ImageState() {
           }
         });
         seriesMap.forEach((v, k, map) => {
-          v.sort((a, b) => (a.chapture || 0) - (b.chapture || 0));
+          v.sort((a, b) => (a.chapter || 0) - (b.chapter || 0));
           map.set(k, v);
         });
 

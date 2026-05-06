@@ -8,7 +8,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
   name: ImageDataName,
   src: "/images",
   api: "/image",
-  version: "3.3.0",
+  version: "3.4.0",
   preLoad: false,
   latestField: { time: "desc" },
   primary: "id",
@@ -31,7 +31,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
     embed: { type: "TEXT" },
     type: { type: "TEXT" },
     series: { type: "TEXT" },
-    chapture: { type: "INTEGER" },
+    chapter: { type: "INTEGER" },
     order: { type: "INTEGER" },
     topImage: { type: "INTEGER" },
     pickup: { type: "INTEGER" },
@@ -43,7 +43,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
     version: { type: "INTEGER" },
   },
   insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height",
-    "tags", "characters", "copyright", "link", "embed", "type", "series", "chapture", "order", "topImage", "pickup", "draft", "version"],
+    "tags", "characters", "copyright", "link", "embed", "type", "series", "chapter", "order", "topImage", "pickup", "draft", "version"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 }
 

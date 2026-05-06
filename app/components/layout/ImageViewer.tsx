@@ -201,7 +201,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
               <Link
                 to={{
                   pathname: "gallery",
-                  search: `?q=series:${image.series}+sort:chapture`,
+                  search: `?q=series:${image.series}+sort:chapter`,
                 }}
               >
                 {image.series}

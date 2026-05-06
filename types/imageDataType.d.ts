@@ -15,7 +15,7 @@ interface ImageDataType {
   embed?: string | null;
   type?: string | null;
   series?: string | null;
-  chapture?: number | null;
+  chapter?: number | null;
   order?: number | null;
   topImage?: number | null;
   pickup?: number | null;

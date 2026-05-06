@@ -224,7 +224,7 @@ export default function ImageEditForm({
       characters: image?.characters || [],
       type: image?.rawdata?.type || "",
       series: image?.rawdata?.series || "",
-      chapture: image?.rawdata?.chapture || null,
+      chapter: image?.rawdata?.chapter || null,
       time: ToFormTime(image?.time),
       copyright: image?.copyright || [],
       link: image?.link || "",
@@ -916,7 +916,7 @@ export default function ImageEditForm({
           <input
             title="番号"
             type="number"
-            {...register("chapture")}
+            {...register("chapter")}
             disabled={isBusy}
             placeholder="1"
           />
