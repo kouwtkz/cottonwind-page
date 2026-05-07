@@ -1,7 +1,6 @@
 import { CreateState } from "./CreateState";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 import type { OmittedEnv } from "types/custom-configuration";
-import { clientDBLoader, dbClass, IdbLoadMap } from "~/data/ClientDBLoader";
 
 export const useEnv = CreateState<Partial<OmittedEnv>>();
 export const useIsLogin = CreateState<boolean>();

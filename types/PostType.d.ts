@@ -22,6 +22,12 @@ interface PostType extends PostDataType, WithRawDataType<PostDataType> {
   lastmod?: Date,
 }
 
+interface PostPagesItemType extends Omit<PostType, "id"> {
+  id?: number;
+  extension?: string;
+  link?: string;
+}
+
 interface PostFormDraftType extends PostType {
   update?: string;
 };

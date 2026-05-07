@@ -30,6 +30,7 @@ import { SiteFavLinkServer } from "./links-fav";
 import { ServerLikeGetData } from "./like";
 import { ServerKeyValueDBGetData } from "./KeyValueDB";
 import { ServerRedirectGetData } from "./redirect";
+import { GetRSSFromEnv } from "./extRss";
 
 const dataset: Array<[
   options: Props_LastmodMHClass_Options<any>,
@@ -61,31 +62,39 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
       return Response.json(
         Object.fromEntries(
           await Promise.all(
-            dataset.map(async ([{ name }, getData]) => [
-              name,
-              await getData(
-                {
-                  searchParams: new URLSearchParams(getDataWithoutPrefix(name, query)),
-                  db,
-                  isLogin,
-                  request
-                }
-              ),
-            ])
-          )
+            [...
+              dataset.map<any>(async ([{ name }, getData]) => [
+                name,
+                await getData(
+                  {
+                    searchParams: new URLSearchParams(getDataWithoutPrefix(name, query)),
+                    db,
+                    isLogin,
+                    request
+                  }
+                ),
+              ]),
+            GetRSSFromEnv({ env }).then(r => ["extRss", r])
+            ]
+          ),
         )
       );
     } else return {};
   } else {
-    const object = datasetMap.get(params.param);
-    const db = getCfDB({ context })!;
-    if (object && db) {
-      return await object.getData({
-        searchParams: new URL(request.url).searchParams,
-        db,
-        isLogin,
-        request
-      });
+    switch (params.param) {
+      case "extRss":
+        return await GetRSSFromEnv({ env });
+      default:
+        const object = datasetMap.get(params.param);
+        const db = getCfDB({ context })!;
+        if (object && db) {
+          return await object.getData({
+            searchParams: new URL(request.url).searchParams,
+            db,
+            isLogin,
+            request
+          });
+        }
     }
   }
   return {};

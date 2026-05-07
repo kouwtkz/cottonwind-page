@@ -4384,8 +4384,18 @@ body.workers {
       }
       a.status {
         &:hover {
-          color: var(--main-color-light-grayish);
+          color: var(--main-color-grayish);
         }
+      }
+    }
+    a.extension {
+      color: var(--dark-text-color);
+      background-color: var(--main-color-grayish);
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.25rem;
+      text-decoration-line: none;
+      &:hover {
+        background-color: var(--main-color-light-grayish);
       }
     }
   }

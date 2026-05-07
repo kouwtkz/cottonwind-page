@@ -27,3 +27,19 @@ type FeedDBType = {
   date: string,
   data: string
 }
+
+interface ExtRssType {
+  title: string;
+  description: string;
+  lastBuildDate: string;
+  link: string;
+  items: ExtRssItemType[];
+}
+
+interface ExtRssItemType {
+  title: string;
+  description: string;
+  pubDate: string;
+  link: string;
+  guid: string;
+}

@@ -23,9 +23,10 @@ import { PiHandsClapping } from "react-icons/pi";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { MdOutlineImage } from "react-icons/md";
 import { getBackURL } from "~/components/layout/BackButton";
+import { useExtRss } from "~/components/state/ExtRssState";
 
 interface getPostsProps {
-  posts: PostType[];
+  posts: PostPagesItemType[];
   update?: boolean;
   take?: number;
   page?: number;
@@ -53,7 +54,7 @@ export function getPosts({
   if (pinned) orderBy.push({ pin: "desc" });
   orderBy.push({ time: "desc" });
 
-  let postsResult: PostType[] = findMee(posts, {
+  let postsResult = findMee(posts, {
     where: {
       AND: wheres,
     },
@@ -129,15 +130,37 @@ export function PostsPage({
     getLocalDraft();
   }, [isLogin, getLocalDraft]);
 
-  let { posts } = usePosts();
+  const { posts: sitePosts } = usePosts();
+  const extRss = useExtRss();
+  let posts = useMemo(() => {
+    const list: PostPagesItemType[] = sitePosts ? sitePosts.concat() : [];
+    if (extRss) {
+      extRss.forEach((channel) => {
+        const topLink = channel.link;
+        const topLinkURL = new URL(topLink);
+        const host = topLinkURL.host;
+        channel.items.forEach((item) => {
+          list.push({
+            extension: host,
+            title: item.title,
+            body: item.description,
+            time: new Date(item.pubDate),
+            link: item.link,
+            postId: item.guid,
+          });
+        });
+      });
+    }
+    return list;
+  }, [sitePosts, extRss]);
   posts = useMemo(() => {
-    if (posts) {
-      const where = setWhere<PostType>(q, {
+    if (posts.length > 0) {
+      const where = setWhere<PostPagesItemType>(q, {
         text: { key: "body" },
         hashtag: { key: "category", textKey: "body" },
       });
       return findMee(posts, where);
-    }
+    } else return posts;
   }, [posts, q]);
   const {
     posts: postsResult,
@@ -145,7 +168,7 @@ export function PostsPage({
     count,
   } = useMemo(() => {
     const result = getPosts({
-      posts: posts || [],
+      posts,
       page,
       take,
       common: !isLogin,
@@ -207,7 +230,7 @@ export function PostsPage({
   }
 }
 
-type OnePostProps = { post?: PostType; detail?: boolean };
+type OnePostProps = { post?: PostPagesItemType; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
   const isLogin = useIsLogin()[0];
   const { removeLocalDraft } = useLocalDraftPost();
@@ -337,7 +360,16 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
             削除
           </a>
         ) : null}
-        <EditLink />
+        {!post.extension ? (
+          <EditLink />
+        ) : (
+          <Link
+            className="extension"
+            to={{ search: "?q=extension%3A" + post.extension }}
+          >
+            {post.extension}
+          </Link>
+        )}
         <>
           {post.localDraft ? (
             <>
@@ -353,6 +385,10 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
             <>
               <span className="status">{formattedDate}</span>
             </>
+          ) : post.link ? (
+            <a className="status" target="_blank" href={post.link}>
+              {formattedDate}
+            </a>
           ) : (
             <Link
               className="status"
@@ -409,7 +445,7 @@ export function PostsPageFixed({ max }: FixedProps) {
   );
 }
 
-type PostDetailFixedProps = { postId: string; posts: PostType[] };
+type PostDetailFixedProps = { postId: string; posts: PostPagesItemType[] };
 export function PostDetailFixed(args: PostDetailFixedProps) {
   const isLogin = useIsLogin()[0];
   return (
@@ -432,7 +468,7 @@ export function PostDetailFixed(args: PostDetailFixedProps) {
 
 interface BackForwardPostProps extends HTMLAttributes<HTMLDivElement> {
   postId: string;
-  posts: PostType[];
+  posts: PostPagesItemType[];
 }
 
 export function BackForwardPost({

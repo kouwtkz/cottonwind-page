@@ -11,5 +11,6 @@ interface JSONAllDataTypes {
   KeyValueDB: KeyValueDBType[];
   redirect: redirectType[];
   tables: Props_LastmodMH_Tables_Data[];
+  extRss: ExtRssType[] | null;
 }
 type JSONAllDataKeys = keyof JSONAllDataTypes;

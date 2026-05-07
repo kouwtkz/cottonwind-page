@@ -81,6 +81,14 @@ export const IdbClassMap: Map<TableNameTypes, anyIdbStateClass> = new Map();
 export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 export let IdbStateIsLoaded = false;
 
+let data: ExtRssType[] | null = null;
+function SetExtRss(args: ExtRssType[] | null) {
+  data = args;
+}
+export function getSnapshotExtRss() {
+  return data;
+}
+
 export let dbClass: MeeIndexedDB;
 
 export async function MeeIndexedDBCreate({ env }: ClientDBLoaderProps) {
@@ -241,8 +249,14 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     IdbLoadMap.clear();
     await results
       .then(async (items) => {
-        ClientDBLoaderHandler.length = Object.values(items).reduce(
-          (a, c) => a + c.length,
+        SetExtRss(items.extRss || null);
+        delete items.extRss;
+        ClientDBLoaderHandler.length = Object.entries(items as [unknown[]]).reduce(
+          (a, [key, value]) => {
+            if (Array.isArray(items) && IdbClassMap.has(key as TableNameTypes))
+              a = a + value.length;
+            return a;
+          },
           0,
         );
         ClientDBLoaderHandler.emitEvent("onlength");

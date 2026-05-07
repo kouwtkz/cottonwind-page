@@ -28,6 +28,7 @@ declare namespace Cloudflare {
 		SINCE: string;
 		FOOTER_LINKS: string[];
 		SITE_IMAGE: string;
+        EXT_RSS: string;
 		WAVEBOX: string;
 		ORIGIN_HOST: string;
 		CF_DEV_ORIGIN: string;
@@ -46,7 +47,6 @@ declare namespace Cloudflare {
 		CONTACT_FORM_GOOGLE: string;
 		DISCORD_INVITE_ANSWER: string;
 		DISCORD_INVITE_URL: string;
-		AUTHOR_EMAIL: string;
 		X_CLIENT_ID: string;
 		X_CLIENT_SECRET: string;
 		WORKERS_API_TOKEN: string;
