@@ -184,13 +184,13 @@ export function PostsPage({
   }, [page, posts, q, take]);
 
   if (postId) {
-    const post = findMee(posts, { where: { postId }, take: 1 })[0];
+    const post = findMee(posts, { where: { postId }, take: 1 })[0] as PostPagesItemType | undefined;
     return (
       <div className="article detail">
         <PostDetailFixed
           postId={postId}
           posts={postsResult}
-          extRss={post.extension === "ExtRSS"}
+          extRss={post?.extension === "ExtRSS"}
         />
         {posts ? <OnePost post={post} detail={true} /> : null}
       </div>
