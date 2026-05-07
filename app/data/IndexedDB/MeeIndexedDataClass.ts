@@ -1,11 +1,11 @@
-import { SubscribeEventsClass } from "~/components/hook/SubscribeEvents";
+import { SubscribeEventsAbstractClass } from "~/components/hook/SubscribeEvents";
 import { MeeIndexedDBTable } from "./MeeIndexedDB";
 
 export class IndexedDataClass<
   T,
   EVENT = void,
   TABLE_CLASS extends MeeIndexedDBTable<T> = MeeIndexedDBTable<T>
-> extends SubscribeEventsClass<EVENT | Type_MeeIndexedDB_Event> {
+> extends SubscribeEventsAbstractClass<EVENT | Type_MeeIndexedDB_Event> {
   table: TABLE_CLASS;
   subscribe: EventCallback;
   isBusy: boolean;

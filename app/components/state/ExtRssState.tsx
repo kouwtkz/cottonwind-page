@@ -1,12 +1,10 @@
 import { useSyncExternalStore } from "react";
-import { getSnapshotExtRss } from "~/data/ClientDBLoader";
+import { ExtRssSubscribe } from "~/data/ClientDBLoader";
 
 export function useExtRss() {
   return useSyncExternalStore(
-    () => {
-      return () => null;
-    },
-    () => getSnapshotExtRss(),
+    ExtRssSubscribe.subscribe.bind(ExtRssSubscribe),
+    ExtRssSubscribe.GetData.bind(ExtRssSubscribe),
     () => null,
   );
 }
