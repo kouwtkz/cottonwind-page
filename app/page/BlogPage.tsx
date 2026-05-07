@@ -147,6 +147,7 @@ export function PostsPage({
             time: new Date(item.pubDate),
             link: item.link,
             postId: item.guid,
+            draft: false,
           });
         });
       });
