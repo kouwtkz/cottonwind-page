@@ -14,7 +14,7 @@ export async function GetExtRSS(href: string) {
     }).catch(e => reject(e));
     setTimeout(() => {
       if (!successed) controller.abort();
-    }, 1000);
+    }, 2000);
   }).then(r => r.text()).then<ExtRssType>(text => {
     const DomParser = new DOMParser();
     const xml = DomParser.parseFromString(text);
