@@ -30,7 +30,7 @@ import { SiteFavLinkServer } from "./links-fav";
 import { ServerLikeGetData } from "./like";
 import { ServerKeyValueDBGetData } from "./KeyValueDB";
 import { ServerRedirectGetData } from "./redirect";
-import { GetRSSFromEnv } from "./extRss";
+import { GetExtRSSFromEnv } from "./extRss";
 
 const dataset: Array<[
   options: Props_LastmodMHClass_Options<any>,
@@ -74,7 +74,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
                   }
                 ),
               ]),
-            GetRSSFromEnv({ env }).then(r => ["extRss", r])
+            GetExtRSSFromEnv({ env }).then(r => ["extRss", r])
             ]
           ),
         )
@@ -83,7 +83,7 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
   } else {
     switch (params.param) {
       case "extRss":
-        return await GetRSSFromEnv({ env });
+        return await GetExtRSSFromEnv({ env });
       default:
         const object = datasetMap.get(params.param);
         const db = getCfDB({ context })!;

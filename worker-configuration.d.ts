@@ -29,6 +29,7 @@ declare namespace Cloudflare {
 		FOOTER_LINKS: string[];
 		SITE_IMAGE: string;
         EXT_RSS: string;
+        EXT_RSS_INTERVAL: number;
 		WAVEBOX: string;
 		ORIGIN_HOST: string;
 		CF_DEV_ORIGIN: string;

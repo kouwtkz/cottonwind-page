@@ -5,6 +5,7 @@ import { MdOutlineMenu, MdOutlineMenuOpen } from "react-icons/md";
 interface RbButtonAreaProps extends React.HTMLAttributes<HTMLDivElement> {
   dropdown?: React.ReactNode;
   zIndex?: number;
+  autoClose?: boolean;
 }
 export function RbButtonArea({
   dropdown,
@@ -12,6 +13,7 @@ export function RbButtonArea({
   zIndex = 30,
   style,
   className,
+  autoClose = false,
   ...props
 }: RbButtonAreaProps) {
   className = useMemo(() => {
@@ -29,6 +31,7 @@ export function RbButtonArea({
           MenuButton={<MdOutlineMenu />}
           MenuButtonWhenOpen={<MdOutlineMenuOpen />}
           MenuButtonAfter={children}
+          keepOpen={!autoClose}
         >
           {dropdown}
         </DropdownObject>

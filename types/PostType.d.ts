@@ -22,9 +22,12 @@ interface PostType extends PostDataType, WithRawDataType<PostDataType> {
   lastmod?: Date,
 }
 
+type PostPagesExtensionType = "ExtRSS";
+
 interface PostPagesItemType extends Omit<PostType, "id"> {
   id?: number;
-  extension?: string;
+  servise?: string;
+  extension?: PostPagesExtensionType;
   link?: string;
 }
 

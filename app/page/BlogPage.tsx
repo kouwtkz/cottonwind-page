@@ -21,9 +21,13 @@ import { TfiWrite } from "react-icons/tfi";
 import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
 import { PiHandsClapping } from "react-icons/pi";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
-import { MdOutlineImage } from "react-icons/md";
+import { MdOutlineImage, MdRssFeed, MdUpdate } from "react-icons/md";
 import { getBackURL } from "~/components/layout/BackButton";
 import { useExtRss } from "~/components/state/ExtRssState";
+import { apiOrigin, SetExtRss } from "~/data/ClientDBLoader";
+import { concatOriginUrl } from "~/components/functions/originUrl";
+import { customFetch } from "~/components/functions/fetch";
+import { toast } from "react-toastify";
 
 interface getPostsProps {
   posts: PostPagesItemType[];
@@ -141,7 +145,8 @@ export function PostsPage({
         const host = topLinkURL.host;
         channel.items.forEach((item) => {
           list.push({
-            extension: host,
+            servise: host,
+            extension: "ExtRSS",
             title: item.title,
             body: item.description,
             time: new Date(item.pubDate),
@@ -179,15 +184,15 @@ export function PostsPage({
   }, [page, posts, q, take]);
 
   if (postId) {
+    const post = findMee(posts, { where: { postId }, take: 1 })[0];
     return (
       <div className="article detail">
-        <PostDetailFixed postId={postId} posts={postsResult} />
-        {posts ? (
-          <OnePost
-            post={findMee(posts, { where: { postId }, take: 1 })[0]}
-            detail={true}
-          />
-        ) : null}
+        <PostDetailFixed
+          postId={postId}
+          posts={postsResult}
+          extRss={post.extension === "ExtRSS"}
+        />
+        {posts ? <OnePost post={post} detail={true} /> : null}
       </div>
     );
   } else {
@@ -361,14 +366,14 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
             削除
           </a>
         ) : null}
-        {!post.extension ? (
+        {!post.servise ? (
           <EditLink />
         ) : (
           <Link
             className="extension"
-            to={{ search: "?q=extension%3A" + post.extension }}
+            to={{ search: "?q=servise%3A" + post.servise }}
           >
-            {post.extension}
+            {post.servise}
           </Link>
         )}
         <>
@@ -422,6 +427,33 @@ function ImageManageButton() {
     </Link>
   );
 }
+function UpdateExtRss() {
+  return (
+    <button
+      className="button color round"
+      title="外部RSSの手動更新"
+      type="button"
+      onClick={async () => {
+        const url = concatOriginUrl(apiOrigin, "extRss/update");
+        customFetch(url, { method: "POST", cors: true })
+          .then<[string, ExtRssType[]]>((r) => {
+            if (r.ok) return r.json();
+            else throw r.statusText;
+          })
+          .then((json) => {
+            SetExtRss(json[1]);
+            toast.success("外部RSSを更新しました！");
+          })
+          .catch((e) => {
+            console.error(e);
+            toast.error("エラーが発生しました\n" + e);
+          });
+      }}
+    >
+      <MdUpdate />
+    </button>
+  );
+}
 
 type FixedProps = { max?: number };
 export function PostsPageFixed({ max }: FixedProps) {
@@ -430,39 +462,53 @@ export function PostsPageFixed({ max }: FixedProps) {
     <RbButtonArea
       className="blog"
       dropdown={
-        isLogin ? (
-          <>
-            <ImageManageButton />
-          </>
-        ) : null
+        <>
+          {isLogin ? (
+            <>
+              <ImageManageButton />
+              <UpdateExtRss />
+            </>
+          ) : null}
+          {isLogin ? <PostButton /> : <HandsClapButton />}
+        </>
       }
     >
       <PagingArea className="list" max={max} />
-      <div className="list">
-        <SearchArea />
-        {isLogin ? <PostButton /> : <HandsClapButton />}
-      </div>
+      <SearchArea />
     </RbButtonArea>
   );
 }
 
-type PostDetailFixedProps = { postId: string; posts: PostPagesItemType[] };
-export function PostDetailFixed(args: PostDetailFixedProps) {
+type PostDetailFixedProps = {
+  postId: string;
+  extRss?: boolean;
+  posts: PostPagesItemType[];
+};
+export function PostDetailFixed({ extRss, ...args }: PostDetailFixedProps) {
   const isLogin = useIsLogin()[0];
   return (
     <RbButtonArea
       className="blog"
       dropdown={
-        isLogin ? (
-          <>
-            <ImageManageButton />
-          </>
-        ) : null
+        <>
+          <HandsClapButton />
+          {isLogin ? (
+            <>
+              <ImageManageButton />
+              {isLogin ? (
+                extRss ? (
+                  <UpdateExtRss />
+                ) : (
+                  <PostButton postId={args.postId} />
+                )
+              ) : null}
+            </>
+          ) : null}
+        </>
       }
     >
       <BackForwardPost className="list" {...args} />
       <SearchArea />
-      {isLogin ? <PostButton postId={args.postId} /> : <HandsClapButton />}
     </RbButtonArea>
   );
 }

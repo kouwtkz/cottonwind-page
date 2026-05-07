@@ -34,5 +34,6 @@ export default [
     route("like/:action", "routes/api/like.ts"),
     route("kvdb/:action", "routes/api/KeyValueDB.ts"),
     route("redirect/:action", "routes/api/redirect.ts"),
+    route("extRss/:action", "routes/api/extRss.ts"),
   ]),
 ] satisfies RouteConfig;

@@ -38,6 +38,7 @@ export interface DropdownObjectBaseProps {
   MenuButton?: MenuButtonType;
   MenuButtonWhenOpen?: ReactNode;
   title?: string;
+  MenuButtonBefore?: ReactNode;
   MenuButtonAfter?: ReactNode;
   keepOpen?: boolean;
   keepActiveOpen?: boolean;
@@ -60,6 +61,7 @@ export function DropdownObject({
   style,
   MenuButton,
   MenuButtonWhenOpen,
+  MenuButtonBefore,
   MenuButtonAfter,
   title,
   children,
@@ -150,7 +152,7 @@ export function DropdownObject({
     (e: React.KeyboardEvent<Element>) => {
       if (e.key === "Enter") toggleIsOpen();
     },
-    []
+    [],
   );
   const dropItemListOnClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -167,7 +169,7 @@ export function DropdownObject({
         }
       }
     },
-    [keepOpen, keepActiveOpen, onClick]
+    [keepOpen, keepActiveOpen, onClick],
   );
   const dropItemListOnKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -179,7 +181,7 @@ export function DropdownObject({
         }
       }
     },
-    [onClick]
+    [onClick],
   );
   return (
     <>
@@ -196,6 +198,7 @@ export function DropdownObject({
         }, [keepActiveOpen])}
       >
         <div className={dropMenuListClassName}>
+          {MenuButtonBefore}
           {typeof MenuButton === "function" ? (
             <MenuButton
               tabIndex={0}
@@ -214,19 +217,13 @@ export function DropdownObject({
               {useMemo(
                 () =>
                   (isOpen
-                    ? MenuButtonWhenOpen ?? MenuButton
+                    ? (MenuButtonWhenOpen ?? MenuButton)
                     : MenuButton) as ReactNode,
-                [isOpen, MenuButtonWhenOpen, MenuButton]
+                [isOpen, MenuButtonWhenOpen, MenuButton],
               )}
             </button>
           )}
-          {useMemo(
-            () =>
-              MenuButtonAfter ? (
-                <div className="list">{MenuButtonAfter}</div>
-              ) : null,
-            [MenuButtonAfter]
-          )}
+          {MenuButtonAfter}
         </div>
         <CSSTransition
           in={isOpen}

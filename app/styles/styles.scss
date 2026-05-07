@@ -4399,6 +4399,9 @@ body.workers {
       }
     }
   }
+  #post_search {
+    width: 16rem;
+  }
   @media (min-width: $tabletWidth) {
     .title h2 {
       font-size: 2.25rem;

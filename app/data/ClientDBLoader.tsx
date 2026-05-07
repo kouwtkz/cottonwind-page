@@ -82,7 +82,7 @@ export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 export let IdbStateIsLoaded = false;
 
 let data: ExtRssType[] | null = null;
-function SetExtRss(args: ExtRssType[] | null) {
+export function SetExtRss(args: ExtRssType[] | null) {
   data = args;
 }
 export function getSnapshotExtRss() {
