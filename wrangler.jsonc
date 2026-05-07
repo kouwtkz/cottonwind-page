@@ -26,7 +26,7 @@
     "SINCE": "2017",
     "FOOTER_LINKS": ["bluesky", "booth", "pixiv", "instagram", "youtube", "github"],
     "SITE_IMAGE": "siteImage",
-    "EXT_RSS": "https://note.com/kouwtkz/rss",
+    "EXT_RSS": "https://note.com/kouwtkz/rss,https://kour.hatenablog.com/rss",
     "EXT_RSS_INTERVAL": 7200,
     "WAVEBOX": "https://wavebox.me/wave/2l8tqqpnqjdccg85/",
     "ORIGIN_HOST": "cottonwind.com",
