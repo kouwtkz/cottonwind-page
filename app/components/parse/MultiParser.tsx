@@ -78,7 +78,7 @@ export function SetLinkPush({
   preventScrollReset,
   preventScrollResetSearches,
 }: SetLinkPushProps) {
-  let url = a.getAttribute("href");
+  let url = a.getAttribute("href") || "";
   if (url) {
     if (/^\w+:\/\//.test(url)) {
       a.target = "_blank";
@@ -284,7 +284,7 @@ export function MultiParser({
                   domNode.children.push(new NodeText(domNode.attribs.href));
                 }
                 if (linkPush) {
-                  let { href: url, ...attribs } = domNode.attribs;
+                  let { href: url = "", ...attribs } = domNode.attribs;
                   const baseHref = location.href;
                   const Url = new URL(url, baseHref);
                   if (Url.origin !== location.origin) {
@@ -361,7 +361,10 @@ export function MultiParser({
                     );
                   }
                 }
-                if (widget || domNode.attribs.title === "widget") {
+                if (
+                  domNode.attribs.href &&
+                  (widget || domNode.attribs.title === "widget")
+                ) {
                   const Url = domNode.attribs.href.startsWith("https://")
                     ? new URL(domNode.attribs.href)
                     : null;

@@ -104,7 +104,10 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
       if (domNode.type === "tag") {
         switch (domNode.name) {
           case "img":
-            if (domNode.attribs.src.startsWith("link:")) {
+            if (
+              domNode.attribs.src &&
+              domNode.attribs.src.startsWith("link:")
+            ) {
               return LinkCallback({
                 src: domNode.attribs.src,
                 alt: domNode.attribs.alt,
@@ -146,30 +149,32 @@ export function MultiParserWithMedia(args: MultiParserWithMediaProps) {
             }
             break;
           case "a":
-            if (domNode.attribs.href.startsWith("link:")) {
-              return (
-                <LinkCallback
-                  src={domNode.attribs.href}
-                  alt={domNode.children.reduce(
-                    (a, c) => (c.type === "text" ? a + c.data : a),
-                    "",
-                  )}
-                  banner={false}
-                />
-              );
-            } else if (domNode.attribs.href.startsWith("copy:")) {
-              const value = decodeURI(domNode.attribs.href.slice(5));
-              return (
-                <a
-                  role="button"
-                  className="copyable"
-                  onClick={() => {
-                    CopyWithToast(value);
-                  }}
-                >
-                  {value}
-                </a>
-              );
+            if (domNode.attribs.href) {
+              if (domNode.attribs.href.startsWith("link:")) {
+                return (
+                  <LinkCallback
+                    src={domNode.attribs.href}
+                    alt={domNode.children.reduce(
+                      (a, c) => (c.type === "text" ? a + c.data : a),
+                      "",
+                    )}
+                    banner={false}
+                  />
+                );
+              } else if (domNode.attribs.href.startsWith("copy:")) {
+                const value = decodeURI(domNode.attribs.href.slice(5));
+                return (
+                  <a
+                    role="button"
+                    className="copyable"
+                    onClick={() => {
+                      CopyWithToast(value);
+                    }}
+                  >
+                    {value}
+                  </a>
+                );
+              }
             }
             break;
         }
