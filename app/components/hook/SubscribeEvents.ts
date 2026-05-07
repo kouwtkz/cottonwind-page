@@ -1,4 +1,4 @@
-export class SubscribeEventsAbstractClass<N = string> {
+export class SubscribeEventsClass<N = string> {
   events: { name: N; event: EventFunction }[];
   emitSwitchEvents(name: N, ...arg: any[]) { }
   subscribe?: EventCallback;
@@ -30,14 +30,20 @@ export class SubscribeEventsAbstractClass<N = string> {
   }
 }
 
-type DefaultNType = "update";
-export class SubscribeEventsClass<D> extends SubscribeEventsAbstractClass<DefaultNType> {
-  data?: D;
+export class SubscribeUpdateClass extends SubscribeEventsClass<"update"> {
   subscribe: EventCallback;
-  constructor(v?: D) {
+  constructor() {
     super();
     this.subscribe = this.getSubscribe("update");
+  }
+}
+
+export class SubscribeDataClass<D> {
+  data?: D;
+  subscribeEvent: SubscribeUpdateClass;
+  constructor(v?: D) {
     this.data = v;
+    this.subscribeEvent = new SubscribeUpdateClass();
   }
   GetData() {
     return this.data;
@@ -45,6 +51,6 @@ export class SubscribeEventsClass<D> extends SubscribeEventsAbstractClass<Defaul
   SetData(v?: D) {
     const diff = this.data !== v;
     this.data = v;
-    if (diff) this.emitEvent("update");
+    if (diff) this.subscribeEvent.emitEvent("update");
   }
 }

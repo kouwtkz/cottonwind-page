@@ -32,7 +32,7 @@ import {
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { customFetch } from "~/components/functions/fetch";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { SubscribeEventsAbstractClass, SubscribeEventsClass } from "~/components/hook/SubscribeEvents";
+import { SubscribeEventsClass, SubscribeDataClass } from "~/components/hook/SubscribeEvents";
 
 export let waitIdbResolve: (value?: unknown) => void;
 export const waitIdb = new Promise((resolve, reject) => {
@@ -81,7 +81,7 @@ export const IdbClassMap: Map<TableNameTypes, anyIdbStateClass> = new Map();
 export const IdbLoadMap: Map<TableNameTypesWithAll, LoadStateType> = new Map();
 export let IdbStateIsLoaded = false;
 
-export const ExtRssSubscribe = new SubscribeEventsClass<ExtRssType[] | null>(null);
+export const ExtRssData = new SubscribeDataClass<ExtRssType[] | null>(null);
 
 export let dbClass: MeeIndexedDB;
 
@@ -149,7 +149,7 @@ export async function getDataFromApi<T = any>(
 }
 
 type ClientDBLoaderHandlerNType = "onnext" | "onadd" | "onlength";
-class ClientDBLoaderHandlerClass extends SubscribeEventsAbstractClass<ClientDBLoaderHandlerNType> {
+class ClientDBLoaderHandlerClass extends SubscribeEventsClass<ClientDBLoaderHandlerNType> {
   length = 0;
   denominator = 0;
   count = 0;
@@ -243,7 +243,7 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
     IdbLoadMap.clear();
     await results
       .then(async (items) => {
-        ExtRssSubscribe.SetData(items.extRss || null);
+        ExtRssData.SetData(items.extRss || null);
         delete items.extRss;
         ClientDBLoaderHandler.length = Object.entries(items as [unknown[]]).reduce(
           (a, [key, value]) => {

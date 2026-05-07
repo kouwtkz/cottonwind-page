@@ -24,7 +24,7 @@ import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { MdOutlineImage, MdRssFeed, MdUpdate } from "react-icons/md";
 import { getBackURL } from "~/components/layout/BackButton";
 import { useExtRss } from "~/components/state/ExtRssState";
-import { apiOrigin, ExtRssSubscribe } from "~/data/ClientDBLoader";
+import { apiOrigin, ExtRssData } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { customFetch } from "~/components/functions/fetch";
 import { toast } from "react-toastify";
@@ -441,7 +441,7 @@ function UpdateExtRss() {
             else throw r.statusText;
           })
           .then((json) => {
-            ExtRssSubscribe.SetData.bind(ExtRssSubscribe)(json[1]);
+            ExtRssData.SetData.bind(ExtRssData)(json[1]);
             toast.success("外部RSSを更新しました！");
           })
           .catch((e) => {
