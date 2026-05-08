@@ -142,7 +142,6 @@ export function PostsPage({
       return findMee(mixPosts, where);
     } else return mixPosts;
   }, [mixPosts, q]);
-  console.log(mixPosts);
   const {
     posts: postsResult,
     max,
