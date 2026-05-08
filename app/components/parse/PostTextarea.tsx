@@ -111,7 +111,6 @@ export function PostTextarea({
     <MultiParser
       markdown
       linkPush
-      linkSame
       hashtag
       ref={previewRef}
       className={previewClassName}

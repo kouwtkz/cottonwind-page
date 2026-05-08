@@ -703,7 +703,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                 <span>{chara.time.getFullYear()}年</span>
               </p>
             ) : null}
-            <MultiParserWithMedia markdown linkPush linkSame hashtag>
+            <MultiParserWithMedia markdown linkPush hashtag>
               {chara.description}
             </MultiParserWithMedia>
             <LikeButton

@@ -204,6 +204,7 @@ export function AuthorHistory({
                   };
                   extendAnchor.innerText = d.innerText;
                   extendAnchor.classList.add("date");
+                  extendAnchor.setAttribute("role", "button");
                   d.innerText = "";
                   d.appendChild(extendAnchor);
                 }

@@ -184,7 +184,9 @@ export function PostsPage({
   }, [page, posts, q, take]);
 
   if (postId) {
-    const post = findMee(posts, { where: { postId }, take: 1 })[0] as PostPagesItemType | undefined;
+    const post = findMee(posts, { where: { postId }, take: 1 })[0] as
+      | PostPagesItemType
+      | undefined;
     return (
       <div className="article detail">
         <PostDetailFixed
@@ -192,7 +194,7 @@ export function PostsPage({
           posts={postsResult}
           extRss={post?.extension === "ExtRSS"}
         />
-        {posts ? <OnePost post={post} detail={true} /> : null}
+        {post ? <OnePost post={post} detail={true} /> : null}
       </div>
     );
   } else {
@@ -236,7 +238,7 @@ export function PostsPage({
   }
 }
 
-type OnePostProps = { post?: PostPagesItemType; detail?: boolean };
+type OnePostProps = { post: PostPagesItemType; detail?: boolean };
 export default function OnePost({ post, detail = false }: OnePostProps) {
   const isLogin = useIsLogin()[0];
   const { removeLocalDraft } = useLocalDraftPost();
@@ -270,6 +272,11 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
     [post],
   );
   if (!post) return null;
+  const markdownFlag = useMemo(() => post.extension !== "ExtRSS", [post]);
+  const markdownProps = useMemo(
+    () => (markdownFlag ? { markdown: true, hashtag: true } : {}),
+    [markdownFlag],
+  );
 
   return (
     <div className="post">
@@ -284,13 +291,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       ) : null}
       <div className="header">
         {post.title ? (
-          <MultiParserWithMedia
-            markdown
-            linkPush
-            linkSame
-            hashtag
-            className="title"
-          >
+          <MultiParserWithMedia {...markdownProps} linkPush className={"title"}>
             {detail ? (
               <h1>{post.title}</h1>
             ) : (
@@ -336,10 +337,8 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         )}
       </div>
       <MultiParserWithMedia
-        markdown
+        {...markdownProps}
         linkPush
-        linkSame
-        hashtag
         className="blog"
         detailsOpen={detail}
       >
@@ -387,14 +386,14 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
                 )}
               </span>
             </>
-          ) : detail ? (
-            <>
-              <span className="status">{formattedDate}</span>
-            </>
           ) : post.link ? (
             <a className="status" target="_blank" href={post.link}>
               {formattedDate}
             </a>
+          ) : detail ? (
+            <>
+              <span className="status">{formattedDate}</span>
+            </>
           ) : (
             <Link
               className="status"

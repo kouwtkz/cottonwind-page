@@ -2439,7 +2439,6 @@ form {
   h2 {
     margin-top: 1em;
     @extend .color-main;
-    @extend .en-title-font;
   }
   h3,
   h4 {
@@ -2448,7 +2447,10 @@ form {
   }
   &.blog {
     & > * {
-      margin: 1.5rem auto;
+      margin: 0 auto 1.5rem;
+      &:first-child {
+        margin-top: 1.5rem;
+      }
     }
     & > ul,
     & > ol {

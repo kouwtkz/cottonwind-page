@@ -27,7 +27,6 @@ export interface MultiParserOptions {
   toDom?: boolean;
   detailsClosable?: boolean;
   linkPush?: boolean;
-  linkSame?: boolean;
   hashtag?: boolean | Replacer;
   mention?: boolean | Replacer;
   quoteNumberReply?: boolean | Replacer;
@@ -150,7 +149,6 @@ export function MultiParser({
   toDom = true,
   markdown,
   linkPush,
-  linkSame,
   hashtag,
   mention,
   simpleBreak,
@@ -242,10 +240,21 @@ export function MultiParser({
     if (!hidden && childString && toDom) {
       const options: HTMLReactParserOptions = {
         ...ReactParserArgs,
-        transform(reactNode, domNode, index) {
-          if (domNode.type === "tag") {
+        transform(_reactNode, domNode, index) {
+          const reactNode = _reactNode as React.JSX.Element;
+          if (domNode.type !== "tag") return reactNode;
+          if (
+            reactNode.type === "div" &&
+            domNode.name === "p" &&
+            domNode.children.every(
+              (d) => d.type === "text" && /^\s*$/.test(d.data),
+            )
+          ) {
+            return <br />;
+          } else if (reactNode.type === "img") {
+            return <img key={domNode.attribs.src} {...reactNode.props} />;
           }
-          return reactNode as React.JSX.Element;
+          return reactNode;
         },
         replace(domNode, index) {
           if (replaceFunction) {
@@ -259,8 +268,6 @@ export function MultiParser({
           }
           if (domNode.type === "tag") {
             switch (domNode.name) {
-              case "img":
-                return <img key={domNode.attribs.src} {...domNode.attribs} />;
               case "code":
                 domNode.attribs["parsed"] = "";
                 existCode.current = true;

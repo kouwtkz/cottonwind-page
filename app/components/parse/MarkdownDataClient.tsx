@@ -12,7 +12,7 @@ export function MdClientNode({
   const { data } = useMarkdownDataState();
   if (data && data[name]) {
     return (
-      <MultiParserWithMedia markdown linkPush linkSame hashtag {...args}>
+      <MultiParserWithMedia markdown linkPush hashtag {...args}>
         {data[name]}
       </MultiParserWithMedia>
     );

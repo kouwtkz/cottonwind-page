@@ -223,7 +223,7 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
             </div>
           ) : null}
           <div className="description">
-            <MultiParserWithMedia markdown linkPush linkSame hashtag>
+            <MultiParserWithMedia markdown linkPush hashtag>
               {image.description}
             </MultiParserWithMedia>
           </div>
