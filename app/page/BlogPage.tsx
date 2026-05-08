@@ -97,7 +97,7 @@ export function BlogPage({
             className="title"
             title="ブログトップ"
           >
-            <h2 className="en-title-font">BLOG PAGE</h2>
+            <h2 className="en-title-font">MEE BLOG</h2>
           </Link>
           <Link
             title="RSSフィード"
