@@ -2446,14 +2446,15 @@ form {
     @extend .color-deep;
   }
   &.blog {
+    margin-top: 1.5rem;
     & > * {
       margin: 0 auto 1.5rem;
-      &:first-child {
-        margin-top: 1.5rem;
-      }
     }
-    & > ul,
-    & > ol {
+    & > br:last-child {
+      display: none;
+    }
+    ul,
+    ol {
       margin: 1.5rem 1rem;
     }
   }
@@ -4337,7 +4338,7 @@ body.workers {
     margin: auto;
   }
   .post {
-    margin: 1.5rem 1rem;
+    margin: 1.5rem 1rem 2rem;
     .pinned {
       color: var(--sub-color-soft);
     }
@@ -4381,11 +4382,20 @@ body.workers {
       }
     }
     .footer {
-      text-align: right;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
       > * {
+        margin-top: 0.25rem;
         margin-left: 0.75rem;
+        &:first-child {
+          margin-left: 0;
+        }
       }
       .status {
+        word-break: break-word;
         color: var(--main-color-dark-grayish);
       }
       a.status {
