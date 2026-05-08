@@ -1,9 +1,10 @@
-import { useEffect, useSyncExternalStore } from "react";
-import { useEnv } from "~/components/state/EnvState";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { postsDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { SubscribeDataClass } from "../hook/SubscribeEvents";
+import { useExtRss } from "./ExtRssState";
 
 interface usePostsType {
   posts?: PostType[];
@@ -13,10 +14,34 @@ interface usePostsType {
 export const usePosts = CreateObjectState<usePostsType>();
 
 export default function PostState() {
-  const { Set } = usePosts();
+  const { Set, posts } = usePosts();
   const postsData = useSyncExternalStore(
-    ...ExternalStoreProps(postsDataIndexed)
+    ...ExternalStoreProps(postsDataIndexed),
   );
+  const extRss = useExtRss();
+  const mixPosts = useMemo(() => {
+    const list: PostPagesItemType[] = posts ? posts.concat() : [];
+    if (extRss) {
+      extRss.forEach((channel) => {
+        const topLink = channel.link;
+        const topLinkURL = new URL(topLink);
+        const host = topLinkURL.host;
+        channel.items.forEach((item) => {
+          list.push({
+            host,
+            extension: "ExtRSS",
+            title: item.title,
+            body: item.description,
+            time: new Date(item.pubDate),
+            link: item.link,
+            postId: item.guid,
+            draft: false,
+          });
+        });
+      });
+    }
+    return list;
+  }, [posts, extRss]);
   useEffect(() => {
     (async () => {
       await waitIdb;
@@ -30,5 +55,20 @@ export default function PostState() {
       }
     })();
   }, [postsData, Set]);
+  useEffect(() => {
+    MixPosts.SetData(mixPosts);
+  }, [mixPosts])
   return <></>;
+}
+
+export const MixPosts = new SubscribeDataClass<PostPagesItemType[] | null>(
+  null,
+);
+
+export function useMixPosts() {
+  return useSyncExternalStore(
+    MixPosts.subscribeEvent.subscribe,
+    MixPosts.GetData.bind(MixPosts),
+    () => null,
+  );
 }

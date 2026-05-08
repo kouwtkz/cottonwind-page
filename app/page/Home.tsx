@@ -1,4 +1,4 @@
-import { Link, type To, useLocation, useSearchParams } from "react-router";
+import { Link, type To, useSearchParams } from "react-router";
 import { useImageState } from "~/components/state/ImageState";
 import {
   getTimeframeTag,
@@ -7,7 +7,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "~/components/layout/ImageMee";
-import { usePosts } from "~/components/state/PostState";
+import { useMixPosts } from "~/components/state/PostState";
 import { findMee } from "~/data/find/findMee";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { Linkat, MeeLinks } from "./LinksPage";
@@ -140,7 +140,7 @@ function TopLinks() {
     () =>
       !ATProtocolEnv.setLinkat ||
       (links && links.findIndex((link) => link.category === "top") >= 0),
-    [links]
+    [links],
   );
   return (
     <>
@@ -170,7 +170,7 @@ export const EmbedScriptSNS = React.memo(function EmbedSNS() {
 });
 
 function PostsView() {
-  let { posts } = usePosts();
+  let posts = useMixPosts();
   posts = useMemo(
     () =>
       findMee(posts || [], {
@@ -179,7 +179,7 @@ function PostsView() {
         direction: "prev",
         take: 3,
       }),
-    [posts]
+    [posts],
   );
   return (
     <div className="blog">
@@ -190,7 +190,11 @@ function PostsView() {
       </h3>
       <div className="list">
         {posts.slice(0, 3).map(({ time, title, postId }, i) => (
-          <Link to={"/blog?postId=" + postId} className="article" key={`post_article_${postId}`}>
+          <Link
+            to={"/blog?postId=" + postId}
+            className="article"
+            key={`post_article_${postId}`}
+          >
             <div className="date">{time?.toLocaleDateString("ja-JP")}</div>
             <div className="title">{title?.slice(0, 32)}</div>
           </Link>
@@ -262,7 +266,7 @@ const useTopImage = CreateObjectState<useTopImageType>((set) => ({
           }
         }
         return value;
-      }
+      },
     );
   },
 }));
@@ -295,7 +299,7 @@ export function HomeImageState() {
             .filter(({ topImage }) => topImage === 2 || topImage === 5)
             .sort((a, b) => (a.topImage === 2 && b.topImage !== 2 ? -1 : 0));
           const alwaysImages = topImages.filter(
-            ({ topImage }) => topImage === 3 || topImage === 6
+            ({ topImage }) => topImage === 3 || topImage === 6,
           );
           if (state.topImages.length !== topImages.length) {
             shuffleArray(topImages);

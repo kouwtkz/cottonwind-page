@@ -1,4 +1,4 @@
-import { usePosts } from "~/components/state/PostState";
+import { useMixPosts } from "~/components/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useLocalDraftPost } from "./edit/PostForm";
@@ -8,7 +8,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
@@ -21,9 +20,8 @@ import { TfiWrite } from "react-icons/tfi";
 import { AiFillCaretLeft, AiFillCaretRight, AiFillEdit } from "react-icons/ai";
 import { PiHandsClapping } from "react-icons/pi";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
-import { MdOutlineImage, MdRssFeed, MdUpdate } from "react-icons/md";
+import { MdOutlineImage, MdUpdate } from "react-icons/md";
 import { getBackURL } from "~/components/layout/BackButton";
-import { useExtRss } from "~/components/state/ExtRssState";
 import { apiOrigin, ExtRssData } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { customFetch } from "~/components/functions/fetch";
@@ -99,7 +97,7 @@ export function BlogPage({
             className="title"
             title="ブログトップ"
           >
-            <h2 className="en-title-font">MINI BLOG</h2>
+            <h2 className="en-title-font">BLOG PAGE</h2>
           </Link>
           <Link
             title="RSSフィード"
@@ -134,40 +132,17 @@ export function PostsPage({
     getLocalDraft();
   }, [isLogin, getLocalDraft]);
 
-  const { posts: sitePosts } = usePosts();
-  const extRss = useExtRss();
+  const mixPosts = useMixPosts() || [];
   let posts = useMemo(() => {
-    const list: PostPagesItemType[] = sitePosts ? sitePosts.concat() : [];
-    if (extRss) {
-      extRss.forEach((channel) => {
-        const topLink = channel.link;
-        const topLinkURL = new URL(topLink);
-        const host = topLinkURL.host;
-        channel.items.forEach((item) => {
-          list.push({
-            servise: host,
-            extension: "ExtRSS",
-            title: item.title,
-            body: item.description,
-            time: new Date(item.pubDate),
-            link: item.link,
-            postId: item.guid,
-            draft: false,
-          });
-        });
-      });
-    }
-    return list;
-  }, [sitePosts, extRss]);
-  posts = useMemo(() => {
-    if (posts.length > 0) {
+    if (mixPosts.length > 0) {
       const where = setWhere<PostPagesItemType>(q, {
         text: { key: "body" },
         hashtag: { key: "category", textKey: "body" },
       });
-      return findMee(posts, where);
-    } else return posts;
-  }, [posts, q]);
+      return findMee(mixPosts, where);
+    } else return mixPosts;
+  }, [mixPosts, q]);
+  console.log(mixPosts);
   const {
     posts: postsResult,
     max,
@@ -365,14 +340,11 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
             削除
           </a>
         ) : null}
-        {!post.servise ? (
+        {!post.host ? (
           <EditLink />
         ) : (
-          <Link
-            className="extension"
-            to={{ search: "?q=servise%3A" + post.servise }}
-          >
-            {post.servise}
+          <Link className="extension" to={{ search: "?q=host%3A" + post.host }}>
+            {post.host}
           </Link>
         )}
         <>

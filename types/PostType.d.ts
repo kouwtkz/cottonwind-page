@@ -26,7 +26,7 @@ type PostPagesExtensionType = "ExtRSS";
 
 interface PostPagesItemType extends Omit<PostType, "id"> {
   id?: number;
-  servise?: string;
+  host?: string;
   extension?: PostPagesExtensionType;
   link?: string;
 }
