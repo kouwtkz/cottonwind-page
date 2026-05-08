@@ -250,7 +250,7 @@ export function MultiParser({
               (d) => d.type === "text" && /^\s*$/.test(d.data),
             )
           ) {
-            return <br />;
+            return <br key={reactNode.key} />;
           } else if (reactNode.type === "img") {
             return <img key={domNode.attribs.src} {...reactNode.props} />;
           }
