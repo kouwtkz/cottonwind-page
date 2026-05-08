@@ -4376,6 +4376,9 @@ body.workers {
       > * {
         margin: auto 0.25rem;
       }
+      &:empty {
+        display: none;
+      }
     }
     .footer {
       text-align: right;

@@ -314,27 +314,27 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         ) : (
           <></>
         )}
-        {post.category ? (
-          <div className="category">
-            {(typeof post.category === "string"
+        <div className="category">
+          {(post.category
+            ? typeof post.category === "string"
               ? [post.category]
               : post.category
-            ).map((category, i) => (
-              <div key={`post_category_${category}`}>
-                <Link
-                  to={ToHref({
-                    pathname: "/blog",
-                    query: { q: `#${category}` },
-                  })}
-                >
-                  {category}
-                </Link>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <></>
-        )}
+            : []
+          ).map((category, i) => (
+            <Link
+              to={ToHref({
+                pathname: "/blog",
+                query: { q: `#${category}` },
+              })}
+              key={`post_category_${category}`}
+            >
+              {category}
+            </Link>
+          ))}
+          {post.extension === "ExtRSS" ? (
+            <Link to={{ search: "q=extension%3AExtRSS" }}>外部RSS</Link>
+          ) : null}
+        </div>
       </div>
       <MultiParserWithMedia
         {...markdownProps}
