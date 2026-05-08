@@ -1220,7 +1220,7 @@ a[data-navlink],
   @extend link_hover;
 }
 
-a:not([href]):not([role="button"]):not([data-navlink]),
+a:not([href]):not([role="button"]):not([data-navlink]):not([class^="fc"]),
 a:disabled {
   --link-color: var(--main-color-grayish);
 }
