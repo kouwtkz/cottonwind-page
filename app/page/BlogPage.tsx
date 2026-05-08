@@ -391,9 +391,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
               {formattedDate}
             </a>
           ) : detail ? (
-            <>
-              <span className="status">{formattedDate}</span>
-            </>
+            <span className="status">{formattedDate}</span>
           ) : (
             <Link
               className="status"
