@@ -710,20 +710,20 @@ export default function ImageEditForm({
           </>
         }
       >
+        <button
+          title={isEdit ? "保存" : "編集"}
+          type="button"
+          className="color round saveEdit"
+          onClick={() => {
+            if (isEdit && isDirty) SubmitImage();
+            Set({ isEdit: !isEdit });
+          }}
+          disabled={isBusy}
+        >
+          {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
+        </button>
         {isEdit ? (
           <>
-            <button
-              title="リセット"
-              type="reset"
-              className="color round"
-              onClick={(e) => {
-                e.preventDefault();
-                reset();
-              }}
-              disabled={isBusy || !isDirty}
-            >
-              <MdCleaningServices />
-            </button>
             <button
               title="削除"
               type="button"
@@ -744,24 +744,24 @@ export default function ImageEditForm({
             >
               <MdDeleteForever />
             </button>
+            <button
+              title="リセット"
+              type="reset"
+              className="color round"
+              onClick={(e) => {
+                e.preventDefault();
+                reset();
+              }}
+              disabled={isBusy || !isDirty}
+            >
+              <MdCleaningServices />
+            </button>
           </>
         ) : (
           <>
             <CharaImageSettingRbButtons image={image} />
           </>
         )}
-        <button
-          title={isEdit ? "保存" : "編集"}
-          type="button"
-          className="color round saveEdit"
-          onClick={() => {
-            if (isEdit && isDirty) SubmitImage();
-            Set({ isEdit: !isEdit });
-          }}
-          disabled={isBusy}
-        >
-          {isEdit ? <MdLibraryAddCheck /> : <AiFillEdit />}
-        </button>
       </RbButtonArea>
 
       <form
