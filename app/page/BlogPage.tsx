@@ -157,59 +157,65 @@ export function PostsPage({
     return result;
   }, [page, posts, q, take]);
 
-  if (postId) {
-    const post = findMee(posts, { where: { postId }, take: 1 })[0] as
-      | PostPagesItemType
-      | undefined;
-    return (
-      <div className="article detail">
-        <PostDetailFixed
-          postId={postId}
-          posts={postsResult}
-          extRss={post?.extension === "ExtRSS"}
-        />
-        {post ? <OnePost post={post} detail={true} /> : null}
-      </div>
-    );
-  } else {
-    return (
-      <>
-        <PostsPageFixed max={max} />
-        <div className="article">
-          {localDraft ? (
-            <OnePost post={{ ...localDraft, pin: 0xffff }} />
-          ) : null}
-          {postsResult.length > 0 ? (
-            <>
-              {postsResult.map((post, index) => (
-                <OnePost post={post} key={index} />
-              ))}
-              {max > 1 && (page || 1) < max ? (
-                <div className="message">
-                  <Link
-                    className="next"
-                    to={ToHref({
-                      pathname: "/blog",
-                      query: {
-                        ...(q ? { q } : {}),
-                        p: (page || 1) + 1,
-                      },
-                    })}
-                  >
-                    次のページ ▽
-                  </Link>
-                </div>
-              ) : null}
-            </>
-          ) : posts ? (
-            <div className="message">投稿はありません</div>
-          ) : (
-            <div className="message">よみこみちゅう…</div>
-          )}
+  const post = useMemo(() => {
+    if (postId) {
+      return (
+        findMee(posts, { where: { postId }, take: 1 })[0] || {
+          postId,
+        }
+      );
+    } else return null;
+  }, [postId, posts]);
+  return (
+    <>
+      {post ? (
+        <div className="article detail">
+          <PostDetailFixed
+            post={post}
+            posts={postsResult}
+            extRss={post?.extension === "ExtRSS"}
+          />
+          {post ? <OnePost post={post} detail={true} /> : null}
         </div>
-      </>
-    );
-  }
+      ) : (
+        <>
+          <PostsPageFixed max={max} />
+          <div className="article">
+            {localDraft ? (
+              <OnePost post={{ ...localDraft, pin: 0xffff }} />
+            ) : null}
+            {postsResult.length > 0 ? (
+              <>
+                {postsResult.map((post, index) => (
+                  <OnePost post={post} key={index} />
+                ))}
+                {max > 1 && (page || 1) < max ? (
+                  <div className="message">
+                    <Link
+                      className="next"
+                      to={ToHref({
+                        pathname: "/blog",
+                        query: {
+                          ...(q ? { q } : {}),
+                          p: (page || 1) + 1,
+                        },
+                      })}
+                    >
+                      次のページ ▽
+                    </Link>
+                  </div>
+                ) : null}
+              </>
+            ) : posts ? (
+              <div className="message">投稿はありません</div>
+            ) : (
+              <div className="message">よみこみちゅう…</div>
+            )}
+          </div>
+        </>
+      )}
+    </>
+  );
 }
 
 type OnePostProps = { post: PostPagesItemType; detail?: boolean };
@@ -426,6 +432,7 @@ function UpdateExtRss() {
 type FixedProps = { max?: number };
 export function PostsPageFixed({ max }: FixedProps) {
   const isLogin = useIsLogin()[0];
+  useHotkeys("n", PostEditButtonAction());
   return (
     <RbButtonArea
       className="blog"
@@ -448,12 +455,19 @@ export function PostsPageFixed({ max }: FixedProps) {
 }
 
 type PostDetailFixedProps = {
-  postId: string;
+  post: PostPagesItemType;
   extRss?: boolean;
   posts: PostPagesItemType[];
 };
-export function PostDetailFixed({ extRss, ...args }: PostDetailFixedProps) {
+export function PostDetailFixed({
+  post,
+  extRss,
+  ...args
+}: PostDetailFixedProps) {
   const isLogin = useIsLogin()[0];
+  useHotkeys("n", PostEditButtonAction(post.postId), {
+    enabled: typeof post.id === "number",
+  });
   return (
     <RbButtonArea
       className="blog"
@@ -467,7 +481,7 @@ export function PostDetailFixed({ extRss, ...args }: PostDetailFixedProps) {
                 extRss ? (
                   <UpdateExtRss />
                 ) : (
-                  <PostButton postId={args.postId} />
+                  <PostButton postId={post.postId} />
                 )
               ) : null}
             </>
@@ -475,14 +489,14 @@ export function PostDetailFixed({ extRss, ...args }: PostDetailFixedProps) {
         </>
       }
     >
-      <BackForwardPost className="list" {...args} />
+      <BackForwardPost className="list" {...args} postId={post.postId} />
       <SearchArea />
     </RbButtonArea>
   );
 }
 
 interface BackForwardPostProps extends HTMLAttributes<HTMLDivElement> {
-  postId: string;
+  postId?: string;
   posts: PostPagesItemType[];
 }
 
@@ -538,16 +552,26 @@ interface PostButtonProps extends HTMLAttributes<HTMLButtonElement> {
   postId?: string;
 }
 
-export function PostButton({ postId, className, ...args }: PostButtonProps) {
-  className = className ? ` ${className}` : "";
+export function PostEditLink(postId?: string) {
+  return `/blog/post${postId ? `?target=${postId}` : ""}`;
+}
+export function PostEditButtonAction(postId?: string) {
   const nav = useNavigate();
-  const link = `/blog/post${postId ? `?target=${postId}` : ""}`;
-  useHotkeys("n", () => nav(link));
+  const link = PostEditLink(postId);
+  return useCallback(() => nav(link), [link]);
+}
+
+export function PostButton({ postId, className, ...args }: PostButtonProps) {
+  className = useMemo(() => {
+    const classNames = ["round color"];
+    if (className) classNames.push(className);
+    return classNames.join(" ");
+  }, [className]);
   return (
     <button
       {...args}
-      className={"round color" + className}
-      onClick={() => nav(link)}
+      className={className}
+      onClick={PostEditButtonAction(postId)}
     >
       {postId ? <TfiWrite className="svg" /> : <AiFillEdit className="svg" />}
     </button>
