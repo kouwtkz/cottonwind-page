@@ -2437,18 +2437,19 @@ form {
 .parsed {
   h1,
   h2 {
-    margin-top: 1em;
     @extend .color-main;
   }
   h3,
   h4 {
-    margin-top: 0.5em;
     @extend .color-deep;
+  }
+  div {
+      margin: 1rem auto;
   }
   &.blog {
     margin-top: 1.5rem;
-    & > * {
-      margin: 0 auto 1.5rem;
+    br ~ * {
+      margin-top: 0;
     }
     & > br:last-child {
       display: none;
@@ -2466,9 +2467,6 @@ form {
   }
   img {
     max-width: 100%;
-  }
-  & > div {
-    display: inline-block;
   }
 }
 

@@ -581,6 +581,7 @@ export function PostForm() {
           id="post_body_area"
           placeholder="ブログの本文"
           className="body"
+          previewClassName="blog"
           mode="details"
           setValue={setBody}
           body={watch("body")}

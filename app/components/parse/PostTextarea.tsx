@@ -37,6 +37,7 @@ interface PostTextareaProps
   mode?: PostTextareaPreviewMode;
   body?: string;
   open?: boolean;
+  previewClassName?: string;
   setValue?(v: any): void;
 }
 export function PostTextarea({
@@ -46,6 +47,7 @@ export function PostTextarea({
   title,
   placeholder,
   className,
+  previewClassName,
   mode: previewMode = false,
   body: previewBody,
   contentEditable = true,
@@ -61,10 +63,11 @@ export function PostTextarea({
     return divClassNames.join(" ");
   }, [className, previewMode]);
   const previewRef = useRef<HTMLElement>(null);
-  const previewClassName = useMemo(() => {
+  previewClassName = useMemo(() => {
     const classNames: string[] = ["preview-area"];
+    if (previewClassName) classNames.push(previewClassName);
     return classNames.join(" ");
-  }, [className]);
+  }, [previewClassName]);
   const hiddenTextarea = useMemo(() => {
     return typeof previewMode === "string"
       ? previewMode === "true"
