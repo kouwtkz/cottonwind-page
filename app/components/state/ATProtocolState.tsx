@@ -487,7 +487,7 @@ function PostItem({
                     />
                   ) : null}
                   <EmbedImageOrVideo
-                    embed={post.embed.record.embeds?.[0]}
+                    embed={post.embed.record.embeds}
                     cid={post.cid}
                   />
                   <MultiParserWithFacets className="content">
