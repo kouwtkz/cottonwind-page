@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
@@ -386,26 +386,19 @@ function ATUriToBskyFeedUrl(uri: string) {
   );
 }
 
-function PostItem({
-  post,
-  postBaseUrl,
-  isTree,
+function EmbedImage({
+  cid,
+  embed,
 }: {
-  post: BlueskyFeedPostType;
-  postBaseUrl: URL;
-  isTree?: boolean;
+  cid: string;
+  embed: BlueskyFeedPostEmbedImageViewType;
 }) {
   const { setOpen: setOpenImageViewer } = useImageViewer();
-  const Url = new URL(postBaseUrl);
-  Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
-  const time = new Date(post.record.createdAt);
-  let tdClass: string | undefined;
-  if (isTree) tdClass = "tree";
   function ImageOnClick(image: BlueskyFeedPostEmbedImageViewItemType) {
     setOpenImageViewer({
       image: {
         id: -1,
-        key: post.cid,
+        key: cid,
         title: image.alt,
         src: image.fullsize,
         thumbnail: image.thumb,
@@ -415,6 +408,62 @@ function PostItem({
     });
   }
   return (
+    <>
+      {embed.images.map((image, i) => (
+        <div className="imageItem" key={`image_${image.thumb}`}>
+          <img
+            alt={image.alt}
+            src={image.thumb}
+            tabIndex={0}
+            onClick={() => ImageOnClick(image)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") ImageOnClick(image);
+            }}
+          />
+        </div>
+      ))}
+    </>
+  );
+}
+function EmbedImageOrVideo({
+  embed,
+  cid,
+}: {
+  embed?: BlueskyFeedPostEmbedTypes | BlueskyFeedPostEmbedTypes[];
+  cid: string;
+}) {
+  const embeds = embed ? (Array.isArray(embed) ? embed : [embed]) : [];
+  return (
+    <>
+      {embeds.map((embed, i) => (
+        <Fragment key={i}>
+          {embed.$type === "app.bsky.embed.images#view" ? (
+            <EmbedImage cid={cid} embed={embed} />
+          ) : null}
+          {embed.$type === "app.bsky.embed.video#view" ? (
+            <EmbedVideoProps video={embed} />
+          ) : null}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+function PostItem({
+  post,
+  postBaseUrl,
+  isTree,
+}: {
+  post: BlueskyFeedPostType;
+  postBaseUrl: URL;
+  isTree?: boolean;
+}) {
+  const Url = new URL(postBaseUrl);
+  Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
+  const time = new Date(post.record.createdAt);
+  let tdClass: string | undefined;
+  if (isTree) tdClass = "tree";
+  return (
     <tr className="item">
       <td className={tdClass}>
         <div>
@@ -422,25 +471,7 @@ function PostItem({
         </div>
         {post.embed ? (
           <div className="embed">
-            {post.embed.$type === "app.bsky.embed.images#view" &&
-            post.embed.images.length > 0
-              ? post.embed.images.map((image, i) => (
-                  <div className="imageItem" key={`image_${image.thumb}`}>
-                    <img
-                      alt={image.alt}
-                      src={image.thumb}
-                      tabIndex={0}
-                      onClick={() => ImageOnClick(image)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") ImageOnClick(image);
-                      }}
-                    />
-                  </div>
-                ))
-              : null}
-            {post.embed.$type === "app.bsky.embed.video#view" ? (
-              <EmbedVideoProps video={post.embed} />
-            ) : null}
+            <EmbedImageOrVideo embed={post.embed} cid={post.cid} />
             {post.embed.$type === "app.bsky.embed.record#view" ? (
               post.embed.record.$type === "app.bsky.embed.record#viewRecord" ? (
                 <a
@@ -455,6 +486,10 @@ function PostItem({
                       className="icon"
                     />
                   ) : null}
+                  <EmbedImageOrVideo
+                    embed={post.embed.record.embeds?.[0]}
+                    cid={post.cid}
+                  />
                   <MultiParserWithFacets className="content">
                     {post.embed.record.value}
                   </MultiParserWithFacets>
