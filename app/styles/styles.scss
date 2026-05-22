@@ -2318,11 +2318,12 @@ footer {
       background-color: var(--main-color-pale-fluo);
     }
     img.icon {
-      height: 5em;
+      height: 3.4em;
       width: auto;
       border-right: solid 1px var(--main-color-grayish);
-      border-radius: 12px 0 0 12px;
+      border-radius: 2em;
       padding: 0;
+      margin: 0.5em 0.2em;
     }
     div.content {
       flex: 1;
