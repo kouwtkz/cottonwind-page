@@ -231,7 +231,7 @@ export function BlueskyFeed() {
   }, [posts]);
   const list = useMemo(() => {
     const mapList = posts?.reduce<
-      [Map<string, BlueskyFeedPostRawType[]>, Map<string, void>]
+      [Map<string, BlueskyFeedPostType[]>, Map<string, void>]
     >(
       (a, post) => {
         if (
@@ -252,11 +252,28 @@ export function BlueskyFeed() {
     );
     if (mapList) {
       const list = Array.from(mapList[0].values());
+      let pinnedPost: BlueskyFeedPostType | null = null;
+      if (list[0]?.[0]?.reason?.$type === "app.bsky.feed.defs#reasonPin") {
+        pinnedPost = list[0][0];
+      }
+      list.sort((a, b) =>
+        a[0].record.createdAt < b[0].record.createdAt ? 1 : -1,
+      );
+      if (pinnedPost) {
+        if (list[0][0].cid === pinnedPost.cid) {
+          pinnedPost = null;
+        } else {
+          const pinnedSamePost = pinnedPost;
+          pinnedPost = { ...pinnedPost };
+          delete pinnedSamePost.reason;
+        }
+      }
       list.forEach((posts) => {
         posts.sort((a, b) =>
           a.record.createdAt > b.record.createdAt ? 1 : -1,
         );
       });
+      if (pinnedPost) list.unshift([pinnedPost]);
       return list;
     } else return [];
   }, [posts]);
