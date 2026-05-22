@@ -2329,7 +2329,7 @@ footer {
       padding: 0.25rem 1.5rem;
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
+      justify-content: center;
       h4 {
         font-size: 1.3em;
         margin: 0;
@@ -2445,7 +2445,7 @@ form {
     @extend .color-deep;
   }
   div {
-      margin: 1rem auto;
+    margin: 1rem auto;
   }
   &.blog {
     margin-top: 1.5rem;
@@ -4410,6 +4410,11 @@ body.workers {
       text-decoration-line: none;
       &:hover {
         background-color: var(--main-color-light-grayish);
+      }
+    }
+    .blog {
+      h2 {
+        font-size: 1.75em;
       }
     }
   }
