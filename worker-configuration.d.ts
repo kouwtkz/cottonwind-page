@@ -46,8 +46,6 @@ declare namespace Cloudflare {
 		LOGIN_TOKEN: string;
 		GOOGLE_CALENDAR_API: string;
 		CONTACT_FORM_GOOGLE: string;
-		DISCORD_INVITE_ANSWER: string;
-		DISCORD_INVITE_URL: string;
 		X_CLIENT_ID: string;
 		X_CLIENT_SECRET: string;
 		WORKERS_API_TOKEN: string;
