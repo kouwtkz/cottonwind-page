@@ -146,7 +146,7 @@ export class IndexedDataLastmodMH<
   load(load?: LoadStateType) {
     this.emitEvent("load", load);
   }
-  override async save({ callback: argsCallback, onsuccess, ...args }: Props_IndexedDataClass_Save<D | T>) {
+  override async save({ callback: argsCallback, onsuccess, ...args }: Props_IndexedDataClass_Save<T>) {
     const thisOption = this.options;
     async function callback(item: T | D, i: number): Promise<T> {
       if (thisOption.convert) {

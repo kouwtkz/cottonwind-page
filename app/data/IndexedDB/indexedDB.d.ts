@@ -45,12 +45,13 @@ interface Props_IndexedDataClass_DataStore<T = any> {
   store?: IDBObjectStore;
 }
 
-interface Props_IndexedDataClass_Save<T = any> extends Props_IndexedDataClass_DataStore<any[]> {
+interface Props_IndexedDataClass_Save<T = any> extends Omit<Props_IndexedDataClass_DataStore, "data"> {
   callback?(item: T, index?: number): any | Promise<any>;
   onput?(args: { value: any, key?: IDBValidKey, index: number }): void;
   onerror?(e: any): void;
   next?(index?: number): void;
   onsuccess?(item?: IDBValidKey): any | Promise<any>;
+  data?: T[]
 }
 
 interface Props_Indexed_KV_Save<T = any> extends Props_IndexedDataClass_DataStore<Map<string, T> | Array<[string, T]>> { }

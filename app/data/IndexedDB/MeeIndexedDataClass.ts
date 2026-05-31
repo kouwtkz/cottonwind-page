@@ -50,7 +50,7 @@ export class IndexedDataClass<
   async save({ store, data, callback, onput, onerror, next, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
     const thisTable = this.table;
     const emit = this.emitEvent.bind(this);
-    if (data.length > 0) {
+    if (data && data.length > 0) {
       this.isBusy = true;
       return thisTable.usingStore({
         async callback(store) {
@@ -104,9 +104,9 @@ export class IndexedKVClass<V = string | null, K = string> extends IndexedDataCl
   }
   save(props: Props_Indexed_KV_Save): Promise<Array<IndexedKVClassType<V, K>>>;
   save(props: Props_IndexedDataClass_Save): Promise<IndexedKVClassType<V, K>[]>;
-  async save({ data, store }: Props_Indexed_KV_Save) {
+  async save({ data, store }: Props_Indexed_KV_Save | Props_IndexedDataClass_Save) {
     const items = ((
-      (Array.isArray(data) ? data : Array.from(data.entries()))
+      (Array.isArray(data) ? data : data ? Array.from(data.entries()) : [])
     ) as Array<[K, V]>).map(([key, value]) => ({ key, value }));
     const result = await super.save({ store, data: items });
     await this.updateData();
