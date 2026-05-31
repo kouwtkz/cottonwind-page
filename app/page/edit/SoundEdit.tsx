@@ -5,7 +5,7 @@ import {
   soundsDataIndexed,
 } from "~/data/ClientDBLoader";
 import {
-  ImportCommonJson,
+  ImportSoundAlbumJson,
   ImportSoundJson,
   UploadToast,
 } from "~/data/ClientDBFunctions";
@@ -127,7 +127,7 @@ export function SoundsImportButton({
       {...props}
       onClick={() => {
         if (album) {
-          ImportCommonJson({ options: soundAlbumsDataOptions }).then(() => {
+          ImportSoundAlbumJson().then(() => {
             soundAlbumsDataIndexed.load("no-cache-reload");
           });
         } else {
@@ -401,6 +401,21 @@ export function SoundAlbumEdit() {
   const item = useMemo(() => {
     if (edit) return soundAlbumsMap.get(edit);
   }, [soundAlbumsMap, edit]);
+  const getDefaultValues = useCallback(
+    () =>
+      ({
+        title: item?.title || item?.key || "",
+        artist: item?.artist || "",
+        draft: item?.draft || null,
+        category: item?.category || "",
+        order: item?.order || "",
+        description: item?.description || "",
+        cover: item?.cover || "",
+        time: item?.time ? ToFormTime(new Date(item.time)) : null,
+        key: item?.key || "",
+      }) as KeyofValueType<SoundAlbumDataType>,
+    [item],
+  );
   const {
     register,
     handleSubmit,
@@ -408,16 +423,7 @@ export function SoundAlbumEdit() {
     reset,
     formState: { isDirty, dirtyFields },
   } = useForm<any>({
-    defaultValues: {
-      title: item?.title || item?.key || "",
-      artist: item?.artist || "",
-      draft: item?.draft || null,
-      category: item?.category || "",
-      order: item?.order || "",
-      description: item?.description || "",
-      cover: item?.cover || "",
-      time: item?.time ? ToFormTime(new Date(item.time)) : null,
-    },
+    defaultValues: getDefaultValues(),
   });
   useHotkeys(
     "ctrl+enter",
@@ -442,6 +448,7 @@ export function SoundAlbumEdit() {
           cors: true,
         }).then(() => {
           soundAlbumsDataIndexed.load("no-cache");
+          if (entry.key) soundsDataIndexed.load("no-cache");
           setEdit(null);
         }),
         {
@@ -458,7 +465,7 @@ export function SoundAlbumEdit() {
   const Delete = useCallback(() => {
     if (edit && item && confirm("本当に削除しますか？")) {
       SendDelete({
-        url: concatOriginUrl(apiOrigin, SOUND_SEND_API),
+        url: concatOriginUrl(apiOrigin, ALBUM_SEND_API),
         data: { target: item.key },
       }).then((r) => {
         if (r.ok) {
@@ -515,6 +522,10 @@ export function SoundAlbumEdit() {
             placeholder="分類など"
             {...register("category")}
           />
+        </label>
+        <label>
+          <span className="label">アルバムのキー</span>
+          <input title="アルバムのキー名" {...register("key")} />
         </label>
         <div className="actions">
           <button type="button" className="color-warm" onClick={Delete}>

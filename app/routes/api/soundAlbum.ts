@@ -5,6 +5,7 @@ import { UpdateTablesDataObject } from "./DBTablesObject";
 import type { Route } from "./+types/soundAlbum";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
+import { soundTableObject } from "./sound";
 
 const TableObject = new DBTableClass(soundAlbumsDataOptions);
 export const soundAlbumTableObject = TableObject;
@@ -55,11 +56,21 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   ? (await soundAlbumTableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
                   : undefined;
                 if (target) {
-                  entry.key = data.id;
+                  if (entry.key) {
+                    const defaultNow = new Date();
+                    const soundEntry: MeeSqlEntryType<SoundDataType> = { album: entry.key };
+                    const sounds = await soundTableObject.Select({ db, where: { album: target.key } });
+                    await Promise.all(sounds.map(async (sound, i) => {
+                      const now = new Date(defaultNow);
+                      if (i > 0) now.setMilliseconds(now.getMilliseconds() + i);
+                      soundEntry.lastmod = now.toISOString();
+                      await soundTableObject.Update({ db, where: { key: sound.key }, entry: soundEntry });
+                    }));
+                  }
                   await soundAlbumTableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
                   return { type: "update", entry: { ...target, ...entry } };
                 } else {
-                  entry.key = data.id || target_id;
+                  if (!entry.key) entry.key = data.id || target_id;
                   if (!entry.title) entry.title = entry.key;
                   await soundAlbumTableObject.Insert({ db, entry });
                   return { type: "create", entry }
@@ -77,7 +88,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 await TableObject.Update({
                   db,
                   entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
-                  where: { key }
+                  where: { key },
                 });
                 return key;
               } catch {

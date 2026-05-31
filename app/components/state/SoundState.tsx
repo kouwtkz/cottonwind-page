@@ -33,10 +33,10 @@ export function SoundState() {
   const { Set } = useSounds();
   const { RegistPlaylist } = useSoundPlayer();
   const soundsData = useSyncExternalStore(
-    ...ExternalStoreProps(soundsDataIndexed)
+    ...ExternalStoreProps(soundsDataIndexed),
   );
   const soundAlbumsData = useSyncExternalStore(
-    ...ExternalStoreProps(soundAlbumsDataIndexed)
+    ...ExternalStoreProps(soundAlbumsDataIndexed),
   );
   useEffect(() => {
     (async () => {
@@ -61,7 +61,7 @@ export function SoundState() {
         albums.forEach((album) => {
           album.playlist?.list.sort((a, b) => (a.track || 0) - (b.track || 0));
         });
-        albums.sort((a, b) => (a.order || 0) - (b.order || 0));
+        albums.sort((a, b) => (a.order || 0xffff) - (b.order || 0xffff));
         const defaultPlaylist =
           albums.find((album) => album.setup && false)?.playlist ||
           albums[0]?.playlist;
@@ -70,7 +70,7 @@ export function SoundState() {
           sounds,
           soundsMap,
           soundAlbumsData,
-          soundAlbums,
+          soundAlbums: albums,
           soundAlbumsMap,
         });
         if (defaultPlaylist) {

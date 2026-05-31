@@ -1,13 +1,13 @@
 import { toast } from "react-toastify";
-import { apiOrigin } from "./ClientDBLoader";
+import { apiOrigin, soundsDataIndexed } from "./ClientDBLoader";
 import { BooleanToNumber, unknownToString } from "~/components/functions/doc/ToFunction";
-import { arrayPartition, PromiseOrder, type PromiseOrderOptions } from "~/components/functions/arrayFunction";
+import { arrayPartition, asyncFilter, PromiseOrder, type PromiseOrderOptions } from "~/components/functions/arrayFunction";
 import { toastLoadingOptions, toastUpdateOptions } from "~/components/define/toastContainerDef";
 import { jsonFileDialog } from "~/components/utils/FileTool";
 import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";
-import { linksDataOptions, soundsDataOptions } from "./DataEnv";
+import { linksDataOptions, soundAlbumsDataOptions, soundsDataOptions } from "./DataEnv";
 
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
@@ -348,7 +348,33 @@ export async function ImportSoundJson({
     data.forEach(item => {
       if (!item.version) item.version = 1;
     })
-    console.log(data);
+    const fetchList = makeImportFetchList({
+      src: options.api + "/import",
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(fetchList);
+  });
+}
+
+export async function ImportSoundAlbumJson({
+  partition,
+  json,
+}: DataUploadBaseProps = {}) {
+  const options = soundAlbumsDataOptions;
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+    let object: importEntryDataType<KeyValueDBDataType>;
+    let data: SoundAlbumDataType[];
+    const { data: _data, ..._entry } = json as dataBaseType<SoundAlbumDataType>;
+    object = _entry;
+    data = await asyncFilter(_data ? _data : [], (async (item: any) => {
+      const values = (await soundsDataIndexed.table.find({ where: { album: item.key }, take: 1 }));
+      return values.length > 0;
+    }));
+    data.forEach(item => {
+      if (typeof item.order === "string") item.order = Number(item.order);
+    });
     const fetchList = makeImportFetchList({
       src: options.api + "/import",
       partition,

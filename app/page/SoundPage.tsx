@@ -12,6 +12,7 @@ import {
   useEditSoundAlbumKey,
   useEditSoundKey,
 } from "./edit/SoundEdit";
+import { useMemo } from "react";
 
 export function SoundPage() {
   const searchParams = useSearchParams()[0];
@@ -30,6 +31,12 @@ export function SoundPage() {
     current,
   } = useSoundPlayer();
   const src = playerList.list[current]?.src || "";
+  const albums = useMemo(() => {
+    const albums = soundAlbums || [];
+    return isLogin && isEdit
+      ? albums
+      : albums.filter((album) => album.playlist);
+  }, [soundAlbums, isLogin, isEdit]);
 
   return (
     <div className="soundPage">
@@ -40,7 +47,7 @@ export function SoundPage() {
         onClick={() => {
           if (special) {
             const playlist = soundAlbums?.find(({ playlist }) =>
-              playlist?.list.some((sound) => sound.src === src)
+              playlist?.list.some((sound) => sound.src === src),
             )?.playlist;
             if (playlist) {
               RegistPlaylist({
@@ -66,72 +73,65 @@ export function SoundPage() {
         Sound Room
       </h1>
       {isLogin ? <SoundEditButton /> : null}
-      {soundAlbums
-        ?.filter((album) => album.playlist)
-        .map((album, i) => {
-          const playlist = album.playlist!;
-          return (
-            <div key={`sound_playlist_${album.key}`} className="playlist">
-              <h3
-                className={"label" + (isEdit ? " cursor-pointer" : "")}
-                onClick={() => {
-                  if (isEdit) setSoundAlbumKey(album.key);
-                }}
-              >
-                {playlist.title}
-              </h3>
-              <div className="list">
-                {playlist.list.map((sound, i) => {
-                  const itemPaused = sound.src === src ? paused : true;
-                  return (
-                    <div
-                      key={`sound_item_${sound.key}`}
-                      className={
-                        "item cursor-pointer" + (itemPaused ? " paused" : "")
+      {albums.map((album, i) => {
+        const playlist = album.playlist;
+        return (
+          <div key={`sound_playlist_${album.key}`} className="playlist">
+            <h3
+              className={"label" + (isEdit ? " cursor-pointer" : "")}
+              onClick={() => {
+                if (isEdit) setSoundAlbumKey(album.key);
+              }}
+            >
+              {playlist?.title || album.title || album.key}
+            </h3>
+            <div className="list">
+              {playlist?.list.map((sound, i) => {
+                const itemPaused = sound.src === src ? paused : true;
+                return (
+                  <div
+                    key={`sound_item_${sound.key}`}
+                    className={
+                      "item cursor-pointer" + (itemPaused ? " paused" : "")
+                    }
+                    onClick={() => {
+                      if (isEdit) {
+                        setSoundKey(sound.key);
+                      } else {
+                        if (itemPaused) {
+                          if (special) {
+                            Play({
+                              current: sounds?.findIndex(
+                                (_sound) => _sound.src === sound.src,
+                              ),
+                            });
+                          } else {
+                            Play({ playlist, current: i });
+                          }
+                        } else Pause();
                       }
-                      onClick={() => {
-                        if (isEdit) {
-                          setSoundKey(sound.key);
-                        } else {
-                          if (itemPaused) {
-                            if (special) {
-                              Play({
-                                current: sounds?.findIndex(
-                                  (_sound) => _sound.src === sound.src
-                                ),
-                              });
-                            } else {
-                              Play({ playlist, current: i });
-                            }
-                          } else Pause();
-                        }
-                      }}
-                    >
-                      <div className="cursor">
-                        {!isEdit && sound.src === src ? (
-                          <TriangleCursor />
-                        ) : null}
-                      </div>
-                      <div className="name">
-                        <span>{sound.title}</span>
-                      </div>
-                      {isEdit ? (
-                        <div className="button" />
-                      ) : (
-                        <div className="button round soft-color">
-                          <PlayPauseButton
-                            className="play"
-                            paused={itemPaused}
-                          />
-                        </div>
-                      )}
+                    }}
+                  >
+                    <div className="cursor">
+                      {!isEdit && sound.src === src ? <TriangleCursor /> : null}
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="name">
+                      <span>{sound.title}</span>
+                    </div>
+                    {isEdit ? (
+                      <div className="button" />
+                    ) : (
+                      <div className="button round soft-color">
+                        <PlayPauseButton className="play" paused={itemPaused} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        );
+      })}
     </div>
   );
 }

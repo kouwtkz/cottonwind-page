@@ -15,6 +15,7 @@ import {
   ImportLinksJson,
   ImportBlogPostJson,
   ImportSoundJson,
+  ImportSoundAlbumJson,
 } from "~/data/ClientDBFunctions";
 
 import { MdAdd } from "react-icons/md";
@@ -45,6 +46,7 @@ import {
   linksFavDataOptions,
   postsDataOptions,
   redirectDataOptions,
+  soundAlbumsDataOptions,
   soundsDataOptions,
 } from "~/data/DataEnv";
 import { useCharacters } from "~/components/state/CharacterState";
@@ -581,6 +583,9 @@ function DBPage() {
                           break;
                         case soundsDataOptions.name:
                           await ImportSoundJson({ json });
+                          break;
+                        case soundAlbumsDataOptions.name:
+                          await ImportSoundAlbumJson({ json });
                           break;
                         default:
                           toast(`${object.key}は現在インポートの実装待ちです…`);
