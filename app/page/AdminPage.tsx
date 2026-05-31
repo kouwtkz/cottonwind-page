@@ -14,6 +14,7 @@ import {
   ImportCommonJson,
   ImportLinksJson,
   ImportBlogPostJson,
+  ImportSoundJson,
 } from "~/data/ClientDBFunctions";
 
 import { MdAdd } from "react-icons/md";
@@ -145,7 +146,7 @@ function RedirectManagerEdit() {
     const entry = Object.fromEntries(
       Object.entries(dirtyFields)
         .filter((v) => v[1])
-        .map((v) => [v[0], values[v[0]]])
+        .map((v) => [v[0], values[v[0]]]),
     );
     entry.id = dataItem?.id;
     toast.promise(
@@ -161,7 +162,7 @@ function RedirectManagerEdit() {
         pending: "送信中",
         success: "送信しました",
         error: "送信に失敗しました",
-      }
+      },
     );
   }
   function Delete() {
@@ -179,7 +180,7 @@ function RedirectManagerEdit() {
           pending: "削除中",
           success: "削除しました",
           error: "削除に失敗しました",
-        }
+        },
       );
     }
   }
@@ -326,7 +327,7 @@ function ImageFilesDownload({ take, ...props }: DownloadBaseProps) {
         if (item.thumbnail) a.push(item.thumbnail);
         return a;
       }, []),
-    [images, take]
+    [images, take],
   );
   return (
     <MediaDownload
@@ -350,7 +351,7 @@ function FilesDownload({ take, ...props }: DownloadBaseProps) {
         if (item.src) a.push(item.src);
         return a;
       }, []),
-    [files, take]
+    [files, take],
   );
   return (
     <MediaDownload
@@ -374,7 +375,7 @@ function SoundFilesDownload({ take, ...props }: DownloadBaseProps) {
         if (item.src) a.push(item.src);
         return a;
       }, []),
-    [sounds, take]
+    [sounds, take],
   );
   return (
     <MediaDownload
@@ -397,7 +398,7 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
           list &&
           confirm(
             (isAll ? `${label}を全件` : `最新の${label}を${take}件`) +
-              "ダウンロードしますか？"
+              "ダウンロードしますか？",
           )
         ) {
           const zip = new JSZip();
@@ -416,17 +417,17 @@ function MediaDownload({ list, take, name, label }: MediaDownloadProps) {
                       })
                       .finally(() => {
                         addProgress();
-                      })
-                  )
-                )
+                      }),
+                  ),
+                ),
             ),
-            { sleepTime: 100 }
+            { sleepTime: 100 },
           )
             .then(() => zip.generateAsync({ type: "blob" }))
             .then((content) => {
               fileDownload(
                 isAll ? `files_${name}.zip` : `latest_${name}_${take}.zip`,
-                content
+                content,
               );
             })
             .finally(() => {
@@ -461,7 +462,7 @@ function DBDownloadMethod() {
       return getIndexedDBJsonOptions(v).then((data) => {
         zip.file(data.key + ".json", JSON.stringify(data));
       });
-    })
+    }),
   )
     .then(() => zip.generateAsync({ type: "blob" }))
     .then((content) => {
@@ -523,14 +524,15 @@ function DBPage() {
                 }
                 if (
                   confirm(
-                    updateString + "データベースのテーブルを全て更新しますか？"
+                    updateString + "データベースのテーブルを全て更新しますか？",
                   )
                 ) {
                   const list = needAlterTableList.map(async (object) => {
                     const json = await getIndexedDBJsonOptions(object);
                     DownloadDataObject({
                       ...json,
-                      name: object.key + "_" + FormatDate(currentDate, "Ymd_His"),
+                      name:
+                        object.key + "_" + FormatDate(currentDate, "Ymd_His"),
                     });
                     return { json, object };
                   });
@@ -578,10 +580,7 @@ function DBPage() {
                           });
                           break;
                         case soundsDataOptions.name:
-                          await ImportCommonJson({
-                            options: soundsDataOptions,
-                            json,
-                          });
+                          await ImportSoundJson({ json });
                           break;
                         default:
                           toast(`${object.key}は現在インポートの実装待ちです…`);

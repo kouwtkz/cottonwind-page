@@ -118,7 +118,7 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, Soun
   name: soundsDataName,
   src: "/sounds",
   api: "/sound",
-  version: "1.5.0",
+  version: "1.6.0",
   preLoad: false,
   latestField: { time: "desc" },
   jsonFromDataOptions: { time: null },
@@ -138,11 +138,12 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, Soun
     grouping: { type: "TEXT" },
     genre: { type: "TEXT" },
     draft: { type: "INTEGER" },
+    version: { type: "INTEGER" },
     time: { createAt: true, index: true },
     mtime: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
   },
-  insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "composer", "grouping", "genre", "draft"],
+  insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "composer", "grouping", "genre", "draft", "version"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 }
 

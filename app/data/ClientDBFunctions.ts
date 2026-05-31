@@ -7,8 +7,7 @@ import { jsonFileDialog } from "~/components/utils/FileTool";
 import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";
-import type { SendLinksDir } from "~/page/edit/LinksEdit";
-import { linksDataOptions } from "./DataEnv";
+import { linksDataOptions, soundsDataOptions } from "./DataEnv";
 
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
@@ -326,6 +325,32 @@ export async function ImportLinksJson({
     if (!src) src = linksDataOptions.src;
     const fetchList = makeImportFetchList({
       src: `${src}/import`,
+      partition,
+      data,
+      object,
+    });
+    return ImportToast(fetchList);
+  });
+}
+
+export async function ImportSoundJson({
+  partition,
+  json,
+}: DataUploadBaseProps = {}) {
+  const options = soundsDataOptions;
+  return (json ? (async () => json)() : jsonFileDialog()).then(async (json) => {
+    let object: importEntryDataType<KeyValueDBDataType>;
+    let data: SoundDataType[];
+    const { data: _data, ..._entry } = json as dataBaseType<SoundDataType>;
+    object = _entry;
+    data = _data ? _data : [];
+    data = data.filter(item => item.src);
+    data.forEach(item => {
+      if (!item.version) item.version = 1;
+    })
+    console.log(data);
+    const fetchList = makeImportFetchList({
+      src: options.api + "/import",
       partition,
       data,
       object,

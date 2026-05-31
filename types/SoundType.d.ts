@@ -12,6 +12,7 @@ interface SoundDataType {
   grouping?: string;
   genre?: string;
   draft?: number;
+  version?: number;
   time?: string;
   mtime?: string;
   lastmod?: string;

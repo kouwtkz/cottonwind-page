@@ -135,7 +135,7 @@ export const useSoundPlayer = CreateObjectState<SoundPlayerType>((set) => ({
       let newState: Partial<SoundPlayerType>;
       if (state.shuffle) {
         let current = Math.floor(
-          Math.random() * (state.playlist.list.length - 1)
+          Math.random() * (state.playlist.list.length - 1),
         );
         if (current >= state.current) current++;
         newState = { current };
@@ -229,7 +229,7 @@ export function MediaSession({
       if (onPreviousTrack)
         navigator.mediaSession.setActionHandler(
           "previoustrack",
-          onPreviousTrack
+          onPreviousTrack,
         );
       if (onNextTrack)
         navigator.mediaSession.setActionHandler("nexttrack", onNextTrack);
@@ -272,9 +272,14 @@ export function SoundPlayer() {
   const listLength = useMemo(() => playlist.list.length, [playlist.list]);
   const sound = useMemo(
     () => playlist.list[current] || {},
-    [playlist, current]
+    [playlist, current],
   );
-  const src = useMemo(() => sound?.src, [sound, current]);
+  const src = useMemo(() => {
+    if (sound) {
+      const version = sound.version || 1;
+      return sound.src + (version === 1 ? "" : "?v=" + version);
+    }
+  }, [sound, current]);
   const mediaSrc = useMemo(() => {
     if (mediaOrigin && src) return concatOriginUrl(mediaOrigin, src);
   }, [mediaOrigin, src]);
@@ -341,7 +346,7 @@ export function SoundPlayer() {
         setIntervalState((v) => v + 1);
       }
     },
-    [audioElm, jumped]
+    [audioElm, jumped],
   );
   useEffect(() => {
     if (jumpTime >= 0 && audioElm) {
@@ -375,7 +380,7 @@ export function SoundPlayer() {
             },
           ]
         : [],
-    [sound, mediaOrigin]
+    [sound, mediaOrigin],
   );
 
   return (
@@ -413,7 +418,7 @@ export function SoundPlayer() {
 function DurationToStr(
   duration: number,
   emptyToHyphen = false,
-  forceToHypen = false
+  forceToHypen = false,
 ) {
   if (forceToHypen || (!duration && emptyToHyphen)) return "-:--";
   const floorTime = Math.floor(duration);
@@ -450,7 +455,7 @@ export function SoundController() {
   const composer = sound?.composer || artist;
   const show = useMemo(
     () => /sound/.test(pathname) || !paused || !ended,
-    [pathname, paused, ended]
+    [pathname, paused, ended],
   );
   const onClickPlayPause = useCallback(() => {
     if (paused) Play();
@@ -471,7 +476,7 @@ export function SoundController() {
   const volumeDivRef = useRef<HTMLDivElement>(null);
   const volumeSliderElm = useMemo(
     () => volumeDivRef.current?.querySelector("div.slider"),
-    [volumeDivRef.current]
+    [volumeDivRef.current],
   );
   useEffect(() => {
     if (volumeSliderElm) {
@@ -497,7 +502,7 @@ export function SoundController() {
         )}
       </>
     ),
-    [volume, muted]
+    [volume, muted],
   );
   useEffect(() => {
     const elm = volumeDivRef.current;
@@ -642,15 +647,15 @@ function SoundControllerTime() {
   const isMask = useMemo(() => ended || isLoading, [ended, isLoading]);
   const duration = useMemo(
     () => (isMask ? 0 : stateDuration),
-    [stateDuration, isMask]
+    [stateDuration, isMask],
   );
   const currentTime = useMemo(
     () => (isMask ? 0 : stateCurrentTime),
-    [stateCurrentTime, isMask]
+    [stateCurrentTime, isMask],
   );
   const currentPerT = useMemo(
     () => Math.round((currentTime / (duration || 1)) * 1000),
-    [currentTime, duration, ended]
+    [currentTime, duration, ended],
   );
   const [sliderValue, setSliderValue] = useState<number | null>(null);
   const currentTimeWithSlider = useMemo(() => {
@@ -662,7 +667,7 @@ function SoundControllerTime() {
   const currentTimeStr = useMemo(
     () =>
       DurationToStr(currentTimeWithSlider || 0, currentTimeWithSlider === null),
-    [currentTimeWithSlider]
+    [currentTimeWithSlider],
   );
   const durationStr = useMemo(() => DurationToStr(duration, true), [duration]);
   return (

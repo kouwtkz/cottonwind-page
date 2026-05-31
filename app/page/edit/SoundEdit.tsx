@@ -4,13 +4,17 @@ import {
   soundAlbumsDataIndexed,
   soundsDataIndexed,
 } from "~/data/ClientDBLoader";
-import { ImportCommonJson, UploadToast } from "~/data/ClientDBFunctions";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ImportCommonJson,
+  ImportSoundJson,
+  UploadToast,
+} from "~/data/ClientDBFunctions";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router";
 import { FilesUploadProcess } from "./FilesEdit";
 import { Modal } from "~/components/layout/Modal";
 import { CreateState } from "~/components/state/CreateState";
-import { type FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "react-toastify";
 import { concatOriginUrl } from "~/components/functions/originUrl";
@@ -127,7 +131,7 @@ export function SoundsImportButton({
             soundAlbumsDataIndexed.load("no-cache-reload");
           });
         } else {
-          ImportCommonJson({ options: soundsDataOptions }).then(() => {
+          ImportSoundJson().then(() => {
             soundsDataIndexed.load("no-cache-reload");
           });
         }
@@ -150,35 +154,46 @@ export async function SoundsUpload(args: UploadBaseProps) {
 export const useEditSoundKey = CreateState<string | null>(null);
 export function SoundEdit() {
   const [edit, setEdit] = useEditSoundKey();
+  const updatedRef = useRef(false);
   const { soundsMap } = useSounds();
   const item = useMemo(() => {
-    if (edit) return soundsMap.get(edit);
+    if (edit) return { ...soundsMap.get(edit) };
   }, [soundsMap, edit]);
-  const x: keyof SoundItemType = "composer";
-  const a: KeyofValueType<SoundDataType> = {};
+  const getDefaultValues = useCallback(
+    () =>
+      ({
+        title: item?.title || item?.key || "",
+        album: item?.album || "",
+        artist: item?.artist || "",
+        composer: item?.composer || "",
+        track: item?.track?.toString() || "",
+        genre: item?.genre || "",
+        grouping: item?.grouping || "",
+        cover: item?.cover || "",
+        key: item?.key || "",
+        description: item?.description || "",
+        time: item?.time ? ToFormTime(new Date(item.time)) : null,
+        draft: item?.draft ?? null,
+        src: item?.src?.replace("sound/", "") || "",
+        version: item?.version?.toString() || "",
+      }) as KeyofValueType<SoundDataType>,
+    [item],
+  );
   const {
     register,
     handleSubmit,
     getValues,
     reset,
     formState: { isDirty, dirtyFields },
-  } = useForm<KeyofValueType<SoundDataType>>({
-    defaultValues: {
-      title: item?.title || item?.key || "",
-      album: item?.album || "",
-      artist: item?.artist || "",
-      composer: item?.composer || "",
-      track: item?.track?.toString() || "",
-      genre: item?.genre || "",
-      grouping: item?.grouping || "",
-      cover: item?.cover || "",
-      key: item?.key || "",
-      description: item?.description || "",
-      time: item?.time ? ToFormTime(new Date(item.time)) : null,
-      draft: item?.draft ?? null,
-      src: item?.src?.replace("sound/", "") || "",
-    },
+  } = useForm({
+    defaultValues: getDefaultValues(),
   });
+  useEffect(() => {
+    if (updatedRef.current) {
+      updatedRef.current = false;
+      reset(getDefaultValues());
+    }
+  }, [item]);
   useHotkeys(
     "ctrl+enter",
     (e) => {
@@ -335,15 +350,22 @@ export function SoundEdit() {
                 .then(() => {
                   soundsDataIndexed.load("no-cache");
                   soundAlbumsDataIndexed.load("no-cache");
+                  updatedRef.current = true;
                 });
           }}
         >
           音楽ファイルの再アップロード
         </button>
-        <label>
-          <span className="label">下書き</span>
-          <input title="下書き" type="checkbox" {...register("draft")} />
-        </label>
+        <div className="flex">
+          <label>
+            <span className="label">下書き</span>
+            <input title="下書き" type="checkbox" {...register("draft")} />
+          </label>
+          <label>
+            <span className="label">バージョン</span>
+            <input type="number" title="version" {...register("version")} />
+          </label>
+        </div>
         <div className="actions">
           <button type="button" className="color-warm" onClick={Delete}>
             削除

@@ -59,6 +59,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 src = value.src;
                 entry = TableObject.getInsertEntry({
                   src,
+                  version: (value.version || 1) + 1,
                   lastmod: new Date().toISOString()
                 });
               } else {
@@ -84,6 +85,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   src,
                   track: track,
                   grouping: v2?.TIT1?.split("\x00").join(","),
+                  version: 1,
                   time: time.toISOString(),
                   mtime,
                   lastmod: new Date().toISOString()

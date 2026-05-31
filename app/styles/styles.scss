@@ -3245,6 +3245,19 @@ $soundBoxHeight: 10rem;
         flex: 1;
       }
     }
+    div.flex {
+      justify-content: space-evenly;
+      align-items: center;
+      label,
+      .label {
+        display: inline-flex;
+        align-items: center;
+        min-width: initial;
+      }
+      input[type="number"] {
+        width: 4rem;
+      }
+    }
   }
 }
 
