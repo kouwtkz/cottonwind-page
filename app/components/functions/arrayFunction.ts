@@ -82,3 +82,8 @@ export function compareArray<T>(array1: T[], array2: T[], { type = "nomal", key 
       return array1.length === array2.length && array1.every(v1 => key ? array2.some(v2 => v1[key] === v2[key]) : array2.some(v2 => v1 === v2));
   }
 }
+
+export async function asyncFilter<T>(array: T[], filter: (v: T) => Promise<boolean>) {
+  const results = await Promise.all(array.map(filter));
+  return array.filter((v, i) => results[i]);
+}
