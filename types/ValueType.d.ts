@@ -27,3 +27,7 @@ interface valueCountType<T = string> {
   label?: string;
   count: number;
 }
+
+type KeyofValueType<K = any, V = string | string[] | boolean | null> = {
+  [k in keyof K]?: V;
+}

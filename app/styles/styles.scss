@@ -3364,6 +3364,9 @@ label,
       & > * {
         @extend %c;
       }
+      button.color {
+        padding: 0.5rem;
+      }
       button.labels {
         margin: 0.25rem auto;
       }

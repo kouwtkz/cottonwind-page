@@ -43,49 +43,60 @@ async function next({ params, request, context, env }: WithEnvProps) {
     case "send":
       const db = getCfDB({ context })!;
       if (db) {
+        async function BucketDeleteCheck(target: SoundDataType) {
+          return !(await TableObject.Select({ db, where: { src: target.src, NOT: { key: target.key } }, take: 1 }))[0]
+        }
         switch (request.method) {
           case "POST": {
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
             if (file && env.BUCKET) {
-              let tags: Partial<MP3TagTags> = {};
-              if (/\.mp3$/i.test(file.name)) {
-                await file.arrayBuffer().then(buffer => {
-                  const mp3tag = new MP3Tag(buffer);
-                  mp3tag.read();
-                  tags = mp3tag.tags;
-                })
-              }
-              const src = "sound/" + file.name;
-              const { track, title, album, year, artist, genre, v2 } = tags;
-              const time = new Date(file.lastModified);
-              const mtime = time.toISOString();
-              if (year) time.setFullYear(Number(year));
-              const key = getName(file.name);
-              console.log(track);
-              const entry = TableObject.getInsertEntry({
-                title,
-                album,
-                composer: v2?.TCOM,
-                artist,
-                genre,
-                src,
-                track: track,
-                grouping: v2?.TIT1?.split("\x00").join(","),
-                time: time.toISOString(),
-                mtime,
-                lastmod: new Date().toISOString()
-              });
-              const selectValue = await TableObject.Select({ db, where: { key } })
-              const value = selectValue[0];
-              if (!value || value.mtime !== entry.mtime) {
-                await env.BUCKET!.put(src, file);
-              }
-              if (album) {
-                const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
-                  .then<SoundAlbumDataType | null>(v => v[0] || null);
-                if (!albumValue) {
-                  await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
+              const key = formData.get("key") as string || getName(file.name);
+              const value = (await TableObject.Select({ db, where: { key } }))[0] as SoundDataType | undefined;
+              let entry: MeeSqlEntryType<SoundDataType>;
+              let src: string;
+              if (value?.src) {
+                src = value.src;
+                entry = TableObject.getInsertEntry({
+                  src,
+                  lastmod: new Date().toISOString()
+                });
+              } else {
+                src = "sound/" + file.name;
+                let tags: Partial<MP3TagTags> = {};
+                if (/\.mp3$/i.test(file.name)) {
+                  await file.arrayBuffer().then(buffer => {
+                    const mp3tag = new MP3Tag(buffer);
+                    mp3tag.read();
+                    tags = mp3tag.tags;
+                  })
+                }
+                const { track, title, album, year, artist, genre, v2 } = tags;
+                const time = new Date(file.lastModified);
+                const mtime = time.toISOString();
+                if (year) time.setFullYear(Number(year));
+                entry = TableObject.getInsertEntry({
+                  title,
+                  album,
+                  composer: v2?.TCOM,
+                  artist,
+                  genre,
+                  src,
+                  track: track,
+                  grouping: v2?.TIT1?.split("\x00").join(","),
+                  time: time.toISOString(),
+                  mtime,
+                  lastmod: new Date().toISOString()
+                });
+                if (!value || value.mtime !== entry.mtime) {
+                  await env.BUCKET!.put(src, file);
+                }
+                if (album) {
+                  const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
+                    .then<SoundAlbumDataType | null>(v => v[0] || null);
+                  if (!albumValue) {
+                    await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
+                  }
                 }
               }
               if (value) {
@@ -104,7 +115,8 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const now = new Date();
             return Promise.all(
               data.map(async item => {
-                const { id: _id, ...data } = item as KeyValueType<unknown>;
+                const data = item as KeyValueType<unknown>;
+                if (data.src) data.src = "sound/" + data.src;
                 const entry = TableObject.getInsertEntry(data);
                 entry.lastmod = now.toISOString();
                 now.setMilliseconds(now.getMilliseconds() + 1);
@@ -113,8 +125,29 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
                   : undefined;
                 if (target) {
-                  entry.key = data.id;
-                  await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
+                  if (data.key && typeof data.key === "string") {
+                    const value = (await TableObject.Select({ db, where: { key: data.key }, take: 1 }))[0];
+                    if (value && !value.src) {
+                      await TableObject.Update({
+                        db, where: { key: value.key }, entry: {
+                          key: value.key + "_" +
+                            new Date().getTime().toString(16)
+                        }
+                      })
+                    }
+                  }
+                  if (typeof data.src === "string" && env.BUCKET) {
+                    const oldSrc = target.src;
+                    if (oldSrc) {
+                      if (data.src) {
+                        const value = await env.BUCKET.get(oldSrc);
+                        await env.BUCKET.put(data.src, (await value?.arrayBuffer())!);
+                      }
+                      if (await BucketDeleteCheck(target)) await env.BUCKET.delete(oldSrc);
+                    }
+                  }
+                  const updateProps = { db, entry, take: 1, where: { key: target_id! } };
+                  await TableObject.Update(updateProps);
                   return { type: "update", entry: { ...target, ...entry } };
                 } else {
                   entry.key = data.id || target_id;
@@ -130,6 +163,10 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const data: any = await request.json();
             const key = data.target;
             if (key) {
+              const value = (await TableObject.Select({ db, where: { key }, take: 1 }))[0];
+              if (env.BUCKET && value?.src) {
+                if (await BucketDeleteCheck(value)) await env.BUCKET.delete(value.src);
+              }
               try {
                 await TableObject.Update({
                   db,

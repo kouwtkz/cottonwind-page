@@ -96,7 +96,7 @@ export function SoundEditButton() {
             .then((files) =>
               SoundsUpload({
                 files,
-              })
+              }),
             )
             .then(() => {
               soundsDataIndexed.load("no-cache");
@@ -154,13 +154,15 @@ export function SoundEdit() {
   const item = useMemo(() => {
     if (edit) return soundsMap.get(edit);
   }, [soundsMap, edit]);
+  const x: keyof SoundItemType = "composer";
+  const a: KeyofValueType<SoundDataType> = {};
   const {
     register,
     handleSubmit,
     getValues,
     reset,
     formState: { isDirty, dirtyFields },
-  } = useForm<any>({
+  } = useForm<KeyofValueType<SoundDataType>>({
     defaultValues: {
       title: item?.title || item?.key || "",
       album: item?.album || "",
@@ -174,6 +176,7 @@ export function SoundEdit() {
       description: item?.description || "",
       time: item?.time ? ToFormTime(new Date(item.time)) : null,
       draft: item?.draft ?? null,
+      src: item?.src?.replace("sound/", "") || "",
     },
   });
   useHotkeys(
@@ -181,7 +184,7 @@ export function SoundEdit() {
     (e) => {
       if (isDirty) Submit();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   function Submit() {
     if (item) {
@@ -189,7 +192,7 @@ export function SoundEdit() {
       const entry = Object.fromEntries(
         Object.entries(dirtyFields)
           .filter((v) => v[1])
-          .map((v) => [v[0], values[v[0]]])
+          .map((v) => [v[0], values[v[0] as keyof SoundDataType]]),
       );
       entry.target = item.key;
       toast.promise(
@@ -206,7 +209,7 @@ export function SoundEdit() {
           pending: "送信中",
           success: "送信しました",
           error: "送信に失敗しました",
-        }
+        },
       );
     }
   }
@@ -299,19 +302,44 @@ export function SoundEdit() {
             {...register("album")}
           />
         </label>
-        {/* <label>
+        <textarea
+          title="詳細"
+          placeholder="詳細"
+          {...register("description")}
+        />
+        <label>
           <span className="label">曲の主キー</span>
           <input
             title="曲のID（タイトル名）"
             placeholder="曲のID（キー、タイトル名など）"
             {...register("key")}
           />
-        </label> */}
-        <textarea
-          title="詳細"
-          placeholder="詳細"
-          {...register("description")}
-        />
+        </label>
+        <label>
+          <span className="label">ファイル名</span>
+          <input title="ファイル名" {...register("src")} />
+        </label>
+        <button
+          type="button"
+          className="color"
+          key="reUploadSound"
+          onClick={() => {
+            if (item)
+              fileDialog("audio/*")
+                .then((files) =>
+                  SoundsUpload({
+                    files: Array.from(files),
+                    key: item.key,
+                  }),
+                )
+                .then(() => {
+                  soundsDataIndexed.load("no-cache");
+                  soundAlbumsDataIndexed.load("no-cache");
+                });
+          }}
+        >
+          音楽ファイルの再アップロード
+        </button>
         <label>
           <span className="label">下書き</span>
           <input title="下書き" type="checkbox" {...register("draft")} />
@@ -374,7 +402,7 @@ export function SoundAlbumEdit() {
     (e) => {
       if (isDirty) Submit();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
   function Submit() {
     if (item) {
@@ -382,7 +410,7 @@ export function SoundAlbumEdit() {
       const entry = Object.fromEntries(
         Object.entries(dirtyFields)
           .filter((v) => v[1])
-          .map((v) => [v[0], values[v[0]]])
+          .map((v) => [v[0], values[v[0]]]),
       );
       entry.target = item.key;
       toast.promise(
@@ -398,7 +426,7 @@ export function SoundAlbumEdit() {
           pending: "送信中",
           success: "送信しました",
           error: "送信に失敗しました",
-        }
+        },
       );
     }
   }
