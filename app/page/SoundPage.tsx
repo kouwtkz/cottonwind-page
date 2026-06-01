@@ -48,6 +48,7 @@ export function SoundPage() {
             "grouping",
           ],
         },
+        hashtag: { key: ["genre", "grouping"] },
       });
       const list = findMee(sounds, options);
       return [{ key: "", playlist: { list } }];
