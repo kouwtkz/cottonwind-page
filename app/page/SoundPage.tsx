@@ -113,7 +113,7 @@ export function SoundPage() {
         );
       }
     },
-    [isEdit, src, special, playerPlaylist],
+    [isEdit, src, paused, special, playerPlaylist],
   );
 
   return (
