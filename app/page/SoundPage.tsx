@@ -108,7 +108,7 @@ export function SoundPage() {
         );
       }
     },
-    [isEdit, src],
+    [isEdit, src, special],
   );
 
   return (
