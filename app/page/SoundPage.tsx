@@ -12,10 +12,13 @@ import {
   useEditSoundAlbumKey,
   useEditSoundKey,
 } from "./edit/SoundEdit";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { RbFixedArea } from "~/components/Search";
+import { findMee, setWhere } from "~/data/find/findMee";
 
 export function SoundPage() {
   const searchParams = useSearchParams()[0];
+  const qParam = searchParams.get("q");
   const isEdit = searchParams.get("edit") === "on";
   const isLogin = useIsLogin()[0];
   const { sounds, soundAlbums } = useSounds();
@@ -31,15 +34,86 @@ export function SoundPage() {
     current,
   } = useSoundPlayer();
   const src = playerList.list[current]?.src || "";
-  const albums = useMemo(() => {
-    const albums = soundAlbums || [];
-    return isLogin && isEdit
-      ? albums
-      : albums.filter((album) => album.playlist);
-  }, [soundAlbums, isLogin, isEdit]);
+  const albums = useMemo<SoundAlbumType[]>(() => {
+    if (qParam) {
+      const options = setWhere<SoundItemType>(qParam, {
+        text: {
+          key: [
+            "key",
+            "title",
+            "artist",
+            "composer",
+            "album",
+            "genre",
+            "grouping",
+          ],
+        },
+      });
+      const list = findMee(sounds, options);
+      return [{ key: "", playlist: { list } }];
+    } else {
+      const albums = soundAlbums || [];
+      return isLogin && isEdit
+        ? albums
+        : albums.filter((album) => album.playlist);
+    }
+  }, [soundAlbums, isLogin, isEdit, sounds, qParam]);
+  const Item = useCallback(
+    ({
+      sound,
+      playlist,
+      i,
+    }: {
+      sound: SoundItemType;
+      playlist?: SoundPlaylistType;
+      i: number;
+    }) => {
+      {
+        const itemPaused = sound.src === src ? paused : true;
+        return (
+          <div
+            className={"item cursor-pointer" + (itemPaused ? " paused" : "")}
+            onClick={() => {
+              if (isEdit) {
+                setSoundKey(sound.key);
+              } else {
+                if (itemPaused) {
+                  if (special) {
+                    Play({
+                      current: sounds?.findIndex(
+                        (_sound) => _sound.src === sound.src,
+                      ),
+                    });
+                  } else {
+                    Play({ playlist, current: i });
+                  }
+                } else Pause();
+              }
+            }}
+          >
+            <div className="cursor">
+              {!isEdit && sound.src === src ? <TriangleCursor /> : null}
+            </div>
+            <div className="name">
+              <span>{sound.title}</span>
+            </div>
+            {isEdit ? (
+              <div className="button" />
+            ) : (
+              <div className="button round soft-color">
+                <PlayPauseButton className="play" paused={itemPaused} />
+              </div>
+            )}
+          </div>
+        );
+      }
+    },
+    [isEdit, src],
+  );
 
   return (
     <div className="soundPage">
+      <RbFixedArea />
       {editSoundKey ? <SoundEdit /> : null}
       {editSoundAlbumKey ? <SoundAlbumEdit /> : null}
       <h1
@@ -73,6 +147,7 @@ export function SoundPage() {
         Sound Room
       </h1>
       {isLogin ? <SoundEditButton /> : null}
+      {}
       {albums.map((album, i) => {
         const playlist = album.playlist;
         return (
@@ -86,48 +161,14 @@ export function SoundPage() {
               {playlist?.title || album.title || album.key}
             </h3>
             <div className="list">
-              {playlist?.list.map((sound, i) => {
-                const itemPaused = sound.src === src ? paused : true;
-                return (
-                  <div
-                    key={`sound_item_${sound.key}`}
-                    className={
-                      "item cursor-pointer" + (itemPaused ? " paused" : "")
-                    }
-                    onClick={() => {
-                      if (isEdit) {
-                        setSoundKey(sound.key);
-                      } else {
-                        if (itemPaused) {
-                          if (special) {
-                            Play({
-                              current: sounds?.findIndex(
-                                (_sound) => _sound.src === sound.src,
-                              ),
-                            });
-                          } else {
-                            Play({ playlist, current: i });
-                          }
-                        } else Pause();
-                      }
-                    }}
-                  >
-                    <div className="cursor">
-                      {!isEdit && sound.src === src ? <TriangleCursor /> : null}
-                    </div>
-                    <div className="name">
-                      <span>{sound.title}</span>
-                    </div>
-                    {isEdit ? (
-                      <div className="button" />
-                    ) : (
-                      <div className="button round soft-color">
-                        <PlayPauseButton className="play" paused={itemPaused} />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {playlist?.list.map((sound, i) => (
+                <Item
+                  key={`sound_item_${sound.key}`}
+                  sound={sound}
+                  playlist={playlist}
+                  i={i}
+                />
+              ))}
             </div>
           </div>
         );
