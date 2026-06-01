@@ -29,11 +29,15 @@ export function SoundPage() {
     Pause,
     paused,
     RegistPlaylist,
-    playlist: playerList,
-    special,
+    playlist: playerPlaylist,
+    special: playerSpecial,
     current,
   } = useSoundPlayer();
-  const src = playerList.list[current]?.src || "";
+  const special = useMemo(
+    () => playerSpecial && !qParam,
+    [playerSpecial, qParam],
+  );
+  const src = playerPlaylist.list[current]?.src || "";
   const albums = useMemo<SoundAlbumType[]>(() => {
     if (qParam) {
       const options = setWhere<SoundItemType>(qParam, {
@@ -63,11 +67,11 @@ export function SoundPage() {
     ({
       sound,
       playlist,
-      i,
+      index,
     }: {
       sound: SoundItemType;
       playlist?: SoundPlaylistType;
-      i: number;
+      index: number;
     }) => {
       {
         const itemPaused = sound.src === src ? paused : true;
@@ -81,12 +85,12 @@ export function SoundPage() {
                 if (itemPaused) {
                   if (special) {
                     Play({
-                      current: sounds?.findIndex(
+                      current: playerPlaylist.list.findIndex(
                         (_sound) => _sound.src === sound.src,
                       ),
                     });
                   } else {
-                    Play({ playlist, current: i });
+                    Play({ playlist, current: index });
                   }
                 } else Pause();
               }
@@ -109,7 +113,7 @@ export function SoundPage() {
         );
       }
     },
-    [isEdit, src, special],
+    [isEdit, src, special, playerPlaylist],
   );
 
   return (
@@ -118,30 +122,40 @@ export function SoundPage() {
       {editSoundKey ? <SoundEdit /> : null}
       {editSoundAlbumKey ? <SoundAlbumEdit /> : null}
       <h1
-        className="title en-title-font cursor-pointer"
+        className={"title en-title-font" + (qParam ? "" : " cursor-pointer")}
         onClick={() => {
-          if (special) {
-            const playlist = soundAlbums?.find(({ playlist }) =>
-              playlist?.list.some((sound) => sound.src === src),
-            )?.playlist;
-            if (playlist) {
+          if (!qParam) {
+            if (special) {
+              const playlist = soundAlbums?.find(({ playlist }) =>
+                playlist?.list.some((sound) => sound.src === src),
+              )?.playlist;
+              if (playlist) {
+                RegistPlaylist({
+                  playlist,
+                  current: playlist.list.findIndex(
+                    (sound) => sound.src === src,
+                  ),
+                  special: false,
+                });
+                toast.info(playlist.title + "を再生", { autoClose: 1000 });
+              }
+            } else {
+              const list = albums.reduce<SoundItemType[]>((sounds, album) => {
+                album.playlist?.list.forEach((sound) => {
+                  sounds.push(sound);
+                });
+                return sounds;
+              }, []);
               RegistPlaylist({
-                playlist,
-                current: playlist.list.findIndex((sound) => sound.src === src),
-                special: false,
+                playlist: {
+                  title: "すべて再生",
+                  list,
+                },
+                current: list.findIndex((sound) => sound.src === src),
+                special: true,
               });
-              toast.info(playlist.title + "を再生", { autoClose: 1000 });
+              toast.info("すべて再生", { autoClose: 1000 });
             }
-          } else {
-            RegistPlaylist({
-              playlist: {
-                title: "すべて再生",
-                list: sounds || [],
-              },
-              current: sounds?.findIndex((sound) => sound.src === src),
-              special: true,
-            });
-            toast.info("すべて再生", { autoClose: 1000 });
           }
         }}
       >
@@ -167,7 +181,7 @@ export function SoundPage() {
                   key={`sound_item_${sound.key}`}
                   sound={sound}
                   playlist={playlist}
-                  i={i}
+                  index={i}
                 />
               ))}
             </div>
