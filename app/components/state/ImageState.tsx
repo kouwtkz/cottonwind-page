@@ -14,6 +14,7 @@ import {
 } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
+import { TimeClass } from "../functions/Time";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -49,10 +50,16 @@ export function ImageState() {
       charactersMap &&
       likeCategoryMap
     ) {
-      imagesData.getAll().then((images) => {
+      imagesData.getAll().then((indexedImagesData) => {
         const imagesLikeData = likeCategoryMap.get("image");
         const lastmod = imageDataIndexed.beforeLastmod;
         const latest = imageDataIndexed.latest;
+        const images = indexedImagesData.map<ImageType>(
+          ({ creationTime, ...image }) => ({
+            creationTime: new TimeClass(creationTime || ""),
+            ...image,
+          }),
+        );
         images.forEach((image) => {
           if (lastmod)
             image.update = Boolean(

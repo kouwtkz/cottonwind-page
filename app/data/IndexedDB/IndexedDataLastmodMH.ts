@@ -168,7 +168,7 @@ export class IndexedDataLastmodMH<
   }
 }
 
-export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, ImageDataType, ImageMeeIndexedDBTable> {
+export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageIndexedDataType, ImageDataType, ImageMeeIndexedDBTable> {
   override async updateData() {
     return this.table.updateData({ lastmod: this.beforeLastmod });
   }
@@ -177,9 +177,9 @@ export class ImageIndexedDataStateClass extends IndexedDataLastmodMH<ImageType, 
   }
 }
 
-export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageType> {
+export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageIndexedDataType> {
   imageAlbums: Map<string, ImageAlbumType>;
-  constructor(props: Props_MeeIndexedDBTable_Options<ImageType>, db?: IDBDatabase) {
+  constructor(props: Props_MeeIndexedDBTable_Options<ImageIndexedDataType>, db?: IDBDatabase) {
     super(props, db);
     this.imageAlbums = getImageAlbumMap(ArrayEnv.IMAGE_ALBUMS);
   }

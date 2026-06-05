@@ -49,6 +49,7 @@ import {
 import { useController, useForm, type FieldValues } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
+  MdChangeCircle,
   MdCleaningServices,
   MdDeleteForever,
   MdFileUpload,
@@ -235,7 +236,7 @@ export default function ImageEditForm({
         link: image?.link || "",
         draft: image?.draft ?? null,
         embed: image?.embed || "",
-        creationTime: image?.creationTime || "",
+        creationTime: image?.creationTime?.value || "",
         album: image?.album || "",
         rename: image?.key || "",
       }) as ValuesType,
@@ -253,6 +254,21 @@ export default function ImageEditForm({
   } = useForm<ValuesType, any, any>({
     values,
   });
+  const [stateCreationTime, setCreationTime] = useState<TimeClass>();
+  useEffect(() => {
+    setCreationTime(image?.creationTime || new TimeClass());
+  }, [image?.creationTime]);
+  const autoInputCreationTimeType = useCallback(
+    () => (stateCreationTime?.days ? "text" : "time"),
+    [stateCreationTime],
+  );
+  const autoInputCreationTimeStep = useCallback(
+    () => (stateCreationTime?.seconds ? 1 : 60),
+    [stateCreationTime],
+  );
+  const [inputCreationTimeParam, setInputCreationTimeParam] = useState<
+    ["text" | "time", number]
+  >([autoInputCreationTimeType(), autoInputCreationTimeStep()]);
 
   useEffect(() => {
     if (stateIsDirty !== isDirty) {
@@ -276,6 +292,9 @@ export default function ImageEditForm({
           switch (key as keyof imageUpdateJsonDataType) {
             case "time":
               data[key] = IsoFormTime(value);
+              break;
+            case "creationTime":
+              data[key] = stateCreationTime!.time;
               break;
             case "topImage":
               data[key] = FormToNumber(value);
@@ -630,7 +649,6 @@ export default function ImageEditForm({
     ),
     [image],
   );
-  const [creationTimeMode, setCreationTimeMode] = useState(false);
 
   return (
     <>
@@ -1075,18 +1093,38 @@ export default function ImageEditForm({
             </datalist>
           </div>
         </label>
-        <label>
-          <div className="label-l">制作時間(HH:MM)</div>
+        <label className="simple" htmlFor="inputEditImageCreationTime">
+          <div className="label-l">
+            制作時間(HH:MM:SS)
+            <button
+              type="button"
+              title="切り替え"
+              onClick={() => {
+                setValue("creationTime", stateCreationTime?.formattedValue);
+                if (inputCreationTimeParam[0] === "text") {
+                  const params: ["time" | "text", number] = [
+                    autoInputCreationTimeType(),
+                    autoInputCreationTimeStep(),
+                  ];
+                  setInputCreationTimeParam(params);
+                } else setInputCreationTimeParam(["text", 1]);
+              }}
+            >
+              <MdChangeCircle />
+            </button>
+          </div>
           {(() => {
             const { onChange, ...regist } = register("creationTime");
             return (
               <input
                 title="制作時間"
-                type={creationTimeMode ? "time" : "text"}
+                id="inputEditImageCreationTime"
+                type={inputCreationTimeParam[0]}
+                step={inputCreationTimeParam[1]}
                 {...regist}
                 onChange={(e) => {
                   onChange(e);
-                  console.log(e.target.value);
+                  setCreationTime(new TimeClass(e.target.value));
                 }}
                 disabled={isBusy}
               />

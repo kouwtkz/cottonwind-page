@@ -346,6 +346,11 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
               </div>
             </div>
           ) : null}
+          {image.creationTime?.time ? (
+            <div className="right mr-4">
+              制作時間：{image.creationTime.FormatToJP()}
+            </div>
+          ) : null}
         </div>
       )}
       {isLogin ? (

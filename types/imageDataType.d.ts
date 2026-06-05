@@ -22,11 +22,12 @@ interface ImageDataType {
   position?: string | null;
   draft?: number | null;
   version?: number | null;
+  creationTime?: number | null;
   time?: string;
   mtime?: string;
   lastmod: string;
 }
-interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawDataType<ImageDataType> {
+interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
@@ -50,6 +51,9 @@ interface ImageType extends Omit<ImageDataType, "tags" | "characters" | "type" |
   like?: LikeType;
   data?: ImageDataType;
   hideInfo?: boolean;
+}
+interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawDataType<ImageDataType> {
+  creationTime?: TimeClass | null;
 }
 
 /** @comments ひとつのアルバムの変数 */

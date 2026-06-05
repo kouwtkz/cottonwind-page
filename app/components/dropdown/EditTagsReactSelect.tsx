@@ -27,7 +27,7 @@ interface EditTagsReactSelectType {
   labelClassName?: string;
   tags: ContentsTagsOption[];
   set?: (value: React.SetStateAction<ContentsTagsOption[]>) => void;
-  control: Control<FieldValues, any>;
+  control: Control<any, any, any>;
   setValue: setValueFunctionType;
   getValues: UseFormGetValues<any>;
   isBusy?: boolean;

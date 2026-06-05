@@ -8,7 +8,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
   name: ImageDataName,
   src: "/images",
   api: "/image",
-  version: "3.4.0",
+  version: "3.5.0",
   preLoad: false,
   latestField: { time: "desc" },
   primary: "id",
@@ -37,13 +37,14 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageData
     pickup: { type: "INTEGER" },
     position: { type: "TEXT" },
     draft: { type: "INTEGER" },
+    creationTime: { type: "INTEGER" },
     time: { type: "TEXT", index: true },
     mtime: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
     version: { type: "INTEGER" },
   },
-  insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height",
-    "tags", "characters", "copyright", "link", "embed", "type", "series", "chapter", "order", "topImage", "pickup", "draft", "version"],
+  insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height", "tags", "characters", "copyright",
+    "link", "embed", "type", "series", "chapter", "order", "topImage", "pickup", "draft", "creationTime", "version"],
   insertEntryTimes: ["time", "mtime", "lastmod"]
 }
 
