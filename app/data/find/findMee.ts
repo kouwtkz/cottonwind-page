@@ -505,8 +505,8 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
           case "sort":
             const sortOrder = operator.startsWith(">") || filterValue.includes("!");
             const sortKey = sortOrder
-              ? filterValue.replace("!", "")
-              : filterValue;
+              ? rawFilterValue.replace("!", "")
+              : rawFilterValue;
             let sortValue: OrderByType;
             switch (sortKey.slice(sortKey.lastIndexOf(".") + 1)) {
               case "date":
