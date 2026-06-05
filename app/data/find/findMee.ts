@@ -369,13 +369,17 @@ function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceCont
             case "<=":
               return { lte: value };
             default: {
-              const str = String(value);
-              const m = str.match(/^\[(.*)\]$/);
-              const s = (m ? m[1] : str).split(",")
-              if (s.length > 1) {
-                if (m) return { every: s };
-                else return { some: s }
-              } else return { contains: value };
+              if (typeof value === "number") {
+                return { equals: value };
+              } else {
+                const str = String(value);
+                const m = str.match(/^\[(.*)\]$/);
+                const s = (m ? m[1] : str).split(",")
+                if (s.length > 1) {
+                  if (m) return { every: s };
+                  else return { some: s }
+                } else return { contains: value };
+              }
             }
           }
       }
@@ -450,7 +454,8 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
         const operatorMatch = /^\w+:\/\//.test(item) ? null : item.match(/:|>=?|<=?/);
         const operator = operatorMatch?.[0] || "";
         const operatorIndex = operatorMatch ? operatorMatch.index! : -1;
-        const switchKey = operatorIndex >= 0 ? item.slice(0, operatorIndex).toLocaleLowerCase() : "";
+        const switchRawKey = operatorIndex >= 0 ? item.slice(0, operatorIndex) : "";
+        const switchKey = switchRawKey.toLocaleLowerCase();
         const UNDER = switchKey.startsWith("_");
         let filterKey = UNDER ? switchKey.slice(1) : switchKey;
         let rawFilterValue = switchKey.length > 0 ? item.slice(switchKey.length + operator.length) : item;
@@ -586,7 +591,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             if (filterOptions.where) {
               whereItem = filterOptions.where(filterValue, operator);
             } else {
-              const keyraw = filterOptions.key || filterKey;
+              const keyraw = filterOptions.key || switchRawKey;
               const key = Array.isArray(keyraw) ? keyraw.map(v => String(v)) : String(keyraw);
               let filterEntry: filterConditionsAllKeyValue<any>;
               switch (filterValue) {
