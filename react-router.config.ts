@@ -12,6 +12,10 @@ let config = {
   ssr: true,
   future: {
     v8_viteEnvironmentApi: true,
+    v8_middleware: false,
+    v8_splitRouteModules: false,
+    v8_passThroughRequests: false,
+    v8_trailingSlashAwareDataRequests: false,
   },
 } as Config;
 
