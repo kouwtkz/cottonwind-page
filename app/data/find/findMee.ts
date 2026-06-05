@@ -503,7 +503,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             }
             break;
           case "sort":
-            const sortOrder = filterValue.includes("!");
+            const sortOrder = operator.startsWith(">") || filterValue.includes("!");
             const sortKey = sortOrder
               ? filterValue.replace("!", "")
               : filterValue;
