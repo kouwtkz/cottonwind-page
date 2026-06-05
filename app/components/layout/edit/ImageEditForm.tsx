@@ -21,7 +21,7 @@ import { concatOriginUrl } from "~/components/functions/originUrl";
 import {
   PromiseOrder,
   type PromiseOrderStateType,
-} from "~/components/functions/arrayFunction";
+} from "~/components/functions/promiseFunction";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import {
   toastLoadingOptions,
@@ -46,7 +46,7 @@ import {
   addExtentionGalleryTagsOptions,
   simpleDefaultTags,
 } from "~/components/dropdown/SortFilterTags";
-import { useController, useForm } from "react-hook-form";
+import { useController, useForm, type FieldValues } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {
   MdCleaningServices,
@@ -94,6 +94,7 @@ import { repostThumbnail } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
+import { TimeClass } from "~/components/functions/Time";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -213,26 +214,31 @@ export default function ImageEditForm({
       ),
     [image?.tags, defaultGalleryTags, allTagsOptions],
   );
+  interface ValuesType extends FieldValues, KeyofValueType<ImageDataType, any> {
+    rename: any;
+  }
   const values = useMemo(
-    () => ({
-      title: image?.title || "",
-      description: image?.description || "",
-      topImage: String(image?.topImage ?? null),
-      pickup: String(image?.pickup ?? null),
-      position: String(image?.position),
-      tags: image?.tags || [],
-      characters: image?.characters || [],
-      type: image?.rawdata?.type || "",
-      series: image?.rawdata?.series || "",
-      chapter: image?.rawdata?.chapter || null,
-      time: ToFormTime(image?.time),
-      copyright: image?.copyright || [],
-      link: image?.link || "",
-      draft: image?.draft ?? null,
-      embed: image?.embed || "",
-      album: image?.album || "",
-      rename: image?.key || "",
-    }),
+    () =>
+      ({
+        title: image?.title || "",
+        description: image?.description || "",
+        topImage: String(image?.topImage ?? null),
+        pickup: String(image?.pickup ?? null),
+        position: String(image?.position),
+        tags: image?.tags || [],
+        characters: image?.characters || [],
+        type: image?.rawdata?.type || "",
+        series: image?.rawdata?.series || "",
+        chapter: image?.rawdata?.chapter || null,
+        time: ToFormTime(image?.time),
+        copyright: image?.copyright || [],
+        link: image?.link || "",
+        draft: image?.draft ?? null,
+        embed: image?.embed || "",
+        creationTime: image?.creationTime || "",
+        album: image?.album || "",
+        rename: image?.key || "",
+      }) as ValuesType,
     [image],
   );
 
@@ -244,7 +250,7 @@ export default function ImageEditForm({
     setValue,
     control,
     formState: { isDirty, dirtyFields },
-  } = useForm<any>({
+  } = useForm<ValuesType, any, any>({
     values,
   });
 
@@ -390,8 +396,8 @@ export default function ImageEditForm({
     control,
     name: "position",
   });
-  const positionValue = useMemo<string>(
-    () => positionField.value,
+  const positionValue = useMemo(
+    () => positionField.value as string,
     [positionField.value],
   );
   const positionOptionList = useMemo(() => {
@@ -436,7 +442,7 @@ export default function ImageEditForm({
   };
   useEffect(() => {
     if (isEdit && positionSelectRef.current)
-      positionSelectRef.current.value = getValues("position");
+      positionSelectRef.current.value = getValues("position") as string;
   }, [isEdit]);
   function setPositionSelect(value: string | null) {
     if (value) {
@@ -624,6 +630,7 @@ export default function ImageEditForm({
     ),
     [image],
   );
+  const [creationTimeMode, setCreationTimeMode] = useState(false);
 
   return (
     <>
@@ -1069,7 +1076,25 @@ export default function ImageEditForm({
           </div>
         </label>
         <label>
-          <div className="label-l">時間</div>
+          <div className="label-l">制作時間(HH:MM)</div>
+          {(() => {
+            const { onChange, ...regist } = register("creationTime");
+            return (
+              <input
+                title="制作時間"
+                type={creationTimeMode ? "time" : "text"}
+                {...regist}
+                onChange={(e) => {
+                  onChange(e);
+                  console.log(e.target.value);
+                }}
+                disabled={isBusy}
+              />
+            );
+          })()}
+        </label>
+        <label>
+          <div className="label-l">作成日時</div>
           <input
             title="時間"
             type="datetime-local"

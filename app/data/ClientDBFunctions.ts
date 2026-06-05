@@ -1,14 +1,14 @@
 import { toast } from "react-toastify";
 import { apiOrigin, soundsDataIndexed } from "./ClientDBLoader";
 import { BooleanToNumber, unknownToString } from "~/components/functions/doc/ToFunction";
-import { arrayPartition, asyncFilter, PromiseOrder, type PromiseOrderOptions } from "~/components/functions/arrayFunction";
+import { arrayPartition, asyncFilter } from "~/components/functions/arrayFunction";
+import { PromiseOrder, type PromiseOrderOptions } from "~/components/functions/promiseFunction";
 import { toastLoadingOptions, toastUpdateOptions } from "~/components/define/toastContainerDef";
 import { jsonFileDialog } from "~/components/utils/FileTool";
 import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { getBasename, getName } from "~/components/functions/doc/PathParse";
 import { linksDataOptions, soundAlbumsDataOptions, soundsDataOptions } from "./DataEnv";
-
 export function UploadToast<T = unknown>(promise: Promise<T>) {
   return toast.promise(promise, {
     pending: "アップロード中…",

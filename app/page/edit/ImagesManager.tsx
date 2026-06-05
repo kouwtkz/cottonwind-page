@@ -19,10 +19,8 @@ import {
 } from "~/components/layout/edit/ImageEditForm";
 import { useToastProgress } from "~/components/state/ToastProgress";
 import { concatOriginUrl } from "~/components/functions/originUrl";
-import {
-  arrayPartition,
-  PromiseOrder,
-} from "~/components/functions/arrayFunction";
+import { arrayPartition } from "~/components/functions/arrayFunction";
+import { PromiseOrder } from "~/components/functions/promiseFunction";
 import {
   type BaseObjectButtonProps,
   type ImportObjectButtonProps,
@@ -96,7 +94,7 @@ export function GalleryUploadButton({
               album: group,
               webp,
               thumbnail,
-            })
+            }),
           )
           .then(() => {
             imageDataIndexed.load("no-cache");
@@ -145,7 +143,7 @@ export function CompatGalleryButton({
               cors: true,
             }).finally(() => {
               addProgress();
-            })
+            }),
         );
         setMax(doList.length);
         PromiseOrder(doList, { minTime: 200 }).then(() => {
@@ -198,7 +196,7 @@ export function CompatMendingThumbnailButton({
               sync(i) {
                 addProgress();
               },
-            }
+            },
           )
         )
           .filter((v) => v)
@@ -212,7 +210,7 @@ export function CompatMendingThumbnailButton({
                 cors: true,
               }).finally(() => {
                 addProgress();
-              })
+              }),
           );
           setMax(doList.length, {
             message: "サムネイルを設定しています",
@@ -234,12 +232,12 @@ export function CompatMendingThumbnailButton({
                 method: "DELETE",
                 body: { id: image.id },
                 cors: true,
-              })
-            )
+              }),
+            ),
           ).then((v) => {
             toast(
               `使われていないサムネイルのみのファイルを${v.length}件削除しました`,
-              toastLoadingOptions
+              toastLoadingOptions,
             );
           });
         }
@@ -275,7 +273,7 @@ export function repostThumbnail({
             thumbnail: size || true,
           });
         }
-      })
+      }),
   );
 }
 
@@ -291,14 +289,14 @@ export function ThumbnailResetButton({
   const noThumbnailList = useMemo(
     () =>
       q ? images : images.filter((image) => image.src && !image.thumbnail),
-    [images, q]
+    [images, q],
   );
   const onClick = useCallback(() => {
     if (noThumbnailList.length === 0) {
       toast("未設定のサムネイルはありません", toastLoadingShortOptions);
     } else if (
       confirm(
-        `${q ? "現在の" : "未設定だった"}ギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`
+        `${q ? "現在の" : "未設定だった"}ギャラリーのサムネイル(${noThumbnailList.length}件)を設定しますか？`,
       )
     ) {
       setMax(noThumbnailList.length, {
@@ -313,7 +311,7 @@ export function ThumbnailResetButton({
           }).finally(() => {
             addProgress();
           });
-        }
+        },
       );
       setMax(doList.length, {
         message: "サムネイルを設定しています",

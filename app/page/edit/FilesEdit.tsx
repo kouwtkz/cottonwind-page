@@ -1,4 +1,4 @@
-import { PromiseOrder } from "~/components/functions/arrayFunction";
+import { PromiseOrder } from "~/components/functions/promiseFunction";
 import { customFetch } from "~/components/functions/fetch";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { Modal } from "~/components/layout/Modal";

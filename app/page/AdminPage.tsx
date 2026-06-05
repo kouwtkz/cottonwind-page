@@ -27,10 +27,8 @@ import { AiFillEdit } from "react-icons/ai";
 import { LinkButton } from "~/components/button/LinkButton";
 import { findMee } from "~/data/find/findMee";
 import { useToastProgress } from "~/components/state/ToastProgress";
-import {
-  arrayPartition,
-  PromiseOrder,
-} from "~/components/functions/arrayFunction";
+import { arrayPartition } from "~/components/functions/arrayFunction";
+import { PromiseOrder } from "~/components/functions/promiseFunction";
 import { useSounds } from "~/components/state/SoundState";
 import { toast } from "react-toastify";
 import {
