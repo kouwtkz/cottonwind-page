@@ -10,23 +10,42 @@ export class TimeClass {
   constructor(value?: string | number) {
     if (typeof value === "string") {
       this.value = value;
-      const parsed = TimeClass.Parse(this.value);
-      this.days = parsed[0];
-      this.hours = parsed[1];
-      this.fullHours = this.days * 24 + this.hours;
-      this.minutes = parsed[2];
-      this.seconds = parsed[3];
-      this.time = (this.fullHours * 60 + this.minutes) * 60 + this.seconds;
-      this.formattedValue = this.FormatValue();
+      if (this.value) {
+        const parsed = TimeClass.Parse(this.value);
+        this.days = parsed[0];
+        this.hours = parsed[1];
+        this.fullHours = this.days * 24 + this.hours;
+        this.minutes = parsed[2];
+        this.seconds = parsed[3];
+        this.time = (this.fullHours * 60 + this.minutes) * 60 + this.seconds;
+        this.formattedValue = this.FormatValue();
+      } else {
+        this.seconds = NaN;
+        this.minutes = NaN;
+        this.fullHours = NaN;
+        this.hours = NaN;
+        this.days = NaN;
+        this.time = NaN;
+        this.formattedValue = "";
+      }
     } else {
-      this.time = value || 0;
-      this.seconds = this.time % 60;
-      const fullMinutes = Math.floor(this.time / 60);
-      this.minutes = fullMinutes % 60;
-      this.fullHours = Math.floor(fullMinutes / 60);
-      this.hours = this.fullHours % 24;
-      this.days = Math.floor(this.fullHours % 24);
-      this.formattedValue = this.FormatValue();
+      this.time = value || NaN;
+      if (isNaN(this.time)) {
+        this.seconds = NaN;
+        this.minutes = NaN;
+        this.fullHours = NaN;
+        this.hours = NaN;
+        this.days = NaN;
+        this.formattedValue = "";
+      } else {
+        this.seconds = this.time % 60;
+        const fullMinutes = Math.floor(this.time / 60);
+        this.minutes = fullMinutes % 60;
+        this.fullHours = Math.floor(fullMinutes / 60);
+        this.hours = this.fullHours % 24;
+        this.days = Math.floor(this.fullHours % 24);
+        this.formattedValue = this.FormatValue();
+      }
       this.value = this.formattedValue;
     }
   }

@@ -2903,7 +2903,6 @@ div.banner {
       .ribbon {
         font-family:
           "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-        padding: 0.1rem 0.25rem;
         vertical-align: middle;
         position: absolute;
         top: 0;
@@ -2911,18 +2910,26 @@ div.banner {
         z-index: 1;
         color: white;
         font-size: 0.5em;
-        background-color: rgb(126, 130, 127);
-        &.new {
-          background-color: rgb(244, 79, 79);
-        }
-        &.update {
-          background-color: rgb(244, 145, 79);
-        }
-        &.draft {
-          background-color: rgb(120, 131, 104);
-        }
-        &.schedule {
-          background-color: rgb(89, 171, 128);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        --ribbon-color: rgb(126, 130, 127);
+        & > div {
+          margin: 0;
+          padding: 0.1rem 0.25rem;
+          background-color: var(--ribbon-color);
+          &.new {
+            --ribbon-color: rgb(244, 79, 79);
+          }
+          &.update {
+            --ribbon-color: rgb(244, 145, 79);
+          }
+          &.draft {
+            --ribbon-color: rgb(120, 131, 104);
+          }
+          &.schedule {
+            --ribbon-color: rgb(89, 171, 128);
+          }
         }
         @media (min-width: $tabletWidth) {
           font-size: 1em;

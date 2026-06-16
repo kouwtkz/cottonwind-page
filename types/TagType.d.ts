@@ -2,8 +2,10 @@ type TimeframeTagType = "morning" | "forenoon" | "midday" | "afternoon" | "eveni
 
 type defineSortTagsUnion =
   | "recently"
-  | "leastResently"
+  | "leastRecently"
   | "nameOrder"
   | "leastNameOrder"
+  | "creationTimeOrder"
+  | "shortnessCreationTimeOrder"
   | "likeCount"
   | "mix";

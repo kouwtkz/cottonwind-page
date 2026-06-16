@@ -167,6 +167,7 @@ interface GalleryBodyOptions extends SearchAreaOptionsProps {
   hideWhenEmpty?: boolean;
   h2?: string;
   h4?: string;
+  isSortCreationTime?: boolean;
 }
 
 interface GalleryObjectProps extends GalleryBodyOptions {

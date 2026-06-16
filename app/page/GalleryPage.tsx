@@ -421,7 +421,7 @@ export function GalleryObject({
   ]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<ImageType>[] = [...orderBy];
-    const searchSort = sortParam ?? "";
+    const searchSort = sortParam as defineSortTagsUnion;
     switch (searchSort) {
       case "recently":
         list.push({ time: "desc" });
@@ -434,6 +434,12 @@ export function GalleryObject({
         break;
       case "leastNameOrder":
         list.push({ title: "desc" });
+        break;
+      case "creationTimeOrder":
+        list.push({ creationTime: { time: "desc" } });
+        break;
+      case "shortnessCreationTimeOrder":
+        list.push({ creationTime: { time: "asc" } });
         break;
       case "likeCount":
         list.push({ like: { count: "desc" } });
@@ -448,6 +454,10 @@ export function GalleryObject({
     if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
+  const isSortCreationTime = useMemo(
+    () => orderBySort.some((v) => "creationTime" in v),
+    [orderBySort],
+  );
 
   let filteredGroups = useMemo(() => {
     return items.map<GalleryItemObjectType>(({ list, ...group }) => {
@@ -536,9 +546,12 @@ export function GalleryObject({
     [filteredYearGroups],
   );
   return (
-    <>
-      <GalleryBody items={filteredGroups} yfList={yfList} {...args} />
-    </>
+    <GalleryBody
+      items={filteredGroups}
+      yfList={yfList}
+      isSortCreationTime={isSortCreationTime}
+      {...args}
+    />
   );
 }
 
@@ -644,6 +657,7 @@ function GalleryBody({
   submitPreventScrollReset,
   h2,
   h4,
+  isSortCreationTime,
 }: GalleryBodyProps) {
   const search = useSearchParams()[0];
   const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
@@ -663,6 +677,7 @@ function GalleryBody({
     showGalleryHeader,
     showGalleryLabel,
     showCount,
+    isSortCreationTime,
   };
   const isLogin = useIsLogin()[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
@@ -1033,10 +1048,12 @@ function GalleryImageItem({
   galleryName,
   image,
   onClick,
+  isSortCreationTime,
 }: {
   galleryName?: string;
   image: ImageType;
   onClick?: (image: ImageType) => void;
+  isSortCreationTime?: boolean;
 }) {
   const { pathname, hash } = useLocation();
   const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
@@ -1079,7 +1096,10 @@ function GalleryImageItem({
       >
         {visibleImage ? (
           <>
-            <GalleryItemRibbon image={image} />
+            <GalleryItemRibbon
+              image={image}
+              visibleCreationTime={isSortCreationTime}
+            />
             {image.type === "ebook" || image.type === "goods" ? (
               image.embed ? (
                 <div className="translucent-special-button">
@@ -1149,6 +1169,7 @@ function GalleryImageItem({
     toStatehandler,
     ImageTimeFrameTag,
     visibleImage,
+    isSortCreationTime,
   ]);
   return Item;
 }
@@ -1192,6 +1213,7 @@ function GalleryContentMain({
   ref,
   stateMax,
   curMaxStateName,
+  isSortCreationTime,
   ...args
 }: GalleryContentMainProps) {
   let {
@@ -1310,6 +1332,7 @@ function GalleryContentMain({
               galleryName={name}
               onClick={imageOnClick}
               key={image.key}
+              isSortCreationTime={isSortCreationTime}
             />
           ))}
         {showMoreButton ? (
@@ -1490,9 +1513,11 @@ interface SelectAreaProps extends SearchAreaOptionsProps {
 
 const gallerySortTags = [
   defineSortTags([
-    "leastResently",
+    "leastRecently",
     "nameOrder",
     "leastNameOrder",
+    "creationTimeOrder",
+    "shortnessCreationTimeOrder",
     "likeCount",
     "mix",
   ]),
@@ -1576,27 +1601,61 @@ export function GalleryCharactersSelect({
   );
 }
 
-function GalleryItemRibbon({ image }: { image: ImageType }) {
+function GalleryItemRibbon({
+  image,
+  visibleCreationTime,
+}: {
+  image: ImageType;
+  visibleCreationTime?: boolean;
+}) {
   const schedule =
     image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
-  const className = useMemo(() => {
-    const list = ["ribbon"];
-    if (image.draft) list.push("draft");
-    else if (schedule) list.push("schedule");
+  visibleCreationTime = useMemo(
+    () =>
+      Boolean(
+        visibleCreationTime &&
+          image.creationTime &&
+          !isNaN(image.creationTime.time),
+      ),
+    [visibleCreationTime, image.creationTime],
+  );
+  const bottomVisible = useMemo(
+    () => Boolean(image.draft || schedule || image.update),
+    [image, schedule],
+  );
+  const bottomClassName = useMemo(() => {
+    if (image.draft) return "draft";
+    else if (schedule) return "schedule";
     else if (image.update) {
-      if (image.new) list.push("new");
-      else list.push("update");
+      if (image.new) return "new";
+      else return "update";
     }
-    return list.join(" ");
   }, [image.update, image.new, image.draft, schedule]);
+  const visible = useMemo(
+    () => bottomVisible || visibleCreationTime,
+    [bottomVisible, visibleCreationTime],
+  );
   return (
     <>
-      {image.draft ? (
-        <div className={className}>Draft</div>
-      ) : schedule ? (
-        <div className={className}>Schedule</div>
-      ) : image.update ? (
-        <div className={className}>{image.new ? "New!" : "Update"}</div>
+      {visible ? (
+        <div className="ribbon">
+          {visibleCreationTime ? (
+            <div>{image.creationTime!.FormatToJP()}</div>
+          ) : null}
+          {bottomVisible ? (
+            <div className={bottomClassName}>
+              {image.draft
+                ? "Draft"
+                : schedule
+                  ? "Schedule"
+                  : image.update
+                    ? image.new
+                      ? "New!"
+                      : "Update"
+                    : null}
+            </div>
+          ) : null}
+        </div>
       ) : null}
     </>
   );

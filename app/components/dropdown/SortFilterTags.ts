@@ -173,7 +173,7 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
       case "recently":
         options.push({ value: "sort:recently", label: "🕒新しい順", nameGuide: "あたらしい" });
         break;
-      case "leastResently":
+      case "leastRecently":
         options.push({ value: "sort:leastRecently", label: "🕘古い順", nameGuide: "ふるい" });
         break;
       case "nameOrder":
@@ -181,6 +181,12 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
         break;
       case "leastNameOrder":
         options.push({ value: "sort:leastNameOrder", label: "⬆️名前（降順）", nameGuide: "なまえ" });
+        break;
+      case "creationTimeOrder":
+        options.push({ value: "sort:creationTimeOrder", label: "⏳制作時間が長い順", nameGuide: "ながい" });
+        break;
+      case "shortnessCreationTimeOrder":
+        options.push({ value: "sort:shortnessCreationTimeOrder", label: "⌛制作時間が短い順", nameGuide: "みじかい" });
         break;
       case "likeCount":
         options.push({ value: "sort:likeCount", label: "♥️いいね順" });

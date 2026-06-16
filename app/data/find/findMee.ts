@@ -7,7 +7,7 @@ export function findMee<T>(
     skip = 0,
     direction,
     index,
-    query
+    query,
   }: findMeeProps<T>): T[] {
   let unique: keyof T | undefined;
   if (index) {
@@ -88,7 +88,12 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
                 if (valueA && valueB) result = valueA.localeCompare(valueB, 'ja');
                 break;
               case "number":
-                result = (valueA || 0) - (valueB || 0);
+                if (isNaN(valueA))
+                  result = 0;
+                else if (isNaN(valueB))
+                  result = -1 * sign;
+                else
+                  result = (valueA || 0) - (valueB || 0);
                 break;
               case "object":
                 if (judgeValue && "getTime" in judgeValue) {

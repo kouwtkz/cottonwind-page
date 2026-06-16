@@ -742,7 +742,7 @@ const characterSortTags = [
     "nameOrder",
     "leastNameOrder",
     "recently",
-    "leastResently",
+    "leastRecently",
     "likeCount",
   ]),
 ];
