@@ -256,25 +256,36 @@ export default function ImageEditForm({
     values,
   });
   const [stateCreationTime, setCreationTime] = useState<TimeClass>();
-  useEffect(() => {
-    setCreationTime(image?.creationTime || new TimeClass());
-  }, [image?.creationTime]);
   const autoInputCreationTimeType = useCallback(
-    () => (stateCreationTime && stateCreationTime.days === 0 ? "time" : "text"),
-    [stateCreationTime],
+    (creationTime?: TimeClass) => (!creationTime?.days ? "time" : "text"),
+    [],
   );
   const autoInputCreationTimeStep = useCallback(
-    () => (stateCreationTime?.seconds ? 1 : 60),
-    [stateCreationTime],
+    (creationTime?: TimeClass) => (creationTime?.seconds ? 1 : 60),
+    [],
   );
-  const [inputCreationTimeParam, setInputCreationTimeParam] =
+  const [inputStateCreationTimeParam, setStateInputCreationTimeParam] =
     useState<inputCreationTimeParamType>(["text", 1]);
+  const switchInputStateCreationTime = useCallback(() => {
+    () => {
+      setValue("creationTime", stateCreationTime?.formattedValue);
+      if (inputStateCreationTimeParam[0] === "text") {
+        const params: inputCreationTimeParamType = [
+          autoInputCreationTimeType(stateCreationTime),
+          autoInputCreationTimeStep(stateCreationTime),
+        ];
+        setStateInputCreationTimeParam(params);
+      } else setStateInputCreationTimeParam(["text", 1]);
+    };
+  }, [stateCreationTime, inputStateCreationTimeParam]);
   useEffect(() => {
-    setInputCreationTimeParam([
-      autoInputCreationTimeType(),
-      autoInputCreationTimeStep(),
+    const creationTime = image?.creationTime || new TimeClass();
+    setStateInputCreationTimeParam([
+      autoInputCreationTimeType(creationTime),
+      autoInputCreationTimeStep(creationTime),
     ]);
-  }, [stateCreationTime]);
+    setCreationTime(creationTime);
+  }, [image?.creationTime]);
 
   useEffect(() => {
     if (stateIsDirty !== isDirty) {
@@ -1105,16 +1116,7 @@ export default function ImageEditForm({
             <button
               type="button"
               title="切り替え"
-              onClick={() => {
-                setValue("creationTime", stateCreationTime?.formattedValue);
-                if (inputCreationTimeParam[0] === "text") {
-                  const params: ["time" | "text", number] = [
-                    autoInputCreationTimeType(),
-                    autoInputCreationTimeStep(),
-                  ];
-                  setInputCreationTimeParam(params);
-                } else setInputCreationTimeParam(["text", 1]);
-              }}
+              onClick={switchInputStateCreationTime}
             >
               <MdChangeCircle />
             </button>
@@ -1125,8 +1127,8 @@ export default function ImageEditForm({
               <input
                 title="制作時間"
                 id="inputEditImageCreationTime"
-                type={inputCreationTimeParam[0]}
-                step={inputCreationTimeParam[1]}
+                type={inputStateCreationTimeParam[0]}
+                step={inputStateCreationTimeParam[1]}
                 {...regist}
                 onChange={(e) => {
                   onChange(e);
