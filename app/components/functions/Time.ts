@@ -43,7 +43,7 @@ export class TimeClass {
         this.minutes = fullMinutes % 60;
         this.fullHours = Math.floor(fullMinutes / 60);
         this.hours = this.fullHours % 24;
-        this.days = Math.floor(this.fullHours % 24);
+        this.days = Math.floor(this.fullHours / 24);
         this.formattedValue = this.FormatValue();
       }
       this.value = this.formattedValue;

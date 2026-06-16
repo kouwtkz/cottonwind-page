@@ -132,6 +132,7 @@ const defPositions: optionElementInterface[] = [
 ];
 
 const SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
+type inputCreationTimeParamType = ["text" | "time", number];
 
 export default function ImageEditForm({
   className,
@@ -259,16 +260,21 @@ export default function ImageEditForm({
     setCreationTime(image?.creationTime || new TimeClass());
   }, [image?.creationTime]);
   const autoInputCreationTimeType = useCallback(
-    () => (stateCreationTime?.days ? "text" : "time"),
+    () => (stateCreationTime && stateCreationTime.days === 0 ? "time" : "text"),
     [stateCreationTime],
   );
   const autoInputCreationTimeStep = useCallback(
     () => (stateCreationTime?.seconds ? 1 : 60),
     [stateCreationTime],
   );
-  const [inputCreationTimeParam, setInputCreationTimeParam] = useState<
-    ["text" | "time", number]
-  >([autoInputCreationTimeType(), autoInputCreationTimeStep()]);
+  const [inputCreationTimeParam, setInputCreationTimeParam] =
+    useState<inputCreationTimeParamType>(["text", 1]);
+  useEffect(() => {
+    setInputCreationTimeParam([
+      autoInputCreationTimeType(),
+      autoInputCreationTimeStep(),
+    ]);
+  }, [stateCreationTime]);
 
   useEffect(() => {
     if (stateIsDirty !== isDirty) {
