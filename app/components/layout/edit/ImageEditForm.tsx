@@ -1049,7 +1049,7 @@ export default function ImageEditForm({
                   <div>
                     <ImageMee
                       imageItem={image}
-                      mode="simple"
+                      mode="thumbnail"
                       className="square"
                       autoPosition={positionValue}
                     />

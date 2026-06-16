@@ -281,6 +281,8 @@ interface ImageMeeSimpleProps
   size?: number;
   loadingScreen?: boolean;
   showMessage?: boolean;
+  autoPosition?: boolean | string;
+  isCover?: boolean;
 }
 
 export function ImageMeeIcon({ size, ...args }: ImageMeeSimpleProps) {
