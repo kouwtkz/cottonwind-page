@@ -2445,6 +2445,13 @@ form {
   h4 {
     @extend .color-deep;
   }
+  ul,
+  ol {
+    li > *:not(ul):not(ol) {
+      margin: auto;
+      display: inline-block;
+    }
+  }
   div {
     margin: 1rem auto;
   }
