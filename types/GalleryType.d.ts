@@ -62,3 +62,35 @@ interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOpti
 }
 
 type MonthSearchModeType = "event" | "tag" | "time";
+
+interface GalleryItemVisibleProps {
+  visibleCreationTime?: boolean;
+  visibleLikeCount?: boolean;
+}
+
+interface GalleryObjectType {
+  items: GalleryItemObjectType[];
+  filteredGroups: GalleryItemObjectType[];
+  filteredYearGroups: GalleryItemObjectType[];
+  images: ImageType[];
+}
+
+interface GalleryBodyOptions extends SearchAreaOptionsProps, GalleryItemVisibleProps {
+  showInPageMenu?: boolean;
+  showGalleryHeader?: boolean;
+  showGalleryLabel?: boolean;
+  showCount?: boolean;
+  hideWhenEmpty?: boolean;
+  h2?: string;
+  h4?: string;
+}
+
+interface GalleryObjectProps extends GalleryBodyOptions {
+  items: GalleryItemObjectType[];
+}
+
+interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOptionsProps {
+  items?: GalleryItemsType;
+}
+
+type MonthSearchModeType = "event" | "tag" | "time";

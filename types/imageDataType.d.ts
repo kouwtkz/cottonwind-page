@@ -151,31 +151,3 @@ interface sortObjectType {
   key: string;
   order: "asc" | "desc";
 }
-
-interface GalleryObjectType {
-  items: GalleryItemObjectType[];
-  filteredGroups: GalleryItemObjectType[];
-  filteredYearGroups: GalleryItemObjectType[];
-  images: ImageType[];
-}
-
-interface GalleryBodyOptions extends SearchAreaOptionsProps {
-  showInPageMenu?: boolean;
-  showGalleryHeader?: boolean;
-  showGalleryLabel?: boolean;
-  showCount?: boolean;
-  hideWhenEmpty?: boolean;
-  h2?: string;
-  h4?: string;
-  isSortCreationTime?: boolean;
-}
-
-interface GalleryObjectProps extends GalleryBodyOptions {
-  items: GalleryItemObjectType[];
-}
-
-interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOptionsProps {
-  items?: GalleryItemsType;
-}
-
-type MonthSearchModeType = "event" | "tag" | "time";

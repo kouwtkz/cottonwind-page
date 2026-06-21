@@ -2918,6 +2918,7 @@ div.banner {
           margin: 0;
           padding: 0.1rem 0.25rem;
           background-color: var(--ribbon-color);
+          line-height: 1.2em;
           &.new {
             --ribbon-color: rgb(244, 79, 79);
           }
@@ -2929,6 +2930,14 @@ div.banner {
           }
           &.schedule {
             --ribbon-color: rgb(89, 171, 128);
+          }
+          &.like {
+            --ribbon-color: rgb(235, 114, 126);
+            &::before {
+              font-size: 0.85em;
+              margin-right: 0.2em;
+              content: "♥";
+            }
           }
         }
         @media (min-width: $tabletWidth) {

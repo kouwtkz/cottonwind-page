@@ -260,7 +260,30 @@ export function GalleryObject({
   const monthParam = searchParams.get("month");
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
-  const qParam = searchParams.get("q") || "";
+  const qSearchParam = searchParams.get("q") || "";
+  const [qParam, visibleProps] = useMemo<
+    [string, GalleryItemVisibleProps]
+  >(() => {
+    const options: GalleryItemVisibleProps = {};
+    return [
+      qSearchParam
+        .split(" ")
+        .filter((_) => {
+          const [K, V] = _.split(":");
+          const k = K.toLocaleLowerCase();
+          if (k === "visible") {
+            const v = V.toLocaleLowerCase();
+            switch (v) {
+              case "creationtime":
+                options.visibleCreationTime = true;
+            }
+            return false;
+          } else return true;
+        })
+        .join(" "),
+      options,
+    ];
+  }, [qSearchParam]);
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const copyrightParam = searchParams.get("copyright");
   const viewModeParam = searchParams.get("viewMode");
@@ -454,9 +477,15 @@ export function GalleryObject({
     if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
-  const isSortCreationTime = useMemo(
-    () => orderBySort.some((v) => "creationTime" in v),
-    [orderBySort],
+  visibleProps.visibleCreationTime = useMemo(
+    () =>
+      visibleProps.visibleCreationTime ||
+      orderBySort.some((v) => "creationTime" in v),
+    [visibleProps.visibleCreationTime, orderBySort],
+  );
+  visibleProps.visibleLikeCount = useMemo(
+    () => visibleProps.visibleLikeCount || orderBySort.some((v) => "like" in v),
+    [visibleProps.visibleLikeCount, orderBySort],
   );
 
   let filteredGroups = useMemo(() => {
@@ -549,7 +578,7 @@ export function GalleryObject({
     <GalleryBody
       items={filteredGroups}
       yfList={yfList}
-      isSortCreationTime={isSortCreationTime}
+      {...visibleProps}
       {...args}
     />
   );
@@ -657,7 +686,8 @@ function GalleryBody({
   submitPreventScrollReset,
   h2,
   h4,
-  isSortCreationTime,
+  visibleCreationTime,
+  visibleLikeCount,
 }: GalleryBodyProps) {
   const search = useSearchParams()[0];
   const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
@@ -677,7 +707,8 @@ function GalleryBody({
     showGalleryHeader,
     showGalleryLabel,
     showCount,
-    isSortCreationTime,
+    visibleCreationTime,
+    visibleLikeCount,
   };
   const isLogin = useIsLogin()[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
@@ -1044,17 +1075,18 @@ function GalleryBody({
   );
 }
 
+interface GalleryImageItemProps extends GalleryItemVisibleProps {
+  galleryName?: string;
+  image: ImageType;
+  onClick?: (image: ImageType) => void;
+}
 function GalleryImageItem({
   galleryName,
   image,
   onClick,
-  isSortCreationTime,
-}: {
-  galleryName?: string;
-  image: ImageType;
-  onClick?: (image: ImageType) => void;
-  isSortCreationTime?: boolean;
-}) {
+  visibleCreationTime,
+  visibleLikeCount,
+}: GalleryImageItemProps) {
   const { pathname, hash } = useLocation();
   const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
   const [searchParams] = useSearchParams();
@@ -1098,7 +1130,8 @@ function GalleryImageItem({
           <>
             <GalleryItemRibbon
               image={image}
-              visibleCreationTime={isSortCreationTime}
+              visibleCreationTime={visibleCreationTime}
+              visibleLikeCount={visibleLikeCount}
             />
             {image.type === "ebook" || image.type === "goods" ? (
               image.embed ? (
@@ -1169,7 +1202,8 @@ function GalleryImageItem({
     toStatehandler,
     ImageTimeFrameTag,
     visibleImage,
-    isSortCreationTime,
+    visibleCreationTime,
+    visibleLikeCount,
   ]);
   return Item;
 }
@@ -1213,7 +1247,8 @@ function GalleryContentMain({
   ref,
   stateMax,
   curMaxStateName,
-  isSortCreationTime,
+  visibleCreationTime,
+  visibleLikeCount,
   ...args
 }: GalleryContentMainProps) {
   let {
@@ -1332,7 +1367,8 @@ function GalleryContentMain({
               galleryName={name}
               onClick={imageOnClick}
               key={image.key}
-              isSortCreationTime={isSortCreationTime}
+              visibleCreationTime={visibleCreationTime}
+              visibleLikeCount={visibleLikeCount}
             />
           ))}
         {showMoreButton ? (
@@ -1601,60 +1637,59 @@ export function GalleryCharactersSelect({
   );
 }
 
+interface GalleryItemRibbonProps extends GalleryItemVisibleProps {
+  image: ImageType;
+}
+interface GalleryItemRibbonListType {
+  className?: string;
+  label: string;
+}
 function GalleryItemRibbon({
   image,
   visibleCreationTime,
-}: {
-  image: ImageType;
-  visibleCreationTime?: boolean;
-}) {
+  visibleLikeCount,
+}: GalleryItemRibbonProps) {
   const schedule =
     image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
-  visibleCreationTime = useMemo(
-    () =>
-      Boolean(
-        visibleCreationTime &&
-          image.creationTime &&
-          !isNaN(image.creationTime.time),
-      ),
-    [visibleCreationTime, image.creationTime],
-  );
-  const bottomVisible = useMemo(
-    () => Boolean(image.draft || schedule || image.update),
-    [image, schedule],
-  );
-  const bottomClassName = useMemo(() => {
-    if (image.draft) return "draft";
-    else if (schedule) return "schedule";
+  const itemOfUpdate = useMemo<null | GalleryItemRibbonListType>(() => {
+    if (image.draft) return { label: "Draft", className: "draft" };
+    else if (schedule) return { label: "Schedule", className: "schedule" };
     else if (image.update) {
-      if (image.new) return "new";
-      else return "update";
-    }
-  }, [image.update, image.new, image.draft, schedule]);
-  const visible = useMemo(
-    () => bottomVisible || visibleCreationTime,
-    [bottomVisible, visibleCreationTime],
-  );
+      if (image.new) return { label: "New!", className: "new" };
+      else return { label: "Update", className: "update" };
+    } else return null;
+  }, [image, schedule]);
+  const itemOfCreationTime = useMemo<null | GalleryItemRibbonListType>(() => {
+    if (
+      visibleCreationTime &&
+      image.creationTime &&
+      !isNaN(image.creationTime.time)
+    ) {
+      return { label: image.creationTime!.FormatToJP() };
+    } else return null;
+  }, [visibleCreationTime, image]);
+  const itemOfLikeCount = useMemo<null | GalleryItemRibbonListType>(() => {
+    if (visibleLikeCount && image.like && image.like.count) {
+      return { label: image.like.count.toString(), className: "like" };
+    } else return null;
+  }, [visibleLikeCount, image]);
+  const list = useMemo(() => {
+    const list: GalleryItemRibbonListType[] = [];
+    if (itemOfCreationTime) list.push(itemOfCreationTime);
+    if (itemOfLikeCount) list.push(itemOfLikeCount);
+    if (itemOfUpdate) list.push(itemOfUpdate);
+    return list;
+  }, [itemOfUpdate, itemOfCreationTime, itemOfLikeCount]);
+
   return (
     <>
-      {visible ? (
+      {list.length > 0 ? (
         <div className="ribbon">
-          {visibleCreationTime ? (
-            <div>{image.creationTime!.FormatToJP()}</div>
-          ) : null}
-          {bottomVisible ? (
-            <div className={bottomClassName}>
-              {image.draft
-                ? "Draft"
-                : schedule
-                  ? "Schedule"
-                  : image.update
-                    ? image.new
-                      ? "New!"
-                      : "Update"
-                    : null}
+          {list.map((item) => (
+            <div key={`ribbon-${item.label}`} className={item.className}>
+              {item.label}
             </div>
-          ) : null}
+          ))}
         </div>
       ) : null}
     </>
