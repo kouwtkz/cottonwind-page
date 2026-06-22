@@ -5,6 +5,7 @@ import { UpdateTablesDataObject } from "./DBTablesObject";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/KeyValueDB";
 import { getCfDB } from "~/data/cf/getEnv";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(KeyValueDBDataOptions);
 
@@ -101,8 +102,11 @@ export async function ServerKeyValueDBGetData({ searchParams, db, isLogin }: Get
   const key = searchParams.get("key");
   if (key) wheres.push({ key });
   async function Select() {
-    return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => v.private ? { ...v, ...TableObject.getFillNullEntry, private: v.private } : v))
+    return TableObject.Select({ db, where: { AND: wheres } })
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.private)
+          ? { ...v, ...TableObject.getFillNullEntry, private: v.private, key: await sha256(v.key), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: KeyValueDBDataOptions }))

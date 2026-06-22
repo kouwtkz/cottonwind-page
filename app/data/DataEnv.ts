@@ -4,7 +4,7 @@ import { apiOrigin } from "./ClientDBLoader";
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
 
 const ImageDataName = "images";
-export const ImageDataOptions: Props_LastmodMHClass_Options<ImageType, ImageDataType> = {
+export const ImageDataOptions: Props_LastmodMHClass_Options<ImageIndexedDataType, ImageDataType> = {
   name: ImageDataName,
   src: "/images",
   api: "/image",

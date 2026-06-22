@@ -6,6 +6,7 @@ import type { Route } from "./+types/soundAlbum";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { soundTableObject } from "./sound";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(soundAlbumsDataOptions);
 export const soundAlbumTableObject = TableObject;
@@ -20,8 +21,11 @@ export async function ServerSoundAlbumsGetData({ searchParams, db, isLogin }: Ge
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
-    return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
+    return TableObject.Select({ db, where: { AND: wheres } })
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.draft)
+          ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft, key: await sha256(v.key), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: soundAlbumsDataOptions }))

@@ -35,7 +35,11 @@ export function JsonFromDataObject<T>({
   }
   if (fieldsTime)
     data.sort((a, b) =>
-      a[fieldsTime] > b[fieldsTime] ? 1 : a[fieldsTime] < b[fieldsTime] ? -1 : 0
+      a[fieldsTime] > b[fieldsTime]
+        ? 1
+        : a[fieldsTime] < b[fieldsTime]
+          ? -1
+          : 0,
     );
   body.data = data;
   return body;
@@ -49,15 +53,15 @@ export function DownloadDataObject<T>({
 }: DownloadDataObjectProps<T>) {
   fileDownload(
     `${name || props.key.toString()}_${FormatDate(new Date(), "Ymd_His")}.json`,
-    JSON.stringify(JsonFromDataObject(props))
+    JSON.stringify(JsonFromDataObject(props)),
   );
 }
 
 export async function getIndexedDBJsonOptions<T extends WithRawDataType<any>>(
-  indexedDB: IndexedDataLastmodMH<T, any, MeeIndexedDBTable<T>>
+  indexedDB: IndexedDataLastmodMH<T, any, MeeIndexedDBTable<T>>,
 ) {
   const data = (await indexedDB.table.getAll()).map((v) =>
-    v.rawdata ? v.rawdata : v
+    v.rawdata ? v.rawdata : v,
   );
   return {
     data,

@@ -7,6 +7,7 @@ import { UpdateTablesDataObject } from "./DBTablesObject";
 import type { GetDataProps } from "./propsDef";
 import type { Route } from "./+types/blog";
 import { getCfDB } from "~/data/cf/getEnv";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(postsDataOptions);
 export const postTableObject = TableObject;
@@ -22,7 +23,10 @@ export async function ServerPostsGetData({ searchParams, db, isLogin }: GetDataP
   if (postId) wheres.push({ postId });
   async function Select() {
     return TableObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.draft)
+          ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft, key: await sha256(v.postId || ""), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: postsDataOptions }))

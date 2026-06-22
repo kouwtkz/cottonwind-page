@@ -126,7 +126,8 @@ interface GalleryPageProps extends GalleryBodyOptions {
   showAll?: boolean;
 }
 export function GalleryPage({ children, ...args }: GalleryPageProps) {
-  const { galleryAlbums } = useImageState();
+  const { images, galleryAlbums } = useImageState();
+  // console.log({images, galleryAlbums});
   return (
     <div className="galleryPage">
       {children}

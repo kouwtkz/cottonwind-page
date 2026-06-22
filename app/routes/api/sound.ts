@@ -9,6 +9,7 @@ import type { Route } from "./+types/sound";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import MP3Tag from 'mp3tag.js';
 import type { MP3TagTags } from "mp3tag.js/types/tags";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(soundsDataOptions);
 export const soundTableObject = TableObject;
@@ -23,8 +24,11 @@ export async function ServerSoundsGetData({ searchParams, db, isLogin }: GetData
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
-    return ThisObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
+    return TableObject.Select({ db, where: { AND: wheres } })
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.draft)
+          ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft, key: await sha256(v.key), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: soundsDataOptions }))

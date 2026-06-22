@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { imageDataIndexed, likeDataIndexed } from "~/data/ClientDBLoader";
 import {
   getImageAlbumMap,
@@ -37,23 +37,19 @@ interface imageStateType {
 export const useImageState = CreateObjectState<imageStateType>();
 
 export function ImageState() {
-  const { Set } = useImageState();
+  const { Set, imagesMap, images } = useImageState();
   const { likeCategoryMap } = useLikeState();
-  const { charactersMap } = useCharacters();
+  const imagesLikeData: Map<string, LikeType> | undefined = useMemo(() => {
+    return likeCategoryMap?.get("image");
+  }, [likeCategoryMap]);
+  const { charactersData, charactersMap } = useCharacters();
   const imagesData = useSyncExternalStore(
     ...ExternalStoreProps(imageDataIndexed),
   );
   useEffect(() => {
-    if (
-      imagesData?.db &&
-      !imageDataIndexed?.isUpgrade &&
-      charactersMap &&
-      likeCategoryMap
-    ) {
+    if (imagesData?.db && charactersData) {
       imagesData.getAll().then((indexedImagesData) => {
-        const imagesLikeData = likeCategoryMap.get("image");
         const lastmod = imageDataIndexed.beforeLastmod;
-        const latest = imageDataIndexed.latest;
         const images = indexedImagesData.map<ImageType>(
           ({ creationTime, ...image }) => ({
             creationTime: new TimeClass(creationTime || ""),
@@ -65,9 +61,9 @@ export function ImageState() {
             image.update = Boolean(
               image.lastmod!.getTime() > lastmod.getTime(),
             );
-          image.new =
-            image.update &&
-            (image.time && latest ? image.time > latest : false);
+            if (image.update && image.extendData?.new) {
+              image.new = true;
+            }
           image.characterObjects = image.characters
             ?.map((character) => charactersMap.get(character)!)
             .filter((c) => c);
@@ -151,7 +147,14 @@ export function ImageState() {
         });
       });
     }
-  }, [imagesData, imageDataIndexed, likeCategoryMap, charactersMap, Set]);
+  }, [
+    imagesData,
+    imageDataIndexed,
+    imagesLikeData,
+    charactersMap,
+    charactersData,
+    Set,
+  ]);
   return <></>;
 }
 

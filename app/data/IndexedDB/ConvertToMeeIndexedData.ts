@@ -27,7 +27,9 @@ interface Props_ConvertToMeeIndexedData<T, D = T> {
   convert: DataConvertListType<D>
 }
 export async function convertToMeeIndexedData<T, D = T>({ item: v, convert }: Props_ConvertToMeeIndexedData<T, D>) {
-  const item: any = v;
+  const item: any = { ...v };
+  //@ts-ignore
+  delete v.extendData;
   item.rawdata = { ...v };
   convert.date?.forEach(key => {
     if (typeof v[key] === "string") {

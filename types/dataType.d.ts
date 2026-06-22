@@ -33,6 +33,6 @@ interface DataConvertListType<T> {
   array?: Array<keyof T>;
 }
 
-interface WithRawDataType<D> {
+interface WithRawExtendDataType<D> {
   rawdata?: D;
 }

@@ -7,6 +7,7 @@ import type { Route } from "./+types/character";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { ImageTableObject } from "./image";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(charactersDataOptions);
 
@@ -145,7 +146,10 @@ export async function ServerCharactersGetData({ searchParams, db, isLogin }: Get
   if (id) wheres.push({ id: Number(id) });
   async function Select() {
     return TableObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map((v) => v.draft ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.draft)
+          ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft, key: await sha256(v.key), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: charactersDataOptions }))

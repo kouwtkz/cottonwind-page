@@ -27,7 +27,7 @@ interface ImageDataType {
   mtime?: string;
   lastmod: string;
 }
-interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawDataType<ImageDataType> {
+interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawExtendDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
@@ -52,7 +52,7 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   data?: ImageDataType;
   hideInfo?: boolean;
 }
-interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawDataType<ImageDataType> {
+interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawExtendDataType<ImageDataType>, ExtendDataProps {
   creationTime?: TimeClass | null;
 }
 

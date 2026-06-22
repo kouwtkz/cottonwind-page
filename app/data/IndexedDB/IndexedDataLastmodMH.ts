@@ -19,7 +19,6 @@ export class IndexedDataLastmodMH<
   version: string;
   idField: string;
   latestField?: { [k in keyof T]: OrderByType };
-  latest?: Date;
   lastmodField: string;
   beforeLastmod?: Date;
   scheduleEnable: boolean;
@@ -148,11 +147,15 @@ export class IndexedDataLastmodMH<
   }
   override async save({ callback: argsCallback, onsuccess, ...args }: Props_IndexedDataClass_Save<T>) {
     const thisOption = this.options;
-    async function callback(item: T | D, i: number): Promise<T> {
+    const table = this.table;
+    async function callback({ item: argItem, index, store }: Props_IndexedDataClass_Callback<T, D>): Promise<T> {
+      let item: any = argItem;
       if (thisOption.convert) {
-        item = await convertToMeeIndexedData<T, D>({ item: item as D, convert: thisOption.convert! }) as T;
+        const beforeItem = await table.get({ query: item[table.options.primary], store }) as Props_LastmodMH_Tables | undefined;
+        item = await convertToMeeIndexedData<T, D>({ item, convert: thisOption.convert! }) as T;
+        if (!beforeItem || (beforeItem.extendData?.secret && !item.extendData?.secret)) item.extendData = { ...item.extendData, new: true };
       } else item = item as T;
-      if (argsCallback) argsCallback(item, i);
+      if (argsCallback) argsCallback({ item, index, store });
       return item;
     }
     if (this.isUpgrade) this.isUpgrade = false;

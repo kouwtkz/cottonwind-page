@@ -54,20 +54,20 @@ export class IndexedDataClass<
       this.isBusy = true;
       return thisTable.usingStore({
         async callback(store) {
-          return Promise.all(data.map(async (value, i) => {
-            if (callback) value = await callback(value, i);
-            await thisTable.put({ value, store })
+          return Promise.all(data.map(async (item, index) => {
+            if (callback) item = await callback({ item, index, store });
+            await thisTable.put({ value: item, store })
               .then((key) => {
-                if (onput) onput({ key, value, index: i });
-                emit("onput", key, value, i);
+                if (onput) onput({ key, value: item, index });
+                emit("onput", key, item, index);
                 return key;
               })
               .catch((e) => {
                 if (onerror) onerror(e);
               })
               .finally(async () => {
-                if (next) next(i);
-                emit("loadingNext", i);
+                if (next) next(index);
+                emit("loadingNext", index);
               })
           })).then<IDBValidKey[]>(a => a.filter(v => v) as any)
         }, store, mode: "readwrite"

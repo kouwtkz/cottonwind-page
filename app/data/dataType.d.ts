@@ -36,3 +36,13 @@ interface DataConvertListType<T> {
 interface WithRawDataType<D> {
   rawdata?: D;
 }
+
+interface ExtendDataProps {
+  secret?: boolean;
+  new?: boolean;
+}
+
+interface WithRawExtendDataType<D> extends WithRawDataType<D> {
+  extendData?: ExtendDataProps;
+}
+

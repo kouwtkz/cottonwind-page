@@ -45,8 +45,14 @@ interface Props_IndexedDataClass_DataStore<T = any> {
   store?: IDBObjectStore;
 }
 
+interface Props_IndexedDataClass_Callback<T = any, D = T> {
+  item: T | D;
+  index?: number;
+  store?: IDBObjectStore;
+}
+
 interface Props_IndexedDataClass_Save<T = any, D = T> extends Omit<Props_IndexedDataClass_DataStore, "data"> {
-  callback?(item: T | D, index?: number): any | Promise<any>;
+  callback?(args: Props_IndexedDataClass_Callback): any | Promise<any>;
   onput?(args: { value: any, key?: IDBValidKey, index: number }): void;
   onerror?(e: any): void;
   next?(index?: number): void;

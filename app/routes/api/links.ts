@@ -7,6 +7,7 @@ import type { GetDataProps } from "./propsDef";
 import type { RouteBasePropsWithEnvProps } from "~/components/utils/RoutesUtils";
 import { getCfDB, getCfEnv } from "~/data/cf/getEnv";
 import type { Route } from "./+types/links";
+import { sha256 } from "~/components/functions/crypto";
 
 export class SiteLinkServerClass {
   object: DBTableClass<SiteLink, SiteLinkData>;
@@ -52,17 +53,18 @@ export class SiteLinkServerClass {
     if (id) wheres.push({ id: Number(id) });
     async function Select() {
       return ThisObject.Select({ db, where: { AND: wheres } })
-        .then(data => isLogin ? data : data.map((v) => {
-          if (v.draft) {
-            return { ...v, ...ThisObject.getFillNullEntry, draft: v.draft };
-          } else {
-            if (v.password || v.category === "secret") {
-              v.url = null;
-              v.password = String(Boolean(v.password));
+        .then(async data => isLogin ? data : await Promise.all(
+          data.map(async v => {
+            if (v.draft) {
+              return { ...v, ...ThisObject.getFillNullEntry, draft: v.draft, key: await sha256(v.key || ""), extendData: { secret: true } };
+            } else {
+              if (v.password || v.category === "secret") {
+                v.url = null;
+                v.password = String(Boolean(v.password));
+              }
+              return v;
             }
-            return v;
-          }
-        }));
+          })));
     }
     return Select().catch(() => ThisObject.CreateTable({ db })
       .then(() => UpdateTablesDataObject({ db, options: ThisOptions }))

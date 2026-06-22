@@ -12,7 +12,7 @@ interface PostDataType {
   lastmod?: string;
 }
 
-interface PostType extends PostDataType, WithRawDataType<PostDataType> {
+interface PostType extends PostDataType, WithRawExtendDataType<PostDataType> {
   category?: string[];
   noindex?: boolean;
   draft?: boolean;

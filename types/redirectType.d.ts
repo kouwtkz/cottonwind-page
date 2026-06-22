@@ -6,7 +6,7 @@ interface redirectDataType {
   private: number;
 }
 
-interface redirectType extends redirectDataType, WithRawDataType<redirectDataType> {
+interface redirectType extends redirectDataType, WithRawExtendDataType<redirectDataType> {
   private?: boolean;
   lastmod?: Date;
 }

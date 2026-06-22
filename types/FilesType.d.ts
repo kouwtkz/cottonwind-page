@@ -7,7 +7,7 @@ interface FilesRecordDataType {
   lastmod?: string;
 }
 
-interface FilesRecordType extends FilesRecordDataType, WithRawDataType<FilesRecordDataType> {
+interface FilesRecordType extends FilesRecordDataType, WithRawExtendDataType<FilesRecordDataType> {
   private?: boolean;
   mtime?: Date;
   lastmod?: Date;

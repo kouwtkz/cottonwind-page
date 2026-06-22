@@ -10,6 +10,7 @@ import { ImageBucketRename } from "./serverFunction";
 import type { Route } from "./+types/image";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
+import { sha256 } from "~/components/functions/crypto";
 
 const TableObject = new DBTableClass(ImageDataOptions);
 export const ImageTableObject = TableObject;
@@ -267,7 +268,10 @@ export async function ServerImagesGetData({ searchParams, db, isLogin }: GetData
   if (src) wheres.push({ src });
   async function Select() {
     return TableObject.Select({ db, where: { AND: wheres } })
-      .then(data => isLogin ? data : data.map(v => (v.draft || !v.version) ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft } : v));
+      .then(async data => isLogin ? data : await Promise.all(
+        data.map(async v => (v.draft || !v.version)
+          ? { ...v, ...TableObject.getFillNullEntry, draft: v.draft, key: await sha256(v.key), extendData: { secret: true } }
+          : v)));
   }
   return Select().catch(() => TableObject.CreateTable({ db })
     .then(() => UpdateTablesDataObject({ db, options: ImageDataOptions }))

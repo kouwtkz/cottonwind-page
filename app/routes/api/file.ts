@@ -126,7 +126,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   entry.key = key;
                   await TableObject.Insert({ db, entry });
                 }
-                return Response.json({...value, ...entry});
+                return Response.json({ ...value, ...entry });
               }
               return Response.json({});
             }
@@ -189,7 +189,9 @@ export async function ServerFilesGetData({ searchParams, db, isLogin }: GetDataP
   async function Select() {
     return ThisObject.Select({ db, where: { AND: wheres } })
       .then(async data => isLogin ? data : await Promise.all(
-        data.map(async v => v.private ? { ...v, ...TableObject.getFillNullEntry, private: v.private, key: await sha256(v.key) } : v))
+        data.map(async v => v.private
+          ? { ...v, ...TableObject.getFillNullEntry, private: v.private, key: await sha256(v.key), extendData: { secret: true } }
+          : v))
       )
   }
   return Select().catch(() => TableObject.CreateTable({ db })
