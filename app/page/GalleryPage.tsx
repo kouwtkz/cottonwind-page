@@ -262,28 +262,31 @@ export function GalleryObject({
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
   const qSearchParam = searchParams.get("q") || "";
-  const [qParam, visibleProps] = useMemo<
-    [string, GalleryItemVisibleProps]
+  let [qParam, visibleCreationTime, visibleLikeCount] = useMemo<
+    [string, boolean, boolean]
   >(() => {
-    const options: GalleryItemVisibleProps = {};
-    return [
-      qSearchParam
-        .split(" ")
-        .filter((_) => {
-          const [K, V] = _.split(":");
-          const k = K.toLocaleLowerCase();
-          if (k === "visible") {
-            const v = V.toLocaleLowerCase();
-            switch (v) {
-              case "creationtime":
-                options.visibleCreationTime = true;
-            }
-            return false;
-          } else return true;
-        })
-        .join(" "),
-      options,
-    ];
+    let visibleCreationTime = false;
+    let visibleLikeCount = false;
+    const qParam = qSearchParam
+      .split(" ")
+      .filter((_) => {
+        const [K, V] = _.split(":");
+        const k = K.toLocaleLowerCase();
+        if (k === "visible") {
+          const v = V.toLocaleLowerCase();
+          switch (v) {
+            case "creationtime":
+              visibleCreationTime = true;
+              break;
+            case "like":
+              visibleLikeCount = true;
+              break;
+          }
+          return false;
+        } else return true;
+      })
+      .join(" ");
+    return [qParam, visibleCreationTime, visibleLikeCount];
   }, [qSearchParam]);
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const copyrightParam = searchParams.get("copyright");
@@ -478,15 +481,13 @@ export function GalleryObject({
     if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
-  visibleProps.visibleCreationTime = useMemo(
-    () =>
-      visibleProps.visibleCreationTime ||
-      orderBySort.some((v) => "creationTime" in v),
-    [visibleProps.visibleCreationTime, orderBySort],
+  visibleCreationTime = useMemo(
+    () => visibleCreationTime || orderBySort.some((v) => "creationTime" in v),
+    [visibleCreationTime, orderBySort],
   );
-  visibleProps.visibleLikeCount = useMemo(
-    () => visibleProps.visibleLikeCount || orderBySort.some((v) => "like" in v),
-    [visibleProps.visibleLikeCount, orderBySort],
+  visibleLikeCount = useMemo(
+    () => visibleLikeCount || orderBySort.some((v) => "like" in v),
+    [visibleLikeCount, orderBySort],
   );
 
   let filteredGroups = useMemo(() => {
@@ -579,7 +580,8 @@ export function GalleryObject({
     <GalleryBody
       items={filteredGroups}
       yfList={yfList}
-      {...visibleProps}
+      visibleCreationTime={visibleCreationTime}
+      visibleLikeCount={visibleLikeCount}
       {...args}
     />
   );
