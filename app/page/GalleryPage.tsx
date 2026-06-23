@@ -120,6 +120,7 @@ import { EditableLinksContainer } from "./LinksPage";
 import { useLinks } from "~/components/state/LinksState";
 import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
+import { TimeClass } from "~/components/functions/Time";
 
 interface GalleryPageProps extends GalleryBodyOptions {
   children?: ReactNode;
@@ -246,6 +247,9 @@ export const useGalleryObject = CreateObjectState<GalleryObjectType>({
   filteredGroups: [],
   filteredYearGroups: [],
 });
+interface qParamsMemoProps extends GalleryItemVisibleProps, GalleryTotalProps {
+  qParam: string;
+}
 
 export function GalleryObject({
   items: _items,
@@ -262,32 +266,52 @@ export function GalleryObject({
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
   const qSearchParam = searchParams.get("q") || "";
-  let [qParam, visibleCreationTime, visibleLikeCount] = useMemo<
-    [string, boolean, boolean]
-  >(() => {
-    let visibleCreationTime = false;
-    let visibleLikeCount = false;
-    const qParam = qSearchParam
-      .split(" ")
-      .filter((_) => {
-        const [K, V] = _.split(":");
-        const k = K.toLocaleLowerCase();
-        if (k === "visible") {
-          const v = V.toLocaleLowerCase();
-          switch (v) {
-            case "creationtime":
-              visibleCreationTime = true;
-              break;
-            case "like":
-              visibleLikeCount = true;
-              break;
-          }
-          return false;
-        } else return true;
-      })
-      .join(" ");
-    return [qParam, visibleCreationTime, visibleLikeCount];
-  }, [qSearchParam]);
+  let { qParam, visibleCreationTime, visibleLikeCount, ...total } =
+    useMemo<qParamsMemoProps>(() => {
+      let visibleCreationTime = false;
+      let visibleLikeCount = false;
+      let totalCreationTime = false;
+      let totalLikeCount = false;
+      const qParam = qSearchParam
+        .split(" ")
+        .filter((_) => {
+          const [K, V] = _.split(":");
+          const k = K.toLocaleLowerCase();
+          if (k === "visible") {
+            const v = V.toLocaleLowerCase();
+            switch (v) {
+              case "creationtime":
+                visibleCreationTime = true;
+                break;
+              case "like":
+                visibleLikeCount = true;
+                break;
+            }
+            return false;
+          } else if (k === "total") {
+            const v = V.toLocaleLowerCase();
+            switch (v) {
+              case "creationtime":
+                visibleCreationTime = true;
+                totalCreationTime = true;
+                break;
+              case "like":
+                visibleLikeCount = true;
+                totalLikeCount = true;
+                break;
+            }
+            return false;
+          } else return true;
+        })
+        .join(" ");
+      return {
+        qParam,
+        visibleCreationTime,
+        visibleLikeCount,
+        totalCreationTime,
+        totalLikeCount,
+      };
+    }, [qSearchParam]);
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const copyrightParam = searchParams.get("copyright");
   const viewModeParam = searchParams.get("viewMode");
@@ -582,6 +606,7 @@ export function GalleryObject({
       yfList={yfList}
       visibleCreationTime={visibleCreationTime}
       visibleLikeCount={visibleLikeCount}
+      {...total}
       {...args}
     />
   );
@@ -691,6 +716,8 @@ function GalleryBody({
   h4,
   visibleCreationTime,
   visibleLikeCount,
+  totalCreationTime,
+  totalLikeCount,
 }: GalleryBodyProps) {
   const search = useSearchParams()[0];
   const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
@@ -936,6 +963,34 @@ function GalleryBody({
     );
   }, [linksState.links, tagsParam, group, typeParam]);
   const SearchAreaOptions = { submitPreventScrollReset };
+  const totalTimeLabel = useMemo(() => {
+    if (totalCreationTime) {
+      const time = new TimeClass(
+        images.reduce((a, c) => {
+          a += c.creationTime?.time || 0;
+          return a;
+        }, 0),
+      );
+      return time.FormatToJP();
+    } else return null;
+  }, [totalCreationTime, images]);
+  const totalLikeLabel = useMemo(() => {
+    if (totalLikeCount) {
+      return (
+        "♥" +
+        images.reduce((a, c) => {
+          a += c.like?.count || 0;
+          return a;
+        }, 0)
+      );
+    } else return null;
+  }, [totalLikeCount, images]);
+  const totals = useMemo(() => {
+    const labels: string[] = [];
+    if (totalTimeLabel) labels.push(totalTimeLabel);
+    if (totalLikeLabel) labels.push(totalLikeLabel);
+    return labels;
+  }, [totalTimeLabel, totalLikeLabel]);
   return (
     <div className="galleryContainer">
       {showInPageMenu && !group ? (
@@ -1049,6 +1104,9 @@ function GalleryBody({
               </div>
             ) : null}
           </div>
+        ) : null}
+        {totals.length > 0 ? (
+          <p className="color-dark">合計: {totals.join(", ")}</p>
         ) : null}
         {h2 || h4 ? (
           <div className="galleryLabel outLabel">
@@ -1318,7 +1376,7 @@ function GalleryContentMain({
       label && linkLabel ? (
         <Link
           to={headerLinkTo(
-              typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
+            typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
           )}
         >
           {label}

@@ -67,6 +67,10 @@ interface GalleryItemVisibleProps {
   visibleCreationTime?: boolean;
   visibleLikeCount?: boolean;
 }
+interface GalleryTotalProps {
+  totalCreationTime?: boolean;
+  totalLikeCount?: boolean;
+}
 
 interface GalleryObjectType {
   items: GalleryItemObjectType[];
@@ -75,7 +79,7 @@ interface GalleryObjectType {
   images: ImageType[];
 }
 
-interface GalleryBodyOptions extends SearchAreaOptionsProps, GalleryItemVisibleProps {
+interface GalleryBodyOptions extends SearchAreaOptionsProps, GalleryItemVisibleProps, GalleryTotalProps {
   showInPageMenu?: boolean;
   showGalleryHeader?: boolean;
   showGalleryLabel?: boolean;

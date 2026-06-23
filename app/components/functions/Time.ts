@@ -7,46 +7,48 @@ export class TimeClass {
   minutes: number;
   seconds: number;
   formattedValue: string;
-  constructor(value?: string | number) {
+  constructor(value?: string | number, zero?: boolean) {
     if (typeof value === "string") {
       this.value = value;
-      if (this.value) {
-        const parsed = TimeClass.Parse(this.value);
-        this.days = parsed[0];
-        this.hours = parsed[1];
-        this.fullHours = this.days * 24 + this.hours;
-        this.minutes = parsed[2];
-        this.seconds = parsed[3];
-        this.time = (this.fullHours * 60 + this.minutes) * 60 + this.seconds;
-        this.formattedValue = this.FormatValue();
-      } else {
-        this.seconds = NaN;
-        this.minutes = NaN;
-        this.fullHours = NaN;
-        this.hours = NaN;
-        this.days = NaN;
-        this.time = NaN;
-        this.formattedValue = "";
-      }
+      this.time = zero ? 0 : NaN;
     } else {
-      this.time = value || NaN;
-      if (isNaN(this.time)) {
-        this.seconds = NaN;
-        this.minutes = NaN;
-        this.fullHours = NaN;
-        this.hours = NaN;
-        this.days = NaN;
-        this.formattedValue = "";
-      } else {
-        this.seconds = this.time % 60;
-        const fullMinutes = Math.floor(this.time / 60);
-        this.minutes = fullMinutes % 60;
-        this.fullHours = Math.floor(fullMinutes / 60);
-        this.hours = this.fullHours % 24;
-        this.days = Math.floor(this.fullHours / 24);
-        this.formattedValue = this.FormatValue();
-      }
+      this.time = value || (zero ? 0 : NaN);
+      this.value = "";
+    }
+    if (this.value) {
+      const parsed = TimeClass.Parse(this.value);
+      this.days = parsed[0];
+      this.hours = parsed[1];
+      this.fullHours = this.days * 24 + this.hours;
+      this.minutes = parsed[2];
+      this.seconds = parsed[3];
+      this.time = (this.fullHours * 60 + this.minutes) * 60 + this.seconds;
+      this.formattedValue = this.FormatValue();
+    } else if (this.time) {
+      this.seconds = this.time % 60;
+      const fullMinutes = Math.floor(this.time / 60);
+      this.minutes = fullMinutes % 60;
+      this.fullHours = Math.floor(fullMinutes / 60);
+      this.hours = this.fullHours % 24;
+      this.days = Math.floor(this.fullHours / 24);
+      this.formattedValue = this.FormatValue();
       this.value = this.formattedValue;
+    } else if (isNaN(this.time)) {
+      this.seconds = NaN;
+      this.minutes = NaN;
+      this.fullHours = NaN;
+      this.hours = NaN;
+      this.days = NaN;
+      this.time = NaN;
+      this.formattedValue = "";
+    } else {
+      this.seconds = 0;
+      this.minutes = 0;
+      this.fullHours = 0;
+      this.hours = 0;
+      this.days = 0;
+      this.time = 0;
+      this.formattedValue = this.FormatValue();
     }
   }
   FormatValue(days?: boolean, separator = ":") {
