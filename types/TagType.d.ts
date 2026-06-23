@@ -8,4 +8,5 @@ type defineSortTagsUnion =
   | "creationTimeOrder"
   | "shortnessCreationTimeOrder"
   | "likeCount"
-  | "mix";
+  | "mix"
+  | "total";

@@ -54,6 +54,11 @@ export function ContentsTagsSelect({
       .get("viewMode")
       ?.split(",")
       .map((v) => `viewMode:${v}`) || [];
+  const searchTotal =
+    searchParams
+      .get("total")
+      ?.split(",")
+      .map((v) => `total:${v || "general"}`) || [];
   const searchQuery = searchTags.concat(
     searchType,
     searchMonth,
@@ -61,10 +66,11 @@ export function ContentsTagsSelect({
     searchFilters,
     searchSort,
     searchCopyright,
-    searchViewMode
+    searchViewMode,
+    searchTotal,
   );
   const currentTags = getTagsOptions(tags).filter((tag) =>
-    searchQuery.some((stag) => tag.value === stag)
+    searchQuery.some((stag) => tag.value === stag),
   );
   const changeHandler = useCallback(
     (list: MultiValue<ContentsTagsOption>) => {
@@ -77,6 +83,7 @@ export function ContentsTagsSelect({
         monthMode: [],
         copyright: [],
         viewMode: [],
+        total: [],
       };
       list.forEach(({ value }) => {
         const values = (value?.split(":", 2) || [""]).concat("");
@@ -102,11 +109,14 @@ export function ContentsTagsSelect({
           case "viewMode":
             listObj.viewMode.push(values[1]);
             break;
+          case "total":
+            listObj.total.push(values[1]);
+            break;
           default:
             if (value) {
               if (TimeframeTagMap.has(value)) {
                 listObj.tags = listObj.tags.filter(
-                  (tag) => !TimeframeTagMap.has(tag)
+                  (tag) => !TimeframeTagMap.has(tag),
                 );
                 listObj.tags.push(value);
               } else listObj.tags.push(value);
@@ -121,10 +131,10 @@ export function ContentsTagsSelect({
       setSearchParams(searchParams, {
         preventScrollReset: submitPreventScrollReset,
         replace: isModal,
-        state: {keep: true},
+        state: { keep: true },
       });
     },
-    [searchParams]
+    [searchParams],
   );
   return (
     <CustomReactSelect

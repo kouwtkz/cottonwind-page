@@ -70,6 +70,7 @@ interface GalleryItemVisibleProps {
 interface GalleryTotalProps {
   totalCreationTime?: boolean;
   totalLikeCount?: boolean;
+  totalCount?: boolean;
 }
 
 interface GalleryObjectType {

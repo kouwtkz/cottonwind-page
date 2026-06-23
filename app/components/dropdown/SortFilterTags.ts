@@ -194,6 +194,9 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
       case "mix":
         options.push({ value: "viewMode:mix", label: "🔄️全て合わせる" });
         break;
+      case "total":
+        options.push({ value: "total:general", label: "📊合計" });
+        break;
     }
   });
   return {

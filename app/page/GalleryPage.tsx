@@ -263,6 +263,7 @@ export function GalleryObject({
   const filterParam = searchParams.get("filter");
   const yearParam = searchParams.get("year");
   const monthParam = searchParams.get("month");
+  const totalParam = searchParams.get("total");
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
   const qSearchParam = searchParams.get("q") || "";
@@ -272,6 +273,7 @@ export function GalleryObject({
       let visibleLikeCount = false;
       let totalCreationTime = false;
       let totalLikeCount = false;
+      let totalCount = false;
       const qParam = qSearchParam
         .split(" ")
         .filter((_) => {
@@ -299,6 +301,9 @@ export function GalleryObject({
                 visibleLikeCount = true;
                 totalLikeCount = true;
                 break;
+              case "count":
+                totalCount = true;
+                break;
             }
             return false;
           } else return true;
@@ -310,6 +315,7 @@ export function GalleryObject({
         visibleLikeCount,
         totalCreationTime,
         totalLikeCount,
+        totalCount,
       };
     }, [qSearchParam]);
   const tagsParam = searchParams.get("tags")?.toLowerCase();
@@ -505,14 +511,27 @@ export function GalleryObject({
     if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
-  visibleCreationTime = useMemo(
-    () => visibleCreationTime || orderBySort.some((v) => "creationTime" in v),
-    [visibleCreationTime, orderBySort],
-  );
+  const isTotalGeneral = useMemo(() => totalParam === "general", [totalParam]);
+  visibleCreationTime =
+    visibleCreationTime ||
+    useMemo(() => orderBySort.some((v) => "creationTime" in v), [orderBySort]);
+  total.totalCreationTime =
+    total.totalCreationTime ||
+    useMemo(
+      () => visibleCreationTime && isTotalGeneral,
+      [visibleCreationTime, isTotalGeneral],
+    );
   visibleLikeCount = useMemo(
     () => visibleLikeCount || orderBySort.some((v) => "like" in v),
     [visibleLikeCount, orderBySort],
   );
+  total.totalLikeCount =
+    total.totalLikeCount ||
+    useMemo(
+      () => visibleLikeCount && isTotalGeneral,
+      [visibleLikeCount, isTotalGeneral],
+    );
+  total.totalCount = total.totalCount || isTotalGeneral;
 
   let filteredGroups = useMemo(() => {
     return items.map<GalleryItemObjectType>(({ list, ...group }) => {
@@ -718,6 +737,7 @@ function GalleryBody({
   visibleLikeCount,
   totalCreationTime,
   totalLikeCount,
+  totalCount,
 }: GalleryBodyProps) {
   const search = useSearchParams()[0];
   const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
@@ -963,34 +983,53 @@ function GalleryBody({
     );
   }, [linksState.links, tagsParam, group, typeParam]);
   const SearchAreaOptions = { submitPreventScrollReset };
-  const totalTimeLabel = useMemo(() => {
+  const [totalTimeLabel, targetTimeCount] = useMemo<
+    [string | null, number]
+  >(() => {
     if (totalCreationTime) {
-      const time = new TimeClass(
-        images.reduce((a, c) => {
-          a += c.creationTime?.time || 0;
+      const counts = images.reduce(
+        (a, c) => {
+          a[0] += c.creationTime?.time || 0;
+          a[1] += c.creationTime && !isNaN(c.creationTime.time) ? 1 : 0;
           return a;
-        }, 0),
+        },
+        [0, 0],
       );
-      return time.FormatToJP();
-    } else return null;
+      const time = new TimeClass(counts[0]);
+      return ["作業時間 " + time.FormatToJP(), counts[1]];
+    } else return [null, 0];
   }, [totalCreationTime, images]);
-  const totalLikeLabel = useMemo(() => {
+  const [totalLikeLabel, targetLikeCount] = useMemo<
+    [string | null, number]
+  >(() => {
     if (totalLikeCount) {
-      return (
-        "♥" +
-        images.reduce((a, c) => {
-          a += c.like?.count || 0;
+      const counts = images.reduce(
+        (a, c) => {
+          a[0] += c.like?.count || 0;
+          a[1] += c.like?.count ? 1 : 0;
           return a;
-        }, 0)
+        },
+        [0, 0],
       );
-    } else return null;
+      return ["♥" + counts[0], counts[1]];
+    } else return [null, 0];
   }, [totalLikeCount, images]);
+  const totalCountLabel = useMemo(() => {
+    if (totalCount) {
+      let label = "全" + (images.length + 1).toString() + "作品";
+      if (targetTimeCount || targetLikeCount) {
+        label += "中 " + Math.max(targetTimeCount, targetLikeCount) + "作品";
+      }
+      return label;
+    } else return null;
+  }, [totalCount, images, targetTimeCount, targetLikeCount]);
   const totals = useMemo(() => {
     const labels: string[] = [];
+    if (totalCountLabel) labels.push(totalCountLabel);
     if (totalTimeLabel) labels.push(totalTimeLabel);
     if (totalLikeLabel) labels.push(totalLikeLabel);
     return labels;
-  }, [totalTimeLabel, totalLikeLabel]);
+  }, [totalCountLabel, totalTimeLabel, totalLikeLabel]);
   return (
     <div className="galleryContainer">
       {showInPageMenu && !group ? (
@@ -1620,6 +1659,7 @@ const gallerySortTags = [
     "shortnessCreationTimeOrder",
     "likeCount",
     "mix",
+    "total",
   ]),
 ];
 export function GalleryTagsSelect({
