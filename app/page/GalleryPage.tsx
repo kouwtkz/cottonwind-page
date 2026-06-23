@@ -1016,7 +1016,7 @@ function GalleryBody({
   }, [totalLikeCount, images]);
   const totalCountLabel = useMemo(() => {
     if (totalCount) {
-      let label = "全" + (images.length + 1).toString() + "作品";
+      let label = "全" + images.length.toString() + "作品";
       if (targetTimeCount || targetLikeCount) {
         label += "中 " + Math.max(targetTimeCount, targetLikeCount) + "作品";
       }
