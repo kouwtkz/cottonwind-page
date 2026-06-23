@@ -996,7 +996,7 @@ function GalleryBody({
         [0, 0],
       );
       const time = new TimeClass(counts[0]);
-      return ["作業時間 " + time.FormatToJP(), counts[1]];
+      return [counts[1] ? "作業時間 " + time.FormatToJP() : "", counts[1]];
     } else return [null, 0];
   }, [totalCreationTime, images]);
   const [totalLikeLabel, targetLikeCount] = useMemo<
@@ -1011,7 +1011,7 @@ function GalleryBody({
         },
         [0, 0],
       );
-      return ["♥" + counts[0], counts[1]];
+      return [counts[1] ? "♥" + counts[0] : "", counts[1]];
     } else return [null, 0];
   }, [totalLikeCount, images]);
   const totalCountLabel = useMemo(() => {
