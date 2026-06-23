@@ -267,16 +267,14 @@ export default function ImageEditForm({
   const [inputStateCreationTimeParam, setStateInputCreationTimeParam] =
     useState<inputCreationTimeParamType>(["text", 1]);
   const switchInputStateCreationTime = useCallback(() => {
-    () => {
-      setValue("creationTime", stateCreationTime?.formattedValue);
-      if (inputStateCreationTimeParam[0] === "text") {
-        const params: inputCreationTimeParamType = [
-          autoInputCreationTimeType(stateCreationTime),
-          autoInputCreationTimeStep(stateCreationTime),
-        ];
-        setStateInputCreationTimeParam(params);
-      } else setStateInputCreationTimeParam(["text", 1]);
-    };
+    setValue("creationTime", stateCreationTime?.formattedValue);
+    if (inputStateCreationTimeParam[0] === "text") {
+      const params: inputCreationTimeParamType = [
+        autoInputCreationTimeType(stateCreationTime),
+        autoInputCreationTimeStep(stateCreationTime),
+      ];
+      setStateInputCreationTimeParam(params);
+    } else setStateInputCreationTimeParam(["text", 1]);
   }, [stateCreationTime, inputStateCreationTimeParam]);
   useEffect(() => {
     const creationTime = image?.creationTime || new TimeClass();
