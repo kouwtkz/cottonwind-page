@@ -1262,6 +1262,7 @@ function GalleryContentMain({
     max: maxFromArgs = 20,
     maxWhenSearch = 40,
   } = item;
+  const { pathname, search } = useLocation();
   const [searchParams] = useSearchParams();
   const tags = searchParams.get("tags");
   const q = searchParams.get("q");
@@ -1307,35 +1308,37 @@ function GalleryContentMain({
     : undefined;
   const showMoreButton = curMax < (list.length || 0);
   const visibleMax = showMoreButton ? curMax - 1 : curMax;
-  const HeadingElm = useCallback(
+  const headerLinkTo = useCallback(
+    (to: string, setSearch = true) =>
+      new URL(to + (setSearch ? search : ""), location.origin + pathname).href,
+    [pathname, search],
+  );
+  const HeaderElm = useCallback(
     ({ label }: { label?: string }) =>
       label && linkLabel ? (
         <Link
-          to={
-            new URL(
+          to={headerLinkTo(
               typeof linkLabel === "string" ? linkLabel : "/gallery/" + name,
-              location.href,
-            ).href
-          }
+          )}
         >
           {label}
         </Link>
       ) : (
         <>{label}</>
       ),
-    [linkLabel, name],
+    [linkLabel, name, pathname, search],
   );
   const GalleryLabel = useMemo(
     () =>
       showGalleryLabel ? (
         <div className="galleryLabel">
           <h2 className="en-title-font">
-            <HeadingElm label={labelString} />
+            <HeaderElm label={labelString} />
           </h2>
           {showCount ? <div className="count">({list.length})</div> : null}
         </div>
       ) : null,
-    [showGalleryLabel, labelString, list.length, showCount],
+    [showGalleryLabel, labelString, list.length, showCount, pathname, search],
   );
   const listClassName = useMemo(() => {
     const classes = ["galleryList"];
