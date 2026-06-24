@@ -160,6 +160,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
       onChange={changeHandler}
       formatOptionLabel={customFormatOptionLabel}
       styles={styles}
+      className="Select"
       {...props}
       components={{
         ...propsComponents,

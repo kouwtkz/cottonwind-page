@@ -241,6 +241,7 @@
   }
 }
 
+$cursor-url: --cursor-url;
 @mixin CursorKeyframe($name, $url_or_time, $urls...) {
   $max: list.length($urls);
   $keyname: cursor-#{$name};
@@ -251,14 +252,13 @@
         $p: (100 * calc($i / $max)) + "%";
         $i: $i + 1;
         #{$p} {
-          cursor:
-            url(#{$url}),
-            #{$name};
+          #{$cursor-url}: url(#{$url});
         }
       }
     }
     %#{$keyname} {
       animation: #{$keyname} #{$url_or_time} step-end infinite;
+      cursor: var($cursor-url), #{$name};
     }
   } @else {
     %#{$keyname} {
@@ -331,9 +331,11 @@ a[href],
 a[role="button"],
 a[data-navlink],
 .pointer,
+.Select > div:first-of-type,
 .readmore,
 select,
-input[type="checkbox"] {
+input[type="checkbox"],
+label {
   @extend %cursor-pointer;
 }
 input,
@@ -3837,6 +3839,10 @@ label,
       }
       input[type="text"] {
         padding: 0.25rem 0.5rem;
+      }
+      input[type="checkbox"] {
+        padding: 0;
+        border: 0;
       }
       textarea,
       .preview-area {

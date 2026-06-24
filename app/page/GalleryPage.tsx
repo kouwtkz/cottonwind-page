@@ -1479,6 +1479,7 @@ function GalleryContentMain({
             }}
             title="もっと見る"
             className="item"
+            role="button"
           >
             <MoreButton className="gallery-button-more" />
           </a>
