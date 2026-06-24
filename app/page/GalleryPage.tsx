@@ -512,25 +512,22 @@ export function GalleryObject({
     return list;
   }, [sortParam, orderBy, hasTopImage]);
   const isTotalGeneral = useMemo(() => totalParam === "general", [totalParam]);
-  visibleCreationTime =
-    visibleCreationTime ||
-    useMemo(() => orderBySort.some((v) => "creationTime" in v), [orderBySort]);
-  total.totalCreationTime =
-    total.totalCreationTime ||
-    useMemo(
-      () => visibleCreationTime && isTotalGeneral,
-      [visibleCreationTime, isTotalGeneral],
-    );
+  visibleCreationTime = useMemo(
+    () => visibleCreationTime || orderBySort.some((v) => "creationTime" in v),
+    [visibleCreationTime, orderBySort],
+  );
+  total.totalCreationTime = useMemo(
+    () => total.totalCreationTime || (visibleCreationTime && isTotalGeneral),
+    [total.totalCreationTime, visibleCreationTime, isTotalGeneral],
+  );
   visibleLikeCount = useMemo(
     () => visibleLikeCount || orderBySort.some((v) => "like" in v),
     [visibleLikeCount, orderBySort],
   );
-  total.totalLikeCount =
-    total.totalLikeCount ||
-    useMemo(
-      () => visibleLikeCount && isTotalGeneral,
-      [visibleLikeCount, isTotalGeneral],
-    );
+  total.totalLikeCount = useMemo(
+    () => total.totalLikeCount || (visibleLikeCount && isTotalGeneral),
+    [total.totalLikeCount, visibleLikeCount, isTotalGeneral],
+  );
   total.totalCount = total.totalCount || isTotalGeneral;
 
   let filteredGroups = useMemo(() => {
