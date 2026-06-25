@@ -296,6 +296,18 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
           <></>
         )}
         <div className="category">
+          {post.extension ? (
+            <Link
+              key={"post-extension-" + post.extension}
+              to={{ search: `q=extension%3A${post.extension}` }}
+            >
+              {post.extension === "ExtRSS"
+                ? "外部RSS"
+                : post.extension === "Mochott"
+                  ? "Mochott"
+                  : null}
+            </Link>
+          ) : null}
           {(post.category
             ? typeof post.category === "string"
               ? [post.category]
@@ -312,9 +324,6 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
               {category}
             </Link>
           ))}
-          {post.extension === "ExtRSS" ? (
-            <Link to={{ search: "q=extension%3AExtRSS" }}>外部RSS</Link>
-          ) : null}
         </div>
       </div>
       <MultiParserWithMedia

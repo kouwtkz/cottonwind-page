@@ -15,12 +15,12 @@ interface ImportMetaKVKeyEnv {
 type ImportMetaKVKeyType = keyof ImportMetaKVKeyEnv;
 
 interface ImportMetaATPROTO {
-  VITE_ATPROTO_SET_DID: boolean;
-  VITE_ATPROTO_SET_DIDINFO: boolean;
-  VITE_ATPROTO_SET_DESCRIBE: boolean;
-  VITE_ATPROTO_SET_LINKAT: boolean;
-  VITE_ATPROTO_GET_POSTS: boolean;
-  VITE_ATPROTO_GET_BLOG: boolean;
+  VITE_ATPROTO_USE_DID: boolean;
+  VITE_ATPROTO_USE_DIDINFO: boolean;
+  VITE_ATPROTO_USE_DESCRIBE: boolean;
+  VITE_ATPROTO_USE_LINKAT: boolean;
+  VITE_ATPROTO_USE_POSTS: boolean;
+  VITE_ATPROTO_USE_MOCHOTT: boolean;
 }
 
 interface ImportMetaEnv extends ImportMetaKVKeyEnv, ImportMetaATPROTO {

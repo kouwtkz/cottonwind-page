@@ -5,6 +5,7 @@ import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { SubscribeDataClass } from "../hook/SubscribeEvents";
 import { useExtRss } from "./ExtRssState";
+import { useATProtoState } from "./ATProtocolState";
 
 interface usePostsType {
   posts?: PostType[];
@@ -19,6 +20,7 @@ export default function PostState() {
     ...ExternalStoreProps(postsDataIndexed),
   );
   const extRss = useExtRss();
+  const { mochott_Article } = useATProtoState();
   const mixPosts = useMemo(() => {
     const list: PostPagesItemType[] = posts ? posts.concat() : [];
     if (extRss) {
@@ -40,8 +42,69 @@ export default function PostState() {
         });
       });
     }
+    if (mochott_Article) {
+      mochott_Article.forEach((item) => {
+        if (item.minisite?.designType !== "blog") return;
+        const body = (
+          <div className="parsed">
+            {item.content.content.reduce<React.ReactNode[]>((a, c, i) => {
+              if (c.type === "paragraph") {
+                if (c.content) {
+                  const list: React.ReactNode[][] = [];
+                  let insert = true;
+                  c.content.reduce<React.ReactNode[]>((a, c, j) => {
+                    if (c.type === "text") {
+                      if (insert) {
+                        a = [c.text];
+                        list.push(a);
+                      } else {
+                        a.push(c.text);
+                        insert = true;
+                      }
+                      return a;
+                    } else {
+                      if (c.type === "hardBreak") {
+                        a.push(<br key={"br-" + j} />);
+                      }
+                      insert = false;
+                      return a;
+                    }
+                  }, []);
+                  a.push(...list.map((v, j) => <p key={`${i}-${j}`}>{v}</p>));
+                }
+              } else if (c.type === "image") {
+                const url = new URL(c.attrs.src, item.url?.href);
+                a.push(
+                  <img
+                    key={i}
+                    alt={c.attrs.alt}
+                    title={c.attrs.title}
+                    src={url.href}
+                  />,
+                );
+              }
+              return a;
+            }, [])}
+          </div>
+        );
+        const category: string[] = [];
+        if (item.category) category.push(item.category);
+        if (item.tags) category.push(...item.tags);
+        list.push({
+          host: item.host,
+          extension: "Mochott",
+          title: item.title,
+          body,
+          time: new Date(item.createdAt),
+          link: item.url?.href,
+          postId: item.$type + item.path,
+          category,
+          draft: false,
+        });
+      });
+    }
     return list;
-  }, [posts, extRss]);
+  }, [posts, extRss, mochott_Article]);
   useEffect(() => {
     (async () => {
       await waitIdb;
@@ -57,7 +120,7 @@ export default function PostState() {
   }, [postsData, Set]);
   useEffect(() => {
     MixPosts.SetData(mixPosts);
-  }, [mixPosts])
+  }, [mixPosts]);
   return <></>;
 }
 

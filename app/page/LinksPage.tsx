@@ -54,13 +54,11 @@ import { useATProtoState } from "~/components/state/ATProtocolState";
 import { Modal } from "~/components/layout/Modal";
 
 export const ArchiveLinks: Array<SiteLink> = [];
-if (import.meta.env.VITE_ATPROTO_GET_BLOG)
-  ArchiveLinks.push({ title: "サイト内ブログ", url: "/blog" });
 
 export default function LinksPage() {
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
   const isLogin = useIsLogin()[0];
-  const linkat = import.meta.env.VITE_ATPROTO_SET_LINKAT;
+  const linkat = import.meta.env.VITE_ATPROTO_USE_LINKAT;
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>

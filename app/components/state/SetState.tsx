@@ -115,12 +115,12 @@ function CheckIsComplete() {
       loadedSounds,
       loadedLinks,
     ];
-    if (import.meta.env.VITE_ATPROTO_SET_DID) list.push(loadedATProtoDid);
-    if (import.meta.env.VITE_ATPROTO_SET_DIDINFO)
+    if (import.meta.env.VITE_ATPROTO_USE_DID) list.push(loadedATProtoDid);
+    if (import.meta.env.VITE_ATPROTO_USE_DIDINFO)
       list.push(loadedATProtoDidInfo);
-    if (import.meta.env.VITE_ATPROTO_SET_DESCRIBE)
+    if (import.meta.env.VITE_ATPROTO_USE_DESCRIBE)
       list.push(loadedATProtoDescribe);
-    if (import.meta.env.VITE_ATPROTO_SET_LINKAT) list.push(loadedATProtoLinkat);
+    if (import.meta.env.VITE_ATPROTO_USE_LINKAT) list.push(loadedATProtoLinkat);
     return list;
   }, [
     loadedEnv,

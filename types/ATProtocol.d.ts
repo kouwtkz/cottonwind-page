@@ -6,6 +6,9 @@ interface ATProtoStateType {
   endpoint?: string;
   linkat?: Array<LinkatType>;
   posts?: Array<BlueskyFeedPostRawType>;
+  mochott_Profile?: Mochott_Profile;
+  mochott_Minisite?: Array<Mochott_Minisite>;
+  mochott_Article?: Array<Mochott_Article>;
   _getPostProps?: BlueskyFeedGetPostProps;
   GetPosts(props?: BlueskyFeedGetPostProps): void;
 }
@@ -15,6 +18,14 @@ interface BlueskyFeedGetPostProps {
   cursor?: string;
   filter?: "posts_with_replies" | "posts_no_replies" | "posts_with_media" | "posts_and_author_threads" | "posts_with_video";
   pin?: boolean;
+}
+
+interface ATProtoGetRecordsProps {
+  collection: string;
+  limit?: number;
+  did: string;
+  endpoint: string;
+  describe: ATDescribeType;
 }
 
 interface ATServiceType {
@@ -230,4 +241,91 @@ interface ATListFeedType<T> {
     uri: string;
     value: T;
   }>;
+}
+
+interface ATBlob extends ATBaseType<"blob"> {
+  mimeType: string;
+  ref: {
+    $link: string;
+  }
+  size: number;
+}
+
+interface Mochott_Profile extends ATBaseType<"site.mochott.profile"> {
+  url: string;
+  name: string;
+  articles: string[];
+  createdAt: string;
+  description: string;
+}
+
+interface Mochott_Raw_Minisite extends ATBaseType<"site.mochott.minisite"> {
+  name: string;
+  slug: string;
+  articles: string[];
+  createdAt: string;
+  designType: string;
+  globalSlug: string;
+  sourceType: string;
+  accentColor: string;
+  primaryColor: string;
+  backgroundColor: string;
+}
+interface Mochott_Minisite extends Mochott_Raw_Minisite {
+  domain?: string;
+}
+
+interface Mochott_Content_Doc {
+  type: "doc";
+  content: (Mochott_Content_Paragraph | Mochott_Content_Image)[];
+}
+interface Mochott_Content_Paragraph {
+  type: "paragraph";
+  attrs: {
+    textAlign: string | null;
+  };
+  content?: (Mochott_Content_Text | Mochott_Content_HardBreak)[];
+}
+interface Mochott_Content_Image {
+  type: "image";
+  attrs: {
+    alt: string;
+    "data-uploading": string | null;
+    height: number | null;
+    src: string;
+    title: string;
+    width: number | null;
+  };
+}
+interface Mochott_Content_Text {
+  type: "text";
+  text: string;
+}
+interface Mochott_Content_HardBreak {
+  type: "hardBreak";
+}
+
+interface Mochott_Raw_Article extends ATBaseType<"site.mochott.article"> {
+  blobs: {
+    blobref: ATBlob;
+    name: string;
+  }[];
+  category: string;
+  content: Mochott_Content_Doc;
+  coverImage: ATBlob;
+  createdAt: string;
+  description: string;
+  path: string;
+  profile: string;
+  slug: string;
+  tags?: string[];
+  textContent: string;
+  title: string;
+  updatedAt: string;
+}
+
+interface Mochott_Article extends Mochott_Raw_Article {
+  url?: URL;
+  host?: string;
+  minisite?: Mochott_Minisite;
 }

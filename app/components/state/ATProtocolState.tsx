@@ -13,16 +13,41 @@ export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
     set({ _getPostProps: props });
   },
 }));
+export async function getATProtoRecords<T>({
+  did,
+  endpoint,
+  describe,
+  collection,
+  limit,
+}: ATProtoGetRecordsProps) {
+  if (describe.collections.findIndex((v) => v === collection)) {
+    const Url = new URL(endpoint);
+    Url.pathname = "/xrpc/com.atproto.repo.listRecords";
+    Url.searchParams.set("repo", did);
+    Url.searchParams.set("collection", collection);
+    if (limit) Url.searchParams.set("limit", limit.toString());
+    return fetch(Url, { mode: "cors" })
+      .then<ATListRecordType<T>>((r) => {
+        if (r.status === 200) {
+          return r.json();
+        } else {
+          throw "";
+        }
+      })
+      .catch(() => {});
+  }
+}
 
 export function ATPState() {
   return (
     <>
       <_ATPState />
       <_SetHandle />
-      {import.meta.env.VITE_ATPROTO_SET_DID ? <_SetDidInfo /> : null}
-      {import.meta.env.VITE_ATPROTO_SET_DESCRIBE ? <_SetDescribe /> : null}
-      {import.meta.env.VITE_ATPROTO_SET_LINKAT ? <_SetLinkat /> : null}
-      {import.meta.env.VITE_ATPROTO_GET_POSTS ? <_GetPosts /> : null}
+      {import.meta.env.VITE_ATPROTO_USE_DID ? <_LoadDidInfo /> : null}
+      {import.meta.env.VITE_ATPROTO_USE_DESCRIBE ? <_LoadDescribe /> : null}
+      {import.meta.env.VITE_ATPROTO_USE_LINKAT ? <_LoadLinkat /> : null}
+      {import.meta.env.VITE_ATPROTO_USE_POSTS ? <_LoadPosts /> : null}
+      {import.meta.env.VITE_ATPROTO_USE_MOCHOTT ? <_LoadMochott /> : null}
     </>
   );
 }
@@ -61,7 +86,7 @@ function _SetHandle() {
   return <></>;
 }
 
-function _SetDidInfo() {
+function _LoadDidInfo() {
   const { Set, did } = useATProtoState();
   useEffect(() => {
     if (did) {
@@ -94,7 +119,7 @@ function _SetDidInfo() {
   }, [did, Set]);
   return <></>;
 }
-function _SetDescribe() {
+function _LoadDescribe() {
   const { Set, did, endpoint } = useATProtoState();
 
   useEffect(() => {
@@ -120,47 +145,121 @@ function _SetDescribe() {
   return <></>;
 }
 
-function _SetLinkat() {
+function _LoadLinkat() {
   const { Set, did, endpoint, describe } = useATProtoState();
   useEffect(() => {
     if (did && endpoint && describe) {
-      if (describe.collections.findIndex((v) => v === "blue.linkat.board")) {
-        const Url = new URL(endpoint);
-        Url.pathname = "/xrpc/com.atproto.repo.listRecords";
-        Url.searchParams.set("repo", did);
-        Url.searchParams.set("collection", "blue.linkat.board");
-        Url.searchParams.set("limit", "50");
-        fetch(Url, { mode: "cors" })
-          .then<ATListRecordType<LinkatRecordType>>((r) => {
-            if (r.status === 200) {
-              return r.json();
-            } else {
-              throw "";
-            }
-          })
-          .then((record) => {
-            const linkat = record.records.reduce<Array<LinkatType>>((a, c) => {
-              c.value.cards.forEach((card) => {
-                a.push(card);
-              });
-              return a;
-            }, []);
-            Set({ linkat });
-          })
-          .catch(() => {
-            Set({ linkat: [] });
-          });
-      } else {
-        Set({ linkat: [] });
-      }
-    } else {
-      Set({ linkat: [] });
+      getATProtoRecords<LinkatRecordType>({
+        did,
+        endpoint,
+        describe,
+        collection: "blue.linkat.board",
+      })
+        .then((record) => {
+          if (!record) throw "";
+          const linkat = record.records.reduce<Array<LinkatType>>((a, c) => {
+            c.value.cards.forEach((card) => {
+              a.push(card);
+            });
+            return a;
+          }, []);
+          Set({ linkat });
+        })
+        .catch(() => {
+          Set({ linkat: [] });
+        });
     }
   }, [did, endpoint, describe, Set]);
   return <></>;
 }
 
-function _GetPosts() {
+function _LoadMochott() {
+  const env = useEnv()[0];
+  const { Set, did, endpoint, describe } = useATProtoState();
+  useEffect(() => {
+    if (env && did && endpoint && describe) {
+      Promise.all([
+        getATProtoRecords<Mochott_Profile>({
+          did,
+          endpoint,
+          describe,
+          collection: "site.mochott.profile",
+        }),
+        getATProtoRecords<Mochott_Raw_Minisite>({
+          did,
+          endpoint,
+          describe,
+          collection: "site.mochott.minisite",
+        }),
+        getATProtoRecords<Mochott_Raw_Article>({
+          did,
+          endpoint,
+          describe,
+          collection: "site.mochott.article",
+        }),
+      ]).then(([profile, minisite, article]) => {
+        let mochott_Profile: Mochott_Profile | undefined;
+        let mochott_Minisite: Array<Mochott_Minisite> | undefined;
+        let mochott_Article: Array<Mochott_Article> | undefined;
+        if (profile) {
+          mochott_Profile = profile.records[0].value;
+        }
+        if (minisite) {
+          mochott_Minisite = minisite.records.map((v) => {
+            const minisite: Mochott_Minisite = v.value;
+            if (
+              env.MOCHOTT_MINISITE_DOMAIN &&
+              v.value.globalSlug in env.MOCHOTT_MINISITE_DOMAIN
+            ) {
+              minisite.domain = env.MOCHOTT_MINISITE_DOMAIN[v.value.globalSlug];
+            }
+            return minisite;
+          });
+        }
+        if (article) {
+          const articleMap = article.records.reduce<
+            Map<string, Mochott_Article>
+          >((map, c) => {
+            const key = c.value.path;
+            map.set(key, c.value);
+            return map;
+          }, new Map());
+          mochott_Article = Array.from(articleMap.values());
+          mochott_Minisite?.forEach((minisite) => {
+            minisite.articles.forEach((atUrl) => {
+              const path = atUrl.slice(atUrl.lastIndexOf("/"));
+              const article = articleMap.get(path);
+              if (article) {
+                article.minisite = minisite;
+              }
+            });
+          });
+          mochott_Article.forEach((article) => {
+            let base: null | URL = null;
+            if (article.minisite?.domain) {
+              article.host = article.minisite.domain;
+              base = new URL("https://" + article.host);
+            } else {
+              article.host = "mochott.site";
+              base = mochott_Profile?.url ? new URL(mochott_Profile.url) : null;
+            }
+            if (base) {
+              article.url = new URL(
+                (base.pathname === "/" ? "" : base.pathname) +
+                  (article.slug ? "/" + article.slug : article.path),
+                base.href,
+              );
+            }
+          });
+        }
+        Set({ mochott_Profile, mochott_Minisite, mochott_Article });
+      });
+    }
+  }, [env, did, endpoint, describe, Set]);
+  return <></>;
+}
+
+function _LoadPosts() {
   const { Set, did, _getPostProps } = useATProtoState();
   useEffect(() => {
     if (did && _getPostProps) {

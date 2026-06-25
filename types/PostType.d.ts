@@ -22,9 +22,10 @@ interface PostType extends PostDataType, WithRawExtendDataType<PostDataType> {
   lastmod?: Date,
 }
 
-type PostPagesExtensionType = "ExtRSS";
+type PostPagesExtensionType = "ExtRSS" | "Mochott";
 
-interface PostPagesItemType extends Omit<PostType, "id"> {
+interface PostPagesItemType extends Omit<PostType, "id" | "body"> {
+  body?: string | React.ReactNode;
   id?: number;
   host?: string;
   extension?: PostPagesExtensionType;

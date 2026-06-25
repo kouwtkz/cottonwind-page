@@ -137,7 +137,7 @@ function TopLinks() {
   const { links } = useLinks();
   const MeeLinkFlag = useMemo(
     () =>
-      !import.meta.env.VITE_ATPROTO_SET_LINKAT ||
+      !import.meta.env.VITE_ATPROTO_USE_LINKAT ||
       (links && links.findIndex((link) => link.category === "top") >= 0),
     [links],
   );

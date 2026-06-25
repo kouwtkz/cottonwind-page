@@ -42,7 +42,7 @@ const NAV: Array<SiteMenuItemType> = [
     url: "/schedule"
   },
 ]
-if (import.meta.env.VITE_ATPROTO_GET_BLOG) {
+if (import.meta.env.VITE_ATPROTO_USE_MOCHOTT) {
   const blogIndex = NAV.findIndex(v => v.url === "/blog");
   if (blogIndex >= 0) NAV.splice(blogIndex, 1)
 }
