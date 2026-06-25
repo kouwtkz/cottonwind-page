@@ -89,13 +89,13 @@ export const useIsComplete = CreateState(false);
 export const useIsLoadedFloat = CreateState(0);
 
 function CheckIsComplete() {
-  const loadedEnv = Boolean(useEnv()[0]);
+  const env = useEnv()[0];
   const loadedImages = Boolean(useImageState().images);
   const loadedCharacters = Boolean(useCharacters().charactersData);
   const loadedPosts = Boolean(usePosts().posts);
   const loadedSounds = Boolean(useSounds().soundsData);
   const loadedLinks = Boolean(useLinks().links);
-  const { did, didInfo, describe, linkat } = useATProtoState();
+  const { did, didInfo, describe, linkat, mochott_Article } = useATProtoState();
   const loadedATProtoDid = useMemo(() => typeof did !== "undefined", [did]);
   const loadedATProtoDidInfo = useMemo(
     () => typeof didInfo !== "undefined",
@@ -106,24 +106,26 @@ function CheckIsComplete() {
     [describe],
   );
   const loadedATProtoLinkat = useMemo(() => Boolean(linkat), [linkat]);
+  const loadedATProto_Mochott_Article = useMemo(() => Boolean(mochott_Article), [mochott_Article]);
   const isSetList = useMemo(() => {
     const list = [
-      loadedEnv,
+      Boolean(env),
       loadedImages,
       loadedCharacters,
       loadedPosts,
       loadedSounds,
       loadedLinks,
     ];
-    if (import.meta.env.VITE_ATPROTO_USE_DID) list.push(loadedATProtoDid);
-    if (import.meta.env.VITE_ATPROTO_USE_DIDINFO)
-      list.push(loadedATProtoDidInfo);
-    if (import.meta.env.VITE_ATPROTO_USE_DESCRIBE)
-      list.push(loadedATProtoDescribe);
-    if (import.meta.env.VITE_ATPROTO_USE_LINKAT) list.push(loadedATProtoLinkat);
+    if (env) {
+      if (env.ATPROTO_USE_DID) list.push(loadedATProtoDid);
+      if (env.ATPROTO_USE_DIDINFO) list.push(loadedATProtoDidInfo);
+      if (env.ATPROTO_USE_DESCRIBE) list.push(loadedATProtoDescribe);
+      if (env.ATPROTO_USE_LINKAT) list.push(loadedATProtoLinkat);
+      if (env.ATPROTO_USE_MOCHOTT) list.push(loadedATProto_Mochott_Article);
+    }
     return list;
   }, [
-    loadedEnv,
+    env,
     loadedImages,
     loadedCharacters,
     loadedPosts,
@@ -133,6 +135,7 @@ function CheckIsComplete() {
     loadedATProtoDidInfo,
     loadedATProtoDescribe,
     loadedATProtoLinkat,
+    loadedATProto_Mochott_Article,
   ]);
   const [clientDBLoading, setClientDBLoading] = useState(0);
   useEffect(() => {

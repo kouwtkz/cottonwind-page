@@ -17,7 +17,7 @@ import {
   useFavLinks,
   type LinksIndexedDBType,
 } from "~/components/state/LinksState";
-import { useIsLogin } from "~/components/state/EnvState";
+import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { ImageMee } from "~/components/layout/ImageMee";
 import { CreateState } from "~/components/state/CreateState";
 import {
@@ -58,7 +58,8 @@ export const ArchiveLinks: Array<SiteLink> = [];
 export default function LinksPage() {
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
   const isLogin = useIsLogin()[0];
-  const linkat = import.meta.env.VITE_ATPROTO_USE_LINKAT;
+  const env = useEnv()[0];
+  const linkat = env?.ATPROTO_USE_LINKAT;
   return (
     <div className="linkPage">
       <h2 className="color-main en-title-font">LINKS</h2>

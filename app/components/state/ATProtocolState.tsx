@@ -39,15 +39,20 @@ export async function getATProtoRecords<T>({
 }
 
 export function ATPState() {
+  const env = useEnv()[0];
   return (
     <>
       <_ATPState />
       <_SetHandle />
-      {import.meta.env.VITE_ATPROTO_USE_DID ? <_LoadDidInfo /> : null}
-      {import.meta.env.VITE_ATPROTO_USE_DESCRIBE ? <_LoadDescribe /> : null}
-      {import.meta.env.VITE_ATPROTO_USE_LINKAT ? <_LoadLinkat /> : null}
-      {import.meta.env.VITE_ATPROTO_USE_POSTS ? <_LoadPosts /> : null}
-      {import.meta.env.VITE_ATPROTO_USE_MOCHOTT ? <_LoadMochott /> : null}
+      {env ? (
+        <>
+          {env.ATPROTO_USE_DID ? <_LoadDidInfo /> : null}
+          {env.ATPROTO_USE_DESCRIBE ? <_LoadDescribe /> : null}
+          {env.ATPROTO_USE_LINKAT ? <_LoadLinkat /> : null}
+          {env.ATPROTO_USE_POSTS ? <_LoadPosts /> : null}
+          {env.ATPROTO_USE_MOCHOTT ? <_LoadMochott /> : null}
+        </>
+      ) : null}
     </>
   );
 }

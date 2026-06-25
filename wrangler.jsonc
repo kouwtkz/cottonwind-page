@@ -41,6 +41,12 @@
     "WORKERS_CLEAN_PROJECT_NAME": "cottonwind,cottonwind-calendar",
     "WORKERS_CLEAN_EXPIRATION_DAYS": 7,
     "INDEXEDDB_VERSION": 16,
+    "ATPROTO_USE_DID": true,
+    "ATPROTO_USE_DIDINFO": true,
+    "ATPROTO_USE_DESCRIBE": true,
+    "ATPROTO_USE_LINKAT": false,
+    "ATPROTO_USE_POSTS": true,
+    "ATPROTO_USE_MOCHOTT": true,
     "MOCHOTT_MINISITE_DOMAIN": {"cottonwind-blog": "blog.cottonwind.com"}
   },
   "kv_namespaces": [

@@ -48,6 +48,12 @@ interface __BaseEnv_Env {
     X_CLIENT_ID: string;
     X_CLIENT_SECRET: string;
     WORKERS_API_TOKEN: string;
+    ATPROTO_USE_DID: boolean;
+    ATPROTO_USE_DIDINFO: boolean;
+    ATPROTO_USE_DESCRIBE: boolean;
+    ATPROTO_USE_LINKAT: boolean;
+    ATPROTO_USE_POSTS: boolean;
+    ATPROTO_USE_MOCHOTT: boolean;
     MOCHOTT_MINISITE_DOMAIN: { [k: string]: string };
 }
 declare namespace Cloudflare {
