@@ -32,7 +32,6 @@ import { rootClientServerData } from "../utils/SetMeta";
 import { MiniCharacterPage } from "~/page/CharacterPage";
 import RedirectState from "./redirectState";
 import { ATPState, useATProtoState } from "./ATProtocolState";
-import { ATProtocolEnv } from "~/Env";
 import { NavKeepState } from "./NavState";
 
 let count = 0;
@@ -116,10 +115,12 @@ function CheckIsComplete() {
       loadedSounds,
       loadedLinks,
     ];
-    if (ATProtocolEnv.setDid) list.push(loadedATProtoDid);
-    if (ATProtocolEnv.setDidInfo) list.push(loadedATProtoDidInfo);
-    if (ATProtocolEnv.setDescribe) list.push(loadedATProtoDescribe);
-    if (ATProtocolEnv.setLinkat) list.push(loadedATProtoLinkat);
+    if (import.meta.env.VITE_ATPROTO_SET_DID) list.push(loadedATProtoDid);
+    if (import.meta.env.VITE_ATPROTO_SET_DIDINFO)
+      list.push(loadedATProtoDidInfo);
+    if (import.meta.env.VITE_ATPROTO_SET_DESCRIBE)
+      list.push(loadedATProtoDescribe);
+    if (import.meta.env.VITE_ATPROTO_SET_LINKAT) list.push(loadedATProtoLinkat);
     return list;
   }, [
     loadedEnv,

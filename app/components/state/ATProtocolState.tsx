@@ -2,7 +2,6 @@ import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
 import { FormatDate } from "../functions/DateFunction";
-import { ATProtocolEnv } from "~/Env";
 import Hls, { Events as hlsEvents } from "hls.js";
 import { BiPin, BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";
@@ -20,10 +19,10 @@ export function ATPState() {
     <>
       <_ATPState />
       <_SetHandle />
-      {ATProtocolEnv.setDidInfo ? <_SetDidInfo /> : null}
-      {ATProtocolEnv.setDescribe ? <_SetDescribe /> : null}
-      {ATProtocolEnv.setLinkat ? <_SetLinkat /> : null}
-      {ATProtocolEnv.getPosts ? <_GetPosts /> : null}
+      {import.meta.env.VITE_ATPROTO_SET_DID ? <_SetDidInfo /> : null}
+      {import.meta.env.VITE_ATPROTO_SET_DESCRIBE ? <_SetDescribe /> : null}
+      {import.meta.env.VITE_ATPROTO_SET_LINKAT ? <_SetLinkat /> : null}
+      {import.meta.env.VITE_ATPROTO_GET_POSTS ? <_GetPosts /> : null}
     </>
   );
 }

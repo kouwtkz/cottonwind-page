@@ -4,23 +4,6 @@ export const TITLE_EN = import.meta.env.VITE_TITLE_EN;
 export const TITLE_IMAGE_PATH = "/static/images/webp/cottonwind_logo_min.webp"
 export const TITLE_IMAGE_PATH_EN = "/static/images/webp/cottonwind_logo_min_en.webp"
 
-
-export const ATProtocolEnv: {
-  readonly setDid: boolean;
-  readonly setDidInfo: boolean;
-  readonly setDescribe: boolean;
-  readonly setLinkat: boolean;
-  readonly getPosts: boolean;
-  readonly getBlog: boolean;
-} = {
-  setDid: false,
-  setDidInfo: false,
-  setDescribe: false,
-  setLinkat: false,
-  getPosts: true,
-  getBlog: false
-}
-
 const NAV: Array<SiteMenuItemType> = [
   {
     name: "home",
@@ -59,7 +42,7 @@ const NAV: Array<SiteMenuItemType> = [
     url: "/schedule"
   },
 ]
-if (ATProtocolEnv.getBlog) {
+if (import.meta.env.VITE_ATPROTO_GET_BLOG) {
   const blogIndex = NAV.findIndex(v => v.url === "/blog");
   if (blogIndex >= 0) NAV.splice(blogIndex, 1)
 }

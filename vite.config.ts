@@ -8,6 +8,25 @@ const allowedHosts: string[] = [];
 if (envDev.VITE_LOCAL_TEST_DOMAIN) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN);
 if (envDev.VITE_LOCAL_TEST_DOMAIN_2) allowedHosts.push(envDev.VITE_LOCAL_TEST_DOMAIN_2);
 
+// envファイルのtrueやfalseをbooleanに変換する
+const envStringToBoolean = () => ({
+  name: 'env-string-to-boolean',
+  configResolved(config: any) {
+    const entries = Object.entries(config.env as Record<string, string>).map(([key, value]) => {
+      const target = typeof value === 'string' ? value.toLowerCase() : value
+      const results: any = {
+        true: true,
+        false: false,
+        null: null
+      }
+      return [key, results[target] === undefined ? value : results[target]]
+    })
+
+    config.env = Object.fromEntries(entries)
+    return config
+  }
+})
+
 export default defineConfig(async ({ mode }) => {
   const modes = mode.split("-");
   function includeModes(v: string) {
@@ -90,6 +109,7 @@ export default defineConfig(async ({ mode }) => {
         cloudflare(cloudflareConfig),
         (await import("@react-router/dev/vite")).reactRouter(),
         tsconfigPaths(),
+        envStringToBoolean(),
       ],
     }
   }

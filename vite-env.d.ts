@@ -14,7 +14,16 @@ interface ImportMetaKVKeyEnv {
 }
 type ImportMetaKVKeyType = keyof ImportMetaKVKeyEnv;
 
-interface ImportMetaEnv extends ImportMetaKVKeyEnv {
+interface ImportMetaATPROTO {
+  VITE_ATPROTO_SET_DID: boolean;
+  VITE_ATPROTO_SET_DIDINFO: boolean;
+  VITE_ATPROTO_SET_DESCRIBE: boolean;
+  VITE_ATPROTO_SET_LINKAT: boolean;
+  VITE_ATPROTO_GET_POSTS: boolean;
+  VITE_ATPROTO_GET_BLOG: boolean;
+}
+
+interface ImportMetaEnv extends ImportMetaKVKeyEnv, ImportMetaATPROTO {
   readonly VITE_DOMAIN: string;
   readonly VITE_DEFAULT_LANG: string;
   readonly VITE_TITLE: string;

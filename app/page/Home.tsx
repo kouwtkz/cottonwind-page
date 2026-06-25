@@ -25,7 +25,6 @@ import {
 } from "~/components/state/KeyValueDBState";
 import { BlueskyFeed } from "~/components/state/ATProtocolState";
 import { useLinks } from "~/components/state/LinksState";
-import { ATProtocolEnv } from "~/Env";
 
 export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
   const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
@@ -138,7 +137,7 @@ function TopLinks() {
   const { links } = useLinks();
   const MeeLinkFlag = useMemo(
     () =>
-      !ATProtocolEnv.setLinkat ||
+      !import.meta.env.VITE_ATPROTO_SET_LINKAT ||
       (links && links.findIndex((link) => link.category === "top") >= 0),
     [links],
   );
