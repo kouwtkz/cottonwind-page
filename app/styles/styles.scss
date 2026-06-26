@@ -175,6 +175,9 @@
 :root {
   accent-color: var(--main-color-deep);
 }
+hr {
+  border-top: 1px solid var(--main-color-grayish);
+}
 
 @keyframes FadeInAnim {
   from {
@@ -1750,6 +1753,15 @@ code {
         color: var(--def-sub-color-soft);
       }
     }
+  }
+}
+
+div.footnote {
+  display: flex;
+}
+.footnote-ref {
+  a {
+    text-decoration: none;
   }
 }
 

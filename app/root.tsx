@@ -183,7 +183,9 @@ export function Layout({ children }: LayoutProps) {
   useEffect(() => {
     if (isComplete) {
       if (globalThis.location?.hash) {
-        const elm = document.querySelector(location.hash) as HTMLElement | null;
+        const elm = document.getElementById(
+          location.hash.slice(1),
+        ) as HTMLElement | null;
         if (elm) {
           let scrollY = elm.offsetTop;
           const html = document.querySelector("html") as HTMLElement | null;

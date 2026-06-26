@@ -32,7 +32,7 @@ type Mochott_Content_General_Union = Mochott_Content_Text | Mochott_Content_Para
   | Mochott_Content_Blockquote | Mochott_Content_CodeBlock
   | Mochott_Content_MathBlock | Mochott_Content_MathInline
   | Mochott_Content_Details | Mochott_Content_Callout
-  | Mochott_Content_LinkCard | Mochott_Content_Embed
+  | Mochott_Content_LinkCard | Mochott_Content_Embed | Mochott_Content_Footnote
   | Mochott_Content_Table | Mochott_Content_Row | Mochott_Content_TableHeader | Mochott_Content_TableCell;
 interface Mochott_Content_Doc {
   type: "doc";
@@ -149,6 +149,12 @@ interface Mochott_Content_TableHeader extends Mochott_Content_General<"tableHead
 }
 interface Mochott_Content_TableCell extends Mochott_Content_General<"tableCell"> {
   attrs: Mochott_Content_TableCell_Attrs;
+}
+interface Mochott_Content_Footnote {
+  type: "footnote";
+  attrs: {
+    content: string;
+  };
 }
 type Mochott_Content_Marks_Union = Mochott_Content_Link | Mochott_Content_Bold | Mochott_Content_Itaric
   | Mochott_Content_Underline | Mochott_Content_Strike | Mochott_Content_Code | Mochott_Content_MathInline;

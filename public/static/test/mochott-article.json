@@ -505,6 +505,12 @@
                           "type": "text"
                         }
                       ]
+                    },
+                    {
+                      "type": "footnote",
+                      "attrs": {
+                        "content": "めぇ"
+                      }
                     }
                   ]
                 },
@@ -817,7 +823,7 @@
             "textAlign": null
           },
           "content": [
-                        {
+            {
               "text": "めぇめぇ",
               "type": "text",
               "marks": [
