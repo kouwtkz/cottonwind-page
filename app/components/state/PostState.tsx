@@ -79,13 +79,17 @@ function Mochott_Article({ url, ...props }: Mochott_Article_Props) {
           case "image":
             const srcUrl = new URL(item.attrs.src, url?.href);
             return (
-              <img
-                key={key}
-                alt={item.attrs.alt}
-                title={item.attrs.title}
-                src={srcUrl.href}
-                style={style}
-              />
+              <figure>
+                <img
+                  key={key}
+                  alt={item.attrs.alt}
+                  src={srcUrl.href}
+                  style={style}
+                />
+                {item.attrs.title ? (
+                  <figcaption>{item.attrs.title}</figcaption>
+                ) : null}
+              </figure>
             );
           case "hardBreak":
             return <br key={key} />;
@@ -356,8 +360,13 @@ function Mochott_Article({ url, ...props }: Mochott_Article_Props) {
         const id = url?.pathname.slice(1) + "-" + index;
         return (
           <div key={key} id={id} className="footnote">
-            <span className="mr-1">{index}.</span>{value.attrs.content}{" "}
-            <a href={"#" + id + "-body"} title={index.toString()} className="ml-1">
+            <span className="mr-1">{index}.</span>
+            {value.attrs.content}{" "}
+            <a
+              href={"#" + id + "-body"}
+              title={index.toString()}
+              className="ml-1"
+            >
               <RiArrowGoBackFill />
             </a>
           </div>
