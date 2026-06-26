@@ -95,7 +95,8 @@ function CheckIsComplete() {
   const loadedPosts = Boolean(usePosts().posts);
   const loadedSounds = Boolean(useSounds().soundsData);
   const loadedLinks = Boolean(useLinks().links);
-  const { did, didInfo, describe, linkat, mochott_Article } = useATProtoState();
+  const { did, didInfo, describe, linkat, mochott_articles } =
+    useATProtoState();
   const loadedATProtoDid = useMemo(() => typeof did !== "undefined", [did]);
   const loadedATProtoDidInfo = useMemo(
     () => typeof didInfo !== "undefined",
@@ -106,7 +107,10 @@ function CheckIsComplete() {
     [describe],
   );
   const loadedATProtoLinkat = useMemo(() => Boolean(linkat), [linkat]);
-  const loadedATProto_Mochott_Article = useMemo(() => Boolean(mochott_Article), [mochott_Article]);
+  const loadedATProto_mochott_article = useMemo(
+    () => Boolean(mochott_articles),
+    [mochott_articles],
+  );
   const isSetList = useMemo(() => {
     const list = [
       Boolean(env),
@@ -121,7 +125,7 @@ function CheckIsComplete() {
       if (env.ATPROTO_USE_DIDINFO) list.push(loadedATProtoDidInfo);
       if (env.ATPROTO_USE_DESCRIBE) list.push(loadedATProtoDescribe);
       if (env.ATPROTO_USE_LINKAT) list.push(loadedATProtoLinkat);
-      if (env.ATPROTO_USE_MOCHOTT) list.push(loadedATProto_Mochott_Article);
+      if (env.ATPROTO_USE_MOCHOTT) list.push(loadedATProto_mochott_article);
     }
     return list;
   }, [
@@ -135,7 +139,7 @@ function CheckIsComplete() {
     loadedATProtoDidInfo,
     loadedATProtoDescribe,
     loadedATProtoLinkat,
-    loadedATProto_Mochott_Article,
+    loadedATProto_mochott_article,
   ]);
   const [clientDBLoading, setClientDBLoading] = useState(0);
   useEffect(() => {

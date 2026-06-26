@@ -22,10 +22,10 @@ interface PostType extends PostDataType, WithRawExtendDataType<PostDataType> {
   lastmod?: Date,
 }
 
-type PostPagesExtensionType = "ExtRSS" | "Mochott";
+type PostPagesExtensionType = "ExtRSS" | "mochott";
 
 interface PostPagesItemType extends Omit<PostType, "id" | "body"> {
-  body?: string | Mochott_Article;
+  body?: string | mochott_article;
   id?: number;
   host?: string;
   extension?: PostPagesExtensionType;

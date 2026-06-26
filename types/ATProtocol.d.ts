@@ -6,9 +6,9 @@ interface ATProtoStateType {
   endpoint?: string;
   linkat?: Array<LinkatType>;
   posts?: Array<BlueskyFeedPostRawType>;
-  mochott_Profile?: Mochott_Profile;
-  mochott_Minisite?: Array<Mochott_Minisite>;
-  mochott_Article?: Array<Mochott_Article>;
+  mochott_profile?: mochott_profile;
+  mochott_minisite?: Array<mochott_minisite>;
+  mochott_articles?: Array<mochott_article>;
   _getPostProps?: BlueskyFeedGetPostProps;
   GetPosts(props?: BlueskyFeedGetPostProps): void;
 }

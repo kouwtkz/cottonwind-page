@@ -20,7 +20,7 @@ export default function PostState() {
     ...ExternalStoreProps(postsDataIndexed),
   );
   const extRss = useExtRss();
-  const { mochott_Article } = useATProtoState();
+  const { mochott_articles } = useATProtoState();
   const mixPosts = useMemo(() => {
     const list: PostPagesItemType[] = posts ? posts.concat() : [];
     if (extRss) {
@@ -42,8 +42,8 @@ export default function PostState() {
         });
       });
     }
-    if (mochott_Article) {
-      mochott_Article.forEach((item) => {
+    if (mochott_articles) {
+      mochott_articles.forEach((item) => {
         if (item.minisite && item.minisite.designType !== "blog") return;
         const postId = item.$type + item.path;
         const category: string[] = [];
@@ -51,7 +51,7 @@ export default function PostState() {
         if (item.tags) category.push(...item.tags);
         list.push({
           host: item.host,
-          extension: "Mochott",
+          extension: "mochott",
           title: item.title,
           body: item,
           time: new Date(item.createdAt),
@@ -63,7 +63,7 @@ export default function PostState() {
       });
     }
     return list;
-  }, [posts, extRss, mochott_Article]);
+  }, [posts, extRss, mochott_articles]);
   useEffect(() => {
     (async () => {
       await waitIdb;

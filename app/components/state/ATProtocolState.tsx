@@ -184,19 +184,19 @@ function _LoadMochott() {
   useEffect(() => {
     if (env && did && endpoint && describe) {
       Promise.all([
-        getATProtoRecords<Mochott_Profile>({
+        getATProtoRecords<mochott_profile>({
           did,
           endpoint,
           describe,
           collection: "site.mochott.profile",
         }),
-        getATProtoRecords<Mochott_Raw_Minisite>({
+        getATProtoRecords<mochott_raw_minisite>({
           did,
           endpoint,
           describe,
           collection: "site.mochott.minisite",
         }),
-        getATProtoRecords<Mochott_Raw_Article>({
+        getATProtoRecords<mochott_Raw_Article>({
           did,
           endpoint,
           describe,
@@ -205,18 +205,18 @@ function _LoadMochott() {
         import.meta.env.DEV
           ? fetch("/static/test/mochott-article.json")
               .then<any>((r) => r.json())
-              .then<Mochott_Raw_Article>((v) => v.value)
+              .then<mochott_Raw_Article>((v) => v.value)
           : null,
       ]).then(([profile, minisite, article, test]) => {
-        let mochott_Profile: Mochott_Profile | undefined;
-        let mochott_Minisite: Array<Mochott_Minisite> | undefined;
-        let mochott_Article: Array<Mochott_Article> | undefined;
+        let mochott_profile: mochott_profile | undefined;
+        let mochott_minisite: Array<mochott_minisite> | undefined;
+        let mochott_articles: Array<mochott_article> | undefined;
         if (profile) {
-          mochott_Profile = profile.records[0].value;
+          mochott_profile = profile.records[0].value;
         }
         if (minisite) {
-          mochott_Minisite = minisite.records.map((v) => {
-            const minisite: Mochott_Minisite = v.value;
+          mochott_minisite = minisite.records.map((v) => {
+            const minisite: mochott_minisite = v.value;
             if (
               env.MOCHOTT_MINISITE_DOMAIN &&
               v.value.globalSlug in env.MOCHOTT_MINISITE_DOMAIN
@@ -228,15 +228,15 @@ function _LoadMochott() {
         }
         if (article) {
           const articleMap = article.records.reduce<
-            Map<string, Mochott_Article>
+            Map<string, mochott_article>
           >((map, c) => {
             const key = c.value.path;
             map.set(key, c.value);
             return map;
           }, new Map());
-          mochott_Article = Array.from(articleMap.values());
-          if (test && mochott_Article) mochott_Article.push(test);
-          mochott_Minisite?.forEach((minisite) => {
+          mochott_articles = Array.from(articleMap.values());
+          if (test && mochott_articles) mochott_articles.push(test);
+          mochott_minisite?.forEach((minisite) => {
             minisite.articles.forEach((atUrl) => {
               const path = atUrl.slice(atUrl.lastIndexOf("/"));
               const article = articleMap.get(path);
@@ -245,14 +245,14 @@ function _LoadMochott() {
               }
             });
           });
-          mochott_Article.forEach((article) => {
+          mochott_articles.forEach((article) => {
             let base: null | URL = null;
             if (article.minisite?.domain) {
               article.host = article.minisite.domain;
               base = new URL("https://" + article.host);
             } else {
               article.host = "mochott.site";
-              base = mochott_Profile?.url ? new URL(mochott_Profile.url) : null;
+              base = mochott_profile?.url ? new URL(mochott_profile.url) : null;
             }
             if (base) {
               article.url = new URL(
@@ -263,7 +263,11 @@ function _LoadMochott() {
             }
           });
         }
-        Set({ mochott_Profile, mochott_Minisite, mochott_Article });
+        Set({
+          mochott_profile,
+          mochott_minisite,
+          mochott_articles,
+        });
       });
     }
   }, [env, did, endpoint, describe, Set]);

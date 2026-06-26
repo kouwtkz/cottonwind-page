@@ -305,8 +305,8 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
             >
               {post.extension === "ExtRSS"
                 ? "外部RSS"
-                : post.extension === "Mochott"
-                  ? "Mochott"
+                : post.extension === "mochott"
+                  ? "mochott"
                   : null}
             </Link>
           ) : null}
@@ -330,9 +330,9 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
       </div>
       {typeof post.body === "object" ? (
         post.body.$type === "site.mochott.article" ? (
-          <Mochott_Article base={post.postId || ""} url={post.body.url}>
+          <MochottArticle base={post.postId || ""} url={post.body.url}>
             {post.body.content.content}
-          </Mochott_Article>
+          </MochottArticle>
         ) : null
       ) : (
         <MultiParserWithMedia
@@ -406,17 +406,17 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
   );
 }
 
-interface Mochott_Article_Props {
-  children: Mochott_Content_General_Union | Mochott_Content_General_Union[];
+interface MochottArticle_Props {
+  children: mochott_content_general_union | mochott_content_general_union[];
   base: string;
   url?: URL;
 }
-function Mochott_Article({ url, ...props }: Mochott_Article_Props) {
+function MochottArticle({ url, ...props }: MochottArticle_Props) {
   const [footnoteObj, setFootnoteObj] = useState<{
-    map: Map<string, [number, Mochott_Content_Footnote]>;
+    map: Map<string, [number, mochott_content_footnote]>;
   }>({ map: new Map() });
   const MctAtc = useCallback(
-    ({ children: argsChild, base }: Mochott_Article_Props) => {
+    ({ children: argsChild, base }: MochottArticle_Props) => {
       const children = Array.isArray(argsChild) ? argsChild : [argsChild];
       return children.map((item, i) => {
         const key = `${base}-${i}`;
@@ -565,7 +565,7 @@ function Mochott_Article({ url, ...props }: Mochott_Article_Props) {
                     width: null,
                     title,
                   },
-                } as Mochott_Content_Image)
+                } as mochott_content_image)
               : null;
             return (
               <a
