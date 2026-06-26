@@ -7,20 +7,34 @@ import { BiPin, BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";
 import { useImageViewer } from "../layout/ImageViewer";
 import { MultiParser, type MultiParserProps } from "../parse/MultiParser";
+import type { OmittedEnv } from "types/custom-configuration";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
     set({ _getPostProps: props });
   },
 }));
+
+interface ATProtoGetRecordsProps {
+  collection: string;
+  limit?: number;
+  did: string;
+  endpoint: string;
+  describe?: ATDescribeType | null;
+  env: Partial<OmittedEnv>;
+}
 export async function getATProtoRecords<T>({
+  env,
   did,
   endpoint,
   describe,
   collection,
   limit,
 }: ATProtoGetRecordsProps) {
-  if (describe.collections.findIndex((v) => v === collection)) {
+  if (
+    !env.ATPROTO_USE_DESCRIBE ||
+    (describe && describe.collections.findIndex((v) => v === collection))
+  ) {
     const Url = new URL(endpoint);
     Url.pathname = "/xrpc/com.atproto.repo.listRecords";
     Url.searchParams.set("repo", did);
@@ -151,10 +165,12 @@ function _LoadDescribe() {
 }
 
 function _LoadLinkat() {
+  const env = useEnv()[0];
   const { Set, did, endpoint, describe } = useATProtoState();
   useEffect(() => {
-    if (did && endpoint && describe) {
+    if (env && did && endpoint) {
       getATProtoRecords<LinkatRecordType>({
+        env,
         did,
         endpoint,
         describe,
@@ -174,7 +190,7 @@ function _LoadLinkat() {
           Set({ linkat: [] });
         });
     }
-  }, [did, endpoint, describe, Set]);
+  }, [env, did, endpoint, describe, Set]);
   return <></>;
 }
 
@@ -182,21 +198,24 @@ function _LoadMochott() {
   const env = useEnv()[0];
   const { Set, did, endpoint, describe } = useATProtoState();
   useEffect(() => {
-    if (env && did && endpoint && describe) {
+    if (env && did && endpoint) {
       Promise.all([
         getATProtoRecords<mochott_profile>({
+          env,
           did,
           endpoint,
           describe,
           collection: "site.mochott.profile",
         }),
         getATProtoRecords<mochott_raw_minisite>({
+          env,
           did,
           endpoint,
           describe,
           collection: "site.mochott.minisite",
         }),
         getATProtoRecords<mochott_Raw_Article>({
+          env,
           did,
           endpoint,
           describe,

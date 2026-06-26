@@ -411,13 +411,43 @@ interface MochottArticle_Props {
   base: string;
   url?: URL;
 }
+interface MctAtc_Props extends Omit<MochottArticle_Props, "url"> {
+  isTableDirectry?: boolean;
+}
 function MochottArticle({ url, ...props }: MochottArticle_Props) {
   const [footnoteObj, setFootnoteObj] = useState<{
     map: Map<string, [number, mochott_content_footnote]>;
   }>({ map: new Map() });
   const MctAtc = useCallback(
-    ({ children: argsChild, base }: MochottArticle_Props) => {
+    ({ children: argsChild, base, isTableDirectry }: MctAtc_Props) => {
       const children = Array.isArray(argsChild) ? argsChild : [argsChild];
+      if (isTableDirectry) {
+        if (
+          children[0]?.type === "tableRow" &&
+          children[0].content[0]?.type === "tableHeader"
+        ) {
+          const theadOption = {
+            key: base + "-0",
+            content: children.slice(0, 1),
+          };
+          const tbodyOption = { key: base + "-1", content: children.slice(1) };
+          return [
+            <thead key={theadOption.key}>
+              <MctAtc base={theadOption.key}>{theadOption.content}</MctAtc>
+            </thead>,
+            <tbody key={tbodyOption.key}>
+              <MctAtc base={tbodyOption.key}>{tbodyOption.content}</MctAtc>
+            </tbody>,
+          ];
+        } else {
+          const key = base + "-0";
+          return [
+            <tbody key={key}>
+              <MctAtc base={key}>{children}</MctAtc>
+            </tbody>,
+          ];
+        }
+      }
       return children.map((item, i) => {
         const key = `${base}-${i}`;
         const style: React.CSSProperties = {};
@@ -431,7 +461,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
             item.attrs.textAlign;
             if (item.content)
               return (
-                <p style={style}>
+                <p style={style} key={key}>
                   <MctAtc base={key}>{item.content}</MctAtc>
                 </p>
               );
@@ -441,19 +471,19 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
               switch (item.attrs.level) {
                 case 2:
                   return (
-                    <h2 style={style}>
+                    <h2 style={style} key={key}>
                       <MctAtc base={key}>{item.content}</MctAtc>
                     </h2>
                   );
                 case 3:
                   return (
-                    <h3 style={style}>
+                    <h3 style={style} key={key}>
                       <MctAtc base={key}>{item.content}</MctAtc>
                     </h3>
                   );
                 case 4:
                   return (
-                    <h4 style={style}>
+                    <h4 style={style} key={key}>
                       <MctAtc base={key}>{item.content}</MctAtc>
                     </h4>
                   );
@@ -462,7 +492,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
           case "image":
             const srcUrl = new URL(item.attrs.src, url?.href);
             return (
-              <figure>
+              <figure key={"fig-" + key}>
                 <img
                   key={key}
                   alt={item.attrs.alt}
@@ -509,6 +539,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
                   type="checkbox"
                   title="チェック"
                   checked={item.attrs.checked}
+                  readOnly
                 />
                 <MctAtc base={key}>{item.content}</MctAtc>
               </li>
@@ -521,7 +552,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
             );
           case "codeBlock":
             return (
-              <pre>
+              <pre key={key}>
                 <code key={key}>
                   <MctAtc base={key}>{item.content}</MctAtc>
                 </code>
@@ -529,19 +560,19 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
             );
           case "mathBlock":
             return (
-              <p className="mathBlock">
+              <p className="mathBlock" key={key}>
                 <em>{item.attrs.content}</em>
               </p>
             );
           case "mathInline":
             return (
-              <span className="mathInline">
+              <span className="mathInline" key={key}>
                 <em>{item.attrs.content}</em>
               </span>
             );
           case "details":
             return (
-              <details open>
+              <details open key={key}>
                 {item.attrs.summary ? (
                   <summary>{item.attrs.summary}</summary>
                 ) : null}
@@ -573,6 +604,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
                 title={title}
                 target="_blank"
                 className={imageContent ? "" : "external"}
+                key={key}
               >
                 {imageContent ? (
                   <MctAtc base={key}>{imageContent}</MctAtc>
@@ -594,11 +626,12 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
                       width: 560,
                       height: 315,
                     }}
+                    key={key}
                   />
                 );
               default:
                 return (
-                  <a target="_blank" className="external">
+                  <a target="_blank" className="external" key={key}>
                     {item.attrs.src}
                   </a>
                 );
@@ -622,33 +655,35 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
             );
           case "table":
             return (
-              <p key={key}>
+              <div key={key}>
                 <table>
-                  <MctAtc base={key}>{item.content}</MctAtc>
+                  <MctAtc base={key} isTableDirectry>
+                    {item.content}
+                  </MctAtc>
                 </table>
-              </p>
+              </div>
             );
           case "tableRow":
             return (
-              <tr>
+              <tr key={key}>
                 <MctAtc base={key}>{item.content}</MctAtc>
               </tr>
             );
           case "tableHeader":
             return (
-              <th>
+              <th key={key}>
                 <MctAtc base={key}>{item.content!}</MctAtc>
               </th>
             );
           case "tableCell":
             return (
-              <td>
+              <td key={key}>
                 <MctAtc base={key}>{item.content!}</MctAtc>
               </td>
             );
           case "callout":
             return (
-              <blockquote className={item.attrs.type}>
+              <blockquote className={item.attrs.type} key={key}>
                 <p>
                   {item.attrs.type === "info"
                     ? "ℹ️情報"
@@ -722,7 +757,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
           default:
             if ("content" in item)
               return (
-                <p style={style}>
+                <p style={style} key={key}>
                   <MctAtc base={key}>{(item as any).content}</MctAtc>
                 </p>
               );
@@ -736,7 +771,7 @@ function MochottArticle({ url, ...props }: MochottArticle_Props) {
     return Array.from(footnoteObj.map.entries());
   }, [footnoteObj]);
   return (
-    <div className="parsed">
+    <div className="parsed" key={props.base + "-root"}>
       <MctAtc {...props} />
       {footnotes.length > 0 ? <hr /> : null}
       {footnotes.map(([key, [index, value]]) => {

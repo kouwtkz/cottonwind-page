@@ -111,6 +111,21 @@ function CheckIsComplete() {
     () => Boolean(mochott_articles),
     [mochott_articles],
   );
+  const loadingATProtocolMode = useMemo<
+    "mochott" | "all" | "linkAt" | null
+  >(() => {
+    if (!env || !env.ATPROTO_USE_DID || !env.ATPROTO_USE_DIDINFO) return null;
+    const pathname = typeof location !== "undefined" ? location.pathname : "";
+    if (pathname === "/") {
+      return "all";
+    } else if (env.ATPROTO_USE_MOCHOTT && pathname.startsWith("/blog")) {
+      return "mochott";
+    } else if (env.ATPROTO_USE_LINKAT && pathname.startsWith("/links")) {
+      return "linkAt";
+    } else {
+      return null;
+    }
+  }, [env]);
   const isSetList = useMemo(() => {
     const list = [
       Boolean(env),
@@ -120,12 +135,22 @@ function CheckIsComplete() {
       loadedSounds,
       loadedLinks,
     ];
-    if (env) {
+    if (env && loadingATProtocolMode) {
       if (env.ATPROTO_USE_DID) list.push(loadedATProtoDid);
       if (env.ATPROTO_USE_DIDINFO) list.push(loadedATProtoDidInfo);
       if (env.ATPROTO_USE_DESCRIBE) list.push(loadedATProtoDescribe);
-      if (env.ATPROTO_USE_LINKAT) list.push(loadedATProtoLinkat);
-      if (env.ATPROTO_USE_MOCHOTT) list.push(loadedATProto_mochott_article);
+      if (
+        loadingATProtocolMode === "linkAt" ||
+        (env.ATPROTO_USE_LINKAT && loadingATProtocolMode === "all")
+      ) {
+        list.push(loadedATProtoLinkat);
+      }
+      if (
+        loadingATProtocolMode === "mochott" ||
+        (env.ATPROTO_USE_MOCHOTT && loadingATProtocolMode === "all")
+      ) {
+        list.push(loadedATProto_mochott_article);
+      }
     }
     return list;
   }, [
@@ -135,6 +160,7 @@ function CheckIsComplete() {
     loadedPosts,
     loadedSounds,
     loadedLinks,
+    loadingATProtocolMode,
     loadedATProtoDid,
     loadedATProtoDidInfo,
     loadedATProtoDescribe,

@@ -20,14 +20,6 @@ interface BlueskyFeedGetPostProps {
   pin?: boolean;
 }
 
-interface ATProtoGetRecordsProps {
-  collection: string;
-  limit?: number;
-  did: string;
-  endpoint: string;
-  describe: ATDescribeType;
-}
-
 interface ATServiceType {
   id: string;
   type: string;
