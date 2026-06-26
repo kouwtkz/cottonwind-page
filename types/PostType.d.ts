@@ -25,7 +25,7 @@ interface PostType extends PostDataType, WithRawExtendDataType<PostDataType> {
 type PostPagesExtensionType = "ExtRSS" | "Mochott";
 
 interface PostPagesItemType extends Omit<PostType, "id" | "body"> {
-  body?: string | React.ReactNode;
+  body?: string | Mochott_Article;
   id?: number;
   host?: string;
   extension?: PostPagesExtensionType;

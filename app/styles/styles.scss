@@ -627,12 +627,12 @@ ul,
 ol {
   white-space: normal;
   text-align: left;
-  margin: auto;
   @media (min-width: $mobileWidth) {
     width: max-content;
   }
   &.auto,
   &.wide {
+    margin: auto;
     &,
     ul,
     ol {
