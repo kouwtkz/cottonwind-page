@@ -1,0 +1,916 @@
+{
+  "uri": "at://did:plc:27df3xmlj52mumyihflzh4vr/site.mochott.article/3mp5keaodik2a",
+  "cid": "bafyreiehbsytrduebdbfen7yxkoea3tgtnjfgtcyysh72mnky5uofedomy",
+  "value": {
+    "path": "/3mp5keaodik2a",
+    "$type": "site.mochott.article",
+    "title": "デバッグ用",
+    "content": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "left"
+          },
+          "content": [
+            {
+              "text": "※個人サイトで実装したいのですべてのパターンのcontentを調べてます！",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "attrs": {
+            "summary": "入れ子"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "入れ子になったコンテンツ",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2,
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "見出し",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2,
+            "textAlign": "left"
+          },
+          "content": [
+            {
+              "text": "見出し2",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 3,
+            "textAlign": null
+          },
+          "content": [
+            {
+              "text": "見出し3",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 4,
+            "textAlign": null
+          },
+          "content": [
+            {
+              "text": "見出し4",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "箇条書き1",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "箇条書き2",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "orderedList",
+          "attrs": {
+            "type": null,
+            "start": 1
+          },
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "番号付きリスト1",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "番号付きリスト2",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "taskList",
+          "content": [
+            {
+              "type": "taskItem",
+              "attrs": {
+                "checked": true
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "タスクリスト1",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "taskItem",
+              "attrs": {
+                "checked": false
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "text": "タスクリスト2",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "引用",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "italic"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "引用2",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "italic"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "mathBlock",
+          "attrs": {
+            "content": "PV=nRT"
+          }
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "mathInline",
+              "attrs": {
+                "content": "PV=nRT"
+              }
+            }
+          ]
+        },
+        {
+          "type": "codeBlock",
+          "attrs": {
+            "language": "plaintext"
+          },
+          "content": [
+            {
+              "text": "コードブロック\nコードブロック2",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "horizontalRule"
+        },
+        {
+          "type": "embed",
+          "attrs": {
+            "src": "https://www.youtube.com/watch?v=9BC3ixR-7xs&t=4342s",
+            "service": "youtube",
+            "embedUrl": "https://www.youtube.com/embed/9BC3ixR-7xs"
+          }
+        },
+        {
+          "type": "table",
+          "content": [
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "列1",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableHeader",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "列2",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableHeader",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "列3",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行1-1",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行1-2",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行1-3",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行2-1",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行2-2",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "attrs": {
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null
+                      },
+                      "content": [
+                        {
+                          "text": "行2-3",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "attrs": {
+            "type": "info"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "コールアウト",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "（情報）",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "attrs": {
+            "type": "warning"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "コールアウト",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "（警告）",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "attrs": {
+            "type": "tip"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "コールアウト",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "（ヒント）",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "attrs": {
+            "type": "danger"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "コールアウト",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null
+              },
+              "content": [
+                {
+                  "text": "（危険）",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "footnote",
+              "attrs": {
+                "content": "めぇ"
+              }
+            }
+          ]
+        },
+        {
+          "type": "linkCard",
+          "attrs": {
+            "url": "https://www.youtube.com/@kouwtkz",
+            "image": "",
+            "title": "",
+            "siteName": "www.youtube.com",
+            "description": ""
+          }
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "text": "めぇの",
+              "type": "text"
+            },
+            {
+              "text": "太字",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "text": "や",
+              "type": "text"
+            },
+            {
+              "text": "斜体",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ]
+            },
+            {
+              "text": "、",
+              "type": "text"
+            },
+            {
+              "text": "アンダーライン",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "underline"
+                }
+              ]
+            },
+            {
+              "text": "や",
+              "type": "text"
+            },
+            {
+              "text": "打消し線",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "strike"
+                }
+              ]
+            },
+            {
+              "text": "、",
+              "type": "text"
+            },
+            {
+              "text": "mono",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "code"
+                }
+              ]
+            },
+            {
+              "text": "などさまざま",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "left"
+          },
+          "content": [
+            {
+              "text": "左揃え",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "center"
+          },
+          "content": [
+            {
+              "text": "中央揃え",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "right"
+          },
+          "content": [
+            {
+              "text": "右揃え",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": "right"
+          },
+          "content": [
+            {
+              "type": "hardBreak"
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2,
+            "textAlign": null
+          },
+          "content": [
+                        {
+              "text": "めぇめぇ",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "rel": "noopener noreferrer nofollow",
+                    "href": "http://localhost:5173/character/watakaze",
+                    "class": null,
+                    "title": null,
+                    "target": "_blank"
+                  }
+                },
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "text": "もちもち",
+              "type": "text"
+            },
+            {
+              "text": "はもちっとくん",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "rel": "noopener noreferrer nofollow",
+                    "href": "https://cottonwind.com/character/hamochitto",
+                    "class": null,
+                    "title": null,
+                    "target": "_blank"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "てすと",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "text": "はもちっと",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "rel": "noopener noreferrer nofollow",
+                    "href": "http://localhost:5173/character/hamochitto",
+                    "class": null,
+                    "title": null,
+                    "target": "_blank"
+                  }
+                },
+                {
+                  "type": "bold"
+                }
+              ]
+            },
+            {
+              "text": "くん",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "rel": "noopener noreferrer nofollow",
+                    "href": "http://localhost:5173/character/hamochitto",
+                    "class": null,
+                    "title": null,
+                    "target": "_blank"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "profile": "at://did:plc:27df3xmlj52mumyihflzh4vr/site.mochott.profile/self",
+    "createdAt": "2026-06-25T23:09:10.210Z",
+    "updatedAt": "2026-06-25T23:09:10.210Z",
+    "description": "テスト用",
+    "textContent": "※個人サイトで実装したいのですべてのパターンのcontentを調べてます！\n\n\n\n入れ子になったコンテンツ\n\n見出し\n\n見出し2\n\n見出し3\n\n見出し4\n\n\n\n\n\n箇条書き1\n\n\n\n箇条書き2\n\n\n\n\n\n番号付きリスト1\n\n\n\n番号付きリスト2\n\n\n\n\n\nタスクリスト1\n\n\n\nタスクリスト2\n\n\n\n引用\n\n引用2\n\nコードブロック\nコードブロック2\n\n\n\n\n\n\n\n\n\n\n\n列1\n\n\n\n列2\n\n\n\n列3\n\n\n\n\n\n行1-1\n\n\n\n行1-2\n\n\n\n行1-3\n\n\n\n\n\n行2-1\n\n\n\n行2-2\n\n\n\n行2-3\n\n\n\nコールアウト\n\n（情報）\n\n\n\nコールアウト\n\n（警告）\n\n\n\nコールアウト\n\n（ヒント）\n\n\n\nコールアウト\n\n（危険）\n\n\n\n\n\nめぇの太字や斜体、アンダーラインや打消し線、monoなどさまざま\n\n左揃え\n\n中央揃え\n\n右揃え\n\n\n"
+  }
+}

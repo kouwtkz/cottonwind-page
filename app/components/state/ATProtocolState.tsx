@@ -202,7 +202,12 @@ function _LoadMochott() {
           describe,
           collection: "site.mochott.article",
         }),
-      ]).then(([profile, minisite, article]) => {
+        import.meta.env.DEV
+          ? fetch("/static/test/mochott-article.json")
+              .then<any>((r) => r.json())
+              .then<Mochott_Raw_Article>((v) => v.value)
+          : null,
+      ]).then(([profile, minisite, article, test]) => {
         let mochott_Profile: Mochott_Profile | undefined;
         let mochott_Minisite: Array<Mochott_Minisite> | undefined;
         let mochott_Article: Array<Mochott_Article> | undefined;
@@ -230,6 +235,7 @@ function _LoadMochott() {
             return map;
           }, new Map());
           mochott_Article = Array.from(articleMap.values());
+          if (test && mochott_Article) mochott_Article.push(test);
           mochott_Minisite?.forEach((minisite) => {
             minisite.articles.forEach((atUrl) => {
               const path = atUrl.slice(atUrl.lastIndexOf("/"));

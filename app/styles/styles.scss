@@ -258,7 +258,9 @@ $cursor-url: --cursor-url;
     }
     %#{$keyname} {
       animation: #{$keyname} #{$url_or_time} step-end infinite;
-      cursor: var($cursor-url), #{$name};
+      cursor:
+        var($cursor-url),
+        #{$name};
     }
   } @else {
     %#{$keyname} {
@@ -555,6 +557,9 @@ table:not([class^="fc-"]) {
       padding: 0.25rem 1rem;
     }
   }
+  p {
+    margin: 0;
+  }
 }
 
 table {
@@ -649,6 +654,16 @@ ol {
   }
   &.flex {
     padding: 0;
+  }
+  &.taskList {
+    padding-left: 0;
+    li {
+      display: flex;
+      align-items: center;
+      input {
+        width: 40px;
+      }
+    }
   }
 }
 %ulolAuto {
@@ -1701,6 +1716,13 @@ code {
   box-sizing: border-box;
   width: 99%;
   min-width: unset;
+  &.inline {
+    border-radius: 8px;
+    display: inline;
+    width: auto;
+    margin: 0 0.25em;
+    padding: 0.25em 0.5em;
+  }
   &.hljs {
     .hljs-string {
       color: var(--def-main-color-strong);
