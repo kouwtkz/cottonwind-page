@@ -126,15 +126,14 @@ function CheckIsComplete() {
       return null;
     }
   }, [env]);
-  const isSetList = useMemo(() => {
-    const list = [
-      Boolean(env),
-      loadedImages,
-      loadedCharacters,
-      loadedPosts,
-      loadedSounds,
-      loadedLinks,
-    ];
+  const [isTimeout, setIsTimeout] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setIsTimeout(true);
+    }, 2500);
+  }, []);
+  let loadedATProtocolList = useMemo(() => {
+    const list: boolean[] = [];
     if (env && loadingATProtocolMode) {
       if (env.ATPROTO_USE_DID) list.push(loadedATProtoDid);
       if (env.ATPROTO_USE_DIDINFO) list.push(loadedATProtoDidInfo);
@@ -154,18 +153,37 @@ function CheckIsComplete() {
     }
     return list;
   }, [
-    env,
-    loadedImages,
-    loadedCharacters,
-    loadedPosts,
-    loadedSounds,
-    loadedLinks,
     loadingATProtocolMode,
     loadedATProtoDid,
     loadedATProtoDidInfo,
     loadedATProtoDescribe,
     loadedATProtoLinkat,
     loadedATProto_mochott_article,
+  ]);
+  loadedATProtocolList = useMemo(() => {
+    if (isTimeout && loadedATProtocolList.some((v) => !v))
+      return loadedATProtocolList.concat().fill(true);
+    else return loadedATProtocolList;
+  }, [loadedATProtocolList, isTimeout]);
+  const isSetList = useMemo(() => {
+    const list = [
+      Boolean(env),
+      loadedImages,
+      loadedCharacters,
+      loadedPosts,
+      loadedSounds,
+      loadedLinks,
+      ...loadedATProtocolList,
+    ];
+    return list;
+  }, [
+    env,
+    loadedImages,
+    loadedCharacters,
+    loadedPosts,
+    loadedSounds,
+    loadedLinks,
+    loadedATProtocolList,
   ]);
   const [clientDBLoading, setClientDBLoading] = useState(0);
   useEffect(() => {
