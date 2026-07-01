@@ -736,6 +736,10 @@ function GalleryBody({
   totalLikeCount,
   totalCount,
 }: GalleryBodyProps) {
+  const { Set: SetImageViewer } = useImageViewer();
+  useEffect(() => {
+    SetImageViewer({ loop: false });
+  }, []);
   const search = useSearchParams()[0];
   const tagsParam = useMemo(() => getSearchParamMap("tags", search), [search]);
   const copyrightParam = useMemo(

@@ -4,7 +4,14 @@ import {
   getTimeframeTag,
   monthlyFilter,
 } from "~/components/functions/media/FilterImages";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { ImageMee, ImgSwitch } from "~/components/layout/ImageMee";
 import { useMixPosts } from "~/components/state/PostState";
@@ -26,6 +33,8 @@ import {
 import { BlueskyFeed } from "~/components/state/ATProtocolState";
 import { useLinks } from "~/components/state/LinksState";
 import { useEnv } from "~/components/state/EnvState";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { useImageViewer } from "~/components/layout/ImageViewer";
 
 export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
   const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
@@ -206,87 +215,34 @@ function PostsView() {
 }
 
 interface TopImageType {
-  topImage: ImageType | null;
-  firstQue: ImageType[];
-  firstQueIndex: number;
   topImages: ImageType[];
   topImageIndex: number;
   alwaysImages: ImageType[];
-  alwaysIndex: number;
-  alwaysMode: boolean;
 }
-interface useTopImageType extends TopImageType {
-  Next: (always?: boolean) => void;
-}
-const useTopImage = CreateObjectState<useTopImageType>((set) => ({
-  topImage: null,
-  firstQue: [],
-  firstQueIndex: 0,
+interface useTopImageType extends TopImageType {}
+const useTopImage = CreateObjectState<useTopImageType>({
   topImages: [],
   topImageIndex: 0,
   alwaysImages: [],
-  alwaysIndex: -1,
-  alwaysMode: false,
-  Next(always) {
-    set(
-      ({
-        topImages,
-        topImageIndex,
-        firstQue,
-        firstQueIndex,
-        topImage,
-        alwaysMode,
-        alwaysIndex,
-        alwaysImages,
-      }) => {
-        const value: Partial<TopImageType> = { alwaysMode };
-        if (always && alwaysImages.length > 0) {
-          value.alwaysMode = true;
-        }
-        if (firstQue.length > firstQueIndex + 1) {
-          value.firstQueIndex = ++firstQueIndex;
-          value.topImage = firstQue[firstQueIndex];
-        } else {
-          const switchTopImage = firstQue.length > firstQueIndex;
-          if (switchTopImage) value.firstQueIndex = ++firstQueIndex;
-          if (value.alwaysMode) {
-            alwaysIndex = (alwaysIndex + 1) % alwaysImages.length;
-            value.alwaysIndex = alwaysIndex;
-            value.topImage = alwaysImages[alwaysIndex];
-            value.alwaysMode = false;
-          } else {
-            if (switchTopImage) {
-              value.topImage = topImages[0];
-            } else if (topImages.length - 1 > topImageIndex) {
-              value.topImageIndex = ++topImageIndex;
-              value.topImage = topImages[topImageIndex];
-            } else {
-              value.topImageIndex = 0;
-              value.topImage = topImages[0];
-            }
-          }
-        }
-        return value;
-      },
-    );
-  },
-}));
+});
 export function HomeImageState() {
   const { Set: setTopImage } = useTopImage();
   const { date } = useSchedule({ minute: 0, specify: true });
-  const { imageAlbums } = useImageState();
+  const { images } = useImageState();
   const timeframeTag = useMemo(() => getTimeframeTag(date), [date]);
-  const images = useMemo(() => {
-    return imageAlbums?.get("main")?.list ?? [];
-  }, [imageAlbums]);
   useEffect(() => {
-    if (images.length > 0) {
-      const topImages = findMee(images, {
+    if (images && images.length > 0) {
+      let topImages = findMee(images, {
         where: {
           OR: [
             { AND: [{ topImage: { gte: 1 } }, { topImage: { lte: 3 } }] },
-            { tags: { some: monthlyFilter?.tags }, topImage: { equals: null } },
             {
+              album: "main",
+              tags: { some: monthlyFilter?.tags },
+              topImage: { equals: null },
+            },
+            {
+              album: "main",
               tags: { contains: timeframeTag },
               AND: [{ topImage: { gte: 4 } }, { topImage: { lte: 6 } }],
             },
@@ -295,59 +251,107 @@ export function HomeImageState() {
         orderBy: [{ topImage: "desc" }],
       });
       setTopImage((state) => {
-        if (!compareArray(state.topImages, topImages, { key: "key" })) {
-          const firstQue = topImages
-            .filter(({ topImage }) => topImage === 2 || topImage === 5)
-            .sort((a, b) => (a.topImage === 2 && b.topImage !== 2 ? -1 : 0));
-          const alwaysImages = topImages.filter(
-            ({ topImage }) => topImage === 3 || topImage === 6,
-          );
-          if (state.topImages.length !== topImages.length) {
-            shuffleArray(topImages);
-          }
-          let topImage: ImageType | null | undefined;
-          if (state.topImages.length === 0) {
-            topImage = firstQue[0] || topImages[0];
-          }
-          return {
-            topImage,
-            topImageIndex: 0,
-            topImages,
-            firstQueIndex: 0,
-            firstQue,
-            alwaysImages,
-          };
+        const alwaysMap = new Map<string, void>();
+        const firstQue = topImages
+          .filter(({ topImage }) => topImage === 2 || topImage === 5)
+          .sort((a, b) => (a.topImage === 2 && b.topImage !== 2 ? -1 : 0));
+        firstQue.forEach((v) => {
+          if (v.src) alwaysMap.set(v.src);
+        });
+        const alwaysImages = topImages.filter(
+          ({ topImage }) => topImage === 3 || topImage === 6,
+        );
+        alwaysImages.forEach((v) => {
+          if (v.src) alwaysMap.set(v.src);
+        });
+        topImages = topImages.filter((v) => v.src && !alwaysMap.has(v.src));
+        if (state.topImages.length !== topImages.length + firstQue.length) {
+          shuffleArray(topImages);
         }
+        topImages = firstQue.concat(topImages);
+        return {
+          topImages,
+          topImageIndex: 0,
+          alwaysImages,
+        };
       });
     }
   }, [images, timeframeTag, setTopImage]);
   return <></>;
 }
+
 export const HomeImage = React.memo(function HomeImage({
   interval = 10000,
 }: {
   interval?: number;
 }) {
-  const { topImage, Next, topImages } = useTopImage();
   const nodeRef = useRef<HTMLImageElement>(null);
+  const [searchParams] = useSearchParams();
+  const { Set: SetImageViewer, image: viewerImage } = useImageViewer();
+  const isImageViewerMode = useMemo(() => Boolean(viewerImage), [viewerImage]);
+  const {
+    alwaysImages,
+    topImages: stateTopImages,
+    topImageIndex,
+    Set,
+  } = useTopImage();
+  const firstTopImageIndexRef = useRef(topImageIndex);
+  const topImages = useMemo(() => {
+    return alwaysImages.concat(
+      stateTopImages.slice(firstTopImageIndexRef.current),
+      stateTopImages.slice(0, firstTopImageIndexRef.current),
+    );
+  }, [alwaysImages, stateTopImages]);
+  const topImageCount = useMemo(() => stateTopImages.length, [stateTopImages]);
+  const [current, setCurrent] = useState(0);
+  const currentRef = useRef(0);
+  const countRef = useRef(0);
+  const currentLength = useMemo(() => {
+    currentRef.current = current;
+    countRef.current =
+      (current - alwaysImages.length + firstTopImageIndexRef.current + 1) %
+      topImageCount;
+    return alwaysImages.length + topImageCount;
+  }, [alwaysImages, topImageCount, current]);
   useEffect(() => {
-    if (topImages.length > 0) {
-      let enableLeaveNext = false;
-      setTimeout(() => {
-        enableLeaveNext = true;
-      }, 20);
+    return () => {
+      Set({ topImageIndex: countRef.current });
+    };
+  }, []);
+  useEffect(() => {
+    SetImageViewer({ images: topImages, loop: true });
+  }, [topImages]);
+  const topImage = useMemo(() => topImages[current], [topImages, current]);
+  const nextImage = useMemo(
+    () => topImages[(current + 1) % topImages.length],
+    [topImages, current],
+  );
+  const previousImage = useMemo(
+    () => topImages[(topImages.length + current - 1) % topImages.length],
+    [topImages, current],
+  );
+  const [intervalSwitch, setIntervalSwitch] = useState(false);
+  const Next = useCallback(
+    (auto?: boolean) => {
+      setCurrent((v) => (v + 1) % currentLength);
+      if (!auto) setIntervalSwitch((v) => !v);
+    },
+    [currentLength],
+  );
+  const Previous = useCallback(() => {
+    setCurrent((v) => (currentLength + v - 1) % currentLength);
+    setIntervalSwitch((v) => !v);
+  }, [currentLength]);
+  useEffect(() => {
+    if (topImages.length > 0 && !isImageViewerMode) {
       const timer = setInterval(() => {
-        Next();
+        Next(true);
       }, interval);
       return () => {
-        if (timer) {
-          if (enableLeaveNext) Next(true);
-          return clearInterval(timer);
-        }
+        if (timer) clearInterval(timer);
       };
     }
-  }, [interval, topImages]);
-  const [searchParams] = useSearchParams();
+  }, [interval, topImages, isImageViewerMode, intervalSwitch]);
   const toStatehandler = useCallback((): {
     to: To;
     state?: any;
@@ -364,14 +368,60 @@ export const HomeImage = React.memo(function HomeImage({
       title: topImage.title || undefined,
     };
   }, [topImage, searchParams]);
+  useEffect(() => {
+    if (viewerImage) {
+      const index = topImages.findIndex((v) => v.key === viewerImage.key);
+      if (currentRef.current !== index) {
+        setCurrent(index);
+      }
+    }
+  }, [viewerImage]);
+  const [isExiting, setIsExiting] = useState(false);
+  const Gage = useCallback(
+    () => (
+      <div
+        className={isImageViewerMode ? "" : "gage"}
+        style={{
+          animationDuration: interval + "ms",
+        }}
+      />
+    ),
+    [topImage, isImageViewerMode],
+  );
   return (
-    <div className="HomeImage wide">
+    <div className="HomeImage wide translucent-buttons">
+      <div className="middle">
+        <button
+          type="button"
+          className="hover-visible previous"
+          title={previousImage?.title || "previous"}
+          onClick={() => Previous()}
+          disabled={isExiting}
+        >
+          <MdChevronLeft />
+        </button>
+        <button
+          type="button"
+          className="hover-visible next"
+          title={nextImage?.title || "next"}
+          onClick={() => Next()}
+          disabled={isExiting}
+        >
+          <MdChevronRight />
+        </button>
+      </div>
       {topImage ? (
         <TransitionGroup className="wrapper">
           <CSSTransition
             nodeRef={nodeRef}
             key={topImage.src || ""}
             timeout={750}
+            onExit={() => {
+              setIsExiting(true);
+            }}
+            onExited={() => {
+              setIsExiting(false);
+            }}
           >
             <Link className="item" {...toStatehandler()}>
               <ImageMee
@@ -381,14 +431,9 @@ export const HomeImage = React.memo(function HomeImage({
                 className="image"
                 isCover
               />
-              <div
-                className="gage"
-                style={{
-                  animationDuration: interval + "ms",
-                }}
-              />
             </Link>
           </CSSTransition>
+          <Gage />
         </TransitionGroup>
       ) : (
         <div className="dummy" />

@@ -58,6 +58,7 @@ interface ImageViewerType extends ImageViewerParamType {
   image: ImageType | null;
   images: ImageType[] | null;
   editMode?: boolean;
+  loop: boolean;
   isOpen: boolean;
   setOpen(props?: setTypeProps<ImageViewerType>): void;
   setClose(): void;
@@ -67,6 +68,7 @@ export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   image: null,
   images: null,
   isOpen: false,
+  loop: false,
   setOpen(props) {
     set({ ...props, isOpen: true });
   },
@@ -387,7 +389,7 @@ function PreviewArea({ image }: PreviewAreaProps) {
               <EmbedNode className="wh-all-fill" embed={image.embed} />
             </>
           ) : (
-            <div className="wh-fill">
+            <div className="wh-fill translucent-buttons">
               <a
                 title="別タブで画像を開く"
                 href={imageUrl}
@@ -665,7 +667,7 @@ export function GalleryViewerPaging({
   ...args
 }: GalleryViewerPagingProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { image, images: _images } = useImageViewer();
+  const { image, images: _images, loop } = useImageViewer();
   const isEdit = useImageEditState().isEdit;
   const images = _images || [];
   const imageIndex = useMemo(() => {
@@ -684,10 +686,15 @@ export function GalleryViewerPaging({
 
   const prevNextImage = useMemo(
     () => ({
-      before: images[imageIndex - 1],
-      after: images[imageIndex + 1],
+      before:
+        images[
+          loop
+            ? (images.length + imageIndex - 1) % images.length
+            : imageIndex - 1
+        ],
+      after: images[loop ? (imageIndex + 1) % images.length : imageIndex + 1],
     }),
-    [images, imageIndex],
+    [images, imageIndex, loop],
   );
   const prevNextToHandler = function (image: ImageType) {
     const SearchParams = new URLSearchParams(searchParams);
