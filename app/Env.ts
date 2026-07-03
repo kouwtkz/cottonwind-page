@@ -187,6 +187,20 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
     }
   },
   {
+    description: "らくがき",
+    name: "doodle",
+    type: "illust",
+    gallery: {
+      pages: {
+        hideWhenDefault: true,
+        max: 4
+      },
+      generate: {
+        h2: "らくがき",
+      }
+    }
+  },
+  {
     name: "picture",
     type: "picture",
     latest: true,
@@ -201,20 +215,6 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
       },
       generate: {
         h2: "VRChatなどの写真"
-      }
-    }
-  },
-  {
-    description: "らくがき",
-    name: "doodle",
-    type: "illust",
-    gallery: {
-      pages: {
-        hideWhenDefault: true,
-        max: 4
-      },
-      generate: {
-        h2: "らくがき",
       }
     }
   },
