@@ -91,7 +91,7 @@ import { useSwipeable } from "react-swipeable";
 import { LimitValue } from "~/components/functions/MathFunction";
 import { RegisterRef } from "~/components/hook/SetRef";
 import { RiVideoOnLine, RiVideoUploadLine } from "react-icons/ri";
-import { repostThumbnail } from "~/page/edit/ImagesManager";
+import { repostThumbnail, repostWebp } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
@@ -671,29 +671,6 @@ export default function ImageEditForm({
         dropdown={
           <>
             <button
-              title="画像を置き換える"
-              type="button"
-              className="color round rb"
-              key="replaceImage"
-              onClick={() => {
-                if (image)
-                  fileDialog("image/*")
-                    .then((files) => files.item(0)!)
-                    .then((file) =>
-                      ImagesUploadWithToast({
-                        src: { src: file, name: image.key },
-                        webp,
-                        thumbnail,
-                      }),
-                    )
-                    .then(() => {
-                      imageDataIndexed.load("no-cache");
-                    });
-              }}
-            >
-              <MdFlip />
-            </button>
-            <button
               title="サムネイルを置き換えアップロードする"
               type="button"
               className="color round rb"
@@ -723,19 +700,56 @@ export default function ImageEditForm({
               key="resetThumbnail"
               onClick={() => {
                 if (image && confirm("サムネイルを設定しなおしますか？")) {
-                  repostThumbnail({ image, apiOrigin, mediaOrigin }).then(
-                    () => {
-                      imageDataIndexed.load("no-cache");
-                      toast(
-                        "サムネイルを設定しました",
-                        toastLoadingShortOptions,
-                      );
-                    },
-                  );
+                  repostThumbnail({ image, mediaOrigin }).then(() => {
+                    imageDataIndexed.load("no-cache");
+                    toast("サムネイルを設定しました", toastLoadingShortOptions);
+                  });
                 }
               }}
             >
               <RiVideoOnLine />
+            </button>
+            <button
+              title="画像を置き換える"
+              type="button"
+              className="color round rb"
+              key="replaceImage"
+              onClick={() => {
+                if (image)
+                  fileDialog("image/*")
+                    .then((files) => files.item(0)!)
+                    .then((file) =>
+                      ImagesUploadWithToast({
+                        src: { src: file, name: image.key },
+                        webp,
+                        thumbnail,
+                      }),
+                    )
+                    .then(() => {
+                      imageDataIndexed.load("no-cache");
+                    });
+              }}
+            >
+              <MdFlip />
+            </button>
+            <button
+              title="Webpに変換する"
+              type="button"
+              className="color round rb"
+              key="resetThumbnail"
+              onClick={() => {
+                if (image && confirm("Webpファイルに変換しますか？")) {
+                  repostWebp({ image, mediaOrigin }).then(() => {
+                    imageDataIndexed.load("no-cache");
+                    toast(
+                      "Webpファイルに変換しました",
+                      toastLoadingShortOptions,
+                    );
+                  });
+                }
+              }}
+            >
+              <RiFileWordLine />
             </button>
             <button
               title="画像名のテキストコピー"

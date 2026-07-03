@@ -249,15 +249,31 @@ export function CompatMendingThumbnailButton({
   );
 }
 
-interface uploadThumbnailProps {
-  apiOrigin?: string;
+interface uploadImageProps {
   mediaOrigin?: string;
   image: ImageType | ImageType[];
+}
+export function repostWebp({ image, mediaOrigin }: uploadImageProps) {
+  const images = Array.isArray(image) ? image : [image];
+  return Promise.all(
+    images
+      .filter((image) => image.src)
+      .map(async (image) => {
+        if (image.src) {
+          return ImagesUpload({
+            src: concatOriginUrl(mediaOrigin, image.src),
+            webp: true,
+            thumbnail: false,
+          });
+        }
+      }),
+  );
+}
+interface uploadThumbnailProps extends uploadImageProps {
   size?: number | boolean;
 }
 export function repostThumbnail({
   image,
-  apiOrigin,
   mediaOrigin,
   size,
 }: uploadThumbnailProps) {
@@ -306,7 +322,6 @@ export function ThumbnailResetButton({
         (image) => async () => {
           return repostThumbnail({
             image,
-            apiOrigin,
             mediaOrigin,
           }).finally(() => {
             addProgress();
@@ -323,7 +338,7 @@ export function ThumbnailResetButton({
         imageDataIndexed.load("no-cache");
       });
     }
-  }, [noThumbnailList, apiOrigin, mediaOrigin]);
+  }, [noThumbnailList, mediaOrigin]);
   return (
     <ObjectCommonButton
       title={"ギャラリーのサムネイルを再設定する"}
