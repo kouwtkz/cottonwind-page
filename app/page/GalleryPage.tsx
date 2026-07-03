@@ -1385,6 +1385,7 @@ function GalleryContentMain({
     step = 20,
     max: maxFromArgs = 20,
     maxWhenSearch = 40,
+    type,
   } = item;
   const { pathname, search } = useLocation();
   const [searchParams] = useSearchParams();
@@ -1433,9 +1434,18 @@ function GalleryContentMain({
   const showMoreButton = curMax < (list.length || 0);
   const visibleMax = showMoreButton ? curMax - 1 : curMax;
   const headerLinkTo = useCallback(
-    (to: string, setSearch = true) =>
-      new URL(to + (setSearch ? search : ""), location.origin + pathname).href,
-    [pathname, search],
+    (to: string, setSearch = true) => {
+      const url = new URL(
+        to + (setSearch ? search : ""),
+        location.origin + pathname,
+      );
+      url.searchParams.delete("showAllAlbum");
+      if (url.searchParams.has("type")) {
+        if (type === searchParams.get("type")) url.searchParams.delete("type");
+      }
+      return url.href;
+    },
+    [name, type, pathname, search],
   );
   const HeaderElm = useCallback(
     ({ label }: { label?: string }) =>
