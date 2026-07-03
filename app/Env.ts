@@ -205,6 +205,20 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
     }
   },
   {
+    description: "らくがき",
+    name: "doodle",
+    type: "illust",
+    gallery: {
+      pages: {
+        hideWhenDefault: true,
+        max: 4
+      },
+      generate: {
+        h2: "らくがき",
+      }
+    }
+  },
+  {
     name: "uploads",
     latest: true,
     gallery: {

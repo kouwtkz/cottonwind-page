@@ -556,6 +556,7 @@ export function GalleryObject({
   }, [
     items,
     searchMode,
+    typeParam,
     monthModeParam,
     monthParam,
     wheres,

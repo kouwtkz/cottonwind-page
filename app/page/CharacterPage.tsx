@@ -598,6 +598,7 @@ const defaultGalleryList = [
   { name: "3D" },
   { name: "picture" },
   { name: "parody", max: 12 },
+  { name: "doodle", max: 12 },
   { name: "uploads" },
   { name: "given", label: "Fanart", max: 40 },
 ] as GalleryItemType[];
