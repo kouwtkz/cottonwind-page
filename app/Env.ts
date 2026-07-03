@@ -117,7 +117,7 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
     }
   },
   {
-    description: "オリジナルキャラクターのイラストです！",
+    description: "オリジナルキャラクターの作品です！",
     name: "main",
     title: "Main art",
     type: "illust",
@@ -126,7 +126,7 @@ const IMAGE_ALBUMS: Array<ImageAlbumEnvType> = [
       pages: {},
       generate: {
         h2: "メインイラスト！",
-        h4: "オリジナルキャラのイラストです！"
+        h4: "オリジナルキャラの作品です！"
       }
     }
   },
