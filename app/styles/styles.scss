@@ -846,6 +846,7 @@ li {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: flex-end;
       margin: 0.25rem;
       & > * {
         margin: 0.25rem;
@@ -861,10 +862,16 @@ li {
       padding: 0.375rem 0.5rem;
     }
     .tagSelect {
-      min-width: 20rem;
+      min-width: 22rem;
+      @media (width < $tabletWidth) {
+        flex: 1;
+      }
     }
     .characterSelect {
-      min-width: 16rem;
+      min-width: 18rem;
+      @media (width < $tabletWidth) {
+        flex: 1;
+      }
     }
     .tagSelect,
     .characterSelect {

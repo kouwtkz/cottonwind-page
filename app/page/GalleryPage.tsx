@@ -1069,14 +1069,10 @@ function GalleryBody({
               <GalleryYearFilter {...SearchAreaOptions} />
               <GallerySearchArea {...SearchAreaOptions} />
               <div className="flex">
-                <GalleryCharactersSelect
-                  {...SearchAreaOptions}
-                  className="flex-1"
-                />
+                <GalleryCharactersSelect {...SearchAreaOptions} />
                 <GalleryTagsSelect
                   {...SearchAreaOptions}
                   callbackOptions={callbackOptions}
-                  className="flex-1"
                 />
               </div>
             </div>

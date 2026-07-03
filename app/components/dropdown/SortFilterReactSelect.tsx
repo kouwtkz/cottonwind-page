@@ -95,7 +95,7 @@ export function ContentsTagsSelect({
       return tag;
     });
     return [currentTags, suggestTags];
-  }, [tags]);
+  }, [searchQuery, tags]);
   const changeHandler = useCallback(
     (list: MultiValue<ContentsTagsOption>) => {
       const listObj: { [k: string]: string[] } = {
