@@ -794,7 +794,6 @@ function GalleryBody({
     visibleLikeCount,
   };
   const isLogin = useIsLogin()[0];
-  const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
   const { likeCategoryMap } = useLikeState();
   const likeCheckedMap = useMemo(() => {
     const imageLikeMap = likeCategoryMap?.get("image");
@@ -962,7 +961,7 @@ function GalleryBody({
         .map((_, i) => items[i])
         .map(({ label, name }, i) => ({
           name: label || name || "",
-          ref: refList[i],
+          id: name,
         })),
     [yfList, items],
   );
@@ -976,7 +975,7 @@ function GalleryBody({
         {isLogin ? (
           <UploadChain item={item}>
             <GalleryContent
-              ref={refList[i]}
+              id={item.name}
               list={yfList[i]}
               item={item}
               {...args}
@@ -984,7 +983,7 @@ function GalleryBody({
           </UploadChain>
         ) : (
           <GalleryContent
-            ref={refList[i]}
+            id={item.name}
             list={yfList[i]}
             item={item}
             {...args}

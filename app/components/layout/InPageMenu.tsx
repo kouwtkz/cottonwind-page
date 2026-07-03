@@ -1,21 +1,27 @@
-import { type RefObject, memo, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useScroll from "~/components/hook/useScroll";
 import TriangleCursor from "~/components/svg/cursor/Triangle";
 
-type InPageRefObject = {
-  name: string;
-  ref: RefObject<HTMLElement | null>;
-};
+interface InPageArgList {
+  name?: string;
+  id: string;
+}
+interface InPageFilterList extends InPageArgList {
+  element: HTMLElement;
+}
+interface InPageListObject extends InPageFilterList {
+  currentMode?: boolean;
+}
 
 interface InPageMenuProps extends React.HTMLAttributes<HTMLDivElement> {
-  list?: InPageRefObject[];
+  list?: InPageArgList[];
   adjust?: number;
   cursorAdjust?: number;
   lastAdjust?: number;
   autoLastHide?: number;
 }
-export const InPageMenu = memo(function InPageMenu({
-  list = [],
+export function InPageMenu({
+  list: arglist = [],
   adjust = 16,
   cursorAdjust = 64,
   lastAdjust = 8,
@@ -26,23 +32,18 @@ export const InPageMenu = memo(function InPageMenu({
   const { y, h, wh } = useScroll();
   const jy = Math.floor(y + adjust + cursorAdjust);
   const isLastScroll = h - y - lastAdjust <= wh;
-  const [parsedList, setParsedList] = useState<
-    Array<{
-      name: string;
-      element: HTMLElement;
-      currentMode?: boolean;
-    }>
-  >([]);
+  const [filterList, setFilterList] = useState<InPageFilterList[]>([]);
   useEffect(() => {
-    const curList = list.map(({ name, ref }) => ({
-      name,
-      element: ref.current!,
-    }));
-    setParsedList(curList);
-  }, [list]);
-  const filterList = useMemo(() => {
-    const list = parsedList.filter(({ element }) => element);
-    const max = list.length - 1;
+    const filterList = arglist
+      .map((v) => {
+        return { element: document.getElementById(v.id), ...v };
+      })
+      .filter((v) => Boolean(v.element)) as InPageFilterList[];
+    setFilterList(filterList);
+  }, [arglist]);
+  const list = useMemo(() => {
+    const list: InPageListObject[] = filterList.concat();
+    const max = filterList.length - 1;
     const secondOffsetTop = list[1]?.element.offsetTop;
     list.forEach((item, i) => {
       const offsetTop = item.element.offsetTop;
@@ -55,7 +56,7 @@ export const InPageMenu = memo(function InPageMenu({
       if (lastCurrentMode !== i) item.currentMode = false;
     });
     return list;
-  }, [parsedList, jy, isLastScroll]);
+  }, [filterList, jy, isLastScroll]);
   const lastHide = useMemo(
     () => Math.ceil(y + wh) >= h - autoLastHide,
     [y, h, wh, autoLastHide],
@@ -68,7 +69,7 @@ export const InPageMenu = memo(function InPageMenu({
   }, [className, lastHide]);
   return (
     <div {...props} className={className}>
-      {filterList.map(({ name, element, currentMode }, i) => {
+      {list.map(({ id, name, element, currentMode }, i) => {
         return (
           <div
             key={`inPageMenu_${name}`}
@@ -82,7 +83,7 @@ export const InPageMenu = memo(function InPageMenu({
               {currentMode ? <TriangleCursor /> : null}
             </div>
             <div className="name">
-              <span>{name.toLocaleUpperCase()}</span>
+              <span>{(name || id).toLocaleUpperCase()}</span>
             </div>
           </div>
         );
@@ -90,4 +91,4 @@ export const InPageMenu = memo(function InPageMenu({
       <div className="background" />
     </div>
   );
-});
+}
