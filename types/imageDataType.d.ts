@@ -31,7 +31,6 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
-  characterObjects?: CharacterType[];
   characterNameGuides?: string[];
   type?: imageKindType;
   next?: ImageType;
@@ -48,12 +47,14 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   update?: boolean;
   new?: boolean;
   schedule?: boolean;
-  like?: LikeType;
-  data?: ImageDataType;
   hideInfo?: boolean;
 }
 interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawExtendDataType<ImageDataType>, ExtendDataProps {
+  year?: number;
+  like?: LikeType;
+  characterObjects?: CharacterType[];
   creationTime?: TimeClass | null;
+  data?: ImageDataType;
 }
 
 /** @comments ひとつのアルバムの変数 */

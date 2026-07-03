@@ -530,17 +530,17 @@ export function GalleryObject({
   );
   total.totalCount = total.totalCount || isTotalGeneral;
 
-  let filteredGroups = useMemo(() => {
-    return items.map<GalleryItemObjectType>(({ list, ...group }) => {
+  let filteredGroups = items;
+  filteredGroups = useMemo(() => {
+    return filteredGroups.map<GalleryItemObjectType>((group) => {
       if (
         group.hide ||
-        (!searchMode && group.hideWhenDefault) ||
         (group.hideWhenFilter &&
           (searchMode || typeParam || monthParam || hasPickup || hasTopImage))
       ) {
-        return { list: [], ...group };
+        return { ...group, list: [] };
       } else {
-        let images = list || [];
+        let images = group.list || [];
         if (monthModeParam === "time" && monthParam) {
           images = images.filter(({ time }) => {
             return time ? String(time.getMonth() + 1) === monthParam : false;
@@ -550,11 +550,11 @@ export function GalleryObject({
           where: { AND: wheres },
           orderBy: orderBySort,
         });
-        return { list: images, ...group };
+        return { ...group, list: images };
       }
     });
   }, [
-    items,
+    filteredGroups,
     searchMode,
     typeParam,
     monthModeParam,
@@ -589,18 +589,30 @@ export function GalleryObject({
     } else return filteredGroups;
   }, [filteredGroups, viewModeParam, orderBySort]);
 
-  const filteredYearGroups = useMemo(() => {
-    return filteredGroups.map<GalleryItemObjectType>(({ list, ...item }) => {
-      if (year && list)
-        return {
-          list: list.filter((item) => getYear(item.time) === year),
-          ...item,
-        };
-      return { list, ...item };
+  const filteredGroupsToYList = useMemo(() => {
+    return filteredGroups.map<GalleryItemObjectType>((group) => {
+      if (!(searchMode || typeParam) && group.hideWhenDefault) {
+        return { ...group, list: [] };
+      } else {
+        return group;
+      }
     });
-  }, [filteredGroups, year]);
+  }, [filteredGroups, searchMode, typeParam]);
+
+  const filteredYearGroups = useMemo(() => {
+    return filteredGroupsToYList.map<GalleryItemObjectType>(
+      ({ list, ...item }) => {
+        if (year && list)
+          return {
+            list: list.filter((item) => item.year === year),
+            ...item,
+          };
+        return { list, ...item };
+      },
+    );
+  }, [filteredGroupsToYList, year]);
   useLayoutEffect(() => {
-    const images = filteredYearGroups.reduce<ImageType[]>((a, c) => {
+    const images = filteredGroupsToYList.reduce<ImageType[]>((a, c) => {
       if (!c.notYearList) {
         c.list?.forEach((image) => {
           a.push(image);
@@ -608,8 +620,12 @@ export function GalleryObject({
       }
       return a;
     }, []);
-    Set({ filteredGroups, filteredYearGroups, images });
-  }, [filteredGroups, filteredYearGroups, Set]);
+    Set({
+      filteredGroups: filteredGroupsToYList,
+      filteredYearGroups: filteredGroupsToYList,
+      images,
+    });
+  }, [filteredGroupsToYList, filteredYearGroups, Set]);
   useLayoutEffect(() => {
     Set({ items });
   }, [items, Set]);
@@ -617,9 +633,29 @@ export function GalleryObject({
     () => filteredYearGroups.map<ImageType[]>(({ list }) => list || []),
     [filteredYearGroups],
   );
+  const imagesforTags = useMemo(() => {
+    return filteredGroups
+      .map((group, i) => {
+        return {
+          images: group.list || [],
+          flag: !group.hide && group.name !== "pickup" && group.list,
+        };
+      })
+      .reduce<ImageType[]>((a, { images, flag }) => {
+        if (flag) {
+          images.forEach((image) => {
+            if (!year || image.year === year) {
+              a.push(image);
+            }
+          });
+        }
+        return a;
+      }, []);
+  }, [filteredGroups, year]);
   return (
     <GalleryBody
-      items={filteredGroups}
+      items={filteredGroupsToYList}
+      imagesforTags={imagesforTags}
       yfList={yfList}
       visibleCreationTime={visibleCreationTime}
       visibleLikeCount={visibleLikeCount}
@@ -719,10 +755,12 @@ function UploadChain({
 
 interface GalleryBodyProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
+  imagesforTags: ImageType[];
   yfList: ImageType[][];
 }
 function GalleryBody({
   items,
+  imagesforTags,
   yfList,
   showInPageMenu = true,
   showGalleryHeader = true,
@@ -764,25 +802,6 @@ function GalleryBody({
   };
   const isLogin = useIsLogin()[0];
   const refList = items?.map(() => createRef<HTMLDivElement>()) ?? [];
-  const images = useMemo(
-    () =>
-      items
-        .map((group, i) => {
-          return {
-            images: yfList[i],
-            flag: !group.hide && group.name !== "pickup" && group.list,
-          };
-        })
-        .reduce<ImageType[]>((a, { images, flag }) => {
-          if (flag) {
-            images.forEach((image) => {
-              a.push(image);
-            });
-          }
-          return a;
-        }, []),
-    [items, yfList],
-  );
   const { likeCategoryMap } = useLikeState();
   const likeCheckedMap = useMemo(() => {
     const imageLikeMap = likeCategoryMap?.get("image");
@@ -802,30 +821,34 @@ function GalleryBody({
   }, [likeCategoryMap]);
 
   const tagsList = useMemo(
-    () => getCountList(images, "tags").sort((a, b) => b.count - a.count),
-    [images],
+    () => getCountList(imagesforTags, "tags").sort((a, b) => b.count - a.count),
+    [imagesforTags],
   );
   const copyrightList = useMemo(
-    () => getCountList(images, "copyright").sort((a, b) => b.count - a.count),
-    [images],
+    () =>
+      getCountList(imagesforTags, "copyright").sort(
+        (a, b) => b.count - a.count,
+      ),
+    [imagesforTags],
   );
   const typeMap = useMemo(
     () =>
-      getCountList(images, "type").reduce<Map<string, ValueCountType>>(
+      getCountList(imagesforTags, "type").reduce<Map<string, ValueCountType>>(
         (a, c) => {
           a.set(c.value, c);
           return a;
         },
         new Map(),
       ),
-    [images],
+    [imagesforTags],
   );
   const likedCountValue = useMemo<ValueCountType>(
     () => ({
       value: "liked",
-      count: images.filter((image) => likeCheckedMap?.has(image.key)).length,
+      count: imagesforTags.filter((image) => likeCheckedMap?.has(image.key))
+        .length,
     }),
-    [images, likeCheckedMap],
+    [imagesforTags, likeCheckedMap],
   );
   const callbackOptions = useCallback(
     (options: ContentsTagsOption[]) => {
@@ -989,7 +1012,7 @@ function GalleryBody({
     [string | null, number]
   >(() => {
     if (totalCreationTime) {
-      const counts = images.reduce(
+      const counts = imagesforTags.reduce(
         (a, c) => {
           a[0] += c.creationTime?.time || 0;
           a[1] += c.creationTime && !isNaN(c.creationTime.time) ? 1 : 0;
@@ -1000,12 +1023,12 @@ function GalleryBody({
       const time = new TimeClass(counts[0]);
       return [counts[1] ? "作業時間 " + time.FormatToJP() : "", counts[1]];
     } else return [null, 0];
-  }, [totalCreationTime, images]);
+  }, [totalCreationTime, imagesforTags]);
   const [totalLikeLabel, targetLikeCount] = useMemo<
     [string | null, number]
   >(() => {
     if (totalLikeCount) {
-      const counts = images.reduce(
+      const counts = imagesforTags.reduce(
         (a, c) => {
           a[0] += c.like?.count || 0;
           a[1] += c.like?.count ? 1 : 0;
@@ -1015,16 +1038,16 @@ function GalleryBody({
       );
       return [counts[1] ? "♥" + counts[0] : "", counts[1]];
     } else return [null, 0];
-  }, [totalLikeCount, images]);
+  }, [totalLikeCount, imagesforTags]);
   const totalCountLabel = useMemo(() => {
     if (totalCount) {
-      let label = "全" + images.length.toString() + "作品";
+      let label = "全" + imagesforTags.length.toString() + "作品";
       if (targetTimeCount || targetLikeCount) {
         label += "中 " + Math.max(targetTimeCount, targetLikeCount) + "作品";
       }
       return label;
     } else return null;
-  }, [totalCount, images, targetTimeCount, targetLikeCount]);
+  }, [totalCount, imagesforTags, targetTimeCount, targetLikeCount]);
   const totals = useMemo(() => {
     const labels: string[] = [];
     if (totalCountLabel) labels.push(totalCountLabel);

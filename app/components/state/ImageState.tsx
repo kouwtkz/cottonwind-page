@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { imageDataIndexed, likeDataIndexed } from "~/data/ClientDBLoader";
-import {
-  getImageAlbumMap,
-  getImageObjectMap,
-} from "~/components/functions/media/imageFunction";
+import { getImageAlbumMap } from "~/components/functions/media/imageFunction";
 import { CreateObjectState, CreateState } from "./CreateState";
 import { ArrayEnv } from "~/Env";
 import { findMee, findMeeSort, findMeeWheresFilter } from "~/data/find/findMee";
@@ -15,6 +12,7 @@ import {
 import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
 import { TimeClass } from "../functions/Time";
+import { getYear } from "../functions/DateFunction";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -61,9 +59,10 @@ export function ImageState() {
             image.update = Boolean(
               image.lastmod!.getTime() > lastmod.getTime(),
             );
-            if (image.update && image.extendData?.new) {
-              image.new = true;
-            }
+          if (image.update && image.extendData?.new) {
+            image.new = true;
+          }
+          if (image.time) image.year = getYear(image.time);
           image.characterObjects = image.characters
             ?.map((character) => charactersMap.get(character)!)
             .filter((c) => c);
