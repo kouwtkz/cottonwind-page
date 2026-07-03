@@ -1,8 +1,6 @@
 import {
   Link,
-  type NavigateOptions,
   type To,
-  type URLSearchParamsInit,
   useLocation,
   useNavigate,
   useParams,
@@ -93,7 +91,6 @@ import {
   IconsFoldButton,
 } from "~/components/dropdown/DropdownButton";
 import {
-  CompatGalleryButton as CGB,
   CompatMendingThumbnailButton,
   GalleryImportButton,
   GalleryUploadButton,
@@ -114,7 +111,6 @@ import {
   CountToContentsTagsOption,
   CustomReactSelect,
 } from "~/components/dropdown/CustomReactSelect";
-import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
 import { EditableLinksContainer } from "./LinksPage";
 import { useLinks } from "~/components/state/LinksState";
@@ -407,9 +403,6 @@ export function GalleryObject({
     const tags = tagsParam?.split(",");
     if (tags) return tags;
   }, [tagsParam]);
-  const someTags = useMemo(() => {
-    const tags: Array<string> = [];
-  }, []);
   const someTagsWhere = useMemo(() => {
     const sometags: Array<string> = [];
     if (whereMonthTags) sometags.push(...whereMonthTags);
@@ -1531,12 +1524,12 @@ export function GalleryYearFilter({
       getYearObjects(
         filteredGroups
           .filter((item) => !item.notYearList)
-          .reduce((a, c) => {
-            (c.list || []).forEach(({ time }) => {
-              if (time) a.push(time);
+          .reduce<number[]>((a, c) => {
+            (c.list || []).forEach(({ year }) => {
+              if (year) a.push(year);
             });
             return a;
-          }, [] as Date[]),
+          }, []),
       ),
     [filteredGroups],
   );
@@ -1658,9 +1651,18 @@ export function GallerySearchArea({
   );
 }
 
-function getYearObjects(dates: (Date | null | undefined)[]) {
+function getYearObjects(dates: (Date | number | null | undefined)[]) {
   return dates
-    .map((date) => getYear(date))
+    .map((date) => {
+      switch (typeof date) {
+        case "number":
+          return date;
+        case "object":
+          return getYear(date);
+        default:
+          return 0;
+      }
+    })
     .reduce((a, c) => {
       const g = a.find(({ year }) => c === year);
       if (g) g.count++;
