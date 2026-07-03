@@ -1,4 +1,4 @@
-import { type HTMLAttributes, useCallback } from "react";
+import { type HTMLAttributes, useCallback, useMemo } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { getTagsOptions, TimeframeTagMap } from "./SortFilterTags";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
@@ -69,9 +69,33 @@ export function ContentsTagsSelect({
     searchViewMode,
     searchTotal,
   );
-  const currentTags = getTagsOptions(tags).filter((tag) =>
-    searchQuery.some((stag) => tag.value === stag),
-  );
+  const [currentTags, suggestTags] = useMemo(() => {
+    const labelMap: Map<string, string> = new Map();
+    const currentTags = getTagsOptions(tags)
+      .filter((tag) => searchQuery.some((stag) => tag.value === stag))
+      .map((tag, i, array) => {
+        if (i + 1 !== array.length) {
+          const newLabel = tag.label?.replace(/\s\(\d+\)$/, "");
+          if (tag.value && newLabel && tag.label !== newLabel) {
+            labelMap.set(tag.value, newLabel);
+          }
+        }
+        return tag;
+      });
+    function labelCheck(tag: ContentsTagsOption) {
+      if (tag.value && labelMap.has(tag.value)) {
+        tag.label = labelMap.get(tag.value)!;
+      }
+    }
+    const suggestTags = tags.map((tag) => {
+      labelCheck(tag);
+      tag.options?.forEach((tag) => {
+        labelCheck(tag);
+      });
+      return tag;
+    });
+    return [currentTags, suggestTags];
+  }, [tags]);
   const changeHandler = useCallback(
     (list: MultiValue<ContentsTagsOption>) => {
       const listObj: { [k: string]: string[] } = {
@@ -138,7 +162,7 @@ export function ContentsTagsSelect({
   );
   return (
     <CustomReactSelect
-      options={tags}
+      options={suggestTags}
       value={currentTags}
       isMulti
       classNamePrefix="select"
