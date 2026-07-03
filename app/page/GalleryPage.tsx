@@ -319,10 +319,6 @@ export function GalleryObject({
   const viewModeParam = searchParams.get("viewMode");
   const charactersParam = searchParams.get("characters"?.toLowerCase());
   const { imageAlbums } = useImageState();
-  const searchMode = useMemo(
-    () => Boolean(qParam || tagsParam || copyrightParam || charactersParam),
-    [qParam, tagsParam, copyrightParam, charactersParam],
-  );
   const year = Number(yearParam);
   const filterMonthly = useCallback(
     (month: string | null) =>
@@ -347,6 +343,25 @@ export function GalleryObject({
   const isLogin = useIsLogin()[0];
   const showAllAlbum = searchParams.has("showAllAlbum");
   const topAlbum = searchParams.get("topAlbum");
+  const draftOnly = useMemo(
+    () => searchParams.has("draftOnly"),
+    [searchParams],
+  );
+  const hasTopImage = useMemo(
+    () => searchParams.has("topImage"),
+    [searchParams],
+  );
+  const searchMode = useMemo(
+    () =>
+      Boolean(
+        qParam ||
+          tagsParam ||
+          copyrightParam ||
+          charactersParam ||
+          showAllAlbum,
+      ),
+    [qParam, tagsParam, copyrightParam, charactersParam, showAllAlbum],
+  );
   let items = useMemo(() => {
     const items = _items.concat();
     if (topAlbum) {
@@ -440,14 +455,6 @@ export function GalleryObject({
   }, [copyrightParam]);
   const likeWhere = useMemo(() => filterParam === "like", [filterParam]);
   const linkStateUpdated = useLikeStateUpdated()[0];
-  const draftOnly = useMemo(
-    () => searchParams.has("draftOnly"),
-    [searchParams],
-  );
-  const hasTopImage = useMemo(
-    () => searchParams.has("topImage"),
-    [searchParams],
-  );
   const hasPickup = useMemo(() => searchParams.has("pickup"), [searchParams]);
   const wheres = useMemo(() => {
     const wheres = [where];
@@ -584,13 +591,16 @@ export function GalleryObject({
 
   const filteredGroupsToYList = useMemo(() => {
     return filteredGroups.map<GalleryItemObjectType>((group) => {
-      if (!(searchMode || typeParam) && group.hideWhenDefault) {
+      if (
+        !(searchMode || typeParam || draftOnly || hasPickup || topAlbum) &&
+        group.hideWhenDefault
+      ) {
         return { ...group, list: [] };
       } else {
         return group;
       }
     });
-  }, [filteredGroups, searchMode, typeParam]);
+  }, [filteredGroups, searchMode, typeParam, draftOnly, hasPickup, topAlbum]);
 
   const filteredYearGroups = useMemo(() => {
     return filteredGroupsToYList.map<GalleryItemObjectType>(
