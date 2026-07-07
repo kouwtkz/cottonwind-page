@@ -2998,7 +2998,7 @@ div.banner {
         right: 0;
         z-index: 1;
         color: white;
-        font-size: 0.5em;
+        font-size: 1em;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -3027,6 +3027,11 @@ div.banner {
               margin-right: 0.2em;
               content: "♥";
             }
+          }
+          &.year {
+            --ribbon-color: rgb(100 152 101);
+            padding-left: 12px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 50%);
           }
         }
         @media (min-width: $tabletWidth) {

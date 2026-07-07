@@ -105,7 +105,7 @@ import {
   useLikeState,
   useLikeStateUpdated,
 } from "~/components/state/LikeState";
-import { CreateObjectState } from "~/components/state/CreateState";
+import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { useLang } from "~/components/multilingual/LangState";
 import {
   CountToContentsTagsOption,
@@ -263,10 +263,11 @@ export function GalleryObject({
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
   const qSearchParam = searchParams.get("q") || "";
-  let { qParam, visibleCreationTime, visibleLikeCount, ...total } =
+  let { qParam, visibleCreationTime, visibleLikeCount, visibleYear, ...total } =
     useMemo<qParamsMemoProps>(() => {
       let visibleCreationTime = false;
       let visibleLikeCount = false;
+      let visibleYear = false;
       let totalCreationTime = false;
       let totalLikeCount = false;
       let totalCount = false;
@@ -283,6 +284,9 @@ export function GalleryObject({
                 break;
               case "like":
                 visibleLikeCount = true;
+                break;
+              case "year":
+                visibleYear = true;
                 break;
             }
             return false;
@@ -309,6 +313,7 @@ export function GalleryObject({
         qParam,
         visibleCreationTime,
         visibleLikeCount,
+        visibleYear,
         totalCreationTime,
         totalLikeCount,
         totalCount,
@@ -662,6 +667,7 @@ export function GalleryObject({
       yfList={yfList}
       visibleCreationTime={visibleCreationTime}
       visibleLikeCount={visibleLikeCount}
+      visibleYear={visibleYear}
       {...total}
       {...args}
     />
@@ -774,6 +780,7 @@ function GalleryBody({
   h4,
   visibleCreationTime,
   visibleLikeCount,
+  visibleYear,
   totalCreationTime,
   totalLikeCount,
   totalCount,
@@ -802,6 +809,7 @@ function GalleryBody({
     showCount,
     visibleCreationTime,
     visibleLikeCount,
+    visibleYear,
   };
   const isLogin = useIsLogin()[0];
   const { likeCategoryMap } = useLikeState();
@@ -1209,6 +1217,7 @@ function GalleryImageItem({
   onClick,
   visibleCreationTime,
   visibleLikeCount,
+  visibleYear,
 }: GalleryImageItemProps) {
   const { pathname, hash } = useLocation();
   const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
@@ -1255,6 +1264,7 @@ function GalleryImageItem({
               image={image}
               visibleCreationTime={visibleCreationTime}
               visibleLikeCount={visibleLikeCount}
+              visibleYear={visibleYear}
             />
             {image.type === "ebook" || image.type === "goods" ? (
               image.embed ? (
@@ -1372,6 +1382,7 @@ function GalleryContentMain({
   curMaxStateName,
   visibleCreationTime,
   visibleLikeCount,
+  visibleYear,
   ...args
 }: GalleryContentMainProps) {
   let {
@@ -1505,6 +1516,7 @@ function GalleryContentMain({
               key={image.key}
               visibleCreationTime={visibleCreationTime}
               visibleLikeCount={visibleLikeCount}
+              visibleYear={visibleYear}
             />
           ))}
         {showMoreButton ? (
@@ -1526,6 +1538,8 @@ function GalleryContentMain({
   );
 }
 
+export const useImageYearRibbonSwitch = CreateState(false);
+
 export function GalleryYearFilter({
   submitPreventScrollReset = true,
 }: SearchAreaOptionsProps) {
@@ -1534,6 +1548,7 @@ export function GalleryYearFilter({
   const year = Number(searchParams.get("year") ?? NaN);
   const isOlder = searchParams.get("sort") === "leastRecently";
   const yearSelectRef = React.useRef<HTMLSelectElement>(null);
+  const [yearRibbon, setYearRibbon] = useImageYearRibbonSwitch();
   const yearListBase = useMemo(
     () =>
       getYearObjects(
@@ -1583,6 +1598,13 @@ export function GalleryYearFilter({
       });
     }
   }, [yearSelectRef, searchParams]);
+  const onContextMenu = useCallback(
+    (e: React.MouseEvent<HTMLSelectElement, MouseEvent>) => {
+      e.preventDefault();
+      setYearRibbon((v) => !v);
+    },
+    [],
+  );
   return (
     <select
       title="年フィルタ"
@@ -1590,6 +1612,7 @@ export function GalleryYearFilter({
       ref={yearSelectRef}
       value={year || ""}
       onChange={changeHandler}
+      onContextMenu={onContextMenu}
     >
       {yearList.map(({ value, label }, i) => (
         <option key={`gallery_year_${value}`} value={value}>
@@ -1795,6 +1818,7 @@ function GalleryItemRibbon({
   image,
   visibleCreationTime,
   visibleLikeCount,
+  visibleYear,
 }: GalleryItemRibbonProps) {
   const schedule =
     image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
@@ -1806,27 +1830,39 @@ function GalleryItemRibbon({
       else return { label: "Update", className: "update" };
     } else return null;
   }, [image, schedule]);
-  const itemOfCreationTime = useMemo<null | GalleryItemRibbonListType>(() => {
+  const yearRibbon = useImageYearRibbonSwitch()[0];
+  const itemOfCreationTime = useMemo<
+    GalleryItemRibbonListType | undefined
+  >(() => {
     if (
       visibleCreationTime &&
       image.creationTime &&
       !isNaN(image.creationTime.time)
     ) {
       return { label: image.creationTime!.FormatToJP() };
-    } else return null;
+    }
   }, [visibleCreationTime, image]);
-  const itemOfLikeCount = useMemo<null | GalleryItemRibbonListType>(() => {
+  const itemOfLikeCount = useMemo<GalleryItemRibbonListType | undefined>(() => {
     if (visibleLikeCount && image.like && image.like.count) {
       return { label: image.like.count.toString(), className: "like" };
-    } else return null;
+    }
   }, [visibleLikeCount, image]);
+  const itemOfYear = useMemo<GalleryItemRibbonListType | undefined>(() => {
+    if ((visibleYear || yearRibbon) && image.year) {
+      return {
+        label: image.year.toString(),
+        className: "year",
+      };
+    }
+  }, [visibleYear, yearRibbon, image]);
   const list = useMemo(() => {
     const list: GalleryItemRibbonListType[] = [];
+    if (itemOfYear) list.push(itemOfYear);
     if (itemOfCreationTime) list.push(itemOfCreationTime);
     if (itemOfLikeCount) list.push(itemOfLikeCount);
     if (itemOfUpdate) list.push(itemOfUpdate);
     return list;
-  }, [itemOfUpdate, itemOfCreationTime, itemOfLikeCount]);
+  }, [itemOfUpdate, itemOfCreationTime, itemOfLikeCount, itemOfYear]);
 
   return (
     <>

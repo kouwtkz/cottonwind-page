@@ -66,6 +66,7 @@ type MonthSearchModeType = "event" | "tag" | "time";
 interface GalleryItemVisibleProps {
   visibleCreationTime?: boolean;
   visibleLikeCount?: boolean;
+  visibleYear?: boolean;
 }
 interface GalleryTotalProps {
   totalCreationTime?: boolean;
