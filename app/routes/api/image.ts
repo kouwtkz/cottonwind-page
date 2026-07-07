@@ -65,6 +65,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
             return "削除するデータがありません";
           }
           case "POST": {
+            function baseReplace(name: string) {
+              return name.replace("#", "＃");
+            }
             const formData = await request.formData();
             const file = formData.get("file") as File | null;
             const thumbnail = formData.get("thumbnail") as File | null;
@@ -78,7 +81,8 @@ async function next({ params, request, context, env }: WithEnvProps) {
             const images: {
               [k in imageModeType]?: { path: string; buf?: Uint8Array | ArrayBuffer | null };
             } = {};
-            const title = filename ? getName(filename) : "";
+            const title = filename ? getName(filename, false) : "";
+            const filekey = baseReplace(title);
             const id = formData.has("id") ? Number(formData.get("id")) : null;
             const width = formData.has("width") ? Number(formData.get("width")) : null;
             const height = formData.has("height") ? Number(formData.get("height")) : null;
@@ -87,7 +91,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
             if (width && height) metaSize = { width, height };
             async function fileModeUpload(mode: imageModeType, file?: File | null) {
               if (file) {
-                const path = "image/" + (mode === "src" ? "" : mode + "/") + file.name;
+                const path = "image/" + (mode === "src" ? "" : mode + "/") + baseReplace(file.name);
                 images[mode] = {
                   path,
                   buf: await file.arrayBuffer(),
@@ -101,7 +105,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
             let imageBuffer: ArrayBuffer | undefined;
             function Select() {
               const where: MeeSqlFindWhereType<ImageDataType> =
-                id === null ? { key: title } : { id };
+                id === null ? { key: filekey } : { id };
               return TableObject.Select({ db, where });
             }
             const timeNum = Number(mtime);
@@ -156,7 +160,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 album: album || "main",
                 time: timeString,
                 mtime: timeString,
-                key: title,
+                key: filekey,
                 src: images.src?.path,
                 draft: direct ? null : 1,
                 ...pathes,

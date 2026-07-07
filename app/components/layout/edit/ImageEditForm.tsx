@@ -1270,7 +1270,7 @@ export async function MakeImagesUploadList({
       const filename =
         typeof object.src === "object" ? object.src.name : object.src;
       const ext = getExtension(filename);
-      const basename = getName(object.name);
+      const basename = getName(object.name, false);
       const webpName = basename + ".webp";
       const formData = new FormData();
       if (album) formData.append("album", album);

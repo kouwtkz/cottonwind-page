@@ -18,8 +18,8 @@ export function getBasename(path: string) {
   return path;
 }
 
-export function getName(path: string) {
-  let basename = getBasename(path);
+export function getName(path: string, basepathMode = true) {
+  let basename = basepathMode ? getBasename(path) : path;
   const slashPoint = basename.lastIndexOf(".");
   if (slashPoint >= 0) basename = basename.slice(0, slashPoint);
   return basename;
