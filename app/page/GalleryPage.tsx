@@ -118,23 +118,22 @@ import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
 import { TimeClass } from "~/components/functions/Time";
 
-interface GalleryPageProps extends GalleryBodyOptions {
-  children?: ReactNode;
-  showAll?: boolean;
+interface GalleryPageRootProps {
+  isGroup?: boolean;
 }
-export function GalleryPage({ children, ...args }: GalleryPageProps) {
-  const { images, galleryAlbums } = useImageState();
-  // console.log({images, galleryAlbums});
+export function GalleryPageRoot({ isGroup }: GalleryPageRootProps) {
+  return useMemo(
+    () => (isGroup ? <GalleryGroupPage /> : <GalleryPage />),
+    [isGroup],
+  );
+}
+export function GalleryPage(args: GalleryPageOptions) {
+  const { galleryAlbums } = useImageState();
   return (
     <div className="galleryPage">
-      {children}
       <GalleryObjectConvert items={galleryAlbums} {...args} />
     </div>
   );
-}
-
-export function GalleryGroupPageRoot({}: SearchAreaOptionsProps) {
-  return <GalleryGroupPage />;
 }
 
 function GalleryGroupPage() {
@@ -226,14 +225,16 @@ export function GalleryObjectConvert({
         }),
     [items, pickupList, topImageList, imageAlbums],
   );
-
-  return (
-    <GalleryObject
-      items={albums}
-      submitPreventScrollReset={submitPreventScrollReset}
-      {...(Array.isArray(items) ? {} : { h2: items?.h2, h4: items?.h4 })}
-      {...args}
-    />
+  return useMemo(
+    () => (
+      <GalleryObject
+        items={albums}
+        submitPreventScrollReset={submitPreventScrollReset}
+        {...(Array.isArray(items) ? {} : { h2: items?.h2, h4: items?.h4 })}
+        {...args}
+      />
+    ),
+    [albums, submitPreventScrollReset, items, args],
   );
 }
 
@@ -1210,24 +1211,24 @@ interface GalleryImageItemProps extends GalleryItemVisibleProps {
   galleryName?: string;
   image: ImageType;
   onClick?: (image: ImageType) => void;
+  visible?: boolean;
 }
 function GalleryImageItem({
   galleryName,
   image,
   onClick,
+  visible: visibleImage,
   visibleCreationTime,
   visibleLikeCount,
   visibleYear,
 }: GalleryImageItemProps) {
-  const { pathname, hash } = useLocation();
-  const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
-  const [searchParams] = useSearchParams();
   const toStatehandler = useCallback((): {
     to: To;
     state?: any;
     preventScrollReset?: boolean;
     title?: string;
   } => {
+    const searchParams = new URLSearchParams(location.search);
     if (image.direct) return { to: image.src ?? "" };
     searchParams.set("image", image.key);
     if (galleryName && image.albumObject?.name !== galleryName)
@@ -1236,109 +1237,97 @@ function GalleryImageItem({
       searchParams.set("album", image.albumObject.name);
     return {
       to: new URL("?" + searchParams.toString(), location.href).href,
-      state: { from: pathname, keep: true },
+      state: { from: location.pathname, keep: true },
       preventScrollReset: true,
       title: image.title || undefined,
     };
-  }, [searchParams, image]);
+  }, [image]);
   const ImageTimeFrameTag = useMemo(() => {
     return TimeframeTags.find((tt) =>
       image.tags?.some((tag) => tt.value === tag),
     )?.value;
   }, [image]);
-  const Item = useMemo(() => {
-    return (
-      <Link
-        className="item"
-        {...toStatehandler()}
-        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-          if (onClick) {
-            e.preventDefault();
-            onClick(image);
-          }
-        }}
-      >
-        {visibleImage ? (
-          <>
-            <GalleryItemRibbon
-              image={image}
-              visibleCreationTime={visibleCreationTime}
-              visibleLikeCount={visibleLikeCount}
-              visibleYear={visibleYear}
-            />
-            {image.type === "ebook" || image.type === "goods" ? (
-              image.embed ? (
-                <div className="translucent-special-button">
-                  <RiBook2Fill />
-                </div>
-              ) : image.link ? (
-                <div className="translucent-special-button">
-                  <RiStore3Fill />
-                </div>
-              ) : null
-            ) : image.type === "multi" ? (
+  return (
+    <Link
+      className="item"
+      {...toStatehandler()}
+      onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        if (onClick) {
+          e.preventDefault();
+          onClick(image);
+        }
+      }}
+    >
+      {visibleImage ? (
+        <>
+          <GalleryItemRibbon
+            image={image}
+            visibleCreationTime={visibleCreationTime}
+            visibleLikeCount={visibleLikeCount}
+            visibleYear={visibleYear}
+          />
+          {image.type === "ebook" || image.type === "goods" ? (
+            image.embed ? (
               <div className="translucent-special-button">
-                <PiImagesFill />
+                <RiBook2Fill />
               </div>
-            ) : image.type === "movie" ? (
+            ) : image.link ? (
               <div className="translucent-special-button">
-                <RiPlayLargeFill />
+                <RiStore3Fill />
               </div>
-            ) : image.type === "3d" && (image.embed || image.link) ? (
-              <div className="translucent-special-button">
-                <Md3dRotation />
-              </div>
-            ) : image.embed ? (
-              <div className="translucent-special-button">
-                {image.type === "material" ? (
-                  <MdMoveToInbox />
-                ) : image.type === "pdf" ? (
-                  <RiFilePdf2Fill />
-                ) : (
-                  <MdInsertDriveFile />
-                )}
-              </div>
-            ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
-              <div className="translucent-special-button">
-                {ImageTimeFrameTag === "morning" ? (
-                  <RiHazeFill />
-                ) : ImageTimeFrameTag === "forenoon" ? (
-                  <RiLandscapeFill />
-                ) : ImageTimeFrameTag === "midday" ? (
-                  <RiSunFill />
-                ) : ImageTimeFrameTag === "afternoon" ? (
-                  <RiCupFill />
-                ) : ImageTimeFrameTag === "evening" ? (
-                  <RiKeynoteFill />
-                ) : ImageTimeFrameTag === "night" ? (
-                  <RiMoonFill />
-                ) : ImageTimeFrameTag === "midnight" ? (
-                  <RiMoonFoggyFill />
-                ) : (
-                  <RiTimeLine />
-                )}
-              </div>
-            ) : null}
-            <ImageMeeThumbnail
-              imageItem={image}
-              loadingScreen={true}
-              showMessage={true}
-            />
-          </>
-        ) : null}
-      </Link>
-    );
-  }, [
-    image,
-    galleryName,
-    onClick,
-    toStatehandler,
-    ImageTimeFrameTag,
-    visibleImage,
-    visibleCreationTime,
-    visibleLikeCount,
-  ]);
-  return Item;
+            ) : null
+          ) : image.type === "multi" ? (
+            <div className="translucent-special-button">
+              <PiImagesFill />
+            </div>
+          ) : image.type === "movie" ? (
+            <div className="translucent-special-button">
+              <RiPlayLargeFill />
+            </div>
+          ) : image.type === "3d" && (image.embed || image.link) ? (
+            <div className="translucent-special-button">
+              <Md3dRotation />
+            </div>
+          ) : image.embed ? (
+            <div className="translucent-special-button">
+              {image.type === "material" ? (
+                <MdMoveToInbox />
+              ) : image.type === "pdf" ? (
+                <RiFilePdf2Fill />
+              ) : (
+                <MdInsertDriveFile />
+              )}
+            </div>
+          ) : (image.topImage || 0) > 3 && ImageTimeFrameTag ? (
+            <div className="translucent-special-button">
+              {ImageTimeFrameTag === "morning" ? (
+                <RiHazeFill />
+              ) : ImageTimeFrameTag === "forenoon" ? (
+                <RiLandscapeFill />
+              ) : ImageTimeFrameTag === "midday" ? (
+                <RiSunFill />
+              ) : ImageTimeFrameTag === "afternoon" ? (
+                <RiCupFill />
+              ) : ImageTimeFrameTag === "evening" ? (
+                <RiKeynoteFill />
+              ) : ImageTimeFrameTag === "night" ? (
+                <RiMoonFill />
+              ) : ImageTimeFrameTag === "midnight" ? (
+                <RiMoonFoggyFill />
+              ) : (
+                <RiTimeLine />
+              )}
+            </div>
+          ) : null}
+          <ImageMeeThumbnail
+            imageItem={image}
+            loadingScreen={true}
+            showMessage={true}
+          />
+        </>
+      ) : null}
+    </Link>
+  );
 }
 
 interface GalleryContentProps
@@ -1394,7 +1383,7 @@ function GalleryContentMain({
     maxWhenSearch = 40,
     type,
   } = item;
-  const { pathname, search } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const [searchParams] = useSearchParams();
   const tags = searchParams.get("tags");
   const q = searchParams.get("q");
@@ -1433,11 +1422,12 @@ function GalleryContentMain({
     () => searchParams.get("modal") === "gallery",
     [searchParams],
   );
-  const imageOnClick = isModal
-    ? function (image: ImageType) {
+  const imageOnClick = useMemo(() => {
+    if (isModal)
+      return function (image: ImageType) {
         Set({ image });
-      }
-    : undefined;
+      };
+  }, [isModal]);
   const showMoreButton = curMax < (list.length || 0);
   const visibleMax = showMoreButton ? curMax - 1 : curMax;
   const headerLinkTo = useCallback(
@@ -1502,23 +1492,39 @@ function GalleryContentMain({
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
+  const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
   return (
     <div {...args} ref={ref} className={_className}>
       {GalleryLabel}
       <div className={listClassName}>
-        {list
-          .filter((_, i) => i < visibleMax)
-          .map((image, i) => (
-            <GalleryImageItem
-              image={image}
-              galleryName={name}
-              onClick={imageOnClick}
-              key={image.key}
-              visibleCreationTime={visibleCreationTime}
-              visibleLikeCount={visibleLikeCount}
-              visibleYear={visibleYear}
-            />
-          ))}
+        {useMemo(
+          () =>
+            list
+              .filter((_, i) => i < visibleMax)
+              .map((image, i) => (
+                <GalleryImageItem
+                  image={image}
+                  galleryName={name}
+                  onClick={imageOnClick}
+                  key={image.key}
+                  visible={visibleImage}
+                  visibleCreationTime={visibleCreationTime}
+                  visibleLikeCount={visibleLikeCount}
+                  visibleYear={visibleYear}
+                />
+              )),
+          [
+            list,
+            name,
+            imageOnClick,
+            isModal,
+            visibleImage,
+            visibleCreationTime,
+            visibleLikeCount,
+            visibleYear,
+            visibleMax,
+          ],
+        )}
         {showMoreButton ? (
           <a
             onClick={(e) => {

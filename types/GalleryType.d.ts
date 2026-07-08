@@ -81,12 +81,15 @@ interface GalleryObjectType {
   images: ImageType[];
 }
 
-interface GalleryBodyOptions extends SearchAreaOptionsProps, GalleryItemVisibleProps, GalleryTotalProps {
+interface GalleryPageOptions {
   showInPageMenu?: boolean;
   showGalleryHeader?: boolean;
   showGalleryLabel?: boolean;
-  showCount?: boolean;
   hideWhenEmpty?: boolean;
+}
+
+interface GalleryBodyOptions extends GalleryPageOptions, SearchAreaOptionsProps, GalleryItemVisibleProps, GalleryTotalProps {
+  showCount?: boolean;
   h2?: string;
   h4?: string;
 }
@@ -95,7 +98,7 @@ interface GalleryObjectProps extends GalleryBodyOptions {
   items: GalleryItemObjectType[];
 }
 
-interface GalleryObjectConvertProps extends GalleryListPropsBase, SearchAreaOptionsProps {
+interface GalleryObjectConvertProps extends GalleryListPropsBase, GalleryPageOptions, SearchAreaOptionsProps {
   items?: GalleryItemsType;
 }
 

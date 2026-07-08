@@ -3,7 +3,7 @@ import type { NonIndexRouteObject, RouteObject } from "react-router";
 // import ErrorPage from "./ErrorPage";
 import Home from "./Home";
 import { CharacterPage } from "./CharacterPage";
-import { GalleryGroupPageRoot, GalleryPage } from "./GalleryPage";
+import { GalleryPageRoot } from "./GalleryPage";
 import { SoundPage } from "./SoundPage";
 import AboutPage from "./AboutPage";
 import { type RoutingUnion } from "./RoutingList";
@@ -41,11 +41,11 @@ export const Routing: RouteObject[] = [
       },
       {
         path: "gallery",
-        element: <GalleryPage />,
+        element: <GalleryPageRoot />,
       },
       {
         path: "gallery/:group",
-        element: <GalleryGroupPageRoot />,
+        element: <GalleryPageRoot isGroup />,
       },
       {
         path: "sound",

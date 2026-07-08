@@ -1,6 +1,6 @@
 import type { Route } from "./+types/galleryGroup";
 import { SetMetaDefault } from "~/components/utils/SetMeta";
-import { GalleryGroupPageRoot } from "~/page/GalleryPage";
+import { GalleryPageRoot } from "~/page/GalleryPage";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
 import { ArrayEnv } from "~/Env";
 
@@ -21,5 +21,5 @@ export function meta({ matches, params }: Route.MetaArgs) {
 }
 
 export default function Page() {
-  return <GalleryGroupPageRoot />;
+  return <GalleryPageRoot isGroup />;
 }
