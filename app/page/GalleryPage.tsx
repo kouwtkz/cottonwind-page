@@ -148,9 +148,12 @@ function GalleryGroupPage() {
       );
     } else return {} as KeyValueAnyType;
   }, [group, imageAlbums]);
-  const items = album ? { ...album?.gallery?.generate, ...album } : undefined;
-  return (
-    <>
+  const items = useMemo(
+    () => (album ? { ...album?.gallery?.generate, ...album } : undefined),
+    [album],
+  );
+  return useMemo(
+    () => (
       <GalleryObjectConvert
         items={items}
         max={40}
@@ -158,15 +161,13 @@ function GalleryGroupPage() {
         linkLabel={false}
         hideWhenEmpty={false}
       />
-    </>
+    ),
+    [items],
   );
 }
 
-export function GalleryObjectConvert({
-  items,
-  submitPreventScrollReset,
-  ...args
-}: GalleryObjectConvertProps) {
+export function GalleryObjectConvert(args: GalleryObjectConvertProps) {
+  let { items, submitPreventScrollReset } = args;
   const { images, imageAlbums } = useImageState();
   const [pickupList, setPickupList] = useState<ImageType[]>([]);
   const [topImageList, setTopImageList] = useState<ImageType[]>([]);
@@ -228,10 +229,10 @@ export function GalleryObjectConvert({
   return useMemo(
     () => (
       <GalleryObject
+        {...args}
         items={albums}
         submitPreventScrollReset={submitPreventScrollReset}
         {...(Array.isArray(items) ? {} : { h2: items?.h2, h4: items?.h4 })}
-        {...args}
       />
     ),
     [albums, submitPreventScrollReset, items, args],
@@ -248,11 +249,8 @@ interface qParamsMemoProps extends GalleryItemVisibleProps, GalleryTotalProps {
   qParam: string;
 }
 
-export function GalleryObject({
-  items: _items,
-  hideWhenEmpty,
-  ...args
-}: GalleryObjectProps) {
+export function GalleryObject(args: GalleryObjectProps) {
+  let { items: _items, hideWhenEmpty } = args;
   const { charactersMap, charactersNameMap } = useCharacters();
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
@@ -264,62 +262,69 @@ export function GalleryObject({
   const monthModeParam = (searchParams.get("monthMode") ||
     "time") as MonthSearchModeType;
   const qSearchParam = searchParams.get("q") || "";
-  let { qParam, visibleCreationTime, visibleLikeCount, visibleYear, ...total } =
-    useMemo<qParamsMemoProps>(() => {
-      let visibleCreationTime = false;
-      let visibleLikeCount = false;
-      let visibleYear = false;
-      let totalCreationTime = false;
-      let totalLikeCount = false;
-      let totalCount = false;
-      const qParam = qSearchParam
-        .split(" ")
-        .filter((_) => {
-          const [K, V] = _.split(":");
-          const k = K.toLocaleLowerCase();
-          if (k === "visible") {
-            const v = V.toLocaleLowerCase();
-            switch (v) {
-              case "creationtime":
-                visibleCreationTime = true;
-                break;
-              case "like":
-                visibleLikeCount = true;
-                break;
-              case "year":
-                visibleYear = true;
-                break;
-            }
-            return false;
-          } else if (k === "total") {
-            const v = V.toLocaleLowerCase();
-            switch (v) {
-              case "creationtime":
-                visibleCreationTime = true;
-                totalCreationTime = true;
-                break;
-              case "like":
-                visibleLikeCount = true;
-                totalLikeCount = true;
-                break;
-              case "count":
-                totalCount = true;
-                break;
-            }
-            return false;
-          } else return true;
-        })
-        .join(" ");
-      return {
-        qParam,
-        visibleCreationTime,
-        visibleLikeCount,
-        visibleYear,
-        totalCreationTime,
-        totalLikeCount,
-        totalCount,
-      };
-    }, [qSearchParam]);
+  let {
+    qParam,
+    visibleCreationTime,
+    visibleLikeCount,
+    visibleYear,
+    totalCount,
+    totalCreationTime,
+    totalLikeCount,
+  } = useMemo<qParamsMemoProps>(() => {
+    let visibleCreationTime = false;
+    let visibleLikeCount = false;
+    let visibleYear = false;
+    let totalCreationTime = false;
+    let totalLikeCount = false;
+    let totalCount = false;
+    const qParam = qSearchParam
+      .split(" ")
+      .filter((_) => {
+        const [K, V] = _.split(":");
+        const k = K.toLocaleLowerCase();
+        if (k === "visible") {
+          const v = V.toLocaleLowerCase();
+          switch (v) {
+            case "creationtime":
+              visibleCreationTime = true;
+              break;
+            case "like":
+              visibleLikeCount = true;
+              break;
+            case "year":
+              visibleYear = true;
+              break;
+          }
+          return false;
+        } else if (k === "total") {
+          const v = V.toLocaleLowerCase();
+          switch (v) {
+            case "creationtime":
+              visibleCreationTime = true;
+              totalCreationTime = true;
+              break;
+            case "like":
+              visibleLikeCount = true;
+              totalLikeCount = true;
+              break;
+            case "count":
+              totalCount = true;
+              break;
+          }
+          return false;
+        } else return true;
+      })
+      .join(" ");
+    return {
+      qParam,
+      visibleCreationTime,
+      visibleLikeCount,
+      visibleYear,
+      totalCreationTime,
+      totalLikeCount,
+      totalCount,
+    };
+  }, [qSearchParam]);
   const tagsParam = searchParams.get("tags")?.toLowerCase();
   const copyrightParam = searchParams.get("copyright");
   const viewModeParam = searchParams.get("viewMode");
@@ -522,19 +527,19 @@ export function GalleryObject({
     () => visibleCreationTime || orderBySort.some((v) => "creationTime" in v),
     [visibleCreationTime, orderBySort],
   );
-  total.totalCreationTime = useMemo(
-    () => total.totalCreationTime || (visibleCreationTime && isTotalGeneral),
-    [total.totalCreationTime, visibleCreationTime, isTotalGeneral],
+  totalCreationTime = useMemo(
+    () => totalCreationTime || (visibleCreationTime && isTotalGeneral),
+    [totalCreationTime, visibleCreationTime, isTotalGeneral],
   );
   visibleLikeCount = useMemo(
     () => visibleLikeCount || orderBySort.some((v) => "like" in v),
     [visibleLikeCount, orderBySort],
   );
-  total.totalLikeCount = useMemo(
-    () => total.totalLikeCount || (visibleLikeCount && isTotalGeneral),
-    [total.totalLikeCount, visibleLikeCount, isTotalGeneral],
+  totalLikeCount = useMemo(
+    () => totalLikeCount || (visibleLikeCount && isTotalGeneral),
+    [totalLikeCount, visibleLikeCount, isTotalGeneral],
   );
-  total.totalCount = total.totalCount || isTotalGeneral;
+  totalCount = totalCount || isTotalGeneral;
 
   let filteredGroups = items;
   filteredGroups = useMemo(() => {
@@ -661,17 +666,33 @@ export function GalleryObject({
         return a;
       }, []);
   }, [filteredGroups, year]);
-  return (
-    <GalleryBody
-      items={filteredGroupsToYList}
-      imagesforTags={imagesforTags}
-      yfList={yfList}
-      visibleCreationTime={visibleCreationTime}
-      visibleLikeCount={visibleLikeCount}
-      visibleYear={visibleYear}
-      {...total}
-      {...args}
-    />
+  return useMemo(
+    () => (
+      <GalleryBody
+        {...args}
+        items={filteredGroupsToYList}
+        imagesforTags={imagesforTags}
+        yfList={yfList}
+        totalCount={totalCount}
+        visibleCreationTime={visibleCreationTime}
+        totalCreationTime={totalCreationTime}
+        visibleLikeCount={visibleLikeCount}
+        totalLikeCount={totalLikeCount}
+        visibleYear={visibleYear}
+      />
+    ),
+    [
+      args,
+      filteredGroupsToYList,
+      imagesforTags,
+      yfList,
+      totalCount,
+      visibleCreationTime,
+      totalCreationTime,
+      visibleLikeCount,
+      totalLikeCount,
+      visibleYear,
+    ],
   );
 }
 
@@ -803,15 +824,26 @@ function GalleryBody({
   );
   const nav = useNavigate();
   const { group } = useParams();
-  const args = {
-    showInPageMenu,
-    showGalleryHeader,
-    showGalleryLabel,
-    showCount,
-    visibleCreationTime,
-    visibleLikeCount,
-    visibleYear,
-  };
+  const args = useMemo(
+    () => ({
+      showInPageMenu,
+      showGalleryHeader,
+      showGalleryLabel,
+      showCount,
+      visibleCreationTime,
+      visibleLikeCount,
+      visibleYear,
+    }),
+    [
+      showInPageMenu,
+      showGalleryHeader,
+      showGalleryLabel,
+      showCount,
+      visibleCreationTime,
+      visibleLikeCount,
+      visibleYear,
+    ],
+  );
   const isLogin = useIsLogin()[0];
   const { likeCategoryMap } = useLikeState();
   const likeCheckedMap = useMemo(() => {
@@ -984,32 +1016,34 @@ function GalleryBody({
         })),
     [yfList, items],
   );
-  const galleryItem = items
-    .map((item, i) => ({ ...item, i }))
-    .filter(({ hideWhenEmpty = true, i }) =>
-      hideWhenEmpty ? yfList[i].length : true,
-    )
-    .map(({ i, ...item }) => (
-      <div key={`gallery_item_${item.name}`}>
-        {isLogin ? (
-          <UploadChain item={item}>
+  const galleryItem = useMemo(() => {
+    return items
+      .map((item, i) => ({ ...item, i }))
+      .filter(({ hideWhenEmpty = true, i }) =>
+        hideWhenEmpty ? yfList[i].length : true,
+      )
+      .map(({ i, ...item }) => (
+        <div key={`gallery_item_${item.name}`}>
+          {isLogin ? (
+            <UploadChain item={item}>
+              <GalleryContent
+                id={item.name}
+                list={yfList[i]}
+                item={item}
+                {...args}
+              />
+            </UploadChain>
+          ) : (
             <GalleryContent
               id={item.name}
               list={yfList[i]}
               item={item}
               {...args}
             />
-          </UploadChain>
-        ) : (
-          <GalleryContent
-            id={item.name}
-            list={yfList[i]}
-            item={item}
-            {...args}
-          />
-        )}
-      </div>
-    ));
+          )}
+        </div>
+      ));
+  }, [items, yfList, args]);
   const linksState = useLinks();
   const linksList = useMemo(() => {
     return (linksState.links || []).filter((link) =>
@@ -1018,7 +1052,10 @@ function GalleryBody({
       ),
     );
   }, [linksState.links, tagsParam, group, typeParam]);
-  const SearchAreaOptions = { submitPreventScrollReset };
+  const SearchAreaOptions = useMemo(
+    () => ({ submitPreventScrollReset }),
+    [submitPreventScrollReset],
+  );
   const [totalTimeLabel, targetTimeCount] = useMemo<
     [string | null, number]
   >(() => {
@@ -1075,15 +1112,22 @@ function GalleryBody({
         {showGalleryHeader ? (
           <div>
             <div className="header">
-              <GalleryYearFilter {...SearchAreaOptions} />
-              <GallerySearchArea {...SearchAreaOptions} />
-              <div className="flex">
-                <GalleryCharactersSelect {...SearchAreaOptions} />
-                <GalleryTagsSelect
-                  {...SearchAreaOptions}
-                  callbackOptions={callbackOptions}
-                />
-              </div>
+              {useMemo(
+                () => (
+                  <>
+                    <GalleryYearFilter {...SearchAreaOptions} />
+                    <GallerySearchArea {...SearchAreaOptions} />
+                    <div className="flex">
+                      <GalleryCharactersSelect {...SearchAreaOptions} />
+                      <GalleryTagsSelect
+                        {...SearchAreaOptions}
+                        callbackOptions={callbackOptions}
+                      />
+                    </div>
+                  </>
+                ),
+                [SearchAreaOptions, callbackOptions],
+              )}
             </div>
             {isLogin ? (
               <div className="icons flex center">
@@ -1330,50 +1374,50 @@ function GalleryImageItem({
   );
 }
 
-interface GalleryContentProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    GalleryBodyOptions {
+interface GalleryContentProps extends GalleryBodyOptions {
+  id?: string;
+  className?: string;
   item: GalleryItemObjectType;
   list: ImageType[];
   ref?: React.RefObject<HTMLDivElement | null>;
 }
-function GalleryContent({ item, ...args }: GalleryContentProps) {
+function GalleryContent(args: GalleryContentProps) {
+  const { item, list } = useMemo(() => args, [args]);
   const { state } = useLocation();
   const curMaxStateName = useMemo(() => "galleryMax-" + item.name, [item.name]);
   const max = state?.[curMaxStateName];
-  const Main = useMemo(
-    () => (
+  const Main = useMemo(() => {
+    return (
       <GalleryContentMain
+        {...args}
         item={item}
         stateMax={max}
         curMaxStateName={curMaxStateName}
-        {...args}
+        list={list}
       />
-    ),
-    [item, curMaxStateName, args],
-  );
+    );
+  }, [item, curMaxStateName, list, args]);
   return Main;
 }
 interface GalleryContentMainProps extends GalleryContentProps {
   stateMax?: number;
   curMaxStateName: string;
 }
-function GalleryContentMain({
-  item,
-  list,
-  className,
-  showGalleryLabel,
-  showCount,
-  showGalleryHeader,
-  showInPageMenu,
-  ref,
-  stateMax,
-  curMaxStateName,
-  visibleCreationTime,
-  visibleLikeCount,
-  visibleYear,
-  ...args
-}: GalleryContentMainProps) {
+function GalleryContentMain(args: GalleryContentMainProps) {
+  let {
+    item,
+    list,
+    className,
+    showGalleryLabel,
+    showCount,
+    ref,
+    stateMax,
+    curMaxStateName,
+    visibleCreationTime,
+    visibleLikeCount,
+    visibleYear,
+    id,
+  } = useMemo(() => args, [args]);
   let {
     name,
     linkLabel,
@@ -1494,7 +1538,7 @@ function GalleryContentMain({
   }, [className]);
   const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
   return (
-    <div {...args} ref={ref} className={_className}>
+    <div id={id} ref={ref} className={_className}>
       {GalleryLabel}
       <div className={listClassName}>
         {useMemo(
@@ -1633,11 +1677,16 @@ interface SearchAreaProps
   extends React.HTMLAttributes<HTMLFormElement>,
     SearchAreaOptionsProps {}
 
-export function GallerySearchArea({
-  className,
-  submitPreventScrollReset = true,
-  ...args
-}: SearchAreaProps) {
+export function GallerySearchArea(args: SearchAreaProps) {
+  let { className, submitPreventScrollReset = true } = useMemo(
+    () => args,
+    [args],
+  );
+  const formArgs = useMemo(() => {
+    const { className, submitPreventScrollReset, ...formArgs } = args;
+    return formArgs;
+  }, [args]);
+
   className = className ? ` ${className}` : "";
   const { isOpen } = useImageViewer();
   const searchRef = React.useRef<HTMLInputElement>(null);
@@ -1683,7 +1732,7 @@ export function GallerySearchArea({
     [searchParams],
   );
   return (
-    <form className={className} {...args} onSubmit={submitHandler}>
+    <form className={className} onSubmit={submitHandler} {...formArgs}>
       <input
         name="q"
         type="search"
@@ -1734,11 +1783,16 @@ const gallerySortTags = [
     "total",
   ]),
 ];
-export function GalleryTagsSelect({
-  addOptions,
-  callbackOptions,
-  ...args
-}: SelectAreaProps) {
+export function GalleryTagsSelect(args: SelectAreaProps) {
+  const addOptions = useMemo(() => args.addOptions, [args]);
+  const callbackOptions = useMemo(() => args.callbackOptions, [args]);
+  const tagsSelectArgs = useMemo<SelectAreaProps>(
+    () => ({
+      className: args.className,
+      submitPreventScrollReset: args.submitPreventScrollReset,
+    }),
+    [args],
+  );
   const isLogin = useIsLogin()[0];
   const tags = useMemo(() => {
     const options: ContentsTagsOption[] = [
@@ -1749,7 +1803,7 @@ export function GalleryTagsSelect({
     if (callbackOptions) return callbackOptions(options);
     else return options;
   }, [isLogin, addOptions, callbackOptions]);
-  return <ContentsTagsSelect {...args} tags={tags} />;
+  return <ContentsTagsSelect {...tagsSelectArgs} tags={tags} />;
 }
 export function GalleryCharactersSelect({
   submitPreventScrollReset,
