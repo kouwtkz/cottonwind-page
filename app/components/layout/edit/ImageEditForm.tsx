@@ -1195,11 +1195,9 @@ export default function ImageEditForm({
         </label>
       </form>
       <GalleryViewerPaging
-        image={image}
         onLinkEvent={() => {
           if (isEdit && isDirty) SubmitImage();
         }}
-        disableHotkeys={disableHotkeys}
       />
     </>
   );

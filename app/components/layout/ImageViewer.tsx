@@ -60,6 +60,7 @@ interface ImageViewerType extends ImageViewerParamType {
   editMode?: boolean;
   loop: boolean;
   isOpen: boolean;
+  disabledHotkeys: boolean;
   setOpen(props?: setTypeProps<ImageViewerType>): void;
   setClose(): void;
   clear(close?: boolean): void;
@@ -69,6 +70,7 @@ export const useImageViewer = CreateObjectState<ImageViewerType>((set) => ({
   images: null,
   isOpen: false,
   loop: false,
+  disabledHotkeys: false,
   setOpen(props) {
     set({ ...props, isOpen: true });
   },
@@ -158,9 +160,9 @@ export function PreviousNextBaseLink({
 
 interface InfoAreaProps {
   image: ImageType;
-  disableHotkeys?: boolean;
+  disabledHotkeys?: boolean;
 }
-function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
+function InfoArea({ image, disabledHotkeys }: InfoAreaProps) {
   const { imageAlbums } = useImageState();
   const albumObject = image.album ? imageAlbums?.get(image.album) : null;
   const { setClose } = useImageViewer();
@@ -356,9 +358,9 @@ function InfoArea({ image, disableHotkeys }: InfoAreaProps) {
         </div>
       )}
       {isLogin ? (
-        <ImageEditForm image={image} disableHotkeys={disableHotkeys} />
+        <ImageEditForm image={image} disableHotkeys={disabledHotkeys} />
       ) : (
-        <GalleryViewerPaging image={image} disableHotkeys={disableHotkeys} />
+        <GalleryViewerPaging />
       )}
     </div>
   );
@@ -500,6 +502,7 @@ export function ImageViewer() {
   return (
     <>
       <ImageViewerSetParams />
+      <ImageViewerSetImage />
       <ImageViewerMain />
     </>
   );
@@ -529,25 +532,51 @@ export function ImageViewerSetParams() {
   return <></>;
 }
 
-function ImageViewerMain() {
+function ImageViewerSetImage() {
   const { imagesMap } = useImageState();
-  const {
-    isOpen,
-    image,
-    imageParam,
-    groupParam,
-    Set: setImageViewer,
-    setClose,
-  } = useImageViewer();
+  const { imageParam, groupParam, Set: setImageViewer } = useImageViewer();
+  const { filteredYearGroups } = useGalleryObject();
+  const galleryItemIndex = useMemo(
+    () =>
+      filteredYearGroups?.findIndex((item) => item.name === groupParam) ?? -1,
+    [filteredYearGroups, groupParam],
+  );
+  const images = useMemo(
+    () => filteredYearGroups[galleryItemIndex]?.list || [],
+    [filteredYearGroups, galleryItemIndex],
+  );
+  useEffect(() => {
+    setImageViewer({ images });
+  }, [images]);
+  useEffect(() => {
+    if (imagesMap && imageParam) {
+      setImageViewer({ image: imagesMap.get(imageParam) || null });
+    } else setImageViewer({ image: null });
+  }, [imageParam, imagesMap]);
+
+  return <></>;
+}
+
+function ImageViewerModal({ children }: { children: React.ReactNode }) {
+  const { isOpen, image, Set: setImageViewer, setClose } = useImageViewer();
   const setSearchParams = useSearchParams()[1];
   const nav = useNavigate();
   const l = useLocation();
   const state = l.state;
   const { isDirty, Set: setEdit } = useImageEditState();
   const ebookMode = useMemo(() => l.hash === "#laymic", [l.hash]);
-  const disableHotkeys = useMemo(() => ebookMode, [ebookMode]);
+  const disabledHotkeys = useMemo(() => ebookMode, [ebookMode]);
+  useEffect(() => {
+    setImageViewer({ disabledHotkeys });
+  }, [disabledHotkeys]);
+  const timeout = 80;
+  const modalClass = useMemo(() => {
+    const classNames = ["large full"];
+    if (image?.hideInfo) classNames.push("hideInfo");
+    return classNames.join(" ");
+  }, [image?.hideInfo]);
 
-  function backAction() {
+  const backAction = useCallback(() => {
     if (
       isOpen &&
       (!isDirty ||
@@ -568,7 +597,7 @@ function ImageViewerMain() {
         }
       }
     }
-  }
+  }, [isOpen, isDirty, state]);
 
   useHotkeys(
     "escape",
@@ -578,45 +607,10 @@ function ImageViewerMain() {
         e.preventDefault();
       }
     },
-    { enabled: !disableHotkeys },
+    { enabled: !disabledHotkeys },
   );
-
-  const { filteredYearGroups } = useGalleryObject();
-  const galleryItemIndex = useMemo(
-    () =>
-      filteredYearGroups?.findIndex((item) => item.name === groupParam) ?? -1,
-    [filteredYearGroups, groupParam],
-  );
-  const images = useMemo(
-    () => filteredYearGroups[galleryItemIndex]?.list || [],
-    [filteredYearGroups, galleryItemIndex],
-  );
-  useEffect(() => {
-    setImageViewer({ images });
-  }, [images]);
-
-  useEffect(() => {
-    if (imagesMap && imageParam) {
-      setImageViewer({ image: imagesMap.get(imageParam) || null });
-    } else setImageViewer({ image: null });
-  }, [imageParam, imagesMap]);
-
-  useEffect(() => {
-    if (image && (image.new || image.update)) {
-      image.new = false;
-      image.update = false;
-    }
-  }, [image]);
-  const timeout = 80;
-  const modalClass = useMemo(() => {
-    const classNames = ["large full"];
-    if (image?.hideInfo) classNames.push("hideInfo");
-    return classNames.join(" ");
-  }, [image?.hideInfo]);
-
-  return (
-    <div id="image_viewer">
-      <BookReader />
+  return useMemo(
+    () => (
       <Modal
         onExited={() => {
           setImageViewer({
@@ -625,7 +619,7 @@ function ImageViewerMain() {
             groupParam: null,
           });
         }}
-        disableHotkeys={disableHotkeys}
+        disableHotkeys={disabledHotkeys}
         timeout={timeout}
         // unmountOnExit
         classNameEntire="viewer"
@@ -639,37 +633,55 @@ function ImageViewerMain() {
           }
         }}
       >
-        {image ? (
-          <>
-            <PreviewArea image={image} />
-            {image.hideInfo ? null : (
-              <InfoArea image={image} disableHotkeys={disableHotkeys} />
-            )}
-          </>
-        ) : null}
+        {children}
       </Modal>
+    ),
+    [disabledHotkeys, timeout, modalClass, isOpen, isDirty, state, children],
+  );
+}
+
+function ImageViewerMain() {
+  const { image, disabledHotkeys } = useImageViewer();
+
+  useEffect(() => {
+    if (image && (image.new || image.update)) {
+      image.new = false;
+      image.update = false;
+    }
+  }, [image]);
+  return (
+    <div id="image_viewer">
+      <ImageViewerModal>
+        {useMemo(
+          () => (
+            <>
+              <BookReader />
+              {image ? (
+                <>
+                  <PreviewArea image={image} />
+                  {image.hideInfo ? null : (
+                    <InfoArea image={image} disabledHotkeys={disabledHotkeys} />
+                  )}
+                </>
+              ) : null}
+            </>
+          ),
+          [image, disabledHotkeys],
+        )}
+      </ImageViewerModal>
     </div>
   );
 }
 
-interface GalleryViewerPagingProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  image: ImageType | null;
+interface GalleryViewerPagingProps {
   onLinkEvent?(e?: any): void;
-  disableHotkeys?: boolean;
 }
 
-export function GalleryViewerPaging({
-  className,
-  onLinkEvent,
-  disableHotkeys,
-  image: argsImage,
-  ...args
-}: GalleryViewerPagingProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { image, images: _images, loop } = useImageViewer();
+export function GalleryViewerPaging({ onLinkEvent }: GalleryViewerPagingProps) {
+  const setSearchParams = useSearchParams()[1];
+  const { image, images: _images, loop, disabledHotkeys } = useImageViewer();
+  const images = useMemo(() => _images || [], [_images]);
   const isEdit = useImageEditState().isEdit;
-  const images = _images || [];
   const imageIndex = useMemo(() => {
     const key = image?.key;
     if (key) {
@@ -697,7 +709,7 @@ export function GalleryViewerPaging({
     [images, imageIndex, loop],
   );
   const prevNextToHandler = function (image: ImageType) {
-    const SearchParams = new URLSearchParams(searchParams);
+    const SearchParams = new URLSearchParams(location.search);
     if (image.key) SearchParams.set("image", image.key);
     return new URL("?" + SearchParams.toString(), location.href).href;
   };
@@ -708,14 +720,18 @@ export function GalleryViewerPaging({
         if (onLinkEvent) onLinkEvent(e);
         setSearchParams(
           {
-            ...Object.fromEntries(searchParams),
+            ...Object.fromEntries(new URLSearchParams(location.search)),
             image: prevNextImage.before.key,
           },
           { preventScrollReset: true, state: escapeState },
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys },
+    {
+      ignoreModifiers: true,
+      enableOnFormTags: true,
+      enabled: !disabledHotkeys,
+    },
   );
   useHotkeys(
     "ArrowRight",
@@ -724,17 +740,21 @@ export function GalleryViewerPaging({
         if (onLinkEvent) onLinkEvent(e);
         setSearchParams(
           {
-            ...Object.fromEntries(searchParams),
+            ...Object.fromEntries(new URLSearchParams(location.search)),
             image: prevNextImage.after.key,
           },
           { preventScrollReset: true, state: escapeState },
         );
       }
     },
-    { ignoreModifiers: true, enableOnFormTags: true, enabled: !disableHotkeys },
+    {
+      ignoreModifiers: true,
+      enableOnFormTags: true,
+      enabled: !disabledHotkeys,
+    },
   );
   return (
-    <div className={"paging" + (className ? ` ${className}` : "")} {...args}>
+    <div className="paging">
       {prevNextImage?.before ? (
         <Link
           className="prev"
