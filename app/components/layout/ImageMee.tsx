@@ -326,15 +326,23 @@ export function ImgSwitch({
   );
 }
 
-export function ImageMeeShowPngSwitch() {
+export function ImageMeeShowPngSwitch({
+  children,
+  className,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+}) {
   const showPng = useImageMeeShowPng()[0];
   return (
     <ModeSwitch
       toEnableTitle="画像をPNGファイルにする"
       useSwitch={useImageMeeShowPng}
       beforeOnClick={() => showPng || confirm("PNGで表示しますか？")}
+      className={className}
     >
       <PiFilePng />
+      {children}
     </ModeSwitch>
   );
 }

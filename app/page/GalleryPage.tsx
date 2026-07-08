@@ -1152,6 +1152,9 @@ function GalleryBody({
                       >
                         ギャラリーJSONデータの上書きインポート
                       </GalleryImportButton>
+                      <ImageMeeShowPngSwitch className="squared item">
+                        PNG画像として表示する
+                      </ImageMeeShowPngSwitch>
                       <ThumbnailResetButton className="squared item" />
                       <CompatMendingThumbnailButton className="squared item" />
                       {/* <CGB from="art" to="main" className="squared item" /> */}
@@ -1183,7 +1186,6 @@ function GalleryBody({
                       </ModeSearchSwitch>
                     </IconsFoldButton>
                     <ImageMultiSelectSwitch />
-                    <ImageMeeShowPngSwitch />
                     <ModeSearchSwitch
                       toEnableTitle={
                         "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
@@ -1293,7 +1295,10 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   search,
 }: GalleryImageItemProps) {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
-  const isMultiSelectMode = useMemo(() => Boolean(multiSelect.Map), [multiSelect])
+  const isMultiSelectMode = useMemo(
+    () => Boolean(multiSelect.Map),
+    [multiSelect],
+  );
   const checked = useMemo(
     () => multiSelect.Map?.has(image.key) || false,
     [image, multiSelect],
