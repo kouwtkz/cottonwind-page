@@ -1256,7 +1256,26 @@ interface GalleryImageItemProps extends GalleryItemVisibleProps {
   onClick?: (image: ImageType) => void;
   visible?: boolean;
 }
-function GalleryImageItem({
+interface GalleryImageListProps extends Omit<GalleryImageItemProps, "image"> {
+  images: ImageType[];
+}
+const GalleryImageList = React.memo(function GalleryImageList(
+  args: GalleryImageListProps,
+) {
+  const { images, newArgs } = useMemo(() => {
+    const { images, ...newArgs } = args;
+    return { images, newArgs };
+  }, [args]);
+  return (
+    <>
+      {images.map((image) => (
+        <GalleryImageItem key={image.key} image={image} {...newArgs} />
+      ))}
+    </>
+  );
+});
+
+const GalleryImageItem = React.memo(function GalleryImageItem({
   galleryName,
   image,
   onClick,
@@ -1371,7 +1390,7 @@ function GalleryImageItem({
       ) : null}
     </Link>
   );
-}
+});
 
 interface GalleryContentProps extends GalleryBodyOptions {
   id?: string;
@@ -1535,39 +1554,24 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     if (className) list.push(className);
     return list.join(" ");
   }, [className]);
+  const currentList = useMemo(
+    () => list.filter((_, i) => i < visibleMax),
+    [list, visibleMax],
+  );
   const visibleImage = useMemo(() => hash !== "#laymic", [hash]);
   return (
     <div id={id} ref={ref} className={_className}>
       {GalleryLabel}
       <div className={listClassName}>
-        {useMemo(
-          () =>
-            list
-              .filter((_, i) => i < visibleMax)
-              .map((image, i) => (
-                <GalleryImageItem
-                  image={image}
-                  galleryName={name}
-                  onClick={imageOnClick}
-                  key={image.key}
-                  visible={visibleImage}
-                  visibleCreationTime={visibleCreationTime}
-                  visibleLikeCount={visibleLikeCount}
-                  visibleYear={visibleYear}
-                />
-              )),
-          [
-            list,
-            name,
-            imageOnClick,
-            isModal,
-            visibleImage,
-            visibleCreationTime,
-            visibleLikeCount,
-            visibleYear,
-            visibleMax,
-          ],
-        )}
+        <GalleryImageList
+          images={currentList}
+          galleryName={name}
+          onClick={imageOnClick}
+          visible={visibleImage}
+          visibleCreationTime={visibleCreationTime}
+          visibleLikeCount={visibleLikeCount}
+          visibleYear={visibleYear}
+        />
         {showMoreButton ? (
           <a
             onClick={(e) => {
