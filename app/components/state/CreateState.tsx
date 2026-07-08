@@ -10,10 +10,7 @@ type SetStateAction<S> = S | ((prevState: S) => S);
 type Dispatch<A> = (value: A) => void;
 type SetStateActionOptional<S> = S | ((prevState?: S) => S);
 type DispatchOptional<A> = (value?: A) => void;
-export type CreateStateFunctionType<T> = () => [
-  T | undefined,
-  Dispatch<SetStateAction<T>>,
-];
+export type CreateStateFunctionType<T> = () => [T, Dispatch<SetStateAction<T>>];
 type CreateStateFunctionOptionalType<T> = () => [
   T | undefined,
   DispatchOptional<SetStateActionOptional<T>>,
@@ -39,7 +36,7 @@ export function CreateState<T = unknown>(v?: T): CreateStateFunctionType<T> {
   }));
   return () => {
     const state = useState();
-    return [state.v, state.Set];
+    return [state.v, state.Set] as any;
   };
 }
 type createType<T, Mos extends [StoreMutatorIdentifier, unknown][] = []> =
