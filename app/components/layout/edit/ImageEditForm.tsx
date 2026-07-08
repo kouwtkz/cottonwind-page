@@ -1,4 +1,4 @@
-import {
+import React, {
   useEffect,
   useState,
   type HTMLAttributes,
@@ -45,9 +45,10 @@ import {
   autoFixGalleryTagsOptions,
   addExtentionGalleryTagsOptions,
   simpleDefaultTags,
+  defaultGalleryEditableTags,
 } from "~/components/dropdown/SortFilterTags";
 import { useController, useForm, type FieldValues } from "react-hook-form";
-import { AiFillEdit } from "react-icons/ai";
+import { AiFillEdit, AiOutlineCheckSquare } from "react-icons/ai";
 import {
   MdChangeCircle,
   MdCleaningServices,
@@ -113,6 +114,211 @@ export const useImageEditState = CreateObjectState<ImageEditProps>((s) => ({
   isBusy: false,
 }));
 export const useImageEditSwitchHold = CreateState(false);
+interface ImageMultiSelectProps {
+  Map: Map<string, ImageType> | null;
+}
+export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
+  Map: null,
+});
+export const useImageMultiTagSettingMode = CreateState(false);
+
+export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
+  const multiTagSettingMode = useImageMultiTagSettingMode()[0];
+  const setMultiSelect = useImageMultiSelect()[1];
+  const multiSelect = useMemo<ImageMultiSelectProps>(
+    () => (multiTagSettingMode ? { Map: new Map() } : { Map: null }),
+    [multiTagSettingMode],
+  );
+  useEffect(() => {
+    setMultiSelect(multiSelect);
+  }, [multiSelect]);
+  return useMemo(
+    () => (
+      <ModeSwitch
+        toEnableTitle="タグ一括設定モード"
+        useSwitch={useImageMultiTagSettingMode}
+      >
+        <AiOutlineCheckSquare />
+      </ModeSwitch>
+    ),
+    [],
+  );
+});
+export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
+  const multiTagSettingMode = useImageMultiTagSettingMode()[0];
+  return <>{multiTagSettingMode ? <ImageMultiTagSetting /> : null}</>;
+});
+const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+  const { tagsList } = useImageState();
+  const {
+    getValues,
+    setValue,
+    control,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields },
+  } = useForm<{ tags: string[] }, any, any>({ defaultValues: { tags: [] } });
+  const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
+  const unregisteredTagsOptions = useMemo(
+    () =>
+      tagsList
+        ? CountToContentsTagsOption(
+            tagsList.concat().sort((a, b) => b.count - a.count),
+          ).filter(({ value: tag }) =>
+            simpleDefaultTags.every(({ value }) => value !== tag),
+          )
+        : [],
+    [tagsList],
+  );
+  const selectedTags = watch("tags");
+  const currentTagsList = useMemo(() => {
+    return GetCurrentTags(stateTags, unregisteredTagsOptions);
+  }, [stateTags, unregisteredTagsOptions]);
+  const count = useMemo(
+    () => (multiSelect.Map ? multiSelect.Map.size : -1),
+    [multiSelect],
+  );
+  const label = useMemo(() => {
+    if (count >= 0)
+      return (
+        <>
+          <span className="ml-1">タグの一括設定 - </span>
+          <span className="ml-1">{count + "件選択中"}</span>
+        </>
+      );
+    else return null;
+  }, [count]);
+  const buttonsDisabled = useMemo(
+    () => selectedTags.length === 0 || count <= 0,
+    [selectedTags, count],
+  );
+  const resetWhenSubmit = useCallback(() => {
+    reset();
+    setMultiSelect(({ Map }) => {
+      Map?.clear();
+      return { Map };
+    });
+  }, []);
+  const submitSend = useCallback(
+    async (
+      data: {
+        id: number;
+        tags: string[];
+      }[],
+    ) => {
+      await customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+        data,
+        method: "PATCH",
+        cors: true,
+      }).then(() => {
+        toast.success("タグ設定が完了しました");
+        imageDataIndexed.load("no-cache");
+        resetWhenSubmit();
+      });
+    },
+    [],
+  );
+  const SetupSubmitData = useCallback<
+    (
+      fields: { tags: string[] },
+      remove?: boolean,
+    ) => {
+      id: number;
+      tags: string[];
+    }[]
+  >((fields, remove) => {
+    if (!multiSelectMap) return [];
+    return Array.from(multiSelectMap.values())
+      .map((image) => {
+        const tagsMap = new Map<string, void>(
+          image.tags?.map((v) => [v, undefined]) || [],
+        );
+        const initCount = tagsMap.size;
+        fields.tags.forEach((tag) => {
+          if (remove) tagsMap.delete(tag);
+          else tagsMap.set(tag);
+        });
+        if (initCount === tagsMap.size) return { id: -1, tags: [] };
+        else
+          return {
+            id: image.id,
+            tags: Array.from(tagsMap.keys()),
+          };
+      })
+      .filter((v) => v.id >= 0);
+  }, [multiSelectMap]);
+
+  return (
+    <>
+      {multiSelectMap ? (
+        <div className="multiSelect">
+          <div className="settingTags">
+            <div>
+              <EditTagsReactSelect
+                name="tags"
+                labelVisible
+                label={<div>{label}</div>}
+                labelClassName="simple"
+                tags={currentTagsList}
+                set={setStateTags}
+                control={control}
+                setValue={setValue}
+                getValues={getValues}
+                placeholder="設定するタグの選択"
+                addButtonVisible
+                enableEnterAdd
+                className="tagSelect"
+              />
+            </div>
+            <button
+              type="button"
+              className="color"
+              disabled={buttonsDisabled}
+              onClick={(e) => {
+                handleSubmit((fields: { tags: string[] }) => {
+                  if (
+                    confirm(
+                      count +
+                        "件の画像に以下のタグを追加しますか？\n" +
+                        fields.tags.join(", "),
+                    )
+                  ) {
+                    submitSend(SetupSubmitData(fields, false));
+                  }
+                })(e);
+              }}
+            >
+              追加
+            </button>
+            <button
+              type="button"
+              className="color"
+              disabled={buttonsDisabled}
+              onClick={(e) => {
+                handleSubmit(async (fields: { tags: string[] }) => {
+                  if (
+                    confirm(
+                      count +
+                        "件の画像に以下のタグを削除しますか？\n" +
+                        fields.tags.join(", "),
+                    )
+                  ) {
+                    submitSend(SetupSubmitData(fields, true));
+                  }
+                })(e);
+              }}
+            >
+              削除
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+});
 
 interface optionElementInterface {
   value?: string;
@@ -134,6 +340,24 @@ const defPositions: optionElementInterface[] = [
 const SEND_API = GetAPIFromOptions(ImageDataOptions, "/send");
 type inputCreationTimeParamType = ["text" | "time", number];
 
+function GetCurrentTags(
+  stateTags: ContentsTagsOption[],
+  unregisteredTagsOptions: ContentsTagsOption[],
+) {
+  const list = defaultGalleryEditableTags.concat();
+  if (stateTags.length > 0)
+    list.push({
+      label: "追加しようとしたタグ",
+      options: stateTags,
+    });
+  if (unregisteredTagsOptions.length > 0)
+    list.push({
+      label: "現在ギャラリーにあるタグ",
+      options: unregisteredTagsOptions,
+    });
+  return list;
+}
+
 export default function ImageEditForm({
   className,
   image,
@@ -142,10 +366,6 @@ export default function ImageEditForm({
 }: ImageEditFormProps) {
   const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
   const { images } = useImageViewer();
-  const allTagsOptions = useMemo(
-    () => (tagsList ? CountToContentsTagsOption(tagsList) : []),
-    [tagsList],
-  );
 
   const { characters } = useCharacters();
 
@@ -204,18 +424,20 @@ export default function ImageEditForm({
       })),
     );
   }, [characters]);
-  const unregisteredTagsOptions = useMemo(
-    () =>
-      [
-        ...(image?.tags?.map(
-          (v) => ({ label: v, value: v }) as ContentsTagsOption,
-        ) || []),
-        ...allTagsOptions,
-      ].filter(({ value: tag }) =>
-        simpleDefaultTags.every(({ value }) => value !== tag),
-      ),
-    [image?.tags, defaultGalleryTags, allTagsOptions],
+  const allTagsOptions = useMemo(
+    () => (tagsList ? CountToContentsTagsOption(tagsList) : []),
+    [tagsList],
   );
+  const unregisteredTagsOptions = useMemo(() => {
+    return [
+      ...(image?.tags?.map(
+        (v) => ({ label: v, value: v }) as ContentsTagsOption,
+      ) || []),
+      ...allTagsOptions,
+    ].filter(({ value: tag }) =>
+      simpleDefaultTags.every(({ value }) => value !== tag),
+    );
+  }, [image?.tags, allTagsOptions]);
   interface ValuesType extends FieldValues, KeyofValueType<ImageDataType, any> {
     rename: any;
   }
@@ -377,21 +599,8 @@ export default function ImageEditForm({
 
   const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
   const currentTagsList = useMemo(() => {
-    const list = [
-      ...autoFixGalleryTagsOptions(getTagsOptions(defaultGalleryTags)),
-    ];
-    if (stateTags.length > 0)
-      list.push({
-        label: "追加しようとしたタグ",
-        options: stateTags,
-      });
-    if (unregisteredTagsOptions.length > 0)
-      list.push({
-        label: "現在ギャラリーにあるタグ",
-        options: unregisteredTagsOptions,
-      });
-    return list;
-  }, [defaultGalleryTags, stateTags, unregisteredTagsOptions]);
+    return GetCurrentTags(stateTags, unregisteredTagsOptions);
+  }, [stateTags, unregisteredTagsOptions]);
 
   const [copyrightTags, setCopyrightTags] = useState<ContentsTagsOption[]>([]);
   useEffect(() => {

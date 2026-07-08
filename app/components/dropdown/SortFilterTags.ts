@@ -219,18 +219,28 @@ export function MonthToTag(value: number) {
 }
 
 export function autoFixGalleryTagsOptions(tagsOptions: ContentsTagsOption[]) {
+  function convert(item: ContentsTagsOption) {
+    const values = (item.value?.split(":", 2) || [""]).concat("");
+    switch (values[0]) {
+      case "month":
+        const monthTag = MonthToTag(Number(values[1]));
+        if (monthTag) {
+          return { ...item, value: monthTag, query: { month: values[1] } };
+        } else return item;
+      default:
+        return item;
+    }
+  }
   return tagsOptions
     .filter(({ editable }) => editable !== false)
-    .map((item) => {
-      const values = (item.value?.split(":", 2) || [""]).concat("");
-      switch (values[0]) {
-        case "month":
-          const monthTag = MonthToTag(Number(values[1]));
-          if (monthTag) {
-            return { ...item, value: monthTag, query: { month: values[1] } };
-          } else return item;
-        default:
-          return item;
+    .map(({ ...item }) => {
+      if (item.options) {
+        item.options = item.options
+          .filter((v) => v.editable !== false)
+          .map(item => convert(item));
       }
+      return convert(item);
     });
 }
+
+export const defaultGalleryEditableTags = autoFixGalleryTagsOptions(defaultGalleryTags);

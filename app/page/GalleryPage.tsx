@@ -69,6 +69,9 @@ import {
   useImageNotDraftUpload,
   useNoUploadThumbnail,
   useUploadWebp,
+  useImageMultiSelect,
+  ImageMultiSelectSwitch,
+  ImageMultiSelect,
 } from "~/components/layout/edit/ImageEditForm";
 import { useIsLogin } from "~/components/state/EnvState";
 import {
@@ -1120,96 +1123,100 @@ function GalleryBody({
                 ),
                 [SearchAreaOptions, callbackOptions],
               )}
+              {isLogin ? (
+                <div className="flex center">
+                  <div className="icons flex center">
+                    <DropdownButton
+                      classNames={{
+                        dropMenuButton: "iconSwitch",
+                        dropItemList: "flex column font-small",
+                      }}
+                    >
+                      <ObjectIndexedDBDownloadButton
+                        className="squared item"
+                        indexedDB={imageDataIndexed}
+                      >
+                        ギャラリーJSONデータのダウンロード
+                      </ObjectIndexedDBDownloadButton>
+                      <GalleryImportButton
+                        icon={<TbDatabaseImport />}
+                        className="squared item"
+                        overwrite={false}
+                      >
+                        ギャラリーJSONデータのインポート
+                      </GalleryImportButton>
+                      <GalleryImportButton
+                        icon={<TbDatabaseImport />}
+                        className="squared item"
+                        overwrite={true}
+                      >
+                        ギャラリーJSONデータの上書きインポート
+                      </GalleryImportButton>
+                      <ThumbnailResetButton className="squared item" />
+                      <CompatMendingThumbnailButton className="squared item" />
+                      {/* <CGB from="art" to="main" className="squared item" /> */}
+                    </DropdownButton>
+                    <IconsFoldButton
+                      title="絞り込み"
+                      MenuButton={<RiMenuSearchLine />}
+                    >
+                      <ModeSearchSwitch
+                        toEnableTitle="トップ画像が有効なものを絞り込む"
+                        toDisableTitle="トップ画像から元の表示に戻す"
+                        searchKey="topImage"
+                      >
+                        <RiHomeGearLine />
+                      </ModeSearchSwitch>
+                      <ModeSearchSwitch
+                        toEnableTitle="ピックアップが有効なものを絞り込む"
+                        toDisableTitle="ピックアップから元の表示に戻す"
+                        searchKey="pickup"
+                      >
+                        <RiPushpin2Line />
+                      </ModeSearchSwitch>
+                      <ModeSearchSwitch
+                        toEnableTitle="下書きのみ表示"
+                        toDisableTitle="下書き以外も表示"
+                        searchKey="draftOnly"
+                      >
+                        <RiChatPrivateLine />
+                      </ModeSearchSwitch>
+                    </IconsFoldButton>
+                    <ImageMultiSelectSwitch />
+                    <ImageMeeShowPngSwitch />
+                    <ModeSearchSwitch
+                      toEnableTitle={
+                        "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
+                      }
+                      toDisableTitle={
+                        "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
+                      }
+                      searchKey="showAllAlbum"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        const group = prompt("任意のアルバム名");
+                        if (group) {
+                          nav({ pathname: "/gallery/" + group });
+                        }
+                      }}
+                    >
+                      <BiPhotoAlbum />
+                    </ModeSearchSwitch>
+                    <ModeSwitch
+                      toEnableTitle="常に編集モードにする"
+                      useSwitch={useImageEditSwitchHold}
+                    >
+                      <AiFillEdit />
+                    </ModeSwitch>
+                    <SwitchNotDraftUpload />
+                    <SwitchNoUploadThumbnail />
+                    <SwitchUploadWebp />
+                    <GalleryUploadButton className="iconSwitch" group={group} />
+                  </div>
+                  <ImageMultiSelect />
+                </div>
+              ) : null}
             </div>
-            {isLogin ? (
-              <div className="icons flex center">
-                <DropdownButton
-                  classNames={{
-                    dropMenuButton: "iconSwitch",
-                    dropItemList: "flex column font-small",
-                  }}
-                >
-                  <ObjectIndexedDBDownloadButton
-                    className="squared item"
-                    indexedDB={imageDataIndexed}
-                  >
-                    ギャラリーJSONデータのダウンロード
-                  </ObjectIndexedDBDownloadButton>
-                  <GalleryImportButton
-                    icon={<TbDatabaseImport />}
-                    className="squared item"
-                    overwrite={false}
-                  >
-                    ギャラリーJSONデータのインポート
-                  </GalleryImportButton>
-                  <GalleryImportButton
-                    icon={<TbDatabaseImport />}
-                    className="squared item"
-                    overwrite={true}
-                  >
-                    ギャラリーJSONデータの上書きインポート
-                  </GalleryImportButton>
-                  <ThumbnailResetButton className="squared item" />
-                  <CompatMendingThumbnailButton className="squared item" />
-                  {/* <CGB from="art" to="main" className="squared item" /> */}
-                </DropdownButton>
-                <IconsFoldButton
-                  title="絞り込み"
-                  MenuButton={<RiMenuSearchLine />}
-                >
-                  <ModeSearchSwitch
-                    toEnableTitle="トップ画像が有効なものを絞り込む"
-                    toDisableTitle="トップ画像から元の表示に戻す"
-                    searchKey="topImage"
-                  >
-                    <RiHomeGearLine />
-                  </ModeSearchSwitch>
-                  <ModeSearchSwitch
-                    toEnableTitle="ピックアップが有効なものを絞り込む"
-                    toDisableTitle="ピックアップから元の表示に戻す"
-                    searchKey="pickup"
-                  >
-                    <RiPushpin2Line />
-                  </ModeSearchSwitch>
-                  <ModeSearchSwitch
-                    toEnableTitle="下書きのみ表示"
-                    toDisableTitle="下書き以外も表示"
-                    searchKey="draftOnly"
-                  >
-                    <RiChatPrivateLine />
-                  </ModeSearchSwitch>
-                </IconsFoldButton>
-                <ImageMeeShowPngSwitch />
-                <ModeSearchSwitch
-                  toEnableTitle={
-                    "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
-                  }
-                  toDisableTitle={
-                    "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
-                  }
-                  searchKey="showAllAlbum"
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    const group = prompt("任意のアルバム名");
-                    if (group) {
-                      nav({ pathname: "/gallery/" + group });
-                    }
-                  }}
-                >
-                  <BiPhotoAlbum />
-                </ModeSearchSwitch>
-                <ModeSwitch
-                  toEnableTitle="常に編集モードにする"
-                  useSwitch={useImageEditSwitchHold}
-                >
-                  <AiFillEdit />
-                </ModeSwitch>
-                <SwitchNotDraftUpload />
-                <SwitchNoUploadThumbnail />
-                <SwitchUploadWebp />
-                <GalleryUploadButton className="iconSwitch" group={group} />
-              </div>
-            ) : null}
           </div>
         ) : null}
         {totals.length > 0 ? (
@@ -1285,6 +1292,12 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   visibleYear,
   search,
 }: GalleryImageItemProps) {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const isMultiSelectMode = useMemo(() => Boolean(multiSelect.Map), [multiSelect])
+  const checked = useMemo(
+    () => multiSelect.Map?.has(image.key) || false,
+    [image, multiSelect],
+  );
   const toStatehandler = useCallback((): {
     to: To;
     state?: any;
@@ -1310,19 +1323,31 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
       image.tags?.some((tag) => tt.value === tag),
     )?.value;
   }, [image]);
+  const LinkOnClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      if (isMultiSelectMode) {
+        e.preventDefault();
+        setMultiSelect((v) => {
+          if (v.Map) {
+            if (v.Map.has(image.key)) v.Map.delete(image.key);
+            else v.Map.set(image.key, image);
+            return { Map: v.Map };
+          } else return v;
+        });
+      } else if (onClick) {
+        e.preventDefault();
+        onClick(image);
+      }
+    },
+    [onClick, image, isMultiSelectMode],
+  );
   return (
-    <Link
-      className="item"
-      {...toStatehandler()}
-      onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        if (onClick) {
-          e.preventDefault();
-          onClick(image);
-        }
-      }}
-    >
+    <Link className="item" {...toStatehandler()} onClick={LinkOnClick}>
       {visibleImage ? (
         <>
+          {isMultiSelectMode ? (
+            <input type="checkbox" checked={checked} title="checked" />
+          ) : null}
           <GalleryItemRibbon
             image={image}
             visibleCreationTime={visibleCreationTime}

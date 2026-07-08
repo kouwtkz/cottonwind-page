@@ -29,26 +29,24 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "PATCH": {
-            const item = await request.json<KeyValueAnyType>();
+            const json = await request.json<KeyValueAnyType>();
+            const items: imageUpdateJsonDataType[] = (Array.isArray(json) ? json : [json]);
             const now = new Date();
-            const nowString = now.toISOString();
-            now.setMilliseconds(now.getMilliseconds() + 1);
-            let {
-              id,
-              rename,
-              ...values
-            } = item as unknown as imageUpdateJsonDataType;
-            const entry: MeeSqlEntryType<ImageDataType> = values;
-            const value = (await TableObject.Select({ db, where: { id } }))[0];
-            entry.lastmod = nowString;
-            if (rename) {
-              if (value && env.BUCKET) {
-                entry.key = rename;
-                await ImageBucketRename({ bucket: env.BUCKET, rename, image: value, entry });
+            return await Promise.all(items.map(async ({ id, rename, ...values }) => {
+              const nowString = now.toISOString();
+              now.setMilliseconds(now.getMilliseconds() + 1);
+              const entry: MeeSqlEntryType<ImageDataType> = values;
+              const value = (await TableObject.Select({ db, where: { id } }))[0];
+              entry.lastmod = nowString;
+              if (rename) {
+                if (value && env.BUCKET) {
+                  entry.key = rename;
+                  await ImageBucketRename({ bucket: env.BUCKET, rename, image: value, entry });
+                }
               }
-            }
-            KeyValueConvertDBEntry(entry);
-            return await TableObject.Update({ db, entry, where: { id } });
+              KeyValueConvertDBEntry(entry);
+              return TableObject.Update({ db, entry, where: { id } });
+            }))
           }
           case "DELETE": {
             const data = await request.json<KeyValueAnyType>();

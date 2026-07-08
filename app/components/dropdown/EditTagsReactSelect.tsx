@@ -20,15 +20,15 @@ type setValueFunctionType = (
   options: SetValueConfig,
 ) => void;
 
-interface EditTagsReactSelectType {
+interface EditTagsReactSelectType<T extends FieldValues> {
   name: string;
   labelVisible?: boolean;
-  label?: string;
+  label?: React.ReactNode;
   labelClassName?: string;
   tags: ContentsTagsOption[];
   set?: (value: React.SetStateAction<ContentsTagsOption[]>) => void;
-  control: Control<any, any, any>;
-  setValue: setValueFunctionType;
+  control: Control<T, any, any>;
+  setValue: any;
   getValues: UseFormGetValues<any>;
   isBusy?: boolean;
   placeholder?: string;
@@ -41,8 +41,10 @@ interface EditTagsReactSelectType {
   styles?: StylesConfig;
   addButtonClassName?: string;
   formatOptionLabel?: (data: unknown) => ReactNode;
+  className?: string;
+  onChange?(newValues: MultiValue<ContentsTagsOption>): void;
 }
-export function EditTagsReactSelect({
+export function EditTagsReactSelect<T extends FieldValues = any>({
   name,
   labelVisible,
   label,
@@ -50,7 +52,7 @@ export function EditTagsReactSelect({
   tags,
   set,
   control,
-  setValue,
+  setValue: _setValue,
   getValues,
   isBusy,
   placeholder,
@@ -63,7 +65,10 @@ export function EditTagsReactSelect({
   styles,
   addButtonClassName,
   formatOptionLabel,
-}: EditTagsReactSelectType) {
+  className = "wide",
+  onChange,
+}: EditTagsReactSelectType<T>) {
+  const setValue: setValueFunctionType = _setValue;
   labelClassName = useMemo(() => {
     const labelClassnames = ["label"];
     if (labelClassName) labelClassnames.push(labelClassName);
@@ -97,11 +102,21 @@ export function EditTagsReactSelect({
       }, 50);
     }
   }
+  const labelElement = useMemo(() => {
+    switch (typeof label) {
+      case "string":
+      case "number":
+        return <span>{label}</span>;
+      default:
+        if (label) return label;
+        else return null;
+    }
+  }, [label]);
   return (
     <>
       {labelVisible ? (
         <div className={labelClassName}>
-          {label ? <span>{label}</span> : null}
+          {labelElement}
           {addButtonVisible ? (
             <button
               title={addButtonTitle}
@@ -115,9 +130,9 @@ export function EditTagsReactSelect({
           ) : null}
         </div>
       ) : null}
-      <div className="wide">
+      <div className={className}>
         <Controller
-          control={control}
+          control={control as Control<any, any, any>}
           name={name}
           render={({ field }) => (
             <CustomReactSelect
@@ -139,6 +154,7 @@ export function EditTagsReactSelect({
                     (v) => v?.value,
                   ),
                 );
+                if (onChange) onChange(newValues);
               }}
               onKeyDown={addKeydownEnter}
               onBlur={field.onBlur}

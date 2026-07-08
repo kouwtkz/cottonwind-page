@@ -851,6 +851,12 @@ li {
       & > * {
         margin: 0.25rem;
       }
+      &.center {
+        margin-left: auto;
+        margin-right: auto;
+        justify-content: center;
+        flex-direction: column;
+      }
     }
     .icons {
       display: flex;
@@ -863,6 +869,8 @@ li {
     }
     .tagSelect {
       min-width: 22rem;
+      z-index: 20;
+      position: relative;
       @media (width < $tabletWidth) {
         flex: 1;
       }
@@ -3038,6 +3046,9 @@ div.banner {
           font-size: 1em;
         }
       }
+      input[type="checkbox"] {
+        pointer-events: none;
+      }
       .translucent-special-button {
         @extend .translucent-button;
         background-color: rgb(100 110 88 / 74%);
@@ -3078,6 +3089,19 @@ div.banner {
     margin-top: 1rem;
     h3 {
       margin: 1rem auto 1rem;
+    }
+  }
+}
+.multiSelect {
+  .settingTags {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    button.color {
+      font-size: 1.1rem;
+      margin: 0.4rem 0 0.2rem 0.4rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
     }
   }
 }
