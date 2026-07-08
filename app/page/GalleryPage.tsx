@@ -638,10 +638,10 @@ export function GalleryObject(args: GalleryObjectProps) {
       filteredYearGroups: filteredGroupsToYList,
       images,
     });
-  }, [filteredGroupsToYList, filteredYearGroups, Set]);
+  }, [filteredGroupsToYList, filteredYearGroups]);
   useEffect(() => {
     Set({ items });
-  }, [items, Set]);
+  }, [items]);
   const yfList = useMemo(
     () => filteredYearGroups.map<ImageType[]>(({ list }) => list || []),
     [filteredYearGroups],
@@ -1250,14 +1250,15 @@ function GalleryBody({
   );
 }
 
-interface GalleryImageItemProps extends GalleryItemVisibleProps {
+interface GalleryImageListProps extends GalleryItemVisibleProps {
+  images: ImageType[];
   galleryName?: string;
-  image: ImageType;
   onClick?: (image: ImageType) => void;
   visible?: boolean;
 }
-interface GalleryImageListProps extends Omit<GalleryImageItemProps, "image"> {
-  images: ImageType[];
+interface GalleryImageItemProps extends Omit<GalleryImageListProps, "images"> {
+  image: ImageType;
+  search: string;
 }
 const GalleryImageList = React.memo(function GalleryImageList(
   args: GalleryImageListProps,
@@ -1266,10 +1267,16 @@ const GalleryImageList = React.memo(function GalleryImageList(
     const { images, ...newArgs } = args;
     return { images, newArgs };
   }, [args]);
+  const search = useLocation().search;
   return (
     <>
       {images.map((image) => (
-        <GalleryImageItem key={image.key} image={image} {...newArgs} />
+        <GalleryImageItem
+          key={image.key}
+          image={image}
+          search={search}
+          {...newArgs}
+        />
       ))}
     </>
   );
@@ -1283,6 +1290,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   visibleCreationTime,
   visibleLikeCount,
   visibleYear,
+  search,
 }: GalleryImageItemProps) {
   const toStatehandler = useCallback((): {
     to: To;
@@ -1290,7 +1298,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
     preventScrollReset?: boolean;
     title?: string;
   } => {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(search);
     if (image.direct) return { to: image.src ?? "" };
     searchParams.set("image", image.key);
     if (galleryName && image.albumObject?.name !== galleryName)
@@ -1303,7 +1311,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
       preventScrollReset: true,
       title: image.title || undefined,
     };
-  }, [image]);
+  }, [image, search]);
   const ImageTimeFrameTag = useMemo(() => {
     return TimeframeTags.find((tt) =>
       image.tags?.some((tag) => tt.value === tag),
