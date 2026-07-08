@@ -97,6 +97,7 @@ import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSele
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
+import { TbPencilCheck } from "react-icons/tb";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -120,33 +121,70 @@ interface ImageMultiSelectProps {
 export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
   Map: null,
 });
-export const useImageMultiTagSettingMode = CreateState(false);
+export const useImageMultiSelectMode = CreateState<false | "tags" | "draft">(
+  false,
+);
 
 export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
-  const multiTagSettingMode = useImageMultiTagSettingMode()[0];
-  const setMultiSelect = useImageMultiSelect()[1];
-  const multiSelect = useMemo<ImageMultiSelectProps>(
-    () => (multiTagSettingMode ? { Map: new Map() } : { Map: null }),
-    [multiTagSettingMode],
+  const multiSelectMode = useImageMultiSelectMode()[0];
+  const enabledMultiSelect = useMemo(
+    () => multiSelectMode !== false,
+    [multiSelectMode],
   );
+  const setMultiSelect = useImageMultiSelect()[1];
   useEffect(() => {
-    setMultiSelect(multiSelect);
-  }, [multiSelect]);
+    setMultiSelect(enabledMultiSelect ? { Map: new Map() } : { Map: null });
+  }, [enabledMultiSelect]);
   return useMemo(
     () => (
-      <ModeSwitch
-        toEnableTitle="タグ一括設定モード"
-        useSwitch={useImageMultiTagSettingMode}
-      >
-        <AiOutlineCheckSquare />
-      </ModeSwitch>
+      <>
+        <ModeSwitch
+          toEnableTitle="タグ一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="tags"
+        >
+          <AiOutlineCheckSquare />
+        </ModeSwitch>
+        <ModeSwitch
+          toEnableTitle="下書き一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="draft"
+        >
+          <TbPencilCheck />
+        </ModeSwitch>
+      </>
     ),
     [],
   );
 });
+async function SendPatch(data: Partial<ImageType>[]) {
+  return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+    data,
+    method: "PATCH",
+    cors: true,
+  });
+}
 export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
-  const multiTagSettingMode = useImageMultiTagSettingMode()[0];
-  return <>{multiTagSettingMode ? <ImageMultiTagSetting /> : null}</>;
+  const multiSelectMode = useImageMultiSelectMode()[0];
+  const MultiSelectModeComponent = useMemo(() => {
+    if (multiSelectMode) {
+      switch (multiSelectMode) {
+        case "tags":
+          return <ImageMultiTagSetting />;
+        case "draft":
+          return <ImageMultiDraftSetting />;
+        default:
+          return null;
+      }
+    }
+  }, [multiSelectMode]);
+  return (
+    <>
+      {multiSelectMode ? (
+        <div className="multiSelect">{MultiSelectModeComponent}</div>
+      ) : null}
+    </>
+  );
 });
 const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
@@ -209,11 +247,7 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
         tags: string[];
       }[],
     ) => {
-      await customFetch(concatOriginUrl(apiOrigin, SEND_API), {
-        data,
-        method: "PATCH",
-        cors: true,
-      }).then(() => {
+      await SendPatch(data).then(() => {
         toast.success("タグ設定が完了しました");
         imageDataIndexed.load("no-cache");
         resetWhenSubmit();
@@ -229,96 +263,157 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
       id: number;
       tags: string[];
     }[]
-  >((fields, remove) => {
-    if (!multiSelectMap) return [];
-    return Array.from(multiSelectMap.values())
-      .map((image) => {
-        const tagsMap = new Map<string, void>(
-          image.tags?.map((v) => [v, undefined]) || [],
-        );
-        const initCount = tagsMap.size;
-        fields.tags.forEach((tag) => {
-          if (remove) tagsMap.delete(tag);
-          else tagsMap.set(tag);
-        });
-        if (initCount === tagsMap.size) return { id: -1, tags: [] };
-        else
-          return {
-            id: image.id,
-            tags: Array.from(tagsMap.keys()),
-          };
-      })
-      .filter((v) => v.id >= 0);
-  }, [multiSelectMap]);
+  >(
+    (fields, remove) => {
+      if (!multiSelectMap) return [];
+      return Array.from(multiSelectMap.values())
+        .map((image) => {
+          const tagsMap = new Map<string, void>(
+            image.tags?.map((v) => [v, undefined]) || [],
+          );
+          const initCount = tagsMap.size;
+          fields.tags.forEach((tag) => {
+            if (remove) tagsMap.delete(tag);
+            else tagsMap.set(tag);
+          });
+          if (initCount === tagsMap.size) return { id: -1, tags: [] };
+          else
+            return {
+              id: image.id,
+              tags: Array.from(tagsMap.keys()),
+            };
+        })
+        .filter((v) => v.id >= 0);
+    },
+    [multiSelectMap],
+  );
 
   return (
-    <>
-      {multiSelectMap ? (
-        <div className="multiSelect">
-          <div className="settingTags">
-            <div>
-              <EditTagsReactSelect
-                name="tags"
-                labelVisible
-                label={<div>{label}</div>}
-                labelClassName="simple"
-                tags={currentTagsList}
-                set={setStateTags}
-                control={control}
-                setValue={setValue}
-                getValues={getValues}
-                placeholder="設定するタグの選択"
-                addButtonVisible
-                enableEnterAdd
-                className="tagSelect"
-              />
-            </div>
-            <button
-              type="button"
-              className="color"
-              disabled={buttonsDisabled}
-              onClick={(e) => {
-                handleSubmit((fields: { tags: string[] }) => {
-                  if (
-                    confirm(
-                      count +
-                        "件の画像に以下のタグを追加しますか？\n" +
-                        fields.tags.join(", "),
-                    )
-                  ) {
-                    submitSend(SetupSubmitData(fields, false));
-                  }
-                })(e);
-              }}
-            >
-              追加
-            </button>
-            <button
-              type="button"
-              className="color"
-              disabled={buttonsDisabled}
-              onClick={(e) => {
-                handleSubmit(async (fields: { tags: string[] }) => {
-                  if (
-                    confirm(
-                      count +
-                        "件の画像に以下のタグを削除しますか？\n" +
-                        fields.tags.join(", "),
-                    )
-                  ) {
-                    submitSend(SetupSubmitData(fields, true));
-                  }
-                })(e);
-              }}
-            >
-              削除
-            </button>
-          </div>
-        </div>
-      ) : null}
-    </>
+    <div className="settingTags">
+      <div>
+        <EditTagsReactSelect
+          name="tags"
+          labelVisible
+          label={<div>{label}</div>}
+          labelClassName="simple"
+          tags={currentTagsList}
+          set={setStateTags}
+          control={control}
+          setValue={setValue}
+          getValues={getValues}
+          placeholder="設定するタグの選択"
+          addButtonVisible
+          enableEnterAdd
+          className="tagSelect"
+        />
+      </div>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={(e) => {
+          handleSubmit((fields: { tags: string[] }) => {
+            if (
+              confirm(
+                count +
+                  "件の画像に以下のタグを追加しますか？\n" +
+                  fields.tags.join(", "),
+              )
+            ) {
+              submitSend(SetupSubmitData(fields, false));
+            }
+          })(e);
+        }}
+      >
+        追加
+      </button>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={(e) => {
+          handleSubmit(async (fields: { tags: string[] }) => {
+            if (
+              confirm(
+                count +
+                  "件の画像に以下のタグを削除しますか？\n" +
+                  fields.tags.join(", "),
+              )
+            ) {
+              submitSend(SetupSubmitData(fields, true));
+            }
+          })(e);
+        }}
+      >
+        削除
+      </button>
+    </div>
   );
 });
+
+function ImageMultiDraftSetting() {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+  const resetWhenSubmit = useCallback(() => {
+    setMultiSelect(({ Map }) => {
+      Map?.clear();
+      return { Map };
+    });
+  }, []);
+  const onSubmit = useCallback(
+    (draft = false) => {
+      if (!multiSelectMap) return;
+      const mode = draft ? "下書き" : "公開";
+      if (
+        confirm(
+          multiSelectMap.size + "件の画像を" + mode + "に一括設定しますか？",
+        )
+      ) {
+        SendPatch(
+          Array.from(multiSelectMap.values())
+            .filter((image) => image.draft !== draft)
+            .map((image) => ({ id: image.id, draft })),
+        ).then(() => {
+          toast.success(mode + "の一括設定が完了しました");
+          imageDataIndexed.load("no-cache");
+          resetWhenSubmit();
+        });
+      }
+    },
+    [multiSelectMap],
+  );
+  const count = useMemo(
+    () => (multiSelect.Map ? multiSelect.Map.size : -1),
+    [multiSelect],
+  );
+  const buttonsDisabled = useMemo(() => count <= 0, [count]);
+
+  return (
+    <div className="multiSelect">
+      <div>
+        <span>下書き一括設定モード</span>
+        <span> - </span>
+        <span className="mb-1">{multiSelectMap?.size}件選択中</span>
+      </div>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={() => onSubmit(false)}
+      >
+        公開に設定する
+      </button>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={() => onSubmit(true)}
+      >
+        下書きに設定する
+      </button>
+    </div>
+  );
+}
 
 interface optionElementInterface {
   value?: string;
