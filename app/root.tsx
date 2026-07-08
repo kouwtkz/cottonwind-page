@@ -203,21 +203,8 @@ export function Layout({ children }: LayoutProps) {
       }, 100);
     }
   }, [isComplete]);
-  const data = useRouteLoaderData<SetRootProps>("root");
-  const className = useMemo(() => {
-    const classNames: string[] = [];
-    if (data?.cookie) {
-      CookieToThemeClassNames(data.cookie).forEach((item) => {
-        classNames.push(item);
-      });
-      if (isLoading) {
-        classNames.push("loading dummy");
-      }
-    }
-    return classNames.join(" ");
-  }, [data?.cookie, isLoading]);
   return (
-    <html lang="ja" className={className}>
+    <Html isLoading={isLoading}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -230,7 +217,44 @@ export function Layout({ children }: LayoutProps) {
         {children}
         <Scripts />
       </body>
-    </html>
+    </Html>
+  );
+}
+
+function Html({
+  isLoading,
+  children,
+}: {
+  isLoading?: boolean;
+  children: React.ReactNode;
+}) {
+  const data = useRouteLoaderData<SetRootProps>("root");
+  const cookieJson = useMemo(
+    () => (data?.cookie ? JSON.stringify(data.cookie) : ""),
+    [data?.cookie],
+  );
+  const themeClassNames = useMemo(() => {
+    if (cookieJson) {
+      return CookieToThemeClassNames(JSON.parse(cookieJson));
+    } else return [];
+  }, [cookieJson]);
+  const className = useMemo(() => {
+    const classNames: string[] = [];
+    themeClassNames.forEach((item) => {
+      classNames.push(item);
+    });
+    if (isLoading) {
+      classNames.push("loading dummy");
+    }
+    return classNames.join(" ");
+  }, [themeClassNames, isLoading]);
+  return useMemo(
+    () => (
+      <html lang="ja" className={className}>
+        {children}
+      </html>
+    ),
+    [className, children],
   );
 }
 
