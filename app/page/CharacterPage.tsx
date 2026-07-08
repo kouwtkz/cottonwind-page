@@ -252,25 +252,28 @@ export const CharacterPage = React.memo(function CharacterPage({
     [searchParams],
   );
   const isLogin = useIsLogin()[0];
-  return (
-    <div className="characterPage">
-      <CharacterPageState />
-      {forceListMode ? (
-        <CharaListPage />
-      ) : isLogin && isEdit ? (
-        <CharacterEdit />
-      ) : (
-        <>
-          {isLogin ? <CharaEditButton /> : null}
-          {charaName ? (
-            <CharaDetail charaName={charaName} />
-          ) : (
-            <CharaListPage />
-          )}
-        </>
-      )}
-    </div>
-  );
+  const Component = useMemo(() => {
+    return (
+      <div className="characterPage">
+        <CharacterPageState />
+        {forceListMode ? (
+          <CharaListPage />
+        ) : isLogin && isEdit ? (
+          <CharacterEdit />
+        ) : (
+          <>
+            {isLogin ? <CharaEditButton /> : null}
+            {charaName ? (
+              <CharaDetail charaName={charaName} />
+            ) : (
+              <CharaListPage />
+            )}
+          </>
+        )}
+      </div>
+    );
+  }, [isEdit, isLogin, charaName, forceListMode]);
+  return Component;
 });
 
 interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
