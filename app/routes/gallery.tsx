@@ -3,7 +3,7 @@ import type { Route } from "./+types/gallery";
 import { waitIdb } from "~/data/ClientDBLoader";
 import { envAsync } from "~/data/ClientEnvLorder";
 import { SetMetaDefault, type SetRootProps } from "~/components/utils/SetMeta";
-import { GalleryPageRoot } from "~/page/GalleryPage";
+import { GalleryPage } from "~/page/GalleryPage";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -15,5 +15,5 @@ export function meta({ matches }: Route.MetaArgs) {
 }
 
 export default function Page() {
-  return <GalleryPageRoot />;
+  return <GalleryPage />;
 }

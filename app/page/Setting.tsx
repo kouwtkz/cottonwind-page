@@ -2,8 +2,9 @@ import { useIsLogin } from "~/components/state/EnvState";
 import { AdminMainPage } from "./AdminPage";
 import { Link } from "react-router";
 import { dbClass } from "~/data/ClientDBLoader";
+import React from "react";
 
-export function SettingPage() {
+export const SettingPage = React.memo(function SettingPage() {
   const isLogin = useIsLogin()[0];
   return (
     <main className="h1h4Page settingPage">
@@ -22,10 +23,10 @@ export function SettingPage() {
       )}
     </main>
   );
-}
+});
 
 export function PurgeDatabaseAnchor(
-  props: Omit<React.HTMLAttributes<HTMLElement>, "onClick">
+  props: Omit<React.HTMLAttributes<HTMLElement>, "onClick">,
 ) {
   return (
     <a
@@ -38,7 +39,7 @@ export function PurgeDatabaseAnchor(
         if (
           confirm(
             "データベースの再読み込みしますか？\n" +
-              "(多めのデータ通信を行います)"
+              "(多めのデータ通信を行います)",
           )
         ) {
           try {

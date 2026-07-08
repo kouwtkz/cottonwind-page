@@ -1,8 +1,8 @@
 import { useImageState } from "~/components/state/ImageState";
 import { GalleryObject } from "./GalleryPage";
-import ContactPage from "./ContactPage";
+import { ContactPage } from "./ContactPage";
 import { MeeLinks } from "./LinksPage";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { findMee } from "~/data/find/findMee";
 import {
   KeyValueEditable,
@@ -13,7 +13,7 @@ import {
 const LinksStyle: React.CSSProperties = {
   minHeight: "3em",
 };
-export default function WorksPage() {
+export const WorksPage = React.memo(function WorksPage() {
   return (
     <div className="worksPage">
       <div className="color-main en-title-font">
@@ -59,7 +59,7 @@ export default function WorksPage() {
       <ContactPage />
     </div>
   );
-}
+});
 
 function WorksGallery() {
   const { images, galleryAlbums } = useImageState();

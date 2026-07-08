@@ -2,7 +2,7 @@ import { useMixPosts } from "~/components/state/PostState";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useLocalDraftPost } from "./edit/PostForm";
-import {
+import React, {
   type HTMLAttributes,
   useCallback,
   useEffect,
@@ -78,12 +78,7 @@ export function getPosts({
   }
 }
 
-export function BlogPage({
-  blogEnable,
-}: {
-  title?: string;
-  blogEnable?: boolean;
-}) {
+export const BlogPage = React.memo(function BlogPage() {
   const [searchParams] = useSearchParams();
   const p = searchParams.get("p") || undefined;
   const q = searchParams.get("q") || undefined;
@@ -114,7 +109,7 @@ export function BlogPage({
       </div>
     </>
   );
-}
+});
 
 export function PostsPage({
   p = "1",

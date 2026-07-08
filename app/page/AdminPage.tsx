@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useIsLogin } from "~/components/state/EnvState";
 import { Link, useNavigate, useParams } from "react-router";
 import { fileDownload } from "~/components/utils/FileTool";
@@ -59,7 +59,7 @@ import { useForm } from "react-hook-form";
 import { CreateState } from "~/components/state/CreateState";
 import { useHotkeys } from "react-hotkeys-hook";
 
-export function AdminPage() {
+export const AdminPage = React.memo(function AdminPage() {
   const isLogin = useIsLogin()[0];
   const params = useParams();
   return (
@@ -83,7 +83,7 @@ export function AdminPage() {
       )}
     </main>
   );
-}
+});
 
 export function AdminMainPage() {
   return (

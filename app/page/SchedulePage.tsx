@@ -1,10 +1,15 @@
+import React from "react";
 import { CalendarMee, type CalendarMeeProps } from "~/calendar/CalendarMee";
 
 const MeeCalendarURL = globalThis.location?.hostname.endsWith(".pages.dev")
   ? "https://cottonwind-calendar.pages.dev"
   : "https://calendar.cottonwind.com";
 
-export function SchedulePage({ title = "Schedule" }: { title?: string }) {
+export const SchedulePage = React.memo(function SchedulePage({
+  title = "Schedule",
+}: {
+  title?: string;
+}) {
   return (
     <div>
       <h1 className="color-main en-title-font">{title}</h1>
@@ -16,7 +21,7 @@ export function SchedulePage({ title = "Schedule" }: { title?: string }) {
       <ScheduleContainer />
     </div>
   );
-}
+});
 
 interface ScheduleContainerProps extends Omit<CalendarMeeProps, "google"> {}
 

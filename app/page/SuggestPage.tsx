@@ -1,7 +1,12 @@
+import React from "react";
 import { Link } from "react-router";
 import type { OmittedEnv } from "types/custom-configuration";
 
-export default function SuggestPage({ env }: { env?: Partial<OmittedEnv> }) {
+export const SuggestPage = React.memo(function SuggestPage({
+  env,
+}: {
+  env?: Partial<OmittedEnv>;
+}) {
   return (
     <main className="color-main en-title-font">
       <h1>SUGGEST</h1>
@@ -28,4 +33,4 @@ export default function SuggestPage({ env }: { env?: Partial<OmittedEnv> }) {
       </div>
     </main>
   );
-}
+});

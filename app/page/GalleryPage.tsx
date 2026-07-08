@@ -117,25 +117,18 @@ import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
 import { TimeClass } from "~/components/functions/Time";
 
-interface GalleryPageRootProps {
-  isGroup?: boolean;
-}
-export function GalleryPageRoot({ isGroup }: GalleryPageRootProps) {
-  return useMemo(
-    () => (isGroup ? <GalleryGroupPage /> : <GalleryPage />),
-    [isGroup],
-  );
-}
-export function GalleryPage(args: GalleryPageOptions) {
+export const GalleryPage = React.memo(function GalleryPage(
+  args: GalleryPageOptions,
+) {
   const { galleryAlbums } = useImageState();
   return (
     <div className="galleryPage">
       <GalleryObjectConvert items={galleryAlbums} {...args} />
     </div>
   );
-}
+});
 
-function GalleryGroupPage() {
+export const GalleryGroupPage = React.memo(function GalleryGroupPage() {
   const { group } = useParams();
   const { imageAlbums } = useImageState();
   const album = useMemo(() => {
@@ -163,7 +156,7 @@ function GalleryGroupPage() {
     ),
     [items],
   );
-}
+});
 
 export function GalleryObjectConvert(args: GalleryObjectConvertProps) {
   let { items, submitPreventScrollReset } = args;

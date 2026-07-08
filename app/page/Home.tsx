@@ -5,7 +5,6 @@ import {
   monthlyFilter,
 } from "~/components/functions/media/FilterImages";
 import React, {
-  use,
   useCallback,
   useEffect,
   useMemo,
@@ -36,8 +35,7 @@ import { useEnv } from "~/components/state/EnvState";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { useImageViewer } from "~/components/layout/ImageViewer";
 
-export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
-  const enableHandle = Boolean(env?.BLUESKY_HANDLE || env?.TWITTER_HANDLE);
+export const Home = React.memo(function Home() {
   return (
     <>
       <HomeImage />
@@ -141,7 +139,7 @@ export default function Home({ env }: { env?: Partial<OmittedEnv> }) {
       </div>
     </>
   );
-}
+});
 
 function TopLinks() {
   const env = useEnv()[0];

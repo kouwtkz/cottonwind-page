@@ -55,7 +55,7 @@ import { Modal } from "~/components/layout/Modal";
 
 export const ArchiveLinks: Array<SiteLink> = [];
 
-export default function LinksPage() {
+export const LinksPage = React.memo(function LinksPage() {
   const githubLink = useMemo(() => EnvLinksMap.get("github"), [EnvLinksMap]);
   const isLogin = useIsLogin()[0];
   const env = useEnv()[0];
@@ -105,7 +105,7 @@ export default function LinksPage() {
       <FavoriteLinks title="Joined Search" category="search" />
     </div>
   );
-}
+});
 
 export const useBannersEditMode = CreateState(false);
 export const myBannerName = "myBanner";

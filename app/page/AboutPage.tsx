@@ -7,11 +7,11 @@ import {
   KeyValueRenderProps,
 } from "~/components/state/KeyValueDBState";
 import { EnvLinksMap } from "~/Env";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "~/components/layout/Modal";
 import { SetLinkPush } from "~/components/parse/MultiParser";
 
-export default function AboutPage() {
+export const AboutPage = React.memo(function AboutPage() {
   return (
     <div className="aboutPage">
       <h1 className="color-main en-title-font">
@@ -79,7 +79,7 @@ export default function AboutPage() {
       <WebsiteFramework className="container" />
     </div>
   );
-}
+});
 
 interface AuthorHistoryProps {
   defaultYear?: number;

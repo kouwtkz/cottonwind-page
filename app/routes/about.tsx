@@ -1,6 +1,6 @@
 import type { Route } from "./+types/about";
 import { SetMetaDefault } from "~/components/utils/SetMeta";
-import AboutPage from "~/page/AboutPage";
+import { AboutPage } from "~/page/AboutPage";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
 
 export function meta({ matches }: Route.MetaArgs) {

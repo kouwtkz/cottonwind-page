@@ -17,7 +17,7 @@ import {
   useSelectedCharacter,
 } from "~/components/state/CharacterState";
 import { GalleryObject } from "./GalleryPage";
-import {
+import React, {
   type HTMLAttributes,
   memo,
   useCallback,
@@ -239,7 +239,7 @@ function CharacterPageState() {
   return <></>;
 }
 
-export function CharacterPage({
+export const CharacterPage = React.memo(function CharacterPage({
   charaName,
   forceListMode,
 }: {
@@ -271,7 +271,7 @@ export function CharacterPage({
       )}
     </div>
   );
-}
+});
 
 interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   name: string;
@@ -692,7 +692,10 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     else return { value: tag };
                   })
                   .map((tag, i) => (
-                    <Link key={`character_tag_${tag}`} to={`/character?tags=${tag.value}`}>
+                    <Link
+                      key={`character_tag_${tag}`}
+                      to={`/character?tags=${tag.value}`}
+                    >
                       #{tag.label || tag.value}
                     </Link>
                   ))}

@@ -12,11 +12,11 @@ import {
   useEditSoundAlbumKey,
   useEditSoundKey,
 } from "./edit/SoundEdit";
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { RbFixedArea } from "~/components/Search";
 import { findMee, setWhere } from "~/data/find/findMee";
 
-export function SoundPage() {
+export const SoundPage = React.memo(function SoundPage() {
   const searchParams = useSearchParams()[0];
   const qParam = searchParams.get("q");
   const isEdit = searchParams.get("edit") === "on";
@@ -190,4 +190,4 @@ export function SoundPage() {
       })}
     </div>
   );
-}
+});

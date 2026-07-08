@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useEnv } from "~/components/state/EnvState";
 import { RiLinksFill } from "react-icons/ri";
 import { Link } from "react-router";
@@ -6,14 +6,14 @@ import { CopyWithToast } from "~/components/functions/toastFunction";
 import { useLang } from "~/components/multilingual/LangState";
 import { DEFAULT_LANG, TITLE, TITLE_EN } from "~/Env";
 
-export default function ContactPage() {
+export const ContactPage = React.memo(function ContactPage() {
   const env = useEnv()[0];
   const lang = useLang()[0];
   const title = useMemo(
     () =>
       (lang === DEFAULT_LANG ? TITLE : TITLE_EN) ??
       (typeof document !== "undefined" ? document.title : ""),
-    [lang]
+    [lang],
   );
   return (
     <>
@@ -48,7 +48,7 @@ export default function ContactPage() {
       <GoogleForm />
     </>
   );
-}
+});
 
 export function GoogleForm() {
   const [env] = useEnv();

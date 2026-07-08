@@ -1,8 +1,9 @@
 import type { Route } from "./+types/suggest";
 import { SetMetaDefault, type SetRootProps } from "~/components/utils/SetMeta";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
-import SuggestPage from "~/page/SuggestPage";
+import { SuggestPage } from "~/page/SuggestPage";
 import { useRouteLoaderData } from "react-router";
+import { useEffect } from "react";
 
 export function meta({ matches }: Route.MetaArgs) {
   return SetMetaDefault({
@@ -14,6 +15,5 @@ export function meta({ matches }: Route.MetaArgs) {
 
 export default function Page() {
   const data = useRouteLoaderData<SetRootProps>("root");
-
   return <SuggestPage env={data?.env} />;
 }
