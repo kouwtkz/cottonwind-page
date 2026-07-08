@@ -15,7 +15,6 @@ import React, {
   createRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -625,7 +624,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       },
     );
   }, [filteredGroupsToYList, year]);
-  useLayoutEffect(() => {
+  useEffect(() => {
     const images = filteredGroupsToYList.reduce<ImageType[]>((a, c) => {
       if (!c.notYearList) {
         c.list?.forEach((image) => {
@@ -640,7 +639,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       images,
     });
   }, [filteredGroupsToYList, filteredYearGroups, Set]);
-  useLayoutEffect(() => {
+  useEffect(() => {
     Set({ items });
   }, [items, Set]);
   const yfList = useMemo(

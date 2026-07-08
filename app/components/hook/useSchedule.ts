@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface useScheduleProps {
   day?: number;
@@ -59,7 +59,7 @@ export default function useSchedule({ day, hour, minute, second = 0, specify }: 
     }
     return newDate;
   }
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (day || hour || minute || second || specify) {
       function update() {
         const date = new Date();

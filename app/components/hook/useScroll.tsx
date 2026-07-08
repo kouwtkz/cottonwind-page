@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface useScrollResult {
   x: number;
@@ -12,7 +12,7 @@ const defaultResult = { x: 0, y: 0, w: 0, h: 0, ww: 0, wh: 0 };
 
 export default function useScroll(): useScrollResult {
   const [scroll, setScroll] = useState(defaultResult);
-  useLayoutEffect(() => {
+  useEffect(() => {
     const updateSize = (): void => {
       setScroll({
         x: window.scrollX,
