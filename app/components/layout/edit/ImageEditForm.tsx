@@ -31,6 +31,7 @@ import { RenameFile } from "~/components/utils/FileTool";
 import { ModeSwitch } from "~/components/layout/edit/CommonSwitch";
 import {
   RiArtboard2Fill,
+  RiChatCheckLine,
   RiFileUploadLine,
   RiFileWordLine,
 } from "react-icons/ri";
@@ -98,6 +99,7 @@ import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
 import { TbPencilCheck } from "react-icons/tb";
+import { BiBadgeCheck, BiMessageAltCheck } from "react-icons/bi";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -121,9 +123,9 @@ interface ImageMultiSelectProps {
 export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
   Map: null,
 });
-export const useImageMultiSelectMode = CreateState<false | "tags" | "draft">(
-  false,
-);
+export const useImageMultiSelectMode = CreateState<
+  false | "tags" | "draft" | "pickup"
+>(false);
 
 export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
   const multiSelectMode = useImageMultiSelectMode()[0];
@@ -139,11 +141,11 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
     () => (
       <>
         <ModeSwitch
-          toEnableTitle="タグ一括設定モード"
+          toEnableTitle="ピックアップ一括設定モード"
           useSwitch={useImageMultiSelectMode}
-          enableValue="tags"
+          enableValue="pickup"
         >
-          <AiOutlineCheckSquare />
+          <BiMessageAltCheck />
         </ModeSwitch>
         <ModeSwitch
           toEnableTitle="下書き一括設定モード"
@@ -151,6 +153,13 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
           enableValue="draft"
         >
           <TbPencilCheck />
+        </ModeSwitch>
+        <ModeSwitch
+          toEnableTitle="タグ一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="tags"
+        >
+          <BiBadgeCheck />
         </ModeSwitch>
       </>
     ),
@@ -173,6 +182,8 @@ export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
           return <ImageMultiTagSetting />;
         case "draft":
           return <ImageMultiDraftSetting />;
+        case "pickup":
+          return <ImageMultiPickupSetting />;
         default:
           return null;
       }
@@ -190,15 +201,11 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
   const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
   const { tagsList } = useImageState();
-  const {
-    getValues,
-    setValue,
-    control,
-    watch,
-    handleSubmit,
-    reset,
-    formState: { isDirty, dirtyFields },
-  } = useForm<{ tags: string[] }, any, any>({ defaultValues: { tags: [] } });
+  const { getValues, setValue, control, watch, handleSubmit, reset } = useForm<
+    { tags: string[] },
+    any,
+    any
+  >({ defaultValues: { tags: [] } });
   const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
   const unregisteredTagsOptions = useMemo(
     () =>
@@ -410,6 +417,140 @@ function ImageMultiDraftSetting() {
         onClick={() => onSubmit(true)}
       >
         下書きに設定する
+      </button>
+    </div>
+  );
+}
+
+function ImageMultiPickupSetting() {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+  const { register, handleSubmit, reset } = useForm<
+    { topImage: string; pickup: string },
+    any,
+    any
+  >({
+    defaultValues: { topImage: "null", pickup: "null" },
+  });
+  const resetWhenSubmit = useCallback(() => {
+    setMultiSelect(({ Map }) => {
+      Map?.clear();
+      return { Map };
+    });
+  }, [reset]);
+  const onSubmit = useCallback(
+    ({
+      topImage = false,
+      pickup = false,
+      fields,
+    }: {
+      topImage?: boolean;
+      pickup?: boolean;
+      fields: { topImage: string; pickup: string };
+    }) => {
+      if (!multiSelectMap) return;
+      const enabledList: string[] = [];
+      if (topImage) enabledList.push("トップ画像");
+      if (pickup) enabledList.push("ピックアップ");
+      if (
+        confirm(
+          multiSelectMap.size +
+            "件の画像の" +
+            enabledList.join("と") +
+            "の設定を一括適用しますか？",
+        )
+      ) {
+        const topImageValue = FormToNumber(fields.topImage);
+        const pickupValue = FormToBoolean(fields.pickup);
+        const data = Array.from(multiSelectMap.values())
+          .filter(
+            (image) =>
+              (topImage && image.topImage !== topImageValue) ||
+              (pickup && image.pickup !== pickupValue),
+          )
+          .map((image) => {
+            const data: {
+              id: number;
+              topImage?: number | null;
+              pickup?: boolean | null;
+            } = {
+              id: image.id,
+            };
+            if (topImage) data.topImage = topImageValue;
+            if (pickup) data.pickup = pickupValue;
+            return data;
+          });
+        SendPatch(data).then(() => {
+          toast.success(enabledList.join("と") + "の一括設定が完了しました");
+          imageDataIndexed.load("no-cache");
+          resetWhenSubmit();
+        });
+      }
+    },
+    [multiSelectMap],
+  );
+  const count = useMemo(
+    () => (multiSelect.Map ? multiSelect.Map.size : -1),
+    [multiSelect],
+  );
+  const buttonsDisabled = useMemo(() => count <= 0, [count]);
+
+  return (
+    <div className="multiSelect">
+      <div>
+        <span>ピックアップ一括設定モード</span>
+        <span> - </span>
+        <span className="mb-1">{multiSelectMap?.size}件選択中</span>
+      </div>
+      <div className="flex wrap mb-1">
+        <label className="ml">
+          <span className="label-sl">トップ画像</span>
+          <select title="トップ画像" {...register("topImage")}>
+            <option value="null">自動</option>
+            <option value="1">トップ表示に含める</option>
+            <option value="2">アクセス時に表示する</option>
+            <option value="3">常に表示する</option>
+            <option value="4">時間帯でトップへ含む</option>
+            <option value="5">時間帯アクセス時表示</option>
+            <option value="6">時間帯で常に表示する</option>
+            <option value="0">表示しない</option>
+          </select>
+        </label>
+        <label className="ml">
+          <span className="label-sl">ピックアップ</span>
+          <select title="ピックアップ画像" {...register("pickup")}>
+            <option value="null">自動</option>
+            <option value="true">固定する</option>
+            <option value="false">固定しない</option>
+          </select>
+        </label>
+      </div>
+
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={handleSubmit((fields) => onSubmit({ fields, topImage: true }))}
+      >
+        トップ画像の適用
+      </button>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={handleSubmit((fields) => onSubmit({ fields, pickup: true }))}
+      >
+        ピックアップの適用
+      </button>
+      <button
+        type="button"
+        className="color"
+        disabled={buttonsDisabled}
+        onClick={handleSubmit((fields) =>
+          onSubmit({ fields, topImage: true, pickup: true }),
+        )}
+      >
+        両方に適用する
       </button>
     </div>
   );

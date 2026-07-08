@@ -38,7 +38,7 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   copyright?: string[];
   direct?: boolean;
   otherTags?: boolean;
-  pickup?: boolean;
+  pickup?: boolean | null;
   draft?: boolean;
   wh?: string;
   time?: Date;
