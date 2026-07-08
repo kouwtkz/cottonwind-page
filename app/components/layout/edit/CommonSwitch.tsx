@@ -5,35 +5,43 @@ import { AiOutlinePlus, AiOutlineTool } from "react-icons/ai";
 import { MdClose, MdDoneOutline } from "react-icons/md";
 import { TbArrowsMove } from "react-icons/tb";
 
-interface ModeSwitchProps
+interface ModeSwitchProps<T>
   extends Omit<HTMLAttributes<HTMLButtonElement>, "onClick"> {
   toEnableTitle?: string;
   toDisableTitle?: string;
   beforeOnClick?: (
-    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => boolean;
-  useSwitch: CreateStateFunctionType<boolean>;
+  useSwitch: CreateStateFunctionType<T>;
+  enableValue?: true | T;
+  disableValue?: false | T;
   ref?: React.RefObject<HTMLButtonElement>;
 }
-export function ModeSwitch({
+export function ModeSwitch<T>({
   toEnableTitle = "有効にする",
   toDisableTitle = "元に戻す",
   children = <AiOutlineTool />,
   useSwitch,
   beforeOnClick,
+  enableValue = true,
+  disableValue = false,
   ref,
   ...props
-}: ModeSwitchProps) {
-  const [isEnable, setIsEnable] = useSwitch();
+}: ModeSwitchProps<T>) {
+  const [value, setValue] = useSwitch();
+  const isEnabled = useMemo(() => value === enableValue, [value, enableValue]);
   return (
     <button
-      title={isEnable ? toDisableTitle : toEnableTitle}
+      title={isEnabled ? toDisableTitle : toEnableTitle}
       type="button"
       className="iconSwitch"
       onClick={(e) => {
-        if (!beforeOnClick || beforeOnClick(e)) setIsEnable(!isEnable);
+        if (!beforeOnClick || beforeOnClick(e)) {
+          if (isEnabled) setValue(disableValue as T);
+          else setValue(enableValue as T);
+        }
       }}
-      style={{ opacity: isEnable ? 1 : 0.4 }}
+      style={{ opacity: isEnabled ? 1 : 0.4 }}
       ref={ref}
       {...props}
     >
