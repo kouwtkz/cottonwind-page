@@ -2591,6 +2591,14 @@ form {
 .characterPage {
   max-width: 1400px;
   @include commonHeader();
+  .header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    & > *, .tagSelect {
+      margin: 0.2rem;
+    }
+  }
   .modal & h2 {
     text-align: center;
   }
