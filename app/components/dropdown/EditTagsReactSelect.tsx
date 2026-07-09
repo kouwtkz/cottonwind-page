@@ -8,6 +8,7 @@ import {
 import { getTagsOptions } from "./SortFilterTags";
 import ReactSelect, {
   type MultiValue,
+  type SingleValue,
   type StylesConfig,
   type ThemeConfig,
 } from "react-select";
@@ -42,7 +43,9 @@ interface EditTagsReactSelectType<T extends FieldValues> {
   addButtonClassName?: string;
   formatOptionLabel?: (data: unknown) => ReactNode;
   className?: string;
-  onChange?(newValues: MultiValue<ContentsTagsOption>): void;
+  onChange?(
+    newValues: SingleValue<ContentsTagsOption> | MultiValue<ContentsTagsOption>,
+  ): void;
 }
 export function EditTagsReactSelect<T extends FieldValues = any>({
   name,

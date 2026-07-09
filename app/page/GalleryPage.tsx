@@ -1888,7 +1888,9 @@ export function GalleryCharactersSelect({
       }}
       value={value}
       onChange={(v) => {
-        const value = v.map(({ value }) => value).join(",");
+        const value = (Array.isArray(v) ? v : [v])
+          .map(({ value }) => value)
+          .join(",");
         if (value) searchParams.set("characters", value);
         else searchParams.delete("characters");
         setSearchParams(searchParams, {
