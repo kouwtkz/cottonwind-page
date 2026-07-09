@@ -2595,7 +2595,8 @@ form {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    & > *, .tagSelect {
+    & > *,
+    .tagSelect {
       margin: 0.2rem;
     }
   }
@@ -4551,6 +4552,7 @@ body.workers {
     .category {
       display: inline-flex;
       align-items: center;
+      flex-wrap: wrap;
       margin: auto 0.5rem;
       > * {
         margin: auto 0.25rem;
