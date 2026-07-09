@@ -36,7 +36,10 @@ import { EmbedNode, useFiles } from "~/components/state/FileState";
 import ShareButton from "~/components/button/ShareButton";
 import { MdDownload, MdMoveToInbox } from "react-icons/md";
 import { LikeButton } from "~/components/button/LikeButton";
-import { useGalleryObject } from "~/page/GalleryPage";
+import {
+  useGalleryObject,
+  useGalleryRibbonUpdateTrigger,
+} from "~/page/GalleryPage";
 import { CreateObjectState } from "~/components/state/CreateState";
 import { CharacterName } from "~/page/CharacterPage";
 import { Modal } from "./Modal";
@@ -640,17 +643,23 @@ function ImageViewerModal({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ImageViewerMain() {
-  const { image, disabledHotkeys } = useImageViewer();
-
+function CheckUpdateImage({ image }: { image?: ImageType | null }) {
+  const setTrigger = useGalleryRibbonUpdateTrigger()[1];
   useEffect(() => {
     if (image && (image.new || image.update)) {
       image.new = false;
       image.update = false;
+      setTrigger((v) => !v);
     }
   }, [image]);
+
+  return <></>;
+}
+function ImageViewerMain() {
+  const { image, disabledHotkeys } = useImageViewer();
   return (
     <div id="image_viewer">
+      <CheckUpdateImage image={image} />
       <ImageViewerModal>
         {useMemo(
           () => (

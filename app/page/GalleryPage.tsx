@@ -1908,6 +1908,7 @@ export function GalleryCharactersSelect({
   );
 }
 
+export const useGalleryRibbonUpdateTrigger = CreateState(false);
 interface GalleryItemRibbonProps extends GalleryItemVisibleProps {
   image: ImageType;
 }
@@ -1921,16 +1922,20 @@ function GalleryItemRibbon({
   visibleLikeCount,
   visibleYear,
 }: GalleryItemRibbonProps) {
+  const trigger = useGalleryRibbonUpdateTrigger()[0];
   const schedule =
     image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
-  const itemOfUpdate = useMemo<null | GalleryItemRibbonListType>(() => {
+  const itemOfDraft = useMemo<GalleryItemRibbonListType | null>(() => {
     if (image.draft) return { label: "Draft", className: "draft" };
     else if (schedule) return { label: "Schedule", className: "schedule" };
-    else if (image.update) {
+    else return null;
+  }, [image, schedule, trigger]);
+  const itemOfUpdate = useMemo<GalleryItemRibbonListType | null>(() => {
+    if (image.update) {
       if (image.new) return { label: "New!", className: "new" };
       else return { label: "Update", className: "update" };
     } else return null;
-  }, [image, schedule]);
+  }, [image, trigger]);
   const yearRibbon = useImageYearRibbonSwitch()[0];
   const itemOfCreationTime = useMemo<
     GalleryItemRibbonListType | undefined
@@ -1942,12 +1947,12 @@ function GalleryItemRibbon({
     ) {
       return { label: image.creationTime!.FormatToJP() };
     }
-  }, [visibleCreationTime, image]);
+  }, [visibleCreationTime, image, trigger]);
   const itemOfLikeCount = useMemo<GalleryItemRibbonListType | undefined>(() => {
     if (visibleLikeCount && image.like && image.like.count) {
       return { label: image.like.count.toString(), className: "like" };
     }
-  }, [visibleLikeCount, image]);
+  }, [visibleLikeCount, image, trigger]);
   const itemOfYear = useMemo<GalleryItemRibbonListType | undefined>(() => {
     if ((visibleYear || yearRibbon) && image.year) {
       return {
@@ -1955,15 +1960,16 @@ function GalleryItemRibbon({
         className: "year",
       };
     }
-  }, [visibleYear, yearRibbon, image]);
+  }, [visibleYear, yearRibbon, image, trigger]);
   const list = useMemo(() => {
     const list: GalleryItemRibbonListType[] = [];
     if (itemOfYear) list.push(itemOfYear);
     if (itemOfCreationTime) list.push(itemOfCreationTime);
     if (itemOfLikeCount) list.push(itemOfLikeCount);
     if (itemOfUpdate) list.push(itemOfUpdate);
+    if (itemOfDraft) list.push(itemOfDraft);
     return list;
-  }, [itemOfUpdate, itemOfCreationTime, itemOfLikeCount, itemOfYear]);
+  }, [itemOfDraft, itemOfCreationTime, itemOfLikeCount, itemOfYear]);
 
   return (
     <>
