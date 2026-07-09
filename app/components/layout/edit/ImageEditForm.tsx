@@ -95,7 +95,12 @@ import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSele
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
-import { TbFlagCheck, TbPencilCheck, TbUserCheck } from "react-icons/tb";
+import {
+  TbFlagCheck,
+  TbFolderCheck,
+  TbPencilCheck,
+  TbUserCheck,
+} from "react-icons/tb";
 import { BiBadgeCheck } from "react-icons/bi";
 import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
 import { useLang } from "~/components/multilingual/LangState";
@@ -123,7 +128,7 @@ export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
   Map: null,
 });
 export const useImageMultiSelectMode = CreateState<
-  false | "draft" | "pickup" | "tags" | "characters"
+  false | "draft" | "pickup" | "tags" | "characters" | "album"
 >(false);
 
 export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
@@ -139,6 +144,13 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
   return useMemo(
     () => (
       <>
+        <ModeSwitch
+          toEnableTitle="アルバム一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="album"
+        >
+          <TbFolderCheck />
+        </ModeSwitch>
         <ModeSwitch
           toEnableTitle="ピックアップ一括設定モード"
           useSwitch={useImageMultiSelectMode}
@@ -192,6 +204,8 @@ export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
           return <ImageMultiDraftSetting />;
         case "pickup":
           return <ImageMultiPickupSetting />;
+        case "album":
+          return <ImageMultiAlbumSetting />;
         default:
           return null;
       }
@@ -721,6 +735,85 @@ function ImageMultiPickupSetting() {
     </div>
   );
 }
+function ImageMultiAlbumSetting() {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+  const resetWhenSubmit = useCallback(() => {
+    setMultiSelect(({ Map }) => {
+      Map?.clear();
+      return { Map };
+    });
+  }, []);
+  const { register, watch, handleSubmit, reset } = useForm<
+    { album: string },
+    any,
+    any
+  >({
+    defaultValues: { album: "" },
+  });
+  const albumValue = watch("album");
+
+  const onSubmit = useCallback(
+    (album: string) => {
+      if (!multiSelectMap) return;
+      if (
+        confirm(
+          multiSelectMap.size +
+            "件の画像を" +
+            album +
+            "のアルバムに一括移動しますか？",
+        )
+      ) {
+        SendPatch(
+          Array.from(multiSelectMap.values())
+            .filter((image) => image.album !== album)
+            .map((image) => ({ id: image.id, album })),
+        ).then(() => {
+          toast.success("アルバムの一括移動が完了しました");
+          imageDataIndexed.load("no-cache");
+          reset();
+          resetWhenSubmit();
+        });
+      }
+    },
+    [multiSelectMap, reset],
+  );
+  const count = useMemo(
+    () => (multiSelect.Map ? multiSelect.Map.size : -1),
+    [multiSelect],
+  );
+  const buttonsDisabled = useMemo(
+    () => !albumValue || count <= 0,
+    [count, albumValue],
+  );
+
+  return (
+    <div className="multiSelect">
+      <div>
+        <span>アルバム一括移動モード</span>
+        <span> - </span>
+        <span className="mb-1">{multiSelectMap?.size}件選択中</span>
+      </div>
+      <div className="flex center">
+        <input
+          type="text"
+          title="移動"
+          {...register("album")}
+          list="album-list"
+        />
+        <AlbumsDataList />
+        <button
+          type="button"
+          className="color"
+          disabled={buttonsDisabled}
+          onClick={handleSubmit((fields) => onSubmit(fields.album))}
+        >
+          移動する
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface optionElementInterface {
   value?: string;
@@ -760,13 +853,30 @@ function GetCurrentTags(
   return list;
 }
 
+export const AlbumsDataList = React.memo(function AlbumsDataList() {
+  const { imageAlbums: albums } = useImageState();
+  return (
+    <datalist id="album-list">
+      {albums
+        ? Object.values(Object.fromEntries(albums))
+            .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
+            .map((album, i) => (
+              <option key={`image_album_${i}_${album.name}`} value={album.name}>
+                {album.name}
+              </option>
+            ))
+        : null}
+    </datalist>
+  );
+});
+
 export default function ImageEditForm({
   className,
   image,
   disableHotkeys,
   ...args
 }: ImageEditFormProps) {
-  const { imageAlbums: albums, copyrightList, tagsList } = useImageState();
+  const { copyrightList, tagsList } = useImageState();
   const { images } = useImageViewer();
 
   const { characters } = useCharacters();
@@ -1780,20 +1890,7 @@ export default function ImageEditForm({
             disabled={isBusy}
             list="album-list"
           />
-          <datalist id="album-list">
-            {albums
-              ? Object.values(Object.fromEntries(albums))
-                  .sort((a, b) => ((a.name || "") > (b.name || "") ? 1 : -1))
-                  .map((album, i) => (
-                    <option
-                      key={`image_album_${i}_${album.name}`}
-                      value={album.name}
-                    >
-                      {album.name}
-                    </option>
-                  ))
-              : null}
-          </datalist>
+          <AlbumsDataList />
         </label>
         <label className="around">
           <div className="label-l">ファイル名変更</div>
