@@ -96,6 +96,7 @@ import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
 import {
+  TbCopyright,
   TbFlagCheck,
   TbFolderCheck,
   TbPencilCheck,
@@ -128,7 +129,7 @@ export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
   Map: null,
 });
 export const useImageMultiSelectMode = CreateState<
-  false | "draft" | "pickup" | "tags" | "characters" | "album"
+  false | "draft" | "pickup" | "tags" | "characters" | "copyright" | "album"
 >(false);
 
 export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
@@ -179,6 +180,13 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
         >
           <TbUserCheck />
         </ModeSwitch>
+        <ModeSwitch
+          toEnableTitle="コピーライトの一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="copyright"
+        >
+          <TbCopyright />
+        </ModeSwitch>
       </>
     ),
     [],
@@ -200,6 +208,8 @@ export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
           return <ImageMultiTagSetting />;
         case "characters":
           return <ImageMultiCharactersSetting />;
+        case "copyright":
+          return <ImageMultiCopyrightSetting />;
         case "draft":
           return <ImageMultiDraftSetting />;
         case "pickup":
@@ -240,7 +250,7 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
         : [],
     [tagsList],
   );
-  const selectedTags = watch("tags");
+  const selected = watch("tags");
   const currentTagsList = useMemo(() => {
     return GetCurrentTags(stateTags, unregisteredTagsOptions);
   }, [stateTags, unregisteredTagsOptions]);
@@ -259,8 +269,8 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
     else return null;
   }, [count]);
   const buttonsDisabled = useMemo(
-    () => selectedTags.length === 0 || count <= 0,
-    [selectedTags, count],
+    () => selected.length === 0 || count <= 0,
+    [selected, count],
   );
   const resetWhenSubmit = useCallback(() => {
     reset();
@@ -527,6 +537,172 @@ const ImageMultiCharactersSetting = React.memo(
                       fields.characters
                         .map((v) => charactersMap.get(v)?.name)
                         .join(", "),
+                  )
+                ) {
+                  submitSend(SetupSubmitData(fields, true));
+                }
+              })(e);
+            }}
+          >
+            削除
+          </button>
+        </div>
+      </div>
+    );
+  },
+);
+
+const ImageMultiCopyrightSetting = React.memo(
+  function ImageMultiCopyrightSetting() {
+    const [multiSelect, setMultiSelect] = useImageMultiSelect();
+    const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+    const { copyrightList } = useImageState();
+    const { getValues, setValue, control, watch, handleSubmit, reset } =
+      useForm<{ copyright: string[] }, any, any>({
+        defaultValues: { copyright: [] },
+      });
+    const [stateTags, setStateTags] = useState<ContentsTagsOption[]>([]);
+    const selected = watch("copyright");
+    const currentTagsList = useMemo(() => {
+      const list: ContentsTagsOption[] = [
+        {
+          label: "追加しようとしたコピーライト",
+          options: stateTags,
+        },
+      ];
+      if (copyrightList)
+        list.push({
+          label: "コピーライト",
+          options: copyrightList.map(
+            ({ value }) => ({ label: value, value }) as ContentsTagsOption,
+          ),
+        });
+      return list;
+    }, [stateTags, copyrightList]);
+    const count = useMemo(
+      () => (multiSelect.Map ? multiSelect.Map.size : -1),
+      [multiSelect],
+    );
+    const label = useMemo(() => {
+      if (count >= 0)
+        return (
+          <>
+            <span className="ml-1">コピーライトの一括設定 - </span>
+            <span className="ml-1">{count + "件選択中"}</span>
+          </>
+        );
+      else return null;
+    }, [count]);
+    const buttonsDisabled = useMemo(
+      () => selected.length === 0 || count <= 0,
+      [selected, count],
+    );
+    const resetWhenSubmit = useCallback(() => {
+      reset();
+      setMultiSelect(({ Map }) => {
+        Map?.clear();
+        return { Map };
+      });
+    }, []);
+    const submitSend = useCallback(
+      async (
+        data: {
+          id: number;
+          copyright: string[];
+        }[],
+      ) => {
+        await SendPatch(data).then(() => {
+          toast.success("コピーライトの設定が完了しました");
+          imageDataIndexed.load("no-cache");
+          resetWhenSubmit();
+        });
+      },
+      [],
+    );
+    const SetupSubmitData = useCallback<
+      (
+        fields: { copyright: string[] },
+        remove?: boolean,
+      ) => {
+        id: number;
+        copyright: string[];
+      }[]
+    >(
+      (fields, remove) => {
+        if (!multiSelectMap) return [];
+        return Array.from(multiSelectMap.values())
+          .map((image) => {
+            const tagsMap = new Map<string, void>(
+              image.copyright?.map((v) => [v, undefined]) || [],
+            );
+            const initCount = tagsMap.size;
+            fields.copyright.forEach((tag) => {
+              if (remove) tagsMap.delete(tag);
+              else tagsMap.set(tag);
+            });
+            if (initCount === tagsMap.size) return { id: -1, copyright: [] };
+            else
+              return {
+                id: image.id,
+                copyright: Array.from(tagsMap.keys()),
+              };
+          })
+          .filter((v) => v.id >= 0);
+      },
+      [multiSelectMap],
+    );
+
+    return (
+      <div className="settingTags">
+        <div>
+          <EditTagsReactSelect
+            name="copyright"
+            labelVisible
+            label={<div>{label}</div>}
+            labelClassName="simple"
+            tags={currentTagsList}
+            set={setStateTags}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            placeholder="設定するコピーライトの選択"
+            addButtonVisible
+            enableEnterAdd
+            className="tagSelect"
+          />
+        </div>
+        <div>
+          <button
+            type="button"
+            className="color"
+            disabled={buttonsDisabled}
+            onClick={(e) => {
+              handleSubmit((fields: { copyright: string[] }) => {
+                if (
+                  confirm(
+                    count +
+                      "件の画像に以下のコピーライトを追加しますか？\n" +
+                      fields.copyright.join(", "),
+                  )
+                ) {
+                  submitSend(SetupSubmitData(fields, false));
+                }
+              })(e);
+            }}
+          >
+            追加
+          </button>
+          <button
+            type="button"
+            className="color"
+            disabled={buttonsDisabled}
+            onClick={(e) => {
+              handleSubmit(async (fields: { copyright: string[] }) => {
+                if (
+                  confirm(
+                    count +
+                      "件の画像から以下のコピーライトを削除しますか？\n" +
+                      fields.copyright.join(", "),
                   )
                 ) {
                   submitSend(SetupSubmitData(fields, true));
