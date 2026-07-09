@@ -336,46 +336,48 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
           className="tagSelect"
         />
       </div>
-      <button
-        type="button"
-        className="color"
-        disabled={buttonsDisabled}
-        onClick={(e) => {
-          handleSubmit((fields: { tags: string[] }) => {
-            if (
-              confirm(
-                count +
-                  "件の画像に以下のタグを追加しますか？\n" +
-                  fields.tags.join(", "),
-              )
-            ) {
-              submitSend(SetupSubmitData(fields, false));
-            }
-          })(e);
-        }}
-      >
-        追加
-      </button>
-      <button
-        type="button"
-        className="color"
-        disabled={buttonsDisabled}
-        onClick={(e) => {
-          handleSubmit(async (fields: { tags: string[] }) => {
-            if (
-              confirm(
-                count +
-                  "件の画像から以下のタグを削除しますか？\n" +
-                  fields.tags.join(", "),
-              )
-            ) {
-              submitSend(SetupSubmitData(fields, true));
-            }
-          })(e);
-        }}
-      >
-        削除
-      </button>
+      <div>
+        <button
+          type="button"
+          className="color"
+          disabled={buttonsDisabled}
+          onClick={(e) => {
+            handleSubmit((fields: { tags: string[] }) => {
+              if (
+                confirm(
+                  count +
+                    "件の画像に以下のタグを追加しますか？\n" +
+                    fields.tags.join(", "),
+                )
+              ) {
+                submitSend(SetupSubmitData(fields, false));
+              }
+            })(e);
+          }}
+        >
+          追加
+        </button>
+        <button
+          type="button"
+          className="color"
+          disabled={buttonsDisabled}
+          onClick={(e) => {
+            handleSubmit(async (fields: { tags: string[] }) => {
+              if (
+                confirm(
+                  count +
+                    "件の画像から以下のタグを削除しますか？\n" +
+                    fields.tags.join(", "),
+                )
+              ) {
+                submitSend(SetupSubmitData(fields, true));
+              }
+            })(e);
+          }}
+        >
+          削除
+        </button>
+      </div>
     </div>
   );
 });
@@ -489,50 +491,52 @@ const ImageMultiCharactersSetting = React.memo(
             className="tagSelect"
           />
         </div>
-        <button
-          type="button"
-          className="color"
-          disabled={buttonsDisabled}
-          onClick={(e) => {
-            handleSubmit((fields: { characters: string[] }) => {
-              if (
-                confirm(
-                  count +
-                    "件の画像に以下のキャラクターを追加しますか？\n" +
-                    fields.characters
-                      .map((v) => charactersMap.get(v)?.name)
-                      .join(", "),
-                )
-              ) {
-                submitSend(SetupSubmitData(fields, false));
-              }
-            })(e);
-          }}
-        >
-          追加
-        </button>
-        <button
-          type="button"
-          className="color"
-          disabled={buttonsDisabled}
-          onClick={(e) => {
-            handleSubmit(async (fields: { characters: string[] }) => {
-              if (
-                confirm(
-                  count +
-                    "件の画像から以下のキャラクターを削除しますか？\n" +
-                    fields.characters
-                      .map((v) => charactersMap.get(v)?.name)
-                      .join(", "),
-                )
-              ) {
-                submitSend(SetupSubmitData(fields, true));
-              }
-            })(e);
-          }}
-        >
-          削除
-        </button>
+        <div>
+          <button
+            type="button"
+            className="color"
+            disabled={buttonsDisabled}
+            onClick={(e) => {
+              handleSubmit((fields: { characters: string[] }) => {
+                if (
+                  confirm(
+                    count +
+                      "件の画像に以下のキャラクターを追加しますか？\n" +
+                      fields.characters
+                        .map((v) => charactersMap.get(v)?.name)
+                        .join(", "),
+                  )
+                ) {
+                  submitSend(SetupSubmitData(fields, false));
+                }
+              })(e);
+            }}
+          >
+            追加
+          </button>
+          <button
+            type="button"
+            className="color"
+            disabled={buttonsDisabled}
+            onClick={(e) => {
+              handleSubmit(async (fields: { characters: string[] }) => {
+                if (
+                  confirm(
+                    count +
+                      "件の画像から以下のキャラクターを削除しますか？\n" +
+                      fields.characters
+                        .map((v) => charactersMap.get(v)?.name)
+                        .join(", "),
+                  )
+                ) {
+                  submitSend(SetupSubmitData(fields, true));
+                }
+              })(e);
+            }}
+          >
+            削除
+          </button>
+        </div>
       </div>
     );
   },
@@ -576,8 +580,8 @@ function ImageMultiDraftSetting() {
   const buttonsDisabled = useMemo(() => count <= 0, [count]);
 
   return (
-    <div className="multiSelect">
-      <div>
+    <>
+      <div className="mb-1">
         <span>下書き一括設定モード</span>
         <span> - </span>
         <span className="mb-1">{multiSelectMap?.size}件選択中</span>
@@ -598,7 +602,7 @@ function ImageMultiDraftSetting() {
       >
         下書きに設定する
       </button>
-    </div>
+    </>
   );
 }
 
@@ -676,8 +680,8 @@ function ImageMultiPickupSetting() {
   const buttonsDisabled = useMemo(() => count <= 0, [count]);
 
   return (
-    <div className="multiSelect">
-      <div>
+    <>
+      <div className="mb-1">
         <span>ピックアップ一括設定モード</span>
         <span> - </span>
         <span className="mb-1">{multiSelectMap?.size}件選択中</span>
@@ -732,7 +736,7 @@ function ImageMultiPickupSetting() {
       >
         両方に適用する
       </button>
-    </div>
+    </>
   );
 }
 function ImageMultiAlbumSetting() {
@@ -788,8 +792,8 @@ function ImageMultiAlbumSetting() {
   );
 
   return (
-    <div className="multiSelect">
-      <div>
+    <>
+      <div className="mb-1">
         <span>アルバム一括移動モード</span>
         <span> - </span>
         <span className="mb-1">{multiSelectMap?.size}件選択中</span>
@@ -811,7 +815,7 @@ function ImageMultiAlbumSetting() {
           移動する
         </button>
       </div>
-    </div>
+    </>
   );
 }
 

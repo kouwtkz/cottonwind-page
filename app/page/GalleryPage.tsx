@@ -1107,22 +1107,24 @@ function GalleryBody({
         {showGalleryHeader ? (
           <div>
             <div className="header">
-              {useMemo(
-                () => (
-                  <>
-                    <GalleryYearFilter {...SearchAreaOptions} />
-                    <GallerySearchArea {...SearchAreaOptions} />
-                    <div className="flex">
-                      <GalleryCharactersSelect {...SearchAreaOptions} />
-                      <GalleryTagsSelect
-                        {...SearchAreaOptions}
-                        callbackOptions={callbackOptions}
-                      />
-                    </div>
-                  </>
-                ),
-                [SearchAreaOptions, callbackOptions],
-              )}
+              <div className="flex">
+                {useMemo(
+                  () => (
+                    <>
+                      <GalleryYearFilter {...SearchAreaOptions} />
+                      <GallerySearchArea {...SearchAreaOptions} />
+                      <div className="flex wrap center">
+                        <GalleryCharactersSelect {...SearchAreaOptions} />
+                        <GalleryTagsSelect
+                          {...SearchAreaOptions}
+                          callbackOptions={callbackOptions}
+                        />
+                      </div>
+                    </>
+                  ),
+                  [SearchAreaOptions, callbackOptions],
+                )}
+              </div>
               {isLogin ? (
                 <div className="flex center">
                   <div className="icons flex center">
