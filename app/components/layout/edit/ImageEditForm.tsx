@@ -31,6 +31,7 @@ import { RenameFile } from "~/components/utils/FileTool";
 import { ModeSwitch } from "~/components/layout/edit/CommonSwitch";
 import {
   RiArtboard2Fill,
+  RiCheckboxMultipleFill,
   RiFileUploadLine,
   RiFileWordLine,
 } from "react-icons/ri";
@@ -97,7 +98,6 @@ import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
 import {
   TbBookmarkOff,
-  TbCheckbox,
   TbCopyright,
   TbFlagCheck,
   TbFolderCheck,
@@ -226,7 +226,7 @@ function SelectAll() {
         setMultiSelect({ Map: map });
       }}
     >
-      <TbCheckbox />
+      <RiCheckboxMultipleFill />
     </button>
   );
 }
