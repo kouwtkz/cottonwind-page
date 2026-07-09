@@ -31,7 +31,6 @@ import { RenameFile } from "~/components/utils/FileTool";
 import { ModeSwitch } from "~/components/layout/edit/CommonSwitch";
 import {
   RiArtboard2Fill,
-  RiChatCheckLine,
   RiFileUploadLine,
   RiFileWordLine,
 } from "react-icons/ri";
@@ -42,14 +41,12 @@ import {
 import { useImageState } from "~/components/state/ImageState";
 import {
   defaultGalleryTags,
-  getTagsOptions,
-  autoFixGalleryTagsOptions,
   addExtentionGalleryTagsOptions,
   simpleDefaultTags,
   defaultGalleryEditableTags,
 } from "~/components/dropdown/SortFilterTags";
 import { useController, useForm, type FieldValues } from "react-hook-form";
-import { AiFillEdit, AiOutlineCheckSquare } from "react-icons/ai";
+import { AiFillEdit } from "react-icons/ai";
 import {
   MdChangeCircle,
   MdCleaningServices,

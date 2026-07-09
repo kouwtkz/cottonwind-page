@@ -12,7 +12,6 @@ import {
 } from "~/components/state/ImageState";
 import React, {
   type ReactNode,
-  createRef,
   useCallback,
   useEffect,
   useMemo,
