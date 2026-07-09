@@ -71,6 +71,7 @@ import {
   useImageMultiSelect,
   ImageMultiSelectSwitch,
   ImageMultiSelect,
+  ImageMeeRemoveAllUpdateFlag,
 } from "~/components/layout/edit/ImageEditForm";
 import { useIsLogin } from "~/components/state/EnvState";
 import {
@@ -1134,6 +1135,7 @@ function GalleryBody({
                         dropItemList: "flex column font-small",
                       }}
                     >
+                      <ImageMeeRemoveAllUpdateFlag />
                       <ObjectIndexedDBDownloadButton
                         className="squared item"
                         indexedDB={imageDataIndexed}
@@ -1969,7 +1971,13 @@ function GalleryItemRibbon({
     if (itemOfUpdate) list.push(itemOfUpdate);
     if (itemOfDraft) list.push(itemOfDraft);
     return list;
-  }, [itemOfDraft, itemOfCreationTime, itemOfLikeCount, itemOfYear]);
+  }, [
+    itemOfYear,
+    itemOfCreationTime,
+    itemOfLikeCount,
+    itemOfUpdate,
+    itemOfDraft,
+  ]);
 
   return (
     <>

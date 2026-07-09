@@ -96,6 +96,7 @@ import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
 import {
+  TbBookmarkOff,
   TbCopyright,
   TbFlagCheck,
   TbFolderCheck,
@@ -105,6 +106,8 @@ import {
 import { BiBadgeCheck, BiSolidCopyAlt } from "react-icons/bi";
 import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
 import { useLang } from "~/components/multilingual/LangState";
+import { ObjectCommonButton } from "~/components/button/ObjectDownloadButton";
+import { useGalleryRibbonUpdateTrigger } from "~/page/GalleryPage";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -992,6 +995,27 @@ function ImageMultiAlbumSetting() {
         </button>
       </div>
     </>
+  );
+}
+
+export function ImageMeeRemoveAllUpdateFlag() {
+  const { images } = useImageState();
+  const setTrigger = useGalleryRibbonUpdateTrigger()[1];
+  return (
+    <ObjectCommonButton
+      className="squared item"
+      title={"ギャラリーのUpdateリボンを全て解除する"}
+      icon={<TbBookmarkOff />}
+      onClick={() => {
+        images?.forEach((image) => {
+          image.new = false;
+          image.update = false;
+        });
+        setTrigger((v) => !v);
+      }}
+    >
+      ギャラリーのUpdateリボンを全て解除する
+    </ObjectCommonButton>
   );
 }
 
