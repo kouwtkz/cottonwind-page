@@ -72,6 +72,7 @@ import {
   ImageMultiSelectSwitch,
   ImageMultiSelect,
   ImageMeeRemoveAllUpdateFlag,
+  CheckedOnly,
 } from "~/components/layout/edit/ImageEditForm";
 import { useIsLogin } from "~/components/state/EnvState";
 import {
@@ -354,6 +355,10 @@ export function GalleryObject(args: GalleryObjectProps) {
     () => searchParams.has("draftOnly"),
     [searchParams],
   );
+  const checkedOnly = useMemo(
+    () => searchParams.has("checkedOnly"),
+    [searchParams],
+  );
   const hasTopImage = useMemo(
     () => searchParams.has("topImage"),
     [searchParams],
@@ -472,6 +477,7 @@ export function GalleryObject(args: GalleryObjectProps) {
     if (likeWhere) wheres.push({ like: { checked: true } });
     if (typeParam) wheres.push({ type: typeParam as imageKindType });
     if (draftOnly) wheres.push({ draft: true });
+    if (checkedOnly) wheres.push({ checked: true });
     return wheres;
   }, [
     where,
@@ -482,6 +488,7 @@ export function GalleryObject(args: GalleryObjectProps) {
     likeWhere,
     typeParam,
     draftOnly,
+    checkedOnly,
   ]);
   const orderBySort = useMemo(() => {
     const list: OrderByItem<ImageType>[] = [...orderBy];
@@ -599,7 +606,14 @@ export function GalleryObject(args: GalleryObjectProps) {
   const filteredGroupsToYList = useMemo(() => {
     return filteredGroups.map<GalleryItemObjectType>((group) => {
       if (
-        !(searchMode || typeParam || draftOnly || hasPickup || topAlbum) &&
+        !(
+          searchMode ||
+          typeParam ||
+          draftOnly ||
+          checkedOnly ||
+          hasPickup ||
+          topAlbum
+        ) &&
         group.hideWhenDefault
       ) {
         return { ...group, list: [] };
@@ -607,7 +621,15 @@ export function GalleryObject(args: GalleryObjectProps) {
         return group;
       }
     });
-  }, [filteredGroups, searchMode, typeParam, draftOnly, hasPickup, topAlbum]);
+  }, [
+    filteredGroups,
+    searchMode,
+    typeParam,
+    draftOnly,
+    checkedOnly,
+    hasPickup,
+    topAlbum,
+  ]);
 
   const filteredYearGroups = useMemo(() => {
     return filteredGroupsToYList.map<GalleryItemObjectType>(
@@ -1206,6 +1228,7 @@ function GalleryBody({
                       >
                         <RiChatPrivateLine />
                       </ModeSearchSwitch>
+                      <CheckedOnly />
                     </IconsFoldButton>
                     <IconsFoldButton
                       title="複数選択モード"
@@ -1326,6 +1349,9 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
     () => multiSelect.Map?.has(image.key) || false,
     [image, multiSelect],
   );
+  useEffect(() => {
+    image.checked = checked;
+  }, [image, checked]);
   const toStatehandler = useCallback((): {
     to: To;
     state?: any;

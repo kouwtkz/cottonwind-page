@@ -28,7 +28,10 @@ import {
   toastUpdateOptions,
 } from "~/components/define/toastContainerDef";
 import { RenameFile } from "~/components/utils/FileTool";
-import { ModeSwitch } from "~/components/layout/edit/CommonSwitch";
+import {
+  ModeSearchSwitch,
+  ModeSwitch,
+} from "~/components/layout/edit/CommonSwitch";
 import {
   RiArtboard2Fill,
   RiCheckboxMultipleFill,
@@ -99,6 +102,7 @@ import { TimeClass } from "~/components/functions/Time";
 import {
   TbBookmarkOff,
   TbCopyright,
+  TbFilterCheck,
   TbFlagCheck,
   TbFolderCheck,
   TbPencilCheck,
@@ -200,6 +204,36 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
     [],
   );
 });
+
+export function CheckedOnly() {
+  const setSearchParams = useSearchParams()[1];
+  const [multiSelectMode] = useImageMultiSelectMode();
+  const disabledMultiSelect = multiSelectMode === false;
+  useEffect(() => {
+    if (disabledMultiSelect) {
+      const searchParams = new URLSearchParams(location.search);
+      const key = "checkedOnly";
+      if (searchParams.has(key)) {
+        searchParams.delete(key);
+        setSearchParams(searchParams, {
+          preventScrollReset: true,
+          replace: true,
+        });
+      }
+    }
+  }, [disabledMultiSelect]);
+
+  return (
+    <ModeSearchSwitch
+      toEnableTitle="選択中のみ表示"
+      toDisableTitle="選択中以外も表示"
+      searchKey="checkedOnly"
+      disabled={disabledMultiSelect}
+    >
+      <TbFilterCheck />
+    </ModeSearchSwitch>
+  );
+}
 
 function SelectAll() {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();

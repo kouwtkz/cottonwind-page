@@ -56,6 +56,7 @@ interface ModeSearchSwitchProps
   toDisableTitle?: string;
   searchKey: string;
   ref?: React.RefObject<HTMLAnchorElement>;
+  disabled?: boolean
 }
 export function ModeSearchSwitch({
   toEnableTitle = "有効にする",

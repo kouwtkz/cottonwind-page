@@ -54,6 +54,7 @@ interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawE
   like?: LikeType;
   characterObjects?: CharacterType[];
   creationTime?: TimeClass | null;
+  checked?: boolean;
   data?: ImageDataType;
 }
 
