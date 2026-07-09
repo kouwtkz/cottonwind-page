@@ -95,8 +95,10 @@ import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSele
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
-import { TbPencilCheck } from "react-icons/tb";
+import { TbPencilCheck, TbUserCheck } from "react-icons/tb";
 import { BiBadgeCheck, BiMessageAltCheck } from "react-icons/bi";
+import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
+import { useLang } from "~/components/multilingual/LangState";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -121,7 +123,7 @@ export const useImageMultiSelect = CreateState<ImageMultiSelectProps>({
   Map: null,
 });
 export const useImageMultiSelectMode = CreateState<
-  false | "tags" | "draft" | "pickup"
+  false | "draft" | "pickup" | "tags" | "characters"
 >(false);
 
 export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
@@ -152,11 +154,18 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
           <TbPencilCheck />
         </ModeSwitch>
         <ModeSwitch
-          toEnableTitle="タグ一括設定モード"
+          toEnableTitle="タグの一括設定モード"
           useSwitch={useImageMultiSelectMode}
           enableValue="tags"
         >
           <BiBadgeCheck />
+        </ModeSwitch>
+        <ModeSwitch
+          toEnableTitle="キャラクターの一括設定モード"
+          useSwitch={useImageMultiSelectMode}
+          enableValue="characters"
+        >
+          <TbUserCheck />
         </ModeSwitch>
       </>
     ),
@@ -177,6 +186,8 @@ export const ImageMultiSelect = React.memo(function ImageMultiSelect() {
       switch (multiSelectMode) {
         case "tags":
           return <ImageMultiTagSetting />;
+        case "characters":
+          return <ImageMultiCharactersSetting />;
         case "draft":
           return <ImageMultiDraftSetting />;
         case "pickup":
@@ -340,7 +351,7 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
             if (
               confirm(
                 count +
-                  "件の画像に以下のタグを削除しますか？\n" +
+                  "件の画像から以下のタグを削除しますか？\n" +
                   fields.tags.join(", "),
               )
             ) {
@@ -354,6 +365,164 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
     </div>
   );
 });
+
+const ImageMultiCharactersSetting = React.memo(
+  function ImageMultiCharactersSetting() {
+    const [multiSelect, setMultiSelect] = useImageMultiSelect();
+    const multiSelectMap = useMemo(() => multiSelect.Map, [multiSelect]);
+    const { getValues, setValue, control, watch, handleSubmit, reset } =
+      useForm<{ characters: string[] }, any, any>({
+        defaultValues: { characters: [] },
+      });
+    const { characters, charactersMap } = useCharacters();
+    const charactersTags = useMemo(
+      () => SetupCharactersTagsOptions(characters),
+      [characters],
+    );
+    const lang = useLang()[0];
+    const charaFormatOptionLabel = useMemo(() => {
+      if (charactersMap) return charaTagsLabel(charactersMap, lang);
+    }, [charactersMap, lang]);
+    const selected = watch("characters");
+    const count = useMemo(
+      () => (multiSelect.Map ? multiSelect.Map.size : -1),
+      [multiSelect],
+    );
+    const label = useMemo(() => {
+      if (count >= 0)
+        return (
+          <>
+            <span className="ml-1">キャラクターの一括設定 - </span>
+            <span className="ml-1">{count + "件選択中"}</span>
+          </>
+        );
+      else return null;
+    }, [count]);
+    const buttonsDisabled = useMemo(
+      () => selected.length === 0 || count <= 0,
+      [selected, count],
+    );
+    const resetWhenSubmit = useCallback(() => {
+      reset();
+      setMultiSelect(({ Map }) => {
+        Map?.clear();
+        return { Map };
+      });
+    }, []);
+    const submitSend = useCallback(
+      async (
+        data: {
+          id: number;
+          characters: string[];
+        }[],
+      ) => {
+        await SendPatch(data).then(() => {
+          toast.success("キャラクタータグの設定が完了しました");
+          imageDataIndexed.load("no-cache");
+          resetWhenSubmit();
+        });
+      },
+      [],
+    );
+    const SetupSubmitData = useCallback<
+      (
+        fields: { characters: string[] },
+        remove?: boolean,
+      ) => {
+        id: number;
+        characters: string[];
+      }[]
+    >(
+      (fields, remove) => {
+        if (!multiSelectMap) return [];
+        return Array.from(multiSelectMap.values())
+          .map((image) => {
+            const charactersMap = new Map<string, void>(
+              image.characters?.map((v) => [v, undefined]) || [],
+            );
+            const initCount = charactersMap.size;
+            fields.characters.forEach((character) => {
+              if (remove) charactersMap.delete(character);
+              else charactersMap.set(character);
+            });
+            if (initCount === charactersMap.size)
+              return { id: -1, characters: [] };
+            else
+              return {
+                id: image.id,
+                characters: Array.from(charactersMap.keys()),
+              };
+          })
+          .filter((v) => v.id >= 0);
+      },
+      [multiSelectMap],
+    );
+
+    return (
+      <div className="settingTags">
+        <div>
+          <EditTagsReactSelect
+            name="characters"
+            labelVisible
+            label={<div>{label}</div>}
+            labelClassName="simple"
+            tags={charactersTags}
+            formatOptionLabel={charaFormatOptionLabel}
+            control={control}
+            setValue={setValue}
+            getValues={getValues}
+            placeholder="設定するキャラクターの選択"
+            className="tagSelect"
+          />
+        </div>
+        <button
+          type="button"
+          className="color"
+          disabled={buttonsDisabled}
+          onClick={(e) => {
+            handleSubmit((fields: { characters: string[] }) => {
+              if (
+                confirm(
+                  count +
+                    "件の画像に以下のキャラクターを追加しますか？\n" +
+                    fields.characters
+                      .map((v) => charactersMap.get(v)?.name)
+                      .join(", "),
+                )
+              ) {
+                submitSend(SetupSubmitData(fields, false));
+              }
+            })(e);
+          }}
+        >
+          追加
+        </button>
+        <button
+          type="button"
+          className="color"
+          disabled={buttonsDisabled}
+          onClick={(e) => {
+            handleSubmit(async (fields: { characters: string[] }) => {
+              if (
+                confirm(
+                  count +
+                    "件の画像から以下のキャラクターを削除しますか？\n" +
+                    fields.characters
+                      .map((v) => charactersMap.get(v)?.name)
+                      .join(", "),
+                )
+              ) {
+                submitSend(SetupSubmitData(fields, true));
+              }
+            })(e);
+          }}
+        >
+          削除
+        </button>
+      </div>
+    );
+  },
+);
 
 function ImageMultiDraftSetting() {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();

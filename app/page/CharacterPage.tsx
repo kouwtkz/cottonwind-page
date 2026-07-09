@@ -882,6 +882,17 @@ export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
   );
 }
 
+export function SetupCharactersTagsOptions(list: CharacterType[]) {
+  return list.map<ContentsTagsOptionMustValue>((chara) => ({
+    value: chara.key,
+    nameGuide:
+      chara.name +
+      (chara.honorific || "") +
+      (chara.enName ? "," + chara.enName : "") +
+      (chara.nameGuide ? "," + chara.nameGuide : ""),
+  }));
+}
+
 export function MiniCharacterPage() {
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const [searchParams, setSearchParams] = useSearchParams();

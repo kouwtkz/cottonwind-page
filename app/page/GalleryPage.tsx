@@ -118,6 +118,7 @@ import { useLinks } from "~/components/state/LinksState";
 import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
 import { TimeClass } from "~/components/functions/Time";
+import { SetupCharactersTagsOptions } from "./CharacterPage";
 
 export const GalleryPage = React.memo(function GalleryPage(
   args: GalleryPageOptions,
@@ -1862,14 +1863,7 @@ export function GalleryCharactersSelect({
   const charaLabelOptions = useMemo(() => {
     let list = characters ?? [];
     if (enableCharaFilter) list = list.filter((v) => v.key !== currentChara!);
-    return list.map<ContentsTagsOptionMustValue>((chara) => ({
-      value: chara.key,
-      nameGuide:
-        chara.name +
-        (chara.honorific || "") +
-        (chara.enName ? "," + chara.enName : "") +
-        (chara.nameGuide ? "," + chara.nameGuide : ""),
-    }));
+    return SetupCharactersTagsOptions(list);
   }, [characters, currentChara, enableCharaFilter]);
   const value = useMemo(() => {
     const list = searchParams.get("characters")?.split(",");
