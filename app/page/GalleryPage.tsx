@@ -1168,6 +1168,24 @@ function GalleryBody({
                       MenuButton={<RiMenuSearchLine />}
                     >
                       <ModeSearchSwitch
+                        toEnableTitle={
+                          "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
+                        }
+                        toDisableTitle={
+                          "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
+                        }
+                        searchKey="showAllAlbum"
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          const group = prompt("任意のアルバム名");
+                          if (group) {
+                            nav({ pathname: "/gallery/" + group });
+                          }
+                        }}
+                      >
+                        <BiPhotoAlbum />
+                      </ModeSearchSwitch>
+                      <ModeSearchSwitch
                         toEnableTitle="トップ画像が有効なものを絞り込む"
                         toDisableTitle="トップ画像から元の表示に戻す"
                         searchKey="topImage"
@@ -1187,24 +1205,6 @@ function GalleryBody({
                         searchKey="draftOnly"
                       >
                         <RiChatPrivateLine />
-                      </ModeSearchSwitch>
-                      <ModeSearchSwitch
-                        toEnableTitle={
-                          "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
-                        }
-                        toDisableTitle={
-                          "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
-                        }
-                        searchKey="showAllAlbum"
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          const group = prompt("任意のアルバム名");
-                          if (group) {
-                            nav({ pathname: "/gallery/" + group });
-                          }
-                        }}
-                      >
-                        <BiPhotoAlbum />
                       </ModeSearchSwitch>
                     </IconsFoldButton>
                     <IconsFoldButton
