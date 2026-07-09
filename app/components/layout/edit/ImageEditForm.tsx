@@ -95,8 +95,8 @@ import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSele
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
-import { TbPencilCheck, TbUserCheck } from "react-icons/tb";
-import { BiBadgeCheck, BiMessageAltCheck } from "react-icons/bi";
+import { TbFlagCheck, TbPencilCheck, TbUserCheck } from "react-icons/tb";
+import { BiBadgeCheck } from "react-icons/bi";
 import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
 import { useLang } from "~/components/multilingual/LangState";
 
@@ -144,7 +144,7 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
           useSwitch={useImageMultiSelectMode}
           enableValue="pickup"
         >
-          <BiMessageAltCheck />
+          <TbFlagCheck />
         </ModeSwitch>
         <ModeSwitch
           toEnableTitle="下書き一括設定モード"
