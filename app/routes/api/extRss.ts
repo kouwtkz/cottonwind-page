@@ -29,7 +29,8 @@ export async function GetExtRSS(href: string) {
       const pubDate = item.getElementsByTagName("pubDate")[0]?.textContent || "";
       const link = item.getElementsByTagName("link")[0]?.textContent || "";
       const guid = item.getElementsByTagName("guid")[0]?.textContent || "";
-      return { title, description, pubDate, link, guid }
+      const category = Array.from(item.getElementsByTagName("category")).map(v => v.textContent);
+      return { title, description, pubDate, link, guid, category } as ExtRssItemType
     });
     const link = channel.getElementsByTagName("link")[0]?.textContent;
     return { title, description, link, lastBuildDate, items };

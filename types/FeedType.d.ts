@@ -41,5 +41,6 @@ interface ExtRssItemType {
   description: string;
   pubDate: string;
   link: string;
+  category: string[];
   guid: string;
 }

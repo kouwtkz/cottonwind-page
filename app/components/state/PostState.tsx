@@ -36,6 +36,7 @@ export default function PostState() {
             body: item.description,
             time: new Date(item.pubDate),
             link: item.link,
+            category: item.category,
             postId: item.guid,
             draft: false,
           });
