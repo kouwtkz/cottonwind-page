@@ -100,7 +100,7 @@ import {
 } from "./edit/ImagesManager";
 import { Modal } from "~/components/layout/Modal";
 import { ObjectIndexedDBDownloadButton } from "~/components/button/ObjectDownloadButton";
-import { TbDatabaseImport } from "react-icons/tb";
+import { TbDatabaseImport, TbListCheck, TbMenuOrder } from "react-icons/tb";
 import { Md3dRotation, MdInsertDriveFile, MdMoveToInbox } from "react-icons/md";
 import { ArrayEnv } from "~/Env";
 import {
@@ -1184,35 +1184,45 @@ function GalleryBody({
                       >
                         <RiChatPrivateLine />
                       </ModeSearchSwitch>
-                    </IconsFoldButton>
-                    <ImageMultiSelectSwitch />
-                    <ModeSearchSwitch
-                      toEnableTitle={
-                        "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
-                      }
-                      toDisableTitle={
-                        "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
-                      }
-                      searchKey="showAllAlbum"
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        const group = prompt("任意のアルバム名");
-                        if (group) {
-                          nav({ pathname: "/gallery/" + group });
+                      <ModeSearchSwitch
+                        toEnableTitle={
+                          "全てのアルバムを表示する\n（右クリックで任意のアルバム名へ飛ぶ）"
                         }
-                      }}
+                        toDisableTitle={
+                          "アルバム表示を元に戻す\n（右クリックで任意のアルバム名へ飛ぶ）"
+                        }
+                        searchKey="showAllAlbum"
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          const group = prompt("任意のアルバム名");
+                          if (group) {
+                            nav({ pathname: "/gallery/" + group });
+                          }
+                        }}
+                      >
+                        <BiPhotoAlbum />
+                      </ModeSearchSwitch>
+                    </IconsFoldButton>
+                    <IconsFoldButton
+                      title="複数選択モード"
+                      MenuButton={<TbListCheck />}
                     >
-                      <BiPhotoAlbum />
-                    </ModeSearchSwitch>
-                    <ModeSwitch
-                      toEnableTitle="常に編集モードにする"
-                      useSwitch={useImageEditSwitchHold}
+                      <ImageMultiSelectSwitch />
+                    </IconsFoldButton>
+                    <IconsFoldButton
+                      title="アップロードオプション"
+                      MenuButton={<TbMenuOrder />}
                     >
-                      <AiFillEdit />
-                    </ModeSwitch>
-                    <SwitchNotDraftUpload />
-                    <SwitchNoUploadThumbnail />
-                    <SwitchUploadWebp />
+                      <ModeSwitch
+                        toEnableTitle="常に編集モードにする"
+                        useSwitch={useImageEditSwitchHold}
+                      >
+                        <AiFillEdit />
+                      </ModeSwitch>
+                      <SwitchNotDraftUpload />
+                      <SwitchNoUploadThumbnail />
+                      <SwitchUploadWebp />
+                    </IconsFoldButton>
                     <GalleryUploadButton className="iconSwitch" group={group} />
                   </div>
                   <ImageMultiSelect />
