@@ -97,6 +97,7 @@ import { FilesUpload } from "~/page/edit/FilesEdit";
 import { TimeClass } from "~/components/functions/Time";
 import {
   TbBookmarkOff,
+  TbCheckbox,
   TbCopyright,
   TbFlagCheck,
   TbFolderCheck,
@@ -107,7 +108,10 @@ import { BiBadgeCheck, BiSolidCopyAlt } from "react-icons/bi";
 import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
 import { useLang } from "~/components/multilingual/LangState";
 import { ObjectCommonButton } from "~/components/button/ObjectDownloadButton";
-import { useGalleryRibbonUpdateTrigger } from "~/page/GalleryPage";
+import {
+  currentGalleryImageItemMap,
+  useGalleryRibbonUpdateTrigger,
+} from "~/page/GalleryPage";
 
 export interface ImageEditFormProps extends HTMLAttributes<HTMLFormElement> {
   image: ImageType | null;
@@ -148,6 +152,7 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
   return useMemo(
     () => (
       <>
+        <SelectAll />
         <ModeSwitch
           toEnableTitle="アルバム一括設定モード"
           useSwitch={useImageMultiSelectMode}
@@ -195,6 +200,37 @@ export const ImageMultiSelectSwitch = React.memo(function ImageMultiSelect() {
     [],
   );
 });
+
+function SelectAll() {
+  const [multiSelect, setMultiSelect] = useImageMultiSelect();
+  const multiSelectMode = useImageMultiSelectMode()[0];
+  const enabledMultiSelect = useMemo(
+    () => multiSelectMode !== false,
+    [multiSelectMode],
+  );
+  return (
+    <button
+      type="button"
+      className="iconSwitch"
+      title="表示されている画像から全選択/解除"
+      disabled={!enabledMultiSelect}
+      onClick={() => {
+        if (!multiSelect.Map) return;
+        const map = multiSelect.Map;
+        const list = Array.from(currentGalleryImageItemMap.values());
+        const removeAll = list.every((v) => map.has(v.key));
+        list.forEach((image) => {
+          if (removeAll) map.delete(image.key);
+          else map.set(image.key, image);
+        });
+        setMultiSelect({ Map: map });
+      }}
+    >
+      <TbCheckbox />
+    </button>
+  );
+}
+
 async function SendPatch(data: Partial<ImageType>[]) {
   return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
     data,

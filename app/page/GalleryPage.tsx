@@ -1298,6 +1298,8 @@ const GalleryImageList = React.memo(function GalleryImageList(
   );
 });
 
+export const currentGalleryImageItemMap = new Map<string, ImageType>();
+
 const GalleryImageItem = React.memo(function GalleryImageItem({
   galleryName,
   image,
@@ -1308,6 +1310,13 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   visibleYear,
   search,
 }: GalleryImageItemProps) {
+  useEffect(() => {
+    const key = galleryName + "/" + image.key;
+    currentGalleryImageItemMap.set(key, image);
+    return () => {
+      currentGalleryImageItemMap.delete(key);
+    };
+  }, [galleryName, image]);
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
   const isMultiSelectMode = useMemo(
     () => Boolean(multiSelect.Map),
@@ -1489,6 +1498,7 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     max: maxFromArgs = 20,
     maxWhenSearch = 40,
     type,
+    hideWhenFilter,
   } = item;
   const { pathname, search, hash } = useLocation();
   const [searchParams] = useSearchParams();

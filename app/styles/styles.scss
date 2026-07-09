@@ -1228,6 +1228,9 @@ button,
     &:hover {
       color: var(--main-color-deep);
     }
+    &:disabled {
+      opacity: 0.4;
+    }
   }
   &.keyValueEdit {
     @extend .iconSwitch;
