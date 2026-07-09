@@ -2595,6 +2595,7 @@ form {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    flex-wrap: wrap;
     & > *,
     .tagSelect {
       margin: 0.2rem;
