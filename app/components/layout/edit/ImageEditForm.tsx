@@ -102,7 +102,7 @@ import {
   TbPencilCheck,
   TbUserCheck,
 } from "react-icons/tb";
-import { BiBadgeCheck } from "react-icons/bi";
+import { BiBadgeCheck, BiSolidCopyAlt } from "react-icons/bi";
 import { SetupCharactersTagsOptions } from "~/page/CharacterPage";
 import { useLang } from "~/components/multilingual/LangState";
 
@@ -1657,7 +1657,11 @@ export default function ImageEditForm({
               type="button"
               className="color round rb"
               onClick={() => {
-                if (image) CopyWithToast(image.key);
+                if (image)
+                  CopyWithToast(
+                    image.key,
+                    "画像のキーテキストをコピーしました",
+                  );
               }}
             >
               <MdOutlineContentCopy />
@@ -1714,6 +1718,24 @@ export default function ImageEditForm({
           </>
         ) : (
           <>
+            <button
+              title="画像のマークダウンのリンクコピー"
+              type="button"
+              className="color round rb"
+              onClick={() => {
+                const origin =
+                  mediaOrigin && /^https?\:\/\//.test(mediaOrigin)
+                    ? mediaOrigin
+                    : location.origin + (mediaOrigin || "");
+                if (image?.src)
+                  CopyWithToast(
+                    `![${image.title || image.key}](${concatOriginUrl(origin, image.src)})`,
+                    "画像のマークダウンをコピーしました",
+                  );
+              }}
+            >
+              <BiSolidCopyAlt />
+            </button>
             <CharaImageSettingRbButtons image={image} />
           </>
         )}
