@@ -6,7 +6,7 @@ import type {
   FormatOptionLabelMeta,
   StylesConfig,
 } from "react-select";
-import { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { kanaToHira } from "~/components/functions/doc/StrFunctions";
 
 interface CustomReactSelectProps<IsMulti extends boolean>
@@ -19,7 +19,9 @@ interface CustomReactSelectProps<IsMulti extends boolean>
   value?: unknown;
 }
 
-export function CustomReactSelect<IsMulti extends boolean = boolean>({
+export const CustomReactSelect = React.memo(function CustomReactSelect<
+  IsMulti extends boolean = boolean,
+>({
   components: { ValueContainer, ...propsComponents } = {},
   onMenuClose,
   options,
@@ -28,6 +30,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
   formatOptionLabel,
   styles,
   isSearchable: propsIsSearchable,
+  classNames,
   ...props
 }: CustomReactSelectProps<IsMulti>) {
   const [stateIsSearchable, setIsSearchable] = useState(false);
@@ -161,6 +164,13 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
       formatOptionLabel={customFormatOptionLabel}
       styles={styles}
       className="Select"
+      classNames={{
+        control: () => "ReactSelectControl",
+        menu: () => "ReactSelectMenu",
+        menuList: () => "ReactSelectMenuList",
+        placeholder: () => "ReactSelectPlaceholder",
+        ...classNames,
+      }}
       {...props}
       components={{
         ...propsComponents,
@@ -181,7 +191,7 @@ export function CustomReactSelect<IsMulti extends boolean = boolean>({
       }}
     />
   );
-}
+});
 
 export function CountToContentsTagsOption(
   value: ValueCountType[],
