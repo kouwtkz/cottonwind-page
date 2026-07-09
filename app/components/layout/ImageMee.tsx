@@ -369,13 +369,6 @@ export const ImageMeeLink = React.memo(function ImageMeeLinkProps({
     >
       {children}
     </a>
-    // <a
-    //   href={src}
-    //   // preventScrollReset
-    //   // {...onClicks}
-    // >
-    //   {children}
-    // </a>
   );
 });
 
