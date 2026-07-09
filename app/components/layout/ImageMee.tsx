@@ -345,6 +345,7 @@ export const ImageMeeLink = React.memo(function ImageMeeLinkProps({
       if (directMode) {
         setOpenImageViewer({ image: imageItem });
       } else {
+        setOpenImageViewer({ images: null });
         const searchParams = new URLSearchParams(location.search);
         searchParams.set("image", imageItem.key);
         nav(
