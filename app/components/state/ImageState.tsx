@@ -13,6 +13,8 @@ import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
 import { TimeClass } from "../functions/Time";
 import { getYear } from "../functions/DateFunction";
+import { useEnv } from "./EnvState";
+import { concatOriginUrl } from "../functions/originUrl";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -31,11 +33,13 @@ interface imageStateType {
   tagsList?: ValueCountType[];
   simpleDefaultTags?: ContentsTagsOption[];
   seriesMap?: Map<string, ImageType[]>;
+  srcMap?: Map<string, ImageType>;
 }
 export const useImageState = CreateObjectState<imageStateType>();
 
 export function ImageState() {
-  const { Set, imagesMap, images } = useImageState();
+  const { Set } = useImageState();
+  const env = useEnv()[0];
   const { likeCategoryMap } = useLikeState();
   const imagesLikeData: Map<string, LikeType> | undefined = useMemo(() => {
     return likeCategoryMap?.get("image");
@@ -45,7 +49,7 @@ export function ImageState() {
     ...ExternalStoreProps(imageDataIndexed),
   );
   useEffect(() => {
-    if (imagesData?.db && charactersData) {
+    if (env && imagesData?.db && charactersData) {
       imagesData.getAll().then((indexedImagesData) => {
         const lastmod = imageDataIndexed.beforeLastmod;
         const images = indexedImagesData.map<ImageType>(
@@ -133,6 +137,13 @@ export function ImageState() {
         const copyrightList = getCountList(images || [], "copyright");
         const tagsList = getCountList(images || [], "tags");
 
+        const origin = env.MEDIA_ORIGIN || env.MEDIA_CF_ORIGIN;
+        const srcMap = new Map(
+          images
+            .filter((v) => v.src)
+            .map((v) => [concatOriginUrl(origin, v.src!), v]),
+        );
+
         Set({
           images,
           imagesMap,
@@ -143,10 +154,12 @@ export function ImageState() {
           copyrightList,
           tagsList,
           seriesMap,
+          srcMap,
         });
       });
     }
   }, [
+    env,
     imagesData,
     imageDataIndexed,
     imagesLikeData,

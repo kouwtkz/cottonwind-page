@@ -14,6 +14,8 @@ import { PiFilePng } from "react-icons/pi";
 import { ModeSwitch } from "./edit/CommonSwitch";
 import { useImageState } from "~/components/state/ImageState";
 import { mediaOrigin } from "~/data/ClientDBLoader";
+import { useImageViewer } from "./ImageViewer";
+import { Link } from "react-router";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -31,9 +33,16 @@ export function BlankImage({ className, ...args }: BlankImageProps) {
 
 export const useImageMeeShowPng = CreateState(false);
 
+function setupSrc(imageItem?: ImageType | null, src?: string | null) {
+  if (imageItem?.src) {
+    if (/https?:\/\//.test(imageItem.src)) return imageItem.src;
+    else return concatOriginUrl(mediaOrigin, imageItem.src);
+  } else return src || "";
+}
 export interface ImageMeeProps
   extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
   src?: string | null;
+  thumbnail?: string | null;
   imageItem?: ImageType | string;
   hoverImageItem?: ImageType;
   mode?: ResizeMode;
@@ -48,18 +57,20 @@ export interface ImageMeeProps
   wideImageClass?: string;
   longImageClass?: string;
   squareImageClass?: string;
+  enableLink?: boolean;
 }
 export const ImageMee = React.memo(function ImageMee({
   imageItem: _imageItem,
   mode = "simple",
   alt: _alt,
   src: _src,
+  thumbnail: _thumbnail,
   hoverImageItem,
   loading,
   srcSet,
   size,
-  width,
-  height,
+  width: _width,
+  height: _height,
   v,
   autoPixel = true,
   loadingScreen = false,
@@ -73,16 +84,20 @@ export const ImageMee = React.memo(function ImageMee({
   squareImageClass = "squareImage",
   className,
   ref,
+  enableLink,
   ...attributes
 }: ImageMeeProps) {
-  const { imagesMap } = useImageState();
+  const { srcMap, imagesMap } = useImageState();
   const imageItem = useMemo(() => {
-    if (typeof _imageItem === "string") {
-      return imagesMap?.get(_imageItem) || null;
+    if (_imageItem && typeof _imageItem === "object") return _imageItem;
+    let href = _imageItem || _src;
+    if (href) {
+      href = decodeURI(href);
+      return srcMap?.get(href) || imagesMap?.get(href) || null;
     } else {
-      return _imageItem || null;
+      return null;
     }
-  }, [_imageItem, imagesMap]);
+  }, [_src, _imageItem, imagesMap, srcMap]);
   const versionString = useMemo(() => {
     if (imageItem)
       return (imageItem.version || 1) > 1 ? "?v=" + imageItem.version : "";
@@ -99,30 +114,29 @@ export const ImageMee = React.memo(function ImageMee({
 
   const { addProgress, addMax } = useToastProgress();
   const ext = getExtension(imageItem?.src || _src || "");
-  const src = useMemo(() => {
-    if (imageItem?.src) {
-      if (/https?:\/\//.test(imageItem.src)) return imageItem.src;
-      else return MediaOrigin(imageItem.src);
-    } else return _src || "";
-  }, [imageItem, _src]);
+  const src =
+    useMemo(() => setupSrc(imageItem, _src), [imageItem, _src]) + versionString;
   const alt = _alt || imageItem?.title || imageItem?.src || "";
 
-  [width, height] = useMemo(() => {
+  const [width, height] = useMemo(() => {
     if (size) {
       return new Array<number>(2).fill(size);
     } else if (imageItem?.width && imageItem?.height) {
       return [
-        height
-          ? Math.ceil((imageItem.width * Number(height)) / imageItem.height)
+        _height
+          ? Math.ceil((imageItem.width * Number(_height)) / imageItem.height)
           : imageItem.width,
-        width
-          ? Math.ceil((imageItem.height * Number(width)) / imageItem.width)
+        _width
+          ? Math.ceil((imageItem.height * Number(_width)) / imageItem.width)
           : imageItem.height,
       ];
     } else {
-      return [width, height];
+      return [
+        _width ? Number(_width) : undefined,
+        _height ? Number(_height) : undefined,
+      ];
     }
-  }, [imageItem, size, width, height]);
+  }, [imageItem, size, _width, _height]);
   const avgSize = useMemo(
     () =>
       (Number(imageItem?.width || width) +
@@ -154,11 +168,12 @@ export const ImageMee = React.memo(function ImageMee({
   }, [showMessage, showPng, pngURL, setPngURL, addProgress, addMax]);
 
   const thumbnail = useMemo(() => {
-    if (imageItem?.thumbnail) {
-      if (/https?:\/\//.test(imageItem.thumbnail)) return imageItem.thumbnail;
-      else return MediaOrigin(imageItem.thumbnail);
+    const thumbnail = _thumbnail || imageItem?.thumbnail;
+    if (thumbnail) {
+      if (/https?:\/\//.test(thumbnail)) return thumbnail;
+      else return MediaOrigin(thumbnail);
     } else return null;
-  }, [imageItem, MediaOrigin]);
+  }, [_thumbnail, imageItem, MediaOrigin]);
   const imageSrc = useMemo(
     () =>
       showPng && pngURL
@@ -253,18 +268,16 @@ export const ImageMee = React.memo(function ImageMee({
     return imgStyle;
   }, [imageItem, autoPosition, loadingScreen, style, isCover]);
 
-  return (
+  const inner = (
     <img
       src={mainImgSrc || ""}
       alt={alt}
       ref={ref}
       data-origin-ext={ext}
       key={imageSrc}
-      {...{
-        width,
-        height,
-        style: imgStyle,
-      }}
+      width={width}
+      height={height}
+      style={imgStyle}
       className={_className}
       onLoad={(e) => {
         if (currentTempThumbnail) setTempThumbnail(false);
@@ -273,16 +286,103 @@ export const ImageMee = React.memo(function ImageMee({
       {...attributes}
     />
   );
+  return (
+    <>
+      {enableLink ? (
+        <ImageMeeLink
+          imageItem={imageItem}
+          src={src}
+          thumbnail={thumbnail}
+          alt={alt}
+          width={width}
+          height={height}
+        >
+          {inner}
+        </ImageMeeLink>
+      ) : (
+        inner
+      )}
+    </>
+  );
+});
+
+interface ImageMeeLinkProps
+  extends Omit<ImageMeeProps, "width" | "height" | "imageItem"> {
+  imageItem?: ImageType | null;
+  width?: number;
+  height?: number;
+}
+export const ImageMeeLink = React.memo(function ImageMeeLinkProps({
+  id,
+  alt,
+  src,
+  thumbnail,
+  children,
+  width,
+  height,
+  imageItem: _imageItem,
+}: ImageMeeLinkProps) {
+  const { setOpen: setOpenImageViewer } = useImageViewer();
+  const imageItem: ImageType = useMemo(
+    () =>
+      _imageItem || {
+        id: -1,
+        key: id || "",
+        title: alt,
+        src,
+        thumbnail,
+        hideInfo: true,
+        width,
+        height,
+      },
+    [_imageItem, src, thumbnail, id, alt, width, height],
+  );
+  const directMode = imageItem.id < 0;
+  const ImageOnClick = useCallback(
+    (e: React.UIEvent<HTMLElement, unknown>) => {
+      e.preventDefault();
+      setOpenImageViewer({ image: imageItem });
+    },
+    [directMode, imageItem],
+  );
+  const onClicks = directMode
+    ? {
+        target: "_blank",
+        onClick: ImageOnClick,
+        onKeyDown(e: React.KeyboardEvent<HTMLAnchorElement>) {
+          if (e.key === "Enter") ImageOnClick(e);
+        },
+      }
+    : {};
+  return (
+    <Link
+      to={
+        directMode
+          ? src || ""
+          : {
+              search: new URLSearchParams({
+                image: imageItem.key,
+              }).toString(),
+            }
+      }
+      preventScrollReset
+      {...onClicks}
+    >
+      {children}
+    </Link>
+  );
 });
 
 interface ImageMeeSimpleProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
-  imageItem: ImageType;
+  imageItem?: ImageType;
+  thumbnail?: string;
   size?: number;
   loadingScreen?: boolean;
   showMessage?: boolean;
   autoPosition?: boolean | string;
   isCover?: boolean;
+  enableLink?: boolean;
 }
 
 export function ImageMeeIcon({ size, ...args }: ImageMeeSimpleProps) {

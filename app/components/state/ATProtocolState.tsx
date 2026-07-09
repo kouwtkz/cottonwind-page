@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useImageViewer } from "../layout/ImageViewer";
 import { MultiParser, type MultiParserProps } from "../parse/MultiParser";
 import type { OmittedEnv } from "types/custom-configuration";
+import { ImageMee, ImageMeeThumbnail } from "../layout/ImageMee";
 
 export const useATProtoState = CreateObjectState<ATProtoStateType>((set) => ({
   GetPosts(props: BlueskyFeedGetPostProps = {}) {
@@ -542,32 +543,18 @@ function EmbedImage({
   cid: string;
   embed: BlueskyFeedPostEmbedImageViewType;
 }) {
-  const { setOpen: setOpenImageViewer } = useImageViewer();
-  function ImageOnClick(image: BlueskyFeedPostEmbedImageViewItemType) {
-    setOpenImageViewer({
-      image: {
-        id: -1,
-        key: cid,
-        title: image.alt,
-        src: image.fullsize,
-        thumbnail: image.thumb,
-        hideInfo: true,
-        ...image.aspectRatio,
-      },
-    });
-  }
   return (
     <>
       {embed.images.map((image, i) => (
         <div className="imageItem" key={`image_${image.thumb}`}>
-          <img
+          <ImageMeeThumbnail
             alt={image.alt}
-            src={image.thumb}
+            src={image.fullsize}
+            thumbnail={image.thumb}
             tabIndex={0}
-            onClick={() => ImageOnClick(image)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") ImageOnClick(image);
-            }}
+            width={image.aspectRatio.width}
+            height={image.aspectRatio.height}
+            enableLink
           />
         </div>
       ))}

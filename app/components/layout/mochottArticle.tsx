@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import { Link } from "react-router";
+import { ImageMee } from "./ImageMee";
 
 interface MochottArticle_Props {
   children: mochott_content_general_union | mochott_content_general_union[];
@@ -107,11 +108,12 @@ export function MochottArticle({ url, ...props }: MochottArticle_Props) {
                 const srcUrl = new URL(item.attrs.src, url?.href);
                 return (
                   <figure key={"fig-" + key}>
-                    <img
+                    <ImageMee
                       key={key}
-                      alt={item.attrs.alt}
                       src={srcUrl.href}
+                      alt={item.attrs.alt}
                       style={style}
+                      enableLink
                     />
                     {item.attrs.title ? (
                       <figcaption>{item.attrs.title}</figcaption>
