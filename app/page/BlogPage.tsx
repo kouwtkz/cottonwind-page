@@ -1,5 +1,5 @@
 import { useMixPosts } from "~/components/state/PostState";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams, type To } from "react-router";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useLocalDraftPost } from "./edit/PostForm";
 import React, {
@@ -254,6 +254,12 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
     () => (markdownFlag ? { markdown: true, hashtag: true } : {}),
     [markdownFlag],
   );
+  const ToUrl = useMemo<To>(() => {
+    if (detail) return "";
+    const searchParams = new URLSearchParams();
+    if (post.postId) searchParams.set("postId", post.postId);
+    return { pathname: "/blog", search: searchParams.toString() };
+  }, [detail, post]);
 
   return (
     <div className="post">
@@ -276,14 +282,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
                 {post.localDraft ? (
                   post.title
                 ) : (
-                  <Link
-                    to={ToHref({
-                      pathname: "/blog",
-                      query: { postId: post.postId },
-                    })}
-                  >
-                    {post.title}
-                  </Link>
+                  <Link to={ToUrl}>{post.title}</Link>
                 )}
               </h3>
             )}

@@ -197,16 +197,20 @@ function PostsView() {
         </Link>
       </h3>
       <div className="list">
-        {posts.slice(0, 3).map(({ time, title, postId }, i) => (
-          <Link
-            to={"/blog?postId=" + postId}
-            className="article"
-            key={`post_article_${postId}`}
-          >
-            <div className="date">{time?.toLocaleDateString("ja-JP")}</div>
-            <div className="title">{title?.slice(0, 32)}</div>
-          </Link>
-        ))}
+        {posts.slice(0, 3).map(({ time, title, postId }, i) => {
+          const searchParams = new URLSearchParams();
+          if (postId) searchParams.set("postId", postId);
+          return (
+            <Link
+              to={{ pathname: "/blog", search: searchParams.toString() }}
+              className="article"
+              key={`post_article_${postId}`}
+            >
+              <div className="date">{time?.toLocaleDateString("ja-JP")}</div>
+              <div className="title">{title?.slice(0, 32)}</div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
