@@ -31,8 +31,11 @@ import {
 } from "~/components/functions/originUrl";
 import { MeeIndexedDB, type MeeIndexedDBTable } from "./IndexedDB/MeeIndexedDB";
 import { customFetch } from "~/components/functions/fetch";
-import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { SubscribeEventsClass, SubscribeDataClass } from "~/components/hook/SubscribeEvents";
+import React, { useCallback, useEffect, useSyncExternalStore } from "react";
+import {
+  SubscribeEventsClass,
+  SubscribeDataClass,
+} from "~/components/hook/SubscribeEvents";
 
 export let waitIdbResolve: (value?: unknown) => void;
 export const waitIdb = new Promise((resolve, reject) => {
@@ -245,14 +248,13 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
       .then(async (items) => {
         ExtRssData.SetData(items.extRss || null);
         delete items.extRss;
-        ClientDBLoaderHandler.length = Object.entries(items as [unknown[]]).reduce(
-          (a, [key, value]) => {
-            if (Array.isArray(items) && IdbClassMap.has(key as TableNameTypes))
-              a = a + value.length;
-            return a;
-          },
-          0,
-        );
+        ClientDBLoaderHandler.length = Object.entries(
+          items as [unknown[]],
+        ).reduce((a, [key, value]) => {
+          if (Array.isArray(items) && IdbClassMap.has(key as TableNameTypes))
+            a = a + value.length;
+          return a;
+        }, 0);
         ClientDBLoaderHandler.emitEvent("onlength");
         Promise.all(
           IdbStateClassList.map(async (obj) => {
@@ -288,6 +290,23 @@ export async function clientDBLoader({ env }: ClientDBLoaderProps) {
   }
 }
 
+const DataSync = React.memo(function DataSync({
+  obj,
+}: {
+  obj: IndexedDataLastmodMH<any>;
+}) {
+  function loadFalse() {
+    obj.load(false);
+  }
+  useEffect(() => {
+    obj.addEventListener("update", loadFalse);
+    return () => {
+      obj.removeEventListener("update", loadFalse);
+    };
+  }, [obj]);
+  return <></>;
+});
+
 export function ClientDBState() {
   const Effect = useCallback(
     ({
@@ -306,11 +325,7 @@ export function ClientDBState() {
           });
         }
       }, [isSoloLoad]);
-      const data = useSyncExternalStore(obj.subscribe, () => obj.table);
-      useEffect(() => {
-        obj.load(false);
-      }, [data]);
-      return <></>;
+      return <DataSync obj={obj} />;
     },
     [],
   );

@@ -84,7 +84,10 @@ export class IndexedDataClass<
         .finally(() => {
           this.isBusy = false;
         });
-    } else return [];
+    } else {
+      emit("update");
+      return []
+    };
   }
 }
 
