@@ -15,7 +15,7 @@ import { ModeSwitch } from "./edit/CommonSwitch";
 import { useImageState } from "~/components/state/ImageState";
 import { mediaOrigin } from "~/data/ClientDBLoader";
 import { useImageViewer } from "./ImageViewer";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 const blankSrc =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -323,6 +323,7 @@ export const ImageMeeLink = React.memo(function ImageMeeLinkProps({
   imageItem: _imageItem,
 }: ImageMeeLinkProps) {
   const { setOpen: setOpenImageViewer } = useImageViewer();
+  const nav = useNavigate();
   const imageItem: ImageType = useMemo(
     () =>
       _imageItem || {
@@ -341,35 +342,39 @@ export const ImageMeeLink = React.memo(function ImageMeeLinkProps({
   const ImageOnClick = useCallback(
     (e: React.UIEvent<HTMLElement, unknown>) => {
       e.preventDefault();
-      setOpenImageViewer({ image: imageItem });
+      if (directMode) {
+        setOpenImageViewer({ image: imageItem });
+      } else {
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set("image", imageItem.key);
+        nav(
+          {
+            search: searchParams.toString(),
+          },
+          { preventScrollReset: true },
+        );
+      }
     },
     [directMode, imageItem],
   );
-  const onClicks = directMode
-    ? {
-        target: "_blank",
-        onClick: ImageOnClick,
-        onKeyDown(e: React.KeyboardEvent<HTMLAnchorElement>) {
-          if (e.key === "Enter") ImageOnClick(e);
-        },
-      }
-    : {};
   return (
-    <Link
-      to={
-        directMode
-          ? src || ""
-          : {
-              search: new URLSearchParams({
-                image: imageItem.key,
-              }).toString(),
-            }
-      }
-      preventScrollReset
-      {...onClicks}
+    <a
+      href={src || ""}
+      target="_blank"
+      onClick={ImageOnClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") ImageOnClick(e);
+      }}
     >
       {children}
-    </Link>
+    </a>
+    // <a
+    //   href={src}
+    //   // preventScrollReset
+    //   // {...onClicks}
+    // >
+    //   {children}
+    // </a>
   );
 });
 
