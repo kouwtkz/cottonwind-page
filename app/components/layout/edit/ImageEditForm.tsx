@@ -346,7 +346,7 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
           className="tagSelect"
         />
       </div>
-      <div>
+      <div className="buttons">
         <button
           type="button"
           className="color"
@@ -501,7 +501,7 @@ const ImageMultiCharactersSetting = React.memo(
             className="tagSelect"
           />
         </div>
-        <div>
+        <div className="buttons">
           <button
             type="button"
             className="color"
@@ -671,7 +671,7 @@ const ImageMultiCopyrightSetting = React.memo(
             className="tagSelect"
           />
         </div>
-        <div>
+        <div className="buttons">
           <button
             type="button"
             className="color"
