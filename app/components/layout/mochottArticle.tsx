@@ -78,6 +78,7 @@ export function MochottArticle({ url, ...props }: MochottArticle_Props) {
                       <MctAtc base={key}>{item.content}</MctAtc>
                     </p>
                   );
+                else return <MctAtc base={key}>{{ type: "hardBreak" }}</MctAtc>;
                 break;
               case "heading":
                 if (item.content)
