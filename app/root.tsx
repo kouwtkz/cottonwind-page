@@ -41,6 +41,7 @@ import { isbot } from "isbot";
 import { ErrorBoundaryContent } from "./page/ErrorPage";
 import { getCookieObjectFromHeaders } from "./components/utils/Cookie";
 import { CookieToThemeClassNames } from "./components/theme/ThemeCookie";
+import { ClickEffectElement } from "./components/click/ClickEffect";
 
 export function links(): LinkDescriptor[] {
   return [
@@ -215,6 +216,7 @@ export function Layout({ children }: LayoutProps) {
       <body>
         {isLoading ? <Loading /> : null}
         {children}
+        <ClickEffectElement />
         <Scripts />
       </body>
     </Html>

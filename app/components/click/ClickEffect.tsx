@@ -38,7 +38,7 @@ export function ClickEffectElement({
     const classNames = ["clickEffect"];
     if (className) classNames.push(className);
     if (effectName) classNames.push(effectName);
-    if (!children) classNames.push("blank");
+    if (!children) classNames.push("blank spread");
     return classNames.join(" ");
   }, [className, effectName, children]);
   style = useMemo(
