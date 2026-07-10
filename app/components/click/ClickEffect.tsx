@@ -1,10 +1,62 @@
 import { ShortStocks } from "~/components/hook/ShortStocks";
 import { useClickEvent } from "~/components/click/useClickEvent";
-import { type HTMLAttributes, useCallback, useMemo, useRef, useState } from "react";
+import {
+  type HTMLAttributes,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CreateState } from "~/components/state/CreateState";
 
+const ClickEffectSrcList = [
+  "/static/images/effect/cotton.webp",
+  "/static/images/effect/leaf.webp",
+];
 export function ClickEffect() {
-  return <ClickEffectElement effectName="spread"></ClickEffectElement>;
+  function getImgSource() {
+    return ClickEffectSrcList[
+      Math.floor(Math.random() * ClickEffectSrcList.length)
+    ];
+  }
+  function makeChild(array: number[]) {
+    const rnd = Math.random();
+    return array
+      .filter((v, i) => Math.floor(rnd * 3) === i)
+      .map((v, i) => {
+        const rotate = Math.floor(Math.random() * 360);
+        return (
+          <div key={i} className={`d-${v * 30}`}>
+            <img
+              style={{
+                transform: `rotate(${rotate}deg)`,
+              }}
+              src={getImgSource()}
+            />
+          </div>
+        );
+      });
+  }
+  const callback = useCallback(() => {
+    const c1 = makeChild([11, 0, 1]);
+    const c2 = makeChild([2, 3, 4]);
+    const c3 = makeChild([5, 6, 7]);
+    const c4 = makeChild([8, 9, 10]);
+    return (
+      <>
+        {c1}
+        {c2}
+        {c3}
+        {c4}
+      </>
+    );
+  }, []);
+  return (
+    <ClickEffectElement
+      effectName="spread"
+      callback={callback}
+    ></ClickEffectElement>
+  );
 }
 
 const useClickEffect = CreateState(false);
@@ -12,6 +64,7 @@ type effectNameType = "spread";
 interface ClickEffectProps extends HTMLAttributes<HTMLDivElement> {
   effectName?: effectNameType;
   timeout?: number;
+  callback?(): React.ReactNode;
 }
 export function ClickEffectElement({
   timeout = 500,
@@ -19,6 +72,7 @@ export function ClickEffectElement({
   effectName,
   style,
   children,
+  callback,
   ...props
 }: ClickEffectProps) {
   const beforeTimeStamp = useRef(0);
@@ -32,15 +86,15 @@ export function ClickEffectElement({
   }, [timeStamp, isClickEffect]);
   const enableClickEffect = useMemo(
     () => isClickEffect && isNewEvent,
-    [isClickEffect, isNewEvent]
+    [isClickEffect, isNewEvent],
   );
   className = useMemo(() => {
     const classNames = ["clickEffect"];
     if (className) classNames.push(className);
     if (effectName) classNames.push(effectName);
-    if (!children) classNames.push("blank spread");
+    if (!(callback || children)) classNames.push("blank");
     return classNames.join(" ");
-  }, [className, effectName, children]);
+  }, [className, effectName, callback, children]);
   style = useMemo(
     () =>
       enableClickEffect
@@ -51,16 +105,16 @@ export function ClickEffectElement({
             ...style,
           } as React.CSSProperties)
         : style,
-    [enableClickEffect, x, y, timeout, style]
+    [enableClickEffect, x, y, timeout, style],
   );
   children = useMemo(
     () =>
       enableClickEffect && timeStamp ? (
         <div key={timeStamp} className={className} style={style} {...props}>
-          {children}
+          {callback ? callback() : children}
         </div>
       ) : null,
-    [enableClickEffect, timeStamp, className, style, children, props]
+    [enableClickEffect, timeStamp, className, style, children, callback, props],
   );
   return (
     <ShortStocks className="clickEffects" timeout={timeout}>
@@ -115,7 +169,7 @@ export function ClickEffectSwitchButton({
           </svg>
         </>
       ),
-    [children]
+    [children],
   );
   return (
     <button

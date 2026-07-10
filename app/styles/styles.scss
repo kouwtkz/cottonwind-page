@@ -4835,6 +4835,40 @@ div.bannerArea {
     opacity: 0;
   }
 }
+@keyframes EndFadeOutAnim {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@mixin MoveFromAngle($angle, $distance, $start: 0) {
+  .d-#{$angle} {
+    $animName: d-#{$angle};
+    $rotate: rotate($angle + deg);
+    animation: #{$animName} linear forwards;
+    animation-duration: 500ms;
+    @keyframes #{$animName} {
+      0% {
+        transform: $rotate translateY($start + px);
+      }
+      100% {
+        transform: $rotate translateY($start + $distance + px);
+      }
+    }
+  }
+}
+@mixin MoveFromAngle12($distance: 10, $start: 0) {
+  $array: 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330;
+  @each $angle in $array {
+    @include MoveFromAngle($angle, $distance, $start);
+  }
+}
 
 .clickEffects {
   .clickEffect {
@@ -4844,14 +4878,33 @@ div.bannerArea {
     translate: -50% -50%;
     transform-origin: center;
     &.spread {
-      animation: ZoomFadeOutAnim linear forwards;
+      animation: EndFadeOutAnim linear forwards;
       animation-duration: 500ms;
+      & > * {
+        position: absolute;
+        top: -15px;
+        left: -15px;
+      }
+      img {
+        width: auto;
+        height: 30px;
+        transform-origin: center;
+        animation-duration: 0;
+      }
+      div.blank {
+        width: 10px;
+        height: 10px;
+        background-color: #b6b6b6aa;
+      }
+      @include MoveFromAngle12(30, 10);
     }
     &.blank {
       width: 100px;
       height: 100px;
       background-color: #b6b6b6aa;
       clip-path: circle(50% at 50% 50%);
+      animation: ZoomFadeOutAnim linear forwards;
+      animation-duration: 500ms;
     }
   }
 }
