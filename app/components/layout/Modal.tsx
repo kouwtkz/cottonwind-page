@@ -115,7 +115,7 @@ export const Modal = memo(function Modal({
           title={""}
           onClick={(e) => {
             if (onClose) onClose();
-            e.stopPropagation();
+            e.preventDefault();
           }}
         >
           <CloseButton className="modalClose" width={60} height={60} />
