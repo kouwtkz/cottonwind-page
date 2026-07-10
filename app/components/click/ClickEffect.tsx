@@ -3,11 +3,12 @@ import { useClickEvent } from "~/components/click/useClickEvent";
 import {
   type HTMLAttributes,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { CreateState } from "~/components/state/CreateState";
+import { getCookies, removeCookie, setCookie } from "../theme/ThemeSetter";
 
 const ClickEffectSrcList = [
   "/static/images/effect/cotton.webp",
@@ -52,11 +53,43 @@ export function ClickEffect() {
     );
   }, []);
   return (
-    <ClickEffectElement
-      effectName="spread"
-      callback={callback}
-    ></ClickEffectElement>
+    <>
+      <ClickEffectState />
+      <ClickEffectElement effectName="spread" callback={callback} />
+    </>
   );
+}
+
+const cookieKey = import.meta.env.VITE_CLICK_EFFECT_KEY;
+function ClickEffectState() {
+  const [enableClickEffect, setClickEffect] = useClickEffect();
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      if (!enableClickEffect) {
+        const cookie = getCookies();
+        if (cookie[cookieKey]) {
+          setClickEffect(true);
+          return;
+        }
+      }
+      first.current = false;
+      return;
+    }
+    if (enableClickEffect) {
+      setCookie({
+        key: cookieKey,
+        value: "on",
+        options: {
+          maxAge: 34e6,
+          path: "/",
+        },
+      });
+    } else {
+      removeCookie({ key: cookieKey, options: { path: "/" } });
+    }
+  }, [enableClickEffect]);
+  return <></>;
 }
 
 const useClickEffect = CreateState(false);
