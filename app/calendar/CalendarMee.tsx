@@ -3,7 +3,15 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import allLocales from "@fullcalendar/core/locales-all";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Calendar,
   type DatesSetArg,
@@ -343,9 +351,13 @@ export function CalendarMeeState({
             const add: EventsDataType[] = [];
             events.forEach((items) => {
               if (items && Array.isArray(items)) {
-                items.forEach((item) => {
-                  if (!eventsMap.has(item.id)) add.push(item);
-                  eventsMap.set(item.id, item);
+                items.forEach((event) => {
+                  const startDate = new Date(event.start.toDateString());
+                  event.duration = Math.ceil(
+                    (event.end.getTime() - startDate.getTime()) / 86400000,
+                  );
+                  if (!eventsMap.has(event.id)) add.push(event);
+                  eventsMap.set(event.id, event);
                 });
               }
             });
@@ -472,14 +484,22 @@ export function CalendarMee({
   linkMoveReplace,
   ...args
 }: CalendarMeeProps) {
+  let currentEventDay = useRef(new Date());
   className = useMemo(() => {
     const classNames: string[] = ["fc"];
     if (className) classNames.push(className);
     return classNames.join(" ");
   }, [className]);
   const [calendar, setCalendar] = useState<Calendar | null>(null);
-  const { Set, eventId, events, date, isLoading, disableSyncWhenHTTP } =
-    useCalendarMee();
+  const {
+    Set,
+    eventId,
+    events,
+    date,
+    isLoading,
+    disableSyncWhenHTTP,
+    eventsMap,
+  } = useCalendarMee();
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
@@ -508,6 +528,60 @@ export function CalendarMee({
   useEffect(() => {
     Set({ view });
   }, [view]);
+  const viewDuration = useMemo(() => {
+    switch (view) {
+      case "agenda":
+        return AGENDA_DAYS;
+      case "week":
+        return 7;
+      case "day":
+        return 1;
+      case "month":
+        return NaN;
+    }
+  }, [view]);
+  const viewStartDate = useMemo(() => {
+    const newDate = new Date(date.toDateString());
+    if (view === "week") newDate.setDate(newDate.getDate() - newDate.getDay());
+    else if (view === "month") newDate.setDate(1);
+    return newDate;
+  }, [date, view]);
+  const viewEndDate = useMemo(() => {
+    if (isNaN(viewDuration)) {
+      const LastMonthDay = new Date(viewStartDate);
+      LastMonthDay.setMonth(LastMonthDay.getMonth() + 1);
+      LastMonthDay.setTime(LastMonthDay.getTime() - 1);
+      return LastMonthDay;
+    } else {
+      return new Date(viewStartDate.getTime() + 86400000 * viewDuration - 1);
+    }
+  }, [viewStartDate, viewDuration]);
+  const eventsDayMap = useMemo(() => {
+    const eventsDayMap = new Map<string, Map<string, EventsDataType>>();
+    if (view === "day" || view === "month") return eventsDayMap;
+    events.forEach((event) => {
+      const startDate =
+        viewStartDate > event.start ? viewStartDate : event.start;
+      const endDate = viewEndDate > event.end ? event.end : viewEndDate;
+      const duration = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / 86400000,
+      );
+      const durationLoopMax = duration - 1;
+      for (let i = 0; i <= durationLoopMax; i++) {
+        const omitDuration =
+          durationLoopMax >= 2 && i > 0 && i < durationLoopMax;
+        if (omitDuration) continue;
+        const dateString = new Date(
+          startDate.getTime() + i * 86400000,
+        ).toDateString();
+        if (!eventsDayMap.has(dateString))
+          eventsDayMap.set(dateString, new Map());
+        const map = eventsDayMap.get(dateString)!;
+        map.set(event.id, event);
+      }
+    });
+    return eventsDayMap;
+  }, [events, view, viewStartDate, viewEndDate]);
   const isChangeView = useRef(false);
   useEffect(() => {
     if (calendar && view && calendar.view.type !== view) {
@@ -631,8 +705,52 @@ export function CalendarMee({
         navLinks={true}
         allDayText="終日"
         datesSet={onChangeHandle}
-        eventContent={({ event, timeText, view }) => {
-          let title = event._def.title;
+        dayHeaderClassNames={(e) => {
+          currentEventDay.current = e.date;
+          switch (e.view.type as Type_VIEW_FC) {
+            case "agenda":
+            case "week":
+              const dateString = currentEventDay.current.toDateString();
+              if (!eventsDayMap.has(dateString)) {
+                return "hidden";
+              }
+              break;
+          }
+          return "";
+        }}
+        eventClassNames={(e) => {
+          switch (e.view.type as Type_VIEW_FC) {
+            case "agenda":
+            case "week":
+              const dateString = currentEventDay.current.toDateString();
+              const currentEventsMap = eventsDayMap.get(dateString);
+              if (!currentEventsMap || !currentEventsMap.has(e.event.id)) {
+                return "hidden";
+              }
+              break;
+          }
+          return "";
+        }}
+        eventContent={({ event: rawEvent, timeText, view }) => {
+          const event = eventsMap.get(rawEvent.id);
+          if (!event) return null;
+          const titles = [event.title];
+          switch (view.type as Type_VIEW_FC) {
+            case "month":
+              break;
+            default:
+              if (event.duration && event.duration > 1) {
+                const day =
+                  Math.ceil(
+                    (currentEventDay.current.getTime() -
+                      event.start.getTime()) /
+                      86400000,
+                  ) + 1;
+                titles.push(`(${day}/${event.duration}日目)`);
+              }
+              break;
+          }
+          let title = titles.join("\t");
           if (title === "undefined") title = "予定あり";
           let titleNode = <div className="fc-event-title">{title}</div>;
           switch (view.type as Type_VIEW_FC) {

@@ -27,6 +27,7 @@ interface EventsDataType {
   location?: string;
   start: Date;
   end: Date;
+  duration?: number;
   id: string;
   allDay?: boolean;
   url?: string;
