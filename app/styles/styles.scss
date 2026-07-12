@@ -5122,11 +5122,11 @@ div.bannerArea {
   a.attachments {
     pointer-events: all;
     display: inline-flex;
-    :hover {
-      filter: brightness(0.9);
-    }
     img {
       margin: 0.75rem;
+      &:hover {
+        filter: brightness(0.9);
+      }
     }
   }
   button,
