@@ -5119,6 +5119,16 @@ div.bannerArea {
       align-items: stretch;
     }
   }
+  a.attachments {
+    pointer-events: all;
+    display: inline-flex;
+    :hover {
+      filter: brightness(0.9);
+    }
+    img {
+      margin: 0.75rem;
+    }
+  }
   button,
   .button {
     margin-right: 0.25em;

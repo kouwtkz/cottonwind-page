@@ -31,14 +31,27 @@ interface EventsDataType {
   id: string;
   allDay?: boolean;
   url?: string;
+  attachments?: Array<AttachmentType>;
   raw?: EventsRawDataType;
   fetchData?: EventsFetchedDataType;
   private?: boolean;
 }
 
-type EventsRawDateType = { date?: string; dateTime?: string; timeZone?: string };
+interface EventsRawDateType {
+  date?: string;
+  dateTime?: string;
+  timeZone?: string
+};
+interface AttachmentType {
+  fileId: string;
+  fileUrl: string;
+  iconLink: string;
+  mimeType: string;
+  title: string;
+}
 
 interface EventsRawDataType {
+  attachments?: Array<AttachmentType>;
   created: string;
   creator: { email: string };
   description: string;

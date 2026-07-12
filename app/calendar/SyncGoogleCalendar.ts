@@ -50,6 +50,7 @@ export async function eventsFetch({
           description: raw.description,
           location: raw.location,
           url: raw.htmlLink,
+          attachments: raw.attachments,
           start,
           end,
           duration,

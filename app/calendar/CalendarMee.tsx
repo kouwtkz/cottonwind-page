@@ -33,11 +33,17 @@ import {
   RiAddLine,
   RiCalendar2Line,
   RiFileCopyLine,
+  RiFileMusicLine,
+  RiFilePdf2Fill,
+  RiFileTextLine,
+  RiFolderZipLine,
+  RiImage2Line,
   RiLink,
   RiMapPinLine,
   RiNotification4Fill,
   RiNotificationOffFill,
   RiTimerFill,
+  RiVideoLine,
 } from "react-icons/ri";
 import { DEFAULT_LANG } from "~/Env";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
@@ -1095,6 +1101,56 @@ export function CalendarMeeEventViewer({
       ) : null,
     [event],
   );
+  const Attachments = useMemo(() => {
+    if (!event?.attachments) return null;
+    return (
+      <>
+        {event.attachments.map((item) => {
+          let inner: React.ReactNode = null;
+          const mimes = item.mimeType.split("/");
+          switch (mimes[0]) {
+            case "image":
+              inner = <RiImage2Line />;
+              break;
+            case "video":
+              inner = <RiVideoLine />;
+              break;
+            case "audio":
+              inner = <RiFileMusicLine />;
+              break;
+            case "text":
+              inner = <RiFileTextLine />;
+              break;
+            case "application":
+              switch (mimes[1]) {
+                case "zip":
+                case "x-7z-compressed":
+                  inner = <RiFolderZipLine />;
+                  break;
+                case "pdf":
+                  inner = <RiFilePdf2Fill />;
+                  break;
+              }
+              if (inner) break;
+            default:
+              inner = <img src={item.iconLink} />;
+              break;
+          }
+          return (
+            <a
+              className="attachments button"
+              href={item.fileUrl}
+              target="_blank"
+              key={item.fileId}
+              title={item.title}
+            >
+              {inner}
+            </a>
+          );
+        })}
+      </>
+    );
+  }, [event]);
   viewerClassName = useMemo(() => {
     const classNames = viewerClassName?.split(" ") || [];
     classNames.push("eventsViewer");
@@ -1162,6 +1218,7 @@ export function CalendarMeeEventViewer({
               </div>
             ) : null}
             <div className="buttons">
+              {Attachments}
               {enableMarkdownCopy && !event.private ? <BlogCopyButton /> : null}
               {LinkButton}
               {RightBottomComponent ? (
