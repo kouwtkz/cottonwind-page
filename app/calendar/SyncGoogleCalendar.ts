@@ -39,6 +39,11 @@ export async function eventsFetch({
         const allDay = Boolean(raw.start.date);
         const start = new Date(raw.start.dateTime || raw.start.date + " 00:00");
         const end = new Date(raw.end.dateTime || raw.end.date + " 00:00");
+        const startDate = new Date(start.toDateString());
+        const duration = Math.ceil(
+          (end.getTime() - startDate.getTime()) / 86400000,
+        );
+
         return {
           id: raw.id,
           title: raw.summary,
@@ -47,6 +52,7 @@ export async function eventsFetch({
           url: raw.htmlLink,
           start,
           end,
+          duration,
           allDay,
           raw,
           fetchData: data,

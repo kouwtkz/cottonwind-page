@@ -352,10 +352,6 @@ export function CalendarMeeState({
             events.forEach((items) => {
               if (items && Array.isArray(items)) {
                 items.forEach((event) => {
-                  const startDate = new Date(event.start.toDateString());
-                  event.duration = Math.ceil(
-                    (event.end.getTime() - startDate.getTime()) / 86400000,
-                  );
                   if (!eventsMap.has(event.id)) add.push(event);
                   eventsMap.set(event.id, event);
                 });
@@ -739,7 +735,7 @@ export function CalendarMee({
             case "month":
               break;
             default:
-              if (event.duration && event.duration > 1) {
+              if (event.duration > 1) {
                 const day =
                   Math.ceil(
                     (currentEventDay.current.getTime() -
