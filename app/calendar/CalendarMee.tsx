@@ -568,10 +568,11 @@ export function CalendarMee({
       const duration = Math.ceil(
         (endDate.getTime() - startDate.getTime()) / 86400000,
       );
+      const isOmitDurationRange = duration >= 4;
       const durationLoopMax = duration - 1;
       for (let i = 0; i <= durationLoopMax; i++) {
         const omitDuration =
-          durationLoopMax >= 2 && i > 0 && i < durationLoopMax;
+          isOmitDurationRange && i > 1 && i < durationLoopMax;
         if (omitDuration) continue;
         const dateString = new Date(
           startDate.getTime() + i * 86400000,
