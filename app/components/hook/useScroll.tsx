@@ -1,37 +1,38 @@
 import { useEffect, useState } from "react";
+import { CreateState } from "../state/CreateState";
+import { useIsLoading } from "../state/SetState";
 
-interface useScrollResult {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-const defaultResult = { x: 0, y: 0, w: 0, h: 0};
+export const useWindowScroll = CreateState<[number, number]>([0, 0]);
 
-export function useScrollInstance({
-  html,
-  key,
-}: {
-  html?: HTMLElement;
-  key?: unknown;
-} = {}): useScrollResult {
-  const [scroll, setScroll] = useState(defaultResult);
+export function WindowScrollState() {
+  const setScroll = useWindowScroll()[1];
+  const isLoading = useIsLoading()[0];
   useEffect(() => {
     function updateScroll() {
-      setScroll((state) => {
-        if (html) {
-          state.x = html.scrollLeft;
-          state.y = html.scrollTop;
-          state.w = html.scrollWidth;
-          state.h = html.scrollHeight;
-        } else {
-          state.x = window.scrollX;
-          state.y = window.scrollY;
-          state.w = document.body.scrollWidth;
-          state.h = document.body.scrollHeight;
-        }
-        return { ...state };
-      });
+      setScroll([window.scrollX, window.scrollY]);
+    }
+    window.addEventListener("scroll", updateScroll);
+    return () => {
+      window.removeEventListener("scroll", updateScroll);
+    };
+  }, []);
+  useEffect(() => {
+    if (!isLoading) {
+      setScroll([window.scrollX, window.scrollY]);
+    }
+  }, [isLoading]);
+  return <></>;
+}
+
+export function useScrollInstance(html?: HTMLElement): [number, number] {
+  const [scroll, setScroll] = useState<[number, number]>([0, 0]);
+  useEffect(() => {
+    function updateScroll() {
+      if (html) {
+        setScroll([html.scrollLeft, html.scrollTop]);
+      } else {
+        setScroll([window.scrollX, window.scrollY]);
+      }
     }
     const listen = html || window;
     updateScroll();
@@ -39,6 +40,6 @@ export function useScrollInstance({
     return () => {
       listen.removeEventListener("scroll", updateScroll);
     };
-  }, [html, key]);
+  }, [html]);
   return scroll;
 }

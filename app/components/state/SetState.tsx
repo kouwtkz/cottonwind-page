@@ -34,6 +34,8 @@ import RedirectState from "./redirectState";
 import { ATPState, useATProtoState } from "./ATProtocolState";
 import { NavKeepState } from "./NavState";
 import { WindowSizeState } from "../hook/useWindowSize";
+import { WindowScrollSizeState } from "../hook/useScrollSize";
+import { WindowScrollState } from "../hook/useScroll";
 
 let count = 0;
 export const SetState = React.memo(function SetState({
@@ -57,6 +59,8 @@ export const SetState = React.memo(function SetState({
     <>
       <CheckIsComplete />
       <WindowSizeState />
+      <WindowScrollState />
+      <WindowScrollSizeState />
       <EnvState env={env} isLogin={isLogin} />
       <NavKeepState />
       <ClickEventState />
@@ -88,6 +92,7 @@ export const SetState = React.memo(function SetState({
 });
 
 export const useIsComplete = CreateState(false);
+export const useIsLoading = CreateState(true);
 export const useIsLoadedFloat = CreateState(0);
 
 function CheckIsComplete() {

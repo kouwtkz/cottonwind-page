@@ -33,7 +33,7 @@ import { useEnv } from "./components/state/EnvState";
 import { DefaultImportScripts } from "./clientScripts";
 import { getSession } from "./sessions.server";
 import { Loading } from "./components/layout/Loading";
-import { SetState, useIsComplete } from "./components/state/SetState";
+import { SetState, useIsComplete, useIsLoading } from "./components/state/SetState";
 import { getAPIOrigin, getMediaOrigin } from "./components/functions/originUrl";
 import { ImageTableObject } from "./routes/api/image";
 import { charaTableObject } from "./routes/api/character";
@@ -180,7 +180,7 @@ interface LayoutProps {
 }
 export function Layout({ children }: LayoutProps) {
   const isComplete = useIsComplete()[0];
-  const [isLoading, setIsLoading] = useState(!isComplete);
+  const [isLoading, setIsLoading] = useIsLoading();
   useEffect(() => {
     if (isComplete) {
       if (globalThis.location?.hash) {
