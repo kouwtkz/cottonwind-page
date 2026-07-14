@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import useScroll from "~/components/hook/useScroll";
+import { useWindowSize } from "../hook/useWindowSize";
+import { useScrollInstance } from "~/components/hook/useScroll";
 import TriangleCursor from "~/components/svg/cursor/Triangle";
 
 interface InPageArgList {
@@ -25,11 +26,12 @@ export function InPageMenu({
   adjust = 16,
   cursorAdjust = 64,
   lastAdjust = 8,
-  autoLastHide = 0,
+  autoLastHide = 4,
   className,
   ...props
 }: InPageMenuProps) {
-  const { y, h, wh } = useScroll();
+  const wh = useWindowSize()[0][1];
+  const { y, h } = useScrollInstance();
   const jy = Math.floor(y + adjust + cursorAdjust);
   const isLastScroll = h - y - lastAdjust <= wh;
   const [filterList, setFilterList] = useState<InPageFilterList[]>([]);
