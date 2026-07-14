@@ -1349,8 +1349,8 @@ function GalleryWrapperImageItem(args: GalleryImageItemProps) {
     if (visible) {
       const html = ref.current!;
       const visibleImage =
-        html.offsetTop < windowScroll[1] + windowSize[1] &&
-        windowScroll[1] < html.offsetTop + html.offsetHeight;
+        html.offsetTop + html.offsetHeight > windowScroll[1] &&
+        html.offsetTop < windowScroll[1] + windowSize[1] + html.offsetHeight;
       setVisibleImage(visibleImage);
     } else {
       setVisibleImage(false);
