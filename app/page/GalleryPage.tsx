@@ -57,7 +57,7 @@ import { getYear } from "~/components/functions/DateFunction";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
-import useWindowSize from "~/components/hook/useWindowSize";
+import { useWindowSize } from "~/components/hook/useWindowSize";
 import { useImageViewer } from "~/components/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
@@ -1535,7 +1535,7 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     () => Boolean(q || tags || characters),
     [q, tags, characters],
   );
-  const [w] = useWindowSize();
+  const [w] = useWindowSize()[0];
   const max = useMemo(
     () => (searchMode ? maxWhenSearch : maxFromArgs),
     [maxFromArgs, maxWhenSearch, searchMode],

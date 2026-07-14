@@ -33,6 +33,7 @@ import { MiniCharacterPage } from "~/page/CharacterPage";
 import RedirectState from "./redirectState";
 import { ATPState, useATProtoState } from "./ATProtocolState";
 import { NavKeepState } from "./NavState";
+import { WindowSizeState } from "../hook/useWindowSize";
 
 let count = 0;
 export const SetState = React.memo(function SetState({
@@ -55,6 +56,7 @@ export const SetState = React.memo(function SetState({
   return (
     <>
       <CheckIsComplete />
+      <WindowSizeState />
       <EnvState env={env} isLogin={isLogin} />
       <NavKeepState />
       <ClickEventState />
