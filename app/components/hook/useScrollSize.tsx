@@ -24,21 +24,23 @@ export function WindowScrollSizeState() {
   return <></>;
 }
 
-export function useScrollSizeInstance(html?: HTMLElement): [number, number] {
-  const [scrollSize, setScrollSize] = useState<[number, number]>([0, 0]);
+export function useScrollSizeInstance(
+  html: HTMLElement | null,
+): [number, number] {
+  const [scrollSize, setSize] = useState<[number, number]>([0, 0]);
   useEffect(() => {
-    function updateScroll() {
-      if (html) {
-        setScrollSize([html.scrollWidth, html.scrollHeight]);
-      } else {
-        setScrollSize([document.body.scrollWidth, document.body.scrollHeight]);
-      }
-    }
-    const listen = html || window;
-    updateScroll();
-    listen.addEventListener("scroll", updateScroll);
+    if (!html) return;
+    const observer = new MutationObserver(() => {
+      setSize((state) => {
+        const w = html.scrollWidth;
+        const h = html.scrollHeight;
+        if (w !== state[0] || h !== state[1]) return [w, h];
+        else return state;
+      });
+    });
+    observer.observe(html, { childList: true, subtree: true });
     return () => {
-      listen.removeEventListener("scroll", updateScroll);
+      observer.disconnect();
     };
   }, [html]);
   return scrollSize;

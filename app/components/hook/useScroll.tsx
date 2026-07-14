@@ -9,7 +9,12 @@ export function WindowScrollState() {
   const isLoading = useIsLoading()[0];
   useEffect(() => {
     function updateScroll() {
-      setScroll([window.scrollX, window.scrollY]);
+      setScroll((state) => {
+        const x = window.scrollX;
+        const y = window.scrollY;
+        if (x !== state[0] || y !== state[1]) return [x, y];
+        else return state;
+      });
     }
     window.addEventListener("scroll", updateScroll);
     return () => {
@@ -24,21 +29,22 @@ export function WindowScrollState() {
   return <></>;
 }
 
-export function useScrollInstance(html?: HTMLElement): [number, number] {
+export function useScrollInstance(html: HTMLElement | null): [number, number] {
   const [scroll, setScroll] = useState<[number, number]>([0, 0]);
   useEffect(() => {
+    if (!html) return;
     function updateScroll() {
-      if (html) {
-        setScroll([html.scrollLeft, html.scrollTop]);
-      } else {
-        setScroll([window.scrollX, window.scrollY]);
-      }
+      setScroll((state) => {
+        const x = html!.scrollLeft;
+        const y = html!.scrollTop;
+        if (x !== state[0] || y !== state[1]) return [x, y];
+        else return state;
+      });
     }
-    const listen = html || window;
     updateScroll();
-    listen.addEventListener("scroll", updateScroll);
+    html.addEventListener("scroll", updateScroll);
     return () => {
-      listen.removeEventListener("scroll", updateScroll);
+      html.removeEventListener("scroll", updateScroll);
     };
   }, [html]);
   return scroll;
