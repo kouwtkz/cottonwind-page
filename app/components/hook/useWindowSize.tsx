@@ -18,54 +18,47 @@ function subscribe(listen: HTMLElement | Window | null) {
 }
 
 export function useWindowWidthInstance(
-  listen: HTMLElement | Window | null = null,
+  html: HTMLElement | Window | null = null,
 ) {
-  listen = useMemo(
-    () => (listen ? listen : typeof window !== "undefined" ? window : null),
-    [listen],
-  );
   const callback = useMemo(() => {
-    if (!listen) {
+    if (!html) {
       return () => 0;
-    } else if ("innerWidth" in listen) {
-      return () => listen.innerWidth;
+    } else if ("innerWidth" in html) {
+      return () => html.innerWidth;
     } else {
-      return () => listen.clientWidth;
+      return () => html.clientWidth;
     }
-  }, [listen]);
-  return useSyncExternalStore(subscribe(listen), callback, () => 0);
+  }, [html]);
+  return useSyncExternalStore(subscribe(html), callback, () => 0);
 }
 export function useWindowHeightInstance(
-  listen: HTMLElement | Window | null = null,
+  html: HTMLElement | Window | null = null,
 ) {
-  listen = useMemo(
-    () => (listen ? listen : typeof window !== "undefined" ? window : null),
-    [listen],
-  );
   const callback = useMemo(() => {
-    if (!listen) {
+    if (!html) {
       return () => 0;
-    } else if ("innerHeight" in listen) {
-      return () => listen.innerHeight;
+    } else if ("innerHeight" in html) {
+      return () => html.innerHeight;
     } else {
-      return () => listen.clientHeight;
+      return () => html.clientHeight;
     }
-  }, [listen]);
-  return useSyncExternalStore(subscribe(listen), callback, () => 0);
+  }, [html]);
+  return useSyncExternalStore(subscribe(html), callback, () => 0);
 }
 
 export function useWindowSizeInstance(
-  listen: HTMLElement | Window | null = null,
+  html: HTMLElement | Window | null = null,
 ) {
-  const width = useWindowWidthInstance(listen);
-  const height = useWindowHeightInstance(listen);
-  return useMemo(() => [width, height], [width, height]);
+  const width = useWindowWidthInstance(html);
+  const height = useWindowHeightInstance(html);
+  return useMemo<[number, number]>(() => [width, height], [width, height]);
 }
 
 export const useWindowSize = CreateState<[number, number]>([0, 0]);
 export function WindowSizeState() {
+  const windowRef = useRef(typeof window !== "undefined" ? window : null);
   const set = useWindowSize()[1];
-  const [w, h] = useWindowSizeInstance();
+  const [w, h] = useWindowSizeInstance(windowRef.current);
   useEffect(() => {
     set([w, h]);
   }, [w, h]);

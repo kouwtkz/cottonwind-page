@@ -57,7 +57,10 @@ import { getYear } from "~/components/functions/DateFunction";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
-import { useWindowSize } from "~/components/hook/useWindowSize";
+import {
+  useWindowSize,
+  useWindowSizeInstance,
+} from "~/components/hook/useWindowSize";
 import { useImageViewer } from "~/components/layout/ImageViewer";
 import {
   ImagesUploadWithToast,
@@ -121,6 +124,10 @@ import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
 import { TimeClass } from "~/components/functions/Time";
 import { SetupCharactersTagsOptions } from "./CharacterPage";
+import {
+  useScrollInstance,
+  useWindowScroll,
+} from "~/components/hook/useScroll";
 
 export const GalleryPage = React.memo(function GalleryPage(
   args: GalleryPageOptions,
@@ -824,6 +831,8 @@ function GalleryBody({
   totalCreationTime,
   totalLikeCount,
   totalCount,
+  windowSize,
+  windowScroll,
 }: GalleryBodyProps) {
   const { Set: SetImageViewer } = useImageViewer();
   useEffect(() => {
@@ -1034,6 +1043,8 @@ function GalleryBody({
         })),
     [yfList, items],
   );
+  windowSize = windowSize || useWindowSize()[0];
+  windowScroll = windowScroll || useWindowScroll()[0];
   const galleryItem = useMemo(() => {
     return items
       .map((item, i) => ({ ...item, i }))
@@ -1048,6 +1059,8 @@ function GalleryBody({
                 id={item.name}
                 list={yfList[i]}
                 item={item}
+                windowSize={windowSize}
+                windowScroll={windowScroll}
                 {...args}
               />
             </UploadChain>
@@ -1056,12 +1069,14 @@ function GalleryBody({
               id={item.name}
               list={yfList[i]}
               item={item}
+              windowSize={windowSize}
+              windowScroll={windowScroll}
               {...args}
             />
           )}
         </div>
       ));
-  }, [items, yfList, args]);
+  }, [items, yfList, args, windowSize, windowScroll]);
   const linksState = useLinks();
   const linksList = useMemo(() => {
     return (linksState.links || []).filter((link) =>
@@ -1294,6 +1309,8 @@ interface GalleryImageListProps extends GalleryItemVisibleProps {
   galleryName?: string;
   onClick?: (image: ImageType) => void;
   visible?: boolean;
+  windowSize: [number, number];
+  windowScroll: [number, number];
 }
 interface GalleryImageItemProps extends Omit<GalleryImageListProps, "images"> {
   image: ImageType;
@@ -1309,11 +1326,12 @@ const GalleryImageList = React.memo(function GalleryImageList(
   const search = useLocation().search;
   return (
     <>
-      {images.map((image) => (
-        <GalleryImageItem
+      {images.map((image, i) => (
+        <GalleryWrapperImageItem
           key={image.key}
           image={image}
           search={search}
+          data-index={i}
           {...newArgs}
         />
       ))}
@@ -1322,6 +1340,29 @@ const GalleryImageList = React.memo(function GalleryImageList(
 });
 
 export const currentGalleryImageItemMap = new Map<string, ImageType>();
+
+function GalleryWrapperImageItem(args: GalleryImageItemProps) {
+  let { windowSize, windowScroll, visible } = args;
+  const [visibleImage, setVisibleImage] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (visible) {
+      const html = ref.current!;
+      const visibleImage =
+        html.offsetTop < windowScroll[1] + windowSize[1] &&
+        windowScroll[1] < html.offsetTop + html.offsetHeight;
+      setVisibleImage(visibleImage);
+    } else {
+      setVisibleImage(false);
+    }
+  }, [visible, windowSize, windowScroll, args]);
+
+  return (
+    <div className="item-wrap" ref={ref}>
+      {visibleImage ? <GalleryImageItem {...args} /> : null}
+    </div>
+  );
+}
 
 const GalleryImageItem = React.memo(function GalleryImageItem({
   galleryName,
@@ -1358,6 +1399,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
     preventScrollReset?: boolean;
     title?: string;
   } => {
+    if (!visibleImage) return { to: "" };
     const searchParams = new URLSearchParams(search);
     if (image.direct) return { to: image.src ?? "" };
     searchParams.set("image", image.key);
@@ -1371,7 +1413,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
       preventScrollReset: true,
       title: image.title || undefined,
     };
-  }, [image, search]);
+  }, [image, search, visibleImage]);
   const ImageTimeFrameTag = useMemo(() => {
     return TimeframeTags.find((tt) =>
       image.tags?.some((tag) => tt.value === tag),
@@ -1478,6 +1520,8 @@ interface GalleryContentProps extends GalleryBodyOptions {
   item: GalleryItemObjectType;
   list: ImageType[];
   ref?: React.RefObject<HTMLDivElement | null>;
+  windowSize: [number, number];
+  windowScroll: [number, number];
 }
 function GalleryContent(args: GalleryContentProps) {
   const { item, list } = useMemo(() => args, [args]);
@@ -1515,6 +1559,8 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     visibleLikeCount,
     visibleYear,
     id,
+    windowSize,
+    windowScroll,
   } = useMemo(() => args, [args]);
   let {
     name,
@@ -1652,19 +1698,23 @@ function GalleryContentMain(args: GalleryContentMainProps) {
           visibleCreationTime={visibleCreationTime}
           visibleLikeCount={visibleLikeCount}
           visibleYear={visibleYear}
+          windowSize={windowSize}
+          windowScroll={windowScroll}
         />
         {showMoreButton ? (
-          <a
-            onClick={(e) => {
-              e.preventDefault();
-              ShowMore();
-            }}
-            title="もっと見る"
-            className="item"
-            role="button"
-          >
-            <MoreButton className="gallery-button-more" />
-          </a>
+          <div className="item-wrap">
+            <a
+              onClick={(e) => {
+                e.preventDefault();
+                ShowMore();
+              }}
+              title="もっと見る"
+              className="item"
+              role="button"
+            >
+              <MoreButton className="gallery-button-more" />
+            </a>
+          </div>
         ) : null}
       </div>
       {/* <div className="loadingNow text-main-soft my-4">よみこみちゅう…</div> */}
@@ -2074,6 +2124,10 @@ export function MiniGallery() {
   useEffect(() => {
     if (image) closeHandler();
   }, [image]);
+  const ref = useRef<HTMLDivElement>(null);
+  const [modalDiv, setModalDiv] = useState<HTMLDivElement | null>(null);
+  const windowSize = useWindowSizeInstance(modalDiv);
+  const windowScroll = useScrollInstance(modalDiv);
   return (
     <>
       <Modal
@@ -2083,8 +2137,19 @@ export function MiniGallery() {
         isOpen={enable}
         scroll
         timeout={50}
+        ref={(html) => {
+          if (ref.current !== html) {
+            setModalDiv(html);
+            ref.current = html;
+          }
+        }}
       >
-        <GalleryPage showInPageMenu={false} hideWhenEmpty={true} />
+        <GalleryPage
+          showInPageMenu={false}
+          hideWhenEmpty={true}
+          windowSize={windowSize}
+          windowScroll={windowScroll}
+        />
       </Modal>
     </>
   );

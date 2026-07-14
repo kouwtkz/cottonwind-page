@@ -3021,8 +3021,13 @@ div.banner {
       column-gap: 0.1rem;
       row-gap: 0.1rem;
       @include GridList("*", 4, $tabletWidth);
-      .item {
+      .item,
+      .item-wrap {
         aspect-ratio: 1;
+        display: block;
+      }
+      .item-wrap {
+        background: var(--main-color-grayish-fluo);
       }
     }
     &.banner {

@@ -86,9 +86,12 @@ interface GalleryPageOptions {
   showGalleryHeader?: boolean;
   showGalleryLabel?: boolean;
   hideWhenEmpty?: boolean;
+  windowSize?: [number, number];
+  windowScroll?: [number, number];
 }
 
-interface GalleryBodyOptions extends GalleryPageOptions, SearchAreaOptionsProps, GalleryItemVisibleProps, GalleryTotalProps {
+interface GalleryBodyOptions
+  extends GalleryPageOptions, SearchAreaOptionsProps, GalleryItemVisibleProps, GalleryTotalProps {
   showCount?: boolean;
   h2?: string;
   h4?: string;
