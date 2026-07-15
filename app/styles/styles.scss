@@ -5062,6 +5062,9 @@ div.bannerArea {
       .fc-list-day-text::after {
         content: "(今日)";
         margin-left: 0.5rem;
+        html:not([lang="ja"]) & {
+          content: "(today)";
+        }
       }
     }
   }
