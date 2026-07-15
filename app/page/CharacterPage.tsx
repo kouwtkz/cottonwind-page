@@ -332,6 +332,7 @@ export function CharacterName({
   }, [translated, translate, chara.enName, notAutoAddEn]);
   return (
     <span
+      className="characterName"
       lang={translated.lang}
       translate={translate}
       key={`${chara.key}-${translated.lang}`}

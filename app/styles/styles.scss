@@ -2667,11 +2667,6 @@ form {
         display: block;
         margin: 0.5em auto 0;
         max-width: 90%;
-        word-break: break-word;
-        [lang="en"] {
-          margin-left: 0.25em;
-          display: inline-block;
-        }
       }
       @media (min-width: $tabletWidth) {
         font-size: 1.5em;
@@ -2689,8 +2684,9 @@ form {
       display: flex;
       align-items: center;
       text-decoration-line: none;
-      height: 2rem;
-      font-size: 1.25rem;
+      height: 100%;
+      min-height: 2.5em;
+      font-size: 1.25em;
       img {
         font-size: 1.5rem;
         margin-right: 0.5rem;
@@ -2699,8 +2695,13 @@ form {
     .before .cursor {
       margin-right: 0.5rem;
     }
-    .after .cursor {
-      margin-left: 0.5rem;
+    .after {
+      a {
+        justify-content: flex-end;
+      }
+      .cursor {
+        margin-left: 0.5rem;
+      }
     }
   }
   .charaDetail {
@@ -2848,6 +2849,17 @@ form {
         width: 1.25em;
       }
     }
+  }
+}
+span.characterName {
+  word-break: break-word;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  [lang="en"] {
+    margin-left: 0.25em;
+    display: inline-block;
   }
 }
 
