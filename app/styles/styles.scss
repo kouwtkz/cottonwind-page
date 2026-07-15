@@ -839,9 +839,9 @@ li {
 
 .charaIcon {
   display: inline-block;
-  width: 1.25em;
-  height: 1.25em;
-  font-size: 1.875rem;
+  width: 1em;
+  height: 1em;
+  font-size: 2rem;
   margin-right: 0.25rem;
 }
 
@@ -3841,8 +3841,13 @@ label,
         align-items: center;
         margin-bottom: 1rem;
         font-size: 1.25rem;
+        li {
+          display: inline-flex;
+          align-items: center;
+          margin: 0.25em 0.5em;
+        }
         a {
-          margin: 0.25rem 0.5rem;
+          margin: 0;
           display: inline-flex;
           align-items: center;
           text-decoration-line: none;
@@ -4587,7 +4592,8 @@ body.workers {
       align-items: center;
       flex-wrap: wrap;
       margin: auto 0.5rem;
-      > * {
+      li {
+        display: inline-flex;
         margin: auto 0.25rem;
       }
       &:empty {

@@ -239,28 +239,29 @@ function InfoArea({ image, disabledHotkeys }: InfoAreaProps) {
           <div className="tagList">
             {charaTags?.map((chara, i) => {
               return (
-                <Link
-                  to={"/character/" + chara.key}
-                  onClick={() => {
-                    setClose();
-                    return true;
-                  }}
-                  className="character"
-                  key={`character_tag_${chara.key}`}
-                >
-                  {chara?.icon ? (
-                    <ImageMee
-                      imageItem={chara.icon}
-                      mode="icon"
-                      width={40}
-                      height={40}
-                      className="charaIcon"
-                    />
-                  ) : (
-                    <></>
-                  )}
-                  <CharacterName className="align-middle" chara={chara} />
-                </Link>
+                <li key={`character_tag_${chara.key}`}>
+                  <Link
+                    to={"/character/" + chara.key}
+                    onClick={() => {
+                      setClose();
+                      return true;
+                    }}
+                    className="character"
+                  >
+                    {chara?.icon ? (
+                      <ImageMee
+                        imageItem={chara.icon}
+                        mode="icon"
+                        width={40}
+                        height={40}
+                        className="charaIcon"
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    <CharacterName className="align-middle" chara={chara} />
+                  </Link>
+                </li>
               );
             })}
             {registeredTags.map((tag, i) => {
@@ -275,32 +276,34 @@ function InfoArea({ image, disabledHotkeys }: InfoAreaProps) {
                   break;
               }
               return (
-                <Link
-                  to={new URL("?" + search.toString(), tagsBaseURL).href}
-                  className="other"
-                  preventScrollReset={false}
-                  key={`tag_${item.label || i}`}
-                >
-                  <span>{item.label}</span>
-                </Link>
+                <li key={`tag_${item.label || i}`}>
+                  <Link
+                    to={new URL("?" + search.toString(), tagsBaseURL).href}
+                    className="other"
+                    preventScrollReset={false}
+                  >
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
               );
             })}
             {othertags.map((tag, i) => (
-              <Link
-                className="unregistered"
-                to={
-                  new URL(
-                    "?" +
-                      createSearchParams({
-                        tags: tag,
-                      }),
-                    tagsBaseURL,
-                  ).href
-                }
-                key={`tag_${tag}`}
-              >
-                #{tag}
-              </Link>
+              <li key={`tag_${tag}`}>
+                <Link
+                  className="unregistered"
+                  to={
+                    new URL(
+                      "?" +
+                        createSearchParams({
+                          tags: tag,
+                        }),
+                      tagsBaseURL,
+                    ).href
+                  }
+                >
+                  #{tag}
+                </Link>
+              </li>
             ))}
           </div>
           {image.link ? (

@@ -311,15 +311,16 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
               : post.category
             : []
           ).map((category, i) => (
-            <Link
-              to={ToHref({
-                pathname: "/blog",
-                query: { q: `#${category}` },
-              })}
-              key={`post_category_${category}`}
-            >
-              {category}
-            </Link>
+            <li key={`post_category_${category}`}>
+              <Link
+                to={ToHref({
+                  pathname: "/blog",
+                  query: { q: `#${category}` },
+                })}
+              >
+                {category}
+              </Link>
+            </li>
           ))}
         </div>
       </div>

@@ -322,7 +322,7 @@ export function CharacterName({
       !translate &&
       translated.lang === DEFAULT_LANG
     ) {
-  return (
+      return (
         <span lang="en" translate="no">
           (en:{chara.enName})
         </span>
@@ -732,12 +732,11 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     else return { value: tag };
                   })
                   .map((tag, i) => (
-                    <Link
-                      key={`character_tag_${tag}`}
-                      to={`/character?tags=${tag.value}`}
-                    >
-                      #{tag.label || tag.value}
-                    </Link>
+                    <li key={`character_tag_${tag}`}>
+                      <Link to={`/character?tags=${tag.value}`}>
+                        #{tag.label || tag.value}
+                      </Link>
+                    </li>
                   ))}
               </p>
             ) : null}
