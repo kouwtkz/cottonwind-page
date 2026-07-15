@@ -16,6 +16,7 @@
   --def-main-color-highlight: #d1de43;
   --def-main-color-soft: #ccdb74;
   --def-main-color-pale: #dfec98;
+  --def-main-color-faint: #f3face;
   --def-main-color-fluo: #c5d85840;
   --def-main-color-pale-fluo: #dfec9840;
   --def-main-color-strong: #a8be28;
@@ -55,6 +56,7 @@
   --def-main-color-highlight: #efba79;
   --def-main-color-soft: #fac798;
   --def-main-color-pale: #ffd8a2;
+  --def-main-color-faint: #ffe7c6;
   --def-main-color-fluo: #f8b06d40;
   --def-main-color-pale-fluo: #fde5c440;
   --def-main-color-strong: #d88b44;
@@ -80,6 +82,7 @@
   --def-main-color-highlight: #59d6e4;
   --def-main-color-soft: #6ed5ed;
   --def-main-color-pale: #a9e9f7;
+  --def-main-color-faint: #cbf5ff;
   --def-main-color-fluo: #47b7d040;
   --def-main-color-pale-fluo: #a9e9f740;
   --def-main-color-strong: #43beda;
@@ -105,6 +108,7 @@
   --main-color-highlight: var(--def-main-color-highlight);
   --main-color-soft: var(--def-main-color-soft);
   --main-color-pale: var(--def-main-color-pale);
+  --main-color-faint: var(--def-main-color-faint);
   --main-color-fluo: var(--def-main-color-fluo);
   --main-color-pale-fluo: var(--def-main-color-pale-fluo);
   --main-color-strong: var(--def-main-color-strong);
@@ -153,6 +157,7 @@
   --main-color: var(--def-main-color-strong);
   --main-color-strong: var(--def-main-color);
   --main-color-dark-text: var(--def-dark-text-color);
+  --main-color-faint: var(--def-dark-background-color);
   --main-color-pale: var(--def-main-color-dark);
   --main-color-soft: var(--def-main-color-deep);
   --main-color-pearl-grayish: var(--def-main-color-dark-grayish);
