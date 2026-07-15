@@ -132,7 +132,7 @@ export function PostForm() {
           ? [postTarget.category]
           : postTarget.category
         : [],
-    [postTarget]
+    [postTarget],
   );
 
   const [previewMode, setPreviewMode] = useState(false);
@@ -152,7 +152,7 @@ export function PostForm() {
       pin: Number(postTarget?.pin || 0),
       draft: postTarget?.draft ?? null,
     }),
-    [duplicationMode, postCategories, postTarget]
+    [duplicationMode, postCategories, postTarget],
   );
 
   const {
@@ -190,16 +190,16 @@ export function PostForm() {
           ...localDraft,
           time: ToFormTime(localDraft?.time),
         },
-        { keepDirty: false, keepDefaultValues: true }
+        { keepDirty: false, keepDefaultValues: true },
       );
       setCategoryList((c) => {
         const draftOnlyCategory =
           localDraft?.category?.filter((item) =>
-            c.every(({ value }) => value !== item)
+            c.every(({ value }) => value !== item),
           ) || [];
         if (draftOnlyCategory.length > 0)
           return c.concat(
-            draftOnlyCategory.map((d) => ({ value: d, label: d }))
+            draftOnlyCategory.map((d) => ({ value: d, label: d })),
           );
         else return c;
       });
@@ -262,7 +262,7 @@ export function PostForm() {
         Object.entries(errors)
           .map(([key, err]) => `${key}: ${err?.message} [${err?.type}]`)
           .join("\n"),
-        { autoClose: 2000 }
+        { autoClose: 2000 },
       );
     }
   });
@@ -282,7 +282,7 @@ export function PostForm() {
       ((document.activeElement || document.body) as HTMLElement).blur();
       e.preventDefault();
     },
-    { enableOnFormTags: true }
+    { enableOnFormTags: true },
   );
 
   useHotkeys(
@@ -290,7 +290,7 @@ export function PostForm() {
     () => {
       // togglePreviewMode(textareaRef.current?.value);
     },
-    { enableOnFormTags: ["TEXTAREA"] }
+    { enableOnFormTags: ["TEXTAREA"] },
   );
 
   useHotkeys("n", (e) => {
@@ -318,7 +318,7 @@ export function PostForm() {
             isMulti
             options={categoryList}
             value={((field?.value || []) as string[]).map((fv) =>
-              categoryList.find((ci) => ci.value === fv)
+              categoryList.find((ci) => ci.value === fv),
             )}
             onChange={(newValues) => {
               field.onChange(newValues.map((v) => v?.value));
@@ -328,7 +328,7 @@ export function PostForm() {
         )}
       />
     ),
-    [categoryList, control]
+    [categoryList, control],
   );
 
   const onSubmit: SubmitHandler<FieldValues> = useCallback(async () => {
@@ -385,7 +385,7 @@ export function PostForm() {
                   return "送信に失敗しました" + (e ? `\n[${e}]` : "");
                 },
               },
-            }
+            },
           )
           .then(async (r) => {
             refIsSubmitted.current = true;
@@ -450,7 +450,7 @@ export function PostForm() {
           });
         });
     },
-    [apiOrigin, album]
+    [apiOrigin, album],
   );
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     onDrop,
@@ -468,7 +468,9 @@ export function PostForm() {
         className="blogEdit"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h1 className="en-title-font">Post form</h1>
+        <h1 className="en-title-font" translate="no">
+          Post form
+        </h1>
         <input {...register("update")} type="hidden" />
         <input
           {...SetRegister({ name: "postId", ref: postIdRef, register })}
@@ -622,7 +624,7 @@ export function setCategory({
     } else if (answer && !selectCategory.querySelector(`[value="${answer}"]`)) {
       const newCategoryID = "newCategory";
       let newCategory = selectCategory.querySelector(
-        `option#${newCategoryID}`
+        `option#${newCategoryID}`,
       ) as HTMLOptionElement;
       if (!newCategory) {
         newCategory = document.createElement("option");

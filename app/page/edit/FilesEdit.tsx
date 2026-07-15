@@ -192,7 +192,9 @@ export function FilesManager() {
       </RbButtonArea>
       <main className="fileManagePage">
         <div {...getRootProps()}>
-          <h2 className="color-main en-title-font">File Manager</h2>
+          <h2 className="color-main en-title-font" translate="no">
+            File Manager
+          </h2>
           <div className="managerHeader">
             {viewAll ? null : (
               <>

@@ -94,7 +94,9 @@ export const BlogPage = React.memo(function BlogPage() {
             className="title"
             title="ブログトップ"
           >
-            <h2 className="en-title-font">MEE BLOG</h2>
+            <h2 className="en-title-font" translate="no">
+              MEE BLOG
+            </h2>
           </Link>
           <Link
             title="RSSフィード"

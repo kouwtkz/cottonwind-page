@@ -45,7 +45,9 @@ export function ImagesManager() {
   }, [albums]);
   return (
     <main>
-      <h2 className="color-main en-title-font">Images Manager</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        Images Manager
+      </h2>
       <GalleryObject items={items} showInPageMenu={false} />
     </main>
   );

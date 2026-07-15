@@ -14,7 +14,7 @@ import { SetLinkPush } from "~/components/parse/MultiParser";
 export const AboutPage = React.memo(function AboutPage() {
   return (
     <div className="aboutPage">
-      <h1 className="color-main en-title-font">
+      <h1 className="color-main en-title-font" translate="no">
         <Link to="/about">About</Link>
       </h1>
       <div className="author container">

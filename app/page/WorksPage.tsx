@@ -17,12 +17,12 @@ export const WorksPage = React.memo(function WorksPage() {
   return (
     <div className="worksPage">
       <div className="color-main en-title-font">
-        <h2>WORKS</h2>
+        <h2 translate="no">WORKS</h2>
         <h4>おしごとページ</h4>
       </div>
       <div className="status">
         <h2 className="color-main en-title-font">
-          Status
+          <span translate="no">Status</span>
           <KeyValueEditButton
             editEnvKey="VITE_KVDB_KEY_WORKS_STATUS"
             editType="textarea"
@@ -45,7 +45,7 @@ export const WorksPage = React.memo(function WorksPage() {
       <WorksGallery />
       <div className="price">
         <h2 className="color-main en-title-font">
-          Price
+          <span translate="no">Price</span>
           <KeyValueEditButton
             editEnvKey="VITE_KVDB_KEY_WORKS_PRICE"
             editType="textarea"
@@ -92,7 +92,9 @@ function WorksGallery() {
   }, [galleryResults, gallery3D]);
   return (
     <div className="gallery">
-      <h2 className="color-main en-title-font">Gallery</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        Gallery
+      </h2>
       <GalleryObject
         items={groups}
         showInPageMenu={false}

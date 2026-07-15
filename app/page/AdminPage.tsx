@@ -68,7 +68,9 @@ export const AdminPage = React.memo(function AdminPage() {
         <AdminDetailPage param={params.key} />
       ) : (
         <>
-          <h2 className="color-main en-title-font">Admin room</h2>
+          <h2 className="color-main en-title-font" translate="no">
+            Admin room
+          </h2>
           <h4>かんりしつ</h4>
           <div className="flex center column font-larger">
             {isLogin ? (
@@ -236,7 +238,9 @@ function RedirectManager() {
     <>
       {edit ? <RedirectManagerEdit /> : null}
       <main>
-        <h2 className="color-main en-title-font">Redirect Manager</h2>
+        <h2 className="color-main en-title-font" translate="no">
+          Redirect Manager
+        </h2>
         <table className="redirects">
           <thead>
             <tr>
@@ -294,7 +298,9 @@ function RedirectManager() {
 function ZipPage() {
   return (
     <>
-      <h2 className="color-main en-title-font">Zip archive</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        Zip archive
+      </h2>
       <h4>アーカイブのダウンロードページ</h4>
       <div className="flex center column font-larger">
         <ImageFilesDownload take={100} />
@@ -488,7 +494,9 @@ function DBPage() {
   const nav = useNavigate();
   return (
     <>
-      <h2 className="color-main en-title-font">DB Setting</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        DB Setting
+      </h2>
       <h4>データベースの管理ページ</h4>
       <div className="flex center column font-larger">
         <a
@@ -610,7 +618,9 @@ function DBPage() {
 function ScheduleManager() {
   return (
     <>
-      <h2 className="color-main en-title-font">Schedule Manager</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        Schedule Manager
+      </h2>
       <KeyValueEditable
         title="Google Calendar ID の追加設定"
         editKey="google-calendar-id-2"

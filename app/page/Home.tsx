@@ -122,12 +122,10 @@ export const Home = React.memo(function Home() {
           <ScheduleContainer
             header={
               <h3>
-                <Link
-                  className="title en-title-font"
-                  to="/schedule"
-                  title="スケジュール"
-                >
-                  Schedule
+                <Link className="title" to="/schedule" title="スケジュール">
+                  <span className="en-title-font" translate="no">
+                    Schedule
+                  </span>
                 </Link>
               </h3>
             }
@@ -164,7 +162,9 @@ function TopLinks() {
 export const EmbedScriptSNS = React.memo(function EmbedSNS() {
   return (
     <div className="embedSNS">
-      <h3 className="title en-title-font color-main">Bluesky</h3>
+      <h3 className="title en-title-font color-main" translate="no">
+        Bluesky
+      </h3>
       <EmbedBlueskyTimeline
         width={700}
         height={800}
@@ -192,8 +192,10 @@ function PostsView() {
   return (
     <div className="blog">
       <h3>
-        <Link className="title en-title-font" to="/blog" title="ブログ">
-          Blog
+        <Link className="title" to="/blog" title="ブログ">
+          <span className="en-title-font" translate="no">
+            Blog
+          </span>
         </Link>
       </h3>
       <div className="list">

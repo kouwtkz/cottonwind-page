@@ -1658,7 +1658,7 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     () =>
       showGalleryLabel ? (
         <div className="galleryLabel">
-          <h2 className="en-title-font">
+          <h2 className="en-title-font" translate="no">
             <HeaderElm label={labelString} />
           </h2>
           {showCount ? <div className="count">({list.length})</div> : null}

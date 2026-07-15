@@ -9,7 +9,7 @@ export const SuggestPage = React.memo(function SuggestPage({
 }) {
   return (
     <main className="color-main en-title-font">
-      <h1>SUGGEST</h1>
+      <h1 translate="no">SUGGEST</h1>
       <h4>類似サイトへの誘導</h4>
       <div className="gridLink">
         <a

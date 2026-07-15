@@ -62,7 +62,9 @@ export const LinksPage = React.memo(function LinksPage() {
   const linkat = env?.ATPROTO_USE_LINKAT;
   return (
     <div className="linkPage">
-      <h2 className="color-main en-title-font">LINKS</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        LINKS
+      </h2>
       {linkat ? <Linkat /> : null}
       <MeeLinks title="Top Link" category="top" banner fold open={!linkat} />
       <MeeLinks title="My Link" category={null} banner fold open={!linkat} />
@@ -77,7 +79,9 @@ export const LinksPage = React.memo(function LinksPage() {
         <MeeLinks title="Secret" category="secret" banner fold />
       ) : null}
       <div>
-        <h3 className="color-main en-title-font">Others</h3>
+        <h3 className="color-main en-title-font" translate="no">
+          Others
+        </h3>
         <ul className="flex center column font-larger">
           <li>
             <Link to="/suggest">
@@ -129,7 +133,9 @@ export function MyBanners() {
   }, []);
   return (
     <div>
-      <h3 className="color-main en-title-font">Site Banner</h3>
+      <h3 className="color-main en-title-font" translate="no">
+        Site Banner
+      </h3>
       {isLogin ? <MyBannerEditButtons /> : null}
       <ul className={className}>
         {move ? (
@@ -300,7 +306,7 @@ function FoldInnerLinksContainer({
   return (
     <details open={open}>
       <summary className="h3 color-main en-title-font">
-        {title || "Links"}
+        {title ? <span>{title}</span> : <span translate="no">Links</span>}
       </summary>
       {children}
     </details>

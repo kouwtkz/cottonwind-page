@@ -38,7 +38,7 @@ export const ErrorBoundaryContent = React.memo(function ErrorBoundaryContent({
   return (
     <div className={className}>
       <main className="color en-title-font middle">
-        <h1>{message}</h1>
+        <h1 translate="no">{message}</h1>
         {details ? <h4>{details}</h4> : null}
         <a href="/">トップページへ戻る</a>
         {stack && (

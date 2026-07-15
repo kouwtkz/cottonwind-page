@@ -8,10 +8,14 @@ export const SettingPage = React.memo(function SettingPage() {
   const isLogin = useIsLogin()[0];
   return (
     <main className="h1h4Page settingPage">
-      <h2 className="color-main en-title-font">Setting</h2>
+      <h2 className="color-main en-title-font" translate="no">
+        Setting
+      </h2>
       {isLogin ? (
         <div className="flex center column font-larger">
-          <h3 className="color-main en-title-font">Admin</h3>
+          <h3 className="color-main en-title-font" translate="no">
+            Admin
+          </h3>
           <PurgeDatabaseAnchor />
           <AdminMainPage />
         </div>

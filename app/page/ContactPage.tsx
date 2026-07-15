@@ -17,7 +17,7 @@ export const ContactPage = React.memo(function ContactPage() {
   );
   return (
     <>
-      <h2 className="color-main en-title-font line-none">
+      <h2 className="color-main en-title-font line-none" translate="no">
         <Link to="/contact">CONTACT</Link>
       </h2>
       <div className="p-br-2">

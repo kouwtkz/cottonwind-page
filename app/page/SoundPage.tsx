@@ -159,7 +159,7 @@ export const SoundPage = React.memo(function SoundPage() {
           }
         }}
       >
-        Sound Room
+        <span translate="no">Sound Room</span>
       </h1>
       {isLogin ? <SoundEditButton /> : null}
       {}

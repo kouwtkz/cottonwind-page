@@ -38,7 +38,7 @@ export function SiteMenu() {
     return list;
   }, [env, isLogin]);
   return (
-    <div className="siteMenu en-title-font">
+    <div className="siteMenu en-title-font" translate="no">
       <DropdownObject
         classNames={{ dropItemList: "right" }}
         MenuButton={SiteMenuButton}
