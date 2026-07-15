@@ -28,6 +28,7 @@ export function InPageMenu({
   cursorAdjust = 64,
   lastAdjust = 8,
   autoLastHide = 4,
+  translate = "no",
   className,
   ...props
 }: InPageMenuProps) {
@@ -72,7 +73,7 @@ export function InPageMenu({
     return list.join(" ");
   }, [className, lastHide]);
   return (
-    <div {...props} className={className}>
+    <div {...props} className={className} translate={translate}>
       {list.map(({ id, name, element, currentMode }, i) => {
         return (
           <div
