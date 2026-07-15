@@ -639,7 +639,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
     <>
       {charactersMap ? (
         chara ? (
-          <div className="charaDetail">
+          <div className="charaDetail" key={"chara-detail-" + chara.key}>
             <CharaBeforeAfter charaName={charaName} />
             {chara.draft ? (
               <div className="color-gray">（下書き中のキャラクター）</div>
@@ -669,7 +669,9 @@ export function CharaDetail({ charaName }: { charaName: string }) {
               {chara.enName ? (
                 <p className="color-main">EN Name: {chara.enName}</p>
               ) : null}
-              <div className="overview">{chara.overview}</div>
+              <div className="overview" key={"overview-" + chara.key}>
+                <span>{chara.overview}</span>
+              </div>
             </div>
             {chara.image ? (
               <p>
@@ -705,12 +707,17 @@ export function CharaDetail({ charaName }: { charaName: string }) {
               </p>
             ) : null}
             {chara.time ? (
-              <p>
+              <p key={"debut-" + chara.key}>
                 <span>デビュー年：</span>
                 <span>{chara.time.getFullYear()}年</span>
               </p>
             ) : null}
-            <MultiParserWithMedia markdown linkPush hashtag>
+            <MultiParserWithMedia
+              markdown
+              linkPush
+              hashtag
+              key={"description-" + chara.key}
+            >
               {chara.description}
             </MultiParserWithMedia>
             <LikeButton
