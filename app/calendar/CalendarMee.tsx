@@ -76,7 +76,7 @@ const weekTitleFormat: FormatterInput = ({ start, end }) => {
   if (!useDate) useDate = start;
   return (
     `${useDate.year}年${useDate.month + 1}月` +
-    ` ${Math.ceil(useDate.day / 7)}週目`
+    `${Math.ceil(useDate.day / 7)}週目`
   );
 };
 

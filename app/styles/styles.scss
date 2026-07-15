@@ -5010,12 +5010,6 @@ div.bannerArea {
     }
   }
   .fc-direction-ltr .fc-toolbar > * {
-    & > * {
-      margin-bottom: 0.1em;
-      @media (min-width: #{$mobileWidth}) {
-        margin-bottom: 0.2em;
-      }
-    }
     & > :not(:first-child) {
       margin-left: 0.3em;
       @media (min-width: #{$mobileWidth}) {
