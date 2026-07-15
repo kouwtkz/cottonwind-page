@@ -49,6 +49,7 @@ import { customFetch } from "~/components/functions/fetch";
 import { getBackURL } from "~/components/layout/BackButton";
 import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
 import { Modal } from "~/components/layout/Modal";
+import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 interface PartsType {
   label?: string;
@@ -596,7 +597,7 @@ export function CharaBeforeAfter({
       <div className="before" {...props}>
         {beforeChara ? (
           <Link to={beforeTo} state={{ keep: true }} onClick={OnClick}>
-            <span className="cursor">＜</span>
+            <PiCaretLeft className="cursor" />
             {beforeChara.icon ? (
               <ImageMeeIcon
                 imageItem={beforeChara.icon}
@@ -621,7 +622,7 @@ export function CharaBeforeAfter({
               />
             ) : null}
             <CharacterName chara={afterChara} />
-            <span className="cursor">＞</span>
+            <PiCaretRight className="cursor" />
           </Link>
         ) : null}
       </div>
