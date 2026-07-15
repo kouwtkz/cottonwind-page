@@ -487,6 +487,7 @@ export function CalendarMee({
   ...args
 }: CalendarMeeProps) {
   let currentEventDay = useRef(new Date());
+  let isTodayRef = useRef(false);
   className = useMemo(() => {
     const classNames: string[] = ["fc"];
     if (className) classNames.push(className);
@@ -568,11 +569,11 @@ export function CalendarMee({
       const duration = Math.ceil(
         (endDate.getTime() - startDate.getTime()) / 86400000,
       );
-      const isOmitDurationRange = duration >= 4;
+      const isOmitDurationRange = duration >= 3;
       const durationLoopMax = duration - 1;
       for (let i = 0; i <= durationLoopMax; i++) {
         const omitDuration =
-          isOmitDurationRange && i > 1 && i < durationLoopMax;
+          isOmitDurationRange && i > 0 && i < durationLoopMax;
         if (omitDuration) continue;
         const dateString = new Date(
           startDate.getTime() + i * 86400000,
@@ -709,7 +710,9 @@ export function CalendarMee({
         allDayText="終日"
         datesSet={onChangeHandle}
         dayHeaderClassNames={(e) => {
+          isTodayRef.current = e.isToday;
           currentEventDay.current = e.date;
+          if (e.isToday) return "";
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
               const dateString = currentEventDay.current.toDateString();
@@ -721,6 +724,7 @@ export function CalendarMee({
           return "";
         }}
         eventClassNames={(e) => {
+          if (isTodayRef.current) return "";
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
               const dateString = currentEventDay.current.toDateString();

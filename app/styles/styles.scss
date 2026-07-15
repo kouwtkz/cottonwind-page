@@ -5054,6 +5054,17 @@ div.bannerArea {
       }
     }
   }
+  .fc-list-sticky {
+    tr.fc-day-today {
+      th {
+        background: var(--main-color-faint);
+      }
+      .fc-list-day-text::after {
+        content: "(今日)";
+        margin-left: 0.5rem;
+      }
+    }
+  }
   .fc-event-main,
   .fc-event-main-frame {
     display: flex;
