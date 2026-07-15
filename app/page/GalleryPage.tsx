@@ -1341,7 +1341,11 @@ const GalleryImageList = React.memo(function GalleryImageList(
 
 export const currentGalleryImageItemMap = new Map<string, ImageType>();
 
-function GalleryWrapperImageItem(args: GalleryImageItemProps) {
+function GalleryWrapperImageItem({
+  image,
+  galleryName,
+  ...args
+}: GalleryImageItemProps) {
   let { windowSize, windowScroll, visible } = args;
   const [visibleImage, setVisibleImage] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -1356,10 +1360,19 @@ function GalleryWrapperImageItem(args: GalleryImageItemProps) {
       setVisibleImage(false);
     }
   }, [visible, windowSize, windowScroll, args]);
+  useEffect(() => {
+    const key = galleryName + "/" + image.key;
+    currentGalleryImageItemMap.set(key, image);
+    return () => {
+      currentGalleryImageItemMap.delete(key);
+    };
+  }, [galleryName, image]);
 
   return (
     <div className="item-wrap" ref={ref}>
-      {visibleImage ? <GalleryImageItem {...args} /> : null}
+      {visibleImage ? (
+        <GalleryImageItem image={image} galleryName={galleryName} {...args} />
+      ) : null}
     </div>
   );
 }
@@ -1374,13 +1387,6 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   visibleYear,
   search,
 }: GalleryImageItemProps) {
-  useEffect(() => {
-    const key = galleryName + "/" + image.key;
-    currentGalleryImageItemMap.set(key, image);
-    return () => {
-      currentGalleryImageItemMap.delete(key);
-    };
-  }, [galleryName, image]);
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
   const isMultiSelectMode = useMemo(
     () => Boolean(multiSelect.Map),
