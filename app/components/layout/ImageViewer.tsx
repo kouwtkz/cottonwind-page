@@ -47,6 +47,8 @@ import { mediaOrigin } from "~/data/ClientDBLoader";
 import { BookReader } from "./BookReader";
 import { TbHexagon3D } from "react-icons/tb";
 import {
+  PiCaretDoubleLeft,
+  PiCaretDoubleRight,
   PiCaretLeftFill,
   PiCaretRightFill,
   PiImagesFill,
@@ -772,7 +774,9 @@ export function GalleryViewerPaging({ onLinkEvent }: GalleryViewerPagingProps) {
           state={escapeState}
           onClick={onLinkEvent}
         >
-          <div className="cursor">≪</div>
+          <div className="cursor">
+            <PiCaretDoubleLeft />
+          </div>
           <div>{prevNextImage.before.title}</div>
         </Link>
       ) : (
@@ -787,7 +791,9 @@ export function GalleryViewerPaging({ onLinkEvent }: GalleryViewerPagingProps) {
           onClick={onLinkEvent}
         >
           <div>{prevNextImage.after.title}</div>
-          <div className="cursor">≫</div>
+          <div className="cursor">
+            <PiCaretDoubleRight />
+          </div>
         </Link>
       ) : (
         <div className="flex-1" />
