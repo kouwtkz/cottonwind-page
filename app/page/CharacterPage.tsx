@@ -473,7 +473,11 @@ function CharaListPage() {
   return (
     <>
       <CharaSearchArea
-        headerBeforeInner={<div className="color-main">({count})</div>}
+        headerBeforeInner={
+          <div className="color-main" translate="no">
+            ({count})
+          </div>
+        }
       />
       {parts
         ?.filter(({ items }) => items.length > 0)
