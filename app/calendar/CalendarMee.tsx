@@ -712,7 +712,6 @@ export function CalendarMee({
           currentEventDay.current = e.date;
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
-            case "week":
               const dateString = currentEventDay.current.toDateString();
               if (!eventsDayMap.has(dateString)) {
                 return "hidden";
@@ -724,7 +723,6 @@ export function CalendarMee({
         eventClassNames={(e) => {
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
-            case "week":
               const dateString = currentEventDay.current.toDateString();
               const currentEventsMap = eventsDayMap.get(dateString);
               if (!currentEventsMap || !currentEventsMap.has(e.event.id)) {
