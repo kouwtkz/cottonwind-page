@@ -625,6 +625,8 @@ table {
 
 ul,
 ol {
+  margin-left: auto;
+  margin-right: auto;
   white-space: normal;
   text-align: left;
   @media (min-width: $mobileWidth) {
@@ -3817,6 +3819,10 @@ label,
           margin: 1rem auto;
           white-space: pre-line;
         }
+        ul,
+        ol {
+          margin-left: 0.5rem;
+        }
       }
       .tagList {
         display: flex;
@@ -4527,6 +4533,10 @@ body.workers {
     max-width: 68rem;
     text-align: left;
     margin: auto;
+    ul,
+    ol {
+      margin-left: 0;
+    }
   }
   .post {
     margin: 1.5rem 1rem 2rem;
