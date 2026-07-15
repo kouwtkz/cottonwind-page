@@ -2667,6 +2667,11 @@ form {
         display: block;
         margin: 0.5em auto 0;
         max-width: 90%;
+        word-break: break-word;
+        [lang="en"] {
+          margin-left: 0.25em;
+          display: inline-block;
+        }
       }
       @media (min-width: $tabletWidth) {
         font-size: 1.5em;
@@ -2749,8 +2754,9 @@ form {
       box-sizing: border-box;
     }
     .tags {
-      & > * {
+      li {
         margin: 0.25rem;
+        display: inline-block;
       }
     }
     .parsed {

@@ -283,26 +283,61 @@ interface CharaGalleryAlbumProps extends HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
-export function translateCharaLangName(
-  chara: CharacterType,
-  lang = DEFAULT_LANG,
-) {
-  const toEn = lang !== DEFAULT_LANG && chara.enName;
-  const returnValue = {
-    name: toEn ? chara.enName : chara.name,
-  } as { name?: string; lang?: string };
-  if (toEn) returnValue.lang = "en";
-  return returnValue;
-}
 interface CharacterName extends HTMLAttributes<HTMLSpanElement> {
   chara: CharacterType;
+  honorific?: boolean;
+  notAutoAddEn?: boolean;
 }
-export function CharacterName({ chara, ...props }: CharacterName) {
+export function CharacterName({
+  chara,
+  honorific,
+  notAutoAddEn,
+  ...props
+}: CharacterName) {
   const lang = useLang()[0];
-  const translated = translateCharaLangName(chara, lang);
+  const translated = useMemo(() => {
+    const result = { lang: DEFAULT_LANG, name: chara.name };
+    switch (lang) {
+      case "en":
+        if (chara.enName) {
+          result.lang = lang;
+          result.name = chara.enName;
+        }
+        break;
+      default:
+        if (honorific && chara.honorific) {
+          result.name += chara.honorific;
+        }
+        break;
+    }
+    return result;
+  }, [chara, lang, honorific]);
+  const translate = useMemo(() => {
+    if (lang === translated.lang) return "no";
+  }, [lang, translated]);
+  const enName = useMemo(() => {
+    if (
+      !notAutoAddEn &&
+      chara.enName &&
+      !translate &&
+      translated.lang === DEFAULT_LANG
+    ) {
   return (
-    <span lang={translated.lang} {...props}>
+        <span lang="en" translate="no">
+          (en:{chara.enName})
+        </span>
+      );
+    } else return null;
+  }, [translated, translate, chara.enName, notAutoAddEn]);
+  return (
+    <span
+      lang={translated.lang}
+      translate={translate}
+      key={`${chara.key}-${translated.lang}`}
+      {...props}
+    >
       {translated.name}
+      {enName}
     </span>
   );
 }
@@ -662,12 +697,12 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     key={chara.id + "_icon"}
                   />
                 ) : null}
-                <span translate={chara.enName ? "no" : "yes"}>
-                  {chara.name + (chara.honorific ?? "")}
-                </span>
+                <CharacterName chara={chara} notAutoAddEn honorific />
               </h1>
               {chara.enName ? (
-                <p className="color-main">EN Name: {chara.enName}</p>
+                <p className="color-main" translate="no">
+                  EN Name: {chara.enName}
+                </p>
               ) : null}
               <div className="overview" key={"overview-" + chara.key}>
                 <span>{chara.overview}</span>
