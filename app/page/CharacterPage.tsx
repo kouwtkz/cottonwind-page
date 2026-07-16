@@ -641,6 +641,23 @@ export function CharaBeforeAfter({
   );
 }
 
+function CharaSecondaryLang({ chara }: { chara: CharacterType }) {
+  const lang = useLang()[0];
+  let inner: string | undefined;
+  if (lang === "en") {
+    inner = `ja: ${chara.name}`;
+  } else if (chara.enName) {
+    inner = `en: ${chara.enName}`;
+  }
+  if (inner)
+    return (
+      <p className="color-main" translate="no">
+        {inner}
+      </p>
+    );
+  else return null;
+}
+
 const defaultGalleryList = [
   { name: "main" },
   { name: "works" },
@@ -711,11 +728,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                 ) : null}
                 <CharacterName chara={chara} notAutoAddEn honorific />
               </h1>
-              {chara.enName ? (
-                <p className="color-main" translate="no">
-                  EN Name: {chara.enName}
-                </p>
-              ) : null}
+              <CharaSecondaryLang chara={chara} />
               <div className="overview" key={"overview-" + chara.key}>
                 <span>{chara.overview}</span>
               </div>
