@@ -4777,6 +4777,9 @@ form.blogEdit {
 }
 ul.bannerArea {
   @include GridList("li", 1, $mobileWidth, $tabletWidth, $desktopWidth);
+  .topPage & {
+    max-width: 75rem;
+  }
   width: 100%;
   text-align: left;
   max-width: 100%;

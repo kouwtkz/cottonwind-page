@@ -466,8 +466,11 @@ export const EditableLinksContainer = React.memo(function LinksContainer({
     const list = ["linksArea"];
     if (banner) list.push("bannerArea");
     else list.push("font-larger");
+    categories.forEach((category) => {
+      if (category) list.push(category);
+    });
     return list.join(" ");
-  }, [links]);
+  }, [links, category]);
   className = useMemo(() => {
     const list = [];
     if (className) list.push(className);
