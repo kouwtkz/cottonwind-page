@@ -293,6 +293,7 @@ export function CharacterName({
   chara,
   honorific,
   notAutoAddEn,
+  className: argsClassName,
   ...props
 }: CharacterName) {
   const lang = useLang()[0];
@@ -330,9 +331,14 @@ export function CharacterName({
       );
     } else return null;
   }, [translated, translate, chara.enName, notAutoAddEn]);
+  const className = useMemo(() => {
+    const classNames = ["characterName"];
+    if (argsClassName) classNames.push(argsClassName);
+    return classNames.join(" ");
+  }, [argsClassName]);
   return (
     <span
-      className="characterName"
+      className={className}
       lang={translated.lang}
       translate={translate}
       key={`${chara.key}-${translated.lang}`}
