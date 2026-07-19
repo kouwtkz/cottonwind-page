@@ -3,10 +3,9 @@ import { concatOriginUrl } from "../functions/originUrl";
 import type { Location } from "react-router";
 import {
   autoFixGalleryTagsOptions,
-  defaultGalleryTags,
   getTagsOptions,
 } from "../dropdown/SortFilterTags";
-import { TITLE } from "~/Env";
+import { TITLE, defaultGalleryTags } from "~/Env";
 
 export type MetaValuesType =
   | { title: string }

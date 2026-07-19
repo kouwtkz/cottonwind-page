@@ -44,11 +44,11 @@ import {
 } from "~/components/layout/ImageViewer";
 import { useImageState } from "~/components/state/ImageState";
 import {
-  defaultGalleryTags,
   addExtentionGalleryTagsOptions,
   simpleDefaultTags,
   defaultGalleryEditableTags,
 } from "~/components/dropdown/SortFilterTags";
+import { defaultGalleryTags } from "~/Env";
 import { useController, useForm, type FieldValues } from "react-hook-form";
 import { AiFillEdit } from "react-icons/ai";
 import {

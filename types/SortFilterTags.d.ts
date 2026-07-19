@@ -26,3 +26,8 @@ interface ContentsTagsOptionMustLabelValue extends ContentsTagsOption {
 interface ContentsTagsOptionTimeframe extends ContentsTagsOptionMustLabelValue {
   during: string;
 }
+
+interface filterGalleryMonthType {
+  month: number;
+  tags: string[];
+};

@@ -15,10 +15,10 @@ import ImageEditForm, {
   useImageEditSwitchHold,
 } from "./edit/ImageEditForm";
 import {
-  defaultGalleryTags,
   getTagsOptions,
   autoFixGalleryTagsOptions,
 } from "~/components/dropdown/SortFilterTags";
+import { defaultGalleryTags } from "~/Env";
 import {
   RiBook2Fill,
   RiFilePdf2Fill,

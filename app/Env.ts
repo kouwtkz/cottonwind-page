@@ -287,3 +287,178 @@ export const ArrayEnv: ArrayEnvType = {
   LINKS: EnvLINKS,
   IMAGE_ALBUMS
 }
+
+export const TimeframeTags: ContentsTagsOptionTimeframe[] = [
+  { value: "morning", label: "🌄朝", during: "6:00-8:59", nameGuide: "あさ" },
+  { value: "forenoon", label: "🚃午前", during: "9:00-11:59", nameGuide: "ごぜん" },
+  { value: "midday", label: "🍱真昼", during: "12:00-13:59", nameGuide: "まひる" },
+  { value: "afternoon", label: "🏞️午後", during: "14:00-16:59", nameGuide: "ごご" },
+  { value: "evening", label: "🌇夕方", during: "17:00-19:59", nameGuide: "ゆうがた" },
+  { value: "night", label: "🌃夜", during: "20:00-23:59", nameGuide: "よる" },
+  { value: "midnight", label: "🌌夜中", during: "24:00-5:59", nameGuide: "よなか" },
+];
+
+export const defaultGalleryTags: ContentsTagsOption[] = [
+  {
+    label: "フィルタ",
+    name: "filter",
+    editable: false,
+    options: [
+      {
+        label: "♥️いいね済み",
+        name: "liked",
+        value: "filter:like",
+      },
+    ],
+  },
+  {
+    label: "タイプ",
+    name: "type",
+    editable: false,
+    options: [
+      { value: "type:illust", label: "🎨イラスト" },
+      { value: "type:ebook", label: "📖漫画・小説", nameGuide: "まんが" },
+      { value: "type:multi", label: "🗂️複数画像", nameGuide: "ふくすうがぞう" },
+      { value: "type:goods", label: "🛍️販売・グッズ", nameGuide: "はんばい" },
+      { value: "type:movie", label: "🎬動画・アニメ", nameGuide: "どうが" },
+      { value: "type:picture", label: "📷写真・VRC", nameGuide: ["しゃしん", "ぶいあーる"] },
+      { value: "type:3d", label: "🧶3Dモデル" },
+      { value: "type:material", label: "📦素材", nameGuide: "そざい" },
+      { value: "type:other", label: "🖼️その他の画像", nameGuide: "そのた" },
+    ],
+  },
+  {
+    label: "マンスリー",
+    name: "monthly",
+    options: [
+      { value: "monthMode:event", label: "🔎月イベント", editable: false },
+      { value: "monthMode:tag", label: "🔎月タグ", editable: false },
+      { value: "month:1", label: "🎍1月" },
+      { value: "month:2", label: "👹2月" },
+      { value: "month:3", label: "🎎3月" },
+      { value: "month:4", label: "🌸4月" },
+      { value: "month:5", label: "🎏5月" },
+      { value: "month:6", label: "☔6月" },
+      { value: "month:7", label: "🎋7月" },
+      { value: "month:8", label: "🥒8月" },
+      { value: "month:9", label: "🎑9月" },
+      { value: "month:10", label: "🍇10月" },
+      { value: "month:11", label: "🍲11月" },
+      { value: "month:12", label: "🎅12月" },
+    ],
+  },
+  {
+    label: "シーズン",
+    name: "season",
+    options: [
+      { value: "spring", label: "🌸春", nameGuide: "はる" },
+      { value: "summer", label: "🌻夏", nameGuide: "なつ" },
+      { value: "autumn", label: "🍂秋", nameGuide: "あき" },
+      { value: "winter", label: "⛄冬", nameGuide: "ふゆ" },
+      { value: "valentine", label: "🍫バレンタインデー" },
+      { value: "easter", label: "🐰イースター" },
+      { value: "summerFestival", label: "🎇夏祭り" },
+      { value: "halloween", label: "🎃ハロウィン" },
+      { value: "christmas", label: "🎄クリスマス" },
+      { value: "myBirthday", label: "🎂自分の誕生日", nameGuide: "たんじょうび" },
+    ],
+  },
+  {
+    label: "時間帯",
+    name: "timeframe",
+    options: TimeframeTags,
+  },
+  {
+    label: "創作",
+    name: "creation",
+    options: [
+      { value: "project", label: "🎪企画・イベント", nameGuide: "きかく" },
+      { value: "synopsis", label: "📰設定資料", nameGuide: "せっていしりょう" },
+      { value: "pixelArt", label: "👾ドット絵", nameGuide: ["どっとえ", "ぴくせるあーと"] },
+    ],
+  },
+  {
+    label: "コミュニティ",
+    name: "community",
+    options: [
+      { value: "yosonoko", label: "🐕よその子", nameGuide: "よそのこ" },
+      { value: "birthday", label: "🎂誕生日", nameGuide: "たんじょうび" },
+      { value: "VRChat", label: "🥽VRChat", nameGuide: "ぶいあーるちゃっと" },
+    ],
+  },
+  {
+    label: "じょうたい",
+    name: "status",
+    options: [
+      { value: "happy", label: "🎶ハッピーなすがた" },
+      { value: "sleep", label: "💤ねてるすがた" },
+      { value: "foodForm", label: "🍲たべもののすがた" },
+      { value: "darkForm", label: "😈やみのすがた" }
+    ],
+  },
+  {
+    label: "活動",
+    name: "activity",
+    options: [
+      { value: "competition", label: "🚩コンペ" },
+      { value: "prize", label: "👑入賞", nameGuide: "にゅうしょう" },
+      { value: "commission", label: "📒コミッション" },
+      { value: "recommend", label: "👍おすすめ" },
+    ],
+  },
+];
+
+export const filterGalleryMonthList: filterGalleryMonthType[] = [
+  { month: 1, tags: ["january", "winter"] },
+  { month: 2, tags: ["february", "winter", "valentine"] },
+  { month: 3, tags: ["march", "spring", "easter"] },
+  { month: 4, tags: ["april", "spring", "easter"] },
+  { month: 5, tags: ["may", "spring"] },
+  { month: 6, tags: ["june", "rainy"] },
+  { month: 7, tags: ["july", "summer", "七夕"] },
+  { month: 8, tags: ["august", "summer", "summerFestival"] },
+  { month: 9, tags: ["september", "autumn"] },
+  { month: 10, tags: ["october", "halloween", "autumn"] },
+  { month: 11, tags: ["november", "autumn"] },
+  { month: 12, tags: ["december", "winter", "christmas", "myBirthday"] },
+];
+
+export function defineSortTags(tags: defineSortTagsUnion[]) {
+  const options: ContentsTagsOption[] = [];
+  tags.forEach((tag) => {
+    switch (tag) {
+      case "recently":
+        options.push({ value: "sort:recently", label: "🕒新しい順", nameGuide: "あたらしい" });
+        break;
+      case "leastRecently":
+        options.push({ value: "sort:leastRecently", label: "🕘古い順", nameGuide: "ふるい" });
+        break;
+      case "nameOrder":
+        options.push({ value: "sort:nameOrder", label: "⬇️名前（昇順）", nameGuide: "なまえ" });
+        break;
+      case "leastNameOrder":
+        options.push({ value: "sort:leastNameOrder", label: "⬆️名前（降順）", nameGuide: "なまえ" });
+        break;
+      case "creationTimeOrder":
+        options.push({ value: "sort:creationTimeOrder", label: "⏳制作時間が長い順", nameGuide: "ながい" });
+        break;
+      case "shortnessCreationTimeOrder":
+        options.push({ value: "sort:shortnessCreationTimeOrder", label: "⌛制作時間が短い順", nameGuide: "みじかい" });
+        break;
+      case "likeCount":
+        options.push({ value: "sort:likeCount", label: "♥️いいね順" });
+        break;
+      case "mix":
+        options.push({ value: "viewMode:mix", label: "🔄️全て合わせる" });
+        break;
+      case "total":
+        options.push({ value: "total:general", label: "📊合計" });
+        break;
+    }
+  });
+  return {
+    label: "ソート",
+    name: "sort",
+    options,
+  } as ContentsTagsOption;
+}

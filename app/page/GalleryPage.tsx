@@ -19,14 +19,16 @@ import React, {
   useState,
 } from "react";
 import {
-  defineSortTags,
-  filterGalleryMonthList,
   addExtentionTagsOptions,
-  defaultGalleryTags,
   MonthToTag,
-  TimeframeTags,
   simpleDefaultTags,
 } from "~/components/dropdown/SortFilterTags";
+import {
+  defineSortTags,
+  filterGalleryMonthList,
+  defaultGalleryTags,
+  TimeframeTags,
+} from "~/Env";
 import { filterPickFixed } from "~/components/functions/media/FilterImages";
 import { InPageMenu } from "~/components/layout/InPageMenu";
 import { useDropzone } from "react-dropzone";

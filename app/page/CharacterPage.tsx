@@ -33,7 +33,7 @@ import { useSoundPlayer } from "~/components/layout/SoundPlayer";
 import { useHotkeys } from "react-hotkeys-hook";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
-import { defineSortTags } from "~/components/dropdown/SortFilterTags";
+import { defineSortTags } from "~/Env";
 import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { Movable } from "~/components/layout/edit/Movable";
