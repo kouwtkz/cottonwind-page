@@ -28,6 +28,7 @@ import {
   filterGalleryMonthList,
   defaultGalleryTags,
   TimeframeTags,
+  defineDisplayTags,
 } from "~/Env";
 import { filterPickFixed } from "~/components/functions/media/FilterImages";
 import { InPageMenu } from "~/components/layout/InPageMenu";
@@ -260,6 +261,7 @@ export function GalleryObject(args: GalleryObjectProps) {
   const { charactersMap, charactersNameMap } = useCharacters();
   const searchParams = useSearchParams()[0];
   const sortParam = searchParams.get("sort");
+  const visibleParam = searchParams.get("visible");
   const typeParam = searchParams.get("type");
   const filterParam = searchParams.get("filter");
   const yearParam = searchParams.get("year");
@@ -273,6 +275,7 @@ export function GalleryObject(args: GalleryObjectProps) {
     visibleCreationTime,
     visibleLikeCount,
     visibleYear,
+    visibleTitle,
     totalCount,
     totalCreationTime,
     totalLikeCount,
@@ -280,6 +283,7 @@ export function GalleryObject(args: GalleryObjectProps) {
     let visibleCreationTime = false;
     let visibleLikeCount = false;
     let visibleYear = false;
+    let visibleTitle = false;
     let totalCreationTime = false;
     let totalLikeCount = false;
     let totalCount = false;
@@ -295,10 +299,14 @@ export function GalleryObject(args: GalleryObjectProps) {
               visibleCreationTime = true;
               break;
             case "like":
+            case "likeCount":
               visibleLikeCount = true;
               break;
             case "year":
               visibleYear = true;
+              break;
+            case "title":
+              visibleTitle = true;
               break;
           }
           return false;
@@ -326,6 +334,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       visibleCreationTime,
       visibleLikeCount,
       visibleYear,
+      visibleTitle,
       totalCreationTime,
       totalLikeCount,
       totalCount,
@@ -534,18 +543,39 @@ export function GalleryObject(args: GalleryObjectProps) {
     if (keys.every((key) => key !== "key")) list.unshift({ key: "asc" });
     return list;
   }, [sortParam, orderBy, hasTopImage]);
+  const visibleMap = useMemo(() => {
+    const map = new Map<defineDisplayTagsUnion, void>();
+    visibleParam?.split(",").forEach((visible) => {
+      map.set(visible as defineDisplayTagsUnion);
+    });
+    return map;
+  }, [visibleParam]);
   const isTotalGeneral = useMemo(() => totalParam === "general", [totalParam]);
   visibleCreationTime = useMemo(
-    () => visibleCreationTime || orderBySort.some((v) => "creationTime" in v),
-    [visibleCreationTime, orderBySort],
+    () =>
+      visibleCreationTime ||
+      visibleMap.has("creationTime") ||
+      orderBySort.some((v) => "creationTime" in v),
+    [visibleCreationTime, visibleMap, orderBySort],
   );
   totalCreationTime = useMemo(
     () => totalCreationTime || (visibleCreationTime && isTotalGeneral),
     [totalCreationTime, visibleCreationTime, isTotalGeneral],
   );
   visibleLikeCount = useMemo(
-    () => visibleLikeCount || orderBySort.some((v) => "like" in v),
-    [visibleLikeCount, orderBySort],
+    () =>
+      visibleLikeCount ||
+      visibleMap.has("likeCount") ||
+      orderBySort.some((v) => "like" in v),
+    [visibleLikeCount, visibleMap, orderBySort],
+  );
+  visibleYear = useMemo(
+    () => visibleYear || visibleMap.has("year"),
+    [visibleYear, visibleMap],
+  );
+  visibleTitle = useMemo(
+    () => visibleTitle || visibleMap.has("title"),
+    [visibleTitle, visibleMap],
   );
   totalLikeCount = useMemo(
     () => totalLikeCount || (visibleLikeCount && isTotalGeneral),
@@ -706,6 +736,7 @@ export function GalleryObject(args: GalleryObjectProps) {
         visibleLikeCount={visibleLikeCount}
         totalLikeCount={totalLikeCount}
         visibleYear={visibleYear}
+        visibleTitle={visibleTitle}
       />
     ),
     [
@@ -719,6 +750,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       visibleLikeCount,
       totalLikeCount,
       visibleYear,
+      visibleTitle,
     ],
   );
 }
@@ -830,6 +862,7 @@ function GalleryBody({
   visibleCreationTime,
   visibleLikeCount,
   visibleYear,
+  visibleTitle,
   totalCreationTime,
   totalLikeCount,
   totalCount,
@@ -862,6 +895,7 @@ function GalleryBody({
       visibleCreationTime,
       visibleLikeCount,
       visibleYear,
+      visibleTitle,
     }),
     [
       showInPageMenu,
@@ -871,6 +905,7 @@ function GalleryBody({
       visibleCreationTime,
       visibleLikeCount,
       visibleYear,
+      visibleTitle,
     ],
   );
   const isLogin = useIsLogin()[0];
@@ -986,6 +1021,7 @@ function GalleryBody({
             }
             switch (parent?.name) {
               case "sort":
+              case "display":
               case "monthly":
                 return true;
             }
@@ -1387,6 +1423,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
   visibleCreationTime,
   visibleLikeCount,
   visibleYear,
+  visibleTitle,
   search,
 }: GalleryImageItemProps) {
   const [multiSelect, setMultiSelect] = useImageMultiSelect();
@@ -1457,6 +1494,7 @@ const GalleryImageItem = React.memo(function GalleryImageItem({
             visibleCreationTime={visibleCreationTime}
             visibleLikeCount={visibleLikeCount}
             visibleYear={visibleYear}
+            visibleTitle={visibleTitle}
           />
           {image.type === "ebook" || image.type === "goods" ? (
             image.embed ? (
@@ -1566,6 +1604,7 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     visibleCreationTime,
     visibleLikeCount,
     visibleYear,
+    visibleTitle,
     id,
     windowSize,
     windowScroll,
@@ -1706,6 +1745,7 @@ function GalleryContentMain(args: GalleryContentMainProps) {
           visibleCreationTime={visibleCreationTime}
           visibleLikeCount={visibleLikeCount}
           visibleYear={visibleYear}
+          visibleTitle={visibleTitle}
           windowSize={windowSize}
           windowScroll={windowScroll}
         />
@@ -1921,7 +1961,15 @@ const gallerySortTags = [
     "creationTimeOrder",
     "shortnessCreationTimeOrder",
     "likeCount",
+  ]),
+];
+const galleryDisplayTags = [
+  defineDisplayTags([
     "mix",
+    "title",
+    "year",
+    "creationTime",
+    "likeCount",
     "total",
   ]),
 ];
@@ -1939,6 +1987,7 @@ export function GalleryTagsSelect(args: SelectAreaProps) {
   const tags = useMemo(() => {
     const options: ContentsTagsOption[] = [
       ...gallerySortTags,
+      ...galleryDisplayTags,
       ...(isLogin ? addExtentionTagsOptions() : defaultGalleryTags),
       ...(addOptions ? addOptions : []),
     ];
@@ -2017,6 +2066,7 @@ function GalleryItemRibbon({
   visibleCreationTime,
   visibleLikeCount,
   visibleYear,
+  visibleTitle,
 }: GalleryItemRibbonProps) {
   const trigger = useGalleryRibbonUpdateTrigger()[0];
   const schedule =
@@ -2057,8 +2107,18 @@ function GalleryItemRibbon({
       };
     }
   }, [visibleYear, yearRibbon, image, trigger]);
+  const itemOfTitle = useMemo(() => {
+    if (visibleTitle) {
+      let label = image.title || image.key;
+      return {
+        label,
+        className: "title",
+      };
+    }
+  }, [visibleTitle, image]);
   const list = useMemo(() => {
     const list: GalleryItemRibbonListType[] = [];
+    if (itemOfTitle) list.push(itemOfTitle);
     if (itemOfYear) list.push(itemOfYear);
     if (itemOfCreationTime) list.push(itemOfCreationTime);
     if (itemOfLikeCount) list.push(itemOfLikeCount);
@@ -2066,6 +2126,7 @@ function GalleryItemRibbon({
     if (itemOfDraft) list.push(itemOfDraft);
     return list;
   }, [
+    itemOfTitle,
     itemOfYear,
     itemOfCreationTime,
     itemOfLikeCount,
@@ -2079,7 +2140,7 @@ function GalleryItemRibbon({
         <div className="ribbon">
           {list.map((item) => (
             <div key={`ribbon-${item.label}`} className={item.className}>
-              {item.label}
+              <span>{item.label}</span>
             </div>
           ))}
         </div>

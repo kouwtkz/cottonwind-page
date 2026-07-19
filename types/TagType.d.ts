@@ -7,6 +7,12 @@ type defineSortTagsUnion =
   | "leastNameOrder"
   | "creationTimeOrder"
   | "shortnessCreationTimeOrder"
+  | "likeCount";
+
+type defineDisplayTagsUnion =
+  | "creationTime"
+  | "year"
+  | "title"
   | "likeCount"
   | "mix"
   | "total";

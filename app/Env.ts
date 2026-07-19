@@ -449,17 +449,42 @@ export function defineSortTags(tags: defineSortTagsUnion[]) {
       case "likeCount":
         options.push({ value: "sort:likeCount", label: "♥️いいね順" });
         break;
-      case "mix":
-        options.push({ value: "viewMode:mix", label: "🔄️全て合わせる" });
-        break;
-      case "total":
-        options.push({ value: "total:general", label: "📊合計" });
-        break;
     }
   });
   return {
     label: "ソート",
     name: "sort",
+    options,
+  } as ContentsTagsOption;
+}
+
+export function defineDisplayTags(tags: defineDisplayTagsUnion[]) {
+  const options: ContentsTagsOption[] = [];
+  tags.forEach((tag) => {
+    switch (tag) {
+      case "mix":
+        options.push({ value: "viewMode:mix", label: "🔄️全て合わせる" });
+        break;
+      case "creationTime":
+        options.push({ value: "visible:creationTime", label: "⏳制作時間", nameGuide: "せいさくじかん" });
+        break;
+      case "year":
+        options.push({ value: "visible:year", label: "📅公開年", nameGuide: "こうかいとし" });
+        break;
+      case "title":
+        options.push({ value: "visible:title", label: "🔤タイトル", nameGuide: "なまえ" });
+        break;
+      case "likeCount":
+        options.push({ value: "visible:likeCount", label: "♥️いいね数", nameGuide: "いいねすう" });
+        break;
+      case "total":
+        options.push({ value: "total:general", label: "📊合計", nameGuide: "ごうけい" });
+        break;
+    }
+  });
+  return {
+    label: "表示",
+    name: "display",
     options,
   } as ContentsTagsOption;
 }

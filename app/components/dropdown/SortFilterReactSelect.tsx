@@ -2,7 +2,7 @@ import { type HTMLAttributes, useCallback, useMemo } from "react";
 import { useLocation, useSearchParams } from "react-router";
 import { getTagsOptions, TimeframeTagMap } from "./SortFilterTags";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
-import type { MultiValue } from "react-select";
+import type { MultiValue, SingleValue } from "react-select";
 import { CustomReactSelect } from "./CustomReactSelect";
 
 interface SelectAreaProps
@@ -44,6 +44,11 @@ export function ContentsTagsSelect({
       .get("sort")
       ?.split(",")
       .map((v) => `sort:${v}`) || [];
+  const searchVisible =
+    searchParams
+      .get("visible")
+      ?.split(",")
+      .map((v) => `visible:${v}`) || [];
   const searchCopyright =
     searchParams
       .get("copyright")
@@ -65,6 +70,7 @@ export function ContentsTagsSelect({
     searchMonthMode,
     searchFilters,
     searchSort,
+    searchVisible,
     searchCopyright,
     searchViewMode,
     searchTotal,
@@ -97,9 +103,12 @@ export function ContentsTagsSelect({
     return [currentTags, suggestTags];
   }, [searchQuery, tags]);
   const changeHandler = useCallback(
-    (list: MultiValue<ContentsTagsOption>) => {
+    (
+      _list: SingleValue<ContentsTagsOption> | MultiValue<ContentsTagsOption>,
+    ) => {
       const listObj: { [k: string]: string[] } = {
         sort: [],
+        visible: [],
         type: [],
         filter: [],
         tags: [],
@@ -109,11 +118,15 @@ export function ContentsTagsSelect({
         viewMode: [],
         total: [],
       };
+      const list = Array.isArray(_list) ? _list : [_list];
       list.forEach(({ value }) => {
         const values = (value?.split(":", 2) || [""]).concat("");
         switch (values[0]) {
           case "sort":
             listObj.sort = [values[1]];
+            break;
+          case "visible":
+            listObj.visible.push(values[1]);
             break;
           case "type":
             listObj.type = [values[1]];

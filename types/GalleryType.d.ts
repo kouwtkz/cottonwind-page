@@ -67,6 +67,7 @@ interface GalleryItemVisibleProps {
   visibleCreationTime?: boolean;
   visibleLikeCount?: boolean;
   visibleYear?: boolean;
+  visibleTitle?: boolean;
 }
 interface GalleryTotalProps {
   totalCreationTime?: boolean;
