@@ -416,7 +416,7 @@ export const filterGalleryMonthList: filterGalleryMonthType[] = [
   { month: 4, tags: ["april", "spring", "easter"] },
   { month: 5, tags: ["may", "spring"] },
   { month: 6, tags: ["june", "rainy"] },
-  { month: 7, tags: ["july", "summer", "七夕", "sea"] },
+  { month: 7, tags: ["july", "summer", "七夕"] },
   { month: 8, tags: ["august", "summer", "summerFestival"] },
   { month: 9, tags: ["september", "autumn"] },
   { month: 10, tags: ["october", "halloween", "autumn"] },
