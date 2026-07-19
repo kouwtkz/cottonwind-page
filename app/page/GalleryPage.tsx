@@ -213,6 +213,7 @@ export function GalleryObjectConvert(args: GalleryObjectConvertProps) {
                   hideWhenFilter: true,
                   hideWhenEmpty: true,
                   notYearList: true,
+                  visibleYear: true,
                 };
               default:
                 const album = imageAlbums?.get(name);
@@ -1603,12 +1604,15 @@ function GalleryContentMain(args: GalleryContentMainProps) {
     curMaxStateName,
     visibleCreationTime,
     visibleLikeCount,
-    visibleYear,
     visibleTitle,
     id,
     windowSize,
     windowScroll,
   } = useMemo(() => args, [args]);
+  const visibleYear = useMemo(
+    () => item.visibleYear || args.visibleYear,
+    [item.visibleYear, args.visibleYear],
+  );
   let {
     name,
     linkLabel,

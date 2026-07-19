@@ -17,6 +17,7 @@ interface GalleryListPropsBase {
   hideWhenFilter?: boolean;
   hideWhenEmpty?: boolean;
   notYearList?: boolean;
+  visibleYear?: boolean;
 }
 
 type YearListType = { year: number; value?: string; label?: string; count: number };
