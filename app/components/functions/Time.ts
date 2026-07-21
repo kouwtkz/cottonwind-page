@@ -4,6 +4,7 @@ export class TimeClass {
   days: number;
   hours: number;
   dayHours: number;
+  roundedHours: number;
   minutes: number;
   dayMinutes: number;
   seconds: number;
@@ -27,12 +28,14 @@ export class TimeClass {
       this.daySeconds = parsed[3];
       this.time = this.minutes * 60 + this.daySeconds;
       this.formattedValue = this.FormatValue();
+      this.roundedHours = Math.round(this.minutes / 60);
     } else if (this.time) {
       this.daySeconds = this.time % 60;
       this.minutes = Math.floor(this.time / 60);
       this.dayMinutes = this.minutes % 60;
       this.hours = Math.floor(this.minutes / 60);
       this.dayHours = this.hours % 24;
+      this.roundedHours = Math.round(this.minutes / 60);
       this.days = Math.floor(this.hours / 24);
       this.formattedValue = this.FormatValue();
       this.value = this.formattedValue;
@@ -42,6 +45,7 @@ export class TimeClass {
       this.dayMinutes = NaN;
       this.hours = NaN;
       this.dayHours = NaN;
+      this.roundedHours = NaN;
       this.days = NaN;
       this.time = NaN;
       this.formattedValue = "";
@@ -51,6 +55,7 @@ export class TimeClass {
       this.dayMinutes = 0;
       this.hours = 0;
       this.dayHours = 0;
+      this.roundedHours = 0;
       this.days = 0;
       this.time = 0;
       this.formattedValue = this.FormatValue();

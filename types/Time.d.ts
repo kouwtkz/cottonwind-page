@@ -4,6 +4,7 @@ declare class TimeClass {
   days: number;
   dayHours: number;
   hours: number;
+  roundedHours: number;
   dayMinutes: number;
   minutes: number;
   daySeconds: number;
