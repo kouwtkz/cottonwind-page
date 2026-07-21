@@ -3,9 +3,11 @@ export class TimeClass {
   time: number;
   days: number;
   hours: number;
-  fullHours: number;
+  dayHours: number;
   minutes: number;
+  dayMinutes: number;
   seconds: number;
+  daySeconds: number;
   formattedValue: string;
   constructor(value?: string | number, zero?: boolean) {
     if (typeof value === "string") {
@@ -18,64 +20,68 @@ export class TimeClass {
     if (this.value) {
       const parsed = TimeClass.Parse(this.value);
       this.days = parsed[0];
-      this.hours = parsed[1];
-      this.fullHours = this.days * 24 + this.hours;
-      this.minutes = parsed[2];
-      this.seconds = parsed[3];
-      this.time = (this.fullHours * 60 + this.minutes) * 60 + this.seconds;
+      this.dayHours = parsed[1];
+      this.hours = this.days * 24 + this.dayHours;
+      this.dayMinutes = parsed[2];
+      this.minutes = this.dayMinutes + this.hours * 60;
+      this.daySeconds = parsed[3];
+      this.time = this.minutes * 60 + this.daySeconds;
       this.formattedValue = this.FormatValue();
     } else if (this.time) {
-      this.seconds = this.time % 60;
-      const fullMinutes = Math.floor(this.time / 60);
-      this.minutes = fullMinutes % 60;
-      this.fullHours = Math.floor(fullMinutes / 60);
-      this.hours = this.fullHours % 24;
-      this.days = Math.floor(this.fullHours / 24);
+      this.daySeconds = this.time % 60;
+      this.minutes = Math.floor(this.time / 60);
+      this.dayMinutes = this.minutes % 60;
+      this.hours = Math.floor(this.minutes / 60);
+      this.dayHours = this.hours % 24;
+      this.days = Math.floor(this.hours / 24);
       this.formattedValue = this.FormatValue();
       this.value = this.formattedValue;
     } else if (isNaN(this.time)) {
-      this.seconds = NaN;
+      this.daySeconds = NaN;
       this.minutes = NaN;
-      this.fullHours = NaN;
+      this.dayMinutes = NaN;
       this.hours = NaN;
+      this.dayHours = NaN;
       this.days = NaN;
       this.time = NaN;
       this.formattedValue = "";
     } else {
-      this.seconds = 0;
+      this.daySeconds = 0;
       this.minutes = 0;
-      this.fullHours = 0;
+      this.dayMinutes = 0;
       this.hours = 0;
+      this.dayHours = 0;
       this.days = 0;
       this.time = 0;
       this.formattedValue = this.FormatValue();
     }
+    this.seconds = this.time;
   }
   FormatValue(days?: boolean, separator = ":") {
     const arr: string[] = [];
     if (days) {
       if (this.days) arr.push(('00' + this.days).slice(-2));
-      arr.push(('00' + this.hours).slice(-2));
+      arr.push(('00' + this.dayHours).slice(-2));
     } else {
-      if (this.fullHours < 100)
-        arr.push(('00' + this.fullHours).slice(-2));
+      if (this.hours < 100)
+        arr.push(('00' + this.hours).slice(-2));
       else
-        arr.push(this.fullHours.toString());
+        arr.push(this.hours.toString());
     }
-    arr.push(('00' + this.minutes).slice(-2));
-    arr.push(('00' + this.seconds).slice(-2));
+    arr.push(('00' + this.dayMinutes).slice(-2));
+    arr.push(('00' + this.daySeconds).slice(-2));
     return arr.join(separator);
   }
   FormatToJP(days?: boolean, separator = "") {
     const arr: string[] = [];
     if (days) {
       if (this.days) arr.push(this.days + "日");
-      if (this.hours) arr.push(this.hours + "時間");
+      if (this.dayHours) arr.push(this.dayHours + "時間");
     } else {
-      if (this.fullHours) arr.push(this.fullHours + "時間");
+      if (this.hours) arr.push(this.hours + "時間");
     }
-    if (this.minutes) arr.push(this.minutes + "分");
-    if (this.seconds) arr.push(this.seconds + "秒");
+    if (this.dayMinutes) arr.push(this.dayMinutes + "分");
+    if (this.daySeconds) arr.push(this.daySeconds + "秒");
     return arr.join(separator);
   }
   SetValue(value?: string | number) {

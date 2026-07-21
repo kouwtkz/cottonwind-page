@@ -1269,7 +1269,7 @@ export default function ImageEditForm({
     [],
   );
   const autoInputCreationTimeStep = useCallback(
-    (creationTime?: TimeClass) => (creationTime?.seconds ? 1 : 60),
+    (creationTime?: TimeClass) => (creationTime?.daySeconds ? 1 : 60),
     [],
   );
   const [inputStateCreationTimeParam, setStateInputCreationTimeParam] =

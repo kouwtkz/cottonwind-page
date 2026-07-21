@@ -2,9 +2,11 @@ declare class TimeClass {
   value: string;
   time: number;
   days: number;
+  dayHours: number;
   hours: number;
-  fullHours: number;
+  dayMinutes: number;
   minutes: number;
+  daySeconds: number;
   seconds: number;
   formattedValue: string;
   FormatValue(days?: boolean, separator?: string): string;
