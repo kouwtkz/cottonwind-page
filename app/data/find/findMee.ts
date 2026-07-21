@@ -456,7 +456,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
           whereItem = { OR: whereHashtags };
         }
       } else {
-        const operatorMatch = /^\w+:\/\//.test(item) ? null : item.match(/:|>=?|<=?/);
+        const operatorMatch = /^\w+:\/\//.test(item) ? null : item.match(/:|==?|>=?|<=?/);
         const operator = operatorMatch?.[0] || "";
         const operatorIndex = operatorMatch ? operatorMatch.index! : -1;
         const switchRawKey = operatorIndex >= 0 ? item.slice(0, operatorIndex) : "";
