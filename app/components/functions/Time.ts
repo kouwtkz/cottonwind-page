@@ -57,7 +57,7 @@ export class TimeClass {
       this.formattedValue = this.FormatValue();
     }
     if (this.time) {
-      this.roundedHours = Math.round(this.time / 360);
+      this.roundedHours = Math.round(this.time / 3600);
     } else {
       this.roundedHours = this.time;
     }
