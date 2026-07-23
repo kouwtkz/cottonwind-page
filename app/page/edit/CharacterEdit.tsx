@@ -936,9 +936,7 @@ export function CharaEditButton() {
 interface CharaImageRbButtonsProps {
   image: ImageType | null;
 }
-export function CharaImageSettingRbButtons({
-  image,
-}: CharaImageRbButtonsProps) {
+export function CharaImageSettingButtons({ image }: CharaImageRbButtonsProps) {
   const params = useParams();
   const charaName = params.charaName;
   if (params.charaName) {
@@ -985,68 +983,71 @@ export function CharaImageSettingRbButtons({
     }
 
     return (
-      <>
-        <button
-          type="button"
-          className="color round"
-          title="キャラクターのアイコンに設定"
-          onClick={async () => {
-            const src = image ? image.src || image.thumbnail : undefined;
-            if (src) {
-              toastPromise(
-                ImagesUpload({
-                  src: {
-                    name: charaName,
-                    src: concatOriginUrl(mediaOrigin, src),
-                  },
-                  album: charaMediaKindMap.get("icon"),
-                  ...iconImagesUploadOptions,
-                })
-                  .then((l) => {
-                    const errorFound = l.find((r) => r.status >= 300);
-                    if (errorFound) {
-                      throw errorFound.data || errorFound.statusText;
-                    }
+      <div className="characterImageSetting">
+        <div className="label">キャラクターの画像設定</div>
+        <div className="buttons">
+          <button
+            type="button"
+            className="color"
+            title="キャラクターのアイコンに設定"
+            onClick={async () => {
+              const src = image ? image.src || image.thumbnail : undefined;
+              if (src) {
+                toastPromise(
+                  ImagesUpload({
+                    src: {
+                      name: charaName,
+                      src: concatOriginUrl(mediaOrigin, src),
+                    },
+                    album: charaMediaKindMap.get("icon"),
+                    ...iconImagesUploadOptions,
                   })
-                  .then(() => {
-                    imageDataIndexed.load("no-cache");
-                    return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
-                      body: { target: charaName, icon: "" },
-                      method: "POST",
-                      cors: true,
-                    });
-                  })
-                  .then(() => {
-                    charactersDataIndexed.load("no-cache");
-                  }),
-                "icon",
-              );
-            }
-          }}
-        >
-          <MdOutlineInsertEmoticon />
-        </button>
-        <button
-          type="button"
-          className="color round"
-          title="キャラクターのヘッダーに設定"
-          onClick={() => {
-            if (image) onClickHandler("headerImage");
-          }}
-        >
-          <MdOutlineLandscape />
-        </button>
-        <button
-          type="button"
-          className="color round"
-          title="キャラクターのメイン画像に設定"
-          onClick={() => {
-            if (image) onClickHandler("image");
-          }}
-        >
-          <MdOutlineImage />
-        </button>
-      </>
+                    .then((l) => {
+                      const errorFound = l.find((r) => r.status >= 300);
+                      if (errorFound) {
+                        throw errorFound.data || errorFound.statusText;
+                      }
+                    })
+                    .then(() => {
+                      imageDataIndexed.load("no-cache");
+                      return customFetch(concatOriginUrl(apiOrigin, SEND_API), {
+                        body: { target: charaName, icon: "" },
+                        method: "POST",
+                        cors: true,
+                      });
+                    })
+                    .then(() => {
+                      charactersDataIndexed.load("no-cache");
+                    }),
+                  "icon",
+                );
+              }
+            }}
+          >
+            アイコンに設定
+          </button>
+          <button
+            type="button"
+            className="color"
+            title="キャラクターのヘッダーに設定"
+            onClick={() => {
+              if (image) onClickHandler("headerImage");
+            }}
+          >
+            ヘッダーに設定
+          </button>
+          <button
+            type="button"
+            className="color"
+            title="キャラクターのメイン画像に設定"
+            onClick={() => {
+              if (image) onClickHandler("image");
+            }}
+          >
+            メイン画像に設定
+          </button>
+        </div>
+      </div>
     );
   } else {
   }

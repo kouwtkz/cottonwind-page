@@ -79,7 +79,7 @@ import {
   imageDataIndexed,
   mediaOrigin,
 } from "~/data/ClientDBLoader";
-import { CharaImageSettingRbButtons } from "~/page/edit/CharacterEdit";
+import { CharaImageSettingButtons } from "~/page/edit/CharacterEdit";
 import { charaTagsLabel } from "~/components/FormatOptionLabel";
 import { useFiles } from "~/components/state/FileState";
 import { toastLoadingShortOptions } from "~/components/define/toastContainerDef";
@@ -1830,7 +1830,6 @@ export default function ImageEditForm({
             >
               <BiSolidCopyAlt />
             </button>
-            <CharaImageSettingRbButtons image={image} />
           </>
         )}
       </RbButtonArea>
@@ -2197,6 +2196,7 @@ export default function ImageEditForm({
             disabled={isBusy}
           />
         </label>
+        <CharaImageSettingButtons image={image} />
       </form>
       <GalleryViewerPaging
         onLinkEvent={() => {
