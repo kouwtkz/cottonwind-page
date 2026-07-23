@@ -17,7 +17,10 @@
     "postinstall": "bun run cf-typegen",
     "typecheck": "bun run cf-typegen && react-router typegen && tsc -b",
     "update": "bun update",
-    "wrangler-update": "npm update wrangler -g"
+    "wrangler-update": "npm update wrangler -g",
+    "test:chrome": "playwright test --headed --browser=chromium",
+    "test:firefox": "playwright test --headed --browser=firefox",
+    "test:safari": "playwright test --headed --browser=webkit"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",
@@ -29,6 +32,7 @@
     "@fullcalendar/react": "^6.1.20",
     "@fullcalendar/timegrid": "^6.1.20",
     "@hookform/resolvers": "^5.4.0",
+    "@playwright/test": "^1.61.1",
     "hls.js": "^1.6.16",
     "html-react-parser": "^5.2.17",
     "image-dimensions": "^2.5.1",
