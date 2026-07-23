@@ -89,12 +89,6 @@ export async function action(props: Route.ActionArgs) {
       const host = formData.get("host") as string;
       let user = formData.get("user") as string;
       if (host && user) {
-        if (user.startsWith("https://")) {
-          const url = new URL(user);
-          const m = url.pathname.match(/([^\/]+)\/?$/);
-          if (m) user = m[1];
-          else user = url.pathname;
-        }
         if (register[host]) {
           register[host].push(user);
         } else {
@@ -204,6 +198,23 @@ export default function Page(props: Route.ComponentProps) {
   );
 }
 
+function UserTextPasteConvert(
+  e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>,
+) {
+  if ("data" in e.nativeEvent) {
+    let user = String(e.nativeEvent.data);
+    if (user.startsWith("https://")) {
+      try {
+        const url = new URL(user);
+        const m = url.pathname.match(/([^\/]+)\/?$/);
+        if (m) user = m[1];
+        else user = url.pathname;
+        e.target.value = user;
+      } catch {}
+    }
+  }
+}
+
 function AccountChecker(props: Route.ComponentProps) {
   const fetcher = useFetcher<actionResult>({ key: "admin" });
   return (
@@ -216,7 +227,12 @@ function AccountChecker(props: Route.ComponentProps) {
             </option>
           ))}
         </select>
-        <input type="text" name="user" placeholder="確認したいユーザーID" />
+        <input
+          type="text"
+          name="user"
+          placeholder="確認したいユーザーID"
+          onChange={UserTextPasteConvert}
+        />
         <button type="submit" className="color">
           確認する
         </button>
@@ -253,7 +269,12 @@ function AccountCheckerAdmin(props: Route.ComponentProps) {
           list="accountHostRegistDataList"
           placeholder="ホスト名"
         />
-        <input type="text" name="user" placeholder="ユーザーID" />
+        <input
+          type="text"
+          name="user"
+          placeholder="ユーザーID"
+          onChange={UserTextPasteConvert}
+        />
         <datalist id="accountHostRegistDataList">
           {props.loaderData.hosts.map((host, i) => (
             <option key={i} value={host}>
