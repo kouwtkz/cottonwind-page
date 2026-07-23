@@ -16,7 +16,7 @@ export function meta({ matches, params }: Route.MetaArgs) {
   }
   metaData.description =
     (metaData.description ? metaData.description + " - " : "") +
-    "わたかぜコウやわたかぜっこの作品、イラストなどのページ";
+    import.meta.env.VITE_OWNER + "やわたかぜっこの作品、イラストなどのページ";
   return SetMetaDefault(metaData);
 }
 

@@ -7,7 +7,7 @@ export function meta({ matches }: Route.MetaArgs) {
   return SetMetaDefault({
     ...getDataFromMatches(matches)?.data,
     title: "おんがく",
-    description: "わたかぜコウが作った音楽",
+    description: import.meta.env.VITE_OWNER + "が作った音楽",
   });
 }
 

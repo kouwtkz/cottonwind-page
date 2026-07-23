@@ -7,7 +7,7 @@ export function meta({ matches }: Route.MetaArgs) {
   return SetMetaDefault({
     ...getDataFromMatches(matches)?.data,
     title: "キャラクター",
-    description: "わたかぜコウのキャラクターリスト",
+    description: import.meta.env.VITE_OWNER + "のキャラクターリスト",
   });
 }
 

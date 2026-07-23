@@ -61,7 +61,7 @@ export function meta({ matches, data, location }: Route.MetaArgs) {
     if (parsed.length > sliced.length) sliced = sliced + "…";
     metaData.description = sliced;
   } else {
-    metaData.description = "わたかぜコウのサイト内ブログ";
+    metaData.description = import.meta.env.VITE_OWNER + "のサイト内ブログ";
   }
 
   return SetMetaDefault(metaData);

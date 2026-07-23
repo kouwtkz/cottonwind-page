@@ -10,7 +10,7 @@ export function meta({ matches }: Route.MetaArgs) {
   return SetMetaDefault({
     ...getDataFromMatches(matches)?.data,
     title: "ギャラリー",
-    description: "わたかぜコウやわたかぜっこの作品、イラストなどのページ",
+    description: import.meta.env.VITE_OWNER + "やわたかぜっこの作品、イラストなどのページ",
   });
 }
 

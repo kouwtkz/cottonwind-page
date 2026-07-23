@@ -58,7 +58,7 @@ export function meta({ data: argsData, matches }: Route.MetaArgs) {
     if (character.overview) metaData.description = character.overview;
     if (imageItem) {
       const imageUrl = new URL(
-        concatOriginUrl(metaData.mediaOrigin, imageItem.src)
+        concatOriginUrl(metaData.mediaOrigin, imageItem.src),
       );
       if (imageItem.version) {
         imageUrl.searchParams.append("v", imageItem.version.toString());
@@ -67,7 +67,7 @@ export function meta({ data: argsData, matches }: Route.MetaArgs) {
     }
   }
   if (!metaData.description)
-    metaData.description = "わたかぜコウのキャラクター";
+    metaData.description = import.meta.env.VITE_OWNER + "のキャラクター";
   return SetMetaDefault(metaData);
 }
 

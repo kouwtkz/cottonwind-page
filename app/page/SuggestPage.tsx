@@ -23,12 +23,14 @@ export const SuggestPage = React.memo(function SuggestPage({
           <div>(※Not related to my site, but a lead for a typo)</div>
         </a>
         <Link to="/" title="トップに戻る">
-          <h2>こっとんうぃんど (cottonwind.com)</h2>
+          <h2>
+            {import.meta.env.VITE_TITLE} ({import.meta.env.VITE_DOMAIN})
+          </h2>
           <h4>
             Portfolio site of artist "{env?.AUTHOR_EN_NAME}
             ". (This site)
           </h4>
-          <div>わたかぜコウのサイトはこちらです！</div>
+          <div>{import.meta.env.VITE_OWNER}のサイトはこちらです！</div>
         </Link>
       </div>
     </main>

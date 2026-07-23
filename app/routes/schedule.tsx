@@ -7,7 +7,7 @@ export function meta({ matches }: Route.MetaArgs) {
   return SetMetaDefault({
     ...getDataFromMatches(matches)?.data,
     title: "スケジュール",
-    description: "わたかぜコウのスケジュールページ",
+    description: import.meta.env.VITE_OWNER + "のスケジュールページ",
   });
 }
 
