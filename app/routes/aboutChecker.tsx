@@ -173,9 +173,7 @@ export async function loader(props: Route.LoaderArgs): Promise<loaderDataType> {
   const isLogin = await IsLogin(props);
   if (isLogin) {
     return {
-      hosts: Array.from(
-        new Set((defaultHostList as string[]).concat(Object.keys(register))),
-      ),
+      hosts: Array.from(new Set(Object.keys(register).concat(defaultHostList))),
       register,
     };
   } else {
