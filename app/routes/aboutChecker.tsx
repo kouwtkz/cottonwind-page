@@ -101,6 +101,7 @@ export async function action(props: Route.ActionArgs) {
           register[host] = [user];
         }
         register[host] = Array.from(new Set(register[host]));
+        result.message = `${host}: ${user} added!`;
       }
       await env.KV.put(KV_KEY, JSON.stringify(register));
     } else {
@@ -153,7 +154,13 @@ export async function action(props: Route.ActionArgs) {
   return Response.json(result, { status });
 }
 
-export async function loader(props: Route.LoaderArgs) {
+interface loaderDataType {
+  hosts: string[];
+  register?: {
+    [k: string]: string[];
+  };
+}
+export async function loader(props: Route.LoaderArgs): Promise<loaderDataType> {
   const env = getCfEnv({ context: props.context })!;
   const register = (await GetRegister(env)) || {};
   const defaultHostList: defaultHostType[] = [
@@ -176,6 +183,16 @@ export async function loader(props: Route.LoaderArgs) {
   }
 }
 
+let loaderData: loaderDataType | undefined;
+let loaderDataReload: boolean = true;
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  if (loaderDataReload || !loaderData) {
+    loaderDataReload = false;
+    loaderData = await serverLoader();
+  }
+  return loaderData;
+}
+
 export default function Page(props: Route.ComponentProps) {
   const isLogin = useIsLogin()[0];
   return (
@@ -190,7 +207,7 @@ export default function Page(props: Route.ComponentProps) {
 }
 
 function AccountChecker(props: Route.ComponentProps) {
-  const fetcher = useFetcher<actionResult>();
+  const fetcher = useFetcher<actionResult>({ key: "admin" });
   return (
     <>
       <fetcher.Form method="post">
@@ -225,7 +242,12 @@ function AccountCheckerAdmin(props: Route.ComponentProps) {
   return (
     <>
       <h4>各種アカウント情報の追加</h4>
-      <fetcher.Form method="post">
+      <fetcher.Form
+        method="post"
+        onSubmit={() => {
+          loaderDataReload = true;
+        }}
+      >
         <input type="hidden" name="admin" />
         <input
           type="text"
@@ -242,7 +264,7 @@ function AccountCheckerAdmin(props: Route.ComponentProps) {
           ))}
         </datalist>
         <button type="submit" className="color">
-          設定
+          追加
         </button>
       </fetcher.Form>
       <p className={fetcher.data?.status === "error" ? "color-warm" : ""}>
@@ -252,7 +274,12 @@ function AccountCheckerAdmin(props: Route.ComponentProps) {
       <ul>
         {props.loaderData.hosts.map((host, i) => (
           <li key={i}>
-            <fetcher.Form method="patch">
+            <fetcher.Form
+              method="patch"
+              onSubmit={() => {
+                loaderDataReload = true;
+              }}
+            >
               <input name="host" placeholder={host} defaultValue={host} />
               <input type="hidden" name="before-host" value={host} />
               <button>名前変更</button>
@@ -264,8 +291,11 @@ function AccountCheckerAdmin(props: Route.ComponentProps) {
                     <fetcher.Form
                       method="delete"
                       onSubmit={(e) => {
-                        if (!confirm(`${host}: ${user}\n本当に削除しますか？`))
+                        if (confirm(`${host}: ${user}\n本当に削除しますか？`)) {
+                          loaderDataReload = true;
+                        } else {
                           e.preventDefault();
+                        }
                       }}
                     >
                       <span>{user}</span>
