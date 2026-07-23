@@ -4254,6 +4254,24 @@ label,
   @extend %a-line-none;
 }
 
+.accountCheckerPage {
+  input,
+  select,
+  button {
+    min-height: 1.5rem;
+    margin: 0.1rem 0.25rem;
+    padding: 0.25rem 0.5rem;
+  }
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  ul form {
+    justify-content: flex-start;
+  }
+}
+
 .history {
   h3 {
     margin-bottom: 0;

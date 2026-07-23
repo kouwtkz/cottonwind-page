@@ -61,6 +61,9 @@ export const AboutPage = React.memo(function AboutPage() {
             />
           </div>
         </div>
+        <Link to="/about/checker">
+          {import.meta.env.VITE_OWNER}のアカウントチェッカー
+        </Link>
       </div>
       <AuthorHistory />
       <div className="container">
