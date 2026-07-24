@@ -169,6 +169,7 @@ export const CustomReactSelect = React.memo(function CustomReactSelect<
         menu: () => "ReactSelectMenu",
         menuList: () => "ReactSelectMenuList",
         placeholder: () => "ReactSelectPlaceholder",
+        option: () => "cursor-pointer",
         ...classNames,
       }}
       {...props}

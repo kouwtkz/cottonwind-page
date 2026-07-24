@@ -250,11 +250,26 @@ hr {
 }
 
 $cursor-url: --cursor-url;
+
+@mixin CursorKeySet($name, $url, $point, $important: null) {
+  @if $important {
+    cursor:
+      $url $point,
+      #{$name} !important;
+  } @else {
+    cursor:
+      $url $point,
+      #{$name};
+  }
+}
+
 @mixin CursorKeyframe($name, $point, $url_or_time, $urls...) {
   $max: list.length($urls);
   $keyname: cursor-#{$name};
+  $keyframes-name: null;
   @if $max > 0 {
-    @keyframes #{$keyname} {
+    $keyframes-name: $keyname;
+    @keyframes #{$keyframes-name} {
       $i: 0;
       @each $url in $urls {
         $p: (100 * calc($i / $max)) + "%";
@@ -264,27 +279,27 @@ $cursor-url: --cursor-url;
         }
       }
     }
-    %#{$keyname} {
-      animation: #{$keyname} #{$url_or_time} step-end infinite;
-      cursor:
-        var($cursor-url) $point,
-        #{$name};
-      @supports (-webkit-backdrop-filter: blur(1px)) {
-        cursor: #{$name};
-      }
-    }
+  }
+  $url: "";
+  @if $keyframes-name {
+    $url: var($cursor-url);
   } @else {
-    %#{$keyname} {
-      cursor:
-        url(#{$url_or_time}) $point,
-        #{$name};
-      @supports (-webkit-backdrop-filter: blur(1px)) {
-        cursor: #{$name};
-      }
+    $url: url($url_or_time);
+  }
+  %#{$keyname} {
+    @if $keyframes-name {
+      animation: #{$keyframes-name} #{$url_or_time} step-end infinite;
+    }
+    @include CursorKeySet($name, $url, $point);
+    @supports (-webkit-backdrop-filter: blur(1px)) {
+      cursor: #{$name};
     }
   }
   .#{$keyname} {
-    @extend %#{$keyname};
+    @include CursorKeySet($name, $url, $point, true);
+    @supports (-webkit-backdrop-filter: blur(1px)) {
+      cursor: #{$name} !important;
+    }
   }
 }
 
