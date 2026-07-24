@@ -250,7 +250,7 @@ hr {
 }
 
 $cursor-url: --cursor-url;
-@mixin CursorKeyframe($name, $url_or_time, $urls...) {
+@mixin CursorKeyframe($name, $point, $url_or_time, $urls...) {
   $max: list.length($urls);
   $keyname: cursor-#{$name};
   @if $max > 0 {
@@ -267,13 +267,13 @@ $cursor-url: --cursor-url;
     %#{$keyname} {
       animation: #{$keyname} #{$url_or_time} step-end infinite;
       cursor:
-        var($cursor-url),
+        var($cursor-url) $point,
         #{$name};
     }
   } @else {
     %#{$keyname} {
       cursor:
-        url(#{$url_or_time}),
+        url(#{$url_or_time}) $point,
         #{$name};
     }
   }
@@ -293,49 +293,57 @@ $cursor-url: --cursor-url;
 
 @include CursorKeyframe(
   "default",
-  "/static/images/cursor/わたかぜくんカーソル_通常_00.cur"
+  2 2,
+  "/static/images/cursor/わたかぜくんカーソル_通常_0001.png"
 );
 @include CursorKeyframe(
   "pointer",
+  2 2,
   1000ms,
-  "/static/images/cursor/わたかぜくんカーソル_ポインター_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_ポインター_01.cur"
+  "/static/images/cursor/わたかぜくんカーソル_ポインター_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_ポインター_0002.png"
 );
 @include CursorKeyframe(
   "move",
+  2 2,
   1000ms,
-  "/static/images/cursor/わたかぜくんカーソル_移動_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_移動_01.cur"
+  "/static/images/cursor/わたかぜくんカーソル_移動_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_移動_0002.png"
 );
 @include CursorKeyframe(
   "backgorund",
+  2 2,
   1000ms,
-  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_0002.png"
 );
 @include CursorKeyframe(
   "progress",
+  2 2,
   1000ms,
-  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_01.cur"
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_バックグラウンド_0002.png"
 );
 @include CursorKeyframe(
   "wait",
+  2 2,
   2000ms,
-  "/static/images/cursor/わたかぜくんカーソル_待機_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_待機_01.cur",
-  "/static/images/cursor/わたかぜくんカーソル_待機_02.cur",
-  "/static/images/cursor/わたかぜくんカーソル_待機_03.cur"
+  "/static/images/cursor/わたかぜくんカーソル_待機_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_待機_0002.png",
+  "/static/images/cursor/わたかぜくんカーソル_待機_0003.png",
+  "/static/images/cursor/わたかぜくんカーソル_待機_0004.png"
 );
 @include CursorKeyframe(
   "not-allowed",
-  1000ms,
-  "/static/images/cursor/わたかぜくんカーソル_禁止_00.cur",
-  "/static/images/cursor/わたかぜくんカーソル_禁止_01.cur"
+  2 2,
+  2000ms,
+  "/static/images/cursor/わたかぜくんカーソル_禁止_0001.png",
+  "/static/images/cursor/わたかぜくんカーソル_禁止_0002.png"
 );
 @include CursorKeyframe(
   "text",
-  "/static/images/cursor/わたかぜくんカーソル_テキスト選択_00.cur"
+  2 2,
+  "/static/images/cursor/わたかぜくんカーソル_テキスト選択_0001.png"
 );
 a[href],
 a[role="button"],
@@ -1073,8 +1081,9 @@ body {
     font-family: sans-serif;
     text-align: center;
     .loadingNow {
-      color: var(--main-color);
+      color: var(--main-color-deep);
       font-size: 1.5rem;
+      font-weight: 500;
     }
     img {
       margin: 1rem;
