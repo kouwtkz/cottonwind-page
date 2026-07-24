@@ -53,6 +53,7 @@
     "react-toastify": "^11.1.0",
     "rss": "^1.2.2",
     "schema-dts": "^1.1.5",
+    "temporal-polyfill": "^1.0.1",
     "tsqlstring": "^1.0.1",
     "xmldom": "^0.6.0",
     "zod": "^4.4.3",

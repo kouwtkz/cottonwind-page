@@ -42,6 +42,7 @@ import { ErrorBoundaryContent } from "./page/ErrorPage";
 import { getCookieObjectFromHeaders } from "./components/utils/Cookie";
 import { CookieToThemeClassNames } from "./components/theme/ThemeCookie";
 import { ClickEffect } from "./components/click/ClickEffect";
+import 'temporal-polyfill/global'
 
 export function links(): LinkDescriptor[] {
   return [
