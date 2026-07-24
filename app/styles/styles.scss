@@ -495,8 +495,12 @@ $tabletWidth: 768px;
 $miniDesktopWidth: 960px;
 $desktopWidth: 1280px;
 
-:root {
+%default-font {
   font-family: "Nunito", "Kosugi Maru", sans-serif;
+}
+
+:root {
+  @extend %default-font;
   font-size: medium;
   @media (min-width: $tabletWidth) {
     font-size: large;
@@ -2117,9 +2121,6 @@ footer {
   margin-top: 2rem;
   padding-bottom: 3rem;
   text-align: center;
-  .copyright {
-    font-family: "Mandali";
-  }
   ul.footerLink {
     padding: 1rem 0;
     margin: auto;
@@ -2521,6 +2522,7 @@ select {
   color: var(--text-color);
   background: var(--background-input);
   border: solid 1px var(--main-color-grayish);
+  font-family: initial;
   &:not(:disabled):hover {
     border-color: var(--main-color-deep);
   }
