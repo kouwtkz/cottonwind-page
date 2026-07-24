@@ -2526,6 +2526,26 @@ select {
   }
 }
 
+select {
+  &.noBorder {
+    background-color: transparent;
+    border: none;
+    @supports (-webkit-backdrop-filter: blur(1px)) {
+      -webkit-appearance: none;
+    }
+  }
+  &.year {
+    font-size: 1.25rem;
+    margin: 0.5rem;
+    min-width: 4rem;
+    color: var(--main-color-strong);
+    option {
+      color: var(--main-color-dark);
+      background-color: var(--form-background-color);
+    }
+  }
+}
+
 ::placeholder {
   color: var(--main-color-grayish);
 }
@@ -2980,23 +3000,6 @@ a.translucent-button,
     &:hover {
       color: $translucent-button-hover-color;
       background-color: $translucent-button-hover-bg;
-    }
-  }
-}
-
-select {
-  &.noBorder {
-    background-color: transparent;
-    border: none;
-  }
-  &.year {
-    font-size: 1.25rem;
-    margin: 0.5rem;
-    min-width: 4rem;
-    color: var(--main-color-strong);
-    option {
-      color: var(--main-color-dark);
-      background-color: var(--form-background-color);
     }
   }
 }
