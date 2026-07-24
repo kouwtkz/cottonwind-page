@@ -1,7 +1,6 @@
 import ShareButton from "./button/ShareButton";
 import SvgMaskSns from "./svg/mask/SvgMaskSns";
 import { EnvLinksMap, EnvLINKS } from "../Env";
-import { getYear } from "./functions/DateFunction";
 import type { OmittedEnv } from "types/custom-configuration";
 import { useMemo } from "react";
 
@@ -13,7 +12,7 @@ export function Footer({ env }: FooterProps) {
     <footer>
       <div>
         <span className="copyright">
-          © {env?.SINCE}-{getYear(new Date())} {env?.AUTHOR_ACCOUNT}
+          © {env?.SINCE}-{Temporal.Now.zonedDateTimeISO().year} {env?.AUTHOR_ACCOUNT}
         </span>
       </div>
       <LinksList env={env} />
