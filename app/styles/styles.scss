@@ -269,12 +269,18 @@ $cursor-url: --cursor-url;
       cursor:
         var($cursor-url) $point,
         #{$name};
+      @supports (-webkit-backdrop-filter: blur(1px)) {
+        cursor: #{$name};
+      }
     }
   } @else {
     %#{$keyname} {
       cursor:
         url(#{$url_or_time}) $point,
         #{$name};
+      @supports (-webkit-backdrop-filter: blur(1px)) {
+        cursor: #{$name};
+      }
     }
   }
   .#{$keyname} {
