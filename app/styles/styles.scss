@@ -3854,7 +3854,7 @@ label,
       max-height: 100%;
       overflow: hidden;
       img {
-        max-height: max-content;
+        max-height: 100%;
       }
       iframe {
         max-height: initial;
