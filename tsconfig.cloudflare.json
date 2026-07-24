@@ -15,9 +15,9 @@
   "compilerOptions": {
     "composite": true,
     "strict": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2025", "ESNext", "WebWorker"],
+    "lib": ["DOM", "DOM.Iterable", "ES2023", "ESNext", "WebWorker"],
     "types": ["vite/client"],
-    "target": "es2025",
+    "target": "es2023",
     "module": "es2022",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",

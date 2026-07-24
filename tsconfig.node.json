@@ -5,7 +5,7 @@
     "composite": true,
     "strict": true,
     "types": ["node"],
-    "lib": ["ES2025", "esnext"],
+    "lib": ["ES2023", "esnext"],
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "bundler"
