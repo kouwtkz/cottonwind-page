@@ -39,7 +39,7 @@ import { fileDialog } from "~/components/utils/FileTool";
 import { getExtension } from "~/components/functions/doc/PathParse";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { AiFillEdit } from "react-icons/ai";
-import { FormatDate } from "~/components/functions/DateFunction";
+import { FormatDate } from "~/components/functions/time/DateFunction";
 import { Link, useSearchParams } from "react-router";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { RiGitRepositoryPrivateLine } from "react-icons/ri";

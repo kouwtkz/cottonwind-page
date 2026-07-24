@@ -33,7 +33,7 @@ import {
   soundsDataOptions,
 } from "~/data/DataEnv";
 import { customFetch } from "~/components/functions/fetch";
-import { ToFormTime } from "~/components/functions/DateFunction";
+import { ToFormTime } from "~/components/functions/time/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
 
 const SOUND_SEND_API = GetAPIFromOptions(soundsDataOptions, "/send");

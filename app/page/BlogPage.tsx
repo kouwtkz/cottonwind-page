@@ -13,7 +13,7 @@ import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "~/components/functions/doc/MakeURL";
 import { useHotkeys } from "react-hotkeys-hook";
-import { SiteDateOptions as opt } from "~/components/functions/DateFunction";
+import { SiteDateOptions as opt } from "~/components/functions/time/DateFunction";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { TfiWrite } from "react-icons/tfi";

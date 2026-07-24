@@ -48,7 +48,7 @@ import {
   soundsDataOptions,
 } from "~/data/DataEnv";
 import { useCharacters } from "~/components/state/CharacterState";
-import { FormatDate } from "~/components/functions/DateFunction";
+import { FormatDate } from "~/components/functions/time/DateFunction";
 import { KeyValueEditable } from "~/components/state/KeyValueDBState";
 import { useImageState } from "~/components/state/ImageState";
 import { customFetch } from "~/components/functions/fetch";

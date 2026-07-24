@@ -11,8 +11,8 @@ import {
 } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
-import { TimeClass } from "../functions/Time";
-import { getYear } from "../functions/DateFunction";
+import { TimeClass } from "../functions/time/Time";
+import { getYear } from "../functions/time/DateFunction";
 import { useEnv } from "./EnvState";
 import { concatOriginUrl } from "../functions/originUrl";
 

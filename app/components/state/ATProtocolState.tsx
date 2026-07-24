@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import { CreateObjectState } from "./CreateState";
 import { useEnv } from "./EnvState";
-import { FormatDate } from "../functions/DateFunction";
+import { FormatDate } from "../functions/time/DateFunction";
 import Hls, { Events as hlsEvents } from "hls.js";
 import { BiPin, BiRepost } from "react-icons/bi";
 import { toast } from "react-toastify";

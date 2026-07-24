@@ -40,7 +40,7 @@ import {
   useCharacterPageState,
   useMoveCharacters,
 } from "../CharacterPage";
-import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog } from "~/components/utils/FileTool";

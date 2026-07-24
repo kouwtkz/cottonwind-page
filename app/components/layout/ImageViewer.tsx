@@ -8,7 +8,7 @@ import {
   type LinkProps,
 } from "react-router";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
-import { SiteDateOptions as opt } from "~/components/functions/DateFunction";
+import { SiteDateOptions as opt } from "~/components/functions/time/DateFunction";
 import { ImageMee } from "./ImageMee";
 import ImageEditForm, {
   useImageEditState,

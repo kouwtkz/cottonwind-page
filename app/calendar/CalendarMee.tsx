@@ -49,7 +49,7 @@ import { DEFAULT_LANG } from "~/Env";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
-import { DateNotEqual, toDayStart } from "~/components/functions/DateFunction";
+import { DateNotEqual, toDayStart } from "~/components/functions/time/DateFunction";
 import { useNotification } from "~/worker/notification/NotificationState";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { dataParse } from "~/components/functions/dataParse";

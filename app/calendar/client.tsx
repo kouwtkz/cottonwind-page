@@ -33,7 +33,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { Modal } from "~/components/layout/Modal";
-import { FormatDate, ToFormTime } from "~/components/functions/DateFunction";
+import { FormatDate, ToFormTime } from "~/components/functions/time/DateFunction";
 import { type EventClickArg } from "@fullcalendar/core/index.js";
 import { toast, ToastContainer } from "react-toastify";
 import {

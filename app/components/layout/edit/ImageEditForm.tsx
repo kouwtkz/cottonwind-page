@@ -63,7 +63,7 @@ import {
 import { PostTextarea } from "~/components/parse/PostTextarea";
 import { useCharacters } from "~/components/state/CharacterState";
 import { AutoImageItemType } from "~/components/functions/media/imageFunction";
-import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
 import SetRegister from "~/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
@@ -98,7 +98,7 @@ import { repostThumbnail, repostWebp } from "~/page/edit/ImagesManager";
 import { CountToContentsTagsOption } from "~/components/dropdown/CustomReactSelect";
 import { GetAPIFromOptions, ImageDataOptions } from "~/data/DataEnv";
 import { FilesUpload } from "~/page/edit/FilesEdit";
-import { TimeClass } from "~/components/functions/Time";
+import { TimeClass } from "~/components/functions/time/Time";
 import {
   TbBookmarkOff,
   TbCopyright,

@@ -32,7 +32,7 @@ import {
 } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { customFetch } from "~/components/functions/fetch";
-import { IsoFormTime, ToFormTime } from "~/components/functions/DateFunction";
+import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
 import { DownloadIndexedDBObject } from "~/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "~/components/state/CreateState";

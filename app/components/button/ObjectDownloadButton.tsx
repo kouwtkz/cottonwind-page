@@ -3,7 +3,7 @@ import { fileDownload } from "../utils/FileTool";
 import { RiDownloadFill } from "react-icons/ri";
 import { IndexedDataLastmodMH } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
-import { FormatDate } from "../functions/DateFunction";
+import { FormatDate } from "../functions/time/DateFunction";
 
 export function JsonFromDataObject<T>({
   data: TData,

@@ -56,7 +56,7 @@ import {
   ImageMeeThumbnail,
 } from "~/components/layout/ImageMee";
 import MoreButton from "../components/svg/button/MoreButton";
-import { getYear } from "~/components/functions/DateFunction";
+import { getYear } from "~/components/functions/time/DateFunction";
 import { findMee, setWhere } from "~/data/find/findMee";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ContentsTagsSelect } from "~/components/dropdown/SortFilterReactSelect";
@@ -125,7 +125,7 @@ import { EditableLinksContainer } from "./LinksPage";
 import { useLinks } from "~/components/state/LinksState";
 import { getSearchParamMap } from "~/components/functions/doc/SetSearchParams";
 import { PiImagesFill } from "react-icons/pi";
-import { TimeClass } from "~/components/functions/Time";
+import { TimeClass } from "~/components/functions/time/Time";
 import { SetupCharactersTagsOptions } from "./CharacterPage";
 import {
   useScrollInstance,

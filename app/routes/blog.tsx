@@ -6,7 +6,7 @@ import { parse } from "marked";
 import { getCfDB } from "~/data/cf/getEnv";
 import { postTableObject } from "./api/blog";
 import { postsDataIndexed, waitIdb } from "~/data/ClientDBLoader";
-import { FormatDate } from "~/components/functions/DateFunction";
+import { FormatDate } from "~/components/functions/time/DateFunction";
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const db = getCfDB({ context });
