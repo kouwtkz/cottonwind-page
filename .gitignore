@@ -33,3 +33,5 @@ src/data/import
 .env.*.local
 
 vite.config.ts.timestamp-*
+
+test-results/
