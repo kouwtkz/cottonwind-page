@@ -74,25 +74,31 @@ export function InPageMenu({
   }, [className, lastHide]);
   return (
     <div {...props} className={className} translate={translate}>
-      {list.map(({ id, name, element, currentMode }, i) => {
-        return (
-          <div
-            key={`inPageMenu_${name}`}
-            className={"item cursor-pointer" + (currentMode ? " current" : "")}
-            onClick={() => {
-              const top = (element.offsetTop || 0) - adjust;
-              scrollTo({ top, behavior: "smooth" });
-            }}
-          >
-            <div className="cursor">
-              {currentMode ? <TriangleCursor /> : null}
-            </div>
-            <div className="name">
-              <span>{(name || id).toLocaleUpperCase()}</span>
-            </div>
-          </div>
-        );
-      })}
+      <div className="menuRoot">
+        <ul>
+          {list.map(({ id, name, element, currentMode }, i) => {
+            return (
+              <li
+                key={`inPageMenu_${name}`}
+                className={
+                  "item cursor-pointer" + (currentMode ? " current" : "")
+                }
+                onClick={() => {
+                  const top = (element.offsetTop || 0) - adjust;
+                  scrollTo({ top, behavior: "smooth" });
+                }}
+              >
+                <div className="cursor">
+                  {currentMode ? <TriangleCursor /> : null}
+                </div>
+                <div className="name">
+                  <span>{(name || id).toLocaleUpperCase()}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
       <div className="background" />
     </div>
   );

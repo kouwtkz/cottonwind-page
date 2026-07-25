@@ -37,10 +37,12 @@
   --def-text-color: #27231d;
   --def-dark-text-color: white;
   --def-background-color: #fdfde4;
+  --def-background-color-fluo: #fdfde4b3;
   --def-text-background-white: hsla(0, 0%, 100%, 0.9);
   --def-text-background-black: hsla(0, 0%, 0%, 0.75);
   --def-play-background-color: #ecfffe;
-  --def-dark-background-color: hsl(80, 10%, 14%);
+  --def-dark-background-color: hsl(77, 10%, 14%);
+  --def-dark-background-color-fluo: hsla(77, 10%, 14%, 0.7);
   --def-dark-play-background-color: hsl(0, 0%, 18%);
   --def-dark-form-background-color: hsl(0, 0%, 12%);
   --def-warm-color: #f87171;
@@ -73,8 +75,10 @@
   --def-main-color-light-grayish-fluo: hsla(29, 28%, 75%, 0.15);
   --def-main-color-pearl-grayish: hsl(29, 28%, 90%);
   --def-background-color: #fff8e3;
+  --def-background-color-fluo: #fff8e3b3;
   --def-play-background-color: #fffbdf;
-  --def-dark-background-color: hsl(45, 10%, 14%);
+  --def-dark-background-color: hsl(43, 10%, 14%);
+  --def-dark-background-color-fluo: hsla(43, 10%, 14%, 0.7);
 }
 
 :root.theme-aqua {
@@ -99,8 +103,10 @@
   --def-main-color-light-grayish-fluo: hsla(191, 28%, 75%, 0.15);
   --def-main-color-pearl-grayish: hsl(191, 28%, 90%);
   --def-background-color: #e5fcf6;
+  --def-background-color-fluo: #e5fcf6b3;
   --def-play-background-color: #d9f8f6;
-  --def-dark-background-color: hsl(150, 10%, 10%);
+  --def-dark-background-color: hsl(156, 10%, 10%);
+  --def-dark-background-color-fluo: hsla(156, 10%, 10%, 0.7);
 }
 
 :root {
@@ -130,6 +136,7 @@
   --text-color: var(--def-text-color);
   --dark-text-color: var(--def-dark-text-color);
   --background-color: var(--def-background-color);
+  --background-color-fluo: var(--def-background-color-fluo);
   --text-background: var(--def-text-background-white);
   --play-background-color: var(--def-play-background-color);
   --dark-background-color: var(--def-dark-background-color);
@@ -168,6 +175,7 @@
   --main-color-dark-grayish-fluo: var(--def-main-color-light-grayish-fluo);
   --main-color-dark: var(--def-main-color-soft);
   --background: var(--def-dark-background-color);
+  --background-color-fluo: var(--def-dark-background-color-fluo);
   --background-input: var(--def-dark-background-color);
   --background-bw: rgb(10, 10, 10);
   --modal-window-background: var(--def-dark-background-color);
@@ -1876,26 +1884,51 @@ div.footnote {
   position: fixed;
   z-index: 25;
   right: 0;
+  top: 0;
   bottom: 0;
   margin-bottom: 0.5rem;
-  padding-right: 0.25rem;
+  margin-right: 0.25rem;
   transition: transform 100ms;
-  &.hide {
-    transform: translateX(100%);
+  max-height: 100%;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 4rem;
+  pointer-events: none;
+  .menuRoot {
+    max-height: 100%;
+    position: relative;
+    overflow: auto;
+    background-color: var(--background-color-fluo);
+    pointer-events: all;
   }
-  .item {
+  ul {
+    display: block;
+    max-width: none;
+    padding-left: initial;
+    margin: 0.5rem 0.25rem;
+    overflow: auto;
+    max-height: 100%;
+    @media (min-width: $tabletWidth) {
+      margin: 0.5rem;
+    }
+  }
+  li {
     display: flex;
     flex-direction: row;
     align-items: baseline;
     padding: 0.25rem;
     min-width: 3rem;
-    font-size: 1em;
+    font-size: 1.2em;
     text-align: left;
     font-weight: 900;
     color: var(--main-color-soft);
+    line-height: 1.2em;
     @extend %cursor-pointer;
     &:hover {
       color: var(--main-color);
+    }
+    &.hide {
+      transform: translateX(100%);
     }
     &.current {
       color: var(--main-color-strong);
@@ -1923,25 +1956,13 @@ div.footnote {
       min-width: 8rem;
     }
     @media (min-width: $tabletWidth) {
-      font-size: 1.1rem;
+      font-size: 1.3em;
       .galleryPage & {
         min-width: 10rem;
       }
       .cursor {
         height: 1rem;
       }
-    }
-  }
-  .background {
-    background-color: var(--background);
-    opacity: 0.7;
-    position: absolute;
-    top: 0;
-    z-index: -10;
-    width: 100%;
-    height: 100%;
-    @media (min-width: 1800px) {
-      display: none;
     }
   }
 }
@@ -1953,7 +1974,6 @@ div.footnote {
   .content-parent {
     margin-left: auto;
     margin-right: auto;
-    min-height: 70vh;
     min-height: 50vh;
     > *:not(.wide) {
       max-width: 1280px;
