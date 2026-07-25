@@ -2310,9 +2310,12 @@ footer {
     h3 {
       margin: 1em;
     }
-    & > .fc {
-      width: 100%;
+    & > .fullCalendar {
+      flex: 1;
       max-width: 50rem;
+      > .fc {
+        width: 100%;
+      }
     }
     & > * {
       margin: 0 1rem;
