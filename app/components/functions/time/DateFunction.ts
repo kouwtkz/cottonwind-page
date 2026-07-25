@@ -15,9 +15,9 @@ export function getYear(date?: Temporal.DateLikeObject | Temporal.Instant | Date
 export function ToFormTime(date?: Temporal.PlainDateTime | Temporal.ZonedDateTime | Temporal.Instant | Date | null) {
   if (date && typeof date === "object") {
     if ("toZonedDateTimeISO" in date) {
-      return date.toZonedDateTimeISO(siteTimeZone).toPlainDateTime().toLocaleString();
+      return date.toZonedDateTimeISO(siteTimeZone).toPlainDateTime().toString({ smallestUnit: "second" });
     } else if ("toPlainDateTime" in date)
-      return date.toPlainDateTime().toLocaleString();
+      return date.toPlainDateTime().toString({ smallestUnit: "second" });
     else if ("with" in date)
       return date.toLocaleString();
     else return date.toISOString().replace(/\..+$/, "");
