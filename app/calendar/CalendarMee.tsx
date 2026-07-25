@@ -724,164 +724,166 @@ export function CalendarMee({
     );
   }, [openAddEvents]);
   return (
-    <div {...{ ...args, style, className }}>
+    <div className="fullCalendar">
       {header}
-      <FullCalendar
-        height={height}
-        ref={(e: any) => {
-          const fullCalendar = e as CustomFullCalendar | null;
-          if (fullCalendar) {
-            if (calendar !== fullCalendar.calendar)
-              setCalendar(fullCalendar.calendar);
-          }
-        }}
-        lazyFetching
-        plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
-        locales={allLocales}
-        events={calendarEvents}
-        dayCellContent={(e) => e.dayNumberText.replace("日", "")}
-        dayMaxEvents={true}
-        businessHours={true}
-        navLinks={true}
-        allDayText="終日"
-        datesSet={onChangeHandle}
-        dayHeaderClassNames={(e) => {
-          isTodayRef.current = e.isToday;
-          currentEventDay.current = DateToZonedDateTime(e.date);
-          if (e.isToday) return "";
-          switch (e.view.type as Type_VIEW_FC) {
-            case "agenda":
-              const dateString = currentEventDay.current
-                .toPlainDate()
-                .toLocaleString();
-              if (!eventsDayMap.has(dateString)) {
-                return "hidden";
-              }
-              break;
-          }
-          return "";
-        }}
-        eventClassNames={(e) => {
-          if (isTodayRef.current) return "";
-          switch (e.view.type as Type_VIEW_FC) {
-            case "agenda":
-              const dateString = currentEventDay.current
-                .toPlainDate()
-                .toLocaleString();
-              const currentEventsMap = eventsDayMap.get(dateString);
-              if (!currentEventsMap || !currentEventsMap.has(e.event.id)) {
-                return "hidden";
-              }
-              break;
-          }
-          return "";
-        }}
-        eventContent={({ event: rawEvent, timeText, view }) => {
-          const event = eventsMap.get(rawEvent.id);
-          if (!event) return null;
-          const titles = [event.title];
-          switch (view.type as Type_VIEW_FC) {
-            case "month":
-              break;
-            default:
-              if (event.duration && event.duration > 1) {
-                const day =
-                  Math.ceil(
-                    (currentEventDay.current.epochMilliseconds -
-                      event.start.epochMilliseconds) /
-                      86400000,
-                  ) + 1;
-                titles.push(`(${day}/${event.duration}日目)`);
-              }
-              break;
-          }
-          let title = titles.join("\t");
-          if (title === "undefined") title = "予定あり";
-          let titleNode = <div className="fc-event-title">{title}</div>;
-          switch (view.type as Type_VIEW_FC) {
-            case "agenda":
-            case "week":
-              titleNode = <a href={event.url}>{titleNode}</a>;
-              break;
-          }
-          if (timeText) {
-            const timeNode = <div className="fc-event-time">{timeText}</div>;
-            if (/^\d+\:/.test(timeText))
-              return (
-                <div className="fc-event-main-frame">
-                  {timeNode}
-                  {titleNode}
-                </div>
-              );
-            else
-              return (
-                <>
-                  <div className="fc-daygrid-event-dot" />
-                  {timeNode}
-                  {titleNode}
-                </>
-              );
-          } else {
-            return titleNode;
-          }
-        }}
-        headerToolbar={{
-          start: "title",
-          end: headerToolbarEnd,
-        }}
-        moreLinkClick={(args) => {
-          args.jsEvent.preventDefault();
-        }}
-        initialDate={new Date(date.epochMilliseconds)}
-        initialView={initialView}
-        locale={DEFAULT_LANG}
-        eventClick={eventOpen}
-        buttonText={{
-          today: "現在",
-          [FC_VIEW_MONTH]: "月",
-          [FC_VIEW_WEEK]: "週",
-          [FC_VIEW_AGENDA]: "予定",
-        }}
-        customButtons={{
-          dateSet: {
-            text: "日時",
-            click: DateJumpButtonClick,
-          },
-          openAddEvents: {
-            text: "追加",
-            click: openAddEvents,
-          },
-          openSetting: {
-            text: "設定",
-            click: openSetting,
-          },
-        }}
-        views={{
-          [FC_VIEW_AGENDA]: {
-            type: "list",
-            listDayFormat: {
-              month: "numeric",
-              day: "numeric",
-              weekday: "narrow",
+      <div {...{ ...args, style, className }}>
+        <FullCalendar
+          height={height}
+          ref={(e: any) => {
+            const fullCalendar = e as CustomFullCalendar | null;
+            if (fullCalendar) {
+              if (calendar !== fullCalendar.calendar)
+                setCalendar(fullCalendar.calendar);
+            }
+          }}
+          lazyFetching
+          plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
+          locales={allLocales}
+          events={calendarEvents}
+          dayCellContent={(e) => e.dayNumberText.replace("日", "")}
+          dayMaxEvents={true}
+          businessHours={true}
+          navLinks={true}
+          allDayText="終日"
+          datesSet={onChangeHandle}
+          dayHeaderClassNames={(e) => {
+            isTodayRef.current = e.isToday;
+            currentEventDay.current = DateToZonedDateTime(e.date);
+            if (e.isToday) return "";
+            switch (e.view.type as Type_VIEW_FC) {
+              case "agenda":
+                const dateString = currentEventDay.current
+                  .toPlainDate()
+                  .toLocaleString();
+                if (!eventsDayMap.has(dateString)) {
+                  return "hidden";
+                }
+                break;
+            }
+            return "";
+          }}
+          eventClassNames={(e) => {
+            if (isTodayRef.current) return "";
+            switch (e.view.type as Type_VIEW_FC) {
+              case "agenda":
+                const dateString = currentEventDay.current
+                  .toPlainDate()
+                  .toLocaleString();
+                const currentEventsMap = eventsDayMap.get(dateString);
+                if (!currentEventsMap || !currentEventsMap.has(e.event.id)) {
+                  return "hidden";
+                }
+                break;
+            }
+            return "";
+          }}
+          eventContent={({ event: rawEvent, timeText, view }) => {
+            const event = eventsMap.get(rawEvent.id);
+            if (!event) return null;
+            const titles = [event.title];
+            switch (view.type as Type_VIEW_FC) {
+              case "month":
+                break;
+              default:
+                if (event.duration && event.duration > 1) {
+                  const day =
+                    Math.ceil(
+                      (currentEventDay.current.epochMilliseconds -
+                        event.start.epochMilliseconds) /
+                        86400000,
+                    ) + 1;
+                  titles.push(`(${day}/${event.duration}日目)`);
+                }
+                break;
+            }
+            let title = titles.join("\t");
+            if (title === "undefined") title = "予定あり";
+            let titleNode = <div className="fc-event-title">{title}</div>;
+            switch (view.type as Type_VIEW_FC) {
+              case "agenda":
+              case "week":
+                titleNode = <a href={event.url}>{titleNode}</a>;
+                break;
+            }
+            if (timeText) {
+              const timeNode = <div className="fc-event-time">{timeText}</div>;
+              if (/^\d+\:/.test(timeText))
+                return (
+                  <div className="fc-event-main-frame">
+                    {timeNode}
+                    {titleNode}
+                  </div>
+                );
+              else
+                return (
+                  <>
+                    <div className="fc-daygrid-event-dot" />
+                    {timeNode}
+                    {titleNode}
+                  </>
+                );
+            } else {
+              return titleNode;
+            }
+          }}
+          headerToolbar={{
+            start: "title",
+            end: headerToolbarEnd,
+          }}
+          moreLinkClick={(args) => {
+            args.jsEvent.preventDefault();
+          }}
+          initialDate={new Date(date.epochMilliseconds)}
+          initialView={initialView}
+          locale={DEFAULT_LANG}
+          eventClick={eventOpen}
+          buttonText={{
+            today: "現在",
+            [FC_VIEW_MONTH]: "月",
+            [FC_VIEW_WEEK]: "週",
+            [FC_VIEW_AGENDA]: "予定",
+          }}
+          customButtons={{
+            dateSet: {
+              text: "日時",
+              click: DateJumpButtonClick,
             },
-            listDaySideFormat: false,
-            duration: { days: AGENDA_DAYS },
-          },
-          [FC_VIEW_MONTH]: {
-            type: "dayGridMonth",
-          },
-          listWeek: { titleFormat: weekTitleFormat },
-          [FC_VIEW_WEEK]: {
-            type: "listWeek",
-            titleFormat: weekTitleFormat,
-          },
-          [FC_VIEW_DAY]: {
-            type: "dayGridDay",
-          },
-        }}
-        noEventsText={noEventsText}
-      />
-      <RbButtonArea children={RbButtonChildren} />
+            openAddEvents: {
+              text: "追加",
+              click: openAddEvents,
+            },
+            openSetting: {
+              text: "設定",
+              click: openSetting,
+            },
+          }}
+          views={{
+            [FC_VIEW_AGENDA]: {
+              type: "list",
+              listDayFormat: {
+                month: "numeric",
+                day: "numeric",
+                weekday: "narrow",
+              },
+              listDaySideFormat: false,
+              duration: { days: AGENDA_DAYS },
+            },
+            [FC_VIEW_MONTH]: {
+              type: "dayGridMonth",
+            },
+            listWeek: { titleFormat: weekTitleFormat },
+            [FC_VIEW_WEEK]: {
+              type: "listWeek",
+              titleFormat: weekTitleFormat,
+            },
+            [FC_VIEW_DAY]: {
+              type: "dayGridDay",
+            },
+          }}
+          noEventsText={noEventsText}
+        />
+        <RbButtonArea children={RbButtonChildren} />
+      </div>
     </div>
   );
 }

@@ -130,7 +130,7 @@ export const Home = React.memo(function Home() {
               </h3>
             }
             defaultView="agenda"
-            height={800}
+            height={700}
           />
           <BlueskyFeed />
         </div>
