@@ -98,7 +98,8 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
               case "object":
                 if (judgeValue) {
                   if ("epochNanoseconds" in (judgeValue as Temporal.Instant)) {
-                    result = Temporal.Instant.compare(valueA, valueB);
+                    if (valueA && valueB)
+                      result = Temporal.Instant.compare(valueA, valueB);
                   } else if ("getTime" in (judgeValue as Date)) {
                     const atime = (valueA as Date | undefined)?.getTime() || 0;
                     const btime = (valueB as Date | undefined)?.getTime() || 0;
