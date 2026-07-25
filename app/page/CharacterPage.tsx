@@ -50,6 +50,7 @@ import { getBackURL } from "~/components/layout/BackButton";
 import { charactersDataOptions, GetAPIFromOptions } from "~/data/DataEnv";
 import { Modal } from "~/components/layout/Modal";
 import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
+import { InPageMenu } from "~/components/layout/InPageMenu";
 
 interface PartsType {
   label?: string;
@@ -474,8 +475,20 @@ function CharaListPage() {
       }
     }
   }, [isSubmit]);
+
+  const inPageList = useMemo(
+    () =>
+      (parts || []).map(({ label }, i) => ({
+        name: label || "",
+        id: "charaGroup-" + (label || i),
+      })),
+    [parts],
+  );
+  console.log(inPageList);
+
   return (
     <>
+      <InPageMenu list={inPageList} adjust={64} />
       <CharaSearchArea
         headerBeforeInner={
           <div className="color-main" translate="no">
@@ -490,7 +503,10 @@ function CharaListPage() {
             if (items) movedParts.current[i] = items;
           }
           return (
-            <div key={`character_label_${label}`}>
+            <div
+              key={`character_label_${label}`}
+              id={"charaGroup-" + (label || i)}
+            >
               {label ? <h2 className="color-main">{label}</h2> : null}
               <ul className={charaListClassName}>
                 {move ? (
