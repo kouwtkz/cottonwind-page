@@ -12,6 +12,7 @@ import {
 } from "~/components/functions/soundFunction";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
 interface SoundsStateType {
   sounds: SoundItemType[];
@@ -19,8 +20,8 @@ interface SoundsStateType {
   soundAlbums: SoundAlbumType[];
   soundAlbumsMap: Map<string, SoundAlbumType>;
   defaultPlaylist?: SoundPlaylistType;
-  soundsData?: MeeIndexedDBTable<SoundItemType>;
-  soundAlbumsData?: MeeIndexedDBTable<SoundAlbumType>;
+  soundsData?: MeeIndexedDBTable<SoundItemIndexedDataType>;
+  soundAlbumsData?: MeeIndexedDBTable<SoundAlbumIndexedDataType>;
 }
 export const useSounds = CreateObjectState<SoundsStateType>({
   sounds: [],
@@ -42,9 +43,23 @@ export function SoundState() {
     (async () => {
       await waitIdb;
       if (soundsData?.db && soundAlbumsData) {
-        const sounds = await soundsData.getAll();
+        const sounds = await soundsData.getAll().then((items) =>
+          items.map((item) =>
+            convertTimeToMeeIndexedData<SoundItemType>({
+              item,
+              convert: soundsDataIndexed.options.convert,
+            }),
+          ),
+        );
         const soundsMap = new Map(sounds.map((v) => [v.key, v]));
-        const soundAlbums = await soundAlbumsData.getAll();
+        const soundAlbums = await soundAlbumsData.getAll().then((items) =>
+          items.map((item) =>
+            convertTimeToMeeIndexedData<SoundAlbumType>({
+              item,
+              convert: soundAlbumsDataIndexed.options.convert,
+            }),
+          ),
+        );
         const soundAlbumsMap = new Map(soundAlbums.map((v) => [v.key, v]));
         sounds.forEach((sound) => {
           if (sound.album) {

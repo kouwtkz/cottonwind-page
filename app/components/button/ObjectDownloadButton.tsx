@@ -16,7 +16,9 @@ export function JsonFromDataObject<T>({
   if (key) body.key = key;
   if (lastmod)
     body.lastmod =
-      typeof lastmod === "object" ? lastmod.toISOString() : lastmod;
+      typeof lastmod === "object"
+        ? lastmod.toString({ smallestUnit: "millisecond" })
+        : lastmod;
   if (version) body.version = version.toString();
   let data = TData as any[];
   const {
@@ -52,7 +54,7 @@ export function DownloadDataObject<T>({
   ...props
 }: DownloadDataObjectProps<T>) {
   fileDownload(
-    `${name || props.key.toString()}_${FormatDate(new Date(), "Ymd_His")}.json`,
+    `${name || props.key.toString()}_${FormatDate(Temporal.Now.instant(), "Ymd_His")}.json`,
     JSON.stringify(JsonFromDataObject(props)),
   );
 }

@@ -23,13 +23,13 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "POST": {
-            const now = new Date();
+            let now = Temporal.Now.instant();
             let { key, update, ...data } = await request.json() as KeyValueSendType;
             if (key) {
               const entry = TableObject.getInsertEntry(data);
               const whereKey = update || key;
               const target = (await TableObject.Select({ db, where: { key: whereKey }, take: 1 }))[0];
-              entry.lastmod = now.toISOString();
+              entry.lastmod = now.toString({ smallestUnit: "millisecond" });
               entry.lastmod = await TableObject.getClassifyScheduleValue({
                 db,
               });
@@ -53,7 +53,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
                   where: { key }
                 });
                 return new Response(key);

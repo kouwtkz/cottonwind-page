@@ -19,11 +19,12 @@ import {
 import { customFetch } from "../functions/fetch";
 import { concatOriginUrl } from "../functions/originUrl";
 import { toast } from "react-toastify";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
 export type LinksIndexedDBType = IndexedDataLastmodMH<
-  SiteLink,
+  SiteLinkIndexedDataType,
   SiteLinkData,
-  MeeIndexedDBTable<SiteLink>
+  MeeIndexedDBTable<SiteLinkIndexedDataType>
 >;
 export type LinksMapType = Map<string | number, SiteLink>;
 export type LinksCategoryMapType = Map<string, SiteLink[]>;
@@ -91,22 +92,34 @@ export const useFavLinks = CreateObjectState<LinksStateType>(function (set) {
 type imageMapType = Map<string, ImageType>;
 
 async function callSetLinks({
+  DataIndexed,
   linksData,
   imagesMap,
 }: {
-  linksData: MeeIndexedDBTable<SiteLink>;
+  DataIndexed: IndexedDataLastmodMH<SiteLinkIndexedDataType, SiteLinkData>;
+  linksData: MeeIndexedDBTable<SiteLinkIndexedDataType>;
   imagesMap: imageMapType;
 }) {
-  const links = await linksData.getAll().then((list) => {
-    return list
-      .filter((data) => data.url || data.title || data.image)
-      .map((data) => {
-        if (data.image && imagesMap && imagesMap.has(data.image)) {
-          data.Image = imagesMap.get(data.image)!;
-        }
-        return data;
-      });
-  });
+  const links = await linksData
+    .getAll()
+    .then((items) =>
+      items.map((item) =>
+        convertTimeToMeeIndexedData<SiteLink>({
+          item,
+          convert: DataIndexed.options.convert,
+        }),
+      ),
+    )
+    .then((list) => {
+      return list
+        .filter((data) => data.url || data.title || data.image)
+        .map((data) => {
+          if (data.image && imagesMap && imagesMap.has(data.image)) {
+            data.Image = imagesMap.get(data.image)!;
+          }
+          return data;
+        });
+    });
   const linksMap: LinksMapType = new Map();
   const linksCategoryMap = links
     .filter((v) => v.key || v.url || v.title || v.image)
@@ -153,7 +166,11 @@ export function LinksState() {
   );
   useEffect(() => {
     if (linksData?.db && imagesMap) {
-      callSetLinks({ imagesMap, linksData }).then((result) => {
+      callSetLinks({
+        imagesMap,
+        linksData,
+        DataIndexed: linksDataIndexed,
+      }).then((result) => {
         setLinks(result);
       });
     }
@@ -164,7 +181,11 @@ export function LinksState() {
   );
   useEffect(() => {
     if (favLinksData?.db && imagesMap) {
-      callSetLinks({ imagesMap, linksData: favLinksData }).then((result) => {
+      callSetLinks({
+        imagesMap,
+        linksData: favLinksData,
+        DataIndexed: favLinksDataIndexed,
+      }).then((result) => {
         setFavLinks(result);
       });
     }

@@ -597,7 +597,7 @@ export function GalleryObject(args: GalleryObjectProps) {
         let images = group.list || [];
         if (monthModeParam === "time" && monthParam) {
           images = images.filter(({ time }) => {
-            return time ? String(time.getMonth() + 1) === monthParam : false;
+            return time ? String(time.month) === monthParam : false;
           });
         }
         images = findMee([...images], {
@@ -794,8 +794,8 @@ function UploadChain({
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const now = new Date();
-      const nowTime = now.getTime();
+      let now = Temporal.Now.instant();
+      const nowTime = now.epochMilliseconds;
       const list = acceptedFiles.filter(
         (f) => Math.abs(nowTime - f.lastModified) > 10,
       );
@@ -1930,14 +1930,24 @@ export function GallerySearchArea(args: SearchAreaProps) {
   );
 }
 
-function getYearObjects(dates: (Date | number | null | undefined)[]) {
+function getYearObjects(
+  dates: (
+    | Temporal.DateLikeObject
+    | Temporal.Instant
+    | Date
+    | number
+    | null
+    | undefined
+  )[],
+) {
   return dates
     .map((date) => {
       switch (typeof date) {
         case "number":
           return date;
         case "object":
-          return getYear(date);
+          if (!date) return 0;
+          else getYear(date);
         default:
           return 0;
       }
@@ -2074,7 +2084,9 @@ function GalleryItemRibbon({
 }: GalleryItemRibbonProps) {
   const trigger = useGalleryRibbonUpdateTrigger()[0];
   const schedule =
-    image.schedule && image.lastmod && image.lastmod.getTime() > Date.now();
+    image.schedule &&
+    image.lastmod &&
+    image.lastmod.epochMilliseconds > Temporal.Now.instant().epochMilliseconds;
   const itemOfDraft = useMemo<GalleryItemRibbonListType | null>(() => {
     if (image.draft) return { label: "Draft", className: "draft" };
     else if (schedule) return { label: "Schedule", className: "schedule" };

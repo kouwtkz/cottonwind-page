@@ -22,7 +22,6 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "POST": {
-            const now = new Date();
             let { update, id, redirect, path } = await request.json() as redirectSendType;
             let target: redirectDataType | undefined;
             const entry = TableObject.getInsertEntry({ redirect, path });
@@ -32,7 +31,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               } else {
                 target = (await TableObject.Select({ db, where: { id }, take: 1 }))[0];
               }
-            entry.lastmod = now.toISOString();
+            entry.lastmod = Temporal.Now.instant().toString({ smallestUnit: "millisecond" });
             entry.lastmod = await TableObject.getClassifyScheduleValue({
               db,
             });
@@ -52,7 +51,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
                   where: path ? { path: String(path) } : { id }
                 });
                 return new Response(path);

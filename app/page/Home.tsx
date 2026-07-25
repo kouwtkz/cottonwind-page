@@ -182,7 +182,10 @@ function PostsView() {
   posts = useMemo(
     () =>
       findMee(posts || [], {
-        where: { draft: { not: true }, time: { lte: new Date() } },
+        where: {
+          draft: { not: true },
+          time: { lte: Temporal.Now.zonedDateTimeISO() },
+        },
         index: "time",
         direction: "prev",
         take: 3,
@@ -208,7 +211,7 @@ function PostsView() {
               className="article"
               key={`post_article_${postId}`}
             >
-              <div className="date">{time?.toLocaleDateString("ja-JP")}</div>
+              <div className="date">{time?.toPlainDate().toLocaleString()}</div>
               <div className="title">{title?.slice(0, 32)}</div>
             </Link>
           );

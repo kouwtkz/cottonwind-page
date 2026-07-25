@@ -12,9 +12,9 @@ import {
 import { getCountList } from "~/components/functions/arrayFunction";
 import { useCharacters } from "./CharacterState";
 import { TimeClass } from "../functions/time/Time";
-import { getYear } from "../functions/time/DateFunction";
 import { useEnv } from "./EnvState";
 import { concatOriginUrl } from "../functions/originUrl";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
 const galleryList =
   ArrayEnv.IMAGE_ALBUMS?.map((album) => ({
@@ -50,113 +50,119 @@ export function ImageState() {
   );
   useEffect(() => {
     if (env && imagesData?.db && charactersData) {
-      imagesData.getAll().then((indexedImagesData) => {
-        const lastmod = imageDataIndexed.beforeLastmod;
-        const images = indexedImagesData.map<ImageType>(
-          ({ creationTime, ...image }) => ({
-            creationTime: new TimeClass(creationTime || ""),
-            ...image,
-          }),
-        );
-        images.forEach((image) => {
-          if (lastmod)
-            image.update = Boolean(
-              image.lastmod!.getTime() > lastmod.getTime(),
-            );
-          if (image.update && image.extendData?.new) {
-            image.new = true;
-          }
-          if (image.time) image.year = getYear(image.time);
-          image.characterObjects = image.characters
-            ?.map((character) => charactersMap.get(character)!)
-            .filter((c) => c);
-          image.characterNameGuides = image.characterObjects?.map((chara) => {
-            const values: string[] = [];
-            if (chara.name) values.push(chara.name);
-            if (chara.nameGuide) values.push(chara.nameGuide);
-            return values.join(",");
-          });
-          if (imagesLikeData?.has(image.key))
-            image.like = imagesLikeData.get(image.key)!;
-        });
-        const imagesMap = new Map(images.map((image) => [image.key, image]));
-        const albums = findMee(images, {
-          direction: "prevunique",
-          index: "album",
-        })
-          .filter((image) => image.album)
-          .map((image) => image.album!);
-        const galleryAlbums = galleryList.concat();
-        const imageAlbums = getImageAlbumMap(ArrayEnv.IMAGE_ALBUMS, albums);
-        Array.from(imageAlbums.values()).forEach((album) => {
-          album.list = findMee(images, {
-            index: "album",
-            query: album.name,
-            where: { src: { has: true } },
-          });
-        });
-        Object.entries(Object.fromEntries(imageAlbums)).forEach(([k, v]) => {
-          if (v.name === "pickup") return;
-          const found = galleryAlbums.find((item) => item.name === k);
-          if (!found) {
-            galleryAlbums.push({
-              name: k,
-              hide: true,
-              hideWhenEmpty: true,
-              list: v.list,
+      imagesData
+        .getAll()
+        .then((items) =>
+          items.map((item) => ({
+            ...convertTimeToMeeIndexedData<ImageType>({
+              item,
+              convert: imageDataIndexed.options.convert,
+            }),
+            creationTime: new TimeClass(item.creationTime || ""),
+          })),
+        )
+        .then((images) => {
+          const lastmod = imageDataIndexed.beforeLastmod;
+          images.forEach((image) => {
+            if (lastmod)
+              image.update = Boolean(
+                image.lastmod!.epochMilliseconds > lastmod.epochMilliseconds,
+              );
+            if (image.update && image.extendData?.new) {
+              image.new = true;
+            }
+            if (image.time)
+              image.year = image.time.year;
+            image.characterObjects = image.characters
+              ?.map((character) => charactersMap.get(character)!)
+              .filter((c) => c);
+            image.characterNameGuides = image.characterObjects?.map((chara) => {
+              const values: string[] = [];
+              if (chara.name) values.push(chara.name);
+              if (chara.nameGuide) values.push(chara.nameGuide);
+              return values.join(",");
             });
-          } else {
-            if (v.gallery?.generate) found.linkLabel = true;
-            found.list = v.list;
-          }
-        });
-        const seriesMap = new Map<string, ImageType[]>();
-        images?.forEach((c) => {
-          if (c.series) {
-            if (seriesMap.has(c.series)) {
-              const list = seriesMap.get(c.series)!;
-              list.push(c);
-              seriesMap.set(c.series, list);
-            } else seriesMap.set(c.series, [c]);
-          }
-        });
-        seriesMap.forEach((v, k, map) => {
-          v.sort((a, b) => (a.chapter || 0) - (b.chapter || 0));
-          map.set(k, v);
-        });
+            if (imagesLikeData?.has(image.key))
+              image.like = imagesLikeData.get(image.key)!;
+          });
+          const imagesMap = new Map(images.map((image) => [image.key, image]));
+          const albums = findMee(images, {
+            direction: "prevunique",
+            index: "album",
+          })
+            .filter((image) => image.album)
+            .map((image) => image.album!);
+          const galleryAlbums = galleryList.concat();
+          const imageAlbums = getImageAlbumMap(ArrayEnv.IMAGE_ALBUMS, albums);
+          Array.from(imageAlbums.values()).forEach((album) => {
+            album.list = findMee(images, {
+              index: "album",
+              query: album.name,
+              where: { src: { has: true } },
+            });
+          });
+          Object.entries(Object.fromEntries(imageAlbums)).forEach(([k, v]) => {
+            if (v.name === "pickup") return;
+            const found = galleryAlbums.find((item) => item.name === k);
+            if (!found) {
+              galleryAlbums.push({
+                name: k,
+                hide: true,
+                hideWhenEmpty: true,
+                list: v.list,
+              });
+            } else {
+              if (v.gallery?.generate) found.linkLabel = true;
+              found.list = v.list;
+            }
+          });
+          const seriesMap = new Map<string, ImageType[]>();
+          images?.forEach((c) => {
+            if (c.series) {
+              if (seriesMap.has(c.series)) {
+                const list = seriesMap.get(c.series)!;
+                list.push(c);
+                seriesMap.set(c.series, list);
+              } else seriesMap.set(c.series, [c]);
+            }
+          });
+          seriesMap.forEach((v, k, map) => {
+            v.sort((a, b) => (a.chapter || 0) - (b.chapter || 0));
+            map.set(k, v);
+          });
 
-        images.forEach((image) => {
-          if (image.album) image.albumObject = imageAlbums.get(image.album);
-          if (image.series) {
-            const list = seriesMap.get(image.series)!;
-            const i = list.findIndex((v) => v.key === image.key);
-            image.previous = list[i - 1];
-            image.next = list[i + 1];
-          }
-        });
-        const copyrightList = getCountList(images || [], "copyright");
-        const tagsList = getCountList(images || [], "tags");
+          images.forEach((image) => {
+            if (image.album) image.albumObject = imageAlbums.get(image.album);
+            if (image.series) {
+              const list = seriesMap.get(image.series)!;
+              const i = list.findIndex((v) => v.key === image.key);
+              image.previous = list[i - 1];
+              image.next = list[i + 1];
+            }
+          });
+          const copyrightList = getCountList(images || [], "copyright");
+          const tagsList = getCountList(images || [], "tags");
 
-        const origin = env.MEDIA_ORIGIN || env.MEDIA_CF_ORIGIN;
-        const srcMap = new Map(
-          images
-            .filter((v) => v.src)
-            .map((v) => [concatOriginUrl(origin, v.src!), v]),
-        );
+          const origin = env.MEDIA_ORIGIN || env.MEDIA_CF_ORIGIN;
+          const srcMap = new Map(
+            images
+              .filter((v) => v.src)
+              .map((v) => [concatOriginUrl(origin, v.src!), v]),
+          );
 
-        Set({
-          images,
-          imagesMap,
-          galleryAlbums,
-          imageAlbums,
-          imagesData,
-          imagesLikeData,
-          copyrightList,
-          tagsList,
-          seriesMap,
-          srcMap,
+          Set({
+            images,
+            imagesMap,
+            galleryAlbums,
+            imageAlbums,
+            imagesData,
+            imagesLikeData,
+            copyrightList,
+            tagsList,
+            seriesMap,
+            srcMap,
+          });
         });
-      });
     }
   }, [
     env,

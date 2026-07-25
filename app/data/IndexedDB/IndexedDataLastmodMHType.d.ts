@@ -31,8 +31,10 @@ interface Props_LastmodMH_Tables_Data {
   version: string;
   lastmod: string;
 }
-interface Props_LastmodMH_Tables extends Props_LastmodMH_Tables_Data, WithRawExtendDataType<Props_LastmodMH_Tables_Data>, ExtendDataProps {
-  lastmod: Date;
+interface Props_LastmodMH_Tables_IndexedDataType extends Props_LastmodMH_Tables_Data, WithRawExtendDataType<Props_LastmodMH_Tables_Data>, ExtendDataProps {
+}
+interface Props_LastmodMH_Tables extends Omit<Props_LastmodMH_Tables_IndexedDataType, "lastmod"> {
+  lastmod: Temporal.Instant;
 }
 
 interface Props_LastmodMH_TableVersion extends Omit<Props_LastmodMH_Tables_Data, "lastmod" | "key"> {

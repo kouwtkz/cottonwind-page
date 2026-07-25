@@ -96,10 +96,14 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
                   result = (valueA || 0) - (valueB || 0);
                 break;
               case "object":
-                if (judgeValue && "getTime" in judgeValue) {
-                  const atime = valueA?.getTime() || 0;
-                  const btime = valueB?.getTime() || 0;
-                  if (atime !== btime) result = atime - btime;
+                if (judgeValue) {
+                  if ("epochNanoseconds" in (judgeValue as Temporal.Instant)) {
+                    result = Temporal.Instant.compare(valueA, valueB);
+                  } else if ("getTime" in (judgeValue as Date)) {
+                    const atime = (valueA as Date | undefined)?.getTime() || 0;
+                    const btime = (valueB as Date | undefined)?.getTime() || 0;
+                    if (atime !== btime) result = atime - btime;
+                  }
                 }
                 break;
               default:
@@ -191,17 +195,52 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
 }
 
 export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any, { kanaReplace, key }: WheresFilterOptions = {}) {
-  if (typeof (fval) === "number") {
-    const innerValueType = typeof innerValue;
-    if (innerValueType === "string" || Array.isArray(innerValue)) {
+  const args_fvalType = typeof fval;
+  const args_innerValueType = typeof innerValue;
+  if (fval && innerValue && args_fvalType === "object" && args_innerValueType === "object" && ("epochNanoseconds" in fval || "epochNanoseconds" in innerValue)) {
+    if (!("epochNanoseconds" in fval)) {
+      if ("getTime" in fval) {
+        fval = Temporal.Instant.fromEpochMilliseconds(fval.getTime());
+      } else {
+        fval = new Date(fval).getTime();
+        if (isNaN(fval)) fval = Temporal.Now.instant();
+        else fval = Temporal.Instant.fromEpochMilliseconds(fval);
+      }
+    }
+    if (!("epochNanoseconds" in innerValue)) {
+      if ("getTime" in innerValue) {
+        innerValue = Temporal.Instant.fromEpochMilliseconds(innerValue.getTime());
+      } else {
+        innerValue = new Date(innerValue).getTime();
+        if (isNaN(innerValue)) innerValue = Temporal.Now.instant();
+        else innerValue = Temporal.Instant.fromEpochMilliseconds(innerValue);
+      }
+    }
+    switch (fkey) {
+      case "gt":
+        return Temporal.Instant.compare(innerValue, fval) > 0;
+      case "gte":
+        return Temporal.Instant.compare(innerValue, fval) >= 0;
+      case "lt":
+        return Temporal.Instant.compare(innerValue, fval) < 0;
+      case "lte":
+        return Temporal.Instant.compare(innerValue, fval) <= 0;
+      case "not":
+        return Temporal.Instant.compare(innerValue, fval) !== 0;
+      default:
+        return Temporal.Instant.compare(innerValue, fval) === 0;
+    }
+  } else if (args_fvalType === "number") {
+    if (args_innerValueType === "string" || Array.isArray(innerValue)) {
       innerValue = innerValue.length;
-    } else if (!innerValue || innerValueType !== "object") {
+    } else if (!innerValue || args_innerValueType !== "object") {
       innerValue = Number(innerValue || 0);
     }
-  }
-  if (kanaReplace && innerValue) {
-    fval = kanaToHira(fval);
-    innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : kanaToHira(innerValue);
+  } else if (args_fvalType === "object") {
+    if (kanaReplace && innerValue) {
+      fval = kanaToHira(fval);
+      innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : kanaToHira(innerValue);
+    }
   }
   const innerValueType = typeof innerValue;
   switch (fkey) {
@@ -660,16 +699,17 @@ interface AutoAllotDateProps {
   dayFirst?: boolean;
   dayLast?: boolean;
   forceDayTime?: boolean;
+  timeZoneId?: Temporal.TimeZoneLike;
 }
 
-function AutoAllotDate({ value, replaceT = true, Normalize = true, dayFirst = false, dayLast = false, forceDayTime = false }: AutoAllotDateProps) {
-  let time: Date;
+function AutoAllotDate({ value, replaceT = true, Normalize = true, dayFirst = false, dayLast = false, forceDayTime = false, timeZoneId = "Asia/Tokyo" }: AutoAllotDateProps) {
+  let time: Temporal.ZonedDateTime;
   const daysMatch = value.match(/(-?[\d]+)(years?|months?|days?)/i);
   if (daysMatch) {
-    time = new Date();
-    if (/year/i.test(daysMatch[2])) time.setFullYear(time.getFullYear() - Number(daysMatch[1]));
-    else if (/month/i.test(daysMatch[2])) time.setMonth(time.getMonth() - Number(daysMatch[1]));
-    else if (/day/i.test(daysMatch[2])) time.setDate(time.getDate() - Number(daysMatch[1]));
+    time = Temporal.Now.zonedDateTimeISO(timeZoneId);
+    if (/year/i.test(daysMatch[2])) time = time.add({ years: -Number(daysMatch[1]) });
+    else if (/month/i.test(daysMatch[2])) time = time.add({ months: -Number(daysMatch[1]) });
+    else if (/day/i.test(daysMatch[2])) time = time.add({ days: -Number(daysMatch[1]) });
   } else {
     if (replaceT) value = value.replace(/[\s_]/, "T"); else value = value.replace(/[_]/, "T");
     const dateLength = value.split(/[-/]/, 3).length;
@@ -695,14 +735,14 @@ function AutoAllotDate({ value, replaceT = true, Normalize = true, dayFirst = fa
     }
 
     if (value.endsWith("Z") || /\+/.test(value))
-      time = new Date(value);
+      time = Temporal.Instant.from(value).toZonedDateTimeISO("UTC");
     else
-      time = new Date(`${value}+09:00`);
+      time = Temporal.PlainDateTime.from(value).toZonedDateTime(timeZoneId);
     if (dayLast && nonTime) {
-      if (dateLength === 1) time.setUTCFullYear(time.getUTCFullYear() + 1);
-      else if (dateLength === 2) time.setUTCMonth(time.getUTCMonth() + 1);
-      else time.setUTCDate(time.getUTCDate() + 1);
-      time.setUTCMilliseconds(-1);
+      if (dateLength === 1) time = time.add({ years: 1 });
+      else if (dateLength === 2) time = time.add({ months: 1 });
+      else time = time.add({ days: 1 });
+      time = time.with({ microsecond: -1 });
     }
   }
   return time;

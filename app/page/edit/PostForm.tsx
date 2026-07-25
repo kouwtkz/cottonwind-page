@@ -32,7 +32,11 @@ import {
 } from "~/data/ClientDBLoader";
 import { concatOriginUrl } from "~/components/functions/originUrl";
 import { customFetch } from "~/components/functions/fetch";
-import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
+import {
+  FormStrTimeToIsoString,
+  ISOStringToZonedDateTime,
+  ToFormTime,
+} from "~/components/functions/time/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
 import { DownloadIndexedDBObject } from "~/components/button/ObjectDownloadButton";
 import { CreateObjectState } from "~/components/state/CreateState";
@@ -59,12 +63,16 @@ export const useLocalDraftPost = CreateObjectState<{
   getLocalDraft() {
     const itemStr = localStorage.getItem(backupStorageKey);
     if (!itemStr) return null;
-    const item = JSON.parse(itemStr) as any;
-    item.time = item.time ? new Date(item.time) : undefined;
-    item.localDraft = true;
-    const post = item as PostFormDraftType;
-    set({ localDraft: post });
-    return item as PostFormDraftType;
+    const parsedItem = JSON.parse(itemStr) as any;
+    const item: PostFormDraftType = {
+      ...parsedItem,
+      time: parsedItem.time
+        ? ISOStringToZonedDateTime(parsedItem.time)
+        : undefined,
+      draft: true,
+    };
+    set({ localDraft: item });
+    return item;
   },
   removeLocalDraft() {
     localStorage.removeItem(backupStorageKey);
@@ -208,7 +216,7 @@ export function PostForm() {
 
   function saveLocalDraft() {
     const values = getValues();
-    values.time = IsoFormTime(values.time);
+    values.time = FormStrTimeToIsoString(values.time);
     setLocalDraft(values);
   }
 
@@ -351,7 +359,7 @@ export function PostForm() {
         } else if (dirtyFields[key]) {
           switch (key) {
             case "time":
-              append(key, IsoFormTime(item));
+              append(key, FormStrTimeToIsoString(item));
               break;
             case "category":
               const value = item.join(",");

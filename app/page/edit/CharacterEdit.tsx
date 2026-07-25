@@ -40,7 +40,7 @@ import {
   useCharacterPageState,
   useMoveCharacters,
 } from "../CharacterPage";
-import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
+import { FormStrTimeToIsoString, ToFormTime } from "~/components/functions/time/DateFunction";
 import { EditTagsReactSelect } from "~/components/dropdown/EditTagsReactSelect";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { fileDialog } from "~/components/utils/FileTool";
@@ -207,7 +207,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
         switch (key as keyof CharacterDataType) {
           case "time":
           case "birthday":
-            data[key] = IsoFormTime(String(value));
+            data[key] = FormStrTimeToIsoString(String(value));
             break;
           default:
             data[key] = value;

@@ -12,14 +12,17 @@ interface PostDataType {
   lastmod?: string;
 }
 
-interface PostType extends PostDataType, WithRawExtendDataType<PostDataType> {
+interface PostIndexedDataType extends Omit<PostDataType, "category">, WithRawExtendDataType<PostDataType> {
   category?: string[];
   noindex?: boolean;
   draft?: boolean;
+}
+
+interface PostType extends Omit<PostIndexedDataType, "time" | "lastmod"> {
+  time?: Temporal.ZonedDateTime,
+  lastmod?: Temporal.ZonedDateTime,
   // schedule?: boolean;
   localDraft?: boolean;
-  time?: Date,
-  lastmod?: Date,
 }
 
 type PostPagesExtensionType = "ExtRSS" | "mochott";
@@ -51,8 +54,8 @@ type OldPostType = {
   noindex?: boolean;
   draft?: boolean;
   localDraft?: boolean;
-  date?: Date | null;
-  updatedAt?: Date | null;
+  date?: Temporal.ZonedDateTime | null;
+  updatedAt?: Temporal.ZonedDateTime | null;
   flags?: number | null;
   memo?: string | null;
 }

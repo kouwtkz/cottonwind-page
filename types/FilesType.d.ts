@@ -7,10 +7,13 @@ interface FilesRecordDataType {
   lastmod?: string;
 }
 
-interface FilesRecordType extends FilesRecordDataType, WithRawExtendDataType<FilesRecordDataType> {
+interface FilesRecordIndexedDataType extends FilesRecordDataType, WithRawExtendDataType<FilesRecordDataType> {
   private?: boolean;
-  mtime?: Date;
-  lastmod?: Date;
+}
+
+interface FilesRecordType extends Omit<FilesRecordIndexedDataType, "mtime" | "lastmod"> {
+  mtime?: Temporal.ZonedDateTime;
+  lastmod?: Temporal.ZonedDateTime;
   dir?: string;
 }
 

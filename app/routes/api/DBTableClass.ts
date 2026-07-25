@@ -1,3 +1,4 @@
+import { StrToISOString } from "~/components/functions/time/TemporalFunction";
 import { KeyValueConvertDBEntry } from "~/components/functions/doc/ToFunction";
 import { MeeSqlClass } from "~/data/functions/MeeSqlClass";
 import { MeeSqlD1 } from "~/data/functions/MeeSqlD1";
@@ -72,7 +73,7 @@ export class DBTableClass<T extends Object = any, D extends Object = T> {
       .filter(([k, v]) => v !== undefined);
     if (times)
       times.forEach((k) => {
-        if (data[k]) entries.push([k, new Date(String(data[k])).toISOString()]);
+        if (data[k]) entries.push([k, StrToISOString(String(data[k]))]);
       });
     return Object.fromEntries(entries);
   }
@@ -82,10 +83,9 @@ export class DBTableClass<T extends Object = any, D extends Object = T> {
     value,
     ...args
   }: getTimeFieldLatestProps<D, S>) {
-    const time = new Date(value);
-    const since = time.toISOString();
-    time.setSeconds(time.getSeconds() + 1);
-    const until = time.toISOString();
+    const time = Temporal.Instant.from(value);
+    const since = time.toString({ smallestUnit: "millisecond" });
+    const until = time.add({ seconds: 1 }).toString({ smallestUnit: "millisecond" });
     return (
       await this.Select<S>({
         db,
@@ -109,13 +109,12 @@ export class DBTableClass<T extends Object = any, D extends Object = T> {
       ...args,
     });
     if (latest && latest[field]) {
-      const latestLastmod = new Date(latest[field]);
-      latestLastmod.setMilliseconds(latestLastmod.getMilliseconds() + 1);
-      return latestLastmod.toISOString();
+      const latestLastmod = Temporal.Instant.from(latest[field]);
+      return latestLastmod.add({ milliseconds: 1 }).toString({ smallestUnit: "millisecond" });
     } else return value;
   }
   async getClassifyScheduleValue({
-    now = new Date().toISOString(),
+    now = Temporal.Now.instant().toString({ smallestUnit: "millisecond" }),
     value,
     time,
     existTime,
@@ -189,7 +188,7 @@ export async function DBTableImport<T extends Object, D extends Object = T>({
       await TableObject.CreateTable({ db });
     }
     const list = object.data as any[];
-    const now = new Date();
+    let now = Temporal.Now.instant();
     if (Array.isArray(list)) {
       if (kvConvertEntry) KeyValueConvertDBEntry(list);
       for (const item of list) {
@@ -214,14 +213,14 @@ export async function DBTableImport<T extends Object, D extends Object = T>({
                 entry: TableObject.getInsertEntry(item),
               });
           } else {
-            item[lastmod] = now.toISOString();
+            item[lastmod] = now.toString({ smallestUnit: "millisecond" })
             await TableObject.Insert({
               db,
               entry: TableObject.getInsertEntry(item),
             });
           }
         }
-        now.setMilliseconds(now.getMilliseconds() + 1);
+        now = now.add({ milliseconds: 1 });
       }
     }
   }

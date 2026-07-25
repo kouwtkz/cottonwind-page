@@ -9,71 +9,64 @@ interface useScheduleProps {
 }
 
 interface useScheduleValue {
-  date: Date;
-  nextDate: Date;
+  date: Temporal.ZonedDateTime;
+  nextDate: Temporal.ZonedDateTime;
 }
 export default function useSchedule({ day, hour, minute, second = 0, specify }: useScheduleProps = { second: 1 }): useScheduleValue {
-  const defaultDate = useMemo(() => new Date(), [])
+  const defaultDate = useMemo(() => Temporal.Now.zonedDateTimeISO(), [])
   const [date, setDate] = useState(defaultDate);
   const [nextDate, setNextDate] = useState(getNextTime());
-  function getNextTime(date = new Date()) {
-    const newDate = new Date(date);
-    newDate.setMilliseconds(0);
+  function getNextTime(date = Temporal.Now.zonedDateTimeISO()) {
+    let newDate = date.with({ millisecond: 0, microsecond: 0 });
     if (typeof day === "number") {
       if (specify) {
-        const isSame = newDate.getHours() === hour;
-        newDate.setDate(day);
-        newDate.setHours(hour || 0);
-        newDate.setMinutes(minute || 0);
-        newDate.setSeconds(second || 0);
-        if (isSame || newDate.getTime() < date.getTime())
-          newDate.setMonth(newDate.getMonth() + 1);
+        const isSame = newDate.hour === hour;
+        newDate = newDate.with({ day, hour: hour || 0, minute: minute || 0, second: second || 0 });
+        if (isSame || Temporal.ZonedDateTime.compare(newDate, date) < 0)
+          newDate = newDate.add({ months: 1 });
       }
-      else newDate.setDate(newDate.getDate() + day);
+      else newDate = newDate.add({ days: day });
     } else if (typeof hour === "number") {
       if (specify) {
-        const isSame = newDate.getHours() === hour;
-        newDate.setHours(hour);
-        newDate.setMinutes(minute || 0);
-        newDate.setSeconds(second || 0);
-        if (isSame || newDate.getTime() < date.getTime())
-          newDate.setDate(newDate.getDate() + 1);
+        const isSame = newDate.hour === hour;
+        newDate = newDate.with({ hour, minute: minute || 0, second: second || 0 });
+        if (isSame || Temporal.ZonedDateTime.compare(newDate, date) < 0)
+          newDate = newDate.add({ days: 1 });
       }
-      else newDate.setHours(newDate.getHours() + hour);
+      else newDate = newDate.add({ hours: hour });
     } else if (typeof minute === "number") {
       if (specify) {
-        const isSame = newDate.getMinutes() === minute;
-        newDate.setMinutes(minute || 0);
-        newDate.setSeconds(second || 0);
-        if (isSame || newDate.getTime() < date.getTime())
-          newDate.setHours(newDate.getHours() + 1);
+        const isSame = newDate.minute === minute;
+        newDate = newDate.with({ minute: minute || 0, second: second || 0 });
+        if (isSame || Temporal.ZonedDateTime.compare(newDate, date) < 0)
+          newDate = newDate.add({ hours: 1 });
       }
-      else newDate.setMinutes(newDate.getMinutes() + minute);
+      else newDate = newDate.add({ minutes: minute });
     } else if (specify) {
-      const isSame = newDate.getSeconds() === second;
-      newDate.setSeconds(second || 0);
-      if (isSame || newDate.getTime() < date.getTime())
-        newDate.setMinutes(newDate.getMinutes() + 1);
+      const isSame = newDate.second === second;
+      newDate = newDate.with({ second: second || 0 });
+      if (isSame || Temporal.ZonedDateTime.compare(newDate, date) < 0)
+        newDate = newDate.add({ minutes: 1 });
     } else {
-      newDate.setSeconds(newDate.getSeconds() + (second || 0));
+      newDate = newDate.add({ seconds: second || 0 });
     }
     return newDate;
   }
   useEffect(() => {
     if (day || hour || minute || second || specify) {
       function update() {
-        const date = new Date();
+        const date = Temporal.Now.zonedDateTimeISO();
         setDate(date);
         const nextDate = getNextTime(date);
         setNextDate(nextDate);
         setTimeout(() => {
           update();
-        }, nextDate.getTime() - date.getTime());
+        }, nextDate.epochMilliseconds - date.epochMilliseconds);
       }
       setTimeout(() => {
         update();
-      }, nextDate.getTime() - new Date().getTime());
+      }, nextDate.epochMilliseconds - Temporal.Now.zonedDateTimeISO().epochMilliseconds);
     }
   }, []);
-  return { date, nextDate };
+  return { date: date, nextDate: nextDate };
 };

@@ -1,4 +1,6 @@
+import { StrToInstant } from "~/components/functions/time/TemporalFunction";
 import { MeeIndexedDB, MeeIndexedDBTable } from "./MeeIndexedDB";
+import { siteTimeZone } from "~/components/functions/time/DateFunction";
 
 interface Props_SaveConvertMeeIndexedFromData<T, D = T> {
   data: T[];
@@ -31,11 +33,6 @@ export async function convertToMeeIndexedData<T, D = T>({ item: v, convert }: Pr
   //@ts-ignore
   delete v.extendData;
   item.rawdata = { ...v };
-  convert.date?.forEach(key => {
-    if (typeof v[key] === "string") {
-      item[key] = new Date(v[key]);
-    }
-  })
   convert.boolean?.forEach(key => {
     if (typeof v[key] === "number") {
       item[key] = Boolean(v[key]);
@@ -47,6 +44,16 @@ export async function convertToMeeIndexedData<T, D = T>({ item: v, convert }: Pr
     }
   })
   return item as T & { rawdata: D };
+}
+export function convertTimeToMeeIndexedData<T>({ item: v, convert }: { item: any; convert?: DataConvertListType<any> }) {
+  if (!convert) return v as T;
+  const item: any = { ...v };
+  convert.date?.forEach(k => {
+    if (typeof v[k] === "string") {
+      item[k] = (v[k].endsWith("Z") ? Temporal.Instant.from(v[k]) : StrToInstant(v[k])).toZonedDateTimeISO(siteTimeZone);
+    }
+  })
+  return item as T;
 }
 
 interface Props_importfromStorageData<T, D = T> extends Omit<Props_SaveConvertMeeIndexedFromData<T, D>, "data"> { }

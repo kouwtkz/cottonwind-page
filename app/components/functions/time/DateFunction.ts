@@ -1,85 +1,72 @@
-const siteTimeZones = ["JST", "+09:00", "UTC"];
-export const siteTimeZone = siteTimeZones.find((timeZone) => {
-  try {
-    new Date().toLocaleString("ja-JP", { timeZone });
-    return true;
-  } catch { }
-});
+import 'temporal-polyfill/global'
+export const siteTimeZone: Temporal.TimeZoneLike = import.meta.env.VITE_SITE_TIMEZONE || Temporal.Now.timeZoneId();
 
-export const SiteDateOptions: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZoneName: "shortOffset",
-  timeZone: siteTimeZone,
-};
-
-export function getTimeZoneMinute(timeZone?: string) {
-  try {
-    const timeString = new Date().toLocaleString("en-US", { timeZone, timeZoneName: "longOffset" });
-    const m = timeString.match(/GMT([\+\-])(\d{2}):(\d{2})/);
-    if (m) return (m[1] === "+" ? 1 : -1) * (Number(m[2]) * 60 + Number(m[3]));
-    else return 0;
-  } catch {
-    return 0;
+export function getYear(date?: Temporal.DateLikeObject | Temporal.Instant | Date | null) {
+  if (date) {
+    if ("year" in date) return date.year;
+    else if ("toZonedDateTimeISO" in date)
+      return date.toZonedDateTimeISO(Temporal.Now.timeZoneId()).year;
+    else if ("getFullYear" in date) return date.getFullYear();
   }
-}
-export const siteTimeZoneMinute = getTimeZoneMinute(siteTimeZone);
-
-export function timeZoneFromMinute(timeZoneMinute = siteTimeZoneMinute) {
-  const s = (timeZoneMinute >= 0 ? "+" : "-");
-  const a = Math.abs(timeZoneMinute);
-  return s + ("0" + Math.floor(a / 60)).slice(-2) + ":" + ("0" + (a % 60)).slice(-2);
-}
-export const siteTimeZoneGMT = timeZoneFromMinute(siteTimeZoneMinute);
-
-export function dateOffsetTimeZoneMinute(date: Date, timeZoneMinute = siteTimeZoneMinute) {
-  return new Date(date.getTime() + 60000 * timeZoneMinute);
+  return 0;
 }
 
-export function getYear(date?: Date | null, timeZoneMinute?: number) {
-  if (date) return dateOffsetTimeZoneMinute(date, timeZoneMinute).getUTCFullYear();
-  else return 0;
-}
-
-export function ToFormTime(date?: Date | null) {
-  if (date) return dateOffsetTimeZoneMinute(date).toISOString().replace(/\..+$/, "");
+// フォームの編集時に使う
+export function ToFormTime(date?: Temporal.PlainDateTime | Temporal.ZonedDateTime | Temporal.Instant | Date | null) {
+  if (date && typeof date === "object") {
+    if ("toZonedDateTimeISO" in date) {
+      return date.toZonedDateTimeISO(siteTimeZone).toPlainDateTime().toLocaleString();
+    } else if ("toPlainDateTime" in date)
+      return date.toPlainDateTime().toLocaleString();
+    else if ("with" in date)
+      return date.toLocaleString();
+    else return date.toISOString().replace(/\..+$/, "");
+  }
   else return "";
 }
 
-export function IsoFormTime(value?: string) {
-  return (value ? new Date(value + siteTimeZoneGMT) : new Date()).toISOString();
+// フォームの送信時に使う
+export function FormStrTimeToIsoString(value?: string) {
+  return (value ? Temporal.PlainDateTime.from(value) : Temporal.Now.plainDateTimeISO())
+    .toZonedDateTime(siteTimeZone).toInstant().toString({ smallestUnit: "millisecond" });
 }
 
-export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
-  var d = date;
-  var rp = format_str;
-  var year = d.getFullYear().toString();
+export function FormatDate(date: Temporal.Instant | Temporal.ZonedDateTime | Temporal.PlainDateTime | Date, format_str = "Y-m-d H:i:s", UTC = false) {
+  let d: Temporal.ZonedDateTime;
+  if ("toZonedDateTimeISO" in date) {
+    d = date.toZonedDateTimeISO(UTC ? "UTC" : siteTimeZone);
+  } else if ("toZonedDateTime" in date) {
+    d = date.toZonedDateTime(UTC ? "UTC" : siteTimeZone);
+  } else if ("getTime" in date) {
+    d = DateToZonedDateTime(date, UTC);
+  } else {
+    d = date;
+  }
+  let rp = format_str;
+  const year = d.year.toString();
   rp = rp.replace(/Y/, year);
   rp = rp.replace(/y/, year.slice(-2));
-  var month = (d.getMonth() + 1).toString();
+  const month = d.month.toString();
   rp = rp.replace(/n/, month);
   rp = rp.replace(/m/, ("0" + month).slice(-2));
-  var day = (d.getDate()).toString();
+  const day = d.day.toString();
   rp = rp.replace(/j/, day);
   rp = rp.replace(/d/, ("0" + day).slice(-2));
-  var week = d.getDay();
+  const week = d.dayOfWeek;
   rp = rp.replace(/w/, week.toString());
   rp = rp.replace(/WW/, ["日", "月", "火", "水", "木", "金", "土"][week]);
-  var hour = d.getHours();
-  var hour2 = hour % 12;
-  var hour2i = (hour / 12 < 1) ? 0 : 1;
+  const hour = d.hour;
+  const hour2 = hour % 12;
+  const hour2i = (hour / 12 < 1) ? 0 : 1;
   rp = rp.replace(/G/, hour.toString());
   rp = rp.replace(/g/, hour2.toString());
   rp = rp.replace(/H/, ("0" + hour).slice(-2));
   rp = rp.replace(/h/, ("0" + hour2).slice(-2));
   rp = rp.replace(/AA/, ["午前", "午後"][hour2i]);
-  var minute = d.getMinutes().toString();
+  const minute = d.minute.toString();
   rp = rp.replace(/I/, minute);
   rp = rp.replace(/i/, ("0" + minute).slice(-2));
-  var second = d.getSeconds().toString();
+  const second = d.second.toString();
   rp = rp.replace(/S/, second);
   rp = rp.replace(/s/, ("0" + second).slice(-2));
 
@@ -89,44 +76,14 @@ export function FormatDate(date: Date, format_str = "Y-m-d H:i:s") {
   return rp;
 }
 
-export function FormatDateUTC(date: Date, format_str = "Y-m-d H:i:s") {
-  var d = date;
-  var rp = format_str;
-  var year = d.getUTCFullYear().toString();
-  rp = rp.replace(/Y/, year);
-  rp = rp.replace(/y/, year.slice(-2));
-  var month = (d.getUTCMonth() + 1).toString();
-  rp = rp.replace(/n/, month);
-  rp = rp.replace(/m/, ("0" + month).slice(-2));
-  var day = (d.getUTCDate()).toString();
-  rp = rp.replace(/j/, day);
-  rp = rp.replace(/d/, ("0" + day).slice(-2));
-  var week = d.getUTCDay();
-  rp = rp.replace(/w/, week.toString());
-  rp = rp.replace(/WW/, ["日", "月", "火", "水", "木", "金", "土"][week]);
-  var hour = d.getUTCHours();
-  var hour2 = hour % 12;
-  var hour2i = (hour / 12 < 1) ? 0 : 1;
-  rp = rp.replace(/G/, hour.toString());
-  rp = rp.replace(/g/, hour2.toString());
-  rp = rp.replace(/H/, ("0" + hour).slice(-2));
-  rp = rp.replace(/h/, ("0" + hour2).slice(-2));
-  rp = rp.replace(/AA/, ["午前", "午後"][hour2i]);
-  var minute = d.getUTCMinutes().toString();
-  rp = rp.replace(/I/, minute);
-  rp = rp.replace(/i/, ("0" + minute).slice(-2));
-  var second = d.getUTCSeconds().toString();
-  rp = rp.replace(/S/, second);
-  rp = rp.replace(/s/, ("0" + second).slice(-2));
-
-  rp = rp.replace(/A/, ["AM", "PM"][hour2i]);
-  rp = rp.replace(/a/, ["am", "pm"][hour2i]);
-  rp = rp.replace(/W/, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][week]);
-  return rp;
+export function ISOStringToZonedDateTime(value: string) {
+  return Temporal.Instant.from(value).toZonedDateTimeISO(siteTimeZone);
 }
 
-export function getLocalTimeOffset() {
-  return timeZoneFromMinute(-(new Date().getTimezoneOffset()));
+export function DateToZonedDateTime(date: Date, UTC = false) {
+  return Temporal.Instant.fromEpochMilliseconds(
+    date.getTime(),
+  ).toZonedDateTimeISO(UTC ? "UTC" : siteTimeZone)
 }
 
 export function DateNotEqual(date1: Date, date2: Date) {

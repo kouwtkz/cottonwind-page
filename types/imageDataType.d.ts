@@ -27,7 +27,7 @@ interface ImageDataType {
   mtime?: string;
   lastmod: string;
 }
-interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft" | "time" | "mtime" | "lastmod">, WithRawExtendDataType<ImageDataType> {
+interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters" | "type" | "copyright" | "pickup" | "draft">, WithRawExtendDataType<ImageDataType> {
   albumObject?: ImageAlbumType;
   tags?: string[];
   characters?: string[];
@@ -41,20 +41,20 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   pickup?: boolean | null;
   draft?: boolean;
   wh?: string;
-  time?: Date;
-  mtime?: Date;
-  lastmod?: Date;
   update?: boolean;
   new?: boolean;
   schedule?: boolean;
-  hideInfo?: boolean;
+  hideInfo?: boolean;  
 }
-interface ImageType extends Omit<ImageIndexedDataType, "creationTime">, WithRawExtendDataType<ImageDataType>, ExtendDataProps {
+interface ImageType extends Omit<ImageIndexedDataType, "creationTime" | "time" | "mtime" | "lastmod">, WithRawExtendDataType<ImageDataType>, ExtendDataProps {
   year?: number;
   like?: LikeType;
   characterObjects?: CharacterType[];
   creationTime?: TimeClass | null;
   checked?: boolean;
+  time?: Temporal.ZonedDateTime;
+  mtime?: Temporal.ZonedDateTime;
+  lastmod?: Temporal.ZonedDateTime;
   data?: ImageDataType;
 }
 
@@ -99,7 +99,7 @@ interface MediaImageAlbumType {
   listup?: boolean;
   link?: string;
   direction?: "ltr" | "rtl";
-  time?: Date | null;
+  time?: Temporal.ZonedDateTime | null;
   description?: string;
   visible?: AlbumVisibleType;
   type?: string;

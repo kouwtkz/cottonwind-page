@@ -47,36 +47,48 @@ export let IdbStateClassMap: Map<string, anyIdbStateClass> | null = null;
 
 export let imageDataIndexed: ImageIndexedDataStateClass;
 export let charactersDataIndexed: IndexedDataLastmodMH<
-  CharacterType,
+  CharacterIndexedDataType,
   CharacterDataType
 >;
-export let postsDataIndexed: IndexedDataLastmodMH<PostType, PostDataType>;
+export let postsDataIndexed: IndexedDataLastmodMH<
+  PostIndexedDataType,
+  PostDataType
+>;
 export let soundsDataIndexed: IndexedDataLastmodMH<
-  SoundItemType,
+  SoundItemIndexedDataType,
   SoundDataType
 >;
 export let soundAlbumsDataIndexed: IndexedDataLastmodMH<
-  SoundAlbumType,
+  SoundAlbumIndexedDataType,
   SoundAlbumDataType
 >;
 export let filesDataIndexed: IndexedDataLastmodMH<
-  FilesRecordType,
+  FilesRecordIndexedDataType,
   FilesRecordDataType
 >;
-export let linksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
-export let favLinksDataIndexed: IndexedDataLastmodMH<SiteLink, SiteLinkData>;
-export let likeDataIndexed: IndexedDataLastmodMH<LikeType, LikeDataType>;
+export let linksDataIndexed: IndexedDataLastmodMH<
+  SiteLinkIndexedDataType,
+  SiteLinkData
+>;
+export let favLinksDataIndexed: IndexedDataLastmodMH<
+  SiteLinkIndexedDataType,
+  SiteLinkData
+>;
+export let likeDataIndexed: IndexedDataLastmodMH<
+  LikeIndexedDataType,
+  LikeDataType
+>;
 export let keyValueDBDataIndexed: IndexedDataLastmodMH<
-  KeyValueDBType,
+  KeyValueDBIndexedDataType,
   KeyValueDBDataType
 >;
 export let KVDataIndexed: typeof keyValueDBDataIndexed;
 export let redirectDataIndexed: IndexedDataLastmodMH<
-  redirectType,
+  redirectIndexedDataType,
   redirectDataType
 >;
 export let tableVersionDataIndexed: IndexedDataLastmodMH<
-  Props_LastmodMH_Tables,
+  Props_LastmodMH_Tables_IndexedDataType,
   Props_LastmodMH_Tables_Data
 >;
 export let IdbStateClassList: anyIdbStateClass[] = [];

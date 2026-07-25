@@ -6,9 +6,12 @@ interface redirectDataType {
   private: number;
 }
 
-interface redirectType extends redirectDataType, WithRawExtendDataType<redirectDataType> {
+interface redirectIndexedDataType extends redirectDataType, WithRawExtendDataType<redirectDataType> {
   private?: boolean;
-  lastmod?: Date;
+}
+
+interface redirectType extends Omit<redirectIndexedDataType, "lastmod"> {
+  lastmod?: Temporal.ZonedDateTime;
 }
 
 interface redirectSendType extends Partial<redirectDataType> {

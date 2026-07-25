@@ -241,7 +241,9 @@ function _LoadMochott() {
               env.MOCHOTT_MINISITE_DOMAIN &&
               v.value.globalSlug in env.MOCHOTT_MINISITE_DOMAIN
             ) {
-              minisite.domain = env.MOCHOTT_MINISITE_DOMAIN[v.value.globalSlug];
+              minisite.domain = (env.MOCHOTT_MINISITE_DOMAIN as any)[
+                v.value.globalSlug
+              ];
             }
             return minisite;
           });
@@ -596,7 +598,7 @@ function PostItem({
 }) {
   const Url = new URL(postBaseUrl);
   Url.pathname += post.uri.slice(post.uri.lastIndexOf("/") + 1);
-  const time = new Date(post.record.createdAt);
+  const time = Temporal.Instant.from(post.record.createdAt);
   let tdClass: string | undefined;
   if (isTree) tdClass = "tree";
   return (

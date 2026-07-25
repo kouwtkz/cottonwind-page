@@ -21,16 +21,19 @@ interface CharacterDataType {
   lastmod: string;
 }
 
-interface CharacterType extends Omit<CharacterDataType, "tags" | "playlist" | "birthday" | "time" | "lastmod" | "icon" | "image" | "headerImage">, WithRawExtendDataType<CharacterDataType> {
+interface CharacterIndexedDataType extends Omit<CharacterDataType, "tags" | "playlist">, WithRawExtendDataType<CharacterDataType> {
   tags?: string[],
-  tagsMap?: Map<string, void>,
   playlist?: string[],
-  soundPlaylist?: SoundPlaylistType,
   draft?: boolean,
-  time?: Date,
-  birthday?: Date,
-  lastmod?: Date,
   visible?: boolean;
+}
+
+interface CharacterType extends Omit<CharacterIndexedDataType, "birthday" | "time" | "lastmod" | "icon" | "image" | "headerImage">, WithRawExtendDataType<CharacterDataType> {
+  time?: Temporal.ZonedDateTime,
+  birthday?: Temporal.ZonedDateTime,
+  lastmod?: Temporal.ZonedDateTime,
+  tagsMap?: Map<string, void>,
+  soundPlaylist?: SoundPlaylistType,
   like?: LikeType;
   icon?: ImageType | null,
   image?: ImageType | null,

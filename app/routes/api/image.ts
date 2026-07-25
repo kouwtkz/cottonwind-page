@@ -11,6 +11,7 @@ import type { Route } from "./+types/image";
 import { LoginCheck } from "~/components/utils/Admin";
 import { getCfDB } from "~/data/cf/getEnv";
 import { sha256 } from "~/components/functions/crypto";
+import { StrToInstant } from "~/components/functions/time/TemporalFunction";
 
 const TableObject = new DBTableClass(ImageDataOptions);
 export const ImageTableObject = TableObject;
@@ -31,10 +32,10 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "PATCH": {
             const json = await request.json<KeyValueAnyType>();
             const items: imageUpdateJsonDataType[] = (Array.isArray(json) ? json : [json]);
-            const now = new Date();
+            let now = Temporal.Now.instant();
             return await Promise.all(items.map(async ({ id, rename, ...values }) => {
-              const nowString = now.toISOString();
-              now.setMilliseconds(now.getMilliseconds() + 1);
+              const nowString = now.toString({ smallestUnit: "millisecond" });
+              now = now.add({ milliseconds: 1 });
               const entry: MeeSqlEntryType<ImageDataType> = values;
               const value = (await TableObject.Select({ db, where: { id } }))[0];
               entry.lastmod = nowString;
@@ -57,7 +58,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 if (values.thumbnail) env.BUCKET.delete(values.thumbnail);
               }
               const nullEntry = TableObject.getFillNullEntry;
-              await TableObject.Update({ db, entry: { ...nullEntry, lastmod: new Date().toISOString() }, where: { id: data.id } });
+              await TableObject.Update({ db, entry: { ...nullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) }, where: { id: data.id } });
               return values.src + "を削除しました";
             }
             return "削除するデータがありません";
@@ -107,7 +108,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               return TableObject.Select({ db, where });
             }
             const timeNum = Number(mtime);
-            const new_mtime = mtime ? new Date(isNaN(timeNum) ? mtime : timeNum) : new Date();
+            const new_mtime = mtime ? isNaN(timeNum) ? StrToInstant(mtime) : Temporal.Instant.fromEpochMilliseconds(timeNum) : Temporal.Now.instant();
             if (!metaSize && file) {
               imageBuffer = await file.arrayBuffer();
               const arr = new Uint8Array(imageBuffer);
@@ -129,14 +130,14 @@ async function next({ params, request, context, env }: WithEnvProps) {
               if (bucket) await bucket.delete(value.thumbnail);
               pathes.thumbnail = null;
             }
-            const timeString = new_mtime.toISOString();
+            const timeString = new_mtime.toString({ smallestUnit: "millisecond" });
             if (value) {
               if (bucket && images.src?.path && value.src && (images.src.path !== value.src)) {
                 await bucket.delete(value.src);
               }
               const updateTags = JoinUnique(value.tags, tags);
               const updateCharacters = JoinUnique(value.characters, characters);
-              const nowString = new Date().toISOString();
+              const nowString = Temporal.Now.instant().toString({ smallestUnit: "millisecond" });
               const entry: MeeSqlEntryType<ImageDataType> = {
                 album: album && (albumOverwrite || !value.album) ? album : (value.album ? undefined : "uploads"),
                 ...pathes,
@@ -199,11 +200,11 @@ async function next({ params, request, context, env }: WithEnvProps) {
               icon?: string | null;
             })[]
           };
-          const now = new Date();
+          let now = Temporal.Now.instant();
           await Promise.all(
             object.data.map(async item => {
-              const lastmod = now.toISOString();
-              now.setMilliseconds(now.getMilliseconds() + 1);
+              const lastmod = now.toString({ smallestUnit: "millisecond" });
+              now = now.add({ milliseconds: 1 });
               if (env.BUCKET && item.webp && item.icon) await env.BUCKET.delete(item.icon);
               const oldSrc = item.src;
               const webSrc = item.webp || item.icon || item.src;
@@ -263,7 +264,7 @@ export async function ServerImagesGetData({ searchParams, db, isLogin }: GetData
   const wheres: MeeSqlFindWhereType<ImageDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
-  if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
+  if (!isLogin) wheres.push({ lastmod: { lte: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   const src = searchParams.get("src");

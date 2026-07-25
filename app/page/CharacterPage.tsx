@@ -166,9 +166,7 @@ function CharacterPageState() {
     if (timeSort) {
       sortType = timeSort;
       const map = items.reduce<Map<string, CharacterType[]>>((a, c) => {
-        const year =
-          (c.time?.getFullYear() || c.birthday?.getFullYear())?.toString() ||
-          "";
+        const year = (c.time?.year || c.birthday?.year)?.toString() || "";
         if (a.has(year)) a.get(year)!.push(c);
         else a.set(year, [c]);
         return a;
@@ -757,7 +755,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                     else return { value: tag };
                   })
                   .map((tag, i) => (
-                    <li key={`character_tag_${tag}`}>
+                    <li key={`character_tag_${tag.value}`}>
                       <Link to={`/character?tags=${tag.value}`}>
                         #{tag.label || tag.value}
                       </Link>
@@ -768,7 +766,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
             {chara.time ? (
               <p key={"debut-" + chara.key}>
                 <span>デビュー年：</span>
-                <span>{chara.time.getFullYear()}年</span>
+                <span>{chara.time.year}年</span>
               </p>
             ) : null}
             <MultiParserWithMedia

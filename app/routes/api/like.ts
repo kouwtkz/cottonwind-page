@@ -24,7 +24,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
       if (db) {
         switch (request.method) {
           case "POST": {
-            const now = new Date();
+            let now = Temporal.Now.instant();
             const { path: pathData, mode = "add" } = await request.json() as LikeFormType;
             const path = toLikePath(pathData);
             const target = (await TableObject.Select({ db, where: { path }, take: 1 }))[0];
@@ -40,11 +40,11 @@ async function next({ params, request, context, env }: WithEnvProps) {
               }
               const registed = JSON.stringify(registedData);
               if (target) {
-                const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toISOString() });
+                const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toString({ smallestUnit: "millisecond" }) });
                 await TableObject.Update({ db, entry, where: { path } });
                 return Response.json({ ...target, ...entry, }, { status: 200 });
               } else {
-                const entry = TableObject.getInsertEntry({ path, registed, count, lastmod: now.toISOString() });
+                const entry = TableObject.getInsertEntry({ path, registed, count, lastmod: now.toString({ smallestUnit: "millisecond" }) });
                 await TableObject.Insert({ db, entry });
                 return Response.json(entry, { status: 201 });
               }
@@ -55,7 +55,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   registedData.splice(found, 1);
                   count--;
                   const registed = JSON.stringify(registedData);
-                  const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toISOString() });
+                  const entry = TableObject.getInsertEntry({ registed, count, lastmod: now.toString({ smallestUnit: "millisecond" }) });
                   await TableObject.Update({ db, entry, where: { path } });
                   return Response.json({ ...target, ...entry, }, { status: 200 });
                 }
@@ -70,7 +70,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
+                  entry: {
+                    ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" })
+                  },
                   where: { path }
                 });
                 return new Response(path);
@@ -119,7 +121,7 @@ export async function ServerLikeGetData({ searchParams, db, isLogin, request }: 
   const wheres: MeeSqlFindWhereType<LikeDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
-  if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
+  if (!isLogin) wheres.push({ lastmod: { lte: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) } });
   const path = searchParams.get("path");
   if (path) wheres.push({ path });
   const address = getIpAddress(request);

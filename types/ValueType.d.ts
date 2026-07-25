@@ -31,3 +31,6 @@ interface valueCountType<T = string> {
 type KeyofValueType<K = any, V = string | string[] | boolean | null> = {
   [k in keyof K]?: V;
 }
+
+type ValueOf<T> = T[keyof T];
+type ArrayValueOf<T> = T[number];

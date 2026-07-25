@@ -5,8 +5,10 @@ interface KeyValueDBDataType {
   lastmod: string;
 }
 
-interface KeyValueDBType extends KeyValueDBDataType, WithRawExtendDataType<KeyValueDBDataType> {
+interface KeyValueDBIndexedDataType extends KeyValueDBDataType, WithRawExtendDataType<KeyValueDBDataType> {
   private?: boolean;
+}
+interface KeyValueDBType extends KeyValueDBIndexedDataType {
 }
 
 interface KeyValueSendType extends Partial<KeyValueDBType> {

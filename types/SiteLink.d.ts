@@ -15,9 +15,12 @@ interface SiteLinkData {
   lastmod?: string;
 }
 
-interface SiteLink extends SiteLinkData, WithRawExtendDataType<SiteLinkData> {
+interface SiteLinkIndexedDataType extends Omit<SiteLinkData, "tags">, WithRawExtendDataType<SiteLinkData> {
   draft?: boolean;
-  Image?: ImageType;
-  lastmod?: Date;
   tags?: string[] | null;
+}
+
+interface SiteLink extends Omit<SiteLinkIndexedDataType, "lastmod"> {
+  lastmod?: Temporal.ZonedDateTime;
+  Image?: ImageType;
 }

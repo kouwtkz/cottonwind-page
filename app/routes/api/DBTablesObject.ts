@@ -13,7 +13,7 @@ interface UpdateTablesDataObjectProps {
 export async function UpdateTablesDataObject({
   db,
   options,
-  lastmod = new Date().toISOString(),
+  lastmod = Temporal.Now.instant().toString({ smallestUnit: "millisecond" }),
   ...args
 }: UpdateTablesDataObjectProps) {
   const value = (

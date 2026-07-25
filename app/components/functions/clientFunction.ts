@@ -1,5 +1,7 @@
+import 'temporal-polyfill/global'
+
 export function getUUID() {
   return window.crypto.randomUUID
     ? window.crypto.randomUUID()
-    : new Date().getTime().toString(16);
+    : Temporal.Now.instant().epochMilliseconds.toString(16);
 }

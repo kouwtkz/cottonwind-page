@@ -20,7 +20,7 @@ export class IndexedDataLastmodMH<
   idField: string;
   latestField?: { [k in keyof T]: OrderByType };
   lastmodField: string;
-  beforeLastmod?: Date;
+  beforeLastmod?: Temporal.Instant;
   scheduleEnable: boolean;
   isLoad: LoadStateType;
   subscribeToLoad: EventCallback;
@@ -93,9 +93,12 @@ export class IndexedDataLastmodMH<
     return await this.table
       .find({ index: this.lastmodField as keyof T, direction: "prev", take: 1 })
       .then((items) => {
-        this.beforeLastmod = items[0]?.[this.lastmodField as keyof T] as
-          | Date
+        const beforeLastmodString = items[0]?.[this.lastmodField as keyof T] as
+          | string
           | undefined;
+        if (beforeLastmodString) {
+          this.beforeLastmod = Temporal.Instant.from(beforeLastmodString);
+        }
         return this.beforeLastmod;
       });
   }
@@ -109,11 +112,12 @@ export class IndexedDataLastmodMH<
     loadValue,
     prefix,
   }: Props_LastmodMH_SetSearchParamsOption<T>) {
-    let lastmod: Date | undefined = (await this.getLastmod()) as Date;
+    const lastmodString = (await this.getLastmod()) as string | undefined;
+    const lastmod = lastmodString ? Temporal.Instant.from(lastmodString) : null;
     if (!lastmod) loadValue === "no-cache-reload";
     if (loadValue === "no-cache-reload") this.table.clear();
     if (lastmod)
-      searchParams.set(setPrefix("lastmod", prefix), lastmod?.toISOString());
+      searchParams.set(setPrefix("lastmod", prefix), lastmod.toString({ smallestUnit: "millisecond" }));
     return searchParams;
   }
   async fetchData({
@@ -194,9 +198,9 @@ export class ImageMeeIndexedDBTable extends MeeIndexedDBTable<ImageIndexedDataTy
       (images) => images.filter(image => image.album).map((image) => image.album!)
     );
   }
-  async updateData({ lastmod }: { lastmod?: Date }) {
+  async updateData({ lastmod }: { lastmod?: Temporal.Instant }) {
     let lastmodQuery: IDBKeyRange | IDBValidKey;
-    lastmodQuery = IDBKeyRange.lowerBound(lastmod ?? new Date(0), true);
+    lastmodQuery = IDBKeyRange.lowerBound((lastmod || Temporal.Instant.fromEpochMilliseconds(0)).toString({ smallestUnit: "millisecond" }), true);
     return await this.usingUpdate<ImageType>({
       index: "lastmod", query: lastmodQuery, callback: (image) => {
         if (image) {

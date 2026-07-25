@@ -5,8 +5,11 @@ interface LikeDataType {
   lastmod: string;
 }
 
-interface LikeType extends Partial<LikeDataType>, WithRawExtendDataType<LikeDataType> {
+interface LikeIndexedDataType extends Partial<LikeDataType>, WithRawExtendDataType<LikeDataType> {
   checked?: boolean;
+}
+
+interface LikeType extends LikeIndexedDataType {
 }
 
 interface LikeFormType {

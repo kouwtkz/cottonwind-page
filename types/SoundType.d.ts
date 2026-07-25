@@ -18,13 +18,16 @@ interface SoundDataType {
   lastmod?: string;
 }
 
-interface SoundItemType extends SoundDataType, WithRawExtendDataType<SoundDataType> {
+interface SoundItemIndexedDataType extends Omit<SoundDataType, "genre" | "grouping">, WithRawExtendDataType<SoundDataType> {
   genre?: string[];
   grouping?: string[];
   draft?: boolean;
   duration?: number;
-  time?: Date;
-  lastmod?: Date;
+}
+
+interface SoundItemType extends Omit<SoundItemIndexedDataType, "time" | "lastmod"> {
+  time?: Temporal.ZonedDateTime;
+  lastmod?: Temporal.ZonedDateTime;
 }
 
 interface SoundPlaylistType {
@@ -47,12 +50,15 @@ interface SoundAlbumDataType {
   lastmod?: string;
 }
 
-interface SoundAlbumType extends SoundAlbumDataType, WithRawExtendDataType<SoundAlbumDataType> {
-  playlist?: SoundPlaylistType;
+interface SoundAlbumIndexedDataType extends SoundAlbumDataType, WithRawExtendDataType<SoundAlbumDataType> {
   setup?: boolean;
   draft?: boolean;
-  time?: Date;
-  lastmod?: Date;
+}
+
+interface SoundAlbumType extends Omit<SoundAlbumIndexedDataType, "time" | "lastmod"> {
+  playlist?: SoundPlaylistType;
+  time?: Temporal.ZonedDateTime;
+  lastmod?: Temporal.ZonedDateTime;
 }
 
 type SoundLoopMode = "off" | "loop" | "loopOne" | "playUntilEnd";
@@ -181,7 +187,7 @@ interface ICommonTagsResult {
    */
   album?: string;
   /**
-   * Date
+   * Temporal.ZonedDateTime
    */
   date?: string;
   /**
@@ -566,11 +572,11 @@ interface IFormat {
   /**
    * Time file was created
    */
-  readonly creationTime?: Date;
+  readonly creationTime?: Temporal.ZonedDateTime;
   /**
    * Time file was modified
    */
-  readonly modificationTime?: Date;
+  readonly modificationTime?: Temporal.ZonedDateTime;
   readonly trackGain?: number;
   readonly trackPeakLevel?: number;
   readonly albumGain?: number;

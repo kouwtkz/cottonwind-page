@@ -284,8 +284,8 @@ export async function ImportBlogPostJson({
             noindex:
               typeof noindex === "boolean" ? (noindex ? 1 : 0) : undefined,
             draft: typeof draft === "boolean" ? (draft ? 1 : 0) : undefined,
-            time: date ? new Date(date).toISOString() : undefined,
-            lastmod: updatedAt ? new Date(updatedAt).toISOString() : undefined,
+            time: date ? date.toInstant().toString({ smallestUnit: "millisecond" }) : undefined,
+            lastmod: updatedAt ? updatedAt.toInstant().toString({ smallestUnit: "millisecond" }) : undefined,
             ..._v,
           };
           return [v.postId, value];

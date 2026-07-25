@@ -49,7 +49,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageIndexedDataType
 }
 
 const charactersDataName = "characters";
-export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, CharacterDataType> = {
+export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterIndexedDataType, CharacterDataType> = {
   name: charactersDataName,
   src: "/characters",
   api: "/character",
@@ -86,7 +86,7 @@ export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterType, 
 }
 
 const postsDataName = "posts";
-export const postsDataOptions: Props_LastmodMHClass_Options<PostType, PostDataType> = {
+export const postsDataOptions: Props_LastmodMHClass_Options<PostIndexedDataType, PostDataType> = {
   name: postsDataName,
   src: "/posts",
   api: "/blog",
@@ -115,7 +115,7 @@ export const postsDataOptions: Props_LastmodMHClass_Options<PostType, PostDataTy
 }
 
 const soundsDataName = "sounds";
-export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, SoundDataType> = {
+export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemIndexedDataType, SoundDataType> = {
   name: soundsDataName,
   src: "/sounds",
   api: "/sound",
@@ -149,7 +149,7 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemType, Soun
 }
 
 const soundAlbumsDataName = "soundAlbums";
-export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType, SoundAlbumDataType> = {
+export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumIndexedDataType, SoundAlbumDataType> = {
   name: soundAlbumsDataName,
   src: "/soundAlbums",
   api: "/sound/album",
@@ -177,7 +177,7 @@ export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumType
 
 const filesDataDataName = "files";
 export const filesDefaultDir = import.meta.env.VITE_FILES_DEFAULT_DIR;
-export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordType, FilesRecordDataType> = {
+export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordIndexedDataType, FilesRecordDataType> = {
   name: filesDataDataName,
   src: "/files",
   api: "/file",
@@ -200,7 +200,7 @@ export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordType, Fil
 const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromDataObjectOptionFields<keyof SiteLinkData>;
 
 const linksDataName = "links";
-export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
+export const linksDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDataType, SiteLinkData> = {
   name: linksDataName,
   src: "/links",
   api: "/links",
@@ -230,7 +230,7 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkDa
 }
 
 const linksFavDataName = "linksFav";
-export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLinkData> = {
+export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDataType, SiteLinkData> = {
   ...linksDataOptions,
   name: linksFavDataName,
   src: "/links/fav",
@@ -239,7 +239,7 @@ export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLink, SiteLin
 }
 
 const likeDataName = "likeData";
-export const likeDataOptions: Props_LastmodMHClass_Options<LikeType, LikeDataType> = {
+export const likeDataOptions: Props_LastmodMHClass_Options<LikeIndexedDataType, LikeDataType> = {
   name: likeDataName,
   src: "/like",
   api: "/like",
@@ -259,7 +259,7 @@ export const likeDataOptions: Props_LastmodMHClass_Options<LikeType, LikeDataTyp
 }
 
 const KeyValueDBDataName = "KeyValueDB";
-export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBType, KeyValueDBDataType> = {
+export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBIndexedDataType, KeyValueDBDataType> = {
   name: KeyValueDBDataName,
   src: "/kvdb",
   api: "/kvdb",
@@ -279,7 +279,7 @@ export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBType,
 }
 
 const redirectDataName = "redirect";
-export const redirectDataOptions: Props_LastmodMHClass_Options<redirectType, redirectDataType> = {
+export const redirectDataOptions: Props_LastmodMHClass_Options<redirectIndexedDataType, redirectDataType> = {
   name: redirectDataName,
   src: "/redirect",
   api: "/redirect",
@@ -300,7 +300,7 @@ export const redirectDataOptions: Props_LastmodMHClass_Options<redirectType, red
 }
 
 const TableVersionDataName = "tables"
-export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_LastmodMH_Tables, Props_LastmodMH_Tables_Data> = {
+export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_LastmodMH_Tables_IndexedDataType, Props_LastmodMH_Tables_Data> = {
   name: TableVersionDataName,
   src: "/tables",
   version: "1.0.2",

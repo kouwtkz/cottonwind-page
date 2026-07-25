@@ -42,15 +42,15 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 }
 clientLoader.hydrate = true;
 
-export function meta({ matches, data, location }: Route.MetaArgs) {
+export function meta({ matches, loaderData, location }: Route.MetaArgs) {
   const metaData = { ...getDataFromMatches(matches)?.data };
-  const post = data?.post;
+  const post = loaderData?.post;
   metaData.title = "ブログ";
   if (post) {
     metaData.title =
       (post.title ||
         (post.time
-          ? FormatDate(new Date(post.time), "Y-n-j")
+          ? FormatDate(Temporal.Instant.from(post.time), "Y-n-j")
           : String(post.id))) +
       " - " +
       metaData.title;

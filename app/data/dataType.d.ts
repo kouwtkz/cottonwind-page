@@ -23,7 +23,7 @@ interface JsonFromDataObjectOptions<T> {
   data: Array<T>;
   key: string;
   version?: string | number;
-  lastmod?: string | Date;
+  lastmod?: string | Temporal.Instant;
   fields?: JsonFromDataObjectOptionFields<keyof T>;
 }
 

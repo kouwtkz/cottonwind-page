@@ -49,7 +49,11 @@ import { DEFAULT_LANG } from "~/Env";
 import { CreateObjectState, CreateState } from "~/components/state/CreateState";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { eventsFetch } from "./SyncGoogleCalendar";
-import { DateNotEqual, toDayStart } from "~/components/functions/time/DateFunction";
+import {
+  DateToZonedDateTime,
+  siteTimeZone,
+  toDayStart,
+} from "~/components/functions/time/DateFunction";
 import { useNotification } from "~/worker/notification/NotificationState";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { dataParse } from "~/components/functions/dataParse";
@@ -65,11 +69,8 @@ const weekTitleFormat: FormatterInput = ({ start, end }) => {
   let useDate = end;
   // 今月の最終週のみ今月として表記
   if (start.month !== end?.month) {
-    const current = new Date();
-    if (
-      current.getFullYear() === start.year &&
-      current.getMonth() === start.month
-    )
+    let current = Temporal.Now.zonedDateTimeISO(siteTimeZone);
+    if (current.year === start.year && current.month === start.month)
       useDate = start;
     start.day++;
   }
@@ -151,21 +152,24 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
       set(({ timeRanges, syncRange, syncOverwrite }) => {
         if (syncOverwrite) timeRanges = [];
         syncRange = null;
-        const startTime = range.start.getTime();
-        const endTime = range.end.getTime();
         const exist = timeRanges.some((v) => {
-          return v.start.getTime() <= startTime && endTime <= v.end.getTime();
+          return (
+            Temporal.ZonedDateTime.compare(v.start, range.start) <= 0 &&
+            Temporal.ZonedDateTime.compare(v.end, range.end) >= 0
+          );
         });
         if (!exist) syncRange = range;
         timeRanges.push(range);
-        timeRanges.sort((a, b) => a.start.getTime() - b.start.getTime());
+        timeRanges.sort((a, b) =>
+          Temporal.ZonedDateTime.compare(a.start, b.start),
+        );
         timeRanges = timeRanges.reduce<timeRangesType[]>((a, c) => {
           if (a.length === 0) a.push(c);
           else {
             const p = a[a.length - 1];
-            const pEndTime = p.end.getTime();
-            if (pEndTime >= c.start.getTime()) {
-              if (pEndTime < c.end.getTime()) p.end = c.end;
+            if (Temporal.ZonedDateTime.compare(p.end, c.start) >= 0) {
+              if (Temporal.ZonedDateTime.compare(p.end, c.end) < 0)
+                p.end = c.end;
             } else {
               a.push(c);
             }
@@ -191,40 +195,42 @@ export const useCalendarMee = CreateObjectState<CalendarMeeStateType>(
 
 function dateFromSearchParams(
   searchParams: URLSearchParams,
-  date = new Date(),
+  date = Temporal.Now.zonedDateTimeISO(),
 ) {
-  const newDate = new Date(date);
   if (searchParams.has(FC_SP_DAY)) {
     const day = strToNumWithNull(searchParams.get(FC_SP_DAY));
-    if (day) newDate.setDate(day);
+    if (day) date = date.with({ day });
   }
   if (searchParams.has(FC_SP_MONTH)) {
     const month = strToNumWithNull(searchParams.get(FC_SP_MONTH));
-    if (month) newDate.setMonth(month - 1);
+    if (month) date = date.with({ month });
   }
   if (searchParams.has(FC_SP_YEAR)) {
     const year = strToNumWithNull(searchParams.get(FC_SP_YEAR));
-    if (year) newDate.setFullYear(year);
+    if (year) date = date.with({ year });
   }
-  return newDate;
+  return date;
 }
 
 function setDateUrl(
-  date: Date,
+  date: Temporal.ZonedDateTime,
   setSearchParams: SetURLSearchParams,
   replace?: boolean,
 ) {
   const beforeSearch = location.search;
   const searchParams = new URLSearchParams(beforeSearch);
-  const dateDiff = Math.abs(new Date().getTime() - date.getTime());
+  const dateDiff = Math.abs(
+    Temporal.Now.zonedDateTimeISO(siteTimeZone).epochMilliseconds -
+      date.epochMilliseconds,
+  );
   if (dateDiff < 600000) {
     searchParams.delete(FC_SP_YEAR);
     searchParams.delete(FC_SP_MONTH);
     searchParams.delete(FC_SP_DAY);
   } else {
-    searchParams.set(FC_SP_YEAR, date.getFullYear().toString());
-    searchParams.set(FC_SP_MONTH, (date.getMonth() + 1).toString());
-    searchParams.set(FC_SP_DAY, date.getDate().toString());
+    searchParams.set(FC_SP_YEAR, date.year.toString());
+    searchParams.set(FC_SP_MONTH, date.month.toString());
+    searchParams.set(FC_SP_DAY, date.day.toString());
   }
   const afterSearch = (searchParams.size ? "?" : "") + searchParams.toString();
   if (beforeSearch !== afterSearch) {
@@ -320,9 +326,10 @@ export function CalendarMeeState({
             const synced = SyncedMap.get(id);
             if (
               synced &&
-              synced.start <= syncRange.start &&
-              syncRange.end <= synced.end &&
-              synced.end < syncRange.start
+              Temporal.ZonedDateTime.compare(synced.start, syncRange.start) <=
+                0 &&
+              Temporal.ZonedDateTime.compare(syncRange.end, synced.end) <= 0 &&
+              Temporal.ZonedDateTime.compare(synced.end, syncRange.start) < 0
             ) {
               return [];
             } else if (googleApiKey || callback || list)
@@ -384,7 +391,7 @@ export function CalendarMeeState({
     Set(({ date, dateLock }) => {
       if (!dateLock) {
         const newDate = dateFromSearchParams(searchParams);
-        if (DateNotEqual(date, newDate)) {
+        if (Temporal.ZonedDateTime.compare(date, newDate) !== 0) {
           return { date: newDate, dateLock: true };
         }
       }
@@ -397,9 +404,12 @@ export function CalendarMeeState({
   const view = useMemo(() => searchParams.get(FC_SP_VIEW), [searchParams]);
   useEffect(() => {
     if (eventId && view === FC_VIEW_DAY && !eventsMap.has(eventId)) {
-      const dateString = formatDate(date, { dateStyle: "medium" });
-      const start = new Date(dateString);
-      const end = new Date(dateString + " 23:59:59");
+      const start = date.toPlainDate().toZonedDateTime(date.timeZoneId);
+      const end = start
+        .toPlainDate()
+        .toZonedDateTime(date.timeZoneId)
+        .add({ days: 1 })
+        .add({ microseconds: -1 });
       Set({ syncRange: { start, end } });
     }
   }, [view, eventId, eventsMap, date]);
@@ -486,7 +496,7 @@ export function CalendarMee({
   linkMoveReplace,
   ...args
 }: CalendarMeeProps) {
-  let currentEventDay = useRef(new Date());
+  let currentEventDay = useRef(Temporal.Now.zonedDateTimeISO());
   let isTodayRef = useRef(false);
   className = useMemo(() => {
     const classNames: string[] = ["fc"];
@@ -503,6 +513,15 @@ export function CalendarMee({
     disableSyncWhenHTTP,
     eventsMap,
   } = useCalendarMee();
+  const calendarEvents = useMemo(
+    () =>
+      events.map((v) => ({
+        ...v,
+        start: new Date(v.start.epochMilliseconds),
+        end: new Date(v.end.epochMilliseconds),
+      })),
+    [events],
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(
     () => searchParams.get(FC_SP_VIEW) || defaultView,
@@ -544,19 +563,21 @@ export function CalendarMee({
     }
   }, [view]);
   const viewStartDate = useMemo(() => {
-    const newDate = new Date(date.toDateString());
-    if (view === "week") newDate.setDate(newDate.getDate() - newDate.getDay());
-    else if (view === "month") newDate.setDate(1);
+    let newDate = date;
+    if (view === "week") newDate = newDate.add({ days: -newDate.day });
+    else if (view === "month") newDate = newDate.with({ day: 1 });
     return newDate;
   }, [date, view]);
   const viewEndDate = useMemo(() => {
     if (isNaN(viewDuration)) {
-      const LastMonthDay = new Date(viewStartDate);
-      LastMonthDay.setMonth(LastMonthDay.getMonth() + 1);
-      LastMonthDay.setTime(LastMonthDay.getTime() - 1);
+      let LastMonthDay = viewStartDate;
+      LastMonthDay = LastMonthDay.add({ months: 1 });
+      LastMonthDay = LastMonthDay.add({ milliseconds: -1 });
       return LastMonthDay;
     } else {
-      return new Date(viewStartDate.getTime() + 86400000 * viewDuration - 1);
+      return Temporal.Instant.fromEpochMilliseconds(
+        viewStartDate.epochMilliseconds + 86400000 * viewDuration - 1,
+      ).toZonedDateTimeISO(viewStartDate.timeZoneId);
     }
   }, [viewStartDate, viewDuration]);
   const eventsDayMap = useMemo(() => {
@@ -564,10 +585,15 @@ export function CalendarMee({
     if (view === "day" || view === "month") return eventsDayMap;
     events.forEach((event) => {
       const startDate =
-        viewStartDate > event.start ? viewStartDate : event.start;
-      const endDate = viewEndDate > event.end ? event.end : viewEndDate;
+        Temporal.ZonedDateTime.compare(viewStartDate, event.start) > 0
+          ? viewStartDate
+          : event.start;
+      const endDate =
+        Temporal.ZonedDateTime.compare(viewEndDate, event.end) > 0
+          ? event.end
+          : viewEndDate;
       const duration = Math.ceil(
-        (endDate.getTime() - startDate.getTime()) / 86400000,
+        (endDate.epochMilliseconds - startDate.epochMilliseconds) / 86400000,
       );
       const isOmitDurationRange = duration >= 3;
       const durationLoopMax = duration - 1;
@@ -575,9 +601,10 @@ export function CalendarMee({
         const omitDuration =
           isOmitDurationRange && i > 0 && i < durationLoopMax;
         if (omitDuration) continue;
-        const dateString = new Date(
-          startDate.getTime() + i * 86400000,
-        ).toDateString();
+        const dateString = startDate
+          .add({ days: i })
+          .toPlainDate()
+          .toLocaleString();
         if (!eventsDayMap.has(dateString))
           eventsDayMap.set(dateString, new Map());
         const map = eventsDayMap.get(dateString)!;
@@ -641,12 +668,21 @@ export function CalendarMee({
   );
   const onChangeHandle = useCallback(
     (arg: DatesSetArg) => {
-      Set({ getRange: { start: arg.start, end: arg.end } });
+      Set({
+        getRange: {
+          start: DateToZonedDateTime(arg.start),
+          end: DateToZonedDateTime(arg.end),
+        },
+      });
       if (calendar) {
         if (isChangeView.current) {
           isChangeView.current = false;
         } else {
-          setDateUrl(calendar.getDate(), setSearchParams, linkMoveReplace);
+          setDateUrl(
+            DateToZonedDateTime(calendar.getDate()),
+            setSearchParams,
+            linkMoveReplace,
+          );
           setView(calendar.view.type as Type_VIEW_FC);
         }
       }
@@ -702,7 +738,7 @@ export function CalendarMee({
         lazyFetching
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
         locales={allLocales}
-        events={events}
+        events={calendarEvents}
         dayCellContent={(e) => e.dayNumberText.replace("日", "")}
         dayMaxEvents={true}
         businessHours={true}
@@ -711,11 +747,13 @@ export function CalendarMee({
         datesSet={onChangeHandle}
         dayHeaderClassNames={(e) => {
           isTodayRef.current = e.isToday;
-          currentEventDay.current = e.date;
+          currentEventDay.current = DateToZonedDateTime(e.date);
           if (e.isToday) return "";
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
-              const dateString = currentEventDay.current.toDateString();
+              const dateString = currentEventDay.current
+                .toPlainDate()
+                .toLocaleString();
               if (!eventsDayMap.has(dateString)) {
                 return "hidden";
               }
@@ -727,7 +765,9 @@ export function CalendarMee({
           if (isTodayRef.current) return "";
           switch (e.view.type as Type_VIEW_FC) {
             case "agenda":
-              const dateString = currentEventDay.current.toDateString();
+              const dateString = currentEventDay.current
+                .toPlainDate()
+                .toLocaleString();
               const currentEventsMap = eventsDayMap.get(dateString);
               if (!currentEventsMap || !currentEventsMap.has(e.event.id)) {
                 return "hidden";
@@ -744,11 +784,11 @@ export function CalendarMee({
             case "month":
               break;
             default:
-              if (event.duration > 1) {
+              if (event.duration && event.duration > 1) {
                 const day =
                   Math.ceil(
-                    (currentEventDay.current.getTime() -
-                      event.start.getTime()) /
+                    (currentEventDay.current.epochMilliseconds -
+                      event.start.epochMilliseconds) /
                       86400000,
                   ) + 1;
                 titles.push(`(${day}/${event.duration}日目)`);
@@ -792,7 +832,7 @@ export function CalendarMee({
         moreLinkClick={(args) => {
           args.jsEvent.preventDefault();
         }}
-        initialDate={date}
+        initialDate={new Date(date.epochMilliseconds)}
         initialView={initialView}
         locale={DEFAULT_LANG}
         eventClick={eventOpen}
@@ -874,8 +914,15 @@ export function CalendarMeeEventViewer({
   }, [stateEventId, isOpenEvent]);
   const event = eventId ? eventsMap.get(eventId) : null;
   const location = event?.location;
-  const startDate = event?.start;
-  let endDate = event ? new Date(event.end) : null;
+  const startZonedDateTime = event?.start;
+  const startDate = useMemo(
+    () =>
+      startZonedDateTime
+        ? new Date(startZonedDateTime.toInstant().toString())
+        : null,
+    [startZonedDateTime],
+  );
+  const endZonedDateTime = event ? event.end : null;
   const startDateString = useMemo(
     () =>
       startDate
@@ -887,11 +934,11 @@ export function CalendarMeeEventViewer({
             weekday: "narrow",
           })
         : "",
-    [startDate],
+    [startZonedDateTime],
   );
   const startTimeString = useMemo(
     () =>
-      startDate && !event.allDay
+      startDate && !event!.allDay
         ? formatDate(startDate, {
             locale: DEFAULT_LANG,
             hour: "numeric",
@@ -901,43 +948,44 @@ export function CalendarMeeEventViewer({
     [startDate, event?.allDay],
   );
   const endDateString = useMemo(() => {
+    if (!(startZonedDateTime || endZonedDateTime || event)) return "";
     const endFormat: FormatDateOptions = {
       locale: DEFAULT_LANG,
     };
+    const startDate = startZonedDateTime!;
+    let endDate = endZonedDateTime!;
     function setEndDateFormat() {
-      if (startDate!.getFullYear() !== endDate!.getFullYear()) {
+      if (startDate.year !== endDate!.year) {
         endFormat.year = "numeric";
       }
-      if (endFormat.year || startDate!.getMonth() !== endDate!.getMonth()) {
+      if (endFormat.year || startDate.month !== endDate.month) {
         endFormat.month = "long";
       }
-      if (endFormat.month || startDate!.getDate() !== endDate!.getDate()) {
+      if (endFormat.month || startDate.day !== endDate.day) {
         endFormat.day = "numeric";
         endFormat.weekday = "narrow";
       }
     }
-    if (startDate && endDate) {
-      if (event.allDay) {
-        endDate.setMilliseconds(-1);
-        setEndDateFormat();
-      } else {
-        setEndDateFormat();
-      }
-    } else return "";
-    return endDate && (endFormat.year || endFormat.month || endFormat.day)
-      ? formatDate(endDate, endFormat)
+    if (event!.allDay) {
+      endDate = endDate.add({ milliseconds: -1 });
+      setEndDateFormat();
+    } else {
+      setEndDateFormat();
+    }
+    return endFormat.year || endFormat.month || endFormat.day
+      ? formatDate(new Date(endDate.toInstant().toString()), endFormat)
       : "";
-  }, [startDate, endDate, event?.allDay]);
+  }, [startZonedDateTime, endZonedDateTime, event?.allDay]);
   const endTimeString = useMemo(
     () =>
-      startDate && endDate && !event.allDay
-        ? formatDate(endDate, {
+      startZonedDateTime && endZonedDateTime && !event.allDay
+        ? formatDate(new Date(endZonedDateTime.toInstant().toString()), {
             locale: DEFAULT_LANG,
             hour: "numeric",
             minute: "numeric",
           })
         : "",
-    [startDate, endDate, event?.allDay],
+    [startZonedDateTime, endZonedDateTime, event?.allDay],
   );
   const ModalCloseHandler = useCallback(() => {
     Set({ isOpenEvent: false });
@@ -965,16 +1013,16 @@ export function CalendarMeeEventViewer({
       if (eventId) {
         const searchParams = new URLSearchParams();
         searchParams.set(FC_SP_EVENT_ID, eventId);
-        if (startDate) {
-          searchParams.set(FC_SP_YEAR, startDate.getFullYear().toString());
-          searchParams.set(FC_SP_MONTH, (startDate.getMonth() + 1).toString());
-          searchParams.set(FC_SP_DAY, startDate.getDate().toString());
+        if (startZonedDateTime) {
+          searchParams.set(FC_SP_YEAR, startZonedDateTime.year.toString());
+          searchParams.set(FC_SP_MONTH, startZonedDateTime.month.toString());
+          searchParams.set(FC_SP_DAY, startZonedDateTime.day.toString());
         }
         searchParams.set(FC_SP_VIEW, FC_VIEW_DAY);
         CopyWithToast(`[](??${searchParams})`);
       }
     },
-    [eventId, startDate],
+    [eventId, startZonedDateTime],
   );
   const { state } = useLocation();
   const setSearchParams = useSearchParams()[1];
@@ -1005,7 +1053,7 @@ export function CalendarMeeEventViewer({
       <>
         <span>{startDateString}</span>
         <span className="time">{startTimeString}</span>
-        {endDate ? (
+        {endZonedDateTime ? (
           <>
             <span className="during">-</span>
             <span>{endDateString}</span>
@@ -1027,7 +1075,13 @@ export function CalendarMeeEventViewer({
         </span>
       </>
     );
-  }, [startDateString, startTimeString, endDate, endDateString, endTimeString]);
+  }, [
+    startDateString,
+    startTimeString,
+    endZonedDateTime,
+    endDateString,
+    endTimeString,
+  ]);
   viewerClassName = useMemo(() => {
     const classList = ["middle"];
     if (viewerClassName) classList.push(viewerClassName);
@@ -1175,16 +1229,16 @@ export function CalendarMeeEventViewer({
           <>
             {SubComponent ? <SubComponent event={event} /> : null}
             <div className={timeClassName}>
-              {startDate ? (
+              {startZonedDateTime ? (
                 <h3>
                   <span className="time">{TitleTime}</span>
                 </h3>
               ) : null}
-              {enableCountdown && startDate ? (
+              {enableCountdown && startZonedDateTime ? (
                 <h4>
                   <CountDown
-                    date={startDate}
-                    end={endDate}
+                    date={startZonedDateTime}
+                    end={endZonedDateTime}
                     allDay={event.allDay}
                     title={event.title}
                     notification={countdownNotification}
@@ -1253,19 +1307,27 @@ export interface countDownFormatProps {
   allDay?: boolean;
 }
 interface CountDownProps extends React.HTMLAttributes<HTMLSpanElement> {
-  date: Date;
-  end?: Date | null;
-  current?: Date;
+  date: Temporal.ZonedDateTime;
+  end?: Temporal.ZonedDateTime | null;
+  current?: Temporal.ZonedDateTime;
   allDay?: boolean;
   format?: (options: countDownFormatProps) => string;
   notification?: boolean;
   title?: string;
   endMode?: boolean;
 }
+const allDayOption: Temporal.PartialTemporalLike<Temporal.ZonedDateTimeLikeObject> =
+  {
+    hour: 0,
+    minute: 0,
+    second: 0,
+    millisecond: 0,
+    microsecond: 0,
+  };
 export const CountDown = memo(function CountDown({
   date,
   end,
-  current = new Date(),
+  current = Temporal.Now.zonedDateTimeISO(siteTimeZone),
   format,
   className,
   allDay,
@@ -1280,29 +1342,30 @@ export const CountDown = memo(function CountDown({
     return classNames.join(" ");
   }, [className]);
   const startTime = useMemo(() => {
-    const d = new Date(date);
-    if (allDay) toDayStart(d);
-    let time = d.getTime();
-    return time;
+    let d = date;
+    if (allDay) d = d.with(allDayOption);
+    return d.epochMilliseconds;
   }, [date, allDay]);
   const endTime = useMemo(() => {
-    const d = new Date(end || date);
+    let d = end || date;
     if (allDay) {
-      toDayStart(d);
-      d.setDate(d.getDate() + 1);
+      if (allDay) d = d.with(allDayOption);
+      d = d.add({ days: 1 });
     }
-    return d.getTime();
+    return d.epochMilliseconds;
   }, [end, date, allDay]);
   const duringTime = useMemo(
     () => (endTime || 864e5) - startTime,
     [startTime, endTime],
   );
-  const firstTime = useMemo(() => startTime - current.getTime(), [startTime]);
+  const firstTime = useMemo(
+    () => startTime - current.epochMilliseconds,
+    [startTime],
+  );
   const onTheDayTime = useMemo(
     () =>
-      ((date.getHours() * 60 + date.getMinutes()) * 60 + date.getSeconds()) *
-        1000 +
-      date.getMilliseconds(),
+      ((date.hour * 60 + date.minute) * 60 + date.second) * 1000 +
+      date.millisecond,
     [date],
   );
 

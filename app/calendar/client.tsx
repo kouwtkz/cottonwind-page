@@ -33,7 +33,11 @@ import {
   useSyncExternalStore,
 } from "react";
 import { Modal } from "~/components/layout/Modal";
-import { FormatDate, ToFormTime } from "~/components/functions/time/DateFunction";
+import {
+  FormatDate,
+  siteTimeZone,
+  ToFormTime,
+} from "~/components/functions/time/DateFunction";
 import { type EventClickArg } from "@fullcalendar/core/index.js";
 import { toast, ToastContainer } from "react-toastify";
 import {
@@ -58,6 +62,7 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { SwState } from "~/worker/serviceWorker/clientSwState";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
+import { StrToInstant } from "~/components/functions/time/TemporalFunction";
 // import { DOMContentLoaded } from "~/clientScripts";
 
 const DEFAULT_VIEW: Type_VIEW_FC = FC_VIEW_MONTH;
@@ -70,18 +75,23 @@ type CALENDAR_APP_KVKEYS =
   | typeof DEFAULT_VIEW_KVKEY
   | typeof GOOGLE_API_KEY_KVKEY;
 
-class IndexedCalendarMHEvents extends IndexedDataClass<EventsDataType> {
+class IndexedCalendarMHEvents extends IndexedDataClass<EventsIndexedDataType> {
   saveFromJSON(
     props: Props_IndexedDataClass_NoCallback_Save<EventsDataType>,
     overwrite = false,
   ) {
     if (overwrite) this.table.clear();
     return super.save({
-      ...props,
-      callback({ item }) {
-        item.start = new Date(item.start);
-        item.end = new Date(item.end);
-        return item;
+      ...(props as unknown as Props_IndexedDataClass_NoCallback_Save<EventsIndexedDataType>),
+      callback(props) {
+        const item: EventsDataType = props.item;
+        return {
+          ...props,
+          start: item.start
+            .toInstant()
+            .toString({ smallestUnit: "millisecond" }),
+          end: item.end.toInstant().toString({ smallestUnit: "millisecond" }),
+        } as unknown as EventsIndexedDataType;
       },
     });
   }
@@ -115,9 +125,19 @@ const indexedCalendarID = new IndexedDataClass<CalendarIdListType>({
   primary: "key",
 });
 
+function IndexedDataToEvent(item: EventsIndexedDataType): EventsDataType {
+  return {
+    ...item,
+    start: Temporal.Instant.from(item.start).toZonedDateTimeISO(siteTimeZone),
+    end: Temporal.Instant.from(item.end).toZonedDateTimeISO(siteTimeZone),
+  };
+}
+
 async function ExportData() {
   const exportData: CalendarAppClassType = {};
-  exportData.events = await indexedCalendarEvents.table.getAll();
+  exportData.events = await indexedCalendarEvents.table
+    .getAll()
+    .then((v) => v.map((item) => IndexedDataToEvent(item)));
   const kv = await indexedCalendarKV.getAllMap();
   if (kv.has("defaultView")) exportData.defaultView = kv.get("defaultView");
   if (kv.has("googleApiKey")) exportData.googleApiKey = kv.get("googleApiKey");
@@ -233,13 +253,25 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
       }
       await Promise.all(
         events.map(async (event) => {
+          const indexedDataEvent = {
+            ...event,
+            start: event.start
+              ?.toInstant()
+              .toString({ smallestUnit: "millisecond" }),
+            end: event.end
+              ?.toInstant()
+              .toString({ smallestUnit: "millisecond" }),
+          } as EventsIndexedDataType;
           return indexedCalendarEvents.table.usingUpdate({
             query: event.id!,
             callback(item) {
               if (item) {
-                return { ...item, ...event };
+                return {
+                  ...item,
+                  ...indexedDataEvent,
+                };
               } else {
-                return event as EventsDataType;
+                return indexedDataEvent;
               }
             },
           });
@@ -255,7 +287,19 @@ export const useCalendarAppState = CreateObjectState<CalendarAppState>(
     },
     async removeEvent(id) {
       await indexedCalendarEvents.table.delete({ query: id });
-      set({ events: await indexedCalendarEvents.table.getAll() });
+      set({
+        events: await indexedCalendarEvents.table.getAll().then((v) =>
+          v.map((item) => ({
+            ...item,
+            start: Temporal.Instant.from(item.start).toZonedDateTimeISO(
+              siteTimeZone,
+            ),
+            end: Temporal.Instant.from(item.end).toZonedDateTimeISO(
+              siteTimeZone,
+            ),
+          })),
+        ),
+      });
     },
   }),
 );
@@ -333,15 +377,12 @@ function CalendarAppEventEdit() {
       if (paramEventId) {
         return eventsMap.get(paramEventId) || null;
       } else {
-        const date = new Date(paramEdit);
-        const newDate = date ? new Date(date) : new Date();
-        newDate.setMilliseconds(0);
-        newDate.setSeconds(0);
-        const start = new Date(newDate);
-        start.setMinutes(0);
-        start.setHours(start.getHours() + 1);
-        const end = new Date(start);
-        end.setHours(end.getHours() + 1);
+        const date = paramEdit
+          ? StrToInstant(paramEdit).toZonedDateTimeISO(siteTimeZone)
+          : Temporal.Now.zonedDateTimeISO();
+        let newDate = date.with({ millisecond: 0, microsecond: 0, second: 0 });
+        const start = newDate.with({ minute: 0 }).add({ hours: 1 });
+        const end = start.add({ hours: 1 });
         return {
           id: getUUID(),
           start,
@@ -416,21 +457,28 @@ function CalendarAppEventEdit() {
   const duringDiffDate = useMemo(() => {
     const startValue = getValues("start");
     if (startValue && watchEndDate) {
-      const startDate = new Date(startValue);
-      const endDate = new Date(watchEndDate);
-      return endDate.getTime() - startDate.getTime();
+      const startDate =
+        Temporal.PlainDateTime.from(startValue).toZonedDateTime(siteTimeZone);
+      const endDate =
+        Temporal.PlainDateTime.from(watchEndDate).toZonedDateTime(siteTimeZone);
+      return endDate.epochMilliseconds - startDate.epochMilliseconds;
     } else return 0;
   }, [watchEndDate]);
   useEffect(() => {
     if (watchStartDate) {
-      const startDate = new Date(watchStartDate);
-      let endDate: Date;
+      const startDate =
+        Temporal.PlainDateTime.from(watchStartDate).toZonedDateTime(
+          siteTimeZone,
+        );
+      let endDate: Temporal.ZonedDateTime;
       if (watchEndDate) {
-        endDate = new Date(watchEndDate);
-        endDate.setTime(startDate.getTime() + duringDiffDate);
+        endDate =
+          Temporal.PlainDateTime.from(watchEndDate).toZonedDateTime(
+            siteTimeZone,
+          );
+        endDate = endDate.add({ milliseconds: duringDiffDate });
       } else {
-        endDate = new Date(startDate);
-        endDate.setHours(endDate.getHours() + 1);
+        endDate = startDate.add({ hours: 1 });
       }
       setValue("end", ToFormTime(endDate), { shouldDirty: true });
     }
@@ -439,12 +487,14 @@ function CalendarAppEventEdit() {
     if (watchEndDate) {
       const startValue = getValues("start");
       if (startValue) {
-        const startDate = new Date(startValue);
-        const startTime = startDate.getTime();
-        const endDate = new Date(watchEndDate);
-        const endTime = endDate.getTime();
-        if (startTime > endTime) {
-          endDate.setTime(startTime);
+        const startDate =
+          Temporal.PlainDateTime.from(startValue).toZonedDateTime(siteTimeZone);
+        let endDate =
+          Temporal.PlainDateTime.from(watchEndDate).toZonedDateTime(
+            siteTimeZone,
+          );
+        if (Temporal.ZonedDateTime.compare(startDate, endDate) < 0) {
+          endDate = startDate;
           setValue("end", ToFormTime(endDate), {
             shouldDirty: true,
           });
@@ -460,7 +510,8 @@ function CalendarAppEventEdit() {
         switch (k) {
           case "start":
           case "end":
-            entry[k] = new Date(v);
+            entry[k] =
+              Temporal.PlainDateTime.from(v).toZonedDateTime(siteTimeZone);
             break;
           default:
             (entry as any)[k] = v;
@@ -744,7 +795,7 @@ function CalendarSettingForm() {
               if (confirm("JSONファイルでエクスポートしますか？")) {
                 ExportData().then((data) => {
                   fileDownload(
-                    `calendar_${FormatDate(new Date(), "Ymd_His")}.json`,
+                    `calendar_${FormatDate(Temporal.Now.instant(), "Ymd_His")}.json`,
                     JSON.stringify(data),
                   );
                 });
@@ -854,7 +905,10 @@ export function CalendarHome() {
       {isVisible ? (
         <CalendarMee
           openAddEvents={() =>
-            setOpenSearchParamFunction("edit", date.toISOString())
+            setOpenSearchParamFunction(
+              "edit",
+              date.toInstant().toString({ smallestUnit: "millisecond" }),
+            )
           }
           openSetting={() => setOpenSearchParamFunction("setting", true)}
           height={800}
@@ -907,12 +961,13 @@ export function CalendarRoot() {
     ...ExternalStoreProps(indexedCalendarID),
   );
   useEffect(() => {
-    indexedEvents?.getAll().then((events) => {
+    indexedEvents?.getAll().then((indexedDBEvents) => {
       Set(({ IndexedSetupMap }) => {
         IndexedSetupMap = checkIndexedMap(
           IndexedSetupMap,
           indexedEvents.options.name as INDEXED_NAME_UNION,
         );
+        const events = indexedDBEvents.map((v) => IndexedDataToEvent(v));
         return {
           events,
           eventsMap: new Map(events?.map((v) => [v.id, v])),

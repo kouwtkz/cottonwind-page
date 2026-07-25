@@ -21,13 +21,13 @@ interface CalendarListType extends Partial<CalendarFetchListType> {
   list?: EventsDataType[];
 }
 
-interface EventsDataType {
+interface EventsIndexedDataType {
   title?: string;
   description?: string;
   location?: string;
-  start: Date;
-  end: Date;
-  duration: number;
+  start: string;
+  end: string;
+  duration?: number;
   id: string;
   allDay?: boolean;
   url?: string;
@@ -35,6 +35,11 @@ interface EventsDataType {
   raw?: EventsRawDataType;
   fetchData?: EventsFetchedDataType;
   private?: boolean;
+}
+
+interface EventsDataType extends Omit<EventsIndexedDataType, "start" | "end"> {
+  start: Temporal.ZonedDateTime;
+  end: Temporal.ZonedDateTime;
 }
 
 interface EventsRawDateType {
@@ -101,7 +106,7 @@ interface CalendarMeeOverWriteOption {
   syncOverwrite: boolean;
   eventsOverwrite: boolean;
 }
-type timeRangesType = { start: Date; end: Date };
+type timeRangesType = { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime };
 
 interface CalendarMeeStateType extends CalendarMeeOverWriteOption {
   events: EventsDataType[];
@@ -112,7 +117,7 @@ interface CalendarMeeStateType extends CalendarMeeOverWriteOption {
   calendarList: CalendarListType[];
   stateLock: boolean;
   view: Type_VIEW_FC | null;
-  date: Date;
+  date: Temporal.ZonedDateTime;
   dateLock: boolean;
   timeRanges: timeRangesType[];
   getRange: timeRangesType | null;

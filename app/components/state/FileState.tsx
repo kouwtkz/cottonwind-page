@@ -12,8 +12,9 @@ import { concatOriginUrl } from "~/components/functions/originUrl";
 import { type MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { customFetch } from "../functions/fetch";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
-type IdbTableType = MeeIndexedDBTable<FilesRecordType>;
+type IdbTableType = MeeIndexedDBTable<FilesRecordIndexedDataType>;
 interface FilesState {
   files?: FilesRecordType[];
   filesMap?: Map<string, FilesRecordType>;
@@ -28,22 +29,34 @@ export default function FileState() {
   useEffect(() => {
     if (data?.db && env) {
       const filesMap = new Map<string, FilesRecordType>();
-      data.getAll().then((items) => {
-        items.forEach((v) => {
-          if (!v.src) return;
-          const item: FilesRecordType = {
-            ...v,
-            mtime: v.mtime ? new Date(v.mtime) : undefined,
-            lastmod: v.lastmod ? new Date(v.lastmod) : undefined,
-            dir: v.src.replace(/\/?[^\/]+$/, "").replace(/^\/+/, ""),
-          };
-          const key = item.key;
-          if (!filesMap.has(key)) {
-            filesMap.set(key, item);
-          }
+      data
+        .getAll()
+        .then((items) =>
+          items.map((item) =>
+            convertTimeToMeeIndexedData<FilesRecordType>({
+              item,
+              convert: filesDataIndexed.options.convert,
+            }),
+          ),
+        )
+        .then((items) => {
+          items.forEach((v) => {
+            if (!v.src) return;
+            const item: FilesRecordType = {
+              ...v,
+              dir: v.src.replace(/\/?[^\/]+$/, "").replace(/^\/+/, ""),
+            };
+            const key = item.key;
+            if (!filesMap.has(key)) {
+              filesMap.set(key, item);
+            }
+          });
+          Set({
+            idbTable: data,
+            filesMap,
+            files: Array.from(filesMap.values()),
+          });
         });
-        Set({ idbTable: data, filesMap, files: Array.from(filesMap.values()) });
-      });
     }
   }, [data, env, Set]);
   return <></>;

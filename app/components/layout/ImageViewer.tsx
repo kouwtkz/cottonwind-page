@@ -8,7 +8,6 @@ import {
   type LinkProps,
 } from "react-router";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
-import { SiteDateOptions as opt } from "~/components/functions/time/DateFunction";
 import { ImageMee } from "./ImageMee";
 import ImageEditForm, {
   useImageEditState,
@@ -318,7 +317,7 @@ function InfoArea({ image, disabledHotkeys }: InfoAreaProps) {
             {image.time ? (
               <span className="time">
                 {image.draft ? <span className="mr">（下書き）</span> : null}
-                <span>{image.time.toLocaleString("ja-JP", opt)}</span>
+                <span>{image.time.toLocaleString()}</span>
               </span>
             ) : null}
             <ShareButton />

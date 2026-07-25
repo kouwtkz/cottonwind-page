@@ -1,7 +1,7 @@
 import { filterGalleryMonthList } from "~/Env";
-export const publicParam = { list: <Array<OldMediaImageItemType>>[] };
-const currentTime = new Date();
-const currentMonth = currentTime.getMonth() + 1;
+import 'temporal-polyfill/global'
+import { siteTimeZone } from "../time/DateFunction";
+let currentTime = Temporal.Now.zonedDateTimeISO(siteTimeZone);
 
 interface filterTagsBaseProps {
   every?: boolean;
@@ -29,10 +29,10 @@ export function filterImagesTags({ images, ...args }: filterImagesTagsProps) {
   )
 }
 
-export const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentMonth);
+export const monthlyFilter = filterGalleryMonthList.find((item) => item.month === currentTime.month);
 
-export function getTimeframeTag(time: Date | number = new Date()): TimeframeTagType {
-  const hours = typeof time === "number" ? time : time.getHours();
+export function getTimeframeTag(time: Temporal.ZonedDateTime | Date | number = Temporal.Now.zonedDateTimeISO()): TimeframeTagType {
+  const hours = typeof time === "number" ? time : "hour" in time ? time.hour : time.getHours();
   if (6 <= hours && hours < 9) return "morning";
   if (9 <= hours && hours < 12) return "forenoon";
   if (12 <= hours && hours < 14) return "midday";

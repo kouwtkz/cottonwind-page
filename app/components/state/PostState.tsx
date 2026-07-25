@@ -6,11 +6,13 @@ import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { SubscribeDataClass } from "../hook/SubscribeEvents";
 import { useExtRss } from "./ExtRssState";
 import { useATProtoState } from "./ATProtocolState";
+import { StrToInstant } from "../functions/time/TemporalFunction";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
 interface usePostsType {
   posts?: PostType[];
   postsMap?: Map<string, PostType>;
-  postsData?: MeeIndexedDBTable<PostType>;
+  postsData?: MeeIndexedDBTable<PostIndexedDataType>;
 }
 export const usePosts = CreateObjectState<usePostsType>();
 
@@ -29,17 +31,20 @@ export default function PostState() {
         const topLinkURL = new URL(topLink);
         const host = topLinkURL.host;
         channel.items.forEach((item) => {
-          list.push({
-            host,
-            extension: "ExtRSS",
-            title: item.title,
-            body: item.description,
-            time: new Date(item.pubDate),
-            link: item.link,
-            category: item.category,
-            postId: item.guid,
-            draft: false,
-          });
+          if (item.pubDate)
+            list.push({
+              host,
+              extension: "ExtRSS",
+              title: item.title,
+              body: item.description,
+              time: StrToInstant(item.pubDate).toZonedDateTimeISO(
+                Temporal.Now.timeZoneId(),
+              ),
+              link: item.link,
+              category: item.category,
+              postId: item.guid,
+              draft: false,
+            });
         });
       });
     }
@@ -55,7 +60,9 @@ export default function PostState() {
           extension: "mochott",
           title: item.title,
           body: item,
-          time: new Date(item.createdAt),
+          time: StrToInstant(item.createdAt).toZonedDateTimeISO(
+            Temporal.Now.timeZoneId(),
+          ),
           link: item.url?.href,
           postId,
           category,
@@ -71,6 +78,14 @@ export default function PostState() {
       if (postsData?.db) {
         postsData
           .find({ where: { body: { has: true }, postId: { has: true } } })
+          .then((items) =>
+            items.map((item) =>
+              convertTimeToMeeIndexedData<PostType>({
+                item,
+                convert: postsDataIndexed.options.convert,
+              }),
+            ),
+          )
           .then((posts) => {
             const postsMap = new Map(posts.map((v) => [v.postId!, v]));
             Set({ postsData, posts, postsMap });

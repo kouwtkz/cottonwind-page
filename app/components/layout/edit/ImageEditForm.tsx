@@ -63,7 +63,10 @@ import {
 import { PostTextarea } from "~/components/parse/PostTextarea";
 import { useCharacters } from "~/components/state/CharacterState";
 import { AutoImageItemType } from "~/components/functions/media/imageFunction";
-import { IsoFormTime, ToFormTime } from "~/components/functions/time/DateFunction";
+import {
+  FormStrTimeToIsoString,
+  ToFormTime,
+} from "~/components/functions/time/DateFunction";
 import SetRegister from "~/components/hook/SetRegister";
 import {
   PostEditSelectDecoration,
@@ -1176,7 +1179,9 @@ export default function ImageEditForm({
   const embedList = useMemo(() => {
     const list = (files || []).filter((file) => !file.private);
     list.sort(
-      (a, b) => (b.lastmod?.getTime() || 0) - (a.lastmod?.getTime() || 0),
+      (a, b) =>
+        (b.lastmod?.epochMilliseconds || 0) -
+        (a.lastmod?.epochMilliseconds || 0),
     );
     return list;
   }, [files]);
@@ -1240,7 +1245,12 @@ export default function ImageEditForm({
         type: image?.rawdata?.type || "",
         series: image?.rawdata?.series || "",
         chapter: image?.rawdata?.chapter || null,
-        time: ToFormTime(image?.time),
+        time: image?.time?.toString({
+          fractionalSecondDigits: 0,
+          offset: "never",
+          calendarName: "never",
+          timeZoneName: "never",
+        }),
         copyright: image?.copyright || [],
         link: image?.link || "",
         draft: image?.draft ?? null,
@@ -1251,7 +1261,6 @@ export default function ImageEditForm({
       }) as ValuesType,
     [image],
   );
-
   const {
     register,
     handleSubmit,
@@ -1314,7 +1323,7 @@ export default function ImageEditForm({
         if (dirtyFields[key as keyof typeof values]) {
           switch (key as keyof imageUpdateJsonDataType) {
             case "time":
-              data[key] = IsoFormTime(value);
+              data[key] = FormStrTimeToIsoString(value);
               break;
             case "creationTime":
               data[key] = stateCreationTime!.time;
@@ -2246,7 +2255,7 @@ export async function MakeImagesUploadList({
   notDraft: direct,
   links,
 }: MakeImagesUploadListProps) {
-  const checkTime = new Date().getTime();
+  const checkTime = Temporal.Now.instant().epochMilliseconds;
   const files = Array.isArray(src) ? src : [src];
   const targetFiles = files.filter((v) => {
     const file = typeof v === "object" && "src" in v ? v.src : v;

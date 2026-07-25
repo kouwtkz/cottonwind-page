@@ -472,7 +472,7 @@ function DBDownloadMethod() {
   )
     .then(() => zip.generateAsync({ type: "blob" }))
     .then((content) => {
-      fileDownload(`data_${FormatDate(new Date(), "Ymd_His")}.zip`, content);
+      fileDownload(`data_${FormatDate(Temporal.Now.instant(), "Ymd_His")}.zip`, content);
     });
 }
 function DBDownload() {
@@ -518,7 +518,7 @@ function DBPage() {
                   const nm = v.options.version.match(/\d+.\d+/);
                   return m && nm && m[0] !== nm[0];
                 });
-                const currentDate = new Date();
+                const currentDate = Temporal.Now.instant();
                 if (needAlterTableList.length > 0) {
                   const count = needAlterTableList.length;
                   const strList = needAlterTableList

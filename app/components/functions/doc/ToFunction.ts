@@ -30,10 +30,10 @@ export function deleteUndefined(object: Object) {
 }
 
 export function lastModToUniqueNow(value: KeyValueType<unknown> | KeyValueType<unknown>[], lastmod = "lastmod") {
-  const now = new Date();
+  let now = Temporal.Now.instant();
   (Array.isArray(value) ? value : [value]).forEach((entry) => {
-    entry[lastmod] = now.toISOString();
-    now.setMilliseconds(now.getMilliseconds() + 1);
+    entry[lastmod] = now.toString({ smallestUnit: "millisecond" })
+    now = now.add({ milliseconds: 1 });
   })
 }
 

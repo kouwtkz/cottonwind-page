@@ -10,6 +10,7 @@ import { useEnv } from "./EnvState";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
 import { useFaviconState } from "./FaviconState";
 import { useParams } from "react-router";
+import { convertTimeToMeeIndexedData } from "~/data/IndexedDB/ConvertToMeeIndexedData";
 
 export type mediaKindType = "icon" | "image" | "headerImage";
 export const charaMediaKindMap: Map<mediaKindType, string> = new Map([
@@ -22,7 +23,7 @@ export const charaMediaKindValues = Object.values(
 );
 
 interface characterStateType {
-  charactersData?: MeeIndexedDBTable<CharacterType>;
+  charactersData?: MeeIndexedDBTable<CharacterIndexedDataType>;
   charactersTags?: ContentsTagsOption[];
   charactersLikeData?: Map<string, LikeType>;
   charactersLabelOptions?: ContentsTagsOption[];
@@ -82,102 +83,112 @@ function CharacterDataState() {
       likeCategoryMap &&
       env
     ) {
-      charactersData.getAll().then(async (characters) => {
-        characters.forEach((character) => {
-          character.tagsMap = character.tags?.reduce<Map<string, void>>(
-            (map, c) => {
-              map.set(c);
-              return map;
-            },
-            new Map(),
+      charactersData
+        .getAll()
+        .then((items) =>
+          items.map((item) =>
+            convertTimeToMeeIndexedData<CharacterType>({
+              item,
+              convert: charactersDataIndexed.options.convert,
+            }),
+          ),
+        )
+        .then(async (characters) => {
+          characters.forEach((character) => {
+            character.tagsMap = character.tags?.reduce<Map<string, void>>(
+              (map, c) => {
+                map.set(c);
+                return map;
+              },
+              new Map(),
+            );
+            if (character.tagsMap) {
+              if (character.tagsMap.has("design")) {
+                character.order = (character.order || 0) + 0x100000;
+              }
+              if (character.tagsMap.has("collaboration")) {
+                character.order = (character.order || 0) + 0x1000000;
+              }
+            }
+          });
+          const charactersMap = new Map(
+            characters.map((character) => [character.key, character]),
           );
-          if (character.tagsMap) {
-            if (character.tagsMap.has("design")) {
-              character.order = (character.order || 0) + 0x100000;
+          const charactersNameMap = new Map(
+            characters.map((character) => [character.name, character.key]),
+          );
+          characters.sort((a, b) => (a.order || 0) - (b.order || 0));
+          const charaLikeData = likeCategoryMap.get("character");
+          charactersMap.forEach((chara) => {
+            if (charaLikeData) {
+              const currentLikeData = charaLikeData.get(chara.key);
+              if (currentLikeData) chara.like = currentLikeData;
             }
-            if (character.tagsMap.has("collaboration")) {
-              character.order = (character.order || 0) + 0x1000000;
-            }
-          }
-        });
-        const charactersMap = new Map(
-          characters.map((character) => [character.key, character]),
-        );
-        const charactersNameMap = new Map(
-          characters.map((character) => [character.name, character.key]),
-        );
-        characters.sort((a, b) => (a.order || 0) - (b.order || 0));
-        const charaLikeData = likeCategoryMap.get("character");
-        charactersMap.forEach((chara) => {
-          if (charaLikeData) {
-            const currentLikeData = charaLikeData.get(chara.key);
-            if (currentLikeData) chara.like = currentLikeData;
-          }
-          chara.visible = Boolean(chara.image || chara.icon);
+            chara.visible = Boolean(chara.image || chara.icon);
 
-          if (sounds && defaultPlaylist) {
-            let playlist = chara.playlist;
-            if (playlist) {
-              const playlistTitle = `${chara.name}のプレイリスト`;
-              chara.soundPlaylist = {
-                title: playlistTitle,
-                list: playlist
-                  .reduce((a, c) => {
-                    if (c === "default") {
-                      defaultPlaylist?.list.forEach(({ src }) => {
+            if (sounds && defaultPlaylist) {
+              let playlist = chara.playlist;
+              if (playlist) {
+                const playlistTitle = `${chara.name}のプレイリスト`;
+                chara.soundPlaylist = {
+                  title: playlistTitle,
+                  list: playlist
+                    .reduce((a, c) => {
+                      if (c === "default") {
+                        defaultPlaylist?.list.forEach(({ src }) => {
+                          const foundIndex = sounds.findIndex(
+                            (item) => item.src === src,
+                          );
+                          if (foundIndex >= 0) a.push(foundIndex);
+                        });
+                      } else {
                         const foundIndex = sounds.findIndex(
-                          (item) => item.src === src,
+                          (item) => item.key === c,
                         );
                         if (foundIndex >= 0) a.push(foundIndex);
-                      });
-                    } else {
-                      const foundIndex = sounds.findIndex(
-                        (item) => item.key === c,
-                      );
-                      if (foundIndex >= 0) a.push(foundIndex);
-                    }
-                    return a;
-                  }, [] as number[])
-                  .filter((i) => i >= 0)
-                  .map((i) => sounds[i]),
-              };
+                      }
+                      return a;
+                    }, [] as number[])
+                    .filter((i) => i >= 0)
+                    .map((i) => sounds[i]),
+                };
+              }
             }
-          }
-        });
-        const tagOptionsMap = characters.reduce((a, c) => {
-          c.tags?.forEach((tag) => {
-            if (a.has(tag)) {
-              const option = a.get(tag)!;
-              option.count!++;
-            } else if (tag) a.set(tag, { label: tag, value: tag, count: 1 });
           });
-          return a;
-        }, new Map<string, ContentsTagsOption>());
-        const charactersTags = Object.values(
-          Object.fromEntries(tagOptionsMap),
-        ).reduce<ContentsTagsOption[]>((a, c) => {
-          switch (c.value) {
-            case "design":
-            case "collaboration":
-            case "archive":
-              break;
-            default:
-              a.push(c);
-              break;
-          }
-          return a;
-        }, []);
-        charactersTags.push({ value: "design", label: "デザイン担当" });
-        charactersTags.push({ value: "collaboration", label: "コラボ" });
-        charactersTags.push({ value: "archive", label: "アーカイブ" });
-        Set({
-          charactersData,
-          characters,
-          charactersMap,
-          charactersNameMap,
-          charactersTags,
+          const tagOptionsMap = characters.reduce((a, c) => {
+            c.tags?.forEach((tag) => {
+              if (a.has(tag)) {
+                const option = a.get(tag)!;
+                option.count!++;
+              } else if (tag) a.set(tag, { label: tag, value: tag, count: 1 });
+            });
+            return a;
+          }, new Map<string, ContentsTagsOption>());
+          const charactersTags = Object.values(
+            Object.fromEntries(tagOptionsMap),
+          ).reduce<ContentsTagsOption[]>((a, c) => {
+            switch (c.value) {
+              case "design":
+              case "collaboration":
+              case "archive":
+                break;
+              default:
+                a.push(c);
+                break;
+            }
+            return a;
+          }, []);
+          charactersTags.push({ value: "design", label: "デザイン担当" });
+          charactersTags.push({ value: "collaboration", label: "コラボ" });
+          charactersTags.push({ value: "archive", label: "アーカイブ" });
+          Set({
+            charactersData,
+            characters,
+            charactersMap,
+            charactersNameMap,
+            charactersTags,
+          });
         });
-      });
     }
   }, [charactersData, sounds, defaultPlaylist, likeCategoryMap, env, Set]);
   useEffect(() => {

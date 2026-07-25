@@ -13,7 +13,6 @@ import { TbRss } from "react-icons/tb";
 import type { UrlObject } from "url";
 import { ToHref } from "~/components/functions/doc/MakeURL";
 import { useHotkeys } from "react-hotkeys-hook";
-import { SiteDateOptions as opt } from "~/components/functions/time/DateFunction";
 import { MultiParserWithMedia } from "~/components/parse/MultiParserWithMedia";
 import { useEnv, useIsLogin } from "~/components/state/EnvState";
 import { TfiWrite } from "react-icons/tfi";
@@ -53,7 +52,11 @@ export function getPosts({
     hashtag: { textKey: "body", key: "category" },
   };
   const wheres = [setWhere(q, options).where];
-  if (common) wheres.push({ draft: false, time: { lte: new Date() } });
+  if (common)
+    wheres.push({
+      draft: false,
+      time: { lte: Temporal.Now.zonedDateTimeISO() },
+    });
   const orderBy: any[] = [];
   if (pinned) orderBy.push({ pin: "desc" });
   orderBy.push({ time: "desc" });
@@ -247,7 +250,7 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
     [isLogin, post],
   );
   const formattedDate = useMemo(
-    () => (post?.time ? post.time.toLocaleString("ja-JP", opt) : ""),
+    () => (post?.time ? post.time.toLocaleString() : ""),
     [post],
   );
   if (!post) return null;
@@ -344,7 +347,9 @@ export default function OnePost({ post, detail = false }: OnePostProps) {
         {typeof post.time !== "undefined" ? (
           post.draft ? (
             <span className="status">(下書き)</span>
-          ) : post.time && post.time.getTime() > Date.now() ? (
+          ) : post.time &&
+            post.time.epochMilliseconds >
+              Temporal.Now.instant().epochMilliseconds ? (
             <span className="status">(予約)</span>
           ) : null
         ) : null}
