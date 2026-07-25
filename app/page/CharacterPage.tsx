@@ -479,7 +479,7 @@ function CharaListPage() {
   const inPageList = useMemo(
     () =>
       (parts || []).map(({ label }, i) => ({
-        name: label || "",
+        name: label || "未分類",
         id: "charaGroup-" + (label || i),
       })),
     [parts],
@@ -511,7 +511,7 @@ function CharaListPage() {
               key={`character_label_${label}`}
               id={"charaGroup-" + (label || i)}
             >
-              {label ? <h2 className="color-main">{label}</h2> : null}
+              {<h2 className="color-main">{label || "未分類"}</h2>}
               <ul className={charaListClassName}>
                 {move ? (
                   <Movable items={items} Inner={Inner} refItems={refFn} />
