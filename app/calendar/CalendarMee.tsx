@@ -1352,7 +1352,6 @@ export const CountDown = memo(function CountDown({
     let d = end || date;
     if (allDay) {
       if (allDay) d = d.with(allDayOption);
-      d = d.add({ days: 1 });
     }
     return d.epochMilliseconds;
   }, [end, date, allDay]);
