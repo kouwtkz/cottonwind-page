@@ -1888,11 +1888,12 @@ div.footnote {
     flex-direction: row;
     align-items: baseline;
     padding: 0.25rem;
-    min-width: 8rem;
+    min-width: 3rem;
     font-size: 1em;
     text-align: left;
     font-weight: 900;
     color: var(--main-color-soft);
+    @extend %cursor-pointer;
     &:hover {
       color: var(--main-color);
     }
@@ -1918,9 +1919,14 @@ div.footnote {
         margin-right: 0.5rem;
       }
     }
+    .galleryPage & {
+      min-width: 8rem;
+    }
     @media (min-width: $tabletWidth) {
-      min-width: 11rem;
-      font-size: 1.25rem;
+      font-size: 1.1rem;
+      .galleryPage & {
+        min-width: 10rem;
+      }
       .cursor {
         height: 1rem;
       }
