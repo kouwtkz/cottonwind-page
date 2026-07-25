@@ -484,11 +484,15 @@ function CharaListPage() {
       })),
     [parts],
   );
-  console.log(inPageList);
-
+  const isLogin = useIsLogin()[0];
+  const inPageMenuStyle = useMemo(() => {
+    const style: React.CSSProperties = {};
+    if (isLogin) style.marginBottom = "4rem";
+    return style;
+  }, [isLogin]);
   return (
     <>
-      <InPageMenu list={inPageList} adjust={64} />
+      <InPageMenu list={inPageList} adjust={64} style={inPageMenuStyle} />
       <CharaSearchArea
         headerBeforeInner={
           <div className="color-main" translate="no">
@@ -713,6 +717,12 @@ export function CharaDetail({ charaName }: { charaName: string }) {
     if (chara?.headerImage) classNames.push("includeHeaderImage");
     return classNames.join(" ");
   }, [chara]);
+  const isLogin = useIsLogin()[0];
+  const inPageMenuStyle = useMemo(() => {
+    const style: React.CSSProperties = {};
+    if (isLogin) style.marginBottom = "4rem";
+    return style;
+  }, [isLogin]);
   return (
     <>
       {charactersMap ? (
@@ -811,6 +821,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
                 } as GalleryItemObjectType;
               })}
               submitPreventScrollReset={true}
+              inPageMenuStyle={inPageMenuStyle}
             />
           </div>
         ) : null

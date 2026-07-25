@@ -85,6 +85,7 @@ interface GalleryObjectType {
 
 interface GalleryPageOptions {
   showInPageMenu?: boolean;
+  inPageMenuStyle?: React.CSSProperties;
   showGalleryHeader?: boolean;
   showGalleryLabel?: boolean;
   hideWhenEmpty?: boolean;

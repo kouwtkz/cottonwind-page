@@ -854,6 +854,7 @@ function GalleryBody({
   imagesforTags,
   yfList,
   showInPageMenu = true,
+  inPageMenuStyle,
   showGalleryHeader = true,
   showGalleryLabel = true,
   showCount = true,
@@ -1178,7 +1179,7 @@ function GalleryBody({
   return (
     <div className="galleryContainer">
       {showInPageMenu && !group ? (
-        <InPageMenu list={inPageList} adjust={64} />
+        <InPageMenu list={inPageList} adjust={64} style={inPageMenuStyle} />
       ) : null}
       <div>
         {showGalleryHeader ? (
