@@ -492,7 +492,7 @@ function CharaListPage() {
   }, [isLogin]);
   return (
     <>
-      <InPageMenu list={inPageList} adjust={64} style={inPageMenuStyle} />
+      <InPageMenu list={inPageList} adjust={80} style={inPageMenuStyle} />
       <CharaSearchArea
         headerBeforeInner={
           <div className="color-main" translate="no">
