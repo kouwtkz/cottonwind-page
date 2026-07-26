@@ -562,6 +562,11 @@ $desktopWidth: 1280px;
   }
 }
 
+%user-select-none {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .ellipsis {
   overflow: hidden;
   white-space: nowrap;
@@ -1917,12 +1922,13 @@ div.footnote {
     align-items: baseline;
     padding: 0.25rem;
     min-width: 3rem;
-    font-size: 1.2em;
+    font-size: 1em;
+    line-height: 1.1em;
+    color: var(--main-color-soft);
     text-align: left;
     font-weight: 900;
-    color: var(--main-color-soft);
-    line-height: 1.2em;
     @extend %cursor-pointer;
+    @extend %user-select-none;
     &:hover {
       color: var(--main-color);
     }
