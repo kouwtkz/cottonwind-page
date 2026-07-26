@@ -487,7 +487,7 @@ function CharaListPage() {
   const isLogin = useIsLogin()[0];
   const inPageMenuStyle = useMemo(() => {
     const style: React.CSSProperties = {};
-    if (isLogin) style.marginBottom = "4rem";
+    if (isLogin) style.paddingBottom = "4rem";
     return style;
   }, [isLogin]);
   return (
@@ -720,7 +720,7 @@ export function CharaDetail({ charaName }: { charaName: string }) {
   const isLogin = useIsLogin()[0];
   const inPageMenuStyle = useMemo(() => {
     const style: React.CSSProperties = {};
-    if (isLogin) style.marginBottom = "4rem";
+    if (isLogin) style.paddingBottom = "4rem";
     return style;
   }, [isLogin]);
   return (
