@@ -872,8 +872,6 @@ export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
     const q = searchParams.get("q");
     if (q) return q;
   }, [searchParams]);
-  const nav = useNavigate();
-  const isImeOn = useRef(false);
   useHotkeys("slash", (e) => {
     searchRef.current?.focus();
     e.preventDefault();
@@ -888,26 +886,6 @@ export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
     },
     { enableOnFormTags: ["INPUT"] },
   );
-  function setText(value: string) {
-    const newSearchParams = createSearchParams(searchParams);
-    if (value) newSearchParams.set("q", value);
-    else newSearchParams.delete("q");
-    const addReplace: { replace: boolean; state?: any } = {
-      replace: isModal || location.href !== confirmUrl,
-      state: { keep: true },
-    };
-    if (!addReplace.replace) {
-      addReplace.state.beforeSearchParams = searchParams.toString();
-    }
-    if (addReplace.state?.beforeSearchParams === newSearchParams.toString()) {
-      nav(-1);
-    } else {
-      setSearchParams(newSearchParams, {
-        preventScrollReset: true,
-        ...addReplace,
-      });
-    }
-  }
   const tags = useMemo(() => {
     const tags = characterSortTags.concat();
     const charaFilterOptions: ContentsTagsOption = {
@@ -935,7 +913,19 @@ export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
     }
     return tags;
   }, [charactersTags, isLogin]);
-
+  const submitHandler = useCallback(
+    (e?: React.SubmitEvent<HTMLFormElement>) => {
+      if (searchRef.current) {
+        const q = searchRef.current.value;
+        if (q) searchParams.set("q", q);
+        else searchParams.delete("q");
+        setSearchParams(searchParams);
+        (document.activeElement as HTMLElement).blur();
+        e?.preventDefault();
+      }
+    },
+    [searchParams],
+  );
   return (
     <div className="header">
       {headerBeforeInner}
@@ -949,33 +939,16 @@ export function CharaSearchArea({ headerBeforeInner }: CharaSearchAreaProps) {
       >
         {extendMode ? <TbColumns3 /> : <TbColumns2 />}
       </button>
-      <input
-        name="q"
-        type="search"
-        className="search"
-        placeholder="キャラクター検索"
-        defaultValue={q}
-        ref={searchRef}
-        onChange={() => {
-          if (searchRef.current && !isImeOn.current) {
-            setText(searchRef.current.value);
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter")
-            (document.activeElement as HTMLElement)?.blur();
-        }}
-        onBlur={() => {
-          setConfirmUrl();
-        }}
-        onCompositionStart={() => {
-          isImeOn.current = true;
-        }}
-        onCompositionEnd={() => {
-          isImeOn.current = false;
-          if (searchRef.current) setText(searchRef.current.value);
-        }}
-      />
+      <form onSubmit={submitHandler}>
+        <input
+          name="q"
+          type="search"
+          className="search"
+          placeholder="キャラクター検索"
+          defaultValue={q}
+          ref={searchRef}
+        />
+      </form>
       <ContentsTagsSelect tags={tags} />
     </div>
   );
