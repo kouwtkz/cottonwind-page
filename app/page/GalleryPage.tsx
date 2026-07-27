@@ -1910,7 +1910,7 @@ export function GallerySearchArea(args: SearchAreaProps) {
     }
   }, [searchParams]);
   const submitHandler = useCallback(
-    (e?: React.FormEvent<HTMLFormElement>) => {
+    (e?: React.SubmitEvent<HTMLFormElement>) => {
       if (searchRef.current) {
         const q = searchRef.current.value;
         if (q) searchParams.set("q", q);

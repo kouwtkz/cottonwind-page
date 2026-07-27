@@ -636,7 +636,7 @@ export function PagingArea({ max, className, ...args }: PagingAreaProps) {
       if (pRef.current !== p) pRef.current = p;
     }
   });
-  const submit = (e?: React.FormEvent<HTMLFormElement>) => {
+  const submit = (e?: React.SubmitEvent<HTMLFormElement>) => {
     if (pagingInputRef.current) {
       const p = pagingInputRef.current;
       const newP = Number(p.value);
