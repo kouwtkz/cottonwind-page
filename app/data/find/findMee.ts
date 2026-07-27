@@ -358,14 +358,18 @@ function getKeyFromOptions<T>(key: WhereOptionsKeyUnion, options: WhereOptionsKv
 
 interface WhereFromKeyOptions {
   kanaReplace?: true | Map<unknown, unknown>;
+  nestReplace?: { [k: string]: string };
 }
 
 function whereFromKey(
   key: string | string[],
   value: findWhereType<unknown>,
-  { kanaReplace }: WhereFromKeyOptions = {}
+  { kanaReplace, nestReplace }: WhereFromKeyOptions = {}
 ): findWhereType<unknown> {
   function nestCheck(key: string, value: findWhereType<unknown>): findWhereType<unknown> {
+    if (nestReplace && key in nestReplace) {
+      key = nestReplace[key];
+    }
     const splitKeys = key.split(".");
     if (splitKeys.length > 1) {
       return splitKeys.sort(() => -1).reduce<findWhereType<unknown>>((value, key) => {
@@ -457,7 +461,7 @@ function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceCont
   }
 }
 
-export function setWhere<T = unknown>(q: string = "", options: WhereOptionsKvType<T> = {}) {
+export function setWhere<T = unknown>(q: string = "", { nestReplace, ...options }: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
   const timeKey = getKeyFromOptions("time", options);
@@ -552,7 +556,7 @@ export function setWhere<T = unknown>(q: string = "", options: WhereOptionsKvTyp
         switch (switchKey) {
           case "":
             if (item) {
-              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator }), { kanaReplace });
+              whereItem = whereFromKey(textKey, TextToWhere({ ...options, rawValue: rawFilterValue, value: filterValue, switchKey, operator }), { kanaReplace, nestReplace });
             }
             break;
           case "id":
@@ -678,7 +682,7 @@ export function setWhere<T = unknown>(q: string = "", options: WhereOptionsKvTyp
               if (typeof key === "string" && /\./.test(key)) {
                 whereItem = SplitPeriodKey(key, filterEntry);
               } else {
-                whereItem = whereFromKey(key, filterEntry);
+                whereItem = whereFromKey(key, filterEntry, { nestReplace });
               }
             }
             break;

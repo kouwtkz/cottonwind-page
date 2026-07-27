@@ -61,6 +61,7 @@ type WhereOptionsValueType<T> = string
 type WhereOptionsKvType<T> = {
   hashtag?: WhereOptionsHashtagType<T>;
   kanaReplace?: boolean | KeyOfOrArray<T>;
+  nestReplace?: { [k: string]: string };
   forceContains?: boolean;
   [k: string]: WhereOptionsValueType<T>;
 } & {
