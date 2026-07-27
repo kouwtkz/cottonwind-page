@@ -116,6 +116,14 @@ function CharacterPageState() {
         },
         hashtag: { key: "tags" },
         kanaReplace: ["name"],
+        nestReplace: {
+          year: "time.year",
+          month: "time.month",
+          day: "time.day",
+          week: "time.dayOfWeek",
+        } as
+          | { [K in string]: string }
+          | { [K in keyof Temporal.ZonedDateTimeLikeObject]?: string },
       }),
     [text],
   );
