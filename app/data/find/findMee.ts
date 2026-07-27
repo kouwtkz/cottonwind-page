@@ -40,7 +40,7 @@ export function findMee<T>(
   }
   if (orderBy) findMeeSort({ orderBy, list });
   let i = 0;
-  const uniqueMap = new Map<any, void>();
+  const uniqueMap = new Map<unknown, void>();
   return list.filter((value) => {
     if (take !== undefined && i >= take + skip) return false;
     const notUnique = unique ? !uniqueMap.has(value[unique]) : true;
@@ -77,29 +77,35 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
             break;
         }
         if (sign !== 0) {
-          list.sort((a: any, b: any) => {
+          list.sort((a: unknown, b: unknown) => {
             let result = 0;
             const valueA = fromEntryKeys(a, _k);
             const valueB = fromEntryKeys(b, _k);
             const judgeValue = valueA || valueB;
             const typeofValue = typeof judgeValue;
             switch (typeofValue) {
-              case "string":
-                if (valueA && valueB) result = valueA.localeCompare(valueB, 'ja');
+              case "string": {
+                const a = valueA as string;
+                const b = valueB as string;
+                if (a && b) result = a.localeCompare(b, 'ja');
                 break;
-              case "number":
-                if (isNaN(valueA))
+              }
+              case "number": {
+                const a = valueA as number;
+                const b = valueB as number;
+                if (isNaN(a))
                   result = 0;
-                else if (isNaN(valueB))
+                else if (isNaN(b))
                   result = -1 * sign;
                 else
-                  result = (valueA || 0) - (valueB || 0);
+                  result = (a || 0) - (b || 0);
                 break;
+              }
               case "object":
                 if (judgeValue) {
                   if ("epochNanoseconds" in (judgeValue as Temporal.Instant)) {
-                    const atime = valueA || Temporal.Instant.fromEpochMilliseconds(0);
-                    const btime = valueB || Temporal.Instant.fromEpochMilliseconds(0);
+                    const atime = valueA as Temporal.Instant || Temporal.Instant.fromEpochMilliseconds(0);
+                    const btime = valueB as Temporal.Instant || Temporal.Instant.fromEpochMilliseconds(0);
                     result = Temporal.Instant.compare(atime, btime);
                   } else if ("getTime" in (judgeValue as Date)) {
                     const atime = (valueA as Date | undefined)?.getTime() || 0;
@@ -109,7 +115,11 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
                 }
                 break;
               default:
-                result = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+                {
+                  const a = valueA as any;
+                  const b = valueB as any;
+                  result = a > b ? 1 : a < b ? -1 : 0;
+                }
                 break;
             }
             result = result * sign;
@@ -120,7 +130,7 @@ export function findMeeSort<T>({ orderBy, list }: findMeeSortProps<T>) {
     });
 }
 
-function parseEntryKeys(o: any) {
+function parseEntryKeys(o: Object) {
   const r: (string | number)[][] = [];
   function rdf(o: Object, ca: (string | number)[] = []) {
     if (!o) return;
@@ -151,13 +161,12 @@ interface WheresFilterOptions {
   key?: string;
   kanaReplace?: boolean;
 }
-const isObjectExp = /^\[object .+\]$/;
 export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsType<T>): boolean {
-  function wheresLoop(innerValue: any, innerWhere: findWhereOrConditionsType<T>, { kanaReplace, key }: WheresFilterOptions = {}): boolean {
+  function wheresLoop(innerValue: unknown, innerWhere: findWhereOrConditionsType<T>, { kanaReplace, key }: WheresFilterOptions = {}): boolean {
     if ("kanaReplace" in innerWhere) {
       innerWhere = { ...innerWhere };
       if ("kanaReplace" in innerWhere) {
-        kanaReplace = innerWhere.kanaReplace;
+        kanaReplace = innerWhere.kanaReplace as boolean;
         delete innerWhere.kanaReplace;
       }
     }
@@ -179,14 +188,14 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
           }
         } else {
           if (fkey === "NOT") {
-            return !wheresLoop(innerValue, fval);
+            return !wheresLoop(innerValue, fval as findWhereOrConditionsType<T>);
           } else {
-            return wheresLoop(innerValue, fval);
+            return wheresLoop(innerValue, fval as findWhereOrConditionsType<T>);
           }
         }
       }
-      if (fval && typeof fval === "object" && isObjectExp.test(fval.toString())) {
-        const nextInnerValue = innerValue && typeof innerValue === "object" ? innerValue[fkey] : innerValue;
+      if (fval && typeof fval === "object" && !Array.isArray(fval)) {
+        const nextInnerValue = innerValue && typeof innerValue === "object" ? (innerValue as any)[fkey] : innerValue;
         return wheresLoop(nextInnerValue, fval, { kanaReplace, key: fkey });
       } else {
         return findMeeWheresInnerSwitch(innerValue, fkey, fval, { kanaReplace, key });
@@ -196,58 +205,64 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
   return where ? wheresLoop(value, where) : true;
 }
 
-export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: any, { kanaReplace, key }: WheresFilterOptions = {}) {
-  const args_fvalType = typeof fval;
-  const args_innerValueType = typeof innerValue;
-  if (fval && innerValue && args_fvalType === "object" && args_innerValueType === "object" && ("epochNanoseconds" in fval || "epochNanoseconds" in innerValue)) {
-    if (!("epochNanoseconds" in fval)) {
-      if ("getTime" in fval) {
-        fval = Temporal.Instant.fromEpochMilliseconds(fval.getTime());
+export function findMeeWheresInnerSwitch(innerValue: unknown, fkey: string, fval: unknown, { kanaReplace, key }: WheresFilterOptions = {}) {
+  if (fval && innerValue && typeof fval === "object" && typeof innerValue === "object" && ("epochNanoseconds" in fval || "epochNanoseconds" in innerValue)) {
+    let atime: Temporal.Instant;
+    if (("epochNanoseconds" in innerValue)) {
+      atime = fval as Temporal.Instant;
+    } else {
+      if ("getTime" in innerValue && typeof innerValue.getTime === "function") {
+        atime = Temporal.Instant.fromEpochMilliseconds(innerValue.getTime());
       } else {
-        fval = new Date(fval).getTime();
-        if (isNaN(fval)) fval = Temporal.Now.instant();
-        else fval = Temporal.Instant.fromEpochMilliseconds(fval);
+        const time = new Date(innerValue as Date).getTime();
+        if (isNaN(time)) atime = Temporal.Now.instant();
+        else atime = Temporal.Instant.fromEpochMilliseconds(time);
       }
     }
-    if (!("epochNanoseconds" in innerValue)) {
-      if ("getTime" in innerValue) {
-        innerValue = Temporal.Instant.fromEpochMilliseconds(innerValue.getTime());
+    let btime: Temporal.Instant;
+    if (("epochNanoseconds" in fval)) {
+      btime = fval as Temporal.Instant;
+    } else {
+      if ("getTime" in fval && typeof fval.getTime === "function") {
+        btime = Temporal.Instant.fromEpochMilliseconds(fval.getTime());
       } else {
-        innerValue = new Date(innerValue).getTime();
-        if (isNaN(innerValue)) innerValue = Temporal.Now.instant();
-        else innerValue = Temporal.Instant.fromEpochMilliseconds(innerValue);
+        const time = new Date(fval as Date).getTime();
+        if (isNaN(time)) btime = Temporal.Now.instant();
+        else btime = Temporal.Instant.fromEpochMilliseconds(time);
       }
     }
     switch (fkey) {
       case "gt":
-        return Temporal.Instant.compare(innerValue, fval) > 0;
+        return Temporal.Instant.compare(atime, btime) > 0;
       case "gte":
-        return Temporal.Instant.compare(innerValue, fval) >= 0;
+        return Temporal.Instant.compare(atime, btime) >= 0;
       case "lt":
-        return Temporal.Instant.compare(innerValue, fval) < 0;
+        return Temporal.Instant.compare(atime, btime) < 0;
       case "lte":
-        return Temporal.Instant.compare(innerValue, fval) <= 0;
+        return Temporal.Instant.compare(atime, btime) <= 0;
       case "not":
-        return Temporal.Instant.compare(innerValue, fval) !== 0;
+        return Temporal.Instant.compare(atime, btime) !== 0;
       default:
-        return Temporal.Instant.compare(innerValue, fval) === 0;
+        return Temporal.Instant.compare(atime, btime) === 0;
     }
-  } else if (args_fvalType === "number") {
-    if (args_innerValueType === "string" || Array.isArray(innerValue)) {
+  } else if (typeof fval === "number") {
+    if (typeof innerValue === "string" || Array.isArray(innerValue)) {
       innerValue = innerValue.length;
-    } else if (!innerValue || args_innerValueType !== "object") {
+    } else if (!innerValue || typeof innerValue !== "object") {
       innerValue = Number(innerValue || 0);
     }
-  } else if (args_fvalType === "object") {
+  } else if (typeof fval === "string") {
     if (kanaReplace && innerValue) {
       fval = kanaToHira(fval);
-      innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : kanaToHira(innerValue);
+      innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : typeof innerValue === "string" ? kanaToHira(innerValue) : innerValue;
     }
   }
-  const innerValueType = typeof innerValue;
+  if (fval === 2022) {
+    console.log(fval);
+  }
   switch (fkey) {
     case "equals":
-      if (innerValueType === "string") return String(innerValue).toLocaleLowerCase() === fval;
+      if (typeof innerValue === "string") return innerValue.toLocaleLowerCase() === fval;
       else return innerValue == fval;
     case "has":
       return Boolean(innerValue) === fval;
@@ -256,65 +271,73 @@ export function findMeeWheresInnerSwitch(innerValue: any, fkey: string, fval: an
     case "like":
     case "contains":
       if (Array.isArray(innerValue)) {
-        const fvalL = fval.toLocaleLowerCase();
+        const fvalL = String(fval).toLocaleLowerCase();
         return innerValue.some((x) => {
           return x.toLocaleLowerCase() === fvalL;
         });
       }
       else {
-        const _v = String(innerValue || null).toLocaleLowerCase();
-        if (_v === "null") return fval === _v;
-        else if (/[\*\?]/.test(fval)) {
-          try { return _v.match(fval) } catch { return true }
-        } else return _v.includes(fval);
+        const innerValueStr = String(innerValue || null).toLocaleLowerCase();
+        if (innerValueStr === "null") return fval === innerValueStr;
+        else {
+          const fvalStr = String(fval);
+          if (/[\*\?]/.test(fvalStr)) {
+            try { return innerValueStr.match(fvalStr) } catch { return true }
+          } else return innerValueStr.includes(fvalStr);
+        }
       }
     case "startsWith":
-      return String(innerValue).toLocaleLowerCase().startsWith(fval);
+      return String(innerValue).toLocaleLowerCase().startsWith(String(fval));
     case "endsWith":
-      return String(innerValue).toLocaleLowerCase().endsWith(fval);
+      return String(innerValue).toLocaleLowerCase().endsWith(String(fval));
     case "gt":
-      return innerValue > fval;
+      return (innerValue as any) > (fval as any);
     case "gte":
-      return innerValue >= fval;
+      return (innerValue as any) >= (fval as any);
     case "lt":
-      return innerValue < fval;
+      return (innerValue as any) < (fval as any);
     case "lte":
-      return innerValue <= fval;
+      return (innerValue as any) <= (fval as any);
     case "in":
     case "some":
-    case "every": {
-      const inVal = (fval as unknown[]).map(v => typeof v === "string" ? v.toLowerCase() : v);
-      if (Array.isArray(innerValue)) {
-        const innerValuesLc = innerValue.map(v => v.toLowerCase());
-        if (fkey === "every") return inVal.every(v => innerValuesLc.some(c => v == c));
-        else return inVal.some(v => innerValuesLc.some(c => v == c));
+    case "every":
+      if (Array.isArray(fval)) {
+        const inVal = fval.map(v => typeof v === "string" ? v.toLowerCase() : v);
+        if (Array.isArray(innerValue)) {
+          const innerValuesLc = innerValue.map(v => v.toLowerCase());
+          if (fkey === "every") return inVal.every(v => innerValuesLc.some(c => v == c));
+          else return inVal.some(v => innerValuesLc.some(c => v == c));
+        }
+        else return inVal.some(v => v == innerValue);
       }
-      else return inVal.some(v => v == innerValue);
+    case "between": {
+      const betweenVal = Array.isArray(fval) ? fval : [];
+      return betweenVal[0] <= (innerValue as any) && (innerValue as any) <= betweenVal[1];
     }
-    case "between":
-      const betweenVal = fval as any[];
-      return betweenVal[0] <= innerValue && innerValue <= betweenVal[1];
     case "bool":
       let boolVal: boolean;
       if (Array.isArray(innerValue)) boolVal = innerValue.length > 0;
       else boolVal = Boolean(innerValue);
       return fval ? boolVal : !boolVal;
     case "regexp":
-      return (fval as RegExp).test(innerValue);
-    default:
+      if (fval && typeof fval === "object" && "test" in fval) {
+        return (fval as RegExp).test(String(innerValue));
+      } else return false;
+    default: {
       let switchInnerValue = innerValue;
-      if (innerValue && innerValueType === "object" && isObjectExp.test(innerValue.toString())) {
-        switchInnerValue = innerValue[fkey];
+      if (innerValue && typeof innerValue === "object" && fkey in innerValue) {
+        switchInnerValue = (innerValue as any)[fkey];
       }
       return switchInnerValue == fval
+    }
   }
 }
 
-type CommonCondition = filterConditionsAllKeyValue<any, unknown>;
+type CommonCondition = filterConditionsAllKeyValue<unknown, unknown>;
 
 export function createFilterEntry(
   filterValue: string
-): filterConditionsAllKeyValue<any> {
+): filterConditionsAllKeyValue<unknown> {
   if (filterValue.startsWith('"') && filterValue.endsWith('"')) {
     return {
       equals: filterValue.slice(1, -1),
@@ -334,18 +357,18 @@ function getKeyFromOptions<T>(key: WhereOptionsKeyUnion, options: WhereOptionsKv
 }
 
 interface WhereFromKeyOptions {
-  kanaReplace?: true | Map<any, any>;
+  kanaReplace?: true | Map<unknown, unknown>;
 }
 
 function whereFromKey(
   key: string | string[],
-  value: findWhereType<any>,
+  value: findWhereType<unknown>,
   { kanaReplace }: WhereFromKeyOptions = {}
-): findWhereType<any> {
-  function nestCheck(key: string, value: findWhereType<any>): findWhereType<any> {
+): findWhereType<unknown> {
+  function nestCheck(key: string, value: findWhereType<unknown>): findWhereType<unknown> {
     const splitKeys = key.split(".");
     if (splitKeys.length > 1) {
-      return splitKeys.sort(() => -1).reduce<findWhereType<any>>((value, key) => {
+      return splitKeys.sort(() => -1).reduce<findWhereType<unknown>>((value, key) => {
         return { [key]: value };
       }, value);
     } else {
@@ -366,7 +389,7 @@ function whereFromKey(
   }
 }
 
-function SplitPeriodKey(key: string, value: any) {
+function SplitPeriodKey(key: string, value: unknown) {
   const parts = key.split(".");
   const partsLength = parts.length - 1;
   const returnValue = {};
@@ -384,7 +407,7 @@ function SplitPeriodKey(key: string, value: any) {
 interface TextToWhereProps {
   rawValue: string; value: string; switchKey?: string; operator?: string; forceContains?: boolean;
 }
-function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<any, unknown> {
+function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceContains }: TextToWhereProps): filterConditionsAllKeyValue<unknown, unknown> {
   if (forceContains) return { contains: strValue };
   else {
     const m = rawValue.match(/^\/(.+)\/(\w*)$/);
@@ -396,7 +419,7 @@ function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceCont
           return { equals: null };
         case "undefined":
           return { equals: undefined };
-        default:
+        default: {
           let value: any = strValue;
           if (switchKey && /\d/.test(value)) {
             const num = Number(value);
@@ -428,23 +451,24 @@ function TextToWhere({ rawValue, value: strValue, switchKey, operator, forceCont
               }
             }
           }
+        }
       }
     }
   }
 }
 
-export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T> = {}) {
+export function setWhere<T = unknown>(q: string = "", options: WhereOptionsKvType<T> = {}) {
   const textKey = getKeyFromOptions("text", options);
   const fromKey = getKeyFromOptions("from", options);
   const timeKey = getKeyFromOptions("time", options);
   const hashtagKey = options.hashtag?.key ? Array.isArray(options.hashtag.key) ? options.hashtag.key : [options.hashtag.key] : null;
   const hashtagTextKey = options.hashtag?.textKey ? Array.isArray(options.hashtag.textKey) ? options.hashtag.textKey : [options.hashtag.textKey] : null;
-  const hashtagMapEntries = Object.entries((options.hashtag?.map || {})) as [keyof T, Map<any, any>][];
+  const hashtagMapEntries = Object.entries((options.hashtag?.map || {})) as [keyof T, Map<unknown, unknown>][];
   const allKanaReplace = options.kanaReplace === true;
   const kanaReplaceArray = typeof options.kanaReplace === "string" ? [options.kanaReplace] : Array.isArray(options.kanaReplace) ? options.kanaReplace : [];
   const kanaReplaceMap = new Map<KeyOfT<T>, boolean>(kanaReplaceArray.map(v => { return [v, true] }));
   const kanaReplace = allKanaReplace || kanaReplaceMap;
-  const whereList: findWhereType<any>[] = [];
+  const whereList: findWhereType<unknown>[] = [];
   let id: number | undefined;
   let take: number | undefined;
   const orderBy: OrderByKeyStr[] = [];
@@ -463,12 +487,12 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
     if (item === "OR") {
       OR = true;
     } else {
-      let whereItem: findWhereType<any> | undefined;
+      let whereItem: findWhereType<unknown> | undefined;
       let NOT = item.startsWith("-");
       if (NOT) item = item.slice(1);
       if (item.length > 1 && item.startsWith("#")) {
         const filterValue = item.slice(1).toLocaleLowerCase();
-        const whereHashtags: findWhereWithConditionsType<any>[] = [];
+        const whereHashtags: findWhereWithConditionsType<unknown>[] = [];
         hashtagKey?.forEach(k => {
           whereHashtags.push({
             [k]: {
@@ -639,7 +663,7 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
             } else {
               const keyraw = filterOptions.key || switchRawKey;
               const key = Array.isArray(keyraw) ? keyraw.map(v => String(v)) : String(keyraw);
-              let filterEntry: filterConditionsAllKeyValue<any>;
+              let filterEntry: filterConditionsAllKeyValue<unknown>;
               switch (filterValue) {
                 case "true":
                 case "false":
@@ -670,8 +694,8 @@ export function setWhere<T = any>(q: string = "", options: WhereOptionsKvType<T>
       if (OR) {
         const current = whereList.pop();
         const before = whereList.pop();
-        if (before && "OR" in before) {
-          before.OR.push(current);
+        if (before && "OR" in before && before.OR) {
+          before.OR.push(current as findWhereType<unknown>);
           whereList.push(before);
         } else {
           whereList.push({

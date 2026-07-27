@@ -10,11 +10,11 @@ type filterConditionsAllType = filterConditionsType | filterConditionsStringType
 type filterConditionsArray<T, K> = { [C in filterConditionsArrayType]?: T[K][number] };
 type filterConditionsBoolStringKeyValue = { [C in filterConditionsStringType]?: string } & { [C in filterConditionsBoolType]?: boolean } & { [C in filterConditionsRegexpType]?: RegExp };
 type filterConditionsAllKeyValue<T, K = unknown> = { [C in filterConditionsType]?: T[K] | number } & { [C in filterConditionsVariadicType]?: unknown[] } & filterConditionsBoolStringKeyValue & filterConditionsArray<T, K>;
-type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: T[K] | filterConditionsAllKeyValue<T, K> };
+type filterConditionsGenericsAllKeyValue<T> = { [K in keyof T]?: filterConditionsGenericsAllKeyValue<T[K]> | filterConditionsAllKeyValue<T, K> };
 type objectSubmitDataType<T> = { [K in logicalNotConditionsType]?: findWhereType<T> | findWhereType<T>[] } | filterConditionsGenericsAllKeyValue<T>;
 type findWhereType<T> = { [K in logicalConditionsType]?: (findWhereType<T> | objectSubmitDataType<T>)[] } | objectSubmitDataType<T>;
 type findWhereWithConditionsType<T> = findWhereType<T> | filterConditionsAllType;
-type findWhereOrConditionsType<T> = findWhereType<T> | { [K in filterConditionsAllType]: any };
+type findWhereOrConditionsType<T> = findWhereType<T> | { [K in filterConditionsAllType]: unknown };
 
 type OrderByType = "asc" | "desc";
 type OrderByItemType<K extends Object> = OrderByItem<K> | OrderByType;
