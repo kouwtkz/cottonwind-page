@@ -71,8 +71,6 @@ export function ImageState() {
             if (image.update && image.extendData?.new) {
               image.new = true;
             }
-            if (image.time)
-              image.year = image.time.year;
             image.characterObjects = image.characters
               ?.map((character) => charactersMap.get(character)!)
               .filter((c) => c);

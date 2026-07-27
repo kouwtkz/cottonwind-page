@@ -442,6 +442,14 @@ export function GalleryObject(args: GalleryObjectProps) {
           key: ["tags"],
           textKey: ["description"],
         },
+        nestReplace: {
+          year: "time.year",
+          month: "time.month",
+          day: "time.day",
+          week: "time.dayOfWeek",
+        } as
+          | { [K in string]: string }
+          | { [K in keyof Temporal.ZonedDateTimeLikeObject]?: string },
       }),
     [qParam, charactersNameMap],
   );
@@ -676,7 +684,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       ({ list, ...item }) => {
         if (year && list)
           return {
-            list: list.filter((item) => item.year === year),
+            list: list.filter((item) => item.time && item.time.year === year),
             ...item,
           };
         return { list, ...item };
@@ -716,7 +724,7 @@ export function GalleryObject(args: GalleryObjectProps) {
       .reduce<ImageType[]>((a, { images, flag }) => {
         if (flag) {
           images.forEach((image) => {
-            if (!year || image.year === year) {
+            if (!year || image.time?.year === year) {
               a.push(image);
             }
           });
@@ -1792,8 +1800,8 @@ export function GalleryYearFilter({
         filteredGroups
           .filter((item) => !item.notYearList)
           .reduce<number[]>((a, c) => {
-            (c.list || []).forEach(({ year }) => {
-              if (year) a.push(year);
+            (c.list || []).forEach(({ time }) => {
+              if (time) a.push(time.year);
             });
             return a;
           }, []),
@@ -2117,9 +2125,9 @@ function GalleryItemRibbon({
     }
   }, [visibleLikeCount, image, trigger]);
   const itemOfYear = useMemo<GalleryItemRibbonListType | undefined>(() => {
-    if ((visibleYear || yearRibbon) && image.year) {
+    if ((visibleYear || yearRibbon) && image.time) {
       return {
-        label: image.year.toString(),
+        label: image.time.year.toString(),
         className: "year",
       };
     }

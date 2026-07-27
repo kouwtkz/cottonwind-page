@@ -47,7 +47,6 @@ interface ImageIndexedDataType extends Omit<ImageDataType, "tags" | "characters"
   hideInfo?: boolean;  
 }
 interface ImageType extends Omit<ImageIndexedDataType, "creationTime" | "time" | "mtime" | "lastmod">, WithRawExtendDataType<ImageDataType>, ExtendDataProps {
-  year?: number;
   like?: LikeType;
   characterObjects?: CharacterType[];
   creationTime?: TimeClass | null;
