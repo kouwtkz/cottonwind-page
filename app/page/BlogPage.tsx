@@ -140,6 +140,14 @@ export function PostsPage({
       const where = setWhere<PostPagesItemType>(q, {
         text: { key: "body" },
         hashtag: { key: "category", textKey: "body" },
+        nestReplace: {
+          year: "time.year",
+          month: "time.month",
+          day: "time.day",
+          week: "time.dayOfWeek",
+        } as
+          | { [K in string]: string }
+          | { [K in keyof Temporal.ZonedDateTimeLikeObject]?: string },
       });
       return findMee(mixPosts, where);
     } else return mixPosts;
