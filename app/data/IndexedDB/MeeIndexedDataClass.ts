@@ -50,11 +50,12 @@ export class IndexedDataClass<
   async save({ store, data, callback, onput, onerror, next, onsuccess }: Props_IndexedDataClass_Save<T>): Promise<any> {
     const thisTable = this.table;
     const emit = this.emitEvent.bind(this);
-    if (data && data.length > 0) {
+    const list = data ? (Array.isArray(data) ? data : [data]) : null;
+    if (list && list.length > 0) {
       this.isBusy = true;
       return thisTable.usingStore({
         async callback(store) {
-          return Promise.all(data.map(async (item, index) => {
+          return Promise.all(list.map(async (item, index) => {
             if (callback) item = await callback({ item, index, store });
             await thisTable.put({ value: item, store })
               .then((key) => {

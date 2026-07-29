@@ -57,7 +57,7 @@ interface Props_IndexedDataClass_Save<T = any, D = T> extends Omit<Props_Indexed
   onerror?(e: any): void;
   next?(index?: number): void;
   onsuccess?(item?: IDBValidKey): any | Promise<any>;
-  data?: T[]
+  data?: T[] | T;
 }
 
 interface Props_Indexed_KV_Save<T = any> extends Props_IndexedDataClass_DataStore<Map<string, T> | Array<[string, T]>> { }
