@@ -35,7 +35,7 @@ import React, { useCallback, useEffect, useSyncExternalStore } from "react";
 import {
   SubscribeEventsClass,
   SubscribeDataClass,
-} from "~/components/hook/SubscribeEvents";
+} from "./subscribe/SubscribeEvents";
 
 export let waitIdbResolve: (value?: unknown) => void;
 export const waitIdb = new Promise((resolve, reject) => {
