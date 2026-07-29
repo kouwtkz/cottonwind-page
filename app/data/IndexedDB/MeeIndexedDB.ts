@@ -230,7 +230,7 @@ export class MeeIndexedDBTable<T> {
   }
   async find({ store, where, index, orderBy, query = null, direction, take, skip, callback }: Props_MeeIndexedDB_Find<T> = {}): Promise<T[]> {
     const enableSkip = typeof skip === "number";
-    const surfaceWhereMap = new Map<string, findWhereType<T>>(Object.entries(where || {}));
+    const surfaceWhereMap = new Map<string, findWhereType<T>>(Object.entries<[string, findWhereType<T>][]>(where || {} as any));
     if (!direction && orderBy && index) {
       if ((index in orderBy[0])) {
         const value = orderBy.shift()!;
