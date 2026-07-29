@@ -3,7 +3,7 @@ import { postsDataIndexed, waitIdb } from "~/data/ClientDBLoader";
 import { CreateObjectState } from "./CreateState";
 import { MeeIndexedDBTable } from "~/data/IndexedDB/MeeIndexedDB";
 import { ExternalStoreProps } from "~/data/IndexedDB/IndexedDataLastmodMH";
-import { SubscribeDataClass } from "../hook/SubscribeEvents";
+import { SubscribeDataClass } from "~/data/subscribe/SubscribeEvents";
 import { useExtRss } from "./ExtRssState";
 import { useATProtoState } from "./ATProtocolState";
 import { StrToInstant } from "../functions/time/TemporalFunction";
