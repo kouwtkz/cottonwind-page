@@ -84,6 +84,8 @@ export async function loader({ params, context, request }: Route.LoaderArgs) {
     switch (params.param) {
       case "extRss":
         return await GetExtRSSFromEnv({ env });
+      case "temporal":
+        return Temporal.Now.instant().toString({ smallestUnit: "millisecond" });
       default:
         const object = datasetMap.get(params.param);
         const db = getCfDB({ context })!;
