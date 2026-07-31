@@ -16,7 +16,7 @@ export async function ServerPostsGetData({ searchParams, db, isLogin }: GetDataP
   const wheres: MeeSqlFindWhereType<PostDataType>[] = [];
   const lastmod = searchParams.get("lastmod");
   if (lastmod) wheres.push({ lastmod: { gt: lastmod } });
-  if (!isLogin) wheres.push({ lastmod: { lte: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) } });
+  if (!isLogin) wheres.push({ lastmod: { lte: new Date().toISOString() } });
   const id = searchParams.get("id");
   if (id) wheres.push({ id: Number(id) });
   const postId = searchParams.get("postId");
@@ -38,7 +38,7 @@ export async function ServerPostsGetRssData(db: MeeSqlD1, take = 10) {
     db,
     where: {
       OR: [{ draft: null }, { draft: 0 }],
-      lastmod: { lte: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) }
+      lastmod: { lte: new Date().toISOString() }
     },
     take,
     orderBy: [{ time: "desc" }],
@@ -86,7 +86,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                   where: { postId }
                 });
                 return new Response(postId);

@@ -83,9 +83,11 @@ export class DBTableClass<T extends Object = any, D extends Object = T> {
     value,
     ...args
   }: getTimeFieldLatestProps<D, S>) {
-    const time = Temporal.Instant.from(value);
-    const since = time.toString({ smallestUnit: "millisecond" });
-    const until = time.add({ seconds: 1 }).toString({ smallestUnit: "millisecond" });
+    const time = new Date(value);
+    const since = time.toISOString();
+    let untilDate = new Date(time);
+    untilDate.setDate(untilDate.getDate() + 1);
+    const until = untilDate.toISOString();
     return (
       await this.Select<S>({
         db,
@@ -109,12 +111,13 @@ export class DBTableClass<T extends Object = any, D extends Object = T> {
       ...args,
     });
     if (latest && latest[field]) {
-      const latestLastmod = Temporal.Instant.from(latest[field]);
-      return latestLastmod.add({ milliseconds: 1 }).toString({ smallestUnit: "millisecond" });
+      let latestLastmod = new Date(latest[field]);
+      latestLastmod.setTime(latestLastmod.getTime() + 1);
+      return latestLastmod.toISOString();
     } else return value;
   }
   async getClassifyScheduleValue({
-    now = Temporal.Now.instant().toString({ smallestUnit: "millisecond" }),
+    now = new Date().toISOString(),
     value,
     time,
     existTime,
@@ -188,7 +191,7 @@ export async function DBTableImport<T extends Object, D extends Object = T>({
       await TableObject.CreateTable({ db });
     }
     const list = object.data as any[];
-    let now = Temporal.Now.instant();
+    let now = new Date();
     if (Array.isArray(list)) {
       if (kvConvertEntry) KeyValueConvertDBEntry(list);
       for (const item of list) {
@@ -213,14 +216,14 @@ export async function DBTableImport<T extends Object, D extends Object = T>({
                 entry: TableObject.getInsertEntry(item),
               });
           } else {
-            item[lastmod] = now.toString({ smallestUnit: "millisecond" })
+            item[lastmod] = now.toISOString()
             await TableObject.Insert({
               db,
               entry: TableObject.getInsertEntry(item),
             });
           }
         }
-        now = now.add({ milliseconds: 1 });
+        now.setTime(now.getTime() + 1);
       }
     }
   }

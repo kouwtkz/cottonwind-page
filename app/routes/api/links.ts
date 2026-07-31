@@ -96,13 +96,13 @@ export class SiteLinkServerClass {
             case "POST": {
               const rawData = await request.json();
               const data = Array.isArray(rawData) ? rawData : [rawData];
-              let now = Temporal.Now.instant();
+              let now = new Date();
               return Promise.all(
                 data.map(async item => {
                   const { id, ...data } = item;
                   const entry = TableObject.getInsertEntry(data);
-                  entry.lastmod = now.toString({ smallestUnit: "millisecond" })
-                  now = now.add({ milliseconds: 1 });
+                  entry.lastmod = now.toISOString()
+                  now.setTime(now.getTime() + 1);
                   const target = id
                     ? (await TableObject.Select({ db, where: { id }, take: 1 }))[0]
                     : undefined;
@@ -126,7 +126,7 @@ export class SiteLinkServerClass {
                 try {
                   await TableObject.Update({
                     db,
-                    entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                    entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                     where: { id }
                   });
                   return id;
@@ -144,7 +144,7 @@ export class SiteLinkServerClass {
         if (request.method === "POST") {
           const db = getCfDB({ context });
           if (db) {
-            const lastmod = Temporal.Now.instant().toString({ smallestUnit: "millisecond" });
+            const lastmod = new Date().toISOString();
             const object = await request.json() as importEntryDataType<SiteLinkData>;
             if (object.data) {
               if (object.overwrite && object.first) {

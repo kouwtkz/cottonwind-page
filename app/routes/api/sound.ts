@@ -64,7 +64,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 entry = TableObject.getInsertEntry({
                   src,
                   version: (value.version || 1) + 1,
-                  lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" })
+                  lastmod: new Date().toISOString()
                 });
               } else {
                 src = "sound/" + file.name;
@@ -77,9 +77,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   })
                 }
                 const { track, title, album, year, artist, genre, v2 } = tags;
-                let time = Temporal.Instant.fromEpochMilliseconds(file.lastModified).toZonedDateTimeISO("UTC");
-                const mtime = time.toInstant().toString({ smallestUnit: "millisecond" });
-                if (year) time = time.with({ year: Number(year) });
+                let time = new Date(file.lastModified);
+                const mtime = time.toISOString();
+                if (year) time.setFullYear(Number(year));
                 entry = TableObject.getInsertEntry({
                   title,
                   album,
@@ -90,9 +90,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   track: track,
                   grouping: v2?.TIT1?.split("\x00").join(","),
                   version: 1,
-                  time: time.toInstant().toString({ smallestUnit: "millisecond" }),
+                  time: time.toISOString(),
                   mtime,
-                  lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" })
+                  lastmod: new Date().toISOString()
                 });
                 if (!value || value.mtime !== entry.mtime) {
                   await env.BUCKET!.put(src, file);
@@ -101,7 +101,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   const albumValue = await soundAlbumTableObject.Select({ db, take: 1, where: { key: album } })
                     .then<SoundAlbumDataType | null>(v => v[0] || null);
                   if (!albumValue) {
-                    await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) } });
+                    await soundAlbumTableObject.Insert({ db, entry: { key: album, title: album, lastmod: new Date().toISOString() } });
                   }
                 }
               }
@@ -118,14 +118,14 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "PATCH": {
             const rawData = await request.json();
             const data = Array.isArray(rawData) ? rawData : [rawData];
-            let now = Temporal.Now.instant();
+            let now = new Date();
             return Promise.all(
               data.map(async item => {
                 const data = item as KeyValueType<unknown>;
                 if (data.src) data.src = "sound/" + data.src;
                 const entry = TableObject.getInsertEntry(data);
-                entry.lastmod = now.toString({ smallestUnit: "millisecond" });
-                now = now.add({ milliseconds: 1 });
+                entry.lastmod = now.toISOString();
+                now.setTime(now.getTime() + 1);
                 const target_id = data.target ? String(data.target) : undefined;
                 const target = target_id
                   ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
@@ -137,7 +137,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                       await TableObject.Update({
                         db, where: { key: value.key }, entry: {
                           key: value.key + "_" +
-                            Temporal.Now.instant().epochMilliseconds.toString(16)
+                            new Date().getTime().toString(16)
                         }
                       })
                     }
@@ -176,7 +176,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                   where: { key }
                 });
                 return key;

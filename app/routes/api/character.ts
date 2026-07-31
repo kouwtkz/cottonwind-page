@@ -27,13 +27,13 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "POST": {
             const rawData = await request.json();
             const data = Array.isArray(rawData) ? rawData : [rawData];
-            let now = Temporal.Now.instant();
+            let now = new Date();
             return Promise.all(
               data.map(async item => {
                 const { id: _id, ...data } = item;
                 const entry = TableObject.getInsertEntry(data);
-                entry.lastmod = now.toString({ smallestUnit: "millisecond" });
-                now = now.add({ milliseconds: 1 });
+                entry.lastmod = now.toISOString();
+                now.setTime(now.getTime() + 1);
                 const target_id = data.target || data.key;
                 const target = target_id
                   ? (await TableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
@@ -43,7 +43,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
                   await TableObject.Update({ db, entry, take: 1, where: { key: target_id! } });
                   if (entry.key && entry.key !== target.key) {
                     const list = await ImageTableObject.Select({ db, where: { OR: [{ key: target.key }, { characters: { contains: target.key } }] } });
-                    let time = Temporal.Now.instant();
+                    let time = new Date();
                     await Promise.all(
                       list.map((item) => {
                         const charactersList = item.characters?.split(",") || [target.key]
@@ -55,8 +55,8 @@ async function next({ params, request, context, env }: WithEnvProps) {
                         .map(async item => {
                           const newKey = entry.key as string;
                           item.charactersList[item.index] = newKey;
-                          const lastmod = time.toString({ smallestUnit: "millisecond" })
-                          time = time.add({ milliseconds: 1 });
+                          const lastmod = time.toISOString()
+                          time.setTime(time.getTime() + 1);
                           if (target.key === item.key) {
                             const entry: Partial<ImageDataType> = {
                               title: newKey, key: newKey, characters: item.charactersList.join(","), lastmod
@@ -97,7 +97,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                   where: { key }
                 });
                 return key;

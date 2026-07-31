@@ -31,7 +31,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               } else {
                 target = (await TableObject.Select({ db, where: { id }, take: 1 }))[0];
               }
-            entry.lastmod = Temporal.Now.instant().toString({ smallestUnit: "millisecond" });
+            entry.lastmod = new Date().toISOString();
             entry.lastmod = await TableObject.getClassifyScheduleValue({
               db,
             });
@@ -51,7 +51,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                   where: path ? { path: String(path) } : { id }
                 });
                 return new Response(path);

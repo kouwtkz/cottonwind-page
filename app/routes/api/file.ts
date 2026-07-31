@@ -16,8 +16,8 @@ export async function action(props: Route.ActionArgs) {
 }
 
 function getMtimeFromLastModified(lastModified: number) {
-  const time = Temporal.Instant.fromEpochMilliseconds(lastModified);
-  return time.toString({ smallestUnit: "millisecond" });
+  const time = new Date(lastModified);
+  return time.toISOString();
 }
 
 interface WithEnvProps extends Route.ActionArgs {
@@ -55,9 +55,9 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 const privateParam = formData.get("private") as string | null;
                 const isPrivate = privateParam ? Boolean(Number(privateParam)) : null;
                 if (isPrivate !== null) data.private = isPrivate;
-                let now = Temporal.Now.instant();
+                let now = new Date();
                 const entry = TableObject.getInsertEntry(data);
-                entry.lastmod = now.toString({ smallestUnit: "millisecond" })
+                entry.lastmod = now.toISOString()
                 const target = typeof id === "number" && id >= 0
                   ? (await TableObject.Select({ db, where: { id }, take: 1 }))[0]
                   : undefined;
@@ -103,11 +103,11 @@ async function next({ params, request, context, env }: WithEnvProps) {
                 const updateSrc = uploadDir + file.name;
                 const src = value?.src ? value.src : updateSrc;
                 const mtime = getMtimeFromLastModified(file.lastModified);
-                let now = Temporal.Now.instant();
+                let now = new Date();
                 const entry = TableObject.getInsertEntry({
                   src,
                   mtime,
-                  lastmod: now.toString({ smallestUnit: "millisecond" })
+                  lastmod: now.toISOString()
                 });
                 if (privateParam) entry.private = Number(privateParam);
                 if (value && env.BUCKET) {
@@ -138,10 +138,10 @@ async function next({ params, request, context, env }: WithEnvProps) {
               const values = (await TableObject.Select({ db, params: "*", where: { id } }))[0];
               try {
                 if (env.BUCKET && values.src) await env.BUCKET.delete(values.src);
-                let now = Temporal.Now.instant();
+                let now = new Date();
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: now.toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: now.toISOString() },
                   where: { id }
                 });
                 return new Response(id);

@@ -43,9 +43,9 @@ async function getExtRSS(EXT_RSS: string) {
     .then(v => v.filter(f => f) as ExtRssType[]);
 }
 async function GetWriteKV_ExtRSS(EXT_RSS: string, KV: KVNamespace<string>) {
-  const nowDate = Temporal.Now.instant();
+  const nowDate = new Date();
   const extRss = await getExtRSS(EXT_RSS);
-  const writeValue = nowDate.toString({ smallestUnit: "millisecond" });
+  const writeValue = nowDate.toISOString();
   if (extRss) {
     await KV.put(EXT_RSS_KEY, [writeValue, JSON.stringify(extRss)].join(","));
   }
@@ -58,11 +58,11 @@ export async function GetExtRSSFromEnv({ env }: { env?: Partial<Env> }) {
   if (env?.EXT_RSS_INTERVAL && env?.KV) {
     const kvValue = await env.KV.get(EXT_RSS_KEY);
     if (kvValue) {
-      const nowDate = Temporal.Now.instant();
+      const nowDate = new Date();
       const sep = kvValue.indexOf(",");
-      const writtenTime = sep >= 0 ? Temporal.Instant.from(kvValue.slice(0, sep)) : null;
+      const writtenTime = sep >= 0 ? new Date(kvValue.slice(0, sep)) : null;
       if (writtenTime) {
-        const diffInMs = Math.abs(writtenTime.epochMilliseconds - nowDate.epochMilliseconds);
+        const diffInMs = Math.abs(writtenTime.getTime() - nowDate.getTime());
         const diff = Math.floor(diffInMs / 1000);
         if (diff < env.EXT_RSS_INTERVAL) {
           extRss = JSON.parse(kvValue.slice(sep + 1));

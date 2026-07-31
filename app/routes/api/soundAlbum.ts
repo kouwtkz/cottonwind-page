@@ -48,26 +48,26 @@ async function next({ params, request, context, env }: WithEnvProps) {
           case "PATCH": {
             const rawData = await request.json();
             const data = Array.isArray(rawData) ? rawData : [rawData];
-            let now = Temporal.Now.instant();
+            let now = new Date();
             return Promise.all(
               data.map(async item => {
                 const { id: _id, ...data } = item as KeyValueType<unknown>;
                 const entry = soundAlbumTableObject.getInsertEntry(data);
-                entry.lastmod = now.toString({ smallestUnit: "millisecond" });
-                now = now.add({ milliseconds: 1 });
+                entry.lastmod = now.toISOString();
+                now.setTime(now.getTime() + 1);
                 const target_id = data.target ? String(data.target) : undefined;
                 const target = target_id
                   ? (await soundAlbumTableObject.Select({ db, where: { key: target_id }, take: 1 }))[0]
                   : undefined;
                 if (target) {
                   if (entry.key) {
-                    const defaultNow = Temporal.Now.instant();
+                    const defaultNow = new Date();
                     const soundEntry: MeeSqlEntryType<SoundDataType> = { album: entry.key };
                     const sounds = await soundTableObject.Select({ db, where: { album: target.key } });
                     await Promise.all(sounds.map(async (sound, i) => {
-                      let now = Temporal.Instant.from(defaultNow);
-                      if (i > 0) now = now.add({ milliseconds: 1 });
-                      soundEntry.lastmod = now.toString({ smallestUnit: "millisecond" });
+                      let now = new Date(defaultNow);
+                      if (i > 0) now.setTime(now.getTime() + 1);
+                      soundEntry.lastmod = now.toISOString();
                       await soundTableObject.Update({ db, where: { key: sound.key }, entry: soundEntry });
                     }));
                   }
@@ -91,7 +91,7 @@ async function next({ params, request, context, env }: WithEnvProps) {
               try {
                 await TableObject.Update({
                   db,
-                  entry: { ...TableObject.getFillNullEntry, lastmod: Temporal.Now.instant().toString({ smallestUnit: "millisecond" }) },
+                  entry: { ...TableObject.getFillNullEntry, lastmod: new Date().toISOString() },
                   where: { key },
                 });
                 return key;
