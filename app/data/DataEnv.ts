@@ -4,6 +4,7 @@ import { apiOrigin } from "./ClientDBLoader";
 export const INDEXEDDB_NAME = import.meta.env!.VITE_INDEXEDDB_NAME;
 
 const ImageDataName = "images";
+const imageTimeProps: (keyof ImageDataType)[] = ["time", "mtime", "lastmod"];
 export const ImageDataOptions: Props_LastmodMHClass_Options<ImageIndexedDataType, ImageDataType> = {
   name: ImageDataName,
   src: "/images",
@@ -13,7 +14,7 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageIndexedDataType
   latestField: { time: "desc" },
   primary: "id",
   secondary: ["key", "time", "lastmod", "album", "type"],
-  convert: { date: ["time", "lastmod", "mtime"], array: ["tags", "copyright", "characters"], boolean: ["pickup", "draft"] },
+  convert: { date: imageTimeProps, array: ["tags", "copyright", "characters"], boolean: ["pickup", "draft"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -45,10 +46,11 @@ export const ImageDataOptions: Props_LastmodMHClass_Options<ImageIndexedDataType
   },
   insertEntryKeys: ["key", "title", "album", "description", "src", "thumbnail", "width", "height", "tags", "characters", "copyright",
     "link", "embed", "type", "series", "chapter", "order", "topImage", "pickup", "draft", "creationTime", "version"],
-  insertEntryTimes: ["time", "mtime", "lastmod"]
+  insertEntryTimes: imageTimeProps
 }
 
 const charactersDataName = "characters";
+const charactersTimeProps: (keyof CharacterDataType)[] = ["time", "birthday", "lastmod"];
 export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterIndexedDataType, CharacterDataType> = {
   name: charactersDataName,
   src: "/characters",
@@ -58,7 +60,7 @@ export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterIndexe
   latestField: { id: "desc" },
   jsonFromDataOptions: { time: null },
   secondary: ["key", "lastmod"],
-  convert: { date: ["lastmod", "time", "birthday"], array: ["tags", "playlist"], boolean: ["draft"] },
+  convert: { date: charactersTimeProps, array: ["tags", "playlist"], boolean: ["draft"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -82,10 +84,11 @@ export const charactersDataOptions: Props_LastmodMHClass_Options<CharacterIndexe
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "name", "enName", "nameGuide", "honorific", "defEmoji", "overview", "description", "tags", "order", "draft", "playlist", "icon", "headerImage", "image"],
-  insertEntryTimes: ["time", "birthday", "lastmod"]
+  insertEntryTimes: charactersTimeProps
 }
 
 const postsDataName = "posts";
+const postsTimeProps: (keyof PostDataType)[] = ["time", "lastmod"];
 export const postsDataOptions: Props_LastmodMHClass_Options<PostIndexedDataType, PostDataType> = {
   name: postsDataName,
   src: "/posts",
@@ -96,7 +99,7 @@ export const postsDataOptions: Props_LastmodMHClass_Options<PostIndexedDataType,
   jsonFromDataOptions: { key: "postId" },
   primary: "id",
   secondary: ["postId", "time", "lastmod"],
-  convert: { date: ["time", "lastmod"], array: ["category"], boolean: ["draft", "noindex"] },
+  convert: { date: postsTimeProps, array: ["category"], boolean: ["draft", "noindex"] },
   createEntry: {
     id: { primary: true },
     postId: { type: "TEXT", unique: true, notNull: true },
@@ -111,10 +114,11 @@ export const postsDataOptions: Props_LastmodMHClass_Options<PostIndexedDataType,
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["postId", "title", "body", "category", "pin", "draft", "noindex", "memo"],
-  insertEntryTimes: ["time", "lastmod"]
+  insertEntryTimes: postsTimeProps
 }
 
 const soundsDataName = "sounds";
+const soundsTimeProps: (keyof SoundDataType)[] = ["time", "mtime", "lastmod"];
 export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemIndexedDataType, SoundDataType> = {
   name: soundsDataName,
   src: "/sounds",
@@ -124,7 +128,7 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemIndexedDat
   latestField: { time: "desc" },
   jsonFromDataOptions: { time: null },
   secondary: ["key", "lastmod"],
-  convert: { date: ["lastmod"], array: ["genre", "grouping"], boolean: ["draft"] },
+  convert: { date: soundsTimeProps, array: ["genre", "grouping"], boolean: ["draft"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -145,10 +149,11 @@ export const soundsDataOptions: Props_LastmodMHClass_Options<SoundItemIndexedDat
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "src", "track", "title", "description", "album", "cover", "artist", "composer", "grouping", "genre", "draft", "version"],
-  insertEntryTimes: ["time", "mtime", "lastmod"]
+  insertEntryTimes: soundsTimeProps
 }
 
 const soundAlbumsDataName = "soundAlbums";
+const soundAlbumsTimeProps: (keyof SoundAlbumDataType)[] = ["time", "lastmod"];
 export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumIndexedDataType, SoundAlbumDataType> = {
   name: soundAlbumsDataName,
   src: "/soundAlbums",
@@ -156,7 +161,7 @@ export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumInde
   version: "1.4.0",
   preLoad: false,
   secondary: ["key", "lastmod"],
-  convert: { date: ["lastmod"], boolean: ["draft"] },
+  convert: { date: soundAlbumsTimeProps, boolean: ["draft"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -172,10 +177,11 @@ export const soundAlbumsDataOptions: Props_LastmodMHClass_Options<SoundAlbumInde
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "title", "description", "cover", "artist", "order", "category", "setup", "draft"],
-  insertEntryTimes: ["time", "lastmod"]
+  insertEntryTimes: soundAlbumsTimeProps
 }
 
 const filesDataDataName = "files";
+const filesTimeProps: (keyof FilesRecordDataType)[] = ["mtime", "lastmod"];
 export const filesDefaultDir = import.meta.env.VITE_FILES_DEFAULT_DIR;
 export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordIndexedDataType, FilesRecordDataType> = {
   name: filesDataDataName,
@@ -184,7 +190,7 @@ export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordIndexedDa
   version: "1.3.1",
   preLoad: false,
   secondary: ["key", "lastmod"],
-  convert: { date: ["mtime", "lastmod"], boolean: ["private"] },
+  convert: { date: filesTimeProps, boolean: ["private"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT", unique: true, notNull: true },
@@ -194,12 +200,13 @@ export const filesDataOptions: Props_LastmodMHClass_Options<FilesRecordIndexedDa
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "src", "private"],
-  insertEntryTimes: ["mtime", "lastmod"]
+  insertEntryTimes: filesTimeProps
 }
 
 const linksJsonFromDataOptions = { key: ["title", "url", "image"] } as JsonFromDataObjectOptionFields<keyof SiteLinkData>;
 
 const linksDataName = "links";
+const linksTimeProps: (keyof SiteLinkData)[] = ["lastmod"];
 export const linksDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDataType, SiteLinkData> = {
   name: linksDataName,
   src: "/links",
@@ -209,7 +216,7 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDataT
   jsonFromDataOptions: linksJsonFromDataOptions,
   primary: "id",
   secondary: ["lastmod", "category", "key"],
-  convert: { date: ["lastmod"], boolean: ["draft"], array: ["tags"] },
+  convert: { date: linksTimeProps, boolean: ["draft"], array: ["tags"] },
   createEntry: {
     id: { primary: true },
     key: { type: "TEXT" },
@@ -226,7 +233,7 @@ export const linksDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDataT
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["url", "key", "title", "description", "image", "category", "tags", "order", "draft", "prompt", "password"],
-  insertEntryTimes: ["lastmod"]
+  insertEntryTimes: linksTimeProps
 }
 
 const linksFavDataName = "linksFav";
@@ -239,6 +246,7 @@ export const linksFavDataOptions: Props_LastmodMHClass_Options<SiteLinkIndexedDa
 }
 
 const likeDataName = "likeData";
+const likeTimeProps: (keyof LikeDataType)[] = ["lastmod"];
 export const likeDataOptions: Props_LastmodMHClass_Options<LikeIndexedDataType, LikeDataType> = {
   name: likeDataName,
   src: "/like",
@@ -247,7 +255,7 @@ export const likeDataOptions: Props_LastmodMHClass_Options<LikeIndexedDataType, 
   preLoad: false,
   primary: "path",
   secondary: ["lastmod"],
-  convert: { date: ["lastmod"] },
+  convert: { date: likeTimeProps },
   createEntry: {
     path: { primary: true, type: "TEXT" },
     count: { default: 0, notNull: true },
@@ -255,10 +263,11 @@ export const likeDataOptions: Props_LastmodMHClass_Options<LikeIndexedDataType, 
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["path", "count", "registed"],
-  insertEntryTimes: ["lastmod"]
+  insertEntryTimes: likeTimeProps
 }
 
 const KeyValueDBDataName = "KeyValueDB";
+const KeyValueTimeProps: (keyof KeyValueDBDataType)[] = ["lastmod"];
 export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBIndexedDataType, KeyValueDBDataType> = {
   name: KeyValueDBDataName,
   src: "/kvdb",
@@ -267,7 +276,7 @@ export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBIndex
   preLoad: false,
   primary: "key",
   secondary: ["lastmod"],
-  convert: { date: ["lastmod"], boolean: ["private"] },
+  convert: { date: KeyValueTimeProps, boolean: ["private"] },
   createEntry: {
     key: { primary: true, type: "TEXT" },
     value: { type: "TEXT" },
@@ -275,10 +284,11 @@ export const KeyValueDBDataOptions: Props_LastmodMHClass_Options<KeyValueDBIndex
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "value", "private"],
-  insertEntryTimes: ["lastmod"]
+  insertEntryTimes: KeyValueTimeProps
 }
 
 const redirectDataName = "redirect";
+const redirectTimeProps: (keyof redirectDataType)[] = ["lastmod"];
 export const redirectDataOptions: Props_LastmodMHClass_Options<redirectIndexedDataType, redirectDataType> = {
   name: redirectDataName,
   src: "/redirect",
@@ -287,7 +297,7 @@ export const redirectDataOptions: Props_LastmodMHClass_Options<redirectIndexedDa
   preLoad: false,
   primary: "id",
   secondary: ["lastmod", "path"],
-  convert: { date: ["lastmod"] },
+  convert: { date: redirectTimeProps },
   createEntry: {
     id: { primary: true },
     path: { type: "TEXT", unique: true, notNull: true },
@@ -296,10 +306,11 @@ export const redirectDataOptions: Props_LastmodMHClass_Options<redirectIndexedDa
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["path", "redirect", "private"],
-  insertEntryTimes: ["lastmod"]
+  insertEntryTimes: redirectTimeProps
 }
 
 const TableVersionDataName = "tables"
+const TableVersionTimeProps: (keyof Props_LastmodMH_Tables_Data)[] = ["lastmod"];
 export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_LastmodMH_Tables_IndexedDataType, Props_LastmodMH_Tables_Data> = {
   name: TableVersionDataName,
   src: "/tables",
@@ -307,14 +318,14 @@ export const TableVersionDataOptions: Props_LastmodMHClass_Options<Props_Lastmod
   primary: "key",
   secondary: ["lastmod"],
   preLoad: false,
-  convert: { date: ["lastmod"] },
+  convert: { date: TableVersionTimeProps },
   createEntry: {
     key: { primary: true, type: "TEXT" },
     version: { type: "TEXT" },
     lastmod: { createAt: true, unique: true },
   },
   insertEntryKeys: ["key", "version"],
-  insertEntryTimes: ["lastmod"],
+  insertEntryTimes: TableVersionTimeProps,
 }
 
 export function GetAPIFromOptions(options: Props_LastmodMHClass_Options<any>, path?: string) {
