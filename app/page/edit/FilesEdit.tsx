@@ -141,8 +141,12 @@ export function FilesManager() {
     setEdit(-1);
   }, []);
   const defaultPrivate = useMemo(() => {
+    const zero = Temporal.Instant.fromEpochMilliseconds(0);
     const latest = files.reduce<FilesRecordType | null>((a, c) => {
-      if (a && (a.lastmod?.getTime() || 0) > (c.lastmod?.getTime() || 0))
+      if (
+        a &&
+        Temporal.Instant.compare(a.lastmod || zero, c.lastmod || zero) > 0
+      )
         return a;
       else return c;
     }, null);
