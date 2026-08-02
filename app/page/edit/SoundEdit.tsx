@@ -33,7 +33,10 @@ import {
   soundsDataOptions,
 } from "~/data/DataEnv";
 import { customFetch } from "~/components/functions/fetch";
-import { ToFormTime } from "~/components/functions/time/DateFunction";
+import {
+  FormStrTimeToIsoString,
+  ToFormTime,
+} from "~/components/functions/time/DateFunction";
 import { SendDelete } from "~/components/functions/sendFunction";
 
 const SOUND_SEND_API = GetAPIFromOptions(soundsDataOptions, "/send");
@@ -207,7 +210,16 @@ export function SoundEdit() {
       const entry = Object.fromEntries(
         Object.entries(dirtyFields)
           .filter((v) => v[1])
-          .map((v) => [v[0], values[v[0] as keyof SoundDataType]]),
+          .map(([key]) => {
+            let value = values[key as keyof SoundDataType];
+            switch (key as keyof SoundDataType) {
+              case "time":
+              case "mtime":
+                value = FormStrTimeToIsoString(String(value));
+                break;
+            }
+            return [key, value];
+          }),
       );
       entry.target = item.key;
       toast.promise(
