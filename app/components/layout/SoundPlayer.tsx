@@ -277,7 +277,9 @@ export function SoundPlayer() {
   const src = useMemo(() => {
     if (sound) {
       const version = sound.version || 1;
-      return sound.src + (version === 1 ? "" : "?v=" + version);
+      return sound.src
+        ? sound.src + (version === 1 ? "" : "?v=" + version)
+        : null;
     }
   }, [sound, current]);
   const mediaSrc = useMemo(() => {
