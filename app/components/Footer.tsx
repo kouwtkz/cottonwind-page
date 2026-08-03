@@ -12,7 +12,8 @@ export function Footer({ env }: FooterProps) {
     <footer>
       <div>
         <span className="copyright">
-          © {env?.SINCE}-{Temporal.Now.zonedDateTimeISO().year} {env?.AUTHOR_ACCOUNT}
+          © {env?.SINCE}-{Temporal.Now.zonedDateTimeISO().year}{" "}
+          {env?.AUTHOR_ACCOUNT}
         </span>
       </div>
       <LinksList env={env} />
@@ -43,7 +44,7 @@ export function LinksList({
           }
           return a;
         },
-        [[], new Map()]
+        [[], new Map()],
       );
       EnvLINKS.forEach((link) => {
         if (!map.has(link.key)) {
@@ -82,7 +83,9 @@ export function LinksList({
                       }
                     />
                   ) : (
-                    link.title || link.name
+                    <div className="mask title">
+                      <span>{link.name}</span>
+                    </div>
                   )}
                 </a>
               </li>

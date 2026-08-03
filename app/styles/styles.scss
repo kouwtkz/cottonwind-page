@@ -2159,6 +2159,9 @@ footer {
     li {
       display: inline-block;
       margin: 0 0.25rem;
+      a {
+        text-decoration: none;
+      }
       a .mask,
       button {
         width: 2rem;
@@ -2169,6 +2172,13 @@ footer {
         svg {
           width: 1.375rem;
           height: 1.375rem;
+        }
+        &.title {
+          @extend %default-font;
+          color: white;
+          span {
+            font-size: 1.7rem;
+          }
         }
       }
       a:hover .mask,
