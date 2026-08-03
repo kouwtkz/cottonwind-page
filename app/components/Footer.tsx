@@ -8,11 +8,12 @@ interface FooterProps {
   env?: Partial<OmittedEnv>;
 }
 export function Footer({ env }: FooterProps) {
+  const year = useMemo(() => new Date().getFullYear(), []);
   return (
     <footer>
       <div>
         <span className="copyright">
-          © {env?.SINCE}-{Temporal.Now.zonedDateTimeISO().year}{" "}
+          © {env?.SINCE}-{year}{" "}
           {env?.AUTHOR_ACCOUNT}
         </span>
       </div>
