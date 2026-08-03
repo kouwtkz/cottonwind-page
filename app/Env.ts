@@ -51,6 +51,12 @@ export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
     row: 2,
     url: "https://bsky.app/profile/kouwtkz.cottonwind.com"
   },
+  x: {
+    // mask: "#mask_twitter",
+    name: "𝕏",
+    title: "𝕏 (Twitter)",
+    url: "https://x.com/kouwtkz"
+  },
   pixiv: {
     mask: "#mask_pixiv",
     name: "pixiv",
@@ -89,11 +95,6 @@ export const EnvLinks: { [k: string]: SiteMyLinksItemEnvType } = {
     row: 2,
     title: "Misskey design",
     url: "https://misskey.design/@kouwtkz"
-  },
-  x: {
-    mask: "#mask_twitter",
-    name: "𝕏 (Twitter)",
-    url: "https://x.com/kouwtkz"
   },
   note: {
     name: "Note",
