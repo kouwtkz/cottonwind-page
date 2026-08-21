@@ -392,6 +392,75 @@ export const CharaListItem = memo(function CharaListItem({
 
 const SEND_API = GetAPIFromOptions(charactersDataOptions, "/send");
 
+interface CharaListInnerProps {
+  character: CharacterType;
+  disableLink?: boolean;
+}
+function CharaListInner({ character, disableLink }: CharaListInnerProps) {
+  const setSelectedCharacter = useSelectedCharacter()[1];
+  const searchParams = useSearchParams()[0];
+  const isModal = searchParams.has("modal");
+  return (
+    <Link
+      to={disableLink ? "" : `/character/${character.key}`}
+      state={{
+        keep: true,
+        backUrl: getBackURL(),
+      }}
+      onClick={(e) => {
+        if (isModal) {
+          e.preventDefault();
+          setSelectedCharacter(character);
+        }
+      }}
+      className="item"
+      key={character.key}
+    >
+      <CharaListItem chara={character} />
+    </Link>
+  );
+}
+
+interface CharaListContextProps extends Omit<CharaListInnerProps, "character"> {
+  characters: CharacterType[];
+}
+export function CharacterListContext({
+  characters,
+  disableLink,
+}: CharaListContextProps) {
+  return (
+    <>
+      {characters.map((character, i) => (
+        <li key={character.id}>
+          <CharaListInner character={character} disableLink={disableLink} />
+        </li>
+      ))}
+    </>
+  );
+}
+
+interface CharacterListLabelContainerProps {
+  label: string | number;
+  children: React.ReactNode;
+}
+export function CharacterListLabelContainer({
+  label,
+  children,
+}: CharacterListLabelContainerProps) {
+  const extendMode = useExtendMode()[0];
+  const charaListClassName = useMemo(() => {
+    const classList = ["charaList", "wide"];
+    if (extendMode) classList.push("extend");
+    return classList.join(" ");
+  }, [extendMode]);
+  return (
+    <div key={`character_label_${label}`} id={"charaGroup-" + label}>
+      <h2 className="color-main">{label || "未分類"}</h2>
+      <ul className={charaListClassName}>{children}</ul>
+    </div>
+  );
+}
+
 const useExtendMode = CreateState(false);
 export const useMoveCharacters = CreateState(0);
 function CharaListPage() {
@@ -400,43 +469,14 @@ function CharaListPage() {
     () => parts?.reduce((a, c) => a + c.items.length, 0) || 0,
     [parts],
   );
-  const extendMode = useExtendMode()[0];
   const [move, setMove] = useMoveCharacters();
-  const searchParams = useSearchParams()[0];
-  const setSelectedCharacter = useSelectedCharacter()[1];
-  const isModal = useMemo(
-    () => searchParams.get("modal") === "character",
-    [searchParams],
-  );
+  const isMove = Boolean(move);
   const Inner = useCallback(
     ({ item }: { item: CharacterType }) => {
-      return (
-        <Link
-          to={move ? "" : `/character/${item.key}`}
-          state={{
-            keep: true,
-            backUrl: getBackURL(),
-          }}
-          onClick={(e) => {
-            if (isModal) {
-              e.preventDefault();
-              setSelectedCharacter(item);
-            }
-          }}
-          className="item"
-          key={item.key}
-        >
-          <CharaListItem chara={item} />
-        </Link>
-      );
+      return <CharaListInner character={item} disableLink={isMove} />;
     },
-    [move],
+    [isMove],
   );
-  const charaListClassName = useMemo(() => {
-    const classList = ["charaList", "wide"];
-    if (extendMode) classList.push("extend");
-    return classList.join(" ");
-  }, [extendMode]);
   const movedParts = useRef<CharacterType[][]>([]);
   const isSubmit = useMemo(() => move === 2, [move === 2]);
   useEffect(() => {
@@ -515,25 +555,18 @@ function CharaListPage() {
             if (items) movedParts.current[i] = items;
           }
           return (
-            <div
-              key={`character_label_${label}`}
-              id={"charaGroup-" + (label || i)}
-            >
-              {<h2 className="color-main">{label || "未分類"}</h2>}
-              <ul className={charaListClassName}>
-                {move ? (
-                  <Movable items={items} Inner={Inner} refItems={refFn} />
-                ) : (
-                  <>
-                    {items.map((chara, i) => (
-                      <li key={chara.id}>
-                        <Inner item={chara} />
-                      </li>
-                    ))}
-                  </>
-                )}
-              </ul>
-            </div>
+            <CharacterListLabelContainer label={label || i}>
+              {move ? (
+                <Movable items={items} Inner={Inner} refItems={refFn} />
+              ) : (
+                <>
+                  <CharacterListContext
+                    characters={items}
+                    disableLink={isMove}
+                  />
+                </>
+              )}
+            </CharacterListLabelContainer>
           );
         })}
     </>

@@ -2725,65 +2725,6 @@ form {
       font-size: 2.5em;
     }
   }
-  .charaList {
-    margin: 0 auto;
-    width: 95%;
-    @include GridList("li", 2, $tabletWidth, $desktopWidth);
-    &.extend {
-      font-size: 0.625rem;
-      @include GridList(
-        "li",
-        4,
-        $mobileWidth,
-        $tabletWidth,
-        $miniDesktopWidth,
-        $desktopWidth
-      );
-    }
-    li .item {
-      display: flex;
-      flex-direction: column;
-      font-size: 1.25em;
-      text-decoration-line: none;
-      color: var(--main-color);
-      padding: 0.75em;
-      .inner {
-        position: relative;
-        img {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          top: 0;
-          left: 0;
-          object-fit: cover;
-          &.noimage {
-            background-color: var(--main-color-pearl-grayish);
-          }
-        }
-        &::before {
-          content: "";
-          padding-top: 100%;
-          display: block;
-        }
-      }
-      &:hover {
-        background-color: var(--main-color-pale-fluo);
-        color: var(--main-color-deep);
-      }
-      .name {
-        text-align: center;
-        display: block;
-        margin: 0.5em auto 0;
-        max-width: 90%;
-      }
-      @media (min-width: $tabletWidth) {
-        font-size: 1.5em;
-      }
-    }
-    @media (min-width: $desktopWidth) {
-      width: 100%;
-    }
-  }
   .beforeAfter {
     display: flex;
     justify-content: space-between;
@@ -2959,6 +2900,66 @@ form {
     }
   }
 }
+  .charaList {
+    margin: 0 auto;
+    width: 95%;
+    @include GridList("li", 2, $tabletWidth, $desktopWidth);
+    &.extend {
+      font-size: 0.625rem;
+      @include GridList(
+        "li",
+        4,
+        $mobileWidth,
+        $tabletWidth,
+        $miniDesktopWidth,
+        $desktopWidth
+      );
+    }
+    li .item {
+      display: flex;
+      flex-direction: column;
+      font-size: 1.25em;
+      text-decoration-line: none;
+      color: var(--main-color);
+      padding: 0.75em;
+      .inner {
+        position: relative;
+        img {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          object-fit: cover;
+          &.noimage {
+            background-color: var(--main-color-pearl-grayish);
+          }
+        }
+        &::before {
+          content: "";
+          padding-top: 100%;
+          display: block;
+        }
+      }
+      &:hover {
+        background-color: var(--main-color-pale-fluo);
+        color: var(--main-color-deep);
+      }
+      .name {
+        text-align: center;
+        display: block;
+        margin: 0.5em auto 0;
+        max-width: 90%;
+      }
+      @media (min-width: $tabletWidth) {
+        font-size: 1.5em;
+      }
+    }
+    @media (min-width: $desktopWidth) {
+      width: 100%;
+    }
+  }
+
 span.characterName {
   word-break: break-word;
   display: inline-flex;

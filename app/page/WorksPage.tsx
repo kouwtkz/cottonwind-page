@@ -9,6 +9,11 @@ import {
   KeyValueEditButton,
   KeyValueRenderProps,
 } from "~/components/state/KeyValueDBState";
+import {
+  CharacterListContext,
+  CharacterListLabelContainer,
+} from "./CharacterPage";
+import { useCharacters } from "~/components/state/CharacterState";
 
 const LinksStyle: React.CSSProperties = {
   minHeight: "3em",
@@ -43,6 +48,7 @@ export const WorksPage = React.memo(function WorksPage() {
         titleLinkTo
       />
       <WorksGallery />
+      <WorksCharacters />
       <div className="price">
         <h2 className="color-main en-title-font">
           <span translate="no">Price</span>
@@ -101,5 +107,17 @@ function WorksGallery() {
         showGalleryHeader={false}
       />
     </div>
+  );
+}
+
+function WorksCharacters() {
+  const { characters } = useCharacters();
+  const worksCharacters = useMemo(() => {
+    return findMee(characters, { where: { tags: { contains: "design" } } });
+  }, [characters]);
+  return (
+    <CharacterListLabelContainer label={"キャラクターデザイン"}>
+      <CharacterListContext characters={worksCharacters} />
+    </CharacterListLabelContainer>
   );
 }
