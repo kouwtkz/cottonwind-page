@@ -194,7 +194,7 @@ export function findMeeWheresFilter<T>(value: T, where?: findWhereOrConditionsTy
           }
         }
       }
-      if (fval && typeof fval === "object" && !Array.isArray(fval)) {
+      if (fval && typeof fval === "object" && !(Array.isArray(fval) || fkey === "regexp")) {
         const nextInnerValue = innerValue && typeof innerValue === "object" ? (innerValue as any)[fkey] : innerValue;
         return wheresLoop(nextInnerValue, fval, { kanaReplace, key: fkey });
       } else {
@@ -256,9 +256,6 @@ export function findMeeWheresInnerSwitch(innerValue: unknown, fkey: string, fval
       fval = kanaToHira(fval);
       innerValue = Array.isArray(innerValue) ? innerValue.map(v => kanaToHira(v)) : typeof innerValue === "string" ? kanaToHira(innerValue) : innerValue;
     }
-  }
-  if (fval === 2022) {
-    console.log(fval);
   }
   switch (fkey) {
     case "equals":
