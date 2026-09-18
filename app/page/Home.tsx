@@ -34,6 +34,7 @@ import { useLinks } from "~/components/state/LinksState";
 import { useEnv } from "~/components/state/EnvState";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { useImageViewer } from "~/components/layout/ImageViewer";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export const Home = React.memo(function Home() {
   return (
@@ -294,7 +295,7 @@ export const HomeImage = React.memo(function HomeImage({
 }) {
   const nodeRef = useRef<HTMLImageElement>(null);
   const [searchParams] = useSearchParams();
-  const { Set: SetImageViewer, image: viewerImage } = useImageViewer();
+  const { Set: SetImageViewer, image: viewerImage, isOpen } = useImageViewer();
   const isImageViewerMode = useMemo(() => Boolean(viewerImage), [viewerImage]);
   const {
     alwaysImages,
@@ -394,6 +395,29 @@ export const HomeImage = React.memo(function HomeImage({
       />
     ),
     [topImage, isImageViewerMode],
+  );
+  const enabledHotkeys = useMemo(() => !isExiting && !isOpen, [isExiting, isOpen])
+  useHotkeys(
+    "ArrowLeft",
+    (e) => {
+      Previous();
+    },
+    {
+      ignoreModifiers: true,
+      enableOnFormTags: true,
+      enabled: enabledHotkeys,
+    },
+  );
+  useHotkeys(
+    "ArrowRight",
+    (e) => {
+      Next();
+    },
+    {
+      ignoreModifiers: true,
+      enableOnFormTags: true,
+      enabled: enabledHotkeys,
+    },
   );
   return (
     <div className="HomeImage wide translucent-buttons">
