@@ -34,4 +34,7 @@ export const defaultToastContainerOptions: ToastContainerProps = {
   newestOnTop: false,
   transition: Slide,
   theme: "colored",
+  style: {
+    zIndex: 25000
+  }
 }
