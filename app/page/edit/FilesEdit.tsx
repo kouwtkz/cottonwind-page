@@ -212,6 +212,7 @@ export function FilesManager() {
                     const newSearchParams = new URLSearchParams(searchParams);
                     if (c.path !== filesDefaultDir)
                       newSearchParams.set("dir", c.path);
+                    else newSearchParams.delete("dir");
                     a.push(
                       <Link
                         key={`dir_${c.path}`}
