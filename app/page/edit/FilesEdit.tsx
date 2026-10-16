@@ -390,7 +390,7 @@ export function MiniFilesManager() {
   return (
     <>
       <Modal
-        className="large"
+        className="large max"
         onClose={closeHandler}
         isOpen={enable}
         scroll

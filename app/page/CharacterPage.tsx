@@ -1026,7 +1026,7 @@ export function MiniCharacterPage() {
     <>
       <Modal
         classNameEntire="gallery"
-        className="large"
+        className="large max"
         onClose={closeHandler}
         isOpen={enable}
         scroll

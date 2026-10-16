@@ -3809,10 +3809,18 @@ label,
       &.large {
         max-height: 90vh;
         max-height: 90dvh;
-        @media (min-width: $tabletWidth) {
+        @mixin maxLarge() {
           position: absolute;
           top: 0;
           bottom: 0;
+        }
+        &.max {
+          @include maxLarge();
+        }
+        &:not(.max) {
+          @media (min-width: $tabletWidth) {
+            @include maxLarge();
+          }
         }
       }
     }
