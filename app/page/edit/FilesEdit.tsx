@@ -36,7 +36,10 @@ import {
   GetAPIFromOptions,
 } from "~/data/DataEnv";
 import { fileDialog } from "~/components/utils/FileTool";
-import { getExtension } from "~/components/functions/doc/PathParse";
+import {
+  getBasename,
+  getExtension,
+} from "~/components/functions/doc/PathParse";
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { AiFillEdit } from "react-icons/ai";
 import { FormatDate } from "~/components/functions/time/DateFunction";
@@ -358,6 +361,7 @@ export function FilesManager() {
 
 export async function FilesUploadProcess({
   files,
+  fileName,
   dir,
   private: isPrivate,
   key,
@@ -367,9 +371,15 @@ export async function FilesUploadProcess({
 }: FilesUploadProps) {
   const keys = key ? (Array.isArray(key) ? key : [key]) : [];
   const url = concatOriginUrl(apiOrigin, send);
+  const fileNames = fileName
+    ? Array.isArray(fileName)
+      ? fileName
+      : [fileName]
+    : null;
   const formDataList = files.map((file, i) => {
     const formData = new FormData();
     formData.append("file", file);
+    if (fileNames) formData.append("filename", fileNames[i]);
     if (typeof dir === "string") formData.append("dir", dir);
     if (isPrivate) formData.append("private", "1");
     if (i in keys) formData.append("key", keys[i]);
@@ -574,7 +584,14 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
             onClick={() => {
               fileDialog(`.${ext}`, true)
                 .then((files) => Array.from(files))
-                .then((files) => FilesUpload({ files, key: item?.key }))
+                .then((files) =>
+                  FilesUpload({
+                    files,
+                    key: item!.key,
+                    dir: item!.dir,
+                    fileName: getBasename(item!.src!),
+                  }),
+                )
                 .then(() => {
                   filesDataIndexed.load("no-cache");
                 });

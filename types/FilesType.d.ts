@@ -22,6 +22,7 @@ interface UploadBaseProps {
   dir?: string;
   private?: boolean;
   key?: string | string[];
+  fileName?: string | string[];
 }
 
 interface FilesUploadProps extends UploadBaseProps {

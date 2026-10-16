@@ -94,13 +94,15 @@ async function next({ params, request, context, env }: WithEnvProps) {
               return Response.json({ type: "error" }, { status: 403 });
             } else {
               if (file) {
-                const key = (formData.get("key") || getBasename(file.name)) as string;
+                const fileName = formData.get("filename") || file.name;
+                console.log(formData);
+                const key = (formData.get("key") || fileName) as string;
                 const selectValue = await TableObject.Select({ db, where: { key } })
                 const value = selectValue[0];
                 const privateParam = (formData.get("private") as string);
                 const dirParam = (formData.get("dir") as string) ?? filesDefaultDir;
                 const uploadDir = (dirParam && !dirParam.endsWith("/")) ? dirParam + "/" : dirParam;
-                const updateSrc = uploadDir + file.name;
+                const updateSrc = uploadDir + fileName;
                 const src = value?.src ? value.src : updateSrc;
                 const mtime = getMtimeFromLastModified(file.lastModified);
                 let now = new Date();
