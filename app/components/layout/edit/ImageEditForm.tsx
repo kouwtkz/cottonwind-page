@@ -6,7 +6,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { getExtension, getName } from "~/components/functions/doc/PathParse";
 import {
@@ -57,6 +57,7 @@ import {
   MdDeleteForever,
   MdFileUpload,
   MdFlip,
+  MdFolder,
   MdLibraryAddCheck,
   MdOutlineContentCopy,
 } from "react-icons/md";
@@ -1668,6 +1669,21 @@ export default function ImageEditForm({
     ),
     [image],
   );
+  const FileManager = useCallback(() => {
+    const search = new URLSearchParams(searchParams);
+    search.append("modal", "files");
+    return (
+      <Link
+        title="ファイルの管理"
+        to={{ search: search.toString() }}
+        state={state}
+        className={className}
+        key="FileManager"
+      >
+        <MdFolder />
+      </Link>
+    );
+  }, [state, searchParams]);
 
   return (
     <>
@@ -2126,6 +2142,7 @@ export default function ImageEditForm({
           <div className="label simple">
             <span>埋め込み</span>
             <UploadFileElm />
+            <FileManager />
           </div>
           <div className="wide">
             <input

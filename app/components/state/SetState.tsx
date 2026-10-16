@@ -36,6 +36,7 @@ import { NavKeepState } from "./NavState";
 import { WindowSizeState } from "../hook/useWindowSize";
 import { WindowScrollSizeState } from "../hook/useScrollSize";
 import { WindowScrollState } from "../hook/useScroll";
+import { MiniFilesManager } from "~/page/edit/FilesEdit";
 
 let count = 0;
 export const SetState = React.memo(function SetState({
@@ -69,6 +70,7 @@ export const SetState = React.memo(function SetState({
       <SoundPlayer />
       <ImageViewer />
       <MiniGallery />
+      <MiniFilesManager />
       <MiniCharacterPage />
       <ToastContainer {...defaultToastContainerOptions} />
       <ToastProgressState />

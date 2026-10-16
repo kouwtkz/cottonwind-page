@@ -43,11 +43,13 @@ import {
 import { RbButtonArea } from "~/components/dropdown/RbButtonArea";
 import { AiFillEdit } from "react-icons/ai";
 import { FormatDate } from "~/components/functions/time/DateFunction";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { CopyWithToast } from "~/components/functions/toastFunction";
 import { RiGitRepositoryPrivateLine } from "react-icons/ri";
 import { useDropzone } from "react-dropzone";
 import { getMimeType } from "~/components/utils/mime";
+import { useLocation } from "react-router";
+import { useIsLogin } from "~/components/state/EnvState";
 
 const SEND_API = GetAPIFromOptions(filesDataOptions, "/send");
 
@@ -207,7 +209,7 @@ export function FilesManager() {
               <>
                 {dirBreadcrumbList.reduce<ReactNode[]>((a, c, i) => {
                   if (dirBreadcrumbList.length > i + 1) {
-                    const newSearchParams = new URLSearchParams();
+                    const newSearchParams = new URLSearchParams(searchParams);
                     if (c.path !== filesDefaultDir)
                       newSearchParams.set("dir", c.path);
                     a.push(
@@ -267,94 +269,140 @@ export function FilesManager() {
               <RiGitRepositoryPrivateLine />
             </label>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>名前</th>
-                <th>更新日</th>
-                <th>ボタン</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dirList.map((dir, i) => {
-                const newSearchParams = new URLSearchParams();
-                let link =
-                  dir[0] === ".."
-                    ? dirParam.replace(/\/?[^\/]+$/, "")
-                    : (dirParam ? `${dirParam}/` : "") + dir[0];
-                if (link !== filesDefaultDir) {
-                  if (link) newSearchParams.set("dir", link);
-                  else newSearchParams.set("dir", "/");
-                }
-                return (
-                  <tr key={`file_${link}`} tabIndex={-1}>
-                    <td className="name">
-                      <Link
-                        to={{ search: newSearchParams.toString() }}
-                        title={link || "Root"}
-                      >
-                        {dir[0] === ".." ? "<< back" : dir[0]}
-                      </Link>
-                    </td>
-                    <td />
-                    <td />
-                  </tr>
-                );
-              })}
-              {files?.map((file, i) => {
-                const dateStr = file.mtime
-                  ? FormatDate(file.mtime, "Y-m-d H:i:s")
-                  : "";
-                const dateShortStr = dateStr?.split(" ", 1)[0];
-                const Url = new URL(
-                  concatOriginUrl(mediaOrigin, file.src),
-                  location.href,
-                );
-                const url = Url.toString();
-                return (
-                  <tr key={`file_${url}`} tabIndex={-1}>
-                    <td className="name">{file.key}</td>
-                    <td title={dateStr}>{dateShortStr}</td>
-                    <td className="buttons">
-                      <div className="buttons">
-                        <button
-                          type="button"
-                          title="編集する"
-                          className="color-main miniIcon margin"
-                          onClick={(e) => {
-                            setEdit(file.id);
-                            e.preventDefault();
-                          }}
+          <div className="filesList">
+            <table>
+              <thead>
+                <tr>
+                  <th>名前</th>
+                  <th>更新日</th>
+                  <th>ボタン</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dirList.map((dir, i) => {
+                  const newSearchParams = new URLSearchParams(searchParams);
+                  let link =
+                    dir[0] === ".."
+                      ? dirParam.replace(/\/?[^\/]+$/, "")
+                      : (dirParam ? `${dirParam}/` : "") + dir[0];
+                  if (link !== filesDefaultDir) {
+                    if (link) newSearchParams.set("dir", link);
+                    else newSearchParams.set("dir", "/");
+                  } else {
+                    newSearchParams.delete("dir");
+                  }
+                  return (
+                    <tr key={`file_${link}`} tabIndex={-1}>
+                      <td className="name">
+                        <Link
+                          to={{ search: newSearchParams.toString() }}
+                          title={link || "Root"}
                         >
-                          <AiFillEdit />
-                        </button>
-                        <button
-                          title="ファイルパスのコピー"
-                          type="button"
-                          className="color-main miniIcon margin"
-                          onClick={() => {
-                            CopyWithToast(url);
-                          }}
-                        >
-                          <MdOutlineContentCopy />
-                        </button>
-                        <a
-                          className="button color-main miniIcon margin"
-                          title="ファイルを開く"
-                          target="file"
-                          href={url}
-                        >
-                          <MdOpenInNew />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          {dir[0] === ".." ? "<< back" : dir[0]}
+                        </Link>
+                      </td>
+                      <td />
+                      <td />
+                    </tr>
+                  );
+                })}
+                {files?.map((file, i) => {
+                  const dateStr = file.mtime
+                    ? FormatDate(file.mtime, "Y-m-d H:i:s")
+                    : "";
+                  const dateShortStr = dateStr?.split(" ", 1)[0];
+                  const Url = new URL(
+                    concatOriginUrl(mediaOrigin, file.src),
+                    location.href,
+                  );
+                  const url = Url.toString();
+                  return (
+                    <tr key={`file_${url}`} tabIndex={-1}>
+                      <td className="name">{file.key}</td>
+                      <td title={dateStr}>{dateShortStr}</td>
+                      <td className="buttons">
+                        <div className="buttons">
+                          <button
+                            type="button"
+                            title="編集する"
+                            className="color-main miniIcon margin"
+                            onClick={(e) => {
+                              setEdit(file.id);
+                              e.preventDefault();
+                            }}
+                          >
+                            <AiFillEdit />
+                          </button>
+                          <button
+                            title="ファイルパスのコピー"
+                            type="button"
+                            className="color-main miniIcon margin"
+                            onClick={() => {
+                              CopyWithToast(url);
+                            }}
+                          >
+                            <MdOutlineContentCopy />
+                          </button>
+                          <a
+                            className="button color-main miniIcon margin"
+                            title="ファイルを開く"
+                            target="file"
+                            href={url}
+                          >
+                            <MdOpenInNew />
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
+    </>
+  );
+}
+
+export function MiniFilesManager() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLogin = useIsLogin();
+  const nav = useNavigate();
+  let { state } = useLocation();
+  const enable = useMemo(
+    () => isLogin && searchParams.get("modal") === "files",
+    [isLogin, searchParams],
+  );
+  const closeHandler = useCallback(() => {
+    if (state?.from) {
+      delete state.from;
+      nav(-1);
+    } else {
+      searchParams.delete("modal");
+      searchParams.delete("dir");
+      setSearchParams(searchParams, { state, preventScrollReset: true });
+    }
+  }, [state, searchParams]);
+  const ref = useRef<HTMLDivElement>(null);
+  const [modalDiv, setModalDiv] = useState<HTMLDivElement | null>(null);
+  return (
+    <>
+      <Modal
+        className="large"
+        onClose={closeHandler}
+        isOpen={enable}
+        scroll
+        timeout={50}
+        ref={(html) => {
+          if (ref.current !== html) {
+            setModalDiv(html);
+            ref.current = html;
+          }
+        }}
+      >
+        <FilesManager />
+      </Modal>
     </>
   );
 }
