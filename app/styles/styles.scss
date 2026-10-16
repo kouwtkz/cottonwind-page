@@ -4512,6 +4512,7 @@ label,
   td {
     &.name {
       text-align: left;
+      overflow-wrap: anywhere;
     }
   }
   div.buttons {
