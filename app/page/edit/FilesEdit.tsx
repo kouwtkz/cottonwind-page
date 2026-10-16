@@ -526,11 +526,17 @@ export function FilesEdit({ send = SEND_API }: { send?: string }) {
     );
   }
   useHotkeys(
-    "ctrl+enter",
+    "enter,enter+ctrl",
     (e) => {
       if (isDirty) handleSubmit(Submit)();
     },
-    { enableOnFormTags: true },
+    {
+      enableOnFormTags: true,
+      enabled(keyboardEvent, hotkeysEvent) {
+        const target = keyboardEvent.target as HTMLInputElement;
+        return target.type === "text" || Boolean(hotkeysEvent.ctrl);
+      },
+    },
   );
   function Close() {
     if (!isDirty || confirm("編集中ですが編集画面から離脱しますか？")) {
