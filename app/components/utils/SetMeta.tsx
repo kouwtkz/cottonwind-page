@@ -157,7 +157,11 @@ export function SetMetaDefault({
     if (typeof image === "string") {
       imagePath = image;
     } else {
-      imagePath = concatOriginUrl(mediaOrigin, image.src);
+      const imageUrl = new URL(concatOriginUrl(mediaOrigin, image.src));
+      if (image.version) {
+        imageUrl.searchParams.append("v", image.version.toString());
+      }
+      imagePath = imageUrl.href;
       if (image.width && image.height) {
         imageSize = { w: image.width, h: image.height };
       }

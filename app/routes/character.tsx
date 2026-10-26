@@ -8,7 +8,6 @@ import {
 import { SetMetaDefault } from "~/components/utils/SetMeta";
 import { getCfDB } from "~/data/cf/getEnv";
 import { getDataFromMatches } from "~/components/utils/RoutesUtils";
-import { concatOriginUrl } from "~/components/functions/originUrl";
 import { charaTableObject } from "./api/character";
 import { ImageTableObject } from "./api/image";
 
@@ -56,15 +55,7 @@ export function meta({ data: argsData, matches }: Route.MetaArgs) {
   if (character) {
     metaData.title = character.name + " - " + metaData.title;
     if (character.overview) metaData.description = character.overview;
-    if (imageItem) {
-      const imageUrl = new URL(
-        concatOriginUrl(metaData.mediaOrigin, imageItem.src),
-      );
-      if (imageItem.version) {
-        imageUrl.searchParams.append("v", imageItem.version.toString());
-      }
-      metaData.image = imageUrl.href;
-    }
+    metaData.image = imageItem;
   }
   if (!metaData.description)
     metaData.description = import.meta.env.VITE_OWNER + "のキャラクター";
