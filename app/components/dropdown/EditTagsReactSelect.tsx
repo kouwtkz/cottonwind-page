@@ -146,7 +146,7 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
     if (inputSwitchRef.current) {
       const list = inputSwitchRef.current.value
         .split(",")
-        .filter((v) => !searchTagsList.some((tag) => tag.value === v));
+        .filter((v) => v && !searchTagsList.some((tag) => tag.value === v));
       addTags(list, false);
     }
   }, [tags]);
@@ -184,7 +184,9 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
                   className="Select"
                   onInput={(e) => {
                     field.onChange(
-                      (e.target as HTMLInputElement).value.split(","),
+                      (e.target as HTMLInputElement).value
+                        .split(",")
+                        .filter((v) => v),
                     );
                   }}
                 />
