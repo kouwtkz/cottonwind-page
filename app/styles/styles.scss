@@ -2558,6 +2558,13 @@ footer {
 
 input,
 textarea,
+button,
+select {
+  font-size: 1em;
+}
+
+input,
+textarea,
 .preview-area,
 select {
   border-radius: 0.5em;
@@ -2588,6 +2595,21 @@ select {
     option {
       color: var(--main-color-dark);
       background-color: var(--form-background-color);
+    }
+  }
+}
+
+.EditTagsReactSelect {
+  display: flex;
+  .Select {
+    flex: 1;
+  }
+  .switch {
+    button.usually {
+      font-size: 1.25em;
+      margin: auto !important;
+      margin-left: 0.5rem !important;
+      padding: 0.25em 0.5em;
     }
   }
 }
@@ -2826,9 +2848,6 @@ form {
     }
     .flex > input {
       margin: 0.125rem;
-    }
-    * {
-      font-size: 1.125rem;
     }
     > * {
       margin: 0.75rem 0;
