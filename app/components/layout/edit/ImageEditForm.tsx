@@ -421,6 +421,7 @@ const ImageMultiTagSetting = React.memo(function ImageMultiTagSetting() {
           addButtonVisible
           enableEnterAdd
           className="tagSelect"
+          switchInput
         />
       </div>
       <div className="buttons">
@@ -576,6 +577,7 @@ const ImageMultiCharactersSetting = React.memo(
             getValues={getValues}
             placeholder="設定するキャラクターの選択"
             className="tagSelect"
+            switchInput
           />
         </div>
         <div className="buttons">
@@ -746,6 +748,7 @@ const ImageMultiCopyrightSetting = React.memo(
             addButtonVisible
             enableEnterAdd
             className="tagSelect"
+            switchInput
           />
         </div>
         <div className="buttons">
@@ -1933,6 +1936,7 @@ export default function ImageEditForm({
             isBusy={isBusy}
             placeholder="キャラの選択"
             formatOptionLabel={charaFormatOptionLabel}
+            switchInput
           />
         </div>
         <div>
@@ -1950,6 +1954,7 @@ export default function ImageEditForm({
             isBusy={isBusy}
             addButtonVisible
             enableEnterAdd
+            switchInput
           />
         </div>
         <div>
@@ -1967,6 +1972,7 @@ export default function ImageEditForm({
             placeholder="版権タグ選択"
             addButtonVisible
             enableEnterAdd
+            switchInput
           />
         </div>
         <div>

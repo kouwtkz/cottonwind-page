@@ -13,8 +13,16 @@ import ReactSelect, {
   type ThemeConfig,
 } from "react-select";
 import { callReactSelectTheme } from "~/components/define/callReactSelectTheme";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CustomReactSelect } from "./CustomReactSelect";
+import { RiArrowLeftRightLine } from "react-icons/ri";
 type setValueFunctionType = (
   name: string,
   value: any,
@@ -46,6 +54,9 @@ interface EditTagsReactSelectType<T extends FieldValues> {
   onChange?(
     newValues: SingleValue<ContentsTagsOption> | MultiValue<ContentsTagsOption>,
   ): void;
+  wide?: boolean;
+  switchInput?: boolean;
+  switchInner?: React.ReactNode;
 }
 export function EditTagsReactSelect<T extends FieldValues = any>({
   name,
@@ -68,9 +79,18 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
   styles,
   addButtonClassName,
   formatOptionLabel,
-  className = "wide",
+  className,
+  wide = true,
   onChange,
+  switchInput,
+  switchInner = <RiArrowLeftRightLine />,
 }: EditTagsReactSelectType<T>) {
+  className = useMemo(() => {
+    const classNames = ["EditTagsReactSelect"];
+    if (className) classNames.push(className);
+    if (wide) classNames.push("wide");
+    return classNames.join(" ");
+  }, [className, wide]);
   const setValue: setValueFunctionType = _setValue;
   labelClassName = useMemo(() => {
     const labelClassnames = ["label"];
@@ -78,12 +98,16 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
     return labelClassnames.join(" ");
   }, [labelClassName]);
   const searchTagsList = useMemo(() => getTagsOptions(tags), [tags]);
-  function addTags(value: string) {
-    const newValues = { label: value, value };
-    if (set) set((c) => c.concat(newValues));
-    setValue(name, getValues(name).concat(value), {
-      shouldDirty: true,
-    });
+  function addTags(value: string | string[], enableSetValue = true) {
+    const values = Array.isArray(value) ? value : [value];
+    if (values.length > 0) {
+      const newValues = values.map((value) => ({ label: value, value }));
+      if (set) set((c) => c.concat(newValues));
+      if (enableSetValue)
+        setValue(name, getValues(name).concat(values), {
+          shouldDirty: true,
+        });
+    }
   }
   const isEnterAction = useRef(false);
   function addTagsPrompt() {
@@ -115,6 +139,18 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
         else return null;
     }
   }, [label]);
+
+  const inputSwitchRef = useRef<HTMLInputElement>(null);
+  const [inputSwitchState, setInputSwitchState] = useState(false);
+  const inputSwitchCallback = useCallback(() => {
+    if (inputSwitchRef.current) {
+      const list = inputSwitchRef.current.value
+        .split(",")
+        .filter((v) => !searchTagsList.some((tag) => tag.value === v));
+      addTags(list, false);
+    }
+  }, [tags]);
+
   return (
     <>
       {labelVisible ? (
@@ -137,34 +173,74 @@ export function EditTagsReactSelect<T extends FieldValues = any>({
         <Controller
           control={control as Control<any, any, any>}
           name={name}
-          render={({ field }) => (
-            <CustomReactSelect
-              isSearchable={true}
-              instanceId={name + "Select"}
-              isMulti
-              theme={theme}
-              styles={styles}
-              options={tags}
-              value={((field.value as string[]) || []).map((fv) =>
-                searchTagsList.find((ci) => ci.value === fv),
-              )}
-              formatOptionLabel={formatOptionLabel}
-              placeholder={placeholder}
-              onChange={(newValues) => {
-                isEnterAction.current = false;
-                field.onChange(
-                  (newValues as MultiValue<ContentsTagsOption | undefined>).map(
-                    (v) => v?.value,
-                  ),
-                );
-                if (onChange) onChange(newValues);
-              }}
-              onKeyDown={addKeydownEnter}
-              onBlur={field.onBlur}
-              isDisabled={isBusy}
-            />
-          )}
+          render={({ field }) => {
+            let inner: ReactNode;
+            if (inputSwitchState) {
+              inner = (
+                <input
+                  type="text"
+                  ref={inputSwitchRef}
+                  defaultValue={field.value}
+                  className="Select"
+                  onInput={(e) => {
+                    field.onChange(
+                      (e.target as HTMLInputElement).value.split(","),
+                    );
+                  }}
+                />
+              );
+            } else {
+              inner = (
+                <CustomReactSelect
+                  isSearchable={true}
+                  instanceId={name + "Select"}
+                  isMulti
+                  theme={theme}
+                  styles={styles}
+                  options={tags}
+                  value={((field.value as string[]) || []).map((fv) =>
+                    searchTagsList.find((ci) => ci.value === fv),
+                  )}
+                  formatOptionLabel={formatOptionLabel}
+                  placeholder={placeholder}
+                  onChange={(newValues) => {
+                    isEnterAction.current = false;
+                    field.onChange(
+                      (
+                        newValues as MultiValue<ContentsTagsOption | undefined>
+                      ).map((v) => v?.value),
+                    );
+                    if (onChange) onChange(newValues);
+                  }}
+                  onKeyDown={addKeydownEnter}
+                  onBlur={field.onBlur}
+                  isDisabled={isBusy}
+                />
+              );
+            }
+            return <>{inner}</>;
+          }}
         />
+        {switchInput ? (
+          <div className="switch">
+            <button
+              type="button"
+              className="color usually"
+              onClick={() => {
+                if (inputSwitchState) {
+                  inputSwitchCallback();
+                }
+                setInputSwitchState(!inputSwitchState);
+              }}
+            >
+              {typeof switchInner === "string" ? (
+                <span>{switchInner}</span>
+              ) : (
+                switchInner
+              )}
+            </button>
+          </div>
+        ) : null}
       </div>
     </>
   );

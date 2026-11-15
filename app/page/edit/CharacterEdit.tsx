@@ -680,6 +680,7 @@ function CharacterEditForm({ chara }: { chara?: CharacterType }) {
               menuList: (style) => ({ ...style, textAlign: "left" }),
               option: (style) => ({ ...style, paddingLeft: "1em" }),
             }}
+            switchInput
           />
         </div>
         <div>
